@@ -85,13 +85,4 @@ class MockKTestSuit : StringSpec({
         verify { mock.manyArgsOp(q = eq("33")) }
         verify { mock.manyArgsOp(r = eq("33")) }
     }
-
-    "many default args mock" {
-        val mock = mockk<MockCls>()
-        val spy = spyk(MockCls())
-
-        every { mock.manyArgsOp(c = eq(1), d = 0) } returns 1.0
-
-        assertEquals(1.0, mock.manyArgsOp(c = 1, d = 0), 1e-6)
-    }
 })
