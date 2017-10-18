@@ -1,6 +1,9 @@
-Android
-lambda
-capturing
+arguments: firstArg, secondArg, thirdArg, lastArg
+capturing: caputre(lst) .captured() extension
+verifyOrder { }, verifySequence { }
+lambda: lambda(), firstLambda(a, b, c), ... (check order in named params)
+and, or, not
 other JVMs
+Android
 ------
 split to separate files
