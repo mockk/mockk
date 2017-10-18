@@ -1,2 +1,4 @@
-Android support
-lambda support
+Android
+lambda
+capturing
+other JVMs

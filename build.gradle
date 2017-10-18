@@ -17,6 +17,7 @@ apply plugin: 'kotlin'
 
 sourceCompatibility = 1.8
 
+
 repositories {
     mavenCentral()
 }
@@ -26,7 +27,10 @@ dependencies {
     compile group: 'org.javassist', name: 'javassist', version: '3.22.0-GA'
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '0.19'
     compile group: 'io.kotlintest', name: 'kotlintest', version: '2.0.7'
-//    compile group: 'com.nhaarman', name: 'mockito-kotlin-kt1.1', version: '1.5.0'
+    compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    testCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.+'
+    //    compile group: 'com.nhaarman', name: 'mockito-kotlin-kt1.1', version: '1.5.0'
 }
 
 compileKotlin {

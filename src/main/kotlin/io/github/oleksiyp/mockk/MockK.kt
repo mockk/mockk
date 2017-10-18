@@ -1,8 +1,10 @@
 package io.github.oleksiyp.mockk
 
-import javassist.*
+import javassist.ClassPool
+import javassist.CtClass
+import javassist.CtConstructor
+import javassist.Loader
 import javassist.bytecode.AccessFlag
-import javassist.bytecode.Bytecode
 import javassist.bytecode.ClassFile
 import javassist.util.proxy.MethodFilter
 import javassist.util.proxy.MethodHandler
@@ -13,13 +15,14 @@ import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
+import org.slf4j.LoggerFactory
 import sun.reflect.ReflectionFactory
-import java.io.ObjectStreamClass
 import java.lang.System.identityHashCode
 import java.lang.reflect.Method
 import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
+import java.util.logging.Level
 import kotlin.coroutines.experimental.Continuation
 
 // ---------------------------- USER FACING --------------------------------
@@ -144,12 +147,16 @@ interface MockKGateway {
         val defaultImpl = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
 
+        private val log = logger<MockKGateway>()
+
         private val NO_ARGS_TYPE = Class.forName("\$NoArgsConstructorParamType")
 
         private fun <T> proxy(cls: Class<T>): Any? {
             val factory = ProxyFactory()
 
-            val obj = if (cls.isInterface) {
+            log.debug { "Building proxy for $cls" }
+
+            return if (cls.isInterface) {
                 factory.interfaces = arrayOf(cls, MockKInstance::class.java)
                 factory.create(emptyArray(), emptyArray())
             } else {
@@ -157,16 +164,17 @@ interface MockKGateway {
                 factory.superclass = cls
                 factory.create(arrayOf(NO_ARGS_TYPE), arrayOf<Any?>(null))
             }
-            return obj
         }
 
         fun <T> mockk(cls: Class<T>): T {
+            log.info { "Creating mockk for $cls" }
             val obj = proxy(cls)
             (obj as ProxyObject).handler = MockKInstanceProxyHandler(cls, obj)
             return cls.cast(obj)
         }
 
         fun <T> spyk(cls: Class<T>, spiedObj: T): T {
+            log.info { "Creating spyk for $cls" }
             val obj = proxy(cls)
             (obj as ProxyObject).handler = SpyKInstanceProxyHandler(cls, obj, spiedObj)
             return cls.cast(obj)
@@ -199,9 +207,6 @@ interface MockKGateway {
                 return obj.toStr()
             return obj.toString()
         }
-
-        fun Method.toStr() =
-                name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
 
         val N_CALL_ROUNDS: Int = 64
     }
@@ -283,6 +288,9 @@ interface MockKInstance : MockK {
 }
 
 // ---------------------------- IMPLEMENTATION --------------------------------
+
+private fun Method.toStr() =
+        name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
 
 private open class MockKInstanceProxyHandler(private val cls: Class<*>,
                                              private val obj: Any) : MethodHandler, MockKInstance {
@@ -403,6 +411,8 @@ private data class SignedCall(val invocation: Invocation,
 private data class CallRound(val calls: List<SignedCall>)
 
 private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
+    private val log = logger<CallRecorderImpl>()
+
     private enum class Mode {
         STUBBING, VERIFYING, ANSWERING
     }
@@ -413,7 +423,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
     private val signedCalls = mutableListOf<SignedCall>()
     private val callRounds = mutableListOf<CallRound>()
-    private val invokationMatchers = mutableListOf<Pair<Invocation, InvocationMatcher>>()
+    private val invocationMatchers = mutableListOf<Pair<Invocation, InvocationMatcher>>()
     private val childMocks = mutableListOf<MockK>()
 
     val matchers = mutableListOf<Matcher<*>>()
@@ -426,11 +436,13 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     }
 
     override fun startStubbing() {
+        log.info { "Starting stubbing" }
         checkMode(Mode.ANSWERING)
         mode = Mode.STUBBING
     }
 
     override fun startVerification() {
+        log.info { "Starting verification" }
         checkMode(Mode.ANSWERING)
         mode = Mode.VERIFYING
     }
@@ -467,18 +479,25 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             }
         }
 
-        invokationMatchers.clear()
+        invocationMatchers.clear()
 
         repeat(nCalls) { callN ->
+
             val callInAllRounds = callRounds.map { it.calls[callN] }
             val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
             val zeroCall = callInAllRounds[0]
+
+            log.info { "Processing call #${callN}: ${zeroCall.invocation.method.toStr()}" }
+
             repeat(zeroCall.matchers.size) { nMatcher ->
                 val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()
                 val signature = callInAllRounds.map { it.signaturePart[nMatcher] }.toList()
 
                 matcherMap[signature] = matcher
             }
+
+            log.debug { "Matcher map for ${zeroCall.invocation.method.toStr()}: $matcherMap" }
+
             val argMatchers = mutableListOf<Matcher<*>>()
 
             repeat(zeroCall.invocation.args.size) { nArgument ->
@@ -490,7 +509,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                         Ref(arg)
                 }.toList()
 
-                println(signature)
+                log.debug { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
 
                 val matcher = matcherMap.remove(signature)
                         ?: EqMatcher(zeroCall.invocation.args[nArgument])
@@ -499,6 +518,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             }
 
             if (zeroCall.invocation.method.isSuspend()) {
+                log.debug { "Suspend function found. Replacing continuation with any() matcher" }
                 argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
             }
 
@@ -506,11 +526,12 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                 throw MockKException("Failed to find few matchers by signature: $matcherMap")
             }
 
-            invokationMatchers.add(Pair(zeroCall.invocation,
-                    InvocationMatcher(
-                            EqMatcher(zeroCall.invocation.self),
-                            EqMatcher(zeroCall.invocation.method),
-                            argMatchers.toList() as List<Matcher<Any>>)))
+            val invocationMatcher = InvocationMatcher(
+                    EqMatcher(zeroCall.invocation.self),
+                    EqMatcher(zeroCall.invocation.method),
+                    argMatchers.toList() as List<Matcher<Any>>)
+            log.info { "Built matcher: $invocationMatcher" }
+            invocationMatchers.add(Pair(zeroCall.invocation, invocationMatcher))
         }
     }
 
@@ -557,7 +578,9 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
             invocation.self.___recordCalls(invocation)
-            return invocation.self.___findAnswer(invocation).answer(invocation)
+            val answer = invocation.self.___findAnswer(invocation).answer(invocation)
+            log.info { "Recorded call: $invocation, answer: $answer" }
+            return answer
         } else {
             return addCallWithMatchers(invocation)
         }
@@ -587,7 +610,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         checkMode(Mode.STUBBING)
         var ans = answer
 
-        for (im in invokationMatchers.reversed()) {
+        for (im in invocationMatchers.reversed()) {
             val invocation = im.first
             invocation.self.___addAnswer(im.second, ans)
             ans = ConstantAnswer(MockKGateway.anyValue(invocation.method.returnType) {
@@ -595,17 +618,19 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             })
         }
 
+        log.debug { "Done stubbing" }
         mode = Mode.ANSWERING
     }
 
     override fun verify() {
         checkMode(Mode.VERIFYING)
 
-        for (im in invokationMatchers.reversed()) {
+        for (im in invocationMatchers.reversed()) {
             if (!im.first.self.___matchesAnyRecordedCalls(im.second)) {
                 throw RuntimeException("verification failed " + im.second)
             }
         }
+        log.debug { "Done verifying" }
         mode = Mode.ANSWERING
     }
 
@@ -619,10 +644,11 @@ private fun Method.isSuspend(): Boolean {
     return Continuation::class.java.isAssignableFrom(parameterTypes[parameterCount - 1])
 }
 
-
 // ---------------------------- BYTE CODE LEVEL --------------------------------
 
 private class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
+    private val log = logger<InstantiatorImpl>()
+
     val cp = ClassPool.getDefault()
 
     override fun <T> instantiate(cls: Class<T>): T {
@@ -668,6 +694,7 @@ private class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
             }
         }
 
+        log.debug { "Built instance $cls" }
 
         return cls.cast(instance)
     }
@@ -736,9 +763,9 @@ private class TranslatingClassPool(private val mockKClassTranslator: MockKClassT
     }
 }
 
-
 private class MockKClassTranslator {
     lateinit var noArgsParamType: CtClass
+    val log = logger<MockKClassTranslator>()
 
     fun start(pool: ClassPool) {
         noArgsParamType = pool.makeClass("\$NoArgsConstructorParamType")
@@ -750,6 +777,7 @@ private class MockKClassTranslator {
         if (!load.add(cls.name) || cls.isFrozen) {
             return
         }
+        log.debug { "Translating ${cls.name}" }
         removeFinal(cls)
         addNoArgsConstructor(cls)
         cls.freeze()
@@ -813,9 +841,60 @@ private class MockKClassTranslator {
     private fun removeFinalOnClass(clazz: CtClass) {
         val modifiers = clazz.modifiers
         if (java.lang.reflect.Modifier.isFinal(modifiers)) {
-
             clazz.classFile2.accessFlags = AccessFlag.of(javassist.Modifier.clear(modifiers, java.lang.reflect.Modifier.FINAL))
         }
     }
 
+}
+
+
+// ---------------------------- LOGGING --------------------------------
+
+private val loggerFactory = try {
+    Class.forName("org.slf4j.Logger");
+    { cls: Class<*> -> Slf4jLogger(cls) }
+} catch (ex: ClassNotFoundException) {
+    { cls: Class<*> -> JULLogger(cls) }
+}
+
+
+private inline fun <reified T> logger(): Logger = loggerFactory(T::class.java)
+
+private interface Logger {
+    fun error(msg: () -> String)
+    fun error(ex: Throwable, msg: () -> String)
+    fun warn(msg: () -> String)
+    fun warn(ex: Throwable, msg: () -> String)
+    fun info(msg: () -> String)
+    fun info(ex: Throwable, msg: () -> String)
+    fun debug(msg: () -> String)
+    fun debug(ex: Throwable, msg: () -> String)
+}
+
+private class Slf4jLogger(cls: Class<*>) : Logger {
+    val log = LoggerFactory.getLogger(cls)
+
+    override fun error(msg: () -> String) = if (log.isErrorEnabled) log.error(msg()) else Unit
+    override fun error(ex: Throwable, msg: () -> String) = if (log.isErrorEnabled) log.error(msg(), ex) else Unit
+    override fun warn(msg: () -> String) = if (log.isWarnEnabled) log.warn(msg()) else Unit
+    override fun warn(ex: Throwable, msg: () -> String) = if (log.isWarnEnabled) log.warn(msg(), ex) else Unit
+    // note library info & debug is shifted to debug & trace respectively
+    override fun info(msg: () -> String) = if (log.isDebugEnabled) log.debug(msg()) else Unit
+    override fun info(ex: Throwable, msg: () -> String) = if (log.isDebugEnabled) log.debug(msg(), ex) else Unit
+    override fun debug(msg: () -> String) = if (log.isTraceEnabled) log.trace(msg()) else Unit
+    override fun debug(ex: Throwable, msg: () -> String) = if (log.isTraceEnabled) log.trace(msg(), ex) else Unit
+}
+
+private class JULLogger(cls: Class<*>) : Logger {
+    val log = java.util.logging.Logger.getLogger(cls.name)
+
+    override fun error(msg: () -> String) = if (log.isLoggable(Level.SEVERE)) log.severe(msg()) else Unit
+    override fun error(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.SEVERE)) log.log(Level.SEVERE, msg(), ex) else Unit
+    override fun warn(msg: () -> String) = if (log.isLoggable(Level.WARNING)) log.warning(msg()) else Unit
+    override fun warn(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.WARNING)) log.log(Level.WARNING, msg(), ex) else Unit
+    // note library info & debug is shifted to debug & trace respectively
+    override fun info(msg: () -> String) = if (log.isLoggable(Level.FINE)) log.fine(msg()) else Unit
+    override fun info(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.FINE)) log.log(Level.FINE, msg(), ex) else Unit
+    override fun debug(msg: () -> String) = if (log.isLoggable(Level.FINER)) log.finer(msg()) else Unit
+    override fun debug(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.FINER)) log.log(Level.FINER, msg(), ex) else Unit
 }

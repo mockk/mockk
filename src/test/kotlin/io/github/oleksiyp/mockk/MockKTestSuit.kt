@@ -19,7 +19,7 @@ class MockCls {
                    s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
 
         return c + d + e + f + g.toByte() + h.toByte() + i + k + l +
-                m + n + o + p + q.toInt() + r.toInt()
+                m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
     }
 }
 
@@ -50,7 +50,7 @@ class MockKTestSuit : StringSpec({
         every { mock.manyArgsOp(s = eq(IntWrapper(33))) } returns 19.0
         every { mock.manyArgsOp(t = eq(IntWrapper(33))) } returns 20.0
 
-        assertEquals(122.0, spy.manyArgsOp(), 1e-6)
+        assertEquals(155.0, spy.manyArgsOp(), 1e-6)
         assertEquals(0.0, mock.manyArgsOp(), 1e-6)
         assertEquals(1.0, mock.manyArgsOp(a = false), 1e-6)
         assertEquals(2.0, mock.manyArgsOp(b = false), 1e-6)
