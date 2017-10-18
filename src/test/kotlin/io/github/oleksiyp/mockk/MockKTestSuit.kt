@@ -4,6 +4,8 @@ import io.kotlintest.specs.StringSpec
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 
+data class IntWrapper(val data: Int)
+
 class MockCls {
     fun manyArgsOp(a: Boolean = true, b: Boolean = true,
                    c: Byte = 1, d: Byte = 2,
@@ -13,7 +15,8 @@ class MockCls {
                    k: Long = 9, l: Long = 10,
                    m: Float = 10.0f, n: Float = 11.0f,
                    o: Double = 12.0, p: Double = 13.0,
-                   q: String = "14", r: String = "15"): Double {
+                   q: String = "14", r: String = "15",
+                   s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
 
         return c + d + e + f + g.toByte() + h.toByte() + i + k + l +
                 m + n + o + p + q.toInt() + r.toInt()
@@ -27,7 +30,7 @@ class MockKTestSuit : StringSpec({
         val spy = spyk(MockCls())
 
         every { mock.manyArgsOp(a = eq(false)) } returns 1.0
-        every { mock.manyArgsOp(a = eq(true), b = eq(false)) } returns 2.0
+        every { mock.manyArgsOp(b = eq(false)) } returns 2.0
         every { mock.manyArgsOp(c = eq(33)) } returns 3.0
         every { mock.manyArgsOp(d = eq(33)) } returns 4.0
         every { mock.manyArgsOp(e = eq(33)) } returns 5.0
@@ -44,6 +47,8 @@ class MockKTestSuit : StringSpec({
         every { mock.manyArgsOp(p = eq(33.0)) } returns 16.0
         every { mock.manyArgsOp(q = eq("33")) } returns 17.0
         every { mock.manyArgsOp(r = eq("33")) } returns 18.0
+        every { mock.manyArgsOp(s = eq(IntWrapper(33))) } returns 19.0
+        every { mock.manyArgsOp(t = eq(IntWrapper(33))) } returns 20.0
 
         assertEquals(122.0, spy.manyArgsOp(), 1e-6)
         assertEquals(0.0, mock.manyArgsOp(), 1e-6)
@@ -65,9 +70,11 @@ class MockKTestSuit : StringSpec({
         assertEquals(16.0, mock.manyArgsOp(p = 33.0), 1e-6)
         assertEquals(17.0, mock.manyArgsOp(q = "33"), 1e-6)
         assertEquals(18.0, mock.manyArgsOp(r = "33"), 1e-6)
+        assertEquals(19.0, mock.manyArgsOp(s = IntWrapper(33)), 1e-6)
+        assertEquals(20.0, mock.manyArgsOp(t = IntWrapper(33)), 1e-6)
 
         verify { mock.manyArgsOp(a = eq(false)) }
-        verify { mock.manyArgsOp(a = eq(true), b = eq(false)) }
+        verify { mock.manyArgsOp(b = eq(false)) }
         verify { mock.manyArgsOp(c = eq(33)) }
         verify { mock.manyArgsOp(d = eq(33)) }
         verify { mock.manyArgsOp(e = eq(33)) }
@@ -84,5 +91,7 @@ class MockKTestSuit : StringSpec({
         verify { mock.manyArgsOp(p = eq(33.0)) }
         verify { mock.manyArgsOp(q = eq("33")) }
         verify { mock.manyArgsOp(r = eq("33")) }
+        verify { mock.manyArgsOp(s = eq(IntWrapper(33))) }
+        verify { mock.manyArgsOp(t = eq(IntWrapper(33))) }
     }
 })

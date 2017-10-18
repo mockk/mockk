@@ -13,6 +13,9 @@ import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
+import sun.reflect.ReflectionFactory
+import java.io.ObjectStreamClass
+import java.lang.System.identityHashCode
 import java.lang.reflect.Method
 import java.util.*
 import java.util.Collections.synchronizedList
@@ -314,7 +317,6 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
             recordedCalls.any { matcher.match(it) }
 
 
-
     override fun ___type(): Class<*> = cls
 
     override fun toString() = "mockk<" + ___type().simpleName + ">()"
@@ -324,7 +326,7 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
     }
 
     override fun hashCode(): Int {
-        return System.identityHashCode(obj)
+        return identityHashCode(obj)
     }
 
     override fun ___childMockK(invocation: Invocation): MockKInstance {
@@ -390,13 +392,8 @@ private class Ref(val value: Any) {
         return true
     }
 
-    override fun hashCode(): Int {
-        return System.identityHashCode(value)
-    }
-
-    override fun toString(): String {
-        return value.javaClass.simpleName + "@" + hashCode()
-    }
+    override fun hashCode(): Int = identityHashCode(value)
+    override fun toString(): String = "Ref(${value.javaClass.simpleName}@${hashCode()})"
 }
 
 private data class SignedCall(val invocation: Invocation,
@@ -482,11 +479,18 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
                 matcherMap[signature] = matcher
             }
-            println(matcherMap)
             val argMatchers = mutableListOf<Matcher<*>>()
 
             repeat(zeroCall.invocation.args.size) { nArgument ->
-                val signature = callInAllRounds.map { it.invocation.args[nArgument] }.toList()
+                val signature = callInAllRounds.map {
+                    val arg = it.invocation.args[nArgument]
+                    if (byValue(it.invocation.args[nArgument].javaClass))
+                        arg
+                    else
+                        Ref(arg)
+                }.toList()
+
+                println(signature)
 
                 val matcher = matcherMap.remove(signature)
                         ?: EqMatcher(zeroCall.invocation.args[nArgument])
@@ -649,20 +653,12 @@ private class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
 
         val proxyCls = cp.makeClass(proxyClsFile).toClass()
 
-        val name = nameForInstantiator(proxyCls)
-        val instantiatorCls =
-                (cp.getOrNull(name)
-                        ?: buildInstantiator(name, proxyCls)).toClass()
-
-        val instantiator = instantiatorCls.newInstance()
-
-        val instance = instantiatorCls.getMethod("newInstance")
-                .invoke(instantiator)
+        val instance = newEmptyInstance(proxyCls)
 
         (instance as ProxyObject).handler = MethodHandler { self: Any, thisMethod: Method, proceed: Method, args: Array<Any?> ->
 
             if (thisMethod.name == "hashCode" && thisMethod.parameterCount == 0) {
-                System.identityHashCode(self)
+                identityHashCode(self)
             } else if (thisMethod.name == "equals" &&
                     thisMethod.parameterCount == 1 &&
                     thisMethod.parameterTypes[0] == java.lang.Object::class.java) {
@@ -676,31 +672,27 @@ private class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
         return cls.cast(instance)
     }
 
-    protected fun nameForInstantiator(cls: Class<*>) = "inst." + cls.name + "\$Instantiator"
-
-    private fun buildInstantiator(name: String, cls: Class<*>): CtClass {
-        val instCls = cp.makeClass(name)
-        val ctCls = cp.get(cls.name)
-
-        val newInstanceMethod = CtMethod(ctCls, "newInstance", arrayOf(), instCls)
-        newInstanceMethod.modifiers = Modifier.STATIC or Modifier.PUBLIC
-        newInstanceMethod.exceptionTypes = arrayOf()
-        newInstanceMethod.setBody("return null;")
-
-        val bc = Bytecode(instCls.classFile.constPool)
-
-        bc.addNew(ctCls)
-        bc.addReturn(ctCls)
+    val reflectionFactoryFinder =
+            try {
+                Class.forName("sun.reflect.ReflectionFactory")
+                ReflecationFactoryFinder()
+            } catch (cnf: ClassNotFoundException) {
+                null
+            }
 
 
-        val methodInfo = newInstanceMethod.methodInfo
-        methodInfo.codeAttribute = bc.toCodeAttribute()
-        methodInfo.rebuildStackMapIf6(cp, instCls.classFile2)
-        ctCls.rebuildClassFile()
+    private fun newEmptyInstance(proxyCls: Class<*>): Any {
+        reflectionFactoryFinder?.let { return it.newEmptyInstance(proxyCls) }
+        throw MockKException("no instantiation support on platform")
+    }
+}
 
-        instCls.addMethod(newInstanceMethod)
-
-        return instCls
+private class ReflecationFactoryFinder {
+    fun newEmptyInstance(proxyCls: Class<*>): Any {
+        val rf = ReflectionFactory.getReflectionFactory();
+        val objDef = Object::class.java.getDeclaredConstructor();
+        val intConstr = rf.newConstructorForSerialization(proxyCls, objDef)
+        return intConstr.newInstance()
     }
 }
 
