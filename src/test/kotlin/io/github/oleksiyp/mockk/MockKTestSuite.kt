@@ -112,6 +112,55 @@ class MockKTestSuite : StringSpec({
         }
     }
 
+    "atLeast, atMost, exactly" {
+        every { mock.otherOp(0, 2) } throws RuntimeException("test")
+        every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
+
+        try {
+            mock.otherOp(0, 2)
+        } catch (ex: RuntimeException) {
+            assertEquals("test", ex.message)
+        }
+        assertEquals(1, mock.otherOp(1, 3))
+        assertEquals(2, mock.otherOp(1, 3))
+        assertEquals(3, mock.otherOp(1, 3))
+        assertEquals(3, mock.otherOp(1, 3))
+
+        verify(atLeast = 4) {
+            mock.otherOp(1, 3)
+        }
+        verify(atLeast = 5, inverse = true) {
+            mock.otherOp(1, 3)
+        }
+        verify(exactly = 4) {
+            mock.otherOp(1, 3)
+        }
+        verify(exactly = 3, inverse = true) {
+            mock.otherOp(1, 3)
+        }
+        verify(atMost = 4) {
+            mock.otherOp(1, 3)
+        }
+        verify(atMost = 3, inverse = true) {
+            mock.otherOp(1, 3)
+        }
+        verify(exactly = 0) {
+            mock.otherOp(1, 4)
+        }
+        verify(exactly = 1, inverse = true) {
+            mock.otherOp(1, 4)
+        }
+        verify(exactly = 1) {
+            mock.otherOp(0, 2)
+        }
+        verify(exactly = 2, inverse = true) {
+            mock.otherOp(0, 2)
+        }
+        verify(exactly = 0, inverse = true) {
+            mock.otherOp(0, 2)
+        }
+    }
+
     "MockKStubScope tests" {
         every { mock.otherOp(0, 2) } throws RuntimeException("test")
         every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)

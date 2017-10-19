@@ -7,7 +7,7 @@
 +coroutines support
 +stub(returnsMany, throws)
 +clearMocks(answers, calls, mocks)
-verify(atLeast, atMost, nCalls)
++verify(atLeast, atMost, nCalls)
 child mock chained calls
 matchers: refEq, more, less,and, or, not, null(), nonNull(), any(nullable=true, ofType=Any), any for arrays
 mock: extraInterfaces, mock name

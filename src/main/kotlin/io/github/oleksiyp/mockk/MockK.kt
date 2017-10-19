@@ -11,12 +11,14 @@ import javassist.util.proxy.MethodHandler
 import javassist.util.proxy.ProxyFactory
 import javassist.util.proxy.ProxyObject
 import kotlinx.coroutines.experimental.runBlocking
+import org.junit.Assert
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
 import org.slf4j.LoggerFactory
 import sun.reflect.ReflectionFactory
+import java.lang.AssertionError
 import java.lang.System.identityHashCode
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -79,7 +81,17 @@ enum class Ordering {
 
 fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                inverse: Boolean = false,
+               atLeast: Int = 1,
+               atMost: Int = Int.MAX_VALUE,
+               exactly: Int = -1,
                mockBlock: suspend MockKScope.() -> T) {
+
+    if (ordering != Ordering.UNORDERED) {
+        if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
+            throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
+        }
+    }
+
     val gw = MockKGateway.LOCATOR()
     val callRecorder = gw.callRecorder
     callRecorder.startVerification()
@@ -92,17 +104,19 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
         }
         callRecorder.catchArgs(n, n)
     }
-    callRecorder.verify(ordering, inverse)
+    callRecorder.verify(ordering, inverse,
+            if (exactly != -1) exactly else atLeast,
+            if (exactly != -1) exactly else atMost)
 }
 
 fun <T> verifyOrder(inverse: Boolean = false,
                     mockBlock: suspend MockKScope.() -> T) {
-    verify(Ordering.ORDERED, inverse, mockBlock)
+    verify(Ordering.ORDERED, inverse, mockBlock = mockBlock)
 }
 
 fun <T> verifySequence(inverse: Boolean = false,
                        mockBlock: suspend MockKScope.() -> T) {
-    verify(Ordering.SEQUENCE, inverse, mockBlock)
+    verify(Ordering.SEQUENCE, inverse, mockBlock = mockBlock)
 }
 
 fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
@@ -360,13 +374,13 @@ interface CallRecorder {
 
     fun answer(answer: Answer<*>)
 
-    fun verify(ordering: Ordering, inverse: Boolean)
+    fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int)
 }
 
 data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
 
 interface Verifier {
-    fun verify(matchers: List<InvocationCall>): VerificationResult
+    fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult
 }
 
 interface Instantiator {
@@ -434,7 +448,7 @@ interface MockKInstance : MockK {
 
     fun ___recordCalls(invocation: Invocation)
 
-    fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher): Boolean
+    fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher, min: Int, max: Int): Boolean
 
     fun ___allRecordedCalls(): List<Invocation>
 
@@ -494,9 +508,10 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         recordedCalls.add(invocation)
     }
 
-    override fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher): Boolean {
+    override fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher, min: Int, max: Int): Boolean {
         synchronized(recordedCalls) {
-            return recordedCalls.any { matcher.match(it) }
+            val n = recordedCalls.filter { matcher.match(it) }.count()
+            return n in min..max
         }
     }
 
@@ -832,10 +847,10 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         mode = Mode.ANSWERING
     }
 
-    override fun verify(ordering: Ordering, inverse: Boolean) {
+    override fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int) {
         checkMode(Mode.VERIFYING)
 
-        val outcome = gw.verifier(ordering).verify(invocationMatchers)
+        val outcome = gw.verifier(ordering).verify(invocationMatchers, min, max)
 
         log.debug { "Done verification. Outcome: $outcome" }
         mode = Mode.ANSWERING
@@ -844,20 +859,20 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
         if (inverse) {
             if (outcome.matches) {
-                throw MockKException("Inverse verification failed$matcherStr")
+                throw AssertionError("Inverse verification failed$matcherStr")
             }
         } else {
             if (!outcome.matches) {
-                throw MockKException("Verification failed$matcherStr")
+                throw AssertionError("Verification failed$matcherStr")
             }
         }
     }
 }
 
 private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationCall>): VerificationResult {
+    override fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult {
         return matchers
-                .firstOrNull { !it.invocation.self.___matchesAnyRecordedCalls(it.matcher) }
+                .firstOrNull { !it.invocation.self.___matchesAnyRecordedCalls(it.matcher, min, max) }
                 ?.matcher
                 ?.let { VerificationResult(false, it) }
                 ?: VerificationResult(true)
@@ -872,7 +887,7 @@ private fun List<InvocationCall>.allCalls() =
                 .sortedBy { it.timestamp }
 
 private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationCall>): VerificationResult {
+    override fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult {
         val allCalls = matchers.allCalls()
 
         if (matchers.size > allCalls.size) {
@@ -901,7 +916,7 @@ private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
 }
 
 private class SequenceVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationCall>): VerificationResult {
+    override fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult {
         val allCalls = matchers.allCalls()
 
         if (allCalls.size != matchers.size) {
