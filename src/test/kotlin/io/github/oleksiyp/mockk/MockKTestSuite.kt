@@ -98,52 +98,96 @@ class MockKTestSuite : StringSpec({
 //        verify { mock.manyArgsOp(t = eq(IntWrapper(33))) }
 //    }
 
-    "MockKAnswerScope tests" {
-        val lst = mutableListOf<Byte>()
-        val slot = slot<() -> Int>()
+    "clearMocks" {
+        every { mock.otherOp(0, 2) } returns 5
 
-        every { spy.manyArgsOp(a = any(), c = 5) } answers { if (firstArg()) 1.0 else 2.0 }
-        every { spy.manyArgsOp(b = any(), c = 6) } answers { if (secondArg()) 3.0 else 4.0 }
-        every { spy.manyArgsOp(c = 7) } answers { thirdArg<Byte>().toDouble() - 2 }
-        every { spy.manyArgsOp(t = any(), c = 8) } answers { lastArg<IntWrapper>().data.toDouble() }
-        every { spy.manyArgsOp(c = 9) } answers { nArgs.toDouble() }
-        every { spy.manyArgsOp(c = 10) } answers { spiedObj<MockCls>().otherOp(args[8] as Int).toDouble() }
-        every { spy.manyArgsOp(c = 11) } answers { method.parameterCount.toDouble() }
-        every { spy.manyArgsOp(d = capture(lst), c = 12) } answers { lst.captured().toDouble() }
-        every { spy.lambdaOp(1, capture(slot)) } answers { 1 - slot.invoke<Int>()!! }
+        assertEquals(5, mock.otherOp(0, 2))
+        clearMocks(mock, answers = false)
+        assertEquals(5, mock.otherOp(0, 2))
+        clearMocks(mock)
+        assertEquals(0, mock.otherOp(0, 2))
 
-        assertEquals(155.0, spy.manyArgsOp(), 1e-6)
-        assertEquals(1.0, spy.manyArgsOp(c = 5), 1e-6)
-        assertEquals(2.0, spy.manyArgsOp(false, c = 5), 1e-6)
-        assertEquals(3.0, spy.manyArgsOp(c = 6), 1e-6)
-        assertEquals(4.0, spy.manyArgsOp(b = false, c = 6), 1e-6)
-        assertEquals(5.0, spy.manyArgsOp(c = 7), 1e-6)
-        assertEquals(6.0, spy.manyArgsOp(c = 8, t = IntWrapper(6)), 1e-6)
-        assertEquals(20.0, spy.manyArgsOp(c = 9), 1e-6)
-        assertEquals(9.0, spy.manyArgsOp(c = 10), 1e-6)
-        assertEquals(20.0, spy.manyArgsOp(c = 11), 1e-6)
-        assertEquals(10.0, spy.manyArgsOp(d = 10, c = 12), 1e-6)
-        assertEquals(11.0, spy.manyArgsOp(d = 11, c = 12), 1e-6)
-        assertEquals(-2, spy.lambdaOp(1, { 3 }))
-
-
-        assertEquals(listOf(10.toByte(), 11.toByte()), lst)
-
-        verify { spy.manyArgsOp() }
-        verify { spy.manyArgsOp(c = 5) }
-        verify { spy.manyArgsOp(false, c = 5) }
-        verify { spy.manyArgsOp(c = 6) }
-        verify { spy.manyArgsOp(b = false, c = 6) }
-        verify { spy.manyArgsOp(c = 7) }
-        verify { spy.manyArgsOp(c = 8, t = IntWrapper(6)) }
-        verify { spy.manyArgsOp(c = 9) }
-        verify { spy.manyArgsOp(c = 10) }
-        verify { spy.manyArgsOp(c = 11) }
-        verify { spy.manyArgsOp(d = 10, c = 12) }
-        verify { spy.manyArgsOp(d = 11, c = 12) }
-        verify { spy.manyArgsOp(d = 11, c = 12) }
-        verify { spy.lambdaOp(1, any()) }
+        verifySequence {
+            mock.otherOp(0, 2)
+        }
     }
+
+    "MockKStubScope tests" {
+        every { mock.otherOp(0, 2) } throws RuntimeException("test")
+        every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
+
+        try {
+            mock.otherOp(0, 2)
+        } catch (ex: RuntimeException) {
+            assertEquals("test", ex.message)
+        }
+        assertEquals(1, mock.otherOp(1, 3))
+        assertEquals(2, mock.otherOp(1, 3))
+        assertEquals(3, mock.otherOp(1, 3))
+        assertEquals(3, mock.otherOp(1, 3))
+
+        verify { mock.otherOp(0, 2) }
+        verifyOrder {
+            mock.otherOp(1, 3)
+            mock.otherOp(1, 3)
+            mock.otherOp(1, 3)
+            mock.otherOp(1, 3)
+        }
+        verifySequence {
+            mock.otherOp(0, 2)
+            mock.otherOp(1, 3)
+            mock.otherOp(1, 3)
+            mock.otherOp(1, 3)
+            mock.otherOp(1, 3)
+        }
+    }
+
+//    "MockKAnswerScope tests" {
+//        val lst = mutableListOf<Byte>()
+//        val slot = slot<() -> Int>()
+//
+//        every { spy.manyArgsOp(a = any(), c = 5) } answers { if (firstArg()) 1.0 else 2.0 }
+//        every { spy.manyArgsOp(b = any(), c = 6) } answers { if (secondArg()) 3.0 else 4.0 }
+//        every { spy.manyArgsOp(c = 7) } answers { thirdArg<Byte>().toDouble() - 2 }
+//        every { spy.manyArgsOp(t = any(), c = 8) } answers { lastArg<IntWrapper>().data.toDouble() }
+//        every { spy.manyArgsOp(c = 9) } answers { nArgs.toDouble() }
+//        every { spy.manyArgsOp(c = 10) } answers { spiedObj<MockCls>().otherOp(args[8] as Int).toDouble() }
+//        every { spy.manyArgsOp(c = 11) } answers { method.parameterCount.toDouble() }
+//        every { spy.manyArgsOp(d = capture(lst), c = 12) } answers { lst.captured().toDouble() }
+//        every { spy.lambdaOp(1, capture(slot)) } answers { 1 - slot.invoke<Int>()!! }
+//
+//        assertEquals(155.0, spy.manyArgsOp(), 1e-6)
+//        assertEquals(1.0, spy.manyArgsOp(c = 5), 1e-6)
+//        assertEquals(2.0, spy.manyArgsOp(false, c = 5), 1e-6)
+//        assertEquals(3.0, spy.manyArgsOp(c = 6), 1e-6)
+//        assertEquals(4.0, spy.manyArgsOp(b = false, c = 6), 1e-6)
+//        assertEquals(5.0, spy.manyArgsOp(c = 7), 1e-6)
+//        assertEquals(6.0, spy.manyArgsOp(c = 8, t = IntWrapper(6)), 1e-6)
+//        assertEquals(20.0, spy.manyArgsOp(c = 9), 1e-6)
+//        assertEquals(9.0, spy.manyArgsOp(c = 10), 1e-6)
+//        assertEquals(20.0, spy.manyArgsOp(c = 11), 1e-6)
+//        assertEquals(10.0, spy.manyArgsOp(d = 10, c = 12), 1e-6)
+//        assertEquals(11.0, spy.manyArgsOp(d = 11, c = 12), 1e-6)
+//        assertEquals(-2, spy.lambdaOp(1, { 3 }))
+//
+//
+//        assertEquals(listOf(10.toByte(), 11.toByte()), lst)
+//
+//        verify { spy.manyArgsOp() }
+//        verify { spy.manyArgsOp(c = 5) }
+//        verify { spy.manyArgsOp(false, c = 5) }
+//        verify { spy.manyArgsOp(c = 6) }
+//        verify { spy.manyArgsOp(b = false, c = 6) }
+//        verify { spy.manyArgsOp(c = 7) }
+//        verify { spy.manyArgsOp(c = 8, t = IntWrapper(6)) }
+//        verify { spy.manyArgsOp(c = 9) }
+//        verify { spy.manyArgsOp(c = 10) }
+//        verify { spy.manyArgsOp(c = 11) }
+//        verify { spy.manyArgsOp(d = 10, c = 12) }
+//        verify { spy.manyArgsOp(d = 11, c = 12) }
+//        verify { spy.manyArgsOp(d = 11, c = 12) }
+//        verify { spy.lambdaOp(1, any()) }
+//    }
 
 //    "verify, verifyOrder, verifySequence" {
 //        every { spy.manyArgsOp(c = 5) } returns 1.0

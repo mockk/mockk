@@ -18,6 +18,7 @@ import org.junit.runner.notification.RunNotifier
 import org.slf4j.LoggerFactory
 import sun.reflect.ReflectionFactory
 import java.lang.System.identityHashCode
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
 import java.util.Collections.synchronizedList
@@ -104,6 +105,14 @@ fun <T> verifySequence(inverse: Boolean = false,
     verify(Ordering.SEQUENCE, inverse, mockBlock)
 }
 
+fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
+    for (mock in mocks) {
+        if (mock is MockKInstance) {
+            mock.___clear(answers, recordedCalls, childMocks)
+        }
+    }
+}
+
 class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> match(matcher: Matcher<T>): T {
         return MockKGateway.matcherInCall(gw, matcher)
@@ -120,6 +129,12 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
     infix fun answers(answer: Answer<T?>) = gw.callRecorder.answer(answer)
 
     infix fun returns(returnValue: T?) = answers(ConstantAnswer(returnValue))
+
+    infix fun returnsMany(values: List<T?>) = answers(ManyAnswersAnswer(values))
+
+    fun returnsMany(vararg values: T?) = returnsMany(values.toList())
+
+    infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
     infix fun answers(answer: MockKAnswerScope.(InvocationCall) -> T?) =
             answers(FunctionAnswer({ MockKAnswerScope(gw, it).answer(it) }))
@@ -154,8 +169,8 @@ class MockKAnswerScope(private val gw: MockKGateway,
 }
 
 data class CapturingSlot<T>(var captured: T? = null) {
-    inline fun <reified R> invoke(vararg args : Any?): R? {
-        return when(args.size) {
+    inline fun <reified R> invoke(vararg args: Any?): R? {
+        return when (args.size) {
             0 -> (captured as Function0<R?>).invoke()
             1 -> (captured as Function1<Any?, R?>).invoke(args[0])
             2 -> (captured as Function2<Any?, Any?, R?>).invoke(args[0], args[1])
@@ -234,6 +249,23 @@ data class FunctionAnswer<T>(val answerFunc: (InvocationCall) -> T?) : Answer<T?
     override fun answer(invocation: InvocationCall): T? = answerFunc(invocation)
 
     override fun toString(): String = "answer()"
+}
+
+data class ManyAnswersAnswer<T>(val answers: List<T?>) : Answer<T?> {
+    private var n = 0
+
+    override fun answer(matcher: InvocationCall): T? {
+        val next = if (n == answers.size - 1) n else n++
+        return answers[next]
+    }
+
+}
+
+data class ThrowingAnswer(val ex: Throwable) : Answer<Nothing> {
+    override fun answer(matcher: InvocationCall) : Nothing {
+        throw ex
+    }
+
 }
 
 class MockKException(message: String) : RuntimeException(message)
@@ -385,7 +417,7 @@ interface CapturingMatcher {
     fun capture(arg: Any)
 }
 
-interface Answer<T> {
+interface Answer<out T> {
     fun answer(matcher: InvocationCall): T
 }
 
@@ -405,6 +437,8 @@ interface MockKInstance : MockK {
     fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher): Boolean
 
     fun ___allRecordedCalls(): List<Invocation>
+
+    fun ___clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
 }
 
 private fun Method.toStr() =
@@ -412,9 +446,8 @@ private fun Method.toStr() =
 
 private open class MockKInstanceProxyHandler(private val cls: Class<*>,
                                              private val obj: Any) : MethodHandler, MockKInstance {
-
     private val answers = synchronizedList(mutableListOf<InvocationAnswer>())
-    private val mocks = synchronizedMap(hashMapOf<Invocation, MockKInstance>())
+    private val childs = synchronizedMap(hashMapOf<Invocation, MockKInstance>())
     private val recordedCalls = synchronizedList(mutableListOf<Invocation>())
 
     override val spiedObj: Any
@@ -486,7 +519,7 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
     }
 
     override fun ___childMockK(invocation: Invocation): MockKInstance {
-        return mocks.computeIfAbsent(invocation, {
+        return childs.computeIfAbsent(invocation, {
             MockKGateway.mockk(invocation.method.returnType) as MockKInstance
         })
     }
@@ -497,7 +530,11 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
                         args: Array<out Any>): Any? {
 
         findMethodInProxy(this, thisMethod)?.let {
-            return it.invoke(this, *args)
+            try {
+                return it.invoke(this, *args)
+            } catch (ex: InvocationTargetException) {
+                throw ex.cause!!
+            }
         }
 
         val argList = args.toList()
@@ -510,6 +547,18 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         return obj.javaClass.methods.find {
             it.name == method.name &&
                     Arrays.equals(it.parameterTypes, method.parameterTypes)
+        }
+    }
+
+    override fun ___clear(answers: Boolean, calls: Boolean, childMocks: Boolean) {
+        if (answers) {
+            this.answers.clear()
+        }
+        if (calls) {
+            this.recordedCalls.clear()
+        }
+        if (childMocks) {
+            this.childs.clear()
         }
     }
 }
@@ -846,7 +895,7 @@ private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
             prev = swap
         }
 
-        // match only if all matchers matched
+        // match only if all matchers present
         return VerificationResult(prev[matchers.size - 1] == matchers.size)
     }
 }

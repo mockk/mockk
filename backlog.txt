@@ -4,15 +4,18 @@
 +capturing: capture(lst) .captured() extension
 +verifyOrder { }, verifySequence { }
 +slot.invoke(arg1, arg2, ... lastArg) for lambdas
++coroutines support
++stub(returnsMany, throws)
++clearMocks(answers, calls, mocks)
 verify(atLeast, atMost, nCalls)
-clear(answers, calls, mocks)
-stub(returnsMany, throws)
+child mock chained calls
 matchers: refEq, more, less,and, or, not, null(), nonNull(), any(nullable=true, ofType=Any), any for arrays
 mock: extraInterfaces, mock name
 add some good comments
 rename methods not to clash other mocking frameworks
 performance optimization: HashableMatcher
 performance optimization: ProxyCache
+performance optimization: Method mapping
 other JVMs
 Android
 ------
