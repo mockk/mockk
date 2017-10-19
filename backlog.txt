@@ -1,5 +1,5 @@
 +arguments: firstArg, secondArg, thirdArg, lastArg
-+capturing: caputre(lst) .captured() extension
++capturing: capture(lst) .captured() extension
 +verifyOrder { }, verifySequence { }
 +lambda: lambda(), firstLambda(a, b, c), ... (check order in named params)
 and, or, not
