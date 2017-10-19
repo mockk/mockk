@@ -18,9 +18,11 @@ class MockCls {
                    q: String = "14", r: String = "15",
                    s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
 
-        return c + d + e + f + g.toByte() + h.toByte() + i + k + l +
-                m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
+        return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.toByte() + h.toByte() +
+                i + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
     }
+
+    fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
 }
 
 @RunWith(MockKJUnitRunner::class)
@@ -95,11 +97,44 @@ class MockKTestSuit : StringSpec({
 //        verify { mock.manyArgsOp(t = eq(IntWrapper(33))) }
 //    }
 
-    "firstArg, secondArg, thirdArg, lastArg" {
-        every { spy.manyArgsOp(c = eq(5)) } answers {  nArgs.toDouble() }
+    "MockKAnswerScope tests" {
+        val lst = mutableListOf<Byte>()
 
-        println(spy.manyArgsOp(c = 5))
+        every { spy.manyArgsOp(a = any(), c = 5) } answers { if (firstArg()) 1.0 else 2.0 }
+        every { spy.manyArgsOp(b = any(), c = 6) } answers { if (secondArg()) 3.0 else 4.0 }
+        every { spy.manyArgsOp(c = 7) } answers { thirdArg<Byte>().toDouble() - 2 }
+        every { spy.manyArgsOp(t = any(), c = 8) } answers { lastArg<IntWrapper>().data.toDouble() }
+        every { spy.manyArgsOp(c = 9) } answers { nArgs.toDouble() }
+        every { spy.manyArgsOp(c = 10) } answers { spiedObj<MockCls>().otherOp(args[8] as Int).toDouble() }
+        every { spy.manyArgsOp(c = 11) } answers { method.parameterCount.toDouble() }
+        every { spy.manyArgsOp(d = capture(lst), c = 12) } answers { lst.captured().toDouble() }
 
+        assertEquals(155.0, spy.manyArgsOp(), 1e-6)
+        assertEquals(1.0, spy.manyArgsOp(c = 5), 1e-6)
+        assertEquals(2.0, spy.manyArgsOp(false, c = 5), 1e-6)
+        assertEquals(3.0, spy.manyArgsOp(c = 6), 1e-6)
+        assertEquals(4.0, spy.manyArgsOp(b = false, c = 6), 1e-6)
+        assertEquals(5.0, spy.manyArgsOp(c = 7), 1e-6)
+        assertEquals(6.0, spy.manyArgsOp(c = 8, t = IntWrapper(6)), 1e-6)
+        assertEquals(20.0, spy.manyArgsOp(c = 9), 1e-6)
+        assertEquals(9.0, spy.manyArgsOp(c = 10), 1e-6)
+        assertEquals(20.0, spy.manyArgsOp(c = 11), 1e-6)
+        assertEquals(10.0, spy.manyArgsOp(d = 10, c = 12), 1e-6)
+        assertEquals(11.0, spy.manyArgsOp(d = 11, c = 12), 1e-6)
+
+        assertEquals(listOf(10.toByte(), 11.toByte()), lst)
+
+        verify { spy.manyArgsOp() }
         verify { spy.manyArgsOp(c = 5) }
+        verify { spy.manyArgsOp(false, c = 5) }
+        verify { spy.manyArgsOp(c = 6) }
+        verify { spy.manyArgsOp(b = false, c = 6) }
+        verify { spy.manyArgsOp(c = 7) }
+        verify { spy.manyArgsOp(c = 8, t = IntWrapper(6)) }
+        verify { spy.manyArgsOp(c = 9) }
+        verify { spy.manyArgsOp(c = 10) }
+        verify { spy.manyArgsOp(c = 11) }
+        verify { spy.manyArgsOp(d = 10, c = 12) }
+        verify { spy.manyArgsOp(d = 11, c = 12) }
     }
 })

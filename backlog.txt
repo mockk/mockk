@@ -1,11 +1,13 @@
-arguments: firstArg, secondArg, thirdArg, lastArg
-capturing: caputre(lst) .captured() extension
++arguments: firstArg, secondArg, thirdArg, lastArg
++capturing: caputre(lst) .captured() extension
 verifyOrder { }, verifySequence { }
 lambda: lambda(), firstLambda(a, b, c), ... (check order in named params)
 and, or, not
+refEq, more, less
 other JVMs
 Android
-performacne optimization
+performance optimization: HashableMatcher
+performance optimization: ProxyCache
 ------
 split to separate files
 PR

@@ -50,8 +50,6 @@ interface MockK {
     val spiedObj: Any
 }
 
-fun MockK(value: Any) = value as MockK
-
 inline fun <reified T> mockk(): T = MockKGateway.mockk(T::class.java)
 
 inline fun <reified T> spyk(obj: T): T = MockKGateway.spyk(T::class.java, obj)
@@ -96,6 +94,7 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> match(noinline matcher: (T) -> Boolean): T = match(LambdaMatcher(matcher))
     inline fun <reified T> eq(value: T): T = match(EqMatcher(value))
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
+    inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
 }
 
 class MockKStubScope<T>(private val gw: MockKGateway) {
@@ -128,26 +127,39 @@ class MockKAnswerScope(private val gw: MockKGateway,
     inline fun <reified T> secondArg() = invocation.args[1] as T
     inline fun <reified T> thirdArg() = invocation.args[2] as T
     inline fun <reified T> lastArg() = invocation.args[invocation.args.size - 1] as T
+
+    inline fun <T> MutableList<T>.captured() = get(size - 1)
 }
 
 
-data class EqMatcher<T>(private val value: T) : Matcher<T> {
+data class EqMatcher<T>(val value: T) : Matcher<T> {
     override fun match(arg: T): Boolean = arg == value
 
     override fun toString(): String = "eq(" + MockKGateway.toString(value) + ")"
 }
 
-data class ConstantMatcher<T>(private val value: Boolean) : Matcher<T> {
-    override fun match(arg: T): Boolean = value
+data class ConstantMatcher<T>(val constValue: Boolean) : Matcher<T> {
+    override fun match(arg: T): Boolean = constValue
 
-    override fun toString(): String = if (value) "any()" else "none()"
+    override fun toString(): String = if (constValue) "any()" else "none()"
 }
 
-data class LambdaMatcher<T>(private val matcher: (T) -> Boolean) : Matcher<T> {
-    override fun match(arg: T): Boolean = matcher(arg)
+data class LambdaMatcher<T>(val matchingFUnc: (T) -> Boolean) : Matcher<T> {
+    override fun match(arg: T): Boolean = matchingFUnc(arg)
 
     override fun toString(): String = "matcher()"
 }
+
+data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, CapturingMatcher<T> {
+    override fun capture(arg: Any) {
+        captureList.add(arg as T)
+    }
+
+    override fun match(arg: T): Boolean = true
+
+    override fun toString(): String = "capture()"
+}
+
 
 data class ConstantAnswer<T>(val constantValue: T?) : Answer<T?> {
     override fun answer(invocation: Invocation) = constantValue
@@ -155,8 +167,8 @@ data class ConstantAnswer<T>(val constantValue: T?) : Answer<T?> {
     override fun toString(): String = "const($constantValue)"
 }
 
-data class LambdaAnswer<T>(private val ans: (Invocation) -> T?) : Answer<T?> {
-    override fun answer(invocation: Invocation): T? = ans(invocation)
+data class LambdaAnswer<T>(val answerFunc: (Invocation) -> T?) : Answer<T?> {
+    override fun answer(invocation: Invocation): T? = answerFunc(invocation)
 
     override fun toString(): String = "answer()"
 }
@@ -266,7 +278,6 @@ data class Invocation(val self: MockKInstance,
     }
 }
 
-
 data class InvocationMatcher(val self: Matcher<Any>,
                              val method: Matcher<Method>,
                              val args: List<Matcher<Any>>) {
@@ -295,16 +306,22 @@ interface Matcher<in T> {
     fun match(arg: T): Boolean
 }
 
+interface CapturingMatcher<in T> {
+    fun capture(arg: Any)
+}
+
 interface Answer<T> {
     fun answer(invocation: Invocation): T
 }
+
+// ---------------------------- IMPLEMENTATION --------------------------------
 
 interface MockKInstance : MockK {
     fun ___type(): Class<*>
 
     fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
 
-    fun ___findAnswer(invocation: Invocation): Answer<*>
+    fun ___findAnswerAndCapture(invocation: Invocation): Answer<*>
 
     fun ___childMockK(invocation: Invocation): MockKInstance
 
@@ -312,8 +329,6 @@ interface MockKInstance : MockK {
 
     fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher): Boolean
 }
-
-// ---------------------------- IMPLEMENTATION --------------------------------
 
 private fun Method.toStr() =
         name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
@@ -332,10 +347,22 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         answers.add(Pair(matcher, answer))
     }
 
-    override fun ___findAnswer(invocation: Invocation): Answer<*> {
+    override fun ___findAnswerAndCapture(invocation: Invocation): Answer<*> {
         return synchronized(answers) {
-            answers.firstOrNull { it.first.match(invocation) }?.second
-                    ?: ConstantAnswer(defaultAnswer(invocation))
+            val invocationAndMatcher = answers.firstOrNull { it.first.match(invocation) }
+            invocationAndMatcher?.let {
+                ___captureAnswer(it.first, invocation)
+                it.second
+            } ?: ConstantAnswer(defaultAnswer(invocation))
+        }
+    }
+
+    private fun ___captureAnswer(invocationMatcher: InvocationMatcher, invocation: Invocation) {
+        repeat(invocationMatcher.args.size) {
+            val argMatcher = invocationMatcher.args[it]
+            if (argMatcher is CapturingMatcher<*>) {
+                argMatcher.capture(invocation.args[it])
+            }
         }
     }
 
@@ -610,7 +637,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
             invocation.self.___recordCalls(invocation)
-            val answer = invocation.self.___findAnswer(invocation).answer(invocation)
+            val answer = invocation.self.___findAnswerAndCapture(invocation).answer(invocation)
             log.info { "Recorded call: $invocation, answer: $answer" }
             return answer
         } else {
