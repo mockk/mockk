@@ -697,7 +697,7 @@ interface MockKGateway {
 
         private val NO_ARGS_TYPE = Class.forName("\$NoArgsConstructorParamType")
 
-        private fun <T> proxy(cls: Class<T>): Any? {
+        fun <T> proxy(cls: Class<T>): Any? {
             val factory = ProxyFactory()
 
             log.debug { "Building proxy for $cls" }
@@ -1219,13 +1219,10 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
         val cls = invocation.method.returnType
         return MockKGateway.anyValue(cls) {
-            if (cls.isArray) {
-                null
-            } else {
-                val child = MockKGateway.mockk(cls) as MockK
-                childMocks.add(Ref(child))
-                child
-            }
+            val child = MockKGateway.proxy(cls) as MockK
+            (child as ProxyObject).handler = MockKInstanceProxyHandler(cls, child)
+            childMocks.add(Ref(child))
+            child
         }
     }
 
