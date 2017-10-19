@@ -5,5 +5,7 @@ lambda: lambda(), firstLambda(a, b, c), ... (check order in named params)
 and, or, not
 other JVMs
 Android
+performacne optimization
 ------
 split to separate files
+PR

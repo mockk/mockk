@@ -46,7 +46,9 @@ class MockKJUnitRunner(cls: Class<*>) : Runner() {
     override fun getDescription(): Description = parentRunner.description
 }
 
-interface MockK
+interface MockK {
+    val spiedObj: Any
+}
 
 fun MockK(value: Any) = value as MockK
 
@@ -54,7 +56,7 @@ inline fun <reified T> mockk(): T = MockKGateway.mockk(T::class.java)
 
 inline fun <reified T> spyk(obj: T): T = MockKGateway.spyk(T::class.java, obj)
 
-fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKAnswerScope<T> {
+fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
     val gw = MockKGateway.LOCATOR()
     val callRecorder = gw.callRecorder
     callRecorder.startStubbing()
@@ -67,7 +69,7 @@ fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKAnswerScope<T> {
         }
         callRecorder.catchArgs(n, n)
     }
-    return MockKAnswerScope(gw)
+    return MockKStubScope(gw)
 }
 
 fun <T> verify(mockBlock: suspend MockKScope.() -> T): Unit {
@@ -96,12 +98,36 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
 }
 
-class MockKAnswerScope<T>(private val gw: MockKGateway) {
+class MockKStubScope<T>(private val gw: MockKGateway) {
     infix fun answers(answer: Answer<T?>) = gw.callRecorder.answer(answer)
 
     infix fun returns(returnValue: T?) = answers(ConstantAnswer(returnValue))
 
-    infix fun answers(answer: (Invocation) -> T?) = answers(LambdaAnswer(answer))
+    infix fun answers(answer: MockKAnswerScope.(Invocation) -> T?) =
+            answers(LambdaAnswer({ MockKAnswerScope(gw, it).answer(it) }))
+}
+
+class MockKAnswerScope(private val gw: MockKGateway,
+                       val invocation: Invocation) {
+
+    val self
+        get() = invocation.self as MockK
+
+    inline fun <reified T> spiedObj() = self.spiedObj as T
+
+    val method
+        get() = invocation.method
+
+    val args
+        get() = invocation.args
+
+    val nArgs
+        get() = invocation.args.size
+
+    inline fun <reified T> firstArg() = invocation.args[0] as T
+    inline fun <reified T> secondArg() = invocation.args[1] as T
+    inline fun <reified T> thirdArg() = invocation.args[2] as T
+    inline fun <reified T> lastArg() = invocation.args[invocation.args.size - 1] as T
 }
 
 
@@ -129,8 +155,8 @@ data class ConstantAnswer<T>(val constantValue: T?) : Answer<T?> {
     override fun toString(): String = "const($constantValue)"
 }
 
-data class LambdaAnswer<T>(val answer: (Invocation) -> T?) : Answer<T?> {
-    override fun answer(invocation: Invocation): T? = answer(invocation)
+data class LambdaAnswer<T>(private val ans: (Invocation) -> T?) : Answer<T?> {
+    override fun answer(invocation: Invocation): T? = ans(invocation)
 
     override fun toString(): String = "answer()"
 }
@@ -299,6 +325,9 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
     private val mocks = synchronizedMap(hashMapOf<Invocation, MockKInstance>())
     private val recordedCalls = synchronizedList(mutableListOf<Invocation>())
 
+    override val spiedObj: Any
+        get() = throw MockKException("spiedObj is actual only for spies")
+
     override fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         answers.add(Pair(matcher, answer))
     }
@@ -368,9 +397,12 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
 
 
 private class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject,
-                                          private val spiedObj: T) : MockKInstanceProxyHandler(cls, obj) {
+                                          private val _spiedObj: T) : MockKInstanceProxyHandler(cls, obj) {
+    override val spiedObj
+        get() = _spiedObj as Any
+
     override fun defaultAnswer(invocation: Invocation): Any? {
-        return invocation.method.invoke(spiedObj, *invocation.args.toTypedArray())
+        return invocation.method.invoke(_spiedObj, *invocation.args.toTypedArray())
     }
 
     override fun toString(): String = "spyk<" + ___type().simpleName + ">()"
@@ -880,6 +912,7 @@ private class Slf4jLogger(cls: Class<*>) : Logger {
     override fun warn(ex: Throwable, msg: () -> String) = if (log.isWarnEnabled) log.warn(msg(), ex) else Unit
     // note library info & debug is shifted to debug & trace respectively
     override fun info(msg: () -> String) = if (log.isDebugEnabled) log.debug(msg()) else Unit
+
     override fun info(ex: Throwable, msg: () -> String) = if (log.isDebugEnabled) log.debug(msg(), ex) else Unit
     override fun debug(msg: () -> String) = if (log.isTraceEnabled) log.trace(msg()) else Unit
     override fun debug(ex: Throwable, msg: () -> String) = if (log.isTraceEnabled) log.trace(msg(), ex) else Unit
@@ -894,6 +927,7 @@ private class JULLogger(cls: Class<*>) : Logger {
     override fun warn(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.WARNING)) log.log(Level.WARNING, msg(), ex) else Unit
     // note library info & debug is shifted to debug & trace respectively
     override fun info(msg: () -> String) = if (log.isLoggable(Level.FINE)) log.fine(msg()) else Unit
+
     override fun info(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.FINE)) log.log(Level.FINE, msg(), ex) else Unit
     override fun debug(msg: () -> String) = if (log.isLoggable(Level.FINER)) log.finer(msg()) else Unit
     override fun debug(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.FINER)) log.log(Level.FINER, msg(), ex) else Unit
