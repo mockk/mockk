@@ -24,6 +24,8 @@ class MockCls {
 
     fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun lambdaOp(a: Int, b: () -> Int) = a + b()
+    fun otherOp(a: IntWrapper = IntWrapper(1), b: IntWrapper = IntWrapper(2)): Int =
+            a.data + b.data
 }
 
 @RunWith(MockKJUnitRunner::class)
@@ -98,98 +100,98 @@ class MockKTestSuite : StringSpec({
 //        verify { mock.manyArgsOp(t = eq(IntWrapper(33))) }
 //    }
 
-    "clearMocks" {
-        every { mock.otherOp(0, 2) } returns 5
+//    "clearMocks" {
+//        every { mock.otherOp(0, 2) } returns 5
+//
+//        assertEquals(5, mock.otherOp(0, 2))
+//        clearMocks(mock, answers = false)
+//        assertEquals(5, mock.otherOp(0, 2))
+//        clearMocks(mock)
+//        assertEquals(0, mock.otherOp(0, 2))
+//
+//        verifySequence {
+//            mock.otherOp(0, 2)
+//        }
+//    }
 
-        assertEquals(5, mock.otherOp(0, 2))
-        clearMocks(mock, answers = false)
-        assertEquals(5, mock.otherOp(0, 2))
-        clearMocks(mock)
-        assertEquals(0, mock.otherOp(0, 2))
+//    "atLeast, atMost, exactly" {
+//        every { mock.otherOp(0, 2) } throws RuntimeException("test")
+//        every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
+//
+//        try {
+//            mock.otherOp(0, 2)
+//        } catch (ex: RuntimeException) {
+//            assertEquals("test", ex.message)
+//        }
+//        assertEquals(1, mock.otherOp(1, 3))
+//        assertEquals(2, mock.otherOp(1, 3))
+//        assertEquals(3, mock.otherOp(1, 3))
+//        assertEquals(3, mock.otherOp(1, 3))
+//
+//        verify(atLeast = 4) {
+//            mock.otherOp(1, 3)
+//        }
+//        verify(atLeast = 5, inverse = true) {
+//            mock.otherOp(1, 3)
+//        }
+//        verify(exactly = 4) {
+//            mock.otherOp(1, 3)
+//        }
+//        verify(exactly = 3, inverse = true) {
+//            mock.otherOp(1, 3)
+//        }
+//        verify(atMost = 4) {
+//            mock.otherOp(1, 3)
+//        }
+//        verify(atMost = 3, inverse = true) {
+//            mock.otherOp(1, 3)
+//        }
+//        verify(exactly = 0) {
+//            mock.otherOp(1, 4)
+//        }
+//        verify(exactly = 1, inverse = true) {
+//            mock.otherOp(1, 4)
+//        }
+//        verify(exactly = 1) {
+//            mock.otherOp(0, 2)
+//        }
+//        verify(exactly = 2, inverse = true) {
+//            mock.otherOp(0, 2)
+//        }
+//        verify(exactly = 0, inverse = true) {
+//            mock.otherOp(0, 2)
+//        }
+//    }
 
-        verifySequence {
-            mock.otherOp(0, 2)
-        }
-    }
-
-    "atLeast, atMost, exactly" {
-        every { mock.otherOp(0, 2) } throws RuntimeException("test")
-        every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
-
-        try {
-            mock.otherOp(0, 2)
-        } catch (ex: RuntimeException) {
-            assertEquals("test", ex.message)
-        }
-        assertEquals(1, mock.otherOp(1, 3))
-        assertEquals(2, mock.otherOp(1, 3))
-        assertEquals(3, mock.otherOp(1, 3))
-        assertEquals(3, mock.otherOp(1, 3))
-
-        verify(atLeast = 4) {
-            mock.otherOp(1, 3)
-        }
-        verify(atLeast = 5, inverse = true) {
-            mock.otherOp(1, 3)
-        }
-        verify(exactly = 4) {
-            mock.otherOp(1, 3)
-        }
-        verify(exactly = 3, inverse = true) {
-            mock.otherOp(1, 3)
-        }
-        verify(atMost = 4) {
-            mock.otherOp(1, 3)
-        }
-        verify(atMost = 3, inverse = true) {
-            mock.otherOp(1, 3)
-        }
-        verify(exactly = 0) {
-            mock.otherOp(1, 4)
-        }
-        verify(exactly = 1, inverse = true) {
-            mock.otherOp(1, 4)
-        }
-        verify(exactly = 1) {
-            mock.otherOp(0, 2)
-        }
-        verify(exactly = 2, inverse = true) {
-            mock.otherOp(0, 2)
-        }
-        verify(exactly = 0, inverse = true) {
-            mock.otherOp(0, 2)
-        }
-    }
-
-    "MockKStubScope tests" {
-        every { mock.otherOp(0, 2) } throws RuntimeException("test")
-        every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
-
-        try {
-            mock.otherOp(0, 2)
-        } catch (ex: RuntimeException) {
-            assertEquals("test", ex.message)
-        }
-        assertEquals(1, mock.otherOp(1, 3))
-        assertEquals(2, mock.otherOp(1, 3))
-        assertEquals(3, mock.otherOp(1, 3))
-        assertEquals(3, mock.otherOp(1, 3))
-
-        verify { mock.otherOp(0, 2) }
-        verifyOrder {
-            mock.otherOp(1, 3)
-            mock.otherOp(1, 3)
-            mock.otherOp(1, 3)
-            mock.otherOp(1, 3)
-        }
-        verifySequence {
-            mock.otherOp(0, 2)
-            mock.otherOp(1, 3)
-            mock.otherOp(1, 3)
-            mock.otherOp(1, 3)
-            mock.otherOp(1, 3)
-        }
-    }
+//    "MockKStubScope tests" {
+//        every { mock.otherOp(0, 2) } throws RuntimeException("test")
+//        every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
+//
+//        try {
+//            mock.otherOp(0, 2)
+//        } catch (ex: RuntimeException) {
+//            assertEquals("test", ex.message)
+//        }
+//        assertEquals(1, mock.otherOp(1, 3))
+//        assertEquals(2, mock.otherOp(1, 3))
+//        assertEquals(3, mock.otherOp(1, 3))
+//        assertEquals(3, mock.otherOp(1, 3))
+//
+//        verify { mock.otherOp(0, 2) }
+//        verifyOrder {
+//            mock.otherOp(1, 3)
+//            mock.otherOp(1, 3)
+//            mock.otherOp(1, 3)
+//            mock.otherOp(1, 3)
+//        }
+//        verifySequence {
+//            mock.otherOp(0, 2)
+//            mock.otherOp(1, 3)
+//            mock.otherOp(1, 3)
+//            mock.otherOp(1, 3)
+//            mock.otherOp(1, 3)
+//        }
+//    }
 
 //    "MockKAnswerScope tests" {
 //        val lst = mutableListOf<Byte>()
@@ -304,4 +306,48 @@ class MockKTestSuite : StringSpec({
 //            spy.manyArgsOp(c = 7)
 //        }
 //    }
+
+    "matchers" {
+//       and, or, not, null(), nonNull(), any(nullable=true, ofType=Any), any for arrays
+        val a = IntWrapper(3)
+        val b = IntWrapper(4)
+
+        every { mock.otherOp(eq(a), refEq(b)) } returns 1
+
+        every { mock.otherOp(1, less(2)) } returns 2
+        every { mock.otherOp(1, cmpEq(2)) } returns 3
+        every { mock.otherOp(1, more(2)) } returns 4
+
+        every { mock.otherOp(2, less(1, andEquals = true)) } returns 5
+        every { mock.otherOp(2, cmpEq(2)) } returns 6
+        every { mock.otherOp(2, more(3, andEquals = true)) } returns 7
+
+        assertEquals(1, mock.otherOp(a, b))
+        assertEquals(0, mock.otherOp(IntWrapper(3), IntWrapper(4)))
+        assertEquals(1, mock.otherOp(IntWrapper(3), b))
+
+        assertEquals(2, mock.otherOp(1, 1))
+        assertEquals(3, mock.otherOp(1, 2))
+        assertEquals(4, mock.otherOp(1, 3))
+
+        assertEquals(5, mock.otherOp(2, 1))
+        assertEquals(6, mock.otherOp(2, 2))
+        assertEquals(7, mock.otherOp(2, 3))
+
+
+        verify {
+            mock.otherOp(a, b)
+            mock.otherOp(IntWrapper(3), IntWrapper(4))
+            mock.otherOp(IntWrapper(3), b)
+
+            mock.otherOp(1, 1)
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 3)
+
+            mock.otherOp(2, 1)
+            mock.otherOp(2, 2)
+            mock.otherOp(2, 3)
+        }
+
+    }
 })

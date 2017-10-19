@@ -11,7 +11,6 @@ import javassist.util.proxy.MethodHandler
 import javassist.util.proxy.ProxyFactory
 import javassist.util.proxy.ProxyObject
 import kotlinx.coroutines.experimental.runBlocking
-import org.junit.Assert
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runner.Runner
@@ -19,14 +18,66 @@ import org.junit.runner.notification.RunNotifier
 import org.slf4j.LoggerFactory
 import sun.reflect.ReflectionFactory
 import java.lang.AssertionError
+import java.lang.Class
+import java.lang.ClassNotFoundException
+import java.lang.Object
+import java.lang.System
 import java.lang.System.identityHashCode
+import java.lang.Thread
+import java.lang.ThreadLocal
+import java.lang.Void
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
 import java.util.logging.Level
+import kotlin.Any
+import kotlin.Array
+import kotlin.Boolean
+import kotlin.Byte
+import kotlin.Comparable
+import kotlin.Double
+import kotlin.Float
+import kotlin.Function0
+import kotlin.Function1
+import kotlin.Function10
+import kotlin.Function11
+import kotlin.Function12
+import kotlin.Function13
+import kotlin.Function14
+import kotlin.Function15
+import kotlin.Function16
+import kotlin.Function17
+import kotlin.Function18
+import kotlin.Function19
+import kotlin.Function2
+import kotlin.Function20
+import kotlin.Function21
+import kotlin.Function22
+import kotlin.Function3
+import kotlin.Function4
+import kotlin.Function5
+import kotlin.Function6
+import kotlin.Function7
+import kotlin.Function8
+import kotlin.Function9
+import kotlin.Int
+import kotlin.Long
+import kotlin.Nothing
+import kotlin.PublishedApi
+import kotlin.RuntimeException
+import kotlin.Short
+import kotlin.String
+import kotlin.Throwable
+import kotlin.Unit
+import kotlin.arrayOf
 import kotlin.coroutines.experimental.Continuation
+import kotlin.emptyArray
+import kotlin.let
+import kotlin.repeat
+import kotlin.synchronized
+import kotlin.with
 
 // ---------------------------- USER FACING --------------------------------
 
@@ -134,9 +185,15 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
 
     inline fun <reified T> match(noinline matcher: (T) -> Boolean): T = match(FunctionMatcher(matcher))
     inline fun <reified T> eq(value: T): T = match(EqMatcher(value))
+    inline fun <reified T> refEq(value: T): T = match(EqMatcher(value, ref = true))
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
     inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
     inline fun <reified T> capture(slot: CapturingSlot<T>): T = match(CapturingSlotMatcher(slot))
+    inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0))
+    inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1))
+    inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = true): T = match(ComparingMatcher(value, if (andEquals) -2 else -1))
+    inline fun <reified T> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
+    inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
 }
 
 class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
@@ -213,16 +270,31 @@ data class CapturingSlot<T>(var captured: T? = null) {
     }
 }
 
-data class EqMatcher<T>(val value: T) : Matcher<T> {
-    override fun match(arg: T): Boolean = arg == value
+data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
+    override fun match(arg: T): Boolean =
+            if (ref) {
+                arg === value
+            } else {
+                arg == value
+            }
 
-    override fun toString(): String = "eq(" + MockKGateway.toString(value) + ")"
+    override fun toString(): String =
+            if (ref)
+                "refEq(${MockKGateway.toString(value)})"
+            else
+                "eq(${MockKGateway.toString(value)})"
 }
 
 data class ConstantMatcher<T>(val constValue: Boolean) : Matcher<T> {
     override fun match(arg: T): Boolean = constValue
 
     override fun toString(): String = if (constValue) "any()" else "none()"
+}
+
+interface CompositeMatcher<T> {
+    val operandValues: List<T>
+
+    var subMatchers: List<Matcher<T>>?
 }
 
 data class FunctionMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
@@ -252,6 +324,74 @@ data class CapturingSlotMatcher<T>(val captureSlot: CapturingSlot<T>) : Matcher<
     override fun toString(): String = "slotCapture()"
 }
 
+data class ComparingMatcher<T : Comparable<T>>(val value: T, val cmpFunc: Int) : Matcher<T> {
+    override fun match(arg: T): Boolean {
+        val n = arg.compareTo(value)
+        return when (cmpFunc) {
+            2 -> n >= 0
+            1 -> n > 0
+            0 -> n == 0
+            -1 -> n < 0
+            -2 -> n <= 0
+            else -> throw MockKException("bad comparing function")
+        }
+    }
+
+    override fun toString(): String =
+            when (cmpFunc) {
+                -2 -> "less(andEquals)"
+                -1 -> "less()"
+                0 -> "cmpEq()"
+                1 -> "more()"
+                2 -> "more(andEquals)"
+                else -> throw MockKException("bad comparing function")
+            }
+}
+
+data class AndOrMatcher<T>(val and: Boolean,
+                           val first: T,
+                           val second: T) : Matcher<T>, CompositeMatcher<T> {
+    override val operandValues: List<T>
+        get() = listOf(first, second)
+
+    override var subMatchers: List<Matcher<T>>? = null
+
+    override fun match(arg: T): Boolean =
+            if (and)
+                subMatchers!![0].match(arg) && subMatchers!![1].match(arg)
+            else
+                subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
+
+    override fun toString() : String {
+        val sm = subMatchers
+        val op = if (and) "and" else "or"
+        return if (sm != null)
+            "$op(${sm[0]}, ${sm[1]})"
+        else
+            "$op()"
+    }
+
+
+}
+
+data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T> {
+    override val operandValues: List<T>
+        get() = listOf(value)
+
+    override var subMatchers: List<Matcher<T>>? = null
+
+    override fun match(arg: T) =
+            !subMatchers!![0].match(arg)
+
+    override fun toString() : String {
+        val sm = subMatchers
+        return if (sm != null)
+            "not(${sm[0]})"
+        else
+            "not()"
+    }
+}
+
 
 data class ConstantAnswer<T>(val constantValue: T?) : Answer<T?> {
     override fun answer(invocation: InvocationCall) = constantValue
@@ -276,7 +416,7 @@ data class ManyAnswersAnswer<T>(val answers: List<T?>) : Answer<T?> {
 }
 
 data class ThrowingAnswer(val ex: Throwable) : Answer<Nothing> {
-    override fun answer(matcher: InvocationCall) : Nothing {
+    override fun answer(matcher: InvocationCall): Nothing {
         throw ex
     }
 
