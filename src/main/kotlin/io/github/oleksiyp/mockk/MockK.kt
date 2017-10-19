@@ -194,6 +194,7 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) -2 else -1))
     inline fun <reified T> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
     inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
+    inline fun <reified T> not(value: T) = match(NotMatcher(value))
 }
 
 class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
@@ -339,11 +340,11 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T, val cmpFunc: Int) :
 
     override fun toString(): String =
             when (cmpFunc) {
-                -2 -> "less(andEquals)"
-                -1 -> "less()"
-                0 -> "cmpEq()"
-                1 -> "more()"
-                2 -> "more(andEquals)"
+                -2 -> "lessAndEquals($value)"
+                -1 -> "less($value)"
+                0 -> "cmpEq($value)"
+                1 -> "more($value)"
+                2 -> "moreAndEquals($value)"
                 else -> throw MockKException("bad comparing function")
             }
 }

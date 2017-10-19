@@ -308,7 +308,7 @@ class MockKTestSuite : StringSpec({
 //    }
 
     "matchers" {
-//       and, or, not, null(), nonNull(), any(nullable=true, ofType=Any), any for arrays
+        // null(), nonNull(), any(nullable=true, ofType=Any), any for arrays
         val a = IntWrapper(3)
         val b = IntWrapper(4)
 
@@ -324,6 +324,10 @@ class MockKTestSuite : StringSpec({
 
         every { mock.otherOp(3, or(eq(3), eq(5))) } returns 8
         every { mock.otherOp(3, and(more(8), less(15))) } returns 9
+        every { mock.otherOp(3, or(more(20, andEquals = true), 17)) } returns 10
+        every { mock.otherOp(4, not(13)) } returns 11
+
+        every { mock.otherOp(5, or(or(more(20), 17), 13)) } returns 12
 
         assertEquals(1, mock.otherOp(a, b))
         assertEquals(0, mock.otherOp(IntWrapper(3), IntWrapper(4)))
@@ -345,6 +349,23 @@ class MockKTestSuite : StringSpec({
         assertEquals(9, mock.otherOp(3, 11))
         assertEquals(9, mock.otherOp(3, 14))
         assertEquals(0, mock.otherOp(3, 15))
+        assertEquals(0, mock.otherOp(3, 19))
+        assertEquals(10, mock.otherOp(3, 20))
+        assertEquals(10, mock.otherOp(3, 100))
+
+        assertEquals(11, mock.otherOp(4, 12))
+        assertEquals(0, mock.otherOp(4, 13))
+        assertEquals(11, mock.otherOp(4, 14))
+
+        assertEquals(0, mock.otherOp(5, 12))
+        assertEquals(12, mock.otherOp(5, 13))
+        assertEquals(0, mock.otherOp(5, 14))
+        assertEquals(0, mock.otherOp(5, 16))
+        assertEquals(12, mock.otherOp(5, 17))
+        assertEquals(0, mock.otherOp(5, 18))
+        assertEquals(0, mock.otherOp(5, 20))
+        assertEquals(12, mock.otherOp(5, 21))
+        assertEquals(12, mock.otherOp(5, 100))
 
         verify {
             mock.otherOp(a, b)
