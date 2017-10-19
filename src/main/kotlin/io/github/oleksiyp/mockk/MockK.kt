@@ -195,6 +195,8 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
     inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
     inline fun <reified T> not(value: T) = match(NotMatcher(value))
+    inline fun <reified T> isNull(inverse: Boolean = false) = match(NullableMatcher<T>(inverse))
+    inline fun <reified T, R : T> ofType(cls: Class<R>) = match(TypeMatcher<T>(cls))
 }
 
 class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
@@ -208,12 +210,12 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
 
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
-    infix fun answers(answer: MockKAnswerScope.(InvocationCall) -> T?) =
+    infix fun answers(answer: MockKAnswerScope.(Call) -> T?) =
             answers(FunctionAnswer({ MockKAnswerScope(gw, it).answer(it) }))
 }
 
 class MockKAnswerScope(private val gw: MockKGateway,
-                       val call: InvocationCall) {
+                       val call: Call) {
 
     val invocation = call.invocation
     val matcher = call.matcher
@@ -276,7 +278,24 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
             if (ref) {
                 arg === value
             } else {
-                arg == value
+                if (arg is Any && arg.javaClass.isArray) {
+                    if (value !is Any || value.javaClass != arg.javaClass) {
+                        false
+                    } else {
+                        when (arg.javaClass) {
+                            BooleanArray::class.java -> Arrays.equals(arg as IntArray, value as IntArray)
+                            ByteArray::class.java -> Arrays.equals(arg as ByteArray, value as ByteArray)
+                            ShortArray::class.java -> Arrays.equals(arg as ShortArray, value as ShortArray)
+                            IntArray::class.java -> Arrays.equals(arg as IntArray, value as IntArray)
+                            LongArray::class.java -> Arrays.equals(arg as LongArray, value as LongArray)
+                            FloatArray::class.java -> Arrays.equals(arg as FloatArray, value as FloatArray)
+                            DoubleArray::class.java -> Arrays.equals(arg as DoubleArray, value as DoubleArray)
+                            else -> Arrays.equals(arg as Array<Any>, value as Array<Any>)
+                        }
+                    }
+                } else {
+                    arg == value
+                }
             }
 
     override fun toString(): String =
@@ -409,15 +428,31 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, Captur
     }
 }
 
+data class NullableMatcher<T>(val inverse: Boolean) : Matcher<T> {
+    override fun match(arg: T) = if (inverse) arg != null else arg == null
+
+    override fun toString(): String {
+        return if (inverse)
+            "isNull()"
+        else
+            "nonNullable()"
+    }
+}
+
+data class TypeMatcher<T>(val cls: Class<*>) : Matcher<T> {
+    override fun match(arg: T) = cls.isInstance(arg)
+
+    override fun toString() = "ofType(${cls.name})"
+}
 
 data class ConstantAnswer<T>(val constantValue: T?) : Answer<T?> {
-    override fun answer(invocation: InvocationCall) = constantValue
+    override fun answer(call: Call) = constantValue
 
     override fun toString(): String = "const($constantValue)"
 }
 
-data class FunctionAnswer<T>(val answerFunc: (InvocationCall) -> T?) : Answer<T?> {
-    override fun answer(invocation: InvocationCall): T? = answerFunc(invocation)
+data class FunctionAnswer<T>(val answerFunc: (Call) -> T?) : Answer<T?> {
+    override fun answer(call: Call): T? = answerFunc(call)
 
     override fun toString(): String = "answer()"
 }
@@ -425,7 +460,7 @@ data class FunctionAnswer<T>(val answerFunc: (InvocationCall) -> T?) : Answer<T?
 data class ManyAnswersAnswer<T>(val answers: List<T?>) : Answer<T?> {
     private var n = 0
 
-    override fun answer(matcher: InvocationCall): T? {
+    override fun answer(call: Call): T? {
         val next = if (n == answers.size - 1) n else n++
         return answers[next]
     }
@@ -433,7 +468,7 @@ data class ManyAnswersAnswer<T>(val answers: List<T?>) : Answer<T?> {
 }
 
 data class ThrowingAnswer(val ex: Throwable) : Answer<Nothing> {
-    override fun answer(matcher: InvocationCall): Nothing {
+    override fun answer(call: Call): Nothing {
         throw ex
     }
 
@@ -484,7 +519,10 @@ interface MockKGateway {
             return cls.cast(obj)
         }
 
-        fun anyValue(type: Class<*>, block: () -> Any? = { MockKGateway.LOCATOR().instantiator.instantiate(type) }): Any? {
+        fun anyValue(type: Class<*>,
+                     block: () -> Any? = {
+                         MockKGateway.LOCATOR().instantiator.instantiate(type)
+                     }): Any? {
             return when (type) {
                 Void.TYPE -> Unit
                 Boolean::class.java -> false
@@ -496,7 +534,20 @@ interface MockKGateway {
                 Double::class.java -> 0.0
                 String::class.java -> ""
                 Object::class.java -> Object()
-                else -> block()
+                BooleanArray::class.java -> BooleanArray(0)
+                ByteArray::class.java -> ByteArray(0)
+                ShortArray::class.java -> ShortArray(0)
+                IntArray::class.java -> IntArray(0)
+                LongArray::class.java -> LongArray(0)
+                FloatArray::class.java -> FloatArray(0)
+                DoubleArray::class.java -> DoubleArray(0)
+                else -> {
+                    if (type.isArray) {
+                        arrayOfNulls<Any>(0)
+                    } else {
+                        block()
+                    }
+                }
             }
         }
 
@@ -537,7 +588,7 @@ interface CallRecorder {
 data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
 
 interface Verifier {
-    fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult
+    fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult
 }
 
 interface Instantiator {
@@ -551,6 +602,8 @@ data class Invocation(val self: MockKInstance,
     override fun toString(): String {
         return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
     }
+
+    fun withSelf(newSelf: MockKInstance) = Invocation(newSelf, method, args, timestamp)
 }
 
 data class InvocationMatcher(val self: Matcher<Any>,
@@ -575,9 +628,15 @@ data class InvocationMatcher(val self: Matcher<Any>,
 
         return true
     }
+
+    fun withSelf(newSelf: Matcher<Any>) = InvocationMatcher(newSelf, method, args)
 }
 
-data class InvocationCall(val invocation: Invocation, val matcher: InvocationMatcher)
+data class Call(val invocation: Invocation, val matcher: InvocationMatcher, val chained: Boolean) {
+    fun withInvocationAndMatcher(newInvocation : Invocation, newMatcher: InvocationMatcher) =
+            Call(newInvocation, newMatcher, chained)
+}
+
 data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
 interface Matcher<in T> {
@@ -589,7 +648,7 @@ interface CapturingMatcher {
 }
 
 interface Answer<out T> {
-    fun answer(matcher: InvocationCall): T
+    fun answer(call: Call): T
 }
 
 // ---------------------------- IMPLEMENTATION --------------------------------
@@ -601,9 +660,9 @@ interface MockKInstance : MockK {
 
     fun ___answer(invocation: Invocation): Any?
 
-    fun ___childMockK(invocation: Invocation): MockKInstance
+    fun ___childMockK(call: Call): MockKInstance
 
-    fun ___recordCalls(invocation: Invocation)
+    fun ___recordCall(invocation: Invocation)
 
     fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher, min: Int, max: Int): Boolean
 
@@ -618,7 +677,7 @@ private fun Method.toStr() =
 private open class MockKInstanceProxyHandler(private val cls: Class<*>,
                                              private val obj: Any) : MethodHandler, MockKInstance {
     private val answers = synchronizedList(mutableListOf<InvocationAnswer>())
-    private val childs = synchronizedMap(hashMapOf<Invocation, MockKInstance>())
+    private val childs = synchronizedMap(hashMapOf<InvocationMatcher, MockKInstance>())
     private val recordedCalls = synchronizedList(mutableListOf<Invocation>())
 
     override val spiedObj: Any
@@ -639,9 +698,8 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
 
                 ___captureAnswer(it.matcher, invocation)
 
-                val call = InvocationCall(invocation, it.matcher)
+                val call = Call(invocation, it.matcher, false)
                 it.answer.answer(call)
-
             } ?: defaultAnswer(invocation)
         }
     }
@@ -656,12 +714,11 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
     }
 
     protected open fun defaultAnswer(invocation: Invocation): Any? {
-        return MockKGateway.anyValue(invocation.method.returnType) {
-            ___childMockK(invocation)
-        }
+        val cls = invocation.method.returnType
+        return MockKGateway.anyValue(cls) { null }
     }
 
-    override fun ___recordCalls(invocation: Invocation) {
+    override fun ___recordCall(invocation: Invocation) {
         recordedCalls.add(invocation)
     }
 
@@ -690,9 +747,9 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         return identityHashCode(obj)
     }
 
-    override fun ___childMockK(invocation: Invocation): MockKInstance {
-        return childs.computeIfAbsent(invocation, {
-            MockKGateway.mockk(invocation.method.returnType) as MockKInstance
+    override fun ___childMockK(call: Call): MockKInstance {
+        return childs.computeIfAbsent(call.matcher, {
+            MockKGateway.mockk(call.invocation.method.returnType) as MockKInstance
         })
     }
 
@@ -805,8 +862,8 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
     private val signedCalls = mutableListOf<SignedCall>()
     private val callRounds = mutableListOf<CallRound>()
-    private val invocationMatchers = mutableListOf<InvocationCall>()
-    private val childMocks = mutableListOf<MockK>()
+    private val calls = mutableListOf<Call>()
+    private val childMocks = mutableListOf<Ref>()
 
     val matchers = mutableListOf<Matcher<*>>()
     val signatures = mutableListOf<Any>()
@@ -821,23 +878,25 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         log.info { "Starting stubbing" }
         checkMode(Mode.ANSWERING)
         mode = Mode.STUBBING
+        childMocks.clear()
     }
 
     override fun startVerification() {
         log.info { "Starting verification" }
         checkMode(Mode.ANSWERING)
         mode = Mode.VERIFYING
+        childMocks.clear()
     }
 
     override fun catchArgs(round: Int, n: Int) {
         checkMode(Mode.STUBBING, Mode.VERIFYING)
-        childMocks.clear()
         if (round > 0) {
             callRounds.add(CallRound(signedCalls.toList()))
             signedCalls.clear()
         }
         if (round == n) {
             signMatchers()
+            mockRealChilds()
             callRounds.clear()
         }
     }
@@ -851,7 +910,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             throw MockKException("Not all call rounds result in same amount of calls")
         }
 
-        invocationMatchers.clear()
+        calls.clear()
 
         repeat(nCalls) { callN ->
 
@@ -882,7 +941,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             repeat(zeroCall.invocation.args.size) { nArgument ->
                 val signature = callInAllRounds.map {
                     val arg = it.invocation.args[nArgument]
-                    if (byValue(it.invocation.args[nArgument].javaClass))
+                    if (passByValue(it.invocation.args[nArgument].javaClass))
                         arg
                     else
                         Ref(arg)
@@ -902,7 +961,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                 matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, op) ->
                     val signature = cmList.map {
                         val arg = it.operandValues[nOp] as Any
-                        if (byValue(arg.javaClass))
+                        if (passByValue(arg.javaClass))
                             arg
                         else
                             Ref(arg)
@@ -924,20 +983,22 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                 throw MockKException("Failed to find few matchers by signature: $matcherMap")
             }
 
-            val invocationMatcher = InvocationMatcher(
-                    EqMatcher(zeroCall.invocation.self),
+            val im = InvocationMatcher(
+                    EqMatcher(zeroCall.invocation.self, ref = true),
                     EqMatcher(zeroCall.invocation.method),
                     argMatchers.toList() as List<Matcher<Any>>)
-            log.info { "Built matcher: $invocationMatcher" }
-            invocationMatchers.add(InvocationCall(zeroCall.invocation, invocationMatcher))
+            log.info { "Built matcher: $im" }
+            calls.add(Call(zeroCall.invocation, im,
+                    childMocks.contains(Ref(zeroCall.invocation.self))))
         }
+        childMocks.clear()
     }
 
     override fun <T> matcher(matcher: Matcher<*>, cls: Class<T>): T {
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         matchers.add(matcher)
         val signatureValue = signatureValue(cls)
-        signatures.add(if (byValue(cls)) signatureValue as Any else Ref(signatureValue as Any))
+        signatures.add(if (passByValue(cls)) signatureValue as Any else Ref(signatureValue as Any))
         return signatureValue
     }
 
@@ -958,7 +1019,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         })
     }
 
-    private fun byValue(cls: Class<*>): Boolean {
+    private fun passByValue(cls: Class<*>): Boolean {
         return when (cls) {
             java.lang.Boolean::class.java -> true
             java.lang.Byte::class.java -> true
@@ -975,7 +1036,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
-            invocation.self.___recordCalls(invocation)
+            invocation.self.___recordCall(invocation)
             val answer = invocation.self.___answer(invocation)
             log.info { "Recorded call: $invocation, answer: $answer" }
             return answer
@@ -993,25 +1054,64 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         matchers.clear()
         signatures.clear()
 
-        return MockKGateway.anyValue(invocation.method.returnType) {
-            // TODO optimize child mocks
-            val child = MockKGateway.mockk(invocation.method.returnType) as MockK
-            childMocks.add(child)
-            child
+        val cls = invocation.method.returnType
+        return MockKGateway.anyValue(cls) {
+            if (cls.isArray) {
+                null
+            } else {
+                val child = MockKGateway.mockk(cls) as MockK
+                childMocks.add(Ref(child))
+                child
+            }
         }
+    }
+
+    fun mockRealChilds() {
+        var newSelf: MockKInstance? = null
+        val newCalls = mutableListOf<Call>()
+
+        for ((idx, ic) in calls.withIndex()) {
+            val lastCall = idx == calls.size - 1
+
+            val invocation = ic.invocation
+
+            if (!ic.chained) {
+                newSelf = invocation.self
+            }
+
+            val newInvocation = ic.invocation.withSelf(newSelf!!)
+            val newMatcher = ic.matcher.withSelf(EqMatcher(newSelf, ref=true))
+            val newCall = ic.withInvocationAndMatcher(newInvocation, newMatcher)
+
+            newCalls.add(newCall)
+
+            if (!lastCall && calls[idx + 1].chained) {
+                newSelf = newSelf!!.___childMockK(newCall)
+            }
+        }
+
+        calls.clear()
+        calls.addAll(newCalls)
+
+        log.debug { "Mocked childs" }
     }
 
     override fun answer(answer: Answer<*>) {
         checkMode(Mode.STUBBING)
-        var ans = answer
 
-        for (im in invocationMatchers.reversed()) {
-            val invocation = im.invocation
-            invocation.self.___addAnswer(im.matcher, ans)
-            ans = ConstantAnswer(MockKGateway.anyValue(invocation.method.returnType) {
-                invocation.self.___childMockK(invocation)
-            })
+        for ((idx, ic) in calls.withIndex()) {
+            val lastCall = idx == calls.size - 1
+
+            val ans = if (lastCall) {
+                answer
+            } else {
+                ConstantAnswer(calls[idx + 1].invocation.self)
+            }
+
+            ic.invocation.self.___addAnswer(ic.matcher, ans)
         }
+
+        calls.clear()
 
         log.debug { "Done stubbing" }
         mode = Mode.ANSWERING
@@ -1020,11 +1120,15 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     override fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int) {
         checkMode(Mode.VERIFYING)
 
-        val outcome = gw.verifier(ordering).verify(invocationMatchers, min, max)
+        val outcome = gw.verifier(ordering).verify(calls, min, max)
 
         log.debug { "Done verification. Outcome: $outcome" }
         mode = Mode.ANSWERING
 
+        failIfNotPassed(outcome, inverse)
+    }
+
+    private fun failIfNotPassed(outcome: VerificationResult, inverse: Boolean) {
         val matcherStr = if (outcome.matcher != null) ", matcher: ${outcome.matcher}" else ""
 
         if (inverse) {
@@ -1040,8 +1144,8 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 }
 
 private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult {
-        return matchers
+    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
+        return calls
                 .firstOrNull { !it.invocation.self.___matchesAnyRecordedCalls(it.matcher, min, max) }
                 ?.matcher
                 ?.let { VerificationResult(false, it) }
@@ -1049,7 +1153,7 @@ private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
     }
 }
 
-private fun List<InvocationCall>.allCalls() =
+private fun List<Call>.allCalls() =
         this.map { Ref(it.invocation.self) }
                 .distinct()
                 .map { it.value as MockKInstance }
@@ -1057,18 +1161,18 @@ private fun List<InvocationCall>.allCalls() =
                 .sortedBy { it.timestamp }
 
 private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult {
-        val allCalls = matchers.allCalls()
+    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
+        val allCalls = calls.allCalls()
 
-        if (matchers.size > allCalls.size) {
+        if (calls.size > allCalls.size) {
             return VerificationResult(false)
         }
 
         // LCS algorithm
-        var prev = Array(matchers.size, { 0 })
-        var curr = Array(matchers.size, { 0 })
+        var prev = Array(calls.size, { 0 })
+        var curr = Array(calls.size, { 0 })
         for (call in allCalls) {
-            for ((matcherIdx, matcher) in matchers.map { it.matcher }.withIndex()) {
+            for ((matcherIdx, matcher) in calls.map { it.matcher }.withIndex()) {
                 curr[matcherIdx] = if (matcher.match(call)) {
                     if (matcherIdx == 0) 1 else prev[matcherIdx - 1] + 1
                 } else {
@@ -1081,20 +1185,20 @@ private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
         }
 
         // match only if all matchers present
-        return VerificationResult(prev[matchers.size - 1] == matchers.size)
+        return VerificationResult(prev[calls.size - 1] == calls.size)
     }
 }
 
 private class SequenceVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationCall>, min: Int, max: Int): VerificationResult {
-        val allCalls = matchers.allCalls()
+    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
+        val allCalls = calls.allCalls()
 
-        if (allCalls.size != matchers.size) {
+        if (allCalls.size != calls.size) {
             return VerificationResult(false)
         }
 
         for ((i, call) in allCalls.withIndex()) {
-            if (!matchers[i].matcher.match(call)) {
+            if (!calls[i].matcher.match(call)) {
                 return VerificationResult(false)
             }
         }

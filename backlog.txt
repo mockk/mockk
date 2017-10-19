@@ -11,13 +11,16 @@ Ultra-minimal issue tracking
 +clearMocks(answers, calls, mocks)
 +verify(atLeast, atMost, nCalls)
 +rename methods not to clash other mocking frameworks
-matchers: refEq, more, less, and, or, not, null(), nonNull(), any(nullable=true, ofType=Any), any for arrays
++matchers: refEq, more, less, and, or, not, null(), nonNull(), any(isNull=true, ofType=Any)
++arrays support
 child mock chained calls
 add some good comments
+PR
 ---M1---
+deep array equality matching
+TODO: check all kinds of arrays
 human readable exceptions helping diagnosis
 split to separate files
-PR
 ---M2---
 mock: extraInterfaces, mock name
 performance optimization: HashableMatcher
