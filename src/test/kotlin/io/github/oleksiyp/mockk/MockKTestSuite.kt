@@ -329,6 +329,9 @@ class MockKTestSuite : StringSpec({
 
         every { mock.otherOp(5, or(or(more(20), 17), 13)) } returns 12
 
+        val v = slot<Int>()
+        every { mock.otherOp(6, and(capture(v), more(20))) } answers { v.captured }
+
         assertEquals(1, mock.otherOp(a, b))
         assertEquals(0, mock.otherOp(IntWrapper(3), IntWrapper(4)))
         assertEquals(1, mock.otherOp(IntWrapper(3), b))
@@ -366,6 +369,13 @@ class MockKTestSuite : StringSpec({
         assertEquals(0, mock.otherOp(5, 20))
         assertEquals(12, mock.otherOp(5, 21))
         assertEquals(12, mock.otherOp(5, 100))
+
+        assertEquals(0, mock.otherOp(6, 19))
+        assertEquals(0, mock.otherOp(6, 20))
+        assertEquals(21, mock.otherOp(6, 21))
+        assertEquals(22, mock.otherOp(6, 22))
+        assertEquals(23, mock.otherOp(6, 23))
+        assertEquals(100, mock.otherOp(6, 100))
 
         verify {
             mock.otherOp(a, b)

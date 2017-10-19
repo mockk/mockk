@@ -296,7 +296,15 @@ interface CompositeMatcher<T> {
     val operandValues: List<T>
 
     var subMatchers: List<Matcher<T>>?
+
+    fun CompositeMatcher<*>.captureSubMatchers(arg: Any) {
+        subMatchers?.let {
+            it.filterIsInstance<CapturingMatcher>()
+                    .forEach { it.capture(arg) }
+        }
+    }
 }
+
 
 data class FunctionMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
     override fun match(arg: T): Boolean = matchingFunc(arg)
@@ -351,7 +359,7 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T, val cmpFunc: Int) :
 
 data class AndOrMatcher<T>(val and: Boolean,
                            val first: T,
-                           val second: T) : Matcher<T>, CompositeMatcher<T> {
+                           val second: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
     override val operandValues: List<T>
         get() = listOf(first, second)
 
@@ -362,6 +370,10 @@ data class AndOrMatcher<T>(val and: Boolean,
                 subMatchers!![0].match(arg) && subMatchers!![1].match(arg)
             else
                 subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
+
+    override fun capture(arg: Any) {
+        captureSubMatchers(arg)
+    }
 
     override fun toString(): String {
         val sm = subMatchers
@@ -375,7 +387,7 @@ data class AndOrMatcher<T>(val and: Boolean,
 
 }
 
-data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T> {
+data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
     override val operandValues: List<T>
         get() = listOf(value)
 
@@ -383,6 +395,10 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T> {
 
     override fun match(arg: T) =
             !subMatchers!![0].match(arg)
+
+    override fun capture(arg: Any) {
+        captureSubMatchers(arg)
+    }
 
     override fun toString(): String {
         val sm = subMatchers
