@@ -54,6 +54,8 @@ inline fun <reified T> mockk(): T = MockKGateway.mockk(T::class.java)
 
 inline fun <reified T> spyk(obj: T): T = MockKGateway.spyk(T::class.java, obj)
 
+inline fun <reified T> slot() = CapturingSlot<T>()
+
 fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
     val gw = MockKGateway.LOCATOR()
     val callRecorder = gw.callRecorder
@@ -107,10 +109,11 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
         return MockKGateway.matcherInCall(gw, matcher)
     }
 
-    inline fun <reified T> match(noinline matcher: (T) -> Boolean): T = match(LambdaMatcher(matcher))
+    inline fun <reified T> match(noinline matcher: (T) -> Boolean): T = match(FunctionMatcher(matcher))
     inline fun <reified T> eq(value: T): T = match(EqMatcher(value))
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
     inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
+    inline fun <reified T> capture(slot: CapturingSlot<T>): T = match(CapturingSlotMatcher(slot))
 }
 
 class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
@@ -118,12 +121,15 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
 
     infix fun returns(returnValue: T?) = answers(ConstantAnswer(returnValue))
 
-    infix fun answers(answer: MockKAnswerScope.(Invocation) -> T?) =
-            answers(LambdaAnswer({ MockKAnswerScope(gw, it).answer(it) }))
+    infix fun answers(answer: MockKAnswerScope.(InvocationCall) -> T?) =
+            answers(FunctionAnswer({ MockKAnswerScope(gw, it).answer(it) }))
 }
 
 class MockKAnswerScope(private val gw: MockKGateway,
-                       val invocation: Invocation) {
+                       val call: InvocationCall) {
+
+    val invocation = call.invocation
+    val matcher = call.matcher
 
     val self
         get() = invocation.self as MockK
@@ -144,9 +150,39 @@ class MockKAnswerScope(private val gw: MockKGateway,
     inline fun <reified T> thirdArg() = invocation.args[2] as T
     inline fun <reified T> lastArg() = invocation.args[invocation.args.size - 1] as T
 
-    inline fun <T> MutableList<T>.captured() = get(size - 1)
+    inline fun <T> MutableList<T>.captured() = last()
 }
 
+data class CapturingSlot<T>(var captured: T? = null) {
+    inline fun <reified R> invoke(vararg args : Any?): R? {
+        return when(args.size) {
+            0 -> (captured as Function0<R?>).invoke()
+            1 -> (captured as Function1<Any?, R?>).invoke(args[0])
+            2 -> (captured as Function2<Any?, Any?, R?>).invoke(args[0], args[1])
+            3 -> (captured as Function3<Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2])
+            4 -> (captured as Function4<Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3])
+            5 -> (captured as Function5<Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4])
+            6 -> (captured as Function6<Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5])
+            7 -> (captured as Function7<Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
+            8 -> (captured as Function8<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
+            9 -> (captured as Function9<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8])
+            10 -> (captured as Function10<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9])
+            11 -> (captured as Function11<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10])
+            12 -> (captured as Function12<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11])
+            13 -> (captured as Function13<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12])
+            14 -> (captured as Function14<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13])
+            15 -> (captured as Function15<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14])
+            16 -> (captured as Function16<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15])
+            17 -> (captured as Function17<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16])
+            18 -> (captured as Function18<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17])
+            19 -> (captured as Function19<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18])
+            20 -> (captured as Function20<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19])
+            21 -> (captured as Function21<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20])
+            22 -> (captured as Function22<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21])
+            else -> throw MockKException("too much arguments")
+        }
+    }
+}
 
 data class EqMatcher<T>(val value: T) : Matcher<T> {
     override fun match(arg: T): Boolean = arg == value
@@ -160,13 +196,13 @@ data class ConstantMatcher<T>(val constValue: Boolean) : Matcher<T> {
     override fun toString(): String = if (constValue) "any()" else "none()"
 }
 
-data class LambdaMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
+data class FunctionMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
     override fun match(arg: T): Boolean = matchingFunc(arg)
 
     override fun toString(): String = "matcher()"
 }
 
-data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, CapturingMatcher<T> {
+data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, CapturingMatcher {
     override fun capture(arg: Any) {
         captureList.add(arg as T)
     }
@@ -177,14 +213,25 @@ data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, Capt
 }
 
 
+data class CapturingSlotMatcher<T>(val captureSlot: CapturingSlot<T>) : Matcher<T>, CapturingMatcher {
+    override fun capture(arg: Any) {
+        captureSlot.captured = arg as T
+    }
+
+    override fun match(arg: T): Boolean = true
+
+    override fun toString(): String = "slotCapture()"
+}
+
+
 data class ConstantAnswer<T>(val constantValue: T?) : Answer<T?> {
-    override fun answer(invocation: Invocation) = constantValue
+    override fun answer(invocation: InvocationCall) = constantValue
 
     override fun toString(): String = "const($constantValue)"
 }
 
-data class LambdaAnswer<T>(val answerFunc: (Invocation) -> T?) : Answer<T?> {
-    override fun answer(invocation: Invocation): T? = answerFunc(invocation)
+data class FunctionAnswer<T>(val answerFunc: (InvocationCall) -> T?) : Answer<T?> {
+    override fun answer(invocation: InvocationCall): T? = answerFunc(invocation)
 
     override fun toString(): String = "answer()"
 }
@@ -287,7 +334,7 @@ interface CallRecorder {
 data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
 
 interface Verifier {
-    fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult
+    fun verify(matchers: List<InvocationCall>): VerificationResult
 }
 
 interface Instantiator {
@@ -327,18 +374,19 @@ data class InvocationMatcher(val self: Matcher<Any>,
     }
 }
 
-data class InvocationMatcherWithCall(val invocation: Invocation, val matcher: InvocationMatcher)
+data class InvocationCall(val invocation: Invocation, val matcher: InvocationMatcher)
+data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
 interface Matcher<in T> {
     fun match(arg: T): Boolean
 }
 
-interface CapturingMatcher<in T> {
+interface CapturingMatcher {
     fun capture(arg: Any)
 }
 
 interface Answer<T> {
-    fun answer(invocation: Invocation): T
+    fun answer(matcher: InvocationCall): T
 }
 
 // ---------------------------- IMPLEMENTATION --------------------------------
@@ -348,7 +396,7 @@ interface MockKInstance : MockK {
 
     fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
 
-    fun ___findAnswerAndCapture(invocation: Invocation): Answer<*>
+    fun ___answer(invocation: Invocation): Any?
 
     fun ___childMockK(invocation: Invocation): MockKInstance
 
@@ -365,7 +413,7 @@ private fun Method.toStr() =
 private open class MockKInstanceProxyHandler(private val cls: Class<*>,
                                              private val obj: Any) : MethodHandler, MockKInstance {
 
-    private val answers = synchronizedList(mutableListOf<Pair<InvocationMatcher, Answer<*>>>())
+    private val answers = synchronizedList(mutableListOf<InvocationAnswer>())
     private val mocks = synchronizedMap(hashMapOf<Invocation, MockKInstance>())
     private val recordedCalls = synchronizedList(mutableListOf<Invocation>())
 
@@ -373,23 +421,31 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         get() = throw MockKException("spiedObj is actual only for spies")
 
     override fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
-        answers.add(Pair(matcher, answer))
+        answers.add(InvocationAnswer(matcher, answer))
     }
 
-    override fun ___findAnswerAndCapture(invocation: Invocation): Answer<*> {
+    override fun ___answer(invocation: Invocation): Any? {
         return synchronized(answers) {
-            val invocationAndMatcher = answers.firstOrNull { it.first.match(invocation) }
+
+            val invocationAndMatcher = answers
+                    .reversed()
+                    .firstOrNull { it.matcher.match(invocation) }
+
             invocationAndMatcher?.let {
-                ___captureAnswer(it.first, invocation)
-                it.second
-            } ?: ConstantAnswer(defaultAnswer(invocation))
+
+                ___captureAnswer(it.matcher, invocation)
+
+                val call = InvocationCall(invocation, it.matcher)
+                it.answer.answer(call)
+
+            } ?: defaultAnswer(invocation)
         }
     }
 
     private fun ___captureAnswer(invocationMatcher: InvocationMatcher, invocation: Invocation) {
         repeat(invocationMatcher.args.size) {
             val argMatcher = invocationMatcher.args[it]
-            if (argMatcher is CapturingMatcher<*>) {
+            if (argMatcher is CapturingMatcher) {
                 argMatcher.capture(invocation.args[it])
             }
         }
@@ -528,7 +584,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
     private val signedCalls = mutableListOf<SignedCall>()
     private val callRounds = mutableListOf<CallRound>()
-    private val invocationMatchers = mutableListOf<InvocationMatcherWithCall>()
+    private val invocationMatchers = mutableListOf<InvocationCall>()
     private val childMocks = mutableListOf<MockK>()
 
     val matchers = mutableListOf<Matcher<*>>()
@@ -636,7 +692,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                     EqMatcher(zeroCall.invocation.method),
                     argMatchers.toList() as List<Matcher<Any>>)
             log.info { "Built matcher: $invocationMatcher" }
-            invocationMatchers.add(InvocationMatcherWithCall(zeroCall.invocation, invocationMatcher))
+            invocationMatchers.add(InvocationCall(zeroCall.invocation, invocationMatcher))
         }
     }
 
@@ -683,7 +739,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
             invocation.self.___recordCalls(invocation)
-            val answer = invocation.self.___findAnswerAndCapture(invocation).answer(invocation)
+            val answer = invocation.self.___answer(invocation)
             log.info { "Recorded call: $invocation, answer: $answer" }
             return answer
         } else {
@@ -750,7 +806,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 }
 
 private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+    override fun verify(matchers: List<InvocationCall>): VerificationResult {
         return matchers
                 .firstOrNull { !it.invocation.self.___matchesAnyRecordedCalls(it.matcher) }
                 ?.matcher
@@ -759,7 +815,7 @@ private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
     }
 }
 
-private fun List<InvocationMatcherWithCall>.allCalls() =
+private fun List<InvocationCall>.allCalls() =
         this.map { Ref(it.invocation.self) }
                 .distinct()
                 .map { it.value as MockKInstance }
@@ -767,15 +823,16 @@ private fun List<InvocationMatcherWithCall>.allCalls() =
                 .sortedBy { it.timestamp }
 
 private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+    override fun verify(matchers: List<InvocationCall>): VerificationResult {
         val allCalls = matchers.allCalls()
 
         if (matchers.size > allCalls.size) {
             return VerificationResult(false)
         }
 
-        var prev = Array<Int>(matchers.size, {0})
-        var curr = Array<Int>(matchers.size, {0})
+        // LCS algorithm
+        var prev = Array(matchers.size, { 0 })
+        var curr = Array(matchers.size, { 0 })
         for (call in allCalls) {
             for ((matcherIdx, matcher) in matchers.map { it.matcher }.withIndex()) {
                 curr[matcherIdx] = if (matcher.match(call)) {
@@ -789,13 +846,13 @@ private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
             prev = swap
         }
 
-
+        // match only if all matchers matched
         return VerificationResult(prev[matchers.size - 1] == matchers.size)
     }
 }
 
 private class SequenceVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+    override fun verify(matchers: List<InvocationCall>): VerificationResult {
         val allCalls = matchers.allCalls()
 
         if (allCalls.size != matchers.size) {

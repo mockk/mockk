@@ -1,13 +1,15 @@
 +arguments: firstArg, secondArg, thirdArg, lastArg
 +capturing: caputre(lst) .captured() extension
-verifyOrder { }, verifySequence { }
-lambda: lambda(), firstLambda(a, b, c), ... (check order in named params)
++verifyOrder { }, verifySequence { }
++lambda: lambda(), firstLambda(a, b, c), ... (check order in named params)
 and, or, not
 refEq, more, less
-other JVMs
-Android
+add some good comments
+rename methods not to clash other mocking frameworks
 performance optimization: HashableMatcher
 performance optimization: ProxyCache
+other JVMs
+Android
 ------
 human readable exceptions helping diagnosis
 split to separate files
