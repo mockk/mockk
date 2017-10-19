@@ -322,6 +322,9 @@ class MockKTestSuite : StringSpec({
         every { mock.otherOp(2, cmpEq(2)) } returns 6
         every { mock.otherOp(2, more(3, andEquals = true)) } returns 7
 
+        every { mock.otherOp(3, or(eq(3), eq(5))) } returns 8
+        every { mock.otherOp(3, and(more(8), less(15))) } returns 9
+
         assertEquals(1, mock.otherOp(a, b))
         assertEquals(0, mock.otherOp(IntWrapper(3), IntWrapper(4)))
         assertEquals(1, mock.otherOp(IntWrapper(3), b))
@@ -334,6 +337,14 @@ class MockKTestSuite : StringSpec({
         assertEquals(6, mock.otherOp(2, 2))
         assertEquals(7, mock.otherOp(2, 3))
 
+        assertEquals(8, mock.otherOp(3, 3))
+        assertEquals(0, mock.otherOp(3, 4))
+        assertEquals(8, mock.otherOp(3, 5))
+        assertEquals(0, mock.otherOp(3, 8))
+        assertEquals(9, mock.otherOp(3, 9))
+        assertEquals(9, mock.otherOp(3, 11))
+        assertEquals(9, mock.otherOp(3, 14))
+        assertEquals(0, mock.otherOp(3, 15))
 
         verify {
             mock.otherOp(a, b)
@@ -347,6 +358,8 @@ class MockKTestSuite : StringSpec({
             mock.otherOp(2, 1)
             mock.otherOp(2, 2)
             mock.otherOp(2, 3)
+
+            mock.otherOp(3, or(3, 5))
         }
 
     }

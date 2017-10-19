@@ -191,7 +191,7 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> capture(slot: CapturingSlot<T>): T = match(CapturingSlotMatcher(slot))
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0))
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1))
-    inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = true): T = match(ComparingMatcher(value, if (andEquals) -2 else -1))
+    inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) -2 else -1))
     inline fun <reified T> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
     inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
 }
@@ -362,7 +362,7 @@ data class AndOrMatcher<T>(val and: Boolean,
             else
                 subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
 
-    override fun toString() : String {
+    override fun toString(): String {
         val sm = subMatchers
         val op = if (and) "and" else "or"
         return if (sm != null)
@@ -383,7 +383,7 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T> {
     override fun match(arg: T) =
             !subMatchers!![0].match(arg)
 
-    override fun toString() : String {
+    override fun toString(): String {
         val sm = subMatchers
         return if (sm != null)
             "not(${sm[0]})"
@@ -833,16 +833,6 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         if (callRounds.any { it.calls.size != nCalls }) {
             throw MockKException("Not all call rounds result in same amount of calls")
         }
-        callRounds.forEach { callRound ->
-            val callZero = callRound.calls[0]
-            if (callRound.calls.any {
-                it.matchers.size != callZero.matchers.size ||
-                        it.invocation.args.size != callZero.invocation.args.size ||
-                        it.signaturePart.size != callZero.signaturePart.size
-            }) {
-                throw MockKException("Not all calls attached to same number of matchers and arguments")
-            }
-        }
 
         invocationMatchers.clear()
 
@@ -850,6 +840,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
             val callInAllRounds = callRounds.map { it.calls[callN] }
             val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
+            val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
             val zeroCall = callInAllRounds[0]
 
             log.info { "Processing call #${callN}: ${zeroCall.invocation.method.toStr()}" }
@@ -857,6 +848,12 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             repeat(zeroCall.matchers.size) { nMatcher ->
                 val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()
                 val signature = callInAllRounds.map { it.signaturePart[nMatcher] }.toList()
+
+                if (matcher is CompositeMatcher<*>) {
+                    compositeMatchers.add(callInAllRounds.map {
+                        it.matchers[nMatcher] as CompositeMatcher<*>
+                    })
+                }
 
                 matcherMap[signature] = matcher
             }
@@ -880,6 +877,25 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                         ?: EqMatcher(zeroCall.invocation.args[nArgument])
 
                 argMatchers.add(matcher)
+            }
+
+            for (cmList in compositeMatchers) {
+                val matcher = cmList.last()
+
+                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, op) ->
+                    val signature = cmList.map {
+                        val arg = it.operandValues[nOp] as Any
+                        if (byValue(arg.javaClass))
+                            arg
+                        else
+                            Ref(arg)
+                    }.toList()
+
+                    log.debug { "Signature for $nOp operand of $matcher composite matcher: $signature" }
+
+                    matcherMap.remove(signature)
+                            ?: EqMatcher(matcher.operandValues[nOp])
+                } as List<Matcher<Any?>>?
             }
 
             if (zeroCall.invocation.method.isSuspend()) {
@@ -952,9 +968,6 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     }
 
     private fun addCallWithMatchers(invocation: Invocation): Any? {
-        if (matchers.size > invocation.args.size) {
-            throw MockKException("More matchers then arguments")
-        }
         if (childMocks.any { mock -> invocation.args.any { it === mock } }) {
             throw MockKException("Passing child mocks to arguments is prohibited")
         }
