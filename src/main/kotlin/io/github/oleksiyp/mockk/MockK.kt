@@ -388,7 +388,7 @@ interface Answer<out T> {
 /**
  * Mock invocation
  */
-data class Invocation(val self: MockKInstance,
+data class Invocation(val self: MockK,
                       val method: Method,
                       val args: List<Any>,
                       val timestamp: Long = System.nanoTime()) {
@@ -396,7 +396,7 @@ data class Invocation(val self: MockKInstance,
         return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
     }
 
-    fun withSelf(newSelf: MockKInstance) = Invocation(newSelf, method, args, timestamp)
+    fun withSelf(newSelf: MockK) = Invocation(newSelf, method, args, timestamp)
 }
 
 /**
@@ -690,7 +690,7 @@ interface MockKGateway {
     fun verifier(ordering: Ordering): Verifier
 
     companion object {
-        val defaultImpl = MockKGatewayImpl()
+        val defaultImpl : MockKGateway = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
 
         private val log = logger<MockKGateway>()
@@ -814,7 +814,7 @@ interface Instantiator {
 
 // ---------------------------- IMPLEMENTATION --------------------------------
 
-interface MockKInstance : MockK {
+internal interface MockKInstance : MockK {
     fun ___type(): Class<*>
 
     fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
@@ -967,7 +967,7 @@ private class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject,
 }
 
 
-class MockKGatewayImpl : MockKGateway {
+private class MockKGatewayImpl : MockKGateway {
     private val callRecorderTL = ThreadLocal.withInitial { CallRecorderImpl(this) }
     private val instantiatorTL = ThreadLocal.withInitial { InstantiatorImpl(this) }
     private val unorderedVerifierTL = ThreadLocal.withInitial { UnorderedVerifierImpl(this) }
@@ -1009,6 +1009,8 @@ private data class SignedCall(val invocation: Invocation,
                               val signaturePart: List<Any>)
 
 private data class CallRound(val calls: List<SignedCall>)
+
+private fun Invocation.self() = self as MockKInstance
 
 private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     private val log = logger<CallRecorderImpl>()
@@ -1197,8 +1199,8 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
-            invocation.self.___recordCall(invocation)
-            val answer = invocation.self.___answer(invocation)
+            invocation.self().___recordCall(invocation)
+            val answer = invocation.self().___answer(invocation)
             log.info { "Recorded call: $invocation, answer: $answer" }
             return answer
         } else {
@@ -1237,7 +1239,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             val invocation = ic.invocation
 
             if (!ic.chained) {
-                newSelf = invocation.self
+                newSelf = invocation.self()
             }
 
             val newInvocation = ic.invocation.withSelf(newSelf!!)
@@ -1269,7 +1271,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                 ConstantAnswer(calls[idx + 1].invocation.self)
             }
 
-            ic.invocation.self.___addAnswer(ic.matcher, ans)
+            ic.invocation.self().___addAnswer(ic.matcher, ans)
         }
 
         calls.clear()
@@ -1307,7 +1309,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
     override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
         return calls
-                .firstOrNull { !it.invocation.self.___matchesAnyRecordedCalls(it.matcher, min, max) }
+                .firstOrNull { !it.invocation.self().___matchesAnyRecordedCalls(it.matcher, min, max) }
                 ?.matcher
                 ?.let { VerificationResult(false, it) }
                 ?: VerificationResult(true)
