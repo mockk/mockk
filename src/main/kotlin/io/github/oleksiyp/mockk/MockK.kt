@@ -759,27 +759,51 @@ private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
     }
 }
 
-private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
-        return VerificationResult(false)
-    }
-}
-
-private class SequenceVerifierImpl(private val gw: MockKGateway) : Verifier {
-    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
-        val allCalls = matchers.reversed()
-                .map { Ref(it.invocation.self) }
+private fun List<InvocationMatcherWithCall>.allCalls() =
+        this.map { Ref(it.invocation.self) }
                 .distinct()
                 .map { it.value as MockKInstance }
                 .flatMap { it.___allRecordedCalls() }
                 .sortedBy { it.timestamp }
 
+private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
+    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+        val allCalls = matchers.allCalls()
+
+        if (matchers.size > allCalls.size) {
+            return VerificationResult(false)
+        }
+
+        var prev = Array<Int>(matchers.size, {0})
+        var curr = Array<Int>(matchers.size, {0})
+        for (call in allCalls) {
+            for ((matcherIdx, matcher) in matchers.map { it.matcher }.withIndex()) {
+                curr[matcherIdx] = if (matcher.match(call)) {
+                    if (matcherIdx == 0) 1 else prev[matcherIdx - 1] + 1
+                } else {
+                    maxOf(prev[matcherIdx], if (matcherIdx == 0) 0 else curr[matcherIdx - 1])
+                }
+            }
+            val swap = curr
+            curr = prev
+            prev = swap
+        }
+
+
+        return VerificationResult(prev[matchers.size - 1] == matchers.size)
+    }
+}
+
+private class SequenceVerifierImpl(private val gw: MockKGateway) : Verifier {
+    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+        val allCalls = matchers.allCalls()
+
         if (allCalls.size != matchers.size) {
             return VerificationResult(false)
         }
 
-        repeat(allCalls.size) {
-            if (!matchers[it].matcher.match(allCalls[it])) {
+        for ((i, call) in allCalls.withIndex()) {
+            if (!matchers[i].matcher.match(call)) {
                 return VerificationResult(false)
             }
         }

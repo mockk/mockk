@@ -26,7 +26,7 @@ class MockCls {
 }
 
 @RunWith(MockKJUnitRunner::class)
-class MockKTestSuit : StringSpec({
+class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>()
     val spy = spyk(MockCls())
 //    "partly argument matching" {
@@ -172,11 +172,36 @@ class MockKTestSuit : StringSpec({
             spy.manyArgsOp(c = 6)
             spy.manyArgsOp(c = 7)
         }
+        verifyOrder(inverse = true) {
+            spy.manyArgsOp(c = 7)
+            spy.manyArgsOp(c = 5)
+        }
+        verifyOrder(inverse = true) {
+            spy.manyArgsOp(c = 5)
+            spy.manyArgsOp(c = 4)
+        }
+        verifyOrder(inverse = true) {
+            spy.manyArgsOp(c = 4)
+            spy.manyArgsOp(c = 8)
+        }
         verifySequence {
             spy.manyArgsOp(c = 5)
             spy.manyArgsOp(c = 6)
             spy.manyArgsOp(c = 7)
         }
-
+        verifySequence(inverse = true) {
+            spy.manyArgsOp(c = 6)
+            spy.manyArgsOp(c = 7)
+        }
+        verifySequence(inverse = true) {
+            spy.manyArgsOp(c = 7)
+            spy.manyArgsOp(c = 6)
+            spy.manyArgsOp(c = 5)
+        }
+        verifySequence(inverse = true) {
+            spy.manyArgsOp(c = 6)
+            spy.manyArgsOp(c = 5)
+            spy.manyArgsOp(c = 7)
+        }
     }
 })

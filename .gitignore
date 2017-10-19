@@ -1,9 +1,10 @@
 .idea
+out
+*.iml
 .gradle
 build
 gradle
 gradlew
 gradlew.bat
-*.iml
 hs_err_*
 replay_*
