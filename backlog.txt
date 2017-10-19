@@ -9,5 +9,6 @@ Android
 performance optimization: HashableMatcher
 performance optimization: ProxyCache
 ------
+human readable exceptions helping diagnosis
 split to separate files
 PR

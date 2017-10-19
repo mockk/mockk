@@ -70,7 +70,13 @@ fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
     return MockKStubScope(gw)
 }
 
-fun <T> verify(mockBlock: suspend MockKScope.() -> T): Unit {
+enum class Ordering {
+    UNORDERED, ORDERED, SEQUENCE
+}
+
+fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
+               inverse: Boolean = false,
+               mockBlock: suspend MockKScope.() -> T) {
     val gw = MockKGateway.LOCATOR()
     val callRecorder = gw.callRecorder
     callRecorder.startVerification()
@@ -83,7 +89,17 @@ fun <T> verify(mockBlock: suspend MockKScope.() -> T): Unit {
         }
         callRecorder.catchArgs(n, n)
     }
-    callRecorder.verify()
+    callRecorder.verify(ordering, inverse)
+}
+
+fun <T> verifyOrder(inverse: Boolean = false,
+                    mockBlock: suspend MockKScope.() -> T) {
+    verify(Ordering.ORDERED, inverse, mockBlock)
+}
+
+fun <T> verifySequence(inverse: Boolean = false,
+                       mockBlock: suspend MockKScope.() -> T) {
+    verify(Ordering.SEQUENCE, inverse, mockBlock)
 }
 
 class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
@@ -97,7 +113,7 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
 }
 
-class MockKStubScope<T>(private val gw: MockKGateway) {
+class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     infix fun answers(answer: Answer<T?>) = gw.callRecorder.answer(answer)
 
     infix fun returns(returnValue: T?) = answers(ConstantAnswer(returnValue))
@@ -144,8 +160,8 @@ data class ConstantMatcher<T>(val constValue: Boolean) : Matcher<T> {
     override fun toString(): String = if (constValue) "any()" else "none()"
 }
 
-data class LambdaMatcher<T>(val matchingFUnc: (T) -> Boolean) : Matcher<T> {
-    override fun match(arg: T): Boolean = matchingFUnc(arg)
+data class LambdaMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
+    override fun match(arg: T): Boolean = matchingFunc(arg)
 
     override fun toString(): String = "matcher()"
 }
@@ -248,6 +264,8 @@ interface MockKGateway {
 
         val N_CALL_ROUNDS: Int = 64
     }
+
+    fun verifier(ordering: Ordering): Verifier
 }
 
 interface CallRecorder {
@@ -263,7 +281,13 @@ interface CallRecorder {
 
     fun answer(answer: Answer<*>)
 
-    fun verify()
+    fun verify(ordering: Ordering, inverse: Boolean)
+}
+
+data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
+
+interface Verifier {
+    fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult
 }
 
 interface Instantiator {
@@ -272,7 +296,8 @@ interface Instantiator {
 
 data class Invocation(val self: MockKInstance,
                       val method: Method,
-                      val args: List<Any>) {
+                      val args: List<Any>,
+                      val timestamp: Long = System.currentTimeMillis()) {
     override fun toString(): String {
         return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
     }
@@ -302,6 +327,8 @@ data class InvocationMatcher(val self: Matcher<Any>,
     }
 }
 
+data class InvocationMatcherWithCall(val invocation: Invocation, val matcher: InvocationMatcher)
+
 interface Matcher<in T> {
     fun match(arg: T): Boolean
 }
@@ -328,6 +355,8 @@ interface MockKInstance : MockK {
     fun ___recordCalls(invocation: Invocation)
 
     fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher): Boolean
+
+    fun ___allRecordedCalls(): List<Invocation>
 }
 
 private fun Method.toStr() =
@@ -376,10 +405,17 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         recordedCalls.add(invocation)
     }
 
+    override fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher): Boolean {
+        synchronized(recordedCalls) {
+            return recordedCalls.any { matcher.match(it) }
+        }
+    }
 
-    override fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher) =
-            recordedCalls.any { matcher.match(it) }
-
+    override fun ___allRecordedCalls(): List<Invocation> {
+        synchronized(recordedCalls) {
+            return recordedCalls.toList()
+        }
+    }
 
     override fun ___type(): Class<*> = cls
 
@@ -439,12 +475,22 @@ private class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject,
 class MockKGatewayImpl : MockKGateway {
     private val callRecorderTL = ThreadLocal.withInitial { CallRecorderImpl(this) }
     private val instantiatorTL = ThreadLocal.withInitial { InstantiatorImpl(this) }
+    private val unorderedVerifierTL = ThreadLocal.withInitial { UnorderedVerifierImpl(this) }
+    private val orderedVerifierTL = ThreadLocal.withInitial { OrderedVerifierImpl(this) }
+    private val sequenceVerifierTL = ThreadLocal.withInitial { SequenceVerifierImpl(this) }
 
     override val callRecorder: CallRecorder
         get() = callRecorderTL.get()
 
     override val instantiator: Instantiator
         get() = instantiatorTL.get()
+
+    override fun verifier(ordering: Ordering): Verifier =
+            when (ordering) {
+                Ordering.UNORDERED -> unorderedVerifierTL.get()
+                Ordering.ORDERED -> orderedVerifierTL.get()
+                Ordering.SEQUENCE -> sequenceVerifierTL.get()
+            }
 }
 
 private class Ref(val value: Any) {
@@ -482,7 +528,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
     private val signedCalls = mutableListOf<SignedCall>()
     private val callRounds = mutableListOf<CallRound>()
-    private val invocationMatchers = mutableListOf<Pair<Invocation, InvocationMatcher>>()
+    private val invocationMatchers = mutableListOf<InvocationMatcherWithCall>()
     private val childMocks = mutableListOf<MockK>()
 
     val matchers = mutableListOf<Matcher<*>>()
@@ -590,7 +636,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                     EqMatcher(zeroCall.invocation.method),
                     argMatchers.toList() as List<Matcher<Any>>)
             log.info { "Built matcher: $invocationMatcher" }
-            invocationMatchers.add(Pair(zeroCall.invocation, invocationMatcher))
+            invocationMatchers.add(InvocationMatcherWithCall(zeroCall.invocation, invocationMatcher))
         }
     }
 
@@ -670,8 +716,8 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         var ans = answer
 
         for (im in invocationMatchers.reversed()) {
-            val invocation = im.first
-            invocation.self.___addAnswer(im.second, ans)
+            val invocation = im.invocation
+            invocation.self.___addAnswer(im.matcher, ans)
             ans = ConstantAnswer(MockKGateway.anyValue(invocation.method.returnType) {
                 invocation.self.___childMockK(invocation)
             })
@@ -681,18 +727,65 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         mode = Mode.ANSWERING
     }
 
-    override fun verify() {
+    override fun verify(ordering: Ordering, inverse: Boolean) {
         checkMode(Mode.VERIFYING)
 
-        for (im in invocationMatchers.reversed()) {
-            if (!im.first.self.___matchesAnyRecordedCalls(im.second)) {
-                throw RuntimeException("verification failed " + im.second)
+        val outcome = gw.verifier(ordering).verify(invocationMatchers)
+
+        log.debug { "Done verification. Outcome: $outcome" }
+        mode = Mode.ANSWERING
+
+        val matcherStr = if (outcome.matcher != null) ", matcher: ${outcome.matcher}" else ""
+
+        if (inverse) {
+            if (outcome.matches) {
+                throw MockKException("Inverse verification failed$matcherStr")
+            }
+        } else {
+            if (!outcome.matches) {
+                throw MockKException("Verification failed$matcherStr")
             }
         }
-        log.debug { "Done verifying" }
-        mode = Mode.ANSWERING
     }
+}
 
+private class UnorderedVerifierImpl(private val gw: MockKGateway) : Verifier {
+    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+        return matchers
+                .firstOrNull { !it.invocation.self.___matchesAnyRecordedCalls(it.matcher) }
+                ?.matcher
+                ?.let { VerificationResult(false, it) }
+                ?: VerificationResult(true)
+    }
+}
+
+private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
+    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+        return VerificationResult(false)
+    }
+}
+
+private class SequenceVerifierImpl(private val gw: MockKGateway) : Verifier {
+    override fun verify(matchers: List<InvocationMatcherWithCall>): VerificationResult {
+        val allCalls = matchers.reversed()
+                .map { Ref(it.invocation.self) }
+                .distinct()
+                .map { it.value as MockKInstance }
+                .flatMap { it.___allRecordedCalls() }
+                .sortedBy { it.timestamp }
+
+        if (allCalls.size != matchers.size) {
+            return VerificationResult(false)
+        }
+
+        repeat(allCalls.size) {
+            if (!matchers[it].matcher.match(allCalls[it])) {
+                return VerificationResult(false)
+            }
+        }
+
+        return VerificationResult(true)
+    }
 }
 
 
