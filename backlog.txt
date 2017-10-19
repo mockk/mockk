@@ -1,9 +1,14 @@
++removing final, no-args-consrtuctor byte code transformation
++matcher signature
 +arguments: firstArg, secondArg, thirdArg, lastArg
 +capturing: capture(lst) .captured() extension
 +verifyOrder { }, verifySequence { }
-+lambda: lambda(), firstLambda(a, b, c), ... (check order in named params)
-and, or, not
-refEq, more, less
++slot.invoke(arg1, arg2, ... lastArg) for lambdas
+verify(atLeast, atMost, nCalls)
+clear(answers, calls, mocks)
+stub(returnsMany, throws)
+matchers: refEq, more, less,and, or, not, null(), nonNull(), any(nullable=true, ofType=Any), any for arrays
+mock: extraInterfaces, mock name
 add some good comments
 rename methods not to clash other mocking frameworks
 performance optimization: HashableMatcher
