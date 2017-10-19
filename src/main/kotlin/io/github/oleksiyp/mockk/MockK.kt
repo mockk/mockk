@@ -81,6 +81,9 @@ import kotlin.with
 
 // ---------------------------- USER FACING --------------------------------
 
+/**
+ * Runner to transforms classes early with junit {@link org.junit.runner.RunWith}
+ */
 class MockKJUnitRunner(cls: Class<*>) : Runner() {
 
     private val pool = TranslatingClassPool(MockKClassTranslator())
@@ -100,16 +103,31 @@ class MockKJUnitRunner(cls: Class<*>) : Runner() {
     override fun getDescription(): Description = parentRunner.description
 }
 
+/**
+ * All mocks are implementing this interface
+ */
 interface MockK {
     val spiedObj: Any
 }
 
+/**
+ * Builds a new mock for specified class
+ */
 inline fun <reified T> mockk(): T = MockKGateway.mockk(T::class.java)
 
+/**
+ * Builds a new spy for specified class
+ */
 inline fun <reified T> spyk(obj: T): T = MockKGateway.spyk(T::class.java, obj)
 
+/**
+ * Creates new capturing slot
+ */
 inline fun <reified T> slot() = CapturingSlot<T>()
 
+/**
+ * Starts a block of stubbing. Part of DSL.
+ */
 fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
     val gw = MockKGateway.LOCATOR()
     val callRecorder = gw.callRecorder
@@ -126,10 +144,27 @@ fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
     return MockKStubScope(gw)
 }
 
+/**
+ * Verification orderding
+ */
 enum class Ordering {
-    UNORDERED, ORDERED, SEQUENCE
+    /**
+     * Order is not important. Calls just should happen
+     */
+    UNORDERED,
+    /**
+     * Order is important, but not all calls are checked
+     */
+    ORDERED,
+    /**
+     * Order is important and all calls should be specified
+     */
+    SEQUENCE
 }
 
+/**
+ * Verifies calls happened in the past. Part of DSL
+ */
 fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                inverse: Boolean = false,
                atLeast: Int = 1,
@@ -160,16 +195,25 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
             if (exactly != -1) exactly else atMost)
 }
 
+/**
+ * Shortcut for ordered calls verification
+ */
 fun <T> verifyOrder(inverse: Boolean = false,
                     mockBlock: suspend MockKScope.() -> T) {
     verify(Ordering.ORDERED, inverse, mockBlock = mockBlock)
 }
 
+/**
+ * Shortcut for sequence calls verification
+ */
 fun <T> verifySequence(inverse: Boolean = false,
                        mockBlock: suspend MockKScope.() -> T) {
     verify(Ordering.SEQUENCE, inverse, mockBlock = mockBlock)
 }
 
+/**
+ * Resets information associated with mock
+ */
 fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
     for (mock in mocks) {
         if (mock is MockKInstance) {
@@ -178,6 +222,22 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
     }
 }
 
+/**
+ * Stubbing/verification scope. Part of DSL.
+ *
+ * Inside of the scope you can interact with mocks.
+ * You can chain calls to the mock, put argument matchers instead of arguments,
+ * capture arguments, combine matchers in and/or/not expressions.
+ *
+ * It's not required to specify all arguments as matchers,
+ * if the argument value is constant it's automatically replaced with eq() matcher.
+ * .
+ * Handling arguments that have defaults fetched from function (alike System.currentTimeMillis())
+ * can be an issue, because it's not a constant. Such arguments can always be replaced
+ * with some matcher.
+ *
+ * Provided information is gathered and associated with mock
+ */
 class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> match(matcher: Matcher<T>): T {
         return MockKGateway.matcherInCall(gw, matcher)
@@ -195,10 +255,15 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
     inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
     inline fun <reified T> not(value: T) = match(NotMatcher(value))
-    inline fun <reified T> isNull(inverse: Boolean = false) = match(NullableMatcher<T>(inverse))
+    inline fun <reified T> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T, R : T> ofType(cls: Class<R>) = match(TypeMatcher<T>(cls))
 }
 
+/**
+ * Stub scope. Part of DSL
+ *
+ * Allows to specify function result
+ */
 class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     infix fun answers(answer: Answer<T?>) = gw.callRecorder.answer(answer)
 
@@ -214,6 +279,9 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
             answers(FunctionAnswer({ MockKAnswerScope(gw, it).answer(it) }))
 }
 
+/**
+ * Scope for answering functions. Part of DSL
+ */
 class MockKAnswerScope(private val gw: MockKGateway,
                        val call: Call) {
 
@@ -242,6 +310,11 @@ class MockKAnswerScope(private val gw: MockKGateway,
     inline fun <T> MutableList<T>.captured() = last()
 }
 
+/**
+ * Slot allow to capture one value.
+ *
+ * If this values is lambda then it's possible to invoke it.
+ */
 data class CapturingSlot<T>(var captured: T? = null) {
     inline fun <reified R> invoke(vararg args: Any?): R? {
         return when (args.size) {
@@ -273,6 +346,105 @@ data class CapturingSlot<T>(var captured: T? = null) {
     }
 }
 
+/**
+ * Checks if argument is matching some criteria
+ */
+interface Matcher<in T> {
+    fun match(arg: T): Boolean
+}
+
+/**
+ * Captures the argument
+ */
+interface CapturingMatcher {
+    fun capture(arg: Any)
+}
+
+/**
+ * Matcher composed from several other matchers.
+ *
+ * Allows to build matching expressions. Alike "and(eq(5), capture(lst))"
+ */
+interface CompositeMatcher<T> {
+    val operandValues: List<T>
+
+    var subMatchers: List<Matcher<T>>?
+
+    fun CompositeMatcher<*>.captureSubMatchers(arg: Any) {
+        subMatchers?.let {
+            it.filterIsInstance<CapturingMatcher>()
+                    .forEach { it.capture(arg) }
+        }
+    }
+}
+
+/**
+ * Provides return value for mocked function
+ */
+interface Answer<out T> {
+    fun answer(call: Call): T
+}
+
+/**
+ * Mock invocation
+ */
+data class Invocation(val self: MockKInstance,
+                      val method: Method,
+                      val args: List<Any>,
+                      val timestamp: Long = System.nanoTime()) {
+    override fun toString(): String {
+        return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
+    }
+
+    fun withSelf(newSelf: MockKInstance) = Invocation(newSelf, method, args, timestamp)
+}
+
+/**
+ * Checks if invocation is matching via number of matchers
+ */
+data class InvocationMatcher(val self: Matcher<Any>,
+                             val method: Matcher<Method>,
+                             val args: List<Matcher<Any>>) {
+    fun match(invocation: Invocation): Boolean {
+        if (!self.match(invocation.self)) {
+            return false
+        }
+        if (!method.match(invocation.method)) {
+            return false
+        }
+        if (args.size != invocation.args.size) {
+            return false
+        }
+
+        for (i in 0 until args.size) {
+            if (!args[i].match(invocation.args[i])) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    fun withSelf(newSelf: Matcher<Any>) = InvocationMatcher(newSelf, method, args)
+}
+
+/**
+ * Matched invocation
+ */
+data class Call(val invocation: Invocation, val matcher: InvocationMatcher, val chained: Boolean) {
+    fun withInvocationAndMatcher(newInvocation : Invocation, newMatcher: InvocationMatcher) =
+            Call(newInvocation, newMatcher, chained)
+}
+
+/**
+ * Answer and invocation matcher
+ */
+data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
+
+
+/**
+ * Matcher that checks equality. By reference and by value (equals method)
+ */
 data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
     override fun match(arg: T): Boolean =
             if (ref) {
@@ -305,32 +477,27 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
                 "eq(${MockKGateway.toString(value)})"
 }
 
+/**
+ * Matcher that always returns one same value.
+ */
 data class ConstantMatcher<T>(val constValue: Boolean) : Matcher<T> {
     override fun match(arg: T): Boolean = constValue
 
     override fun toString(): String = if (constValue) "any()" else "none()"
 }
 
-interface CompositeMatcher<T> {
-    val operandValues: List<T>
-
-    var subMatchers: List<Matcher<T>>?
-
-    fun CompositeMatcher<*>.captureSubMatchers(arg: Any) {
-        subMatchers?.let {
-            it.filterIsInstance<CapturingMatcher>()
-                    .forEach { it.capture(arg) }
-        }
-    }
-}
-
-
+/**
+ * Delegating matching to lambda function
+ */
 data class FunctionMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
     override fun match(arg: T): Boolean = matchingFunc(arg)
 
     override fun toString(): String = "matcher()"
 }
 
+/**
+ * Matcher capturing all results to the list.
+ */
 data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, CapturingMatcher {
     override fun capture(arg: Any) {
         captureList.add(arg as T)
@@ -342,6 +509,9 @@ data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, Capt
 }
 
 
+/**
+ * Matcher capturing one last value to the CapturingSlot
+ */
 data class CapturingSlotMatcher<T>(val captureSlot: CapturingSlot<T>) : Matcher<T>, CapturingMatcher {
     override fun capture(arg: Any) {
         captureSlot.captured = arg as T
@@ -352,6 +522,9 @@ data class CapturingSlotMatcher<T>(val captureSlot: CapturingSlot<T>) : Matcher<
     override fun toString(): String = "slotCapture()"
 }
 
+/**
+ * Matcher comparing values
+ */
 data class ComparingMatcher<T : Comparable<T>>(val value: T, val cmpFunc: Int) : Matcher<T> {
     override fun match(arg: T): Boolean {
         val n = arg.compareTo(value)
@@ -376,6 +549,9 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T, val cmpFunc: Int) :
             }
 }
 
+/**
+ * Boolean logic "AND" and "OR" matcher composed of two other matchers
+ */
 data class AndOrMatcher<T>(val and: Boolean,
                            val first: T,
                            val second: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
@@ -406,6 +582,9 @@ data class AndOrMatcher<T>(val and: Boolean,
 
 }
 
+/**
+ * Boolean logic "NOT" matcher composed of one matcher
+ */
 data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
     override val operandValues: List<T>
         get() = listOf(value)
@@ -428,7 +607,10 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, Captur
     }
 }
 
-data class NullableMatcher<T>(val inverse: Boolean) : Matcher<T> {
+/**
+ * Checks if argument is null or non-null
+ */
+data class NullCheckMatcher<T>(val inverse: Boolean) : Matcher<T> {
     override fun match(arg: T) = if (inverse) arg != null else arg == null
 
     override fun toString(): String {
@@ -439,24 +621,37 @@ data class NullableMatcher<T>(val inverse: Boolean) : Matcher<T> {
     }
 }
 
+/**
+ * Checks matcher data type
+ */
 data class TypeMatcher<T>(val cls: Class<*>) : Matcher<T> {
     override fun match(arg: T) = cls.isInstance(arg)
 
     override fun toString() = "ofType(${cls.name})"
 }
 
+/**
+ * Returns one constant reply
+ */
 data class ConstantAnswer<T>(val constantValue: T?) : Answer<T?> {
     override fun answer(call: Call) = constantValue
 
     override fun toString(): String = "const($constantValue)"
 }
 
+/**
+ * Delegates reply to the lambda function
+ */
 data class FunctionAnswer<T>(val answerFunc: (Call) -> T?) : Answer<T?> {
     override fun answer(call: Call): T? = answerFunc(call)
 
     override fun toString(): String = "answer()"
 }
 
+/**
+ * Returns many different replies, each time moving the next list element.
+ * Stops at the end.
+ */
 data class ManyAnswersAnswer<T>(val answers: List<T?>) : Answer<T?> {
     private var n = 0
 
@@ -467,6 +662,9 @@ data class ManyAnswersAnswer<T>(val answers: List<T?>) : Answer<T?> {
 
 }
 
+/**
+ * Throws exception instead of function reply
+ */
 data class ThrowingAnswer(val ex: Throwable) : Answer<Nothing> {
     override fun answer(call: Call): Nothing {
         throw ex
@@ -474,13 +672,22 @@ data class ThrowingAnswer(val ex: Throwable) : Answer<Nothing> {
 
 }
 
+/**
+ * Exception thrown by framework
+ */
 class MockKException(message: String) : RuntimeException(message)
 
-// ---------------------------- INTERFACES --------------------------------
+// ---------------------------- PROGRAMMER FACING --------------------------------
+
+/**
+ * Mediates mocking implementation
+ */
 interface MockKGateway {
     val callRecorder: CallRecorder
 
     val instantiator: Instantiator
+
+    fun verifier(ordering: Ordering): Verifier
 
     companion object {
         val defaultImpl = MockKGatewayImpl()
@@ -565,10 +772,11 @@ interface MockKGateway {
 
         val N_CALL_ROUNDS: Int = 64
     }
-
-    fun verifier(ordering: Ordering): Verifier
 }
 
+/**
+ * Backs DSL and build a list of calls
+ */
 interface CallRecorder {
     fun startStubbing()
 
@@ -585,70 +793,23 @@ interface CallRecorder {
     fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int)
 }
 
-data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
-
+/**
+ * Verifier takes the list of calls and checks what invocations happened to the mocks
+ */
 interface Verifier {
     fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult
 }
 
+/**
+ * Result of verfication
+ */
+data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
+
+/**
+ * Instantiates empty object for provided class
+ */
 interface Instantiator {
     fun <T> instantiate(cls: Class<T>): T
-}
-
-data class Invocation(val self: MockKInstance,
-                      val method: Method,
-                      val args: List<Any>,
-                      val timestamp: Long = System.currentTimeMillis()) {
-    override fun toString(): String {
-        return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
-    }
-
-    fun withSelf(newSelf: MockKInstance) = Invocation(newSelf, method, args, timestamp)
-}
-
-data class InvocationMatcher(val self: Matcher<Any>,
-                             val method: Matcher<Method>,
-                             val args: List<Matcher<Any>>) {
-    fun match(invocation: Invocation): Boolean {
-        if (!self.match(invocation.self)) {
-            return false
-        }
-        if (!method.match(invocation.method)) {
-            return false
-        }
-        if (args.size != invocation.args.size) {
-            return false
-        }
-
-        for (i in 0 until args.size) {
-            if (!args[i].match(invocation.args[i])) {
-                return false
-            }
-        }
-
-        return true
-    }
-
-    fun withSelf(newSelf: Matcher<Any>) = InvocationMatcher(newSelf, method, args)
-}
-
-data class Call(val invocation: Invocation, val matcher: InvocationMatcher, val chained: Boolean) {
-    fun withInvocationAndMatcher(newInvocation : Invocation, newMatcher: InvocationMatcher) =
-            Call(newInvocation, newMatcher, chained)
-}
-
-data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
-
-interface Matcher<in T> {
-    fun match(arg: T): Boolean
-}
-
-interface CapturingMatcher {
-    fun capture(arg: Any)
-}
-
-interface Answer<out T> {
-    fun answer(call: Call): T
 }
 
 // ---------------------------- IMPLEMENTATION --------------------------------

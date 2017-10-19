@@ -13,19 +13,21 @@ Ultra-minimal issue tracking
 +rename methods not to clash other mocking frameworks
 +matchers: refEq, more, less, and, or, not, null(), nonNull(), any(isNull=true, ofType=Any)
 +arrays support
-child mock chained calls
++child mock chained calls
 add some good comments
+split to separate files
 PR
 ---M1---
 deep array equality matching
-TODO: check all kinds of arrays
-human readable exceptions helping diagnosis
-split to separate files
----M2---
+don't display "creating mock" in logs for "fake mocks"
 mock: extraInterfaces, mock name
+TODO: check all kinds of arrays
+better human readable exceptions
+---M2---
 performance optimization: HashableMatcher
 performance optimization: ProxyCache
 performance optimization: Method mapping
+check nanoTime is OK (otherwise counter)
 Android
 other JVMs
 ...
