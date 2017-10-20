@@ -243,11 +243,12 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
         return MockKGateway.matcherInCall(gw, matcher)
     }
 
-    inline fun <reified T> match(noinline matcher: (T) -> Boolean): T = match(FunctionMatcher(matcher))
+    inline fun <reified T> match(noinline matcher: (T?) -> Boolean): T = match(FunctionMatcher(matcher))
     inline fun <reified T> eq(value: T): T = match(EqMatcher(value))
     inline fun <reified T> refEq(value: T): T = match(EqMatcher(value, ref = true))
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
     inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
+    inline fun <reified T> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst))
     inline fun <reified T> capture(slot: CapturingSlot<T>): T = match(CapturingSlotMatcher(slot))
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0))
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1))
@@ -350,14 +351,14 @@ data class CapturingSlot<T>(var captured: T? = null) {
  * Checks if argument is matching some criteria
  */
 interface Matcher<in T> {
-    fun match(arg: T): Boolean
+    fun match(arg: T?): Boolean
 }
 
 /**
  * Captures the argument
  */
 interface CapturingMatcher {
-    fun capture(arg: Any)
+    fun capture(arg: Any?)
 }
 
 /**
@@ -370,7 +371,7 @@ interface CompositeMatcher<T> {
 
     var subMatchers: List<Matcher<T>>?
 
-    fun CompositeMatcher<*>.captureSubMatchers(arg: Any) {
+    fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
         subMatchers?.let {
             it.filterIsInstance<CapturingMatcher>()
                     .forEach { it.capture(arg) }
@@ -390,7 +391,7 @@ interface Answer<out T> {
  */
 data class Invocation(val self: MockK,
                       val method: Method,
-                      val args: List<Any>,
+                      val args: List<Any?>,
                       val timestamp: Long = System.nanoTime()) {
     override fun toString(): String {
         return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
@@ -446,7 +447,7 @@ data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*
  * Matcher that checks equality. By reference and by value (equals method)
  */
 data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
-    override fun match(arg: T): Boolean =
+    override fun match(arg: T?): Boolean =
             if (ref) {
                 arg === value
             } else {
@@ -481,8 +482,8 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
 /**
  * Matcher that always returns one same value.
  */
-data class ConstantMatcher<T>(val constValue: Boolean) : Matcher<T> {
-    override fun match(arg: T): Boolean = constValue
+data class ConstantMatcher<in T>(val constValue: Boolean) : Matcher<T> {
+    override fun match(arg: T?): Boolean = constValue
 
     override fun toString(): String = if (constValue) "any()" else "none()"
 }
@@ -490,8 +491,8 @@ data class ConstantMatcher<T>(val constValue: Boolean) : Matcher<T> {
 /**
  * Delegating matching to lambda function
  */
-data class FunctionMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
-    override fun match(arg: T): Boolean = matchingFunc(arg)
+data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean) : Matcher<T> {
+    override fun match(arg: T?): Boolean = matchingFunc(arg)
 
     override fun toString(): String = "matcher()"
 }
@@ -500,25 +501,37 @@ data class FunctionMatcher<T>(val matchingFunc: (T) -> Boolean) : Matcher<T> {
  * Matcher capturing all results to the list.
  */
 data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, CapturingMatcher {
-    override fun capture(arg: Any) {
+    override fun capture(arg: Any?) {
         captureList.add(arg as T)
     }
 
-    override fun match(arg: T): Boolean = true
+    override fun match(arg: T?): Boolean = true
 
     override fun toString(): String = "capture()"
 }
 
+/**
+ * Matcher capturing all results to the list. Allows nulls
+ */
+data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>) : Matcher<T>, CapturingMatcher {
+    override fun capture(arg: Any?) {
+        captureList.add(arg as T?)
+    }
+
+    override fun match(arg: T?): Boolean = true
+
+    override fun toString(): String = "captureNullable()"
+}
 
 /**
  * Matcher capturing one last value to the CapturingSlot
  */
 data class CapturingSlotMatcher<T>(val captureSlot: CapturingSlot<T>) : Matcher<T>, CapturingMatcher {
-    override fun capture(arg: Any) {
-        captureSlot.captured = arg as T
+    override fun capture(arg: Any?) {
+        captureSlot.captured = arg as T?
     }
 
-    override fun match(arg: T): Boolean = true
+    override fun match(arg: T?): Boolean = true
 
     override fun toString(): String = "slotCapture()"
 }
@@ -527,7 +540,8 @@ data class CapturingSlotMatcher<T>(val captureSlot: CapturingSlot<T>) : Matcher<
  * Matcher comparing values
  */
 data class ComparingMatcher<T : Comparable<T>>(val value: T, val cmpFunc: Int) : Matcher<T> {
-    override fun match(arg: T): Boolean {
+    override fun match(arg: T?): Boolean {
+        if (arg == null) return false
         val n = arg.compareTo(value)
         return when (cmpFunc) {
             2 -> n >= 0
@@ -561,13 +575,13 @@ data class AndOrMatcher<T>(val and: Boolean,
 
     override var subMatchers: List<Matcher<T>>? = null
 
-    override fun match(arg: T): Boolean =
+    override fun match(arg: T?): Boolean =
             if (and)
                 subMatchers!![0].match(arg) && subMatchers!![1].match(arg)
             else
                 subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
 
-    override fun capture(arg: Any) {
+    override fun capture(arg: Any?) {
         captureSubMatchers(arg)
     }
 
@@ -592,10 +606,10 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, Captur
 
     override var subMatchers: List<Matcher<T>>? = null
 
-    override fun match(arg: T) =
+    override fun match(arg: T?) : Boolean =
             !subMatchers!![0].match(arg)
 
-    override fun capture(arg: Any) {
+    override fun capture(arg: Any?) {
         captureSubMatchers(arg)
     }
 
@@ -612,7 +626,7 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, Captur
  * Checks if argument is null or non-null
  */
 data class NullCheckMatcher<T>(val inverse: Boolean) : Matcher<T> {
-    override fun match(arg: T) = if (inverse) arg != null else arg == null
+    override fun match(arg: T?) : Boolean = if (inverse) arg != null else arg == null
 
     override fun toString(): String {
         return if (inverse)
@@ -626,7 +640,7 @@ data class NullCheckMatcher<T>(val inverse: Boolean) : Matcher<T> {
  * Checks matcher data type
  */
 data class TypeMatcher<T>(val cls: Class<*>) : Matcher<T> {
-    override fun match(arg: T) = cls.isInstance(arg)
+    override fun match(arg: T?) : Boolean = cls.isInstance(arg)
 
     override fun toString() = "ofType(${cls.name})"
 }
@@ -733,15 +747,27 @@ interface MockKGateway {
                      }): Any? {
             return when (type) {
                 Void.TYPE -> Unit
+
                 Boolean::class.java -> false
                 Byte::class.java -> 0.toByte()
                 Short::class.java -> 0.toShort()
+                Char::class.java -> 0.toChar()
                 Int::class.java -> 0
                 Long::class.java -> 0L
                 Float::class.java -> 0.0F
                 Double::class.java -> 0.0
                 String::class.java -> ""
                 Object::class.java -> Object()
+
+                java.lang.Boolean::class.java -> false
+                java.lang.Byte::class.java -> 0.toByte()
+                java.lang.Short::class.java -> 0.toShort()
+                java.lang.Character::class.java -> 0.toChar()
+                java.lang.Integer::class.java -> 0
+                java.lang.Long::class.java -> 0L
+                java.lang.Float::class.java -> 0.0F
+                java.lang.Double::class.java -> 0.0
+
                 BooleanArray::class.java -> BooleanArray(0)
                 ByteArray::class.java -> ByteArray(0)
                 CharArray::class.java -> CharArray(0)
@@ -857,13 +883,16 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
                     .reversed()
                     .firstOrNull { it.matcher.match(invocation) }
 
-            invocationAndMatcher?.let {
+            if (invocationAndMatcher == null) {
+                return defaultAnswer(invocation)
+            }
 
-                ___captureAnswer(it.matcher, invocation)
+            with(invocationAndMatcher) {
+                ___captureAnswer(matcher, invocation)
 
-                val call = Call(invocation, it.matcher, false)
-                it.answer.answer(call)
-            } ?: defaultAnswer(invocation)
+                val call = Call(invocation, matcher, false)
+                answer.answer(call)
+            }
         }
     }
 
@@ -919,7 +948,7 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
     override fun invoke(self: Any,
                         thisMethod: Method,
                         proceed: Method?,
-                        args: Array<out Any>): Any? {
+                        args: Array<out Any?>): Any? {
 
         findMethodInProxy(this, thisMethod)?.let {
             try {
@@ -1105,11 +1134,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
             repeat(zeroCall.invocation.args.size) { nArgument ->
                 val signature = callInAllRounds.map {
-                    val arg = it.invocation.args[nArgument]
-                    if (passByValue(it.invocation.args[nArgument].javaClass))
-                        arg
-                    else
-                        Ref(arg)
+                    packRef(it.invocation.args[nArgument])
                 }.toList()
 
                 log.debug { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
@@ -1125,11 +1150,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
                 matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, op) ->
                     val signature = cmList.map {
-                        val arg = it.operandValues[nOp] as Any
-                        if (passByValue(arg.javaClass))
-                            arg
-                        else
-                            Ref(arg)
+                        packRef(it.operandValues[nOp])
                     }.toList()
 
                     log.debug { "Signature for $nOp operand of $matcher composite matcher: $signature" }
@@ -1157,6 +1178,13 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                     childMocks.contains(Ref(zeroCall.invocation.self))))
         }
         childMocks.clear()
+    }
+
+    private fun packRef(arg: Any?): Any? {
+        return if (arg == null || passByValue(arg.javaClass))
+            arg
+        else
+            Ref(arg)
     }
 
     override fun <T> matcher(matcher: Matcher<*>, cls: Class<T>): T {

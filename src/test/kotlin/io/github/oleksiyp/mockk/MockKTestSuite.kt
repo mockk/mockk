@@ -35,6 +35,7 @@ class MockCls {
             0
         }
     }
+    fun nullableOp(a: Int = 1, b: Int = 2): Int? = a + b
 
     fun arrayOp(arr: BooleanArray) = arr.map { it }.toBooleanArray()
     fun arrayOp(arr: ByteArray) = arr.map { (it + 1).toByte() }.toByteArray()
@@ -129,7 +130,7 @@ class MockKTestSuite : StringSpec({
         verify { mock.manyArgsOp(r = eq("33")) }
         verify { mock.manyArgsOp(s = eq(IntWrapper(33))) }
         verify { mock.manyArgsOp(t = eq(IntWrapper(33))) }
-    }
+    }.config(enabled = true)
 
     "chained calls" {
         every { mock.chainOp(1, 2).otherOp(3, 4) } returns 1
@@ -162,7 +163,7 @@ class MockKTestSuite : StringSpec({
             mock.chainOp(5, 6).otherOp(7, 8)
             mock.chainOp(9, 10).otherOp(11, 12)
         }
-    }
+    }.config(enabled = true)
 
     "clearMocks" {
         every { mock.otherOp(0, 2) } returns 5
@@ -176,7 +177,7 @@ class MockKTestSuite : StringSpec({
         verifySequence {
             mock.otherOp(0, 2)
         }
-    }
+    }.config(enabled = true)
 
     "atLeast, atMost, exactly" {
         every { mock.otherOp(0, 2) } throws RuntimeException("test")
@@ -225,7 +226,7 @@ class MockKTestSuite : StringSpec({
         verify(exactly = 0, inverse = true) {
             mock.otherOp(0, 2)
         }
-    }
+    }.config(enabled = true)
 
     "stubbing actions" {
         every { mock.otherOp(0, 2) } throws RuntimeException("test")
@@ -255,10 +256,11 @@ class MockKTestSuite : StringSpec({
             mock.otherOp(1, 3)
             mock.otherOp(1, 3)
         }
-    }
+    }.config(enabled = true)
 
     "answers" {
-        val lst = mutableListOf<Byte>()
+        val lst = mutableListOf<Byte?>()
+        val lstNonNull = mutableListOf<Byte>()
         val slot = slot<() -> Int>()
 
         every { spy.manyArgsOp(a = any(), c = 5) } answers { if (firstArg()) 1.0 else 2.0 }
@@ -268,7 +270,8 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(c = 9) } answers { nArgs.toDouble() }
         every { spy.manyArgsOp(c = 10) } answers { spiedObj<MockCls>().otherOp(args[8] as Int).toDouble() }
         every { spy.manyArgsOp(c = 11) } answers { method.parameterCount.toDouble() }
-        every { spy.manyArgsOp(d = capture(lst), c = 12) } answers { lst.captured().toDouble() }
+        every { spy.manyArgsOp(d = capture(lstNonNull), c = 12) } answers { lstNonNull.captured().toDouble() }
+        every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
         every { spy.lambdaOp(1, capture(slot)) } answers { 1 - slot.invoke<Int>()!! }
 
         assertEquals(155.0, spy.manyArgsOp(), 1e-6)
@@ -283,10 +286,11 @@ class MockKTestSuite : StringSpec({
         assertEquals(20.0, spy.manyArgsOp(c = 11), 1e-6)
         assertEquals(10.0, spy.manyArgsOp(d = 10, c = 12), 1e-6)
         assertEquals(11.0, spy.manyArgsOp(d = 11, c = 12), 1e-6)
+        assertEquals(14.0, spy.manyArgsOp(d = 14, c = 13), 1e-6)
         assertEquals(-2, spy.lambdaOp(1, { 3 }))
 
-
-        assertEquals(listOf(10.toByte(), 11.toByte()), lst)
+        assertEquals(listOf(10.toByte(), 11.toByte()), lstNonNull)
+        assertEquals(listOf(14.toByte()), lst)
 
         verify { spy.manyArgsOp() }
         verify { spy.manyArgsOp(c = 5) }
@@ -302,7 +306,7 @@ class MockKTestSuite : StringSpec({
         verify { spy.manyArgsOp(d = 11, c = 12) }
         verify { spy.manyArgsOp(d = 11, c = 12) }
         verify { spy.lambdaOp(1, any()) }
-    }
+    }.config(enabled = true)
 
     "verify, verifyOrder, verifySequence" {
         every { spy.manyArgsOp(c = 5) } returns 1.0
@@ -369,7 +373,7 @@ class MockKTestSuite : StringSpec({
             spy.manyArgsOp(c = 5)
             spy.manyArgsOp(c = 7)
         }
-    }
+    }.config(enabled = true)
 
     "matchers" {
         val a = IntWrapper(3)
@@ -469,15 +473,18 @@ class MockKTestSuite : StringSpec({
 
             mock.otherOp(3, or(3, 5))
         }
-    }
+    }.config(enabled = true)
 
     "nulls" {
         every { mock.otherOp(null, isNull()) } returns 4
+        every { mock.nullableOp(1, 2) } returns null
 
         assertEquals(4, mock.otherOp(null, null))
+        assertEquals(null, mock.nullableOp(1, 2))
 
         verify { mock.otherOp(isNull(), null) }
-    }
+        verify { mock.nullableOp(1, 2) }
+    }.config(enabled = true)
 
     "arrays" {
         every { mock.arrayOp(BooleanArray(3, { true })) } returns BooleanArray(3, { false })
@@ -542,6 +549,5 @@ class MockKTestSuite : StringSpec({
 
         verify { mock.arrayOp(Array<Any>(3, { it + 1 })) }
         verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })) }
-
-    }
+    }.config(enabled = true)
 })
