@@ -36,7 +36,6 @@ class MockCls {
         }
     }
 
-//    fun arrayOp(arr: Array<Int>) = arr.map { it + 1 }.toIntArray()
     fun arrayOp(arr: BooleanArray) = arr.map { it }.toBooleanArray()
     fun arrayOp(arr: ByteArray) = arr.map { (it + 1).toByte() }.toByteArray()
     fun arrayOp(arr: ShortArray) = arr.map { (it + 1).toShort() }.toShortArray()
@@ -470,6 +469,14 @@ class MockKTestSuite : StringSpec({
 
             mock.otherOp(3, or(3, 5))
         }
+    }
+
+    "nulls" {
+        every { mock.otherOp(null, isNull()) } returns 4
+
+        assertEquals(4, mock.otherOp(null, null))
+
+        verify { mock.otherOp(isNull(), null) }
     }
 
     "arrays" {
