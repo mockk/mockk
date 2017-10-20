@@ -13,13 +13,13 @@ Ultra-minimal issue tracking
 +rename methods not to clash other mocking frameworks
 +matchers: refEq, more, less, and, or, not, null(), nonNull(), any(isNull=true, ofType=Any)
 +arrays support
++deep array equality matching
 +child mock chained calls
 +don't display "creating mock" in logs for "fake mocks"
 +add some comments
-PR
++PR
 ---M1---
 split to separate files
-deep array equality matching
 mock: extraInterfaces, mock name
 TODO: check all kinds of arrays
 better human readable exceptions

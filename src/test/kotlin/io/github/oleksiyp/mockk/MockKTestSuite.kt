@@ -36,9 +36,28 @@ class MockCls {
         }
     }
 
-    fun arrayOp(arr: Array<Int>) = arr.map { it + 1 }.toIntArray()
+//    fun arrayOp(arr: Array<Int>) = arr.map { it + 1 }.toIntArray()
+    fun arrayOp(arr: BooleanArray) = arr.map { it }.toBooleanArray()
+    fun arrayOp(arr: ByteArray) = arr.map { (it + 1).toByte() }.toByteArray()
+    fun arrayOp(arr: ShortArray) = arr.map { (it + 1).toShort() }.toShortArray()
+    fun arrayOp(arr: CharArray) = arr.map { (it + 1) }.toCharArray()
+    fun arrayOp(arr: IntArray) = arr.map { (it + 1).toInt() }.toIntArray()
+    fun arrayOp(arr: LongArray) = arr.map { (it + 1).toLong() }.toLongArray()
+    fun arrayOp(arr: FloatArray) = arr.map { (it + 1).toFloat() }.toFloatArray()
+    fun arrayOp(arr: DoubleArray) = arr.map { (it + 1).toDouble() }.toDoubleArray()
+
+    fun arrayOp(arr: Array<Boolean>) = arr.map { it }.toTypedArray()
+    fun arrayOp(arr: Array<Byte>) = arr.map { (it + 1).toByte() }.toTypedArray()
+    fun arrayOp(arr: Array<Short>) = arr.map { (it + 1).toShort() }.toTypedArray()
+    fun arrayOp(arr: Array<Char>) = arr.map { (it + 1).toChar() }.toTypedArray()
+    fun arrayOp(arr: Array<Int>) = arr.map { (it + 1).toInt() }.toTypedArray()
+    fun arrayOp(arr: Array<Long>) = arr.map { (it + 1).toLong() }.toTypedArray()
+    fun arrayOp(arr: Array<Float>) = arr.map { (it + 1).toFloat() }.toTypedArray()
+    fun arrayOp(arr: Array<Double>) = arr.map { (it + 1).toDouble() }.toTypedArray()
 
     fun chainOp(a: Int = 1, b: Int = 2) = MockCls()
+    fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
+    fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
 }
 
 @RunWith(MockKJUnitRunner::class)
@@ -454,13 +473,68 @@ class MockKTestSuite : StringSpec({
     }
 
     "arrays" {
-        every { mock.arrayOp(arrayOf(1, 2, 3)) } returns arrayOf(3, 2, 1).toIntArray()
-        // TODO check all kinds of arrays
+        every { mock.arrayOp(BooleanArray(3, { true })) } returns BooleanArray(3, { false })
+        every { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) } returns ByteArray(3, { (3 - it).toByte() })
+        every { mock.arrayOp(ShortArray(3, { (it + 1).toShort() })) } returns ShortArray(3, { (3 - it).toShort() })
+        every { mock.arrayOp(CharArray(3, { (it + 1).toChar() })) } returns CharArray(3, { (3 - it).toChar() })
+        every { mock.arrayOp(IntArray(3, { it + 1 })) } returns IntArray(3, { 3 - it })
+        every { mock.arrayOp(LongArray(3, { (it + 1).toLong() })) } returns LongArray(3, { (3 - it).toLong() })
+        every { mock.arrayOp(FloatArray(3, { (it + 1).toFloat() })) } returns FloatArray(3, { (3 - it).toFloat() })
+        every { mock.arrayOp(DoubleArray(3, { (it + 1).toDouble() })) } returns DoubleArray(3, { (3 - it).toDouble() })
 
-        assertArrayEquals(arrayOf(3, 2, 1).toIntArray(), mock.arrayOp(arrayOf(1, 2, 3)))
+        every { mock.arrayOp(Array<Boolean>(3, { true })) } returns Array<Boolean>(3, { false })
+        every { mock.arrayOp(Array<Byte>(3, { (it + 1).toByte() })) } returns Array<Byte>(3, { (3 - it).toByte() })
+        every { mock.arrayOp(Array<Short>(3, { (it + 1).toShort() })) } returns Array<Short>(3, { (3 - it).toShort() })
+        every { mock.arrayOp(Array<Char>(3, { (it + 1).toChar() })) } returns Array<Char>(3, { (3 - it).toChar() })
+        every { mock.arrayOp(Array<Int>(3, { it + 1 })) } returns Array<Int>(3, { 3 - it })
+        every { mock.arrayOp(Array<Long>(3, { (it + 1).toLong() })) } returns Array<Long>(3, { (3 - it).toLong() })
+        every { mock.arrayOp(Array<Float>(3, { (it + 1).toFloat() })) } returns Array<Float>(3, { (3 - it).toFloat() })
+        every { mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })) } returns Array<Double>(3, { (3 - it).toDouble() })
 
-        verify {
-            mock.arrayOp(arrayOf(1, 2, 3))
-        }
+        every { mock.arrayOp(Array<Any>(3, { it + 1 })) } returns Array<Any>(3, { 3 - it })
+        every { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })) } returns Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i}) })
+
+        assertArrayEquals(BooleanArray(3, { false }), mock.arrayOp(BooleanArray(3, { true })))
+        assertArrayEquals(ByteArray(3, { (3 - it).toByte() }), mock.arrayOp(ByteArray(3, { (it + 1).toByte() })))
+        assertArrayEquals(ShortArray(3, { (3 - it).toShort() }), mock.arrayOp(ShortArray(3, { (it + 1).toShort() })))
+        assertArrayEquals(CharArray(3, { (3 - it).toChar() }), mock.arrayOp(CharArray(3, { (it + 1).toChar() })))
+        assertArrayEquals(IntArray(3, { 3 - it }), mock.arrayOp(IntArray(3, { it + 1 })))
+        assertArrayEquals(LongArray(3, { (3 - it).toLong() }), mock.arrayOp(LongArray(3, { (it + 1).toLong() })))
+        assertArrayEquals(FloatArray(3, { (3 - it).toFloat() }), mock.arrayOp(FloatArray(3, { (it + 1).toFloat() })), 1e-6f)
+        assertArrayEquals(DoubleArray(3, { (3 - it).toDouble() }), mock.arrayOp(DoubleArray(3, { (it + 1).toDouble() })), 1e-6)
+
+        assertArrayEquals(Array<Boolean>(3, { false }), mock.arrayOp(Array<Boolean>(3, { true })))
+        assertArrayEquals(Array<Byte>(3, { (3 - it).toByte() }), mock.arrayOp(Array<Byte>(3, { (it + 1).toByte() })))
+        assertArrayEquals(Array<Short>(3, { (3 - it).toShort() }), mock.arrayOp(Array<Short>(3, { (it + 1).toShort() })))
+        assertArrayEquals(Array<Char>(3, { (3 - it).toChar() }), mock.arrayOp(Array<Char>(3, { (it + 1).toChar() })))
+        assertArrayEquals(Array<Int>(3, { 3 - it }), mock.arrayOp(Array<Int>(3, { it + 1 })))
+        assertArrayEquals(Array<Long>(3, { (3 - it).toLong() }), mock.arrayOp(Array<Long>(3, { (it + 1).toLong() })))
+        assertArrayEquals(Array<Float>(3, { (3 - it).toFloat() }), mock.arrayOp(Array<Float>(3, { (it + 1).toFloat() })))
+        assertArrayEquals(Array<Double>(3, { (3 - it).toDouble() }), mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })))
+
+        assertArrayEquals(Array<Any>(3, { 3 - it }), mock.arrayOp(Array<Any>(3, { it + 1 })))
+        assertArrayEquals(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i}) }), mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })))
+
+        verify { mock.arrayOp(BooleanArray(3, { true })) }
+        verify { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) }
+        verify { mock.arrayOp(ShortArray(3, { (it + 1).toShort() })) }
+        verify { mock.arrayOp(CharArray(3, { (it + 1).toChar() })) }
+        verify { mock.arrayOp(IntArray(3, { it + 1 })) }
+        verify { mock.arrayOp(LongArray(3, { (it + 1).toLong() })) }
+        verify { mock.arrayOp(FloatArray(3, { (it + 1).toFloat() })) }
+        verify { mock.arrayOp(DoubleArray(3, { (it + 1).toDouble() })) }
+
+        verify { mock.arrayOp(Array<Boolean>(3, { true })) }
+        verify { mock.arrayOp(Array<Byte>(3, { (it + 1).toByte() })) }
+        verify { mock.arrayOp(Array<Short>(3, { (it + 1).toShort() })) }
+        verify { mock.arrayOp(Array<Char>(3, { (it + 1).toChar() })) }
+        verify { mock.arrayOp(Array<Int>(3, { it + 1 })) }
+        verify { mock.arrayOp(Array<Long>(3, { (it + 1).toLong() })) }
+        verify { mock.arrayOp(Array<Float>(3, { (it + 1).toFloat() })) }
+        verify { mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })) }
+
+        verify { mock.arrayOp(Array<Any>(3, { it + 1 })) }
+        verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })) }
+
     }
 })

@@ -455,14 +455,15 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
                         false
                     } else {
                         when (arg.javaClass) {
-                            BooleanArray::class.java -> Arrays.equals(arg as IntArray, value as IntArray)
+                            BooleanArray::class.java -> Arrays.equals(arg as BooleanArray, value as BooleanArray)
                             ByteArray::class.java -> Arrays.equals(arg as ByteArray, value as ByteArray)
+                            CharArray::class.java -> Arrays.equals(arg as CharArray, value as CharArray)
                             ShortArray::class.java -> Arrays.equals(arg as ShortArray, value as ShortArray)
                             IntArray::class.java -> Arrays.equals(arg as IntArray, value as IntArray)
                             LongArray::class.java -> Arrays.equals(arg as LongArray, value as LongArray)
                             FloatArray::class.java -> Arrays.equals(arg as FloatArray, value as FloatArray)
                             DoubleArray::class.java -> Arrays.equals(arg as DoubleArray, value as DoubleArray)
-                            else -> Arrays.equals(arg as Array<Any>, value as Array<Any>)
+                            else -> Arrays.deepEquals(arg as Array<Any>, value as Array<Any>)
                         }
                     }
                 } else {
@@ -743,6 +744,7 @@ interface MockKGateway {
                 Object::class.java -> Object()
                 BooleanArray::class.java -> BooleanArray(0)
                 ByteArray::class.java -> ByteArray(0)
+                CharArray::class.java -> CharArray(0)
                 ShortArray::class.java -> ShortArray(0)
                 IntArray::class.java -> IntArray(0)
                 LongArray::class.java -> LongArray(0)
@@ -750,7 +752,7 @@ interface MockKGateway {
                 DoubleArray::class.java -> DoubleArray(0)
                 else -> {
                     if (type.isArray) {
-                        arrayOfNulls<Any>(0)
+                        java.lang.reflect.Array.newInstance(type.componentType, 0);
                     } else {
                         block()
                     }
