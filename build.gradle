@@ -114,6 +114,11 @@ uploadArchives {
 //    }
 //}
 
+test {
+    testLogging.showStandardStreams = true
+    jvmArgs '-DprojectConfigScan=false'
+}
+
 kotlin {
     experimental {
         coroutines "enable"

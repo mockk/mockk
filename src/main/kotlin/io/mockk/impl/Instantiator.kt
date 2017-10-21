@@ -13,7 +13,7 @@ import sun.reflect.ReflectionFactory
 import java.lang.reflect.Method
 import java.util.*
 
-internal class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
+internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
 
     private val cp = ClassPool.getDefault()
@@ -21,6 +21,7 @@ internal class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
     private val rnd = Random()
 //    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)
 
+    @Suppress("DEPRECATION")
     override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
         log.debug { "Building proxy for $cls" }
 
@@ -76,8 +77,8 @@ internal class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
         throw MockKException("no instantiation support on platform")
     }
 
-    override fun anyValue(type: Class<*>, orInstantiateVia: () -> Any?): Any? {
-        return when (type) {
+    override fun anyValue(cls: Class<*>, orInstantiateVia: () -> Any?): Any? {
+        return when (cls) {
             Void.TYPE -> Unit
 
             Boolean::class.java -> false
@@ -108,8 +109,8 @@ internal class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
             FloatArray::class.java -> FloatArray(0)
             DoubleArray::class.java -> DoubleArray(0)
             else -> {
-                if (type.isArray) {
-                    java.lang.reflect.Array.newInstance(type.componentType, 0);
+                if (cls.isArray) {
+                    java.lang.reflect.Array.newInstance(cls.componentType, 0);
                 } else {
                     orInstantiateVia()
                 }
@@ -119,16 +120,16 @@ internal class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
 
     override fun <T> signatureValue(cls: Class<T>): T {
         return cls.cast(when (cls) {
-            java.lang.Boolean::class.java -> java.lang.Boolean(rnd.nextBoolean())
-            java.lang.Byte::class.java -> java.lang.Byte(rnd.nextInt().toByte())
-            java.lang.Short::class.java -> java.lang.Short(rnd.nextInt().toShort())
-            java.lang.Character::class.java -> java.lang.Character(rnd.nextInt().toChar())
-            java.lang.Integer::class.java -> java.lang.Integer(rnd.nextInt())
-            java.lang.Long::class.java -> java.lang.Long(rnd.nextLong())
-            java.lang.Float::class.java -> java.lang.Float(rnd.nextFloat())
-            java.lang.Double::class.java -> java.lang.Double(rnd.nextDouble())
-            java.lang.String::class.java -> java.lang.String(rnd.nextLong().toString(16))
-            java.lang.Object::class.java -> java.lang.Object()
+            java.lang.Boolean::class.java -> rnd.nextBoolean()
+            java.lang.Byte::class.java -> rnd.nextInt().toByte()
+            java.lang.Short::class.java -> rnd.nextInt().toShort()
+            java.lang.Character::class.java -> rnd.nextInt().toChar()
+            java.lang.Integer::class.java -> rnd.nextInt()
+            java.lang.Long::class.java -> rnd.nextLong()
+            java.lang.Float::class.java -> rnd.nextFloat()
+            java.lang.Double::class.java -> rnd.nextDouble()
+            java.lang.String::class.java -> rnd.nextLong().toString(16)
+//            java.lang.Object::class.java -> java.lang.Object()
             else -> instantiate(cls)
         })
     }
@@ -148,15 +149,15 @@ internal class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
         }
     }
 
-    class ProxyFactoryExt(cls: Class<*>, vararg intfs: Class<*>) : ProxyFactory() {
+    class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class<*>) : ProxyFactory() {
         init {
             if (cls.isInterface) {
-                val intfs = intfs.toMutableList()
-                intfs.add(cls)
-                interfaces = intfs.toTypedArray()
+                val interfaceList = additionalInterfaces.toMutableList()
+                interfaceList.add(cls)
+                interfaces = interfaceList.toTypedArray()
             } else {
                 superclass = cls
-                interfaces = intfs
+                interfaces = additionalInterfaces
             }
         }
 

@@ -25,7 +25,7 @@ class MockCls {
                    s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
 
         return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.toByte() + h.toByte() +
-                i + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
+                i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
     }
 
     fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
@@ -57,7 +57,7 @@ class MockCls {
     fun arrayOp(arr: Array<Float>) = arr.map { (it + 1).toFloat() }.toTypedArray()
     fun arrayOp(arr: Array<Double>) = arr.map { (it + 1).toDouble() }.toTypedArray()
 
-    fun chainOp(a: Int = 1, b: Int = 2) = MockCls()
+    fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
 }
@@ -89,7 +89,7 @@ class MockKTestSuite : StringSpec({
         every { mock.manyArgsOp(s = eq(IntWrapper(33))) } returns 19.0
         every { mock.manyArgsOp(t = eq(IntWrapper(33))) } returns 20.0
 
-        assertEquals(155.0, spy.manyArgsOp(), 1e-6)
+        assertEquals(163.0, spy.manyArgsOp(), 1e-6)
         assertEquals(0.0, mock.manyArgsOp(), 1e-6)
         assertEquals(1.0, mock.manyArgsOp(a = false), 1e-6)
         assertEquals(2.0, mock.manyArgsOp(b = false), 1e-6)
@@ -276,7 +276,7 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
         every { spy.lambdaOp(1, match(CapturingSlotMatcher(slot))) } answers { 1 - slot.invoke<Int>()!! }
 
-        assertEquals(155.0, spy.manyArgsOp(), 1e-6)
+        assertEquals(163.0, spy.manyArgsOp(), 1e-6)
         assertEquals(1.0, spy.manyArgsOp(c = 5), 1e-6)
         assertEquals(2.0, spy.manyArgsOp(false, c = 5), 1e-6)
         assertEquals(3.0, spy.manyArgsOp(c = 6), 1e-6)

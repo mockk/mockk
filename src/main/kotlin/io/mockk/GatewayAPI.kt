@@ -11,9 +11,9 @@ interface MockKGateway {
     fun verifier(ordering: Ordering): Verifier
 
 
-    fun <T> mockk(java: Class<T>): T
+    fun <T> mockk(cls: Class<T>): T
 
-    fun <T> spyk(java: Class<T>, objToCopy: T?): T
+    fun <T> spyk(cls: Class<T>, objToCopy: T?): T
 
     fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T>
 
@@ -73,7 +73,7 @@ interface Instantiator {
 
     fun anyValue(cls: Class<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
 
-    fun <T> proxy(cls: Class<T>, spy: Boolean): Any
+    fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any
 
     fun <T> signatureValue(cls: Class<T>): T
 

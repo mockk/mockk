@@ -43,6 +43,7 @@ data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean) : Matcher<T> {
  * Matcher capturing all results to the list.
  */
 data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, CapturingMatcher {
+    @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         captureList.add(arg as T)
     }
@@ -56,6 +57,7 @@ data class CaptureMatcher<T>(val captureList: MutableList<T>) : Matcher<T>, Capt
  * Matcher capturing all results to the list. Allows nulls
  */
 data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>) : Matcher<T>, CapturingMatcher {
+    @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         captureList.add(arg as T?)
     }
@@ -69,6 +71,7 @@ data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>) : Matcher
  * Matcher capturing one last value to the CapturingSlot
  */
 data class CapturingSlotMatcher<T>(val captureSlot: CapturingSlot<T>) : Matcher<T>, CapturingMatcher {
+    @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         captureSlot.captured = arg as T?
     }

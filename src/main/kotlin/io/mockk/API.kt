@@ -144,6 +144,7 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
 
     inline fun <reified T> allAny(): T = match(AllAnyMatcher(0))
 
+    @Suppress("NOTHING_TO_INLINE")
     inline fun <R, T> R.childAs(cls: Class<T>, n: Int = 1): R {
         MockKGateway.LOCATOR().callRecorder.childType(cls, n)
         return this
@@ -156,6 +157,7 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
      *
      * classes
      */
+    @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Function<*>> captureLambda(cls: Class<out Function<*>>): T {
         val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>)
         return gw.callRecorder.matcher(matcher, cls as Class<T>)
@@ -194,7 +196,7 @@ class MockKAnswerScope(private val gw: MockKGateway,
     val matcher = call.matcher
 
     val self
-        get() = invocation.self as MockK
+        get() = invocation.self
 
     val method
         get() = invocation.method
@@ -210,6 +212,7 @@ class MockKAnswerScope(private val gw: MockKGateway,
     inline fun <reified T> thirdArg() = invocation.args[2] as T
     inline fun <reified T> lastArg() = invocation.args.last() as T
 
+    @Suppress("NOTHING_TO_INLINE")
     inline fun <T> MutableList<T>.captured() = last()
 
     val nothing = null
@@ -221,6 +224,7 @@ class MockKAnswerScope(private val gw: MockKGateway,
  * If this values is lambda then it's possible to invoke it.
  */
 data class CapturingSlot<T>(var captured: T? = null) {
+    @Suppress("UNCHECKED_CAST")
     operator inline fun <reified R> invoke(vararg args: Any?): R? {
         return when (args.size) {
             0 -> (captured as Function0<R?>).invoke()

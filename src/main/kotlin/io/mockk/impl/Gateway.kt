@@ -98,5 +98,11 @@ internal class MockKGatewayImpl : MockKGateway {
 
     companion object {
         val N_CALL_ROUNDS = 64
+
+        val log = logger<MockKGatewayImpl>()
+
+        init {
+            log.info { "Starting MockK implementation. Java version = ${System.getProperty("java.version")}" }
+        }
     }
 }

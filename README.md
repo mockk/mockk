@@ -41,8 +41,9 @@ Kotlin mocking framework
 - [x] relax gateway companion object
 - [x] Java 9 support
 - [x] split to separate files
+- [ ] objenesis
+- [ ] running methods: JUnit 4 RunWith, JUnit 5, how mockito works, Java agent
 - [ ] extension function testing fun ChannelHandlerContext.scopeAttr()
-- [ ] JUnit 5
 - [ ] pet project testing
 - [ ] DSL testing feature
 - [ ] static methods mocking

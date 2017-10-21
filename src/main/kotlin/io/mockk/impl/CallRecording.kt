@@ -69,6 +69,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun signMatchers() {
         val nCalls = callRounds[0].calls.size
         if (nCalls == 0) {
@@ -134,7 +135,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             for (cmList in compositeMatchers) {
                 val matcher = cmList.last()
 
-                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, op) ->
+                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, _) ->
                     val signature = cmList.map {
                         packRef(it.operandValues[nOp])
                     }.toList()
@@ -234,7 +235,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             newCalls.add(newCall)
 
             if (!lastCall && calls[idx + 1].chained) {
-                newSelf = newSelf!!.___childMockK(newCall)
+                newSelf = newSelf.___childMockK(newCall)
             }
         }
 

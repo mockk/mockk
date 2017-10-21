@@ -18,22 +18,10 @@
    sodipodi:docname="logo.svg"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
    inkscape:export-filename="/home/oleksiyp/workspace/mockk/doc/logo.png"
-   inkscape:export-xdpi="45.583889"
-   inkscape:export-ydpi="45.583889">
+   inkscape:export-xdpi="72.571426"
+   inkscape:export-ydpi="72.571426">
   <defs
      id="defs2">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient4668">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop4664" />
-      <stop
-         style="stop-color:#000000;stop-opacity:0;"
-         offset="1"
-         id="stop4666" />
-    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient4652">
@@ -141,17 +129,6 @@
        x2="472.76877"
        y2="239.45888"
        gradientUnits="userSpaceOnUse" />
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4668"
-       id="radialGradient4676"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1,0,0,0.06826225,0,245.25353)"
-       cx="113.75089"
-       cy="263.22162"
-       fx="113.75089"
-       fy="263.22162"
-       r="49.156345" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -161,7 +138,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="356.72295"
+     inkscape:cx="240.55541"
      inkscape:cy="257.16767"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -292,7 +269,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -346,16 +323,5 @@
          x="138.71916"
          y="248.62622"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.39999962px;font-family:FreeSans;-inkscape-font-specification:FreeSans;stroke-width:0.26458332;fill:#faaf17;fill-opacity:1;">K</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:'Android Emoji';-inkscape-font-specification:'Android Emoji';letter-spacing:0px;word-spacing:0px;fill:url(#radialGradient4676);fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="64.411957"
-       y="265.06131"
-       id="text4662"><tspan
-         sodipodi:role="line"
-         id="tspan4660"
-         x="64.411957"
-         y="265.06131"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.05555534px;font-family:'Android Emoji';-inkscape-font-specification:'Android Emoji';stroke-width:0.26458332;fill:#f05e2f;fill-opacity:1">pure kotlin mocking framework</tspan></text>
   </g>
 </svg>
