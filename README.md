@@ -1,5 +1,6 @@
 ![mockk](doc/logo.png)
 ======================
+pure kotlin mocking framework
 
 ### Nice features
 
