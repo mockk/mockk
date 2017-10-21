@@ -1,5 +1,7 @@
-package io.mockk
+package io.mockk.impl
 
+import io.mockk.MockKGateway
+import io.mockk.external.logger
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtConstructor

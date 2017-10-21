@@ -1,4 +1,4 @@
-package io.mockk
+package io.mockk.external
 
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Method

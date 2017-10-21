@@ -1,6 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.*
+import io.mockk.external.logger
 import javassist.util.proxy.ProxyObject
 import kotlinx.coroutines.experimental.runBlocking
 

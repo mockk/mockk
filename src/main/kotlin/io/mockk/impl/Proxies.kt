@@ -26,6 +26,8 @@ internal interface MockKInstance : MockK {
     fun ___clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
 }
 
+private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
+
 internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
                                              private val obj: Any) : MethodHandler, MockKInstance {
     private val answers = Collections.synchronizedList(mutableListOf<InvocationAnswer>())

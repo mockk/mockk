@@ -1,6 +1,8 @@
 package io.mockk.impl
 
 import io.mockk.*
+import io.mockk.external.logger
+import io.mockk.external.toStr
 import javassist.util.proxy.ProxyObject
 import java.lang.AssertionError
 import java.lang.reflect.Method

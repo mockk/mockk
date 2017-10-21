@@ -2,7 +2,7 @@ package io.mockk.impl
 
 import io.mockk.Instantiator
 import io.mockk.MockKException
-import io.mockk.logger
+import io.mockk.external.logger
 import javassist.ClassPool
 import javassist.bytecode.ClassFile
 import javassist.util.proxy.MethodFilter
