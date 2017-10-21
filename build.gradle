@@ -1,9 +1,5 @@
-group 'io.github.io.github.oleksiyp'
-version '1.0-SNAPSHOT'
-
 buildscript {
     ext.kotlin_version = '1.1.51'
-
     repositories {
         mavenCentral()
     }
@@ -12,33 +8,112 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
+plugins {
+    id 'net.researchgate.release' version '2.6.0'
+}
+
+release {
+    failOnPublishNeeded = false
+}
+
+group = 'io.mockk'
+
 apply plugin: 'kotlin'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: "jacoco"
 
-sourceCompatibility = 1.8
-
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-    compile group: 'org.javassist', name: 'javassist', version: '3.22.0-GA'
-    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '0.19'
-    compile group: 'io.kotlintest', name: 'kotlintest', version: '2.0.7'
-    compileOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    testCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.+'
-    //    compile group: 'com.nhaarman', name: 'mockito-kotlin-kt1.1', version: '1.5.0'
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+
+build {
+    afterReleaseBuild.dependsOn uploadArchives
 }
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+
+dependencies {
+    compile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile 'org.mockito:mockito-core:2.7.11'
+    compile 'org.reflections:reflections:0.9.11'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+    compileOnly 'org.slf4j:slf4j-api:1.7.25'
+    testCompile 'io.kotlintest:kotlintest:2.0.7'
+    testCompile 'org.slf4j:slf4j-api:1.7.25'
+    testCompile 'ch.qos.logback:logback-classic:1.+'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'MockK'
+                packaging 'jar'
+                description 'Kotlin Mocking Framework'
+                url 'http://www.github.com/oleksiyp/mockk'
+
+                scm {
+                    connection 'scm:git:http://www.github.com/oleksiyp/mockk/'
+                    developerConnection 'scm:git:http://github.com/oleksiyp/'
+                    url 'http://www.github.com/oleksiyp/mockk/'
+                }
+
+                licenses {
+                    license {
+                        name 'Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'oleksiyp'
+                        name 'Oleksii Pylypenko'
+                        email 'oleksiy.pylypenko@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
+//jacocoTestReport {
+//    reports {
+//        xml.enabled true
+//        xml.destination "${buildDir}/reports/jacoco/report.xml"
+//        csv.enabled false
+//        html.destination "${buildDir}/jacocoHtml"
+//    }
+//}
 
 kotlin {
     experimental {
