@@ -79,9 +79,9 @@ interface MockK
 inline fun <reified T> mockk(): T = MockKGateway.mockk(T::class.java)
 
 /**
- * Builds a new spy for specified class
+ * Builds a new spy for specified class. Copies fields from object if provided
  */
-inline fun <reified T> spyk(): T = MockKGateway.spyk(T::class.java)
+inline fun <reified T> spyk(objToCopy : T? = null): T = MockKGateway.spyk(T::class.java, objToCopy)
 
 /**
  * Creates new capturing slot
@@ -235,7 +235,11 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
     }
 
     /**
-     * Captures lambda function. "cls" is one of Function1, Function2 ... Function22 classes
+     * Captures lambda function. "cls" is one of
+     *
+     * Function0::class.java, Function1::class.java ... Function22::class.java
+     *
+     * classes
      */
     inline fun <reified T : Function<*>> captureLambda(cls: Class<out Function<*>>): T {
         val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>)
@@ -705,14 +709,14 @@ interface MockKGateway {
     fun verifier(ordering: Ordering): Verifier
 
     companion object {
-        val defaultImpl: MockKGateway = MockKGatewayImpl()
+        internal val defaultImpl: MockKGateway = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
 
         private val log = logger<MockKGateway>()
 
         private val NO_ARGS_TYPE = Class.forName("\$NoArgsConstructorParamType")
 
-        fun <T> proxy(cls: Class<T>, spy: Boolean): Any? {
+        internal fun <T> proxy(cls: Class<T>, spy: Boolean): Any {
             val factory = ProxyFactory()
 
             log.debug { "Building proxy for $cls" }
@@ -741,22 +745,35 @@ interface MockKGateway {
             return obj
         }
 
-        fun <T> mockk(cls: Class<T>): T {
+        @PublishedApi
+        internal fun <T> mockk(cls: Class<T>): T {
             log.info { "Creating mockk for $cls" }
             val obj = proxy(cls, false)
             return cls.cast(obj)
         }
 
-        fun <T> spyk(cls: Class<T>): T {
+        @PublishedApi
+        internal fun <T> spyk(cls: Class<T>, objToCopy: T?): T {
             log.info { "Creating spyk for $cls" }
             val obj = proxy(cls, true)
+            if (objToCopy != null) {
+                copyFields(obj, objToCopy as Any)
+            }
             return cls.cast(obj)
         }
 
-        fun anyValue(type: Class<*>,
-                     block: () -> Any? = {
-                         MockKGateway.LOCATOR().instantiator.instantiate(type)
-                     }): Any? {
+        private fun copyFields(obj: Any, objToCopy: Any) {
+            for (field in objToCopy.javaClass.declaredFields) {
+                field.isAccessible = true
+                field.set(obj, field.get(objToCopy))
+                log.debug { "Copied field $field" }
+            }
+        }
+
+        internal fun anyValue(type: Class<*>,
+                              block: () -> Any? = {
+                                  MockKGateway.LOCATOR().instantiator.instantiate(type)
+                              }): Any? {
             return when (type) {
                 Void.TYPE -> Unit
 
@@ -797,7 +814,7 @@ interface MockKGateway {
             }
         }
 
-        fun toString(obj: Any?): String {
+        internal fun toString(obj: Any?): String {
             if (obj == null)
                 return "null"
             if (obj is Method)
@@ -805,7 +822,7 @@ interface MockKGateway {
             return obj.toString()
         }
 
-        val N_CALL_ROUNDS: Int = 64
+        internal val N_CALL_ROUNDS: Int = 64
     }
 }
 

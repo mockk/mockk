@@ -19,7 +19,17 @@ Ultra-minimal issue tracking
 +add some comments
 +PR
 +nulls
----M1---
++++M1+++
++fixing spies
++spyk copy
+unload companion object
+extension function testing fun ChannelHandlerContext.scopeAttr()
+Java 9 support
+JUnit 5
+pet project testing
+DSL testing feature
+static methods mocking
+String matchers: startsWith, contains
 split to separate files
 mock: extraInterfaces, mock name
 TODO: check all kinds of arrays
