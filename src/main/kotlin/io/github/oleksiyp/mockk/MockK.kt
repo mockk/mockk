@@ -289,7 +289,7 @@ class MockKAnswerScope(private val gw: MockKGateway,
     inline fun <reified T> firstArg() = invocation.args[0] as T
     inline fun <reified T> secondArg() = invocation.args[1] as T
     inline fun <reified T> thirdArg() = invocation.args[2] as T
-    inline fun <reified T> lastArg() = invocation.args[invocation.args.size - 1] as T
+    inline fun <reified T> lastArg() = invocation.args.last() as T
 
     inline fun <T> MutableList<T>.captured() = last()
 
@@ -1411,7 +1411,7 @@ private class OrderedVerifierImpl(private val gw: MockKGateway) : Verifier {
         }
 
         // match only if all matchers present
-        return VerificationResult(prev[calls.size - 1] == calls.size)
+        return VerificationResult(prev.last() == calls.size)
     }
 }
 
