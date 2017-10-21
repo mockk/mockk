@@ -39,13 +39,13 @@
 - [x] spyk copy
 - [x] relax gateway companion object
 - [x] Java 9 support
+- [x] split to separate files
 - [ ] extension function testing fun ChannelHandlerContext.scopeAttr()
 - [ ] JUnit 5
 - [ ] pet project testing
 - [ ] DSL testing feature
 - [ ] static methods mocking
 - [ ] String matchers: startsWith, contains
-- [ ] split to separate files
 - [ ] mock: extraInterfaces, mock name
 - [ ] TODO: check all kinds of arrays
 - [ ] better human readable exceptions
