@@ -20,6 +20,7 @@ import sun.reflect.ReflectionFactory
 import java.lang.AssertionError
 import java.lang.Class
 import java.lang.ClassNotFoundException
+import java.lang.NoSuchMethodException
 import java.lang.Object
 import java.lang.System
 import java.lang.System.identityHashCode
@@ -32,51 +33,15 @@ import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
 import java.util.logging.Level
-import kotlin.Any
-import kotlin.Array
-import kotlin.Boolean
 import kotlin.Byte
-import kotlin.Comparable
 import kotlin.Double
 import kotlin.Float
-import kotlin.Function0
-import kotlin.Function1
-import kotlin.Function10
-import kotlin.Function11
-import kotlin.Function12
-import kotlin.Function13
-import kotlin.Function14
-import kotlin.Function15
-import kotlin.Function16
-import kotlin.Function17
-import kotlin.Function18
-import kotlin.Function19
-import kotlin.Function2
-import kotlin.Function20
-import kotlin.Function21
-import kotlin.Function22
-import kotlin.Function3
-import kotlin.Function4
-import kotlin.Function5
-import kotlin.Function6
-import kotlin.Function7
-import kotlin.Function8
-import kotlin.Function9
 import kotlin.Int
 import kotlin.Long
-import kotlin.Nothing
-import kotlin.PublishedApi
 import kotlin.RuntimeException
 import kotlin.Short
 import kotlin.String
-import kotlin.Throwable
-import kotlin.Unit
-import kotlin.arrayOf
 import kotlin.coroutines.experimental.Continuation
-import kotlin.emptyArray
-import kotlin.let
-import kotlin.repeat
-import kotlin.synchronized
 import kotlin.with
 
 // ---------------------------- USER FACING --------------------------------
@@ -106,9 +71,7 @@ class MockKJUnitRunner(cls: Class<*>) : Runner() {
 /**
  * All mocks are implementing this interface
  */
-interface MockK {
-    val spiedObj: Any
-}
+interface MockK
 
 /**
  * Builds a new mock for specified class
@@ -118,7 +81,7 @@ inline fun <reified T> mockk(): T = MockKGateway.mockk(T::class.java)
 /**
  * Builds a new spy for specified class
  */
-inline fun <reified T> spyk(obj: T): T = MockKGateway.spyk(T::class.java, obj)
+inline fun <reified T> spyk(): T = MockKGateway.spyk(T::class.java)
 
 /**
  * Creates new capturing slot
@@ -132,16 +95,17 @@ fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
     val gw = MockKGateway.LOCATOR()
     val callRecorder = gw.callRecorder
     callRecorder.startStubbing()
+    val lambda = slot<Function<*>>()
+    val scope = MockKScope(gw, lambda)
     runBlocking {
         val n = MockKGateway.N_CALL_ROUNDS
-        val scope = MockKScope(gw)
         repeat(n) {
             callRecorder.catchArgs(it, n)
             scope.mockBlock()
         }
         callRecorder.catchArgs(n, n)
     }
-    return MockKStubScope(gw)
+    return MockKStubScope(gw, lambda)
 }
 
 /**
@@ -181,9 +145,12 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
     val gw = MockKGateway.LOCATOR()
     val callRecorder = gw.callRecorder
     callRecorder.startVerification()
+
+    val lambda = slot<Function<*>>()
+    val scope = MockKScope(gw, lambda)
+
     runBlocking {
         val n = MockKGateway.N_CALL_ROUNDS
-        val scope = MockKScope(gw)
         repeat(n) {
             callRecorder.catchArgs(it, n)
             scope.mockBlock()
@@ -238,9 +205,11 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
  *
  * Provided information is gathered and associated with mock
  */
-class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
+class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
+                 val lambda: CapturingSlot<Function<*>>) {
+
     inline fun <reified T> match(matcher: Matcher<T>): T {
-        return MockKGateway.matcherInCall(gw, matcher)
+        return gw.callRecorder.matcher(matcher, T::class.java)
     }
 
     inline fun <reified T> match(noinline matcher: (T?) -> Boolean): T = match(FunctionMatcher(matcher))
@@ -249,7 +218,6 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
     inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
     inline fun <reified T> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst))
-    inline fun <reified T> capture(slot: CapturingSlot<T>): T = match(CapturingSlotMatcher(slot))
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0))
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1))
     inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) -2 else -1))
@@ -258,6 +226,21 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
     inline fun <reified T> not(value: T) = match(NotMatcher(value))
     inline fun <reified T> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T, R : T> ofType(cls: Class<R>) = match(TypeMatcher<T>(cls))
+
+    inline fun <reified T> allAny(): T = match(AllAnyMatcher(0))
+
+    inline fun <R, T> R.childAs(cls: Class<T>, n: Int = 1): R {
+        MockKGateway.LOCATOR().callRecorder.childType(cls, n)
+        return this
+    }
+
+    /**
+     * Captures lambda function. "cls" is one of Function1, Function2 ... Function22 classes
+     */
+    inline fun <reified T : Function<*>> captureLambda(cls: Class<out Function<*>>): T {
+        val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>)
+        return gw.callRecorder.matcher(matcher, cls as Class<T>)
+    }
 }
 
 /**
@@ -265,7 +248,8 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
  *
  * Allows to specify function result
  */
-class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway) {
+class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
+                        private val lambda: CapturingSlot<Function<*>>) {
     infix fun answers(answer: Answer<T?>) = gw.callRecorder.answer(answer)
 
     infix fun returns(returnValue: T?) = answers(ConstantAnswer(returnValue))
@@ -277,13 +261,14 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
     infix fun answers(answer: MockKAnswerScope.(Call) -> T?) =
-            answers(FunctionAnswer({ MockKAnswerScope(gw, it).answer(it) }))
+            answers(FunctionAnswer({ MockKAnswerScope(gw, lambda, it).answer(it) }))
 }
 
 /**
  * Scope for answering functions. Part of DSL
  */
 class MockKAnswerScope(private val gw: MockKGateway,
+                       val lambda: CapturingSlot<Function<*>>,
                        val call: Call) {
 
     val invocation = call.invocation
@@ -291,8 +276,6 @@ class MockKAnswerScope(private val gw: MockKGateway,
 
     val self
         get() = invocation.self as MockK
-
-    inline fun <reified T> spiedObj() = self.spiedObj as T
 
     val method
         get() = invocation.method
@@ -309,6 +292,8 @@ class MockKAnswerScope(private val gw: MockKGateway,
     inline fun <reified T> lastArg() = invocation.args[invocation.args.size - 1] as T
 
     inline fun <T> MutableList<T>.captured() = last()
+
+    val nothing = null
 }
 
 /**
@@ -317,7 +302,7 @@ class MockKAnswerScope(private val gw: MockKGateway,
  * If this values is lambda then it's possible to invoke it.
  */
 data class CapturingSlot<T>(var captured: T? = null) {
-    inline fun <reified R> invoke(vararg args: Any?): R? {
+    operator inline fun <reified R> invoke(vararg args: Any?): R? {
         return when (args.size) {
             0 -> (captured as Function0<R?>).invoke()
             1 -> (captured as Function1<Any?, R?>).invoke(args[0])
@@ -391,13 +376,14 @@ interface Answer<out T> {
  */
 data class Invocation(val self: MockK,
                       val method: Method,
+                      val superMethod: Method?,
                       val args: List<Any?>,
                       val timestamp: Long = System.nanoTime()) {
     override fun toString(): String {
         return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
     }
 
-    fun withSelf(newSelf: MockK) = Invocation(newSelf, method, args, timestamp)
+    fun withSelf(newSelf: MockK) = Invocation(newSelf, method, superMethod, args, timestamp)
 }
 
 /**
@@ -432,9 +418,12 @@ data class InvocationMatcher(val self: Matcher<Any>,
 /**
  * Matched invocation
  */
-data class Call(val invocation: Invocation, val matcher: InvocationMatcher, val chained: Boolean) {
-    fun withInvocationAndMatcher(newInvocation : Invocation, newMatcher: InvocationMatcher) =
-            Call(newInvocation, newMatcher, chained)
+data class Call(val retType: Class<*>,
+                val invocation: Invocation,
+                val matcher: InvocationMatcher,
+                val chained: Boolean) {
+    fun withInvocationAndMatcher(newInvocation: Invocation, newMatcher: InvocationMatcher) =
+            Call(retType, newInvocation, newMatcher, chained)
 }
 
 /**
@@ -606,7 +595,7 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, Captur
 
     override var subMatchers: List<Matcher<T>>? = null
 
-    override fun match(arg: T?) : Boolean =
+    override fun match(arg: T?): Boolean =
             !subMatchers!![0].match(arg)
 
     override fun capture(arg: Any?) {
@@ -626,7 +615,7 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, Captur
  * Checks if argument is null or non-null
  */
 data class NullCheckMatcher<T>(val inverse: Boolean) : Matcher<T> {
-    override fun match(arg: T?) : Boolean = if (inverse) arg != null else arg == null
+    override fun match(arg: T?): Boolean = if (inverse) arg != null else arg == null
 
     override fun toString(): String {
         return if (inverse)
@@ -640,10 +629,21 @@ data class NullCheckMatcher<T>(val inverse: Boolean) : Matcher<T> {
  * Checks matcher data type
  */
 data class TypeMatcher<T>(val cls: Class<*>) : Matcher<T> {
-    override fun match(arg: T?) : Boolean = cls.isInstance(arg)
+    override fun match(arg: T?): Boolean = cls.isInstance(arg)
 
     override fun toString() = "ofType(${cls.name})"
 }
+
+/**
+ * Matcher to replace all unspecified argument matchers to any()
+ * Handled by logic in a special way
+ */
+data class AllAnyMatcher<T>(val fake: Int) : Matcher<T> {
+    override fun match(arg: T?): Boolean = true
+
+    override fun toString() = "allAny()"
+}
+
 
 /**
  * Returns one constant reply
@@ -705,39 +705,51 @@ interface MockKGateway {
     fun verifier(ordering: Ordering): Verifier
 
     companion object {
-        val defaultImpl : MockKGateway = MockKGatewayImpl()
+        val defaultImpl: MockKGateway = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
 
         private val log = logger<MockKGateway>()
 
         private val NO_ARGS_TYPE = Class.forName("\$NoArgsConstructorParamType")
 
-        fun <T> proxy(cls: Class<T>): Any? {
+        fun <T> proxy(cls: Class<T>, spy: Boolean): Any? {
             val factory = ProxyFactory()
 
             log.debug { "Building proxy for $cls" }
 
-            return if (cls.isInterface) {
+            val obj = if (cls.isInterface) {
                 factory.interfaces = arrayOf(cls, MockKInstance::class.java)
                 factory.create(emptyArray(), emptyArray())
             } else {
                 factory.interfaces = arrayOf(MockKInstance::class.java)
                 factory.superclass = cls
-                factory.create(arrayOf(NO_ARGS_TYPE), arrayOf<Any?>(null))
+                if (spy) {
+                    factory.create(arrayOf(), arrayOf<Any?>())
+                } else {
+                    try {
+                        factory.create(arrayOf(NO_ARGS_TYPE), arrayOf<Any?>(null))
+                    } catch (ex: NoSuchMethodException) {
+                        factory.create(arrayOf(), arrayOf<Any?>())
+                    }
+                }
             }
+            (obj as ProxyObject).handler =
+                    if (!spy)
+                        MockKInstanceProxyHandler(cls, obj)
+                    else
+                        SpyKInstanceProxyHandler(cls, obj)
+            return obj
         }
 
         fun <T> mockk(cls: Class<T>): T {
             log.info { "Creating mockk for $cls" }
-            val obj = proxy(cls)
-            (obj as ProxyObject).handler = MockKInstanceProxyHandler(cls, obj)
+            val obj = proxy(cls, false)
             return cls.cast(obj)
         }
 
-        fun <T> spyk(cls: Class<T>, spiedObj: T): T {
+        fun <T> spyk(cls: Class<T>): T {
             log.info { "Creating spyk for $cls" }
-            val obj = proxy(cls)
-            (obj as ProxyObject).handler = SpyKInstanceProxyHandler(cls, obj, spiedObj)
+            val obj = proxy(cls, true)
             return cls.cast(obj)
         }
 
@@ -757,7 +769,6 @@ interface MockKGateway {
                 Float::class.java -> 0.0F
                 Double::class.java -> 0.0
                 String::class.java -> ""
-                Object::class.java -> Object()
 
                 java.lang.Boolean::class.java -> false
                 java.lang.Byte::class.java -> 0.toByte()
@@ -784,10 +795,6 @@ interface MockKGateway {
                     }
                 }
             }
-        }
-
-        inline fun <reified T> matcherInCall(gw: MockKGateway, matcher: Matcher<T>): T {
-            return gw.callRecorder.matcher(matcher, T::class.java)
         }
 
         fun toString(obj: Any?): String {
@@ -819,6 +826,8 @@ interface CallRecorder {
     fun answer(answer: Answer<*>)
 
     fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int)
+
+    fun childType(cls: Class<*>, n: Int)
 }
 
 /**
@@ -869,30 +878,26 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
     private val childs = synchronizedMap(hashMapOf<InvocationMatcher, MockKInstance>())
     private val recordedCalls = synchronizedList(mutableListOf<Invocation>())
 
-    override val spiedObj: Any
-        get() = throw MockKException("spiedObj is actual only for spies")
-
     override fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         answers.add(InvocationAnswer(matcher, answer))
     }
 
     override fun ___answer(invocation: Invocation): Any? {
-        return synchronized(answers) {
-
-            val invocationAndMatcher = answers
+        val invocationAndMatcher = synchronized(answers) {
+            answers
                     .reversed()
                     .firstOrNull { it.matcher.match(invocation) }
+                    ?: return ___defaultAnswer(invocation)
+        }
 
-            if (invocationAndMatcher == null) {
-                return defaultAnswer(invocation)
-            }
+        return with(invocationAndMatcher) {
+            ___captureAnswer(matcher, invocation)
 
-            with(invocationAndMatcher) {
-                ___captureAnswer(matcher, invocation)
+            val call = Call(invocation.method.returnType,
+                    invocation,
+                    matcher, false)
 
-                val call = Call(invocation, matcher, false)
-                answer.answer(call)
-            }
+            answer.answer(call)
         }
     }
 
@@ -905,9 +910,8 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         }
     }
 
-    protected open fun defaultAnswer(invocation: Invocation): Any? {
-        val cls = invocation.method.returnType
-        return MockKGateway.anyValue(cls) { null }
+    protected open fun ___defaultAnswer(invocation: Invocation): Any? {
+        throw MockKException("no answer found for: $invocation")
     }
 
     override fun ___recordCall(invocation: Invocation) {
@@ -941,7 +945,7 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
 
     override fun ___childMockK(call: Call): MockKInstance {
         return childs.computeIfAbsent(call.matcher, {
-            MockKGateway.mockk(call.invocation.method.returnType) as MockKInstance
+            MockKGateway.mockk(call.retType) as MockKInstance
         })
     }
 
@@ -959,7 +963,7 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
         }
 
         val argList = args.toList()
-        val invocation = Invocation(self as MockKInstance, thisMethod, argList)
+        val invocation = Invocation(self as MockKInstance, thisMethod, proceed, argList)
         return MockKGateway.LOCATOR().callRecorder.call(invocation)
     }
 
@@ -985,13 +989,12 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
 }
 
 
-private class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject,
-                                          private val _spiedObj: T) : MockKInstanceProxyHandler(cls, obj) {
-    override val spiedObj
-        get() = _spiedObj as Any
-
-    override fun defaultAnswer(invocation: Invocation): Any? {
-        return invocation.method.invoke(_spiedObj, *invocation.args.toTypedArray())
+private class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject) : MockKInstanceProxyHandler(cls, obj) {
+    override fun ___defaultAnswer(invocation: Invocation): Any? {
+        if (invocation.superMethod == null) {
+            throw MockKException("no super method for: ${invocation.method}")
+        }
+        return invocation.superMethod.invoke(invocation.self, *invocation.args.toTypedArray())
     }
 
     override fun toString(): String = "spyk<" + ___type().simpleName + ">()"
@@ -1035,7 +1038,8 @@ private class Ref(val value: Any) {
     override fun toString(): String = "Ref(${value.javaClass.simpleName}@${hashCode()})"
 }
 
-private data class SignedCall(val invocation: Invocation,
+private data class SignedCall(val retType: Class<*>,
+                              val invocation: Invocation,
                               val matchers: List<Matcher<*>>,
                               val signaturePart: List<Any>)
 
@@ -1058,6 +1062,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     private val callRounds = mutableListOf<CallRound>()
     private val calls = mutableListOf<Call>()
     private val childMocks = mutableListOf<Ref>()
+    private var childTypes = mutableMapOf<Int, Class<*>>()
 
     val matchers = mutableListOf<Matcher<*>>()
     val signatures = mutableListOf<Any>()
@@ -1087,6 +1092,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         if (round > 0) {
             callRounds.add(CallRound(signedCalls.toList()))
             signedCalls.clear()
+            childTypes.clear()
         }
         if (round == n) {
             signMatchers()
@@ -1132,15 +1138,27 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
 
             val argMatchers = mutableListOf<Matcher<*>>()
 
+            var allAny = false
+
             repeat(zeroCall.invocation.args.size) { nArgument ->
                 val signature = callInAllRounds.map {
                     packRef(it.invocation.args[nArgument])
                 }.toList()
 
+
                 log.debug { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
 
-                val matcher = matcherMap.remove(signature)
-                        ?: EqMatcher(zeroCall.invocation.args[nArgument])
+                val matcher = matcherMap.remove(signature)?.let {
+                    if (nArgument == 0 && it is AllAnyMatcher) {
+                        allAny = true
+                        ConstantMatcher<Any>(true)
+                    } else {
+                        it
+                    }
+                } ?: if (allAny)
+                    ConstantMatcher<Any>(true)
+                else
+                    EqMatcher(zeroCall.invocation.args[nArgument])
 
                 argMatchers.add(matcher)
             }
@@ -1174,7 +1192,8 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                     EqMatcher(zeroCall.invocation.method),
                     argMatchers.toList() as List<Matcher<Any>>)
             log.info { "Built matcher: $im" }
-            calls.add(Call(zeroCall.invocation, im,
+            calls.add(Call(zeroCall.retType,
+                    zeroCall.invocation, im,
                     childMocks.contains(Ref(zeroCall.invocation.self))))
         }
         childMocks.clear()
@@ -1243,18 +1262,20 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             throw MockKException("Passing child mocks to arguments is prohibited")
         }
 
-        signedCalls.add(SignedCall(invocation, matchers.toList(), signatures.toList()))
+        val retType = nextChildType { invocation.method.returnType }
+
+        signedCalls.add(SignedCall(retType, invocation, matchers.toList(), signatures.toList()))
         matchers.clear()
         signatures.clear()
 
-        val cls = invocation.method.returnType
-        return MockKGateway.anyValue(cls) {
-            val child = MockKGateway.proxy(cls) as MockK
-            (child as ProxyObject).handler = MockKInstanceProxyHandler(cls, child)
+        return MockKGateway.anyValue(retType) {
+            val child = MockKGateway.proxy(retType, false) as MockK
+            (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, child)
             childMocks.add(Ref(child))
             child
         }
     }
+
 
     fun mockRealChilds() {
         var newSelf: MockKInstance? = null
@@ -1270,7 +1291,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
             }
 
             val newInvocation = ic.invocation.withSelf(newSelf!!)
-            val newMatcher = ic.matcher.withSelf(EqMatcher(newSelf, ref=true))
+            val newMatcher = ic.matcher.withSelf(EqMatcher(newSelf, ref = true))
             val newCall = ic.withInvocationAndMatcher(newInvocation, newMatcher)
 
             newCalls.add(newCall)
@@ -1330,6 +1351,21 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
                 throw AssertionError("Verification failed$matcherStr")
             }
         }
+    }
+
+    private fun nextChildType(defaultReturnType: () -> Class<*>): Class<*> {
+        val type = childTypes[1]
+
+        childTypes = childTypes
+                .mapKeys { (k, _) -> k - 1 }
+                .filter { (k, _) -> k > 0 }
+                .toMutableMap()
+
+        return type ?: defaultReturnType()
+    }
+
+    override fun childType(cls: Class<*>, n: Int) {
+        childTypes[n] = cls
     }
 }
 

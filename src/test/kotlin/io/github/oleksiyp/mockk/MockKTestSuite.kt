@@ -63,9 +63,9 @@ class MockCls {
 @RunWith(MockKJUnitRunner::class)
 class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>()
-    val spy = spyk(MockCls())
+    val spy = spyk<MockCls>()
     "partly argument matching" {
-
+        every { mock.manyArgsOp(allAny()) } returns 0.0
         every { mock.manyArgsOp(a = eq(false)) } returns 1.0
         every { mock.manyArgsOp(b = eq(false)) } returns 2.0
         every { mock.manyArgsOp(c = eq(33)) } returns 3.0
@@ -172,6 +172,7 @@ class MockKTestSuite : StringSpec({
         clearMocks(mock, answers = false)
         assertEquals(5, mock.otherOp(0, 2))
         clearMocks(mock)
+        every { mock.otherOp(any<Int>(), any<Int>()) } returns 0
         assertEquals(0, mock.otherOp(0, 2))
 
         verifySequence {
@@ -268,11 +269,10 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(c = 7) } answers { thirdArg<Byte>().toDouble() - 2 }
         every { spy.manyArgsOp(t = any(), c = 8) } answers { lastArg<IntWrapper>().data.toDouble() }
         every { spy.manyArgsOp(c = 9) } answers { nArgs.toDouble() }
-        every { spy.manyArgsOp(c = 10) } answers { spiedObj<MockCls>().otherOp(args[8] as Int).toDouble() }
         every { spy.manyArgsOp(c = 11) } answers { method.parameterCount.toDouble() }
         every { spy.manyArgsOp(d = capture(lstNonNull), c = 12) } answers { lstNonNull.captured().toDouble() }
         every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
-        every { spy.lambdaOp(1, capture(slot)) } answers { 1 - slot.invoke<Int>()!! }
+        every { spy.lambdaOp(1, match(CapturingSlotMatcher(slot))) } answers { 1 - slot.invoke<Int>()!! }
 
         assertEquals(155.0, spy.manyArgsOp(), 1e-6)
         assertEquals(1.0, spy.manyArgsOp(c = 5), 1e-6)
@@ -282,7 +282,6 @@ class MockKTestSuite : StringSpec({
         assertEquals(5.0, spy.manyArgsOp(c = 7), 1e-6)
         assertEquals(6.0, spy.manyArgsOp(c = 8, t = IntWrapper(6)), 1e-6)
         assertEquals(20.0, spy.manyArgsOp(c = 9), 1e-6)
-        assertEquals(9.0, spy.manyArgsOp(c = 10), 1e-6)
         assertEquals(20.0, spy.manyArgsOp(c = 11), 1e-6)
         assertEquals(10.0, spy.manyArgsOp(d = 10, c = 12), 1e-6)
         assertEquals(11.0, spy.manyArgsOp(d = 11, c = 12), 1e-6)
@@ -300,7 +299,6 @@ class MockKTestSuite : StringSpec({
         verify { spy.manyArgsOp(c = 7) }
         verify { spy.manyArgsOp(c = 8, t = IntWrapper(6)) }
         verify { spy.manyArgsOp(c = 9) }
-        verify { spy.manyArgsOp(c = 10) }
         verify { spy.manyArgsOp(c = 11) }
         verify { spy.manyArgsOp(d = 10, c = 12) }
         verify { spy.manyArgsOp(d = 11, c = 12) }
@@ -379,6 +377,9 @@ class MockKTestSuite : StringSpec({
         val a = IntWrapper(3)
         val b = IntWrapper(4)
 
+        every { mock.otherOp(any<Int>(), any<Int>()) } returns 0
+        every { mock.otherOp(any<IntWrapper>(), any<IntWrapper>()) } returns 0
+
         every { mock.otherOp(eq(a), refEq(b)) } returns 1
 
         every { mock.otherOp(1, less(2)) } returns 2
@@ -397,7 +398,7 @@ class MockKTestSuite : StringSpec({
         every { mock.otherOp(5, or(or(more(20), 17), 13)) } returns 12
 
         val v = slot<Int>()
-        every { mock.otherOp(6, and(capture(v), more(20))) } answers { v.captured }
+        every { mock.otherOp(6, and(match(CapturingSlotMatcher(v)), more(20))) } answers { v.captured }
 
         every { mock.otherOp(a = IntWrapper(7), b = isNull()) } returns 13
         every { mock.otherOp(a = IntWrapper(8), b = isNull(true)) } returns 14
