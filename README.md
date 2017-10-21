@@ -41,22 +41,20 @@ Kotlin mocking framework
 - [x] relax gateway companion object
 - [x] Java 9 support
 - [x] split to separate files
+- [ ] Android
 - [ ] objenesis
 - [ ] running methods: JUnit 4 RunWith, JUnit 5, how mockito works, Java agent
-- [ ] extension function testing fun ChannelHandlerContext.scopeAttr()
-- [ ] pet project testing
-- [ ] DSL testing feature
-- [ ] static methods mocking
-- [ ] String matchers: startsWith, contains
+- [ ] register on Maven OSSRH
+- [ ] habr article
+- [ ] ***MILESTONE2 - maven release***
+- [ ] static methods
+- [ ] extension function
 - [ ] mock: extraInterfaces, mock name
-- [ ] TODO: check all kinds of arrays
 - [ ] better human readable exceptions
-- [ ] ***MILESTONE2***
 - [ ] performance optimization: HashableMatcher
 - [ ] performance optimization: ProxyCache
 - [ ] performance optimization: Method mapping
 - [ ] check nanoTime is OK (otherwise counter)
-- [ ] Android
 - [ ] other JVMs
 
 ...
