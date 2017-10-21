@@ -1,5 +1,5 @@
-![KotlinTest](doc/logo.png)
-==========
+![mockk](doc/logo.png)
+======================
 
 ### Nice features
 
@@ -38,8 +38,8 @@
 - [x] fixing spies
 - [x] spyk copy
 - [x] relax gateway companion object
+- [x] Java 9 support
 - [ ] extension function testing fun ChannelHandlerContext.scopeAttr()
-- [ ] Java 9 support
 - [ ] JUnit 5
 - [ ] pet project testing
 - [ ] DSL testing feature

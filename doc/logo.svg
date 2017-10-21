@@ -16,7 +16,10 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="logo.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:export-filename="/home/oleksiyp/workspace/mockk/doc/logo.png"
+   inkscape:export-xdpi="45.583889"
+   inkscape:export-ydpi="45.583889">
   <defs
      id="defs2">
     <linearGradient
@@ -158,7 +161,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="373.39047"
+     inkscape:cx="356.72295"
      inkscape:cy="257.16767"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"

@@ -54,6 +54,7 @@ class MockKJUnitRunner(cls: Class<*>) : Runner() {
     private val loader = Loader(pool)
 
     init {
+        loader.delegateLoadingOf("jdk.internal.")
         loader.delegateLoadingOf("org.junit.runner.")
         Thread.currentThread().contextClassLoader = loader
     }
@@ -671,6 +672,8 @@ interface MockKGateway {
     companion object {
         internal val defaultImpl: MockKGateway = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
+
+        val NO_ARG_TYPE_NAME = MockK::class.java.name + "NoArgParam"
     }
 }
 
@@ -1365,7 +1368,7 @@ private class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
     private val cp = ClassPool.getDefault()
 
     private val rnd = Random()
-    private val noArgsType = Class.forName("\$NoArgsConstructorParamType")
+//    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)
 
     override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
         log.debug { "Building proxy for $cls" }
@@ -1539,6 +1542,7 @@ private class ReflecationFactoryFinder {
     }
 }
 
+@PublishedApi
 internal class ParentRunnerFinder(val cls: Class<*>) {
     val parentRunner = findParentRunWith()
 
@@ -1567,14 +1571,20 @@ private class ParentRunnerFinderDynamicFinder(cls: Class<*>, instrument: (Class<
 private class TranslatingClassPool(private val mockKClassTranslator: MockKClassTranslator)
     : ClassPool() {
 
+    val log = logger<TranslatingClassPool>()
+
     init {
         appendSystemPath()
         mockKClassTranslator.start(this)
     }
 
-    override fun get0(classname: String, useCache: Boolean): CtClass {
+    override fun get0(classname: String, useCache: Boolean): CtClass? {
         val cls = super.get0(classname, useCache)
-        mockKClassTranslator.onLoad(cls)
+        if (cls != null) {
+            mockKClassTranslator.onLoad(cls)
+        } else {
+            log.info { "Failed to load ${classname} class"}
+        }
         return cls
     }
 }
@@ -1584,7 +1594,7 @@ private class MockKClassTranslator {
     val log = logger<MockKClassTranslator>()
 
     fun start(pool: ClassPool) {
-        noArgsParamType = pool.makeClass("\$NoArgsConstructorParamType")
+        noArgsParamType = pool.makeClass(MockKGateway.NO_ARG_TYPE_NAME)
     }
 
     val load = Collections.synchronizedSet(hashSetOf<String>())
