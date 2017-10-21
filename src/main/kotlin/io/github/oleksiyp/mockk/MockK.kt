@@ -20,7 +20,6 @@ import sun.reflect.ReflectionFactory
 import java.lang.AssertionError
 import java.lang.Class
 import java.lang.ClassNotFoundException
-import java.lang.NoSuchMethodException
 import java.lang.Object
 import java.lang.System
 import java.lang.System.identityHashCode
@@ -76,12 +75,12 @@ interface MockK
 /**
  * Builds a new mock for specified class
  */
-inline fun <reified T> mockk(): T = MockKGateway.mockk(T::class.java)
+inline fun <reified T> mockk(): T = MockKGateway.LOCATOR().mockk(T::class.java)
 
 /**
  * Builds a new spy for specified class. Copies fields from object if provided
  */
-inline fun <reified T> spyk(objToCopy : T? = null): T = MockKGateway.spyk(T::class.java, objToCopy)
+inline fun <reified T> spyk(objToCopy: T? = null): T = MockKGateway.LOCATOR().spyk(T::class.java, objToCopy)
 
 /**
  * Creates new capturing slot
@@ -91,22 +90,7 @@ inline fun <reified T> slot() = CapturingSlot<T>()
 /**
  * Starts a block of stubbing. Part of DSL.
  */
-fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
-    val gw = MockKGateway.LOCATOR()
-    val callRecorder = gw.callRecorder
-    callRecorder.startStubbing()
-    val lambda = slot<Function<*>>()
-    val scope = MockKScope(gw, lambda)
-    runBlocking {
-        val n = MockKGateway.N_CALL_ROUNDS
-        repeat(n) {
-            callRecorder.catchArgs(it, n)
-            scope.mockBlock()
-        }
-        callRecorder.catchArgs(n, n)
-    }
-    return MockKStubScope(gw, lambda)
-}
+fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(mockBlock)
 
 /**
  * Verification orderding
@@ -135,31 +119,13 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                atMost: Int = Int.MAX_VALUE,
                exactly: Int = -1,
                mockBlock: suspend MockKScope.() -> T) {
-
-    if (ordering != Ordering.UNORDERED) {
-        if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
-            throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
-        }
-    }
-
-    val gw = MockKGateway.LOCATOR()
-    val callRecorder = gw.callRecorder
-    callRecorder.startVerification()
-
-    val lambda = slot<Function<*>>()
-    val scope = MockKScope(gw, lambda)
-
-    runBlocking {
-        val n = MockKGateway.N_CALL_ROUNDS
-        repeat(n) {
-            callRecorder.catchArgs(it, n)
-            scope.mockBlock()
-        }
-        callRecorder.catchArgs(n, n)
-    }
-    callRecorder.verify(ordering, inverse,
-            if (exactly != -1) exactly else atLeast,
-            if (exactly != -1) exactly else atMost)
+    MockKGateway.LOCATOR().verify(
+            ordering,
+            inverse,
+            atLeast,
+            atMost,
+            exactly,
+            mockBlock)
 }
 
 /**
@@ -301,7 +267,7 @@ class MockKAnswerScope(private val gw: MockKGateway,
 }
 
 /**
- * Slot allow to capture one value.
+ * Slot allows to capture one value.
  *
  * If this values is lambda then it's possible to invoke it.
  */
@@ -384,7 +350,7 @@ data class Invocation(val self: MockK,
                       val args: List<Any?>,
                       val timestamp: Long = System.nanoTime()) {
     override fun toString(): String {
-        return "Invocation(self=$self, method=${MockKGateway.toString(method)}, args=$args)"
+        return "Invocation(self=$self, method=${method.toStr()}, args=$args)"
     }
 
     fun withSelf(newSelf: MockK) = Invocation(newSelf, method, superMethod, args, timestamp)
@@ -444,32 +410,14 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
             if (ref) {
                 arg === value
             } else {
-                if (arg is Any && arg.javaClass.isArray) {
-                    if (value !is Any || value.javaClass != arg.javaClass) {
-                        false
-                    } else {
-                        when (arg.javaClass) {
-                            BooleanArray::class.java -> Arrays.equals(arg as BooleanArray, value as BooleanArray)
-                            ByteArray::class.java -> Arrays.equals(arg as ByteArray, value as ByteArray)
-                            CharArray::class.java -> Arrays.equals(arg as CharArray, value as CharArray)
-                            ShortArray::class.java -> Arrays.equals(arg as ShortArray, value as ShortArray)
-                            IntArray::class.java -> Arrays.equals(arg as IntArray, value as IntArray)
-                            LongArray::class.java -> Arrays.equals(arg as LongArray, value as LongArray)
-                            FloatArray::class.java -> Arrays.equals(arg as FloatArray, value as FloatArray)
-                            DoubleArray::class.java -> Arrays.equals(arg as DoubleArray, value as DoubleArray)
-                            else -> Arrays.deepEquals(arg as Array<Any>, value as Array<Any>)
-                        }
-                    }
-                } else {
-                    arg == value
-                }
+                Objects.deepEquals(arg, value)
             }
 
     override fun toString(): String =
             if (ref)
-                "refEq(${MockKGateway.toString(value)})"
+                "refEq(${value.toStr()})"
             else
-                "eq(${MockKGateway.toString(value)})"
+                "eq(${value.toStr()})"
 }
 
 /**
@@ -703,126 +651,26 @@ class MockKException(message: String) : RuntimeException(message)
  */
 interface MockKGateway {
     val callRecorder: CallRecorder
-
     val instantiator: Instantiator
-
     fun verifier(ordering: Ordering): Verifier
+
+
+    fun <T> mockk(java: Class<T>): T
+
+    fun <T> spyk(java: Class<T>, objToCopy: T?): T
+
+    fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T>
+
+    fun <T> verify(ordering: Ordering,
+                   inverse: Boolean,
+                   atLeast: Int,
+                   atMost: Int,
+                   exactly: Int,
+                   mockBlock: suspend MockKScope.() -> T)
 
     companion object {
         internal val defaultImpl: MockKGateway = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
-
-        private val log = logger<MockKGateway>()
-
-        private val NO_ARGS_TYPE = Class.forName("\$NoArgsConstructorParamType")
-
-        internal fun <T> proxy(cls: Class<T>, spy: Boolean): Any {
-            val factory = ProxyFactory()
-
-            log.debug { "Building proxy for $cls" }
-
-            val obj = if (cls.isInterface) {
-                factory.interfaces = arrayOf(cls, MockKInstance::class.java)
-                factory.create(emptyArray(), emptyArray())
-            } else {
-                factory.interfaces = arrayOf(MockKInstance::class.java)
-                factory.superclass = cls
-                if (spy) {
-                    factory.create(arrayOf(), arrayOf<Any?>())
-                } else {
-                    try {
-                        factory.create(arrayOf(NO_ARGS_TYPE), arrayOf<Any?>(null))
-                    } catch (ex: NoSuchMethodException) {
-                        factory.create(arrayOf(), arrayOf<Any?>())
-                    }
-                }
-            }
-            (obj as ProxyObject).handler =
-                    if (!spy)
-                        MockKInstanceProxyHandler(cls, obj)
-                    else
-                        SpyKInstanceProxyHandler(cls, obj)
-            return obj
-        }
-
-        @PublishedApi
-        internal fun <T> mockk(cls: Class<T>): T {
-            log.info { "Creating mockk for $cls" }
-            val obj = proxy(cls, false)
-            return cls.cast(obj)
-        }
-
-        @PublishedApi
-        internal fun <T> spyk(cls: Class<T>, objToCopy: T?): T {
-            log.info { "Creating spyk for $cls" }
-            val obj = proxy(cls, true)
-            if (objToCopy != null) {
-                copyFields(obj, objToCopy as Any)
-            }
-            return cls.cast(obj)
-        }
-
-        private fun copyFields(obj: Any, objToCopy: Any) {
-            for (field in objToCopy.javaClass.declaredFields) {
-                field.isAccessible = true
-                field.set(obj, field.get(objToCopy))
-                log.debug { "Copied field $field" }
-            }
-        }
-
-        internal fun anyValue(type: Class<*>,
-                              block: () -> Any? = {
-                                  MockKGateway.LOCATOR().instantiator.instantiate(type)
-                              }): Any? {
-            return when (type) {
-                Void.TYPE -> Unit
-
-                Boolean::class.java -> false
-                Byte::class.java -> 0.toByte()
-                Short::class.java -> 0.toShort()
-                Char::class.java -> 0.toChar()
-                Int::class.java -> 0
-                Long::class.java -> 0L
-                Float::class.java -> 0.0F
-                Double::class.java -> 0.0
-                String::class.java -> ""
-
-                java.lang.Boolean::class.java -> false
-                java.lang.Byte::class.java -> 0.toByte()
-                java.lang.Short::class.java -> 0.toShort()
-                java.lang.Character::class.java -> 0.toChar()
-                java.lang.Integer::class.java -> 0
-                java.lang.Long::class.java -> 0L
-                java.lang.Float::class.java -> 0.0F
-                java.lang.Double::class.java -> 0.0
-
-                BooleanArray::class.java -> BooleanArray(0)
-                ByteArray::class.java -> ByteArray(0)
-                CharArray::class.java -> CharArray(0)
-                ShortArray::class.java -> ShortArray(0)
-                IntArray::class.java -> IntArray(0)
-                LongArray::class.java -> LongArray(0)
-                FloatArray::class.java -> FloatArray(0)
-                DoubleArray::class.java -> DoubleArray(0)
-                else -> {
-                    if (type.isArray) {
-                        java.lang.reflect.Array.newInstance(type.componentType, 0);
-                    } else {
-                        block()
-                    }
-                }
-            }
-        }
-
-        internal fun toString(obj: Any?): String {
-            if (obj == null)
-                return "null"
-            if (obj is Method)
-                return obj.toStr()
-            return obj.toString()
-        }
-
-        internal val N_CALL_ROUNDS: Int = 64
     }
 }
 
@@ -864,6 +712,14 @@ data class VerificationResult(val matches: Boolean, val matcher: InvocationMatch
  */
 interface Instantiator {
     fun <T> instantiate(cls: Class<T>): T
+
+    fun anyValue(cls: Class<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
+
+    fun <T> proxy(cls: Class<T>, spy: Boolean): Any
+
+    fun <T> signatureValue(cls: Class<T>): T
+
+    fun isPassedByValue(cls: Class<*>): Boolean
 }
 
 // ---------------------------- IMPLEMENTATION --------------------------------
@@ -885,9 +741,6 @@ internal interface MockKInstance : MockK {
 
     fun ___clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
 }
-
-private fun Method.toStr() =
-        name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
 
 private open class MockKInstanceProxyHandler(private val cls: Class<*>,
                                              private val obj: Any) : MethodHandler, MockKInstance {
@@ -962,7 +815,7 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
 
     override fun ___childMockK(call: Call): MockKInstance {
         return childs.computeIfAbsent(call.matcher, {
-            MockKGateway.mockk(call.retType) as MockKInstance
+            MockKGateway.LOCATOR().mockk(call.retType) as MockKInstance
         })
     }
 
@@ -975,7 +828,12 @@ private open class MockKInstanceProxyHandler(private val cls: Class<*>,
             try {
                 return it.invoke(this, *args)
             } catch (ex: InvocationTargetException) {
-                throw ex.cause!!
+                var thr : Throwable = ex
+                while (thr.cause != null &&
+                        thr is InvocationTargetException) {
+                    thr = thr.cause!!
+                }
+                throw thr
             }
         }
 
@@ -1019,6 +877,8 @@ private class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject) : Moc
 
 
 private class MockKGatewayImpl : MockKGateway {
+    private val log = logger<MockKGatewayImpl>()
+
     private val callRecorderTL = ThreadLocal.withInitial { CallRecorderImpl(this) }
     private val instantiatorTL = ThreadLocal.withInitial { InstantiatorImpl(this) }
     private val unorderedVerifierTL = ThreadLocal.withInitial { UnorderedVerifierImpl(this) }
@@ -1037,6 +897,78 @@ private class MockKGatewayImpl : MockKGateway {
                 Ordering.ORDERED -> orderedVerifierTL.get()
                 Ordering.SEQUENCE -> sequenceVerifierTL.get()
             }
+
+
+    override fun <T> mockk(cls: Class<T>): T {
+        log.info { "Creating mockk for $cls" }
+        val obj = instantiator.proxy(cls, false)
+        (obj as ProxyObject).handler = MockKInstanceProxyHandler(cls, obj)
+        return cls.cast(obj)
+    }
+
+    override fun <T> spyk(cls: Class<T>, objToCopy: T?): T {
+        log.info { "Creating spyk for $cls" }
+        val obj = instantiator.proxy(cls, objToCopy == null)
+        if (objToCopy != null) {
+            copyFields(obj, objToCopy as Any)
+        }
+        (obj as ProxyObject).handler = SpyKInstanceProxyHandler(cls, obj)
+        return cls.cast(obj)
+    }
+
+    private fun copyFields(obj: Any, objToCopy: Any) {
+        for (field in objToCopy.javaClass.declaredFields) {
+            field.isAccessible = true
+            field.set(obj, field.get(objToCopy))
+            log.debug { "Copied field $field" }
+        }
+    }
+
+    override fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
+        callRecorder.startStubbing()
+        val lambda = slot<Function<*>>()
+        val scope = MockKScope(this, lambda)
+        runBlocking {
+            val n = MockKGatewayImpl.N_CALL_ROUNDS
+            repeat(n) {
+                callRecorder.catchArgs(it, n)
+                scope.mockBlock()
+            }
+            callRecorder.catchArgs(n, n)
+        }
+        return MockKStubScope(this, lambda)
+    }
+
+    override fun <T> verify(ordering: Ordering, inverse: Boolean, atLeast: Int, atMost: Int, exactly: Int, mockBlock: suspend MockKScope.() -> T) {
+        if (ordering != Ordering.UNORDERED) {
+            if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
+                throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
+            }
+        }
+
+        val gw = MockKGateway.LOCATOR()
+        val callRecorder = gw.callRecorder
+        callRecorder.startVerification()
+
+        val lambda = slot<Function<*>>()
+        val scope = MockKScope(gw, lambda)
+
+        runBlocking {
+            val n = MockKGatewayImpl.N_CALL_ROUNDS
+            repeat(n) {
+                callRecorder.catchArgs(it, n)
+                scope.mockBlock()
+            }
+            callRecorder.catchArgs(n, n)
+        }
+        callRecorder.verify(ordering, inverse,
+                if (exactly != -1) exactly else atLeast,
+                if (exactly != -1) exactly else atMost)
+    }
+
+    companion object {
+        val N_CALL_ROUNDS = 64
+    }
 }
 
 private class Ref(val value: Any) {
@@ -1072,8 +1004,6 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     }
 
     private var mode = Mode.ANSWERING
-
-    private val rnd = Random()
 
     private val signedCalls = mutableListOf<SignedCall>()
     private val callRounds = mutableListOf<CallRound>()
@@ -1217,7 +1147,7 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     }
 
     private fun packRef(arg: Any?): Any? {
-        return if (arg == null || passByValue(arg.javaClass))
+        return if (arg == null || gw.instantiator.isPassedByValue(arg.javaClass))
             arg
         else
             Ref(arg)
@@ -1226,41 +1156,9 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
     override fun <T> matcher(matcher: Matcher<*>, cls: Class<T>): T {
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         matchers.add(matcher)
-        val signatureValue = signatureValue(cls)
-        signatures.add(if (passByValue(cls)) signatureValue as Any else Ref(signatureValue as Any))
+        val signatureValue = gw.instantiator.signatureValue(cls)
+        signatures.add(packRef(signatureValue)!!)
         return signatureValue
-    }
-
-
-    private fun <T> signatureValue(cls: Class<T>): T {
-        return cls.cast(when (cls) {
-            java.lang.Boolean::class.java -> java.lang.Boolean(rnd.nextBoolean())
-            java.lang.Byte::class.java -> java.lang.Byte(rnd.nextInt().toByte())
-            java.lang.Short::class.java -> java.lang.Short(rnd.nextInt().toShort())
-            java.lang.Character::class.java -> java.lang.Character(rnd.nextInt().toChar())
-            java.lang.Integer::class.java -> java.lang.Integer(rnd.nextInt())
-            java.lang.Long::class.java -> java.lang.Long(rnd.nextLong())
-            java.lang.Float::class.java -> java.lang.Float(rnd.nextFloat())
-            java.lang.Double::class.java -> java.lang.Double(rnd.nextDouble())
-            java.lang.String::class.java -> java.lang.String(rnd.nextLong().toString(16))
-            java.lang.Object::class.java -> java.lang.Object()
-            else -> gw.instantiator.instantiate(cls)
-        })
-    }
-
-    private fun passByValue(cls: Class<*>): Boolean {
-        return when (cls) {
-            java.lang.Boolean::class.java -> true
-            java.lang.Byte::class.java -> true
-            java.lang.Short::class.java -> true
-            java.lang.Character::class.java -> true
-            java.lang.Integer::class.java -> true
-            java.lang.Long::class.java -> true
-            java.lang.Float::class.java -> true
-            java.lang.Double::class.java -> true
-            java.lang.String::class.java -> true
-            else -> false
-        }
     }
 
     override fun call(invocation: Invocation): Any? {
@@ -1285,8 +1183,9 @@ private class CallRecorderImpl(private val gw: MockKGateway) : CallRecorder {
         matchers.clear()
         signatures.clear()
 
-        return MockKGateway.anyValue(retType) {
-            val child = MockKGateway.proxy(retType, false) as MockK
+        val instantiator = MockKGateway.LOCATOR().instantiator
+        return instantiator.anyValue(retType) {
+            val child = instantiator.proxy(retType, false) as MockK
             (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, child)
             childMocks.add(Ref(child))
             child
@@ -1463,54 +1362,48 @@ private fun Method.isSuspend(): Boolean {
 private class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
 
-    val cp = ClassPool.getDefault()
+    private val cp = ClassPool.getDefault()
+
+    private val rnd = Random()
+    private val noArgsType = Class.forName("\$NoArgsConstructorParamType")
+
+    override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
+        log.debug { "Building proxy for $cls" }
+
+        val pf = ProxyFactoryExt(cls, MockKInstance::class.java)
+
+        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass()
+
+        return if (useDefaultConstructor)
+            proxyCls.newInstance()
+        else
+            newEmptyInstance(proxyCls)
+    }
+
 
     override fun <T> instantiate(cls: Class<T>): T {
-        val factory = ProxyFactory()
-
-        val makeMethod = factory.javaClass.getDeclaredMethod("make")
-        makeMethod.isAccessible = true
-
-        val computeSignatureMethod = factory.javaClass.getDeclaredMethod("computeSignature",
-                MethodFilter::class.java)
-        computeSignatureMethod.isAccessible = true
-
-        val allocateClassNameMethod = factory.javaClass.getDeclaredMethod("allocateClassName")
-        allocateClassNameMethod.isAccessible = true
-
-        val proxyClsFile = if (cls.isInterface) {
-            factory.interfaces = arrayOf(cls, MockKInstance::class.java)
-            computeSignatureMethod.invoke(factory, MethodFilter { true })
-            allocateClassNameMethod.invoke(factory)
-            makeMethod.invoke(factory)
-        } else {
-            factory.interfaces = arrayOf(MockKInstance::class.java)
-            factory.superclass = cls
-            computeSignatureMethod.invoke(factory, MethodFilter { true })
-            allocateClassNameMethod.invoke(factory)
-            makeMethod.invoke(factory)
-        } as ClassFile
-
-        val proxyCls = cp.makeClass(proxyClsFile).toClass()
-
+        log.debug { "Building empty instance $cls" }
+        val pf = ProxyFactoryExt(cls)
+        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass()
         val instance = newEmptyInstance(proxyCls)
+        (instance as ProxyObject).handler = EqualsAndHashCodeHandler()
+        return cls.cast(instance)
+    }
 
-        (instance as ProxyObject).handler = MethodHandler { self: Any, thisMethod: Method, proceed: Method, args: Array<Any?> ->
-
-            if (thisMethod.name == "hashCode" && thisMethod.parameterCount == 0) {
+    private class EqualsAndHashCodeHandler : MethodHandler {
+        override fun invoke(self: Any, thisMethod: Method, proceed: Method?, args: Array<out Any>): Any? {
+            return if (thisMethod.name == "hashCode" && thisMethod.parameterCount == 0) {
                 identityHashCode(self)
             } else if (thisMethod.name == "equals" &&
                     thisMethod.parameterCount == 1 &&
                     thisMethod.parameterTypes[0] == java.lang.Object::class.java) {
                 self === args[0]
+            } else if (thisMethod.name == "toString" && thisMethod.parameterCount == 0) {
+                self.javaClass.superclass.name + "@" + identityHashCode(self)
             } else {
                 null
             }
         }
-
-        log.debug { "Built instance $cls" }
-
-        return cls.cast(instance)
     }
 
     val reflectionFactoryFinder =
@@ -1521,11 +1414,120 @@ private class InstantiatorImpl(gw: MockKGatewayImpl) : Instantiator {
                 null
             }
 
-
     private fun newEmptyInstance(proxyCls: Class<*>): Any {
+//                    factory.create(arrayOf(noArgsType), arrayOf<Any?>(null))
+
+        // TODO : use objenesis
         reflectionFactoryFinder?.let { return it.newEmptyInstance(proxyCls) }
         throw MockKException("no instantiation support on platform")
     }
+
+    override fun anyValue(type: Class<*>, orInstantiateVia: () -> Any?): Any? {
+        return when (type) {
+            Void.TYPE -> Unit
+
+            Boolean::class.java -> false
+            Byte::class.java -> 0.toByte()
+            Short::class.java -> 0.toShort()
+            Char::class.java -> 0.toChar()
+            Int::class.java -> 0
+            Long::class.java -> 0L
+            Float::class.java -> 0.0F
+            Double::class.java -> 0.0
+            String::class.java -> ""
+
+            java.lang.Boolean::class.java -> false
+            java.lang.Byte::class.java -> 0.toByte()
+            java.lang.Short::class.java -> 0.toShort()
+            java.lang.Character::class.java -> 0.toChar()
+            java.lang.Integer::class.java -> 0
+            java.lang.Long::class.java -> 0L
+            java.lang.Float::class.java -> 0.0F
+            java.lang.Double::class.java -> 0.0
+
+            BooleanArray::class.java -> BooleanArray(0)
+            ByteArray::class.java -> ByteArray(0)
+            CharArray::class.java -> CharArray(0)
+            ShortArray::class.java -> ShortArray(0)
+            IntArray::class.java -> IntArray(0)
+            LongArray::class.java -> LongArray(0)
+            FloatArray::class.java -> FloatArray(0)
+            DoubleArray::class.java -> DoubleArray(0)
+            else -> {
+                if (type.isArray) {
+                    java.lang.reflect.Array.newInstance(type.componentType, 0);
+                } else {
+                    orInstantiateVia()
+                }
+            }
+        }
+    }
+
+    override fun <T> signatureValue(cls: Class<T>): T {
+        return cls.cast(when (cls) {
+            java.lang.Boolean::class.java -> java.lang.Boolean(rnd.nextBoolean())
+            java.lang.Byte::class.java -> java.lang.Byte(rnd.nextInt().toByte())
+            java.lang.Short::class.java -> java.lang.Short(rnd.nextInt().toShort())
+            java.lang.Character::class.java -> java.lang.Character(rnd.nextInt().toChar())
+            java.lang.Integer::class.java -> java.lang.Integer(rnd.nextInt())
+            java.lang.Long::class.java -> java.lang.Long(rnd.nextLong())
+            java.lang.Float::class.java -> java.lang.Float(rnd.nextFloat())
+            java.lang.Double::class.java -> java.lang.Double(rnd.nextDouble())
+            java.lang.String::class.java -> java.lang.String(rnd.nextLong().toString(16))
+            java.lang.Object::class.java -> java.lang.Object()
+            else -> instantiate(cls)
+        })
+    }
+
+    override fun isPassedByValue(cls: Class<*>): Boolean {
+        return when (cls) {
+            java.lang.Boolean::class.java -> true
+            java.lang.Byte::class.java -> true
+            java.lang.Short::class.java -> true
+            java.lang.Character::class.java -> true
+            java.lang.Integer::class.java -> true
+            java.lang.Long::class.java -> true
+            java.lang.Float::class.java -> true
+            java.lang.Double::class.java -> true
+            java.lang.String::class.java -> true
+            else -> false
+        }
+    }
+
+    class ProxyFactoryExt(cls: Class<*>, vararg intfs: Class<*>) : ProxyFactory() {
+        init {
+            if (cls.isInterface) {
+                val intfs = intfs.toMutableList()
+                intfs.add(cls)
+                interfaces = intfs.toTypedArray()
+            } else {
+                superclass = cls
+                interfaces = intfs
+            }
+        }
+
+        fun buildClassFile(): ClassFile {
+            computeSignatureMethod.invoke(this, MethodFilter { true })
+            allocateClassNameMethod.invoke(this)
+            return makeMethod.invoke(this) as ClassFile
+        }
+
+        companion object {
+            val makeMethod = ProxyFactory::class.java.getDeclaredMethod("make")
+
+            val computeSignatureMethod = ProxyFactory::class.java.getDeclaredMethod("computeSignature",
+                    MethodFilter::class.java)
+
+            val allocateClassNameMethod = ProxyFactory::class.java.getDeclaredMethod("allocateClassName")
+
+            init {
+                makeMethod.isAccessible = true
+                computeSignatureMethod.isAccessible = true
+                allocateClassNameMethod.isAccessible = true
+            }
+        }
+    }
+
 }
 
 private class ReflecationFactoryFinder {
@@ -1663,6 +1665,14 @@ private class MockKClassTranslator {
 
 
 // ---------------------------- LOGGING --------------------------------
+
+private fun Any?.toStr() =
+        when (this) {
+            null -> "null"
+            is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
+            else -> toString()
+        }
+
 
 private val loggerFactory = try {
     Class.forName("org.slf4j.Logger");
