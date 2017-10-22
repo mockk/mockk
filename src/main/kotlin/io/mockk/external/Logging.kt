@@ -1,7 +1,6 @@
 package io.mockk.external
 
 import org.slf4j.LoggerFactory
-import java.lang.reflect.Method
 import java.util.logging.Level
 
 internal inline fun <reified T> logger(): Logger = loggerFactory(T::class.java)
@@ -28,7 +27,7 @@ private val loggerFactory = try {
 }
 
 private class Slf4jLogger(cls: Class<*>) : Logger {
-    val log = LoggerFactory.getLogger(cls)
+    val log: org.slf4j.Logger = LoggerFactory.getLogger(cls)
 
     override fun error(msg: () -> String) = if (log.isErrorEnabled) log.error(msg()) else Unit
     override fun error(ex: Throwable, msg: () -> String) = if (log.isErrorEnabled) log.error(msg(), ex) else Unit
@@ -43,7 +42,7 @@ private class Slf4jLogger(cls: Class<*>) : Logger {
 }
 
 private class JULLogger(cls: Class<*>) : Logger {
-    val log = java.util.logging.Logger.getLogger(cls.name)
+    val log: java.util.logging.Logger = java.util.logging.Logger.getLogger(cls.name)
 
     override fun error(msg: () -> String) = if (log.isLoggable(Level.SEVERE)) log.severe(msg()) else Unit
     override fun error(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.SEVERE)) log.log(Level.SEVERE, msg(), ex) else Unit

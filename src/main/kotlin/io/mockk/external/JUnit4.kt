@@ -57,7 +57,7 @@ internal class ParentRunnerFinderDynamicFinder(cls: Class<*>, instrument: (Class
     private val finderClass = instrument(ParentRunnerFinder::class.java)
     private val finderConstructor = finderClass.getConstructor(Class::class.java)
     private val getParentRunnerMethod = finderClass.getMethod("getParentRunner")
-    val finder = finderConstructor.newInstance(instrument(cls))
+    val finder: Any = finderConstructor.newInstance(instrument(cls))
     val runner = getParentRunnerMethod.invoke(finder) as Runner
 }
 

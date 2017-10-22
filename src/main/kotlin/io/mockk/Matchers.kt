@@ -1,7 +1,6 @@
 package io.mockk
 
 import io.mockk.impl.toStr
-import java.util.*
 
 /**
  * Matcher that checks equality. By reference and by value (equals method)

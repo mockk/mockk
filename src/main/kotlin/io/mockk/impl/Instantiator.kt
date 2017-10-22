@@ -110,7 +110,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
             DoubleArray::class.java -> DoubleArray(0)
             else -> {
                 if (cls.isArray) {
-                    java.lang.reflect.Array.newInstance(cls.componentType, 0);
+                    java.lang.reflect.Array.newInstance(cls.componentType, 0)
                 } else {
                     orInstantiateVia()
                 }
@@ -216,12 +216,12 @@ internal class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class
     }
 
     companion object {
-        val makeMethod = ProxyFactory::class.java.getDeclaredMethod("make")
+        val makeMethod: Method = ProxyFactory::class.java.getDeclaredMethod("make")
 
-        val computeSignatureMethod = ProxyFactory::class.java.getDeclaredMethod("computeSignature",
+        val computeSignatureMethod: Method = ProxyFactory::class.java.getDeclaredMethod("computeSignature",
                 MethodFilter::class.java)
 
-        val allocateClassNameMethod = ProxyFactory::class.java.getDeclaredMethod("allocateClassName")
+        val allocateClassNameMethod: Method = ProxyFactory::class.java.getDeclaredMethod("allocateClassName")
 
         init {
             makeMethod.isAccessible = true
@@ -233,8 +233,8 @@ internal class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class
 
 internal class ReflecationFactoryFinder {
     fun newEmptyInstance(proxyCls: Class<*>): Any {
-        val rf = ReflectionFactory.getReflectionFactory();
-        val objDef = Object::class.java.getDeclaredConstructor();
+        val rf = ReflectionFactory.getReflectionFactory()
+        val objDef = Object::class.java.getDeclaredConstructor()
         val intConstr = rf.newConstructorForSerialization(proxyCls, objDef)
         return intConstr.newInstance()
     }

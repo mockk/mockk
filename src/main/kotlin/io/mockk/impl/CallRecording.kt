@@ -87,7 +87,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
             val zeroCall = callInAllRounds[0]
 
-            log.debug { "Processing call #${callN}: ${zeroCall.invocation.method.toStr()}" }
+            log.debug { "Processing call #$callN: ${zeroCall.invocation.method.toStr()}" }
 
             repeat(zeroCall.matchers.size) { nMatcher ->
                 val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()

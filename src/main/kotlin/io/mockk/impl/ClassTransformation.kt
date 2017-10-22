@@ -46,7 +46,7 @@ internal class MockKClassTranslator {
         noArgsParamType = pool.makeClass(MockKGateway.NO_ARG_TYPE_NAME)
     }
 
-    val load = Collections.synchronizedSet(hashSetOf<String>())
+    val load: MutableSet<String> = Collections.synchronizedSet(hashSetOf<String>())
 
     fun onLoad(cls: CtClass) {
         if (!load.add(cls.name) || cls.isFrozen) {
