@@ -41,10 +41,10 @@
 - [x] split to separate files
 - [x] Java 6 compatibility
 - [ ] running methods
- - ByteBuddy agent install
- - JUnit4 RunWith classloader
- - JUnit5 ...
- - ByteBuddy agent launch
+      - ByteBuddy agent install
+      - JUnit4 RunWith classloader
+      - JUnit5 ...
+      - ByteBuddy agent launch
 - [ ] Android
 - [ ]
 - [ ] objenesis
