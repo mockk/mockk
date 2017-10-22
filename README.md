@@ -14,7 +14,7 @@ Kotlin mocking framework
  - [x] capturing lambdas
  - [x] bunch of matchers, verification modes and useful DSL constructs
 
-### Backlog
+### Backlog (removed on first release)
 
 - [x] removing final, no-args-consrtuctor byte code transformation
 - [x] matcher signature
