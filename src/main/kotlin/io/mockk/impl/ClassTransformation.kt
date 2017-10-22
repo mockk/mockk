@@ -32,7 +32,7 @@ internal class TranslatingClassPool(private val mockKClassTranslator: MockKClass
         if (cls != null) {
             mockKClassTranslator.onLoad(cls)
         } else {
-            log.info { "Failed to load ${classname} class"}
+            log.debug { "Failed to load ${classname} class"}
         }
         return cls
     }
@@ -52,7 +52,7 @@ internal class MockKClassTranslator {
         if (!load.add(cls.name) || cls.isFrozen) {
             return
         }
-        log.debug { "Translating ${cls.name}" }
+        log.trace { "Translating ${cls.name}" }
         println(cls.name)
         removeFinal(cls)
 //        addNoArgsConstructor(cls)

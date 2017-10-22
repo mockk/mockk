@@ -23,7 +23,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
     @Suppress("DEPRECATION")
     override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
-        log.debug { "Building proxy for $cls" }
+        log.trace { "Building proxy for $cls" }
 
         val pf = ProxyFactoryExt(cls, MockKInstance::class.java)
 
@@ -37,7 +37,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
 
     override fun <T> instantiate(cls: Class<T>): T {
-        log.debug { "Building empty instance $cls" }
+        log.trace { "Building empty instance $cls" }
         val pf = ProxyFactoryExt(cls)
         val proxyCls = cp.makeClass(pf.buildClassFile()).toClass()
         val instance = newEmptyInstance(proxyCls)

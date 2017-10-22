@@ -30,14 +30,14 @@ internal class MockKGatewayImpl : MockKGateway {
 
 
     override fun <T> mockk(cls: Class<T>): T {
-        log.info { "Creating mockk for $cls" }
+        log.debug { "Creating mockk for $cls" }
         val obj = instantiator.proxy(cls, false)
         (obj as ProxyObject).handler = MockKInstanceProxyHandler(cls, obj)
         return cls.cast(obj)
     }
 
     override fun <T> spyk(cls: Class<T>, objToCopy: T?): T {
-        log.info { "Creating spyk for $cls" }
+        log.debug { "Creating spyk for $cls" }
         val obj = instantiator.proxy(cls, objToCopy == null)
         if (objToCopy != null) {
             copyFields(obj, objToCopy as Any)
@@ -50,7 +50,7 @@ internal class MockKGatewayImpl : MockKGateway {
         for (field in objToCopy.javaClass.declaredFields) {
             field.isAccessible = true
             field.set(obj, field.get(objToCopy))
-            log.debug { "Copied field $field" }
+            log.trace { "Copied field $field" }
         }
     }
 
@@ -102,7 +102,7 @@ internal class MockKGatewayImpl : MockKGateway {
         val log = logger<MockKGatewayImpl>()
 
         init {
-            log.info { "Starting MockK implementation. Java version = ${System.getProperty("java.version")}" }
+            log.debug { "Starting MockK implementation. Java version = ${System.getProperty("java.version")}" }
         }
     }
 }

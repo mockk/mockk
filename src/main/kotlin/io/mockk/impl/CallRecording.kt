@@ -41,14 +41,14 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     }
 
     override fun startStubbing() {
-        log.info { "Starting stubbing" }
+        log.debug { "Starting stubbing" }
         checkMode(Mode.ANSWERING)
         mode = Mode.STUBBING
         childMocks.clear()
     }
 
     override fun startVerification() {
-        log.info { "Starting verification" }
+        log.debug { "Starting verification" }
         checkMode(Mode.ANSWERING)
         mode = Mode.VERIFYING
         childMocks.clear()
@@ -87,7 +87,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
             val zeroCall = callInAllRounds[0]
 
-            log.info { "Processing call #${callN}: ${zeroCall.invocation.method.toStr()}" }
+            log.debug { "Processing call #${callN}: ${zeroCall.invocation.method.toStr()}" }
 
             repeat(zeroCall.matchers.size) { nMatcher ->
                 val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()
@@ -102,7 +102,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
                 matcherMap[signature] = matcher
             }
 
-            log.debug { "Matcher map for ${zeroCall.invocation.method.toStr()}: $matcherMap" }
+            log.trace { "Matcher map for ${zeroCall.invocation.method.toStr()}: $matcherMap" }
 
             val argMatchers = mutableListOf<Matcher<*>>()
 
@@ -114,7 +114,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
                 }.toList()
 
 
-                log.debug { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
+                log.trace { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
 
                 val matcher = matcherMap.remove(signature)?.let {
                     if (nArgument == 0 && it is AllAnyMatcher) {
@@ -139,7 +139,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
                         packRef(it.operandValues[nOp])
                     }.toList()
 
-                    log.debug { "Signature for $nOp operand of $matcher composite matcher: $signature" }
+                    log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
 
                     matcherMap.remove(signature)
                             ?: EqMatcher(matcher.operandValues[nOp])
@@ -147,7 +147,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             }
 
             if (zeroCall.invocation.method.isSuspend()) {
-                log.debug { "Suspend function found. Replacing continuation with any() matcher" }
+                log.trace { "Suspend function found. Replacing continuation with any() matcher" }
                 argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
             }
 
@@ -159,7 +159,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
                     EqMatcher(zeroCall.invocation.self, ref = true),
                     EqMatcher(zeroCall.invocation.method),
                     argMatchers.toList() as List<Matcher<Any>>)
-            log.info { "Built matcher: $im" }
+            log.debug { "Built matcher: $im" }
             calls.add(Call(zeroCall.retType,
                     zeroCall.invocation, im,
                     childMocks.contains(Ref(zeroCall.invocation.self))))
@@ -186,7 +186,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         if (mode == Mode.ANSWERING) {
             invocation.self().___recordCall(invocation)
             val answer = invocation.self().___answer(invocation)
-            log.info { "Recorded call: $invocation, answer: $answer" }
+            log.debug { "Recorded call: $invocation, answer: $answer" }
             return answer
         } else {
             return addCallWithMatchers(invocation)
@@ -241,7 +241,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         calls.clear()
         calls.addAll(newCalls)
 
-        log.debug { "Mocked childs" }
+        log.trace { "Mocked childs" }
     }
 
     override fun answer(answer: Answer<*>) {
@@ -261,7 +261,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
 
         calls.clear()
 
-        log.debug { "Done stubbing" }
+        log.trace { "Done stubbing" }
         mode = Mode.ANSWERING
     }
 
@@ -270,7 +270,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
 
         val outcome = gw.verifier(ordering).verify(calls, min, max)
 
-        log.debug { "Done verification. Outcome: $outcome" }
+        log.trace { "Done verification. Outcome: $outcome" }
         mode = Mode.ANSWERING
 
         failIfNotPassed(outcome, inverse)
