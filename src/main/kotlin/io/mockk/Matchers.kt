@@ -11,7 +11,7 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false) : Matcher<T> {
             if (ref) {
                 arg === value
             } else {
-                Objects.deepEquals(arg, value)
+                MockKGateway.LOCATOR().instantiator.deepEquals(arg, value)
             }
 
     override fun toString(): String =

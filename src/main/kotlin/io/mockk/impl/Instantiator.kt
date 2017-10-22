@@ -47,14 +47,14 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
     private class EqualsAndHashCodeHandler : MethodHandler {
         override fun invoke(self: Any, thisMethod: Method, proceed: Method?, args: Array<out Any>): Any? {
-            return if (thisMethod.name == "hashCode" && thisMethod.parameterCount == 0) {
+            return if (thisMethod.name == "hashCode" && thisMethod.parameterCount() == 0) {
                 System.identityHashCode(self)
             } else if (thisMethod.name == "equals" &&
-                    thisMethod.parameterCount == 1 &&
+                    thisMethod.parameterCount() == 1 &&
                     thisMethod.parameterTypes[0] == java.lang.Object::class.java) {
                 self === args[0]
-            } else if (thisMethod.name == "toString" && thisMethod.parameterCount == 0) {
-                self.javaClass.superclass.name + "@" + System.identityHashCode(self)
+            } else if (thisMethod.name == "toString" && thisMethod.parameterCount() == 0) {
+                "instance<" + self.javaClass.superclass.simpleName + ">()"
             } else {
                 null
             }
@@ -149,41 +149,84 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         }
     }
 
-    class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class<*>) : ProxyFactory() {
+    /**
+     * Java 6 complaint deep equals
+     */
+    override fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
+        return if (obj1 === obj2) {
+            true
+        } else if (obj1 == null || obj2 == null) {
+            obj2 == null
+        } else if (obj1.javaClass != obj2.javaClass) {
+            false
+        } else if (obj1.javaClass.isArray) {
+            arrayDeepEquals(obj1, obj2)
+        } else {
+            obj1 == obj2
+        }
+    }
+
+    private fun arrayDeepEquals(obj1: Any, obj2: Any): Boolean {
+        return when (obj1.javaClass) {
+            BooleanArray::class.java -> Arrays.equals(obj1 as BooleanArray, obj2 as BooleanArray)
+            ByteArray::class.java -> Arrays.equals(obj1 as ByteArray, obj2 as ByteArray)
+            CharArray::class.java -> Arrays.equals(obj1 as CharArray, obj2 as CharArray)
+            ShortArray::class.java -> Arrays.equals(obj1 as ShortArray, obj2 as ShortArray)
+            IntArray::class.java -> Arrays.equals(obj1 as IntArray, obj2 as IntArray)
+            LongArray::class.java -> Arrays.equals(obj1 as LongArray, obj2 as LongArray)
+            FloatArray::class.java -> Arrays.equals(obj1 as FloatArray, obj2 as FloatArray)
+            DoubleArray::class.java -> Arrays.equals(obj1 as DoubleArray, obj2 as DoubleArray)
+            else -> {
+                val arr1 = obj1 as Array<*>
+                val arr2 = obj2 as Array<*>
+                if (arr1.size != arr2.size) {
+                    return false
+                }
+                repeat(arr1.size) { i ->
+                    if (!deepEquals(arr1[i], arr2[i])) {
+                        return false
+                    }
+                }
+                return true
+            }
+        }
+    }
+}
+
+internal class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class<*>) : ProxyFactory() {
+    init {
+        if (cls.isInterface) {
+            val interfaceList = additionalInterfaces.toMutableList()
+            interfaceList.add(cls)
+            interfaces = interfaceList.toTypedArray()
+        } else {
+            superclass = cls
+            interfaces = additionalInterfaces
+        }
+    }
+
+    fun buildClassFile(): ClassFile {
+        try {
+            computeSignatureMethod.invoke(this, MethodFilter { true })
+            allocateClassNameMethod.invoke(this)
+            return makeMethod.invoke(this) as ClassFile
+        } catch (ex: InvocationTargetException) {
+            throw ex.demangle()
+        }
+    }
+
+    companion object {
+        val makeMethod = ProxyFactory::class.java.getDeclaredMethod("make")
+
+        val computeSignatureMethod = ProxyFactory::class.java.getDeclaredMethod("computeSignature",
+                MethodFilter::class.java)
+
+        val allocateClassNameMethod = ProxyFactory::class.java.getDeclaredMethod("allocateClassName")
+
         init {
-            if (cls.isInterface) {
-                val interfaceList = additionalInterfaces.toMutableList()
-                interfaceList.add(cls)
-                interfaces = interfaceList.toTypedArray()
-            } else {
-                superclass = cls
-                interfaces = additionalInterfaces
-            }
-        }
-
-        fun buildClassFile(): ClassFile {
-            try {
-                computeSignatureMethod.invoke(this, MethodFilter { true })
-                allocateClassNameMethod.invoke(this)
-                return makeMethod.invoke(this) as ClassFile
-            } catch (ex: InvocationTargetException) {
-                throw ex.demangle()
-            }
-        }
-
-        companion object {
-            val makeMethod = ProxyFactory::class.java.getDeclaredMethod("make")
-
-            val computeSignatureMethod = ProxyFactory::class.java.getDeclaredMethod("computeSignature",
-                    MethodFilter::class.java)
-
-            val allocateClassNameMethod = ProxyFactory::class.java.getDeclaredMethod("allocateClassName")
-
-            init {
-                makeMethod.isAccessible = true
-                computeSignatureMethod.isAccessible = true
-                allocateClassNameMethod.isAccessible = true
-            }
+            makeMethod.isAccessible = true
+            computeSignatureMethod.isAccessible = true
+            allocateClassNameMethod.isAccessible = true
         }
     }
 }

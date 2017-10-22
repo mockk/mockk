@@ -100,9 +100,17 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
     }
 
     override fun ___childMockK(call: Call): MockKInstance {
-        return childs.computeIfAbsent(call.matcher, {
-            MockKGateway.LOCATOR().mockk(call.retType) as MockKInstance
-        })
+        // computeIfAbsence Java6 downgrade
+        return synchronized(childs) {
+            val child = childs.get(call.matcher)
+            if (child == null) {
+                val newChild = MockKGateway.LOCATOR().mockk(call.retType) as MockKInstance
+                childs.put(call.matcher, newChild)
+                newChild
+            } else {
+                child
+            }
+        }
     }
 
     override fun invoke(self: Any,

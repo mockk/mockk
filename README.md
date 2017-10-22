@@ -41,12 +41,14 @@ Kotlin mocking framework
 - [x] relax gateway companion object
 - [x] Java 9 support
 - [x] split to separate files
+- [x] Java 6 compatibility
 - [ ] Android
 - [ ] objenesis
 - [ ] running methods: JUnit 4 RunWith, JUnit 5, how mockito works, Java agent
 - [ ] register on Maven OSSRH
 - [ ] habr article
 - [ ] ***MILESTONE2 - maven release***
+- [ ] annotation mocking
 - [ ] static methods
 - [ ] extension function
 - [ ] mock: extraInterfaces, mock name

@@ -1,8 +1,6 @@
 package io.mockk.external
 
-import io.mockk.impl.MockKClassTranslator
 import io.mockk.impl.MockKPoolHolder
-import io.mockk.impl.TranslatingClassPool
 import javassist.Loader
 import org.junit.runner.Description
 import org.junit.runner.RunWith
@@ -19,6 +17,8 @@ class MockKJUnitRunner(cls: Class<*>) : Runner() {
     init {
         loader.delegateLoadingOf("jdk.internal.")
         loader.delegateLoadingOf("org.junit.runner.")
+//        loader.delegateLoadingOf(MockKPoolHolder::class.java.name)
+//        loader.delegateLoadingOf(MockKPoolHolder::class.java.name + "\$Companion")
         Thread.currentThread().contextClassLoader = loader
     }
 
@@ -57,6 +57,7 @@ internal class ParentRunnerFinderDynamicFinder(cls: Class<*>, instrument: (Class
     private val finderClass = instrument(ParentRunnerFinder::class.java)
     private val finderConstructor = finderClass.getConstructor(Class::class.java)
     private val getParentRunnerMethod = finderClass.getMethod("getParentRunner")
-    val runner = getParentRunnerMethod.invoke(finderConstructor.newInstance(instrument(cls))) as Runner
+    val finder = finderConstructor.newInstance(instrument(cls))
+    val runner = getParentRunnerMethod.invoke(finder) as Runner
 }
 

@@ -78,4 +78,6 @@ interface Instantiator {
     fun <T> signatureValue(cls: Class<T>): T
 
     fun isPassedByValue(cls: Class<*>): Boolean
+
+    fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 }

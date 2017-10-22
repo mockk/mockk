@@ -9,11 +9,11 @@ import kotlinx.coroutines.experimental.runBlocking
 internal class MockKGatewayImpl : MockKGateway {
     private val log = logger<MockKGatewayImpl>()
 
-    private val callRecorderTL = ThreadLocal.withInitial { CallRecorderImpl(this) }
-    private val instantiatorTL = ThreadLocal.withInitial { InstantiatorImpl(this) }
-    private val unorderedVerifierTL = ThreadLocal.withInitial { UnorderedVerifierImpl(this) }
-    private val orderedVerifierTL = ThreadLocal.withInitial { OrderedVerifierImpl(this) }
-    private val sequenceVerifierTL = ThreadLocal.withInitial { SequenceVerifierImpl(this) }
+    private val callRecorderTL = threadLocalOf { CallRecorderImpl(this) }
+    private val instantiatorTL = threadLocalOf { InstantiatorImpl(this) }
+    private val unorderedVerifierTL = threadLocalOf { UnorderedVerifierImpl(this) }
+    private val orderedVerifierTL = threadLocalOf { OrderedVerifierImpl(this) }
+    private val sequenceVerifierTL = threadLocalOf { SequenceVerifierImpl(this) }
 
     override val callRecorder: CallRecorder
         get() = callRecorderTL.get()
@@ -102,7 +102,9 @@ internal class MockKGatewayImpl : MockKGateway {
         val log = logger<MockKGatewayImpl>()
 
         init {
-            log.debug { "Starting MockK implementation. Java version = ${System.getProperty("java.version")}" }
+            log.debug { "Starting MockK implementation. " +
+                    "Java version = ${System.getProperty("java.version")}. " +
+                    "Class loader = ${MockKGatewayImpl::class.java.classLoader}. " }
         }
     }
 }

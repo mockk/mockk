@@ -32,7 +32,7 @@ internal class TranslatingClassPool(private val mockKClassTranslator: MockKClass
         if (cls != null) {
             mockKClassTranslator.onLoad(cls)
         } else {
-            log.debug { "Failed to load ${classname} class"}
+            log.debug { "Failed to load $classname class"}
         }
         return cls
     }
@@ -53,10 +53,8 @@ internal class MockKClassTranslator {
             return
         }
         log.trace { "Translating ${cls.name}" }
-        println(cls.name)
         removeFinal(cls)
 //        addNoArgsConstructor(cls)
-        cls.freeze()
     }
 
     private fun addNoArgsConstructor(cls: CtClass) {
@@ -107,7 +105,7 @@ internal class MockKClassTranslator {
 
     private fun removeFinalOnMethods(clazz: CtClass) {
         clazz.declaredMethods.forEach {
-            if (java.lang.reflect.Modifier.isFinal(it.modifiers)) {
+            if (Modifier.isFinal(it.modifiers)) {
                 it.modifiers = Modifier.clear(it.modifiers, Modifier.FINAL)
             }
         }
@@ -116,7 +114,7 @@ internal class MockKClassTranslator {
 
     private fun removeFinalOnClass(clazz: CtClass) {
         val modifiers = clazz.modifiers
-        if (java.lang.reflect.Modifier.isFinal(modifiers)) {
+        if (Modifier.isFinal(modifiers)) {
             clazz.classFile2.accessFlags = AccessFlag.of(Modifier.clear(modifiers, Modifier.FINAL))
         }
     }

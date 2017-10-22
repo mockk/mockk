@@ -270,7 +270,7 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(c = 7) } answers { thirdArg<Byte>().toDouble() - 2 }
         every { spy.manyArgsOp(t = any(), c = 8) } answers { lastArg<IntWrapper>().data.toDouble() }
         every { spy.manyArgsOp(c = 9) } answers { nArgs.toDouble() }
-        every { spy.manyArgsOp(c = 11) } answers { method.parameterCount.toDouble() }
+        every { spy.manyArgsOp(c = 11) } answers { method.parameterTypes.size.toDouble() }
         every { spy.manyArgsOp(d = capture(lstNonNull), c = 12) } answers { lstNonNull.captured().toDouble() }
         every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
         every { spy.lambdaOp(1, match(CapturingSlotMatcher(slot))) } answers { 1 - slot.invoke<Int>()!! }

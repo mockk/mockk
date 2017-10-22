@@ -21,7 +21,7 @@ internal class Ref(val value: Any) {
 }
 
 internal fun InvocationTargetException.demangle(): Throwable {
-    var ex : Throwable = this
+    var ex: Throwable = this
     while (ex.cause != null &&
             ex is InvocationTargetException) {
         ex = ex.cause!!
@@ -36,3 +36,10 @@ internal fun Any?.toStr() =
             else -> toString()
         }
 
+internal fun Method.parameterCount(): Int = parameterTypes.size
+
+internal fun <T> threadLocalOf(init: () -> T): ThreadLocal<T> {
+    return object : ThreadLocal<T>() {
+        override fun initialValue(): T = init.invoke()
+    }
+}

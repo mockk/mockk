@@ -372,8 +372,9 @@ internal class SequenceVerifierImpl(private val gw: MockKGatewayImpl) : Verifier
 
 
 private fun Method.isSuspend(): Boolean {
-    if (parameterCount == 0) {
+    val sz = parameterTypes.size
+    if (sz == 0) {
         return false
     }
-    return Continuation::class.java.isAssignableFrom(parameterTypes[parameterCount - 1])
+    return Continuation::class.java.isAssignableFrom(parameterTypes[sz - 1])
 }
