@@ -46,6 +46,9 @@
 - [ ] register on Maven OSSRH
 - [ ] habr article
 - [ ] ***MILESTONE2 - maven release***
+- [ ] documentation: matchers table
+- [ ] documentation: answers table
+- [ ] documentation: runners table
 - [ ] logging "mock<CLS>#1"
 - [ ] build agent, coverage ci
 - [ ] contributing wiki, forum/group/chat
