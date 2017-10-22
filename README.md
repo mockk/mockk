@@ -40,12 +40,20 @@
 - [x] Java 9 support
 - [x] split to separate files
 - [x] Java 6 compatibility
+- [ ] running methods
+ - ByteBuddy agent install
+ - JUnit4 RunWith classloader
+ - JUnit5 ...
+ - ByteBuddy agent launch
 - [ ] Android
+- [ ]
 - [ ] objenesis
-- [ ] running methods: JUnit 4 RunWith, JUnit 5, how mockito works, Java agent
 - [ ] register on Maven OSSRH
 - [ ] habr article
 - [ ] ***MILESTONE2 - maven release***
+- [ ] build agent, coverage ci
+- [ ] contributing wiki, forum/group/chat
+- [ ] IntelliJ javadoc experience
 - [ ] annotation mocking
 - [ ] static methods
 - [ ] extension function

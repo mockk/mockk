@@ -18,5 +18,6 @@ class JUnit4Test {
         val mock = mockk<CLS>()
         every { mock.abc(1, 2) } returns 5
         Assert.assertEquals(5, mock.abc(1, 2))
+        mockk<CLS>()
     }
 }

@@ -1,5 +1,6 @@
 package io.mockk.external
 
+import io.mockk.impl.MockKClassLoader
 import io.mockk.impl.MockKPoolHolder
 import javassist.Loader
 import org.junit.runner.Description
@@ -7,12 +8,15 @@ import org.junit.runner.RunWith
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
 import org.junit.runners.BlockJUnit4ClassRunner
+import java.lang.reflect.Modifier
 
 /**
  * Runner to transforms classes early with junit {@link org.junit.runner.RunWith}
  */
 class MockKJUnitRunner(cls: Class<*>) : Runner() {
-    private val loader = Loader(MockKPoolHolder.pool)
+    private val log = logger<MockKJUnitRunner>()
+
+    private val loader = MockKClassLoader(MockKPoolHolder.pool)
 
     init {
         loader.delegateLoadingOf("jdk.internal.")

@@ -23,7 +23,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
     @Suppress("DEPRECATION")
     override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
-        log.trace { "Building proxy for $cls" }
+        log.trace { "Building proxy for $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
 
         val pf = ProxyFactoryExt(cls, MockKInstance::class.java)
 

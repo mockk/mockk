@@ -2,10 +2,7 @@ package io.mockk.impl
 
 import io.mockk.MockKGateway
 import io.mockk.external.logger
-import javassist.ClassPool
-import javassist.CtClass
-import javassist.CtConstructor
-import javassist.Modifier
+import javassist.*
 import javassist.bytecode.AccessFlag
 import java.util.*
 
@@ -13,6 +10,16 @@ import java.util.*
 internal class MockKPoolHolder {
     companion object {
         val pool = TranslatingClassPool(MockKClassTranslator())
+    }
+}
+
+internal class MockKClassLoader(val pool: ClassPool) : Loader(pool) {
+    private val log = logger<MockKClassLoader>()
+
+    override fun loadClass(name: String): Class<*> {
+        val cls = super.loadClass(name)
+        log.trace { "Loaded class $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
+        return cls
     }
 }
 
@@ -39,8 +46,14 @@ internal class TranslatingClassPool(private val mockKClassTranslator: MockKClass
 }
 
 internal class MockKClassTranslator {
-    lateinit var noArgsParamType: CtClass
     val log = logger<MockKClassTranslator>()
+
+    lateinit var noArgsParamType: CtClass
+
+    val checkModifyMethod = CtClass::class.java.getDeclaredMethod("checkModify")
+    init {
+        checkModifyMethod.isAccessible = true
+    }
 
     fun start(pool: ClassPool) {
         noArgsParamType = pool.makeClass(MockKGateway.NO_ARG_TYPE_NAME)
@@ -54,7 +67,7 @@ internal class MockKClassTranslator {
         }
         log.trace { "Translating ${cls.name}" }
         removeFinal(cls)
-//        addNoArgsConstructor(cls)
+        addNoArgsConstructor(cls)
     }
 
     private fun addNoArgsConstructor(cls: CtClass) {
@@ -115,6 +128,7 @@ internal class MockKClassTranslator {
     private fun removeFinalOnClass(clazz: CtClass) {
         val modifiers = clazz.modifiers
         if (Modifier.isFinal(modifiers)) {
+            checkModifyMethod.invoke(clazz)
             clazz.classFile2.accessFlags = AccessFlag.of(Modifier.clear(modifiers, Modifier.FINAL))
         }
     }
