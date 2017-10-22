@@ -1,6 +1,6 @@
 package io.mockk
 
-import io.mockk.external.toStr
+import io.mockk.impl.toStr
 import java.util.*
 
 /**

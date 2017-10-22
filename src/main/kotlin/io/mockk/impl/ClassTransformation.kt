@@ -5,8 +5,17 @@ import io.mockk.external.logger
 import javassist.ClassPool
 import javassist.CtClass
 import javassist.CtConstructor
+import javassist.Modifier
 import javassist.bytecode.AccessFlag
 import java.util.*
+
+
+internal class MockKPoolHolder {
+    companion object {
+        val pool = TranslatingClassPool(MockKClassTranslator())
+    }
+}
+
 
 internal class TranslatingClassPool(private val mockKClassTranslator: MockKClassTranslator)
     : ClassPool() {
@@ -44,8 +53,9 @@ internal class MockKClassTranslator {
             return
         }
         log.debug { "Translating ${cls.name}" }
+        println(cls.name)
         removeFinal(cls)
-        addNoArgsConstructor(cls)
+//        addNoArgsConstructor(cls)
         cls.freeze()
     }
 
@@ -98,7 +108,7 @@ internal class MockKClassTranslator {
     private fun removeFinalOnMethods(clazz: CtClass) {
         clazz.declaredMethods.forEach {
             if (java.lang.reflect.Modifier.isFinal(it.modifiers)) {
-                it.modifiers = javassist.Modifier.clear(it.modifiers, java.lang.reflect.Modifier.FINAL)
+                it.modifiers = Modifier.clear(it.modifiers, Modifier.FINAL)
             }
         }
     }
@@ -107,7 +117,7 @@ internal class MockKClassTranslator {
     private fun removeFinalOnClass(clazz: CtClass) {
         val modifiers = clazz.modifiers
         if (java.lang.reflect.Modifier.isFinal(modifiers)) {
-            clazz.classFile2.accessFlags = AccessFlag.of(javassist.Modifier.clear(modifiers, java.lang.reflect.Modifier.FINAL))
+            clazz.classFile2.accessFlags = AccessFlag.of(Modifier.clear(modifiers, Modifier.FINAL))
         }
     }
 

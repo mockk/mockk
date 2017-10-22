@@ -114,12 +114,7 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
             try {
                 return it.invoke(this, *args)
             } catch (ex: InvocationTargetException) {
-                var thr : Throwable = ex
-                while (thr.cause != null &&
-                        thr is InvocationTargetException) {
-                    thr = thr.cause!!
-                }
-                throw thr
+                throw ex.demangle()
             }
         }
 

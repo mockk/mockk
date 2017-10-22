@@ -1,20 +1,20 @@
 package io.mockk.external
 
 import io.mockk.impl.MockKClassTranslator
+import io.mockk.impl.MockKPoolHolder
 import io.mockk.impl.TranslatingClassPool
 import javassist.Loader
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
+import org.junit.runners.BlockJUnit4ClassRunner
 
 /**
  * Runner to transforms classes early with junit {@link org.junit.runner.RunWith}
  */
 class MockKJUnitRunner(cls: Class<*>) : Runner() {
-
-    private val pool = TranslatingClassPool(MockKClassTranslator())
-    private val loader = Loader(pool)
+    private val loader = Loader(MockKPoolHolder.pool)
 
     init {
         loader.delegateLoadingOf("jdk.internal.")
@@ -47,7 +47,9 @@ internal class ParentRunnerFinder(val cls: Class<*>) {
             }
             parent = parent.superclass
         }
-        throw RuntimeException("not runner RunWith found")
+        return BlockJUnit4ClassRunner::class.java
+                .getConstructor(Class::class.java)
+                .newInstance(cls)
     }
 }
 

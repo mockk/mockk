@@ -4,13 +4,6 @@ import org.slf4j.LoggerFactory
 import java.lang.reflect.Method
 import java.util.logging.Level
 
-internal fun Any?.toStr() =
-        when (this) {
-            null -> "null"
-            is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
-            else -> toString()
-        }
-
 internal inline fun <reified T> logger(): Logger = loggerFactory(T::class.java)
 
 internal interface Logger {

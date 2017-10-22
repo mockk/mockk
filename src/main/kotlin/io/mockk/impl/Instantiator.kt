@@ -3,20 +3,20 @@ package io.mockk.impl
 import io.mockk.Instantiator
 import io.mockk.MockKException
 import io.mockk.external.logger
-import javassist.ClassPool
 import javassist.bytecode.ClassFile
 import javassist.util.proxy.MethodFilter
 import javassist.util.proxy.MethodHandler
 import javassist.util.proxy.ProxyFactory
 import javassist.util.proxy.ProxyObject
 import sun.reflect.ReflectionFactory
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
 
 internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
 
-    private val cp = ClassPool.getDefault()
+    private val cp = MockKPoolHolder.pool
 
     private val rnd = Random()
 //    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)
@@ -162,9 +162,13 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         }
 
         fun buildClassFile(): ClassFile {
-            computeSignatureMethod.invoke(this, MethodFilter { true })
-            allocateClassNameMethod.invoke(this)
-            return makeMethod.invoke(this) as ClassFile
+            try {
+                computeSignatureMethod.invoke(this, MethodFilter { true })
+                allocateClassNameMethod.invoke(this)
+                return makeMethod.invoke(this) as ClassFile
+            } catch (ex: InvocationTargetException) {
+                throw ex.demangle()
+            }
         }
 
         companion object {
@@ -182,7 +186,6 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
             }
         }
     }
-
 }
 
 internal class ReflecationFactoryFinder {

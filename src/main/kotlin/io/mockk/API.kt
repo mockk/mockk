@@ -1,14 +1,7 @@
 package io.mockk
 
-import io.mockk.external.ParentRunnerFinderDynamicFinder
-import io.mockk.external.toStr
-import io.mockk.impl.MockKClassTranslator
 import io.mockk.impl.MockKInstance
-import io.mockk.impl.TranslatingClassPool
-import javassist.Loader
-import org.junit.runner.Description
-import org.junit.runner.Runner
-import org.junit.runner.notification.RunNotifier
+import io.mockk.impl.toStr
 import java.lang.reflect.Method
 
 /**

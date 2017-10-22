@@ -1,7 +1,6 @@
-package io.github.oleksiyp.mockk
+package io.mockk
 
 import io.kotlintest.specs.StringSpec
-import io.mockk.*
 import io.mockk.external.MockKJUnitRunner
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
