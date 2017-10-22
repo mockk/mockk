@@ -46,6 +46,7 @@
 - [ ] register on Maven OSSRH
 - [ ] habr article
 - [ ] ***MILESTONE2 - maven release***
+- [ ] logging "mock<CLS>#1"
 - [ ] build agent, coverage ci
 - [ ] contributing wiki, forum/group/chat
 - [ ] IntelliJ javadoc experience
