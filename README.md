@@ -1,6 +1,4 @@
 ![mockk](doc/logo.png)
-======================
-Kotlin mocking framework
 
 ### Nice features
 
