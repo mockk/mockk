@@ -19,12 +19,10 @@ internal interface Logger {
 }
 
 
-private val loggerFactory = try {
-    Class.forName("org.slf4j.Logger");
-    { cls: Class<*> -> Slf4jLogger(cls) }
-} catch (ex: ClassNotFoundException) {
-    { cls: Class<*> -> JULLogger(cls) }
-}
+private val loggerFactory =
+        link("org.slf4j.Logger") {
+            { cls: Class<*> -> Slf4jLogger(cls) }
+        } ?: { cls: Class<*> -> JULLogger(cls) }
 
 private class Slf4jLogger(cls: Class<*>) : Logger {
     val log: org.slf4j.Logger = LoggerFactory.getLogger(cls)

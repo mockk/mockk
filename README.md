@@ -41,6 +41,18 @@
 - [x] split to separate files
 - [x] Java 6 compatibility
 - [ ] running methods: ByteBuddy agent install, JUnit4 RunWith classloader, JUnit5 ..., ByteBuddy agent launch
+- [ ] PowerMock : Remove final modifier from a class, enum, static methods, methods and inner classes
+- [ ] PowerMock : Remove final modifier from
+- [ ] PowerMock : Make all constructor public
+- [ ] PowerMock : Add additional constructor with specific parameter
+- [ ] PowerMock : Clear static initialiser body
+- [ ] PowerMock : Add body for native methods
+- [ ] PowerMock : Set modifier to public for non-system package-private classes
+- [ ] PowerMock : Insert calling mock repository for static methods
+- [ ] PowerMock : Replace calling to fields by call to mock repository
+- [ ] PowerMock : Replace constructor call by call to mock repository
+- [ ] PowerMock : Replace call to system classes by call to mock repository
+- [ ] PowerMock : Check size of method body after modification and replace method body by throwing exception if method body size more than allowed in java specification
 - [ ] Android
 - [ ] objenesis
 - [ ] register on Maven OSSRH
