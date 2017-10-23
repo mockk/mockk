@@ -2,6 +2,7 @@ package io.mockk.impl
 
 import io.mockk.Instantiator
 import io.mockk.MockKException
+import io.mockk.external.JavassistPoolHolder
 import io.mockk.external.logger
 import javassist.bytecode.ClassFile
 import javassist.util.proxy.MethodFilter
@@ -16,7 +17,7 @@ import java.util.*
 internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
 
-    private val cp = MockKPoolHolder.pool
+    private val cp = JavassistPoolHolder.pool
 
     private val rnd = Random()
 //    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)

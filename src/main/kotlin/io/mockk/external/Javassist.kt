@@ -1,43 +1,47 @@
-package io.mockk.impl
+package io.mockk.external
 
 import io.mockk.MockKGateway
-import io.mockk.external.logger
 import javassist.*
 import javassist.bytecode.AccessFlag
 import java.util.*
 
 
-internal class MockKPoolHolder {
+internal class JavassistPoolHolder {
     companion object {
-        val pool = TranslatingClassPool(MockKClassTranslator())
+        val pool = JavassistTranslatingClassPool(JavassistTranslator())
     }
 }
 
-internal class MockKClassLoader(val pool: ClassPool) : Loader(pool) {
-    private val log = logger<MockKClassLoader>()
+internal class JavassistClassLoader(val pool: ClassPool) : Loader(pool) {
+    private val log = logger<JavassistClassLoader>()
+
+    init {
+        delegateLoadingOf("jdk.internal.")
+        delegateLoadingOf("org.junit.runner.")
+        delegateLoadingOf("sun.")
+    }
 
     override fun loadClass(name: String): Class<*> {
         val cls = super.loadClass(name)
-        log.trace { "Loaded class $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
+        log.info { "Loaded class $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
         return cls
     }
 }
 
-
-internal class TranslatingClassPool(private val mockKClassTranslator: MockKClassTranslator)
+internal class JavassistTranslatingClassPool(private val translator: JavassistTranslator)
     : ClassPool() {
 
-    val log = logger<TranslatingClassPool>()
+    val log = logger<JavassistTranslatingClassPool>()
 
     init {
         appendSystemPath()
-        mockKClassTranslator.start(this)
+        translator.start(this)
     }
 
     override fun get0(classname: String, useCache: Boolean): CtClass? {
         val cls = super.get0(classname, useCache)
         if (cls != null) {
-            mockKClassTranslator.onLoad(cls)
+            translator.onLoad(cls)
         } else {
             log.debug { "Failed to load $classname class"}
         }
@@ -45,8 +49,8 @@ internal class TranslatingClassPool(private val mockKClassTranslator: MockKClass
     }
 }
 
-internal class MockKClassTranslator {
-    val log = logger<MockKClassTranslator>()
+internal class JavassistTranslator {
+    val log = logger<JavassistTranslator>()
 
     lateinit var noArgsParamType: CtClass
 
@@ -67,7 +71,7 @@ internal class MockKClassTranslator {
         }
         log.trace { "Translating ${cls.name}" }
         removeFinal(cls)
-        addNoArgsConstructor(cls)
+//        addNoArgsConstructor(cls)
     }
 
     private fun addNoArgsConstructor(cls: CtClass) {

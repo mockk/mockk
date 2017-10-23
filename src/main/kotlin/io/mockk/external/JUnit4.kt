@@ -1,14 +1,10 @@
 package io.mockk.external
 
-import io.mockk.impl.MockKClassLoader
-import io.mockk.impl.MockKPoolHolder
-import javassist.Loader
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runner.Runner
 import org.junit.runner.notification.RunNotifier
-import org.junit.runners.BlockJUnit4ClassRunner
-import java.lang.reflect.Modifier
+import org.junit.runners.JUnit4
 
 /**
  * Runner to transforms classes early with junit {@link org.junit.runner.RunWith}
@@ -16,13 +12,11 @@ import java.lang.reflect.Modifier
 class MockKJUnitRunner(cls: Class<*>) : Runner() {
     private val log = logger<MockKJUnitRunner>()
 
-    private val loader = MockKClassLoader(MockKPoolHolder.pool)
+    companion object {
+        internal val loader = JavassistClassLoader(JavassistPoolHolder.pool)
+    }
 
     init {
-        loader.delegateLoadingOf("jdk.internal.")
-        loader.delegateLoadingOf("org.junit.runner.")
-//        loader.delegateLoadingOf(MockKPoolHolder::class.java.name)
-//        loader.delegateLoadingOf(MockKPoolHolder::class.java.name + "\$Companion")
         Thread.currentThread().contextClassLoader = loader
     }
 
@@ -51,7 +45,7 @@ internal class ParentRunnerFinder(val cls: Class<*>) {
             }
             parent = parent.superclass
         }
-        return BlockJUnit4ClassRunner::class.java
+        return JUnit4::class.java
                 .getConstructor(Class::class.java)
                 .newInstance(cls)
     }
