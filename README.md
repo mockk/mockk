@@ -53,6 +53,7 @@
 - [ ] PowerMock : Replace constructor call by call to mock repository
 - [ ] PowerMock : Replace call to system classes by call to mock repository
 - [ ] PowerMock : Check size of method body after modification and replace method body by throwing exception if method body size more than allowed in java specification
+- [ ] Kotlin popular in Germany, Japan, India, USA and Brasil
 - [ ] Android
 - [ ] objenesis
 - [ ] register on Maven OSSRH
