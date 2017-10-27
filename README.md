@@ -140,7 +140,9 @@ Mock can have child mocks. This allows to mock chains of calls
 
   ```
 
-## Matchers
+## DSL tables
+
+### Matchers
 
 |Matcher|Description|
 |-------|-----------|
@@ -164,7 +166,7 @@ Mock can have child mocks. This allows to mock chains of calls
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda(lambdaClass)`|captures lambda expression(allowed one per call)|
 
-## Validators
+### Validators
 
 |Validator|Description|
 |---------|-----------|
@@ -176,7 +178,7 @@ Mock can have child mocks. This allows to mock chains of calls
 |`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
 |`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
 
-## Answers
+### Answers
 
 |Answer|Description|
 |------|-----------|
@@ -185,10 +187,11 @@ Mock can have child mocks. This allows to mock chains of calls
 |`throws ex`|specify that matched call throws an exception|
 |`answers { code }`|specify that matched call answers with lambda in answer scope|
 
-## Answer scope
+### Answer scope
 
 |Parameter|Description|
 |---------|-----------|
+|||
 
 ## Getting Help
 
