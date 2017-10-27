@@ -1,6 +1,6 @@
 ![mockk](doc/logo.png)
 
-### Nice features
+## Nice features
 
  - removing finals (via Java Agent)
  - pure kotlin mocking DSL
@@ -12,7 +12,7 @@
  - bunch of matchers
  - few verification modes
 
-### Installation
+## Installation
 
 There is two installation steps.
 
@@ -84,7 +84,7 @@ All others are existing for convenience and should be used at your own risk.
 </tr>
 </table>
 
-### DSL
+## DSL
 
 Simplest example:
 
@@ -97,7 +97,7 @@ Simplest example:
     verify { car.drive(Direction.NORTH) }
   ```
 
-### Partial argument matching
+## Partial argument matching
 
 You can skip parameters while specifying matchers.
 MockK runs your block few times, builds so called signature and
@@ -117,7 +117,7 @@ auto-detects places where matchers appear.
 
   ```
 
-### Chained calls
+## Chained calls
 
 Mock can have child mocks. This allows to mock chains of calls
 
@@ -140,7 +140,7 @@ Mock can have child mocks. This allows to mock chains of calls
 
   ```
 
-### Matchers
+## Matchers
 
 |Matcher|Description|
 |-------|-----------|
