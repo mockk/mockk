@@ -1,2 +1,9 @@
-rootProject.name = 'mockk'
+rootProject.name = 'mockk-top'
 
+include 'mockk'
+include 'mockk-agent'
+include 'mockk-example'
+
+project(":mockk").projectDir = file("mockk")
+project(":mockk-agent").projectDir = file("agent")
+project(":mockk-example").projectDir = file("example")

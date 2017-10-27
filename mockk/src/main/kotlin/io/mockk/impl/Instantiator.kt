@@ -2,8 +2,8 @@ package io.mockk.impl
 
 import io.mockk.Instantiator
 import io.mockk.MockKException
-import io.mockk.external.JavassistPoolHolder
 import io.mockk.external.logger
+import javassist.ClassPool
 import javassist.bytecode.ClassFile
 import javassist.util.proxy.MethodFilter
 import javassist.util.proxy.MethodHandler
@@ -17,7 +17,7 @@ import java.util.*
 internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
 
-    private val cp = JavassistPoolHolder.pool
+    private val cp = ClassPool.getDefault()
 
     private val rnd = Random()
 //    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)
@@ -28,7 +28,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
         val pf = ProxyFactoryExt(cls, MockKInstance::class.java)
 
-        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass()
+        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass(cls.classLoader, cls.protectionDomain)
 
         return if (useDefaultConstructor)
             proxyCls.newInstance()
@@ -40,7 +40,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     override fun <T> instantiate(cls: Class<T>): T {
         log.trace { "Building empty instance $cls" }
         val pf = ProxyFactoryExt(cls)
-        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass()
+        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass(cls.classLoader, cls.protectionDomain)
         val instance = newEmptyInstance(proxyCls)
         (instance as ProxyObject).handler = EqualsAndHashCodeHandler()
         return cls.cast(instance)
@@ -65,7 +65,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     val reflectionFactoryFinder =
             try {
                 Class.forName("sun.reflect.ReflectionFactory")
-                ReflecationFactoryFinder()
+                ReflectionFactoryFinder()
             } catch (cnf: ClassNotFoundException) {
                 null
             }
@@ -232,7 +232,7 @@ internal class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class
     }
 }
 
-internal class ReflecationFactoryFinder {
+internal class ReflectionFactoryFinder {
     fun newEmptyInstance(proxyCls: Class<*>): Any {
         val rf = ReflectionFactory.getReflectionFactory()
         val objDef = Object::class.java.getDeclaredConstructor()

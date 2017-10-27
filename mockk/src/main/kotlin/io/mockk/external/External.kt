@@ -8,11 +8,3 @@ internal fun <T> link(className: String, builder: () -> T): T? =
             null
         }
 
-internal inline fun <reified T> newInstance(classLoader: ClassLoader) {
-    try {
-        classLoader.loadClass(T::class.java.name).newInstance()
-    } catch (ex: ClassNotFoundException) {
-        null
-    }
-}
-

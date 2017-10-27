@@ -1,67 +1,14 @@
 package io.mockk
 
 import io.kotlintest.specs.StringSpec
-import io.mockk.external.MockKJUnitRunner
+import io.mockk.junit.MockKJUnit4Runner
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 
 interface Wrapper
 
-data class IntWrapper(val data: Int) : Wrapper
-data class DoubleWrapper(val data: Double) : Wrapper
-
-class MockCls {
-    fun manyArgsOp(a: Boolean = true, b: Boolean = true,
-                   c: Byte = 1, d: Byte = 2,
-                   e: Short = 3, f: Short = 4,
-                   g: Char = 5.toChar(), h: Char = 6.toChar(),
-                   i: Int = 7, j: Int = 8,
-                   k: Long = 9, l: Long = 10,
-                   m: Float = 10.0f, n: Float = 11.0f,
-                   o: Double = 12.0, p: Double = 13.0,
-                   q: String = "14", r: String = "15",
-                   s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
-
-        return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.toByte() + h.toByte() +
-                i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
-    }
-
-    fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
-    fun lambdaOp(a: Int, b: () -> Int) = a + b()
-    fun otherOp(a: Wrapper? = IntWrapper(1), b: Wrapper? = IntWrapper(2)): Int {
-        return if (a is IntWrapper && b is IntWrapper) {
-            a.data + b.data
-        } else {
-            0
-        }
-    }
-    fun nullableOp(a: Int = 1, b: Int = 2): Int? = a + b
-
-    fun arrayOp(arr: BooleanArray) = arr.map { it }.toBooleanArray()
-    fun arrayOp(arr: ByteArray) = arr.map { (it + 1).toByte() }.toByteArray()
-    fun arrayOp(arr: ShortArray) = arr.map { (it + 1).toShort() }.toShortArray()
-    fun arrayOp(arr: CharArray) = arr.map { (it + 1) }.toCharArray()
-    fun arrayOp(arr: IntArray) = arr.map { (it + 1).toInt() }.toIntArray()
-    fun arrayOp(arr: LongArray) = arr.map { (it + 1).toLong() }.toLongArray()
-    fun arrayOp(arr: FloatArray) = arr.map { (it + 1).toFloat() }.toFloatArray()
-    fun arrayOp(arr: DoubleArray) = arr.map { (it + 1).toDouble() }.toDoubleArray()
-
-    fun arrayOp(arr: Array<Boolean>) = arr.map { it }.toTypedArray()
-    fun arrayOp(arr: Array<Byte>) = arr.map { (it + 1).toByte() }.toTypedArray()
-    fun arrayOp(arr: Array<Short>) = arr.map { (it + 1).toShort() }.toTypedArray()
-    fun arrayOp(arr: Array<Char>) = arr.map { (it + 1).toChar() }.toTypedArray()
-    fun arrayOp(arr: Array<Int>) = arr.map { (it + 1).toInt() }.toTypedArray()
-    fun arrayOp(arr: Array<Long>) = arr.map { (it + 1).toLong() }.toTypedArray()
-    fun arrayOp(arr: Array<Float>) = arr.map { (it + 1).toFloat() }.toTypedArray()
-    fun arrayOp(arr: Array<Double>) = arr.map { (it + 1).toDouble() }.toTypedArray()
-
-    fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
-    fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
-    fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
-}
-
-@RunWith(MockKJUnitRunner::class)
+@RunWith(MockKJUnit4Runner::class)
 class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>()
     val spy = spyk<MockCls>()
@@ -553,3 +500,57 @@ class MockKTestSuite : StringSpec({
         verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })) }
     }.config(enabled = true)
 })
+
+
+data class IntWrapper(val data: Int) : Wrapper
+data class DoubleWrapper(val data: Double) : Wrapper
+
+class MockCls {
+    fun manyArgsOp(a: Boolean = true, b: Boolean = true,
+                   c: Byte = 1, d: Byte = 2,
+                   e: Short = 3, f: Short = 4,
+                   g: Char = 5.toChar(), h: Char = 6.toChar(),
+                   i: Int = 7, j: Int = 8,
+                   k: Long = 9, l: Long = 10,
+                   m: Float = 10.0f, n: Float = 11.0f,
+                   o: Double = 12.0, p: Double = 13.0,
+                   q: String = "14", r: String = "15",
+                   s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
+
+        return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.toByte() + h.toByte() +
+                i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
+    }
+
+    fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
+    fun lambdaOp(a: Int, b: () -> Int) = a + b()
+    fun otherOp(a: Wrapper? = IntWrapper(1), b: Wrapper? = IntWrapper(2)): Int {
+        return if (a is IntWrapper && b is IntWrapper) {
+            a.data + b.data
+        } else {
+            0
+        }
+    }
+    fun nullableOp(a: Int = 1, b: Int = 2): Int? = a + b
+
+    fun arrayOp(arr: BooleanArray) = arr.map { it }.toBooleanArray()
+    fun arrayOp(arr: ByteArray) = arr.map { (it + 1).toByte() }.toByteArray()
+    fun arrayOp(arr: ShortArray) = arr.map { (it + 1).toShort() }.toShortArray()
+    fun arrayOp(arr: CharArray) = arr.map { (it + 1) }.toCharArray()
+    fun arrayOp(arr: IntArray) = arr.map { (it + 1).toInt() }.toIntArray()
+    fun arrayOp(arr: LongArray) = arr.map { (it + 1).toLong() }.toLongArray()
+    fun arrayOp(arr: FloatArray) = arr.map { (it + 1).toFloat() }.toFloatArray()
+    fun arrayOp(arr: DoubleArray) = arr.map { (it + 1).toDouble() }.toDoubleArray()
+
+    fun arrayOp(arr: Array<Boolean>) = arr.map { it }.toTypedArray()
+    fun arrayOp(arr: Array<Byte>) = arr.map { (it + 1).toByte() }.toTypedArray()
+    fun arrayOp(arr: Array<Short>) = arr.map { (it + 1).toShort() }.toTypedArray()
+    fun arrayOp(arr: Array<Char>) = arr.map { (it + 1).toChar() }.toTypedArray()
+    fun arrayOp(arr: Array<Int>) = arr.map { (it + 1).toInt() }.toTypedArray()
+    fun arrayOp(arr: Array<Long>) = arr.map { (it + 1).toLong() }.toTypedArray()
+    fun arrayOp(arr: Array<Float>) = arr.map { (it + 1).toFloat() }.toTypedArray()
+    fun arrayOp(arr: Array<Double>) = arr.map { (it + 1).toDouble() }.toTypedArray()
+
+    fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
+    fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
+    fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+}

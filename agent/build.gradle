@@ -1,0 +1,33 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
+    id 'java'
+}
+
+dependencies {
+    compileOnly "junit:junit:4.12"
+    compileOnly 'org.junit.jupiter:junit-jupiter-api:5.0.1'
+    compileOnly 'org.junit.platform:junit-platform-launcher:1.0.1'
+    compile 'org.javassist:javassist:3.22.0-GA'
+}
+
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+jar.enabled = false
+
+assemble.dependsOn(shadowJar)
+
+shadowJar {
+    classifier = null
+
+    exclude 'META-INF/maven/**'
+    relocate 'javassist.', 'shadowed.javassist.'
+
+    manifest {
+        attributes(
+                "Premain-Class": "io.mockk.agent.MockKAgent",
+                "Can-Redefine-Classes": false,
+                "Can-Retransform-Classes": true)
+    }
+}

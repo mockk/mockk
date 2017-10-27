@@ -1,0 +1,52 @@
+plugins {
+    id "com.zoltu.application-agent" version "1.0.14"
+}
+
+apply plugin: 'kotlin'
+
+applicationAgent {
+    applyToTests true
+}
+
+dependencies {
+    agent project(path: ":mockk-agent", configuration: "shadow")
+    // agent "io.mockk:mockk-agent:$mockk_version"
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+
+    compile 'org.javassist:javassist:3.22.0-GA'
+
+    compileOnly 'org.slf4j:slf4j-api:1.7.25'
+
+    // JUnit 4
+    compileOnly 'junit:junit:4.12'
+
+    // JUnit 5
+    compileOnly "org.junit.platform:junit-platform-launcher:1.0.1"
+    compileOnly "org.junit.jupiter:junit-jupiter-engine:5.0.1"
+
+    testCompile 'junit:junit:4.12'
+
+    testRuntime "org.junit.platform:junit-platform-launcher:1.0.1"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.1"
+
+    testCompile 'org.slf4j:slf4j-api:1.7.25'
+    testCompile 'ch.qos.logback:logback-classic:1.+'
+
+    testCompile 'io.kotlintest:kotlintest:2.0.7'
+
+    testCompile project(":mockk-agent")
+}
+
+test {
+    testLogging.showStandardStreams = true
+    jvmArgs '-DprojectConfigScan=false'
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
