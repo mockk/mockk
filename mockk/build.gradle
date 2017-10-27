@@ -1,15 +1,6 @@
-plugins {
-    id "com.zoltu.application-agent" version "1.0.14"
-}
-
 apply plugin: 'kotlin'
 
-applicationAgent {
-    applyToTests true
-}
-
 dependencies {
-    agent project(path: ":mockk-agent", configuration: "shadow")
     // agent "io.mockk:mockk-agent:$mockk_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

@@ -43,7 +43,7 @@
 - [x] running methods: agent, JUnit4, JUnit5
 - [ ] Android
 - [ ] objenesis
-- [ ] register on Maven OSSRH
+- [x] register on Maven OSSRH
 - [ ] habr article
 - [ ] ***MILESTONE2 - maven release***
 - [ ] Kotlin popular in Germany, Japan, India, USA and Brasil
