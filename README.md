@@ -15,11 +15,11 @@ First you need to add dependency on library itself.
     <pre>testCompile "io.mockk:mockk:1.0.0"</pre>
     </td><td>
     <pre>
-    <dependency>
-        <groupId>io.mockk</groupId>
-        <artifactId>mockk</artifactId>
-        <version>1.0.0</version>
-    </dependency>
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.mockk&lt;/groupId&gt;
+        &lt;artifactId&gt;mockk&lt;/artifactId&gt;
+        &lt;version&gt;1.0.0&lt;/version&gt;
+    &lt;/dependency&gt;
     </pre>
     </td>
 </tr>
