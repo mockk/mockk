@@ -14,7 +14,7 @@
 
 ### Installation
 
-There is two steps to make `mockk` running.
+There is two installation steps.
 
 1. You need to add dependency on library itself.
 <table>
