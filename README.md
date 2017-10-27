@@ -1,6 +1,18 @@
 ![mockk](doc/logo.png)
 
-### Installation
+## Nice features
+
+ - removing finals (via Java Agent)
+ - pure kotlin mocking DSL
+ - partial arguments matchers
+ - chained calls / deep stubs
+ - matcher expressions
+ - mocking coroutines
+ - capturing lambdas
+ - bunch of matchers
+ - few verification modes
+
+## Installation
 
 There is two steps to make `mockk` running.
 
@@ -71,18 +83,6 @@ All others are existing for convenience and should be used at your own risk.
 </td>
 </tr>
 </table>
-
-## Nice features
-
- - removing finals (via Java Agent)
- - pure kotlin mocking DSL
- - partial arguments matchers
- - chained calls / deep stubs
- - matcher expressions
- - mocking coroutines
- - capturing lambdas
- - bunch of matchers
- - few verification modes
 
 ### DSL
 
