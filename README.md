@@ -35,7 +35,6 @@ There is two installation steps.
     </td>
 </tr>
 </table>
-
 2. You need to add class transformation agent.
 This agent is required to remove final modifier from running classes.
 There is few ways to add Java Agent/Class Loader.
@@ -86,7 +85,7 @@ All others are existing for convenience and should be used at your own risk.
 
 ### DSL
 
-  Simplest example
+Simplest example:
 
   ```
     val car = mockk<Car>()
