@@ -27,10 +27,13 @@ First you need to add dependency on library itself.
 
 Second you need to add class transformation agent.
 This agent is required to remove final modifier from running classes.
-There is few ways to add agent/class loader.
+There is few ways to add Java Agent/Class Loader.
 Only running as a Java Agent is an officially supported way.
 All others are existing for convenience and should be use on own risk.
 
+|Table|Table|
+|-----|-----|
+|abc  |def  |
 
 ## Nice features
 
