@@ -168,13 +168,13 @@ Mock can have child mocks. This allows to mock chains of calls
 
 |Validator|Description|
 |-------|-----------|
-|`verify { mock.call() }`|Do unordered verification that call where performed|
-|`verify(inverse=true) { mock.call() }`|Do unordered verification that call where not performed|
-|`verify(atLeast=n) { mock.call() }`|Do unordered verification that call where performed at least `n` times|
-|`verify(atMost=n) { mock.call() }`|Do unordered verification that call where performed at most `n` times|
-|`verify(excatly=n) { mock.call() }`|Do unordered verification that call where performed at exactly `n` times|
-|`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls goes one after another|
-|`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls executed for mentioned mocks|
+|`verify { mock.call() }`|Do unordered verification that call were performed|
+|`verify(inverse=true) { mock.call() }`|Do unordered verification that call were not performed|
+|`verify(atLeast=n) { mock.call() }`|Do unordered verification that call were performed at least `n` times|
+|`verify(atMost=n) { mock.call() }`|Do unordered verification that call were performed at most `n` times|
+|`verify(excatly=n) { mock.call() }`|Do unordered verification that call were performed at exactly `n` times|
+|`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
+|`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
 
 
 ## Getting Help
