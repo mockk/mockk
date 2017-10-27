@@ -37,15 +37,18 @@ All others are existing for convenience and should be used at your own risk.
 	Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
     Use following agent:
     <pre>agent "io.mockk:mockk-agent:1.0.0"</pre>
+</td>
 </tr><tr>
 <td>Java Agent maven</td>
 <td>
 	Configure maven surefire plugin: <pre>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</pre>
+</td>
 </tr><tr>
 <td>Java Agent JVM</td>
 <td>
     Add JVM parameter to launch agent:
     <pre>-javaagent:libs/mockk-agent-1.0.0.jar</pre>
+</td>
 </tr><tr>
 <td>JUnit4</td>
 <td>
@@ -56,6 +59,7 @@ All others are existing for convenience and should be used at your own risk.
     If @RunWith is specified on superclass then it will be used to run after class loader set. So you can specify several runners.
     Use @ChainedRunWith to override such delegated runner.
     If neither is specified default JUnit runner is used.
+</td>
 </tr><tr>
 <td>JUnit5</td>
 <td>
@@ -63,6 +67,7 @@ All others are existing for convenience and should be used at your own risk.
     <pre>testCompile "io.mockk:mockk-agent:1.0.0"</pre>
     JUnit5 test will be hooked wia TestExecutionListener.
     Note this implementation is totally a hack.
+</td>
 </tr>
 </table>
 
