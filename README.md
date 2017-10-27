@@ -16,7 +16,7 @@
 
 There is two installation steps.
 
-1. You need to add dependency on library itself.
+First you need to add dependency on library itself.
 <table>
 <tr>
     <th>Gradle</th><th>Maven</th>
@@ -35,7 +35,8 @@ There is two installation steps.
     </td>
 </tr>
 </table>
-2. You need to add class transformation agent.
+
+Second you need to add class transformation agent.
 This agent is required to remove final modifier from running classes.
 There is few ways to add Java Agent/Class Loader.
 Only running as a Java Agent is an officially supported way.
