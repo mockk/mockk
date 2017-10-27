@@ -1,6 +1,6 @@
 ![mockk](doc/logo.png)
 
-## Nice features
+### Nice features
 
  - removing finals (via Java Agent)
  - pure kotlin mocking DSL
@@ -12,7 +12,7 @@
  - bunch of matchers
  - few verification modes
 
-## Installation
+### Installation
 
 There is two steps to make `mockk` running.
 
