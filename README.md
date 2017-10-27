@@ -40,25 +40,14 @@
 - [x] Java 9 support
 - [x] split to separate files
 - [x] Java 6 compatibility
-- [ ] running methods: ByteBuddy agent install, JUnit4 RunWith classloader, JUnit5 ..., ByteBuddy agent launch
-- [ ] PowerMock : Remove final modifier from a class, enum, static methods, methods and inner classes
-- [ ] PowerMock : Remove final modifier from
-- [ ] PowerMock : Make all constructor public
-- [ ] PowerMock : Add additional constructor with specific parameter
-- [ ] PowerMock : Clear static initialiser body
-- [ ] PowerMock : Add body for native methods
-- [ ] PowerMock : Set modifier to public for non-system package-private classes
-- [ ] PowerMock : Insert calling mock repository for static methods
-- [ ] PowerMock : Replace calling to fields by call to mock repository
-- [ ] PowerMock : Replace constructor call by call to mock repository
-- [ ] PowerMock : Replace call to system classes by call to mock repository
-- [ ] PowerMock : Check size of method body after modification and replace method body by throwing exception if method body size more than allowed in java specification
-- [ ] Kotlin popular in Germany, Japan, India, USA and Brasil
+- [x] running methods: agent, JUnit4, JUnit5
 - [ ] Android
 - [ ] objenesis
 - [ ] register on Maven OSSRH
 - [ ] habr article
 - [ ] ***MILESTONE2 - maven release***
+- [ ] Kotlin popular in Germany, Japan, India, USA and Brasil
+- [ ] running methods: TestNG
 - [ ] documentation: matchers table
 - [ ] documentation: answers table
 - [ ] documentation: runners table
@@ -76,6 +65,18 @@
 - [ ] performance optimization: Method mapping
 - [ ] check nanoTime is OK (otherwise counter)
 - [ ] other JVMs
+- [ ] PowerMock : Remove final modifier from a class, enum, static methods, methods and inner classes
+- [ ] PowerMock : Remove final modifier from
+- [ ] PowerMock : Make all constructor public
+- [ ] PowerMock : Add additional constructor with specific parameter
+- [ ] PowerMock : Clear static initialiser body
+- [ ] PowerMock : Add body for native methods
+- [ ] PowerMock : Set modifier to public for non-system package-private classes
+- [ ] PowerMock : Insert calling mock repository for static methods
+- [ ] PowerMock : Replace calling to fields by call to mock repository
+- [ ] PowerMock : Replace constructor call by call to mock repository
+- [ ] PowerMock : Replace call to system classes by call to mock repository
+- [ ] PowerMock : Check size of method body after modification and replace method body by throwing exception if method body size more than allowed in java specification
 - [ ] Mockito: Migrating to Mockito 2
 - [ ] Mockito: Mockito Android support</a></br/>
 - [ ] Mockito: Configuration-free inline mock making</a></br/>
