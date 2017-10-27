@@ -13,11 +13,11 @@ import java.lang.reflect.Constructor;
  * Do class translation for JUnit4 tests.
  * <p>
  * Delegates actual running responsibility to one of runners:
- * <li>
- * <ul>runner annotated with @ChainedRunWith (first found in class hierarchy)</ul>
- * <ul>annotated with @RunWith for superclasses</ul>
- * <ul>JUnit4 default runner</ul>
- * </li>
+ * <ul>
+ * <li>runner annotated with @ChainedRunWith (first found in class hierarchy)</li>
+ * <li>annotated with @RunWith for superclasses</li>
+ * <li>JUnit4 default runner</li>
+ * </ul>
  */
 public class MockKJUnit4Runner extends Runner {
     private final Runner runner;
