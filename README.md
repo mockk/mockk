@@ -66,8 +66,8 @@ All others are existing for convenience and should be used at your own risk.
 <td>
     Just add this dependency to your project:
     <pre>testCompile "io.mockk:mockk-agent:1.0.0"</pre>
-    JUnit5 test will be hooked wia TestExecutionListener.
-    Note this implementation is totally a hack.
+    JUnit5 test will be hooked via TestExecutionListener.
+    Note: this implementation is totally a hack.
 </td>
 </tr>
 </table>
@@ -100,8 +100,8 @@ All others are existing for convenience and should be used at your own risk.
 ### Partial argument matching
 
 You can skip parameters while specifying matchers.
-MockK runs your block few times, build so called signature and
-auto-detect places where matchers appear.
+MockK runs your block few times, builds so called signature and
+auto-detects places where matchers appear.
 
   ```
     class MockedClass {
