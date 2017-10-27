@@ -12,17 +12,15 @@ First you need to add dependency on library itself.
 </tr>
 <tr>
     <td>
-```gradle
-    testCompile "io.mockk:mockk:1.0.0"
-```
+    <pre>testCompile "io.mockk:mockk:1.0.0"</pre>
     </td><td>
-```mvn
+    <pre>
     <dependency>
         <groupId>io.mockk</groupId>
         <artifactId>mockk</artifactId>
         <version>1.0.0</version>
     </dependency>
-```
+    </pre>
     </td>
 </tr>
 </table>
