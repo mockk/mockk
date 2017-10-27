@@ -25,6 +25,13 @@ First you need to add dependency on library itself.
 </tr>
 </table>
 
+Second you need to add class transformation agent.
+This agent is required to remove final modifier from running classes.
+There is few ways to add agent/class loader.
+Only running as a Java Agent is an officially supported way.
+All others are existing for convenience and should be use on own risk.
+
+
 ## Nice features
 
  - [x] pure kotlin mocking DSL
