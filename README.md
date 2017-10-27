@@ -19,6 +19,7 @@ First you need to add dependency on library itself.
         &lt;groupId&gt;io.mockk&lt;/groupId&gt;
         &lt;artifactId&gt;mockk&lt;/artifactId&gt;
         &lt;version&gt;1.0.0&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
     &lt;/dependency&gt;</pre>
     </td>
 </tr>
