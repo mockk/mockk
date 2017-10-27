@@ -167,7 +167,7 @@ Mock can have child mocks. This allows to mock chains of calls
 ## Validators
 
 |Validator|Description|
-|-------|-----------|
+|---------|-----------|
 |`verify { mock.call() }`|Do unordered verification that call were performed|
 |`verify(inverse=true) { mock.call() }`|Do unordered verification that call were not performed|
 |`verify(atLeast=n) { mock.call() }`|Do unordered verification that call were performed at least `n` times|
@@ -176,6 +176,19 @@ Mock can have child mocks. This allows to mock chains of calls
 |`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
 |`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
 
+## Answers
+
+|Answer|Description|
+|------|-----------|
+|`returns value`|specify that matched call returns only the value|
+|`returnsMany list`|specify that matched call returns value from the list, returning each time next element|
+|`throws ex`|specify that matched call throws an exception|
+|`answers { code }`|specify that matched call answers with lambda in answer scope|
+
+## Answer scope
+
+|Parameter|Description|
+|---------|-----------|
 
 ## Getting Help
 
