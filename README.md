@@ -140,6 +140,30 @@ Mock can have child mocks. This allows to mock chains of calls
 
   ```
 
+### Matchers
+
+|Matcher|Description|
+|-------|-----------|
+|`any()`|matches any argument|
+|`allAny()`|special matcher that uses any() instead of eq() for matchers that are provided as simple arguments|
+|`isNull()`|checks if values is null|
+|`isNull(inverse=true)`|checks if values is not null|
+|`ofType(type)`|checks if values belongs to the type|
+|`match { it.startsWith("string") }`|matches via arbitary lambda expression|
+|`eq(value)`|matches if value is equal to provided via deepEquals method|
+|`refEq(value)`|matches if value is equal to provided via reference comparation|
+|`cmpEq(value)`|matches if value is equal to provided via compareTo method|
+|`less(value)`|matches if value is less to provided via compareTo method|
+|`more(value)`|matches if value is more to provided via compareTo method|
+|`less(value, andEquals=true)`|matches if value is less or equals to provided via compareTo method|
+|`more(value, andEquals=true)`|matches if value is more or equals to provided via compareTo method|
+|`and(left, right)`|combines two matcher via logical and|
+|`or(left, right)`|combines two matcher via logical or|
+|`not(matcher)`|negates the matcher|
+|`capture(mutableList)`|captures a value to a list|
+|`captureNullable(mutableList)`|captures a value to a list together with null values|
+|`captureLambda(lambdaClass)`|captures lambda expression(allowed one per call)|
+
 ## Getting Help
 
 To ask questions please use stackoverflow or gitter.
