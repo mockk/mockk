@@ -32,7 +32,7 @@ inline fun <reified T> slot() = CapturingSlot<T>()
 /**
  * Starts a block of stubbing. Part of DSL.
  */
-fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(mockBlock)
+fun <T> every(stubBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock)
 
 /**
  * Verification orderding
@@ -60,30 +60,30 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                atLeast: Int = 1,
                atMost: Int = Int.MAX_VALUE,
                exactly: Int = -1,
-               mockBlock: suspend MockKScope.() -> T) {
+               verifyBlock: suspend MockKScope.() -> T) {
     MockKGateway.LOCATOR().verify(
             ordering,
             inverse,
             atLeast,
             atMost,
             exactly,
-            mockBlock)
+            verifyBlock)
 }
 
 /**
  * Shortcut for ordered calls verification
  */
 fun <T> verifyOrder(inverse: Boolean = false,
-                    mockBlock: suspend MockKScope.() -> T) {
-    verify(Ordering.ORDERED, inverse, mockBlock = mockBlock)
+                    verifyBlock: suspend MockKScope.() -> T) {
+    verify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
 }
 
 /**
  * Shortcut for sequence calls verification
  */
 fun <T> verifySequence(inverse: Boolean = false,
-                       mockBlock: suspend MockKScope.() -> T) {
-    verify(Ordering.SEQUENCE, inverse, mockBlock = mockBlock)
+                       verifyBlock: suspend MockKScope.() -> T) {
+    verify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
 }
 
 /**
