@@ -56,7 +56,8 @@ All others are existing for convenience and should be used at your own risk.
     <pre>testCompile "io.mockk:mockk-agent:1.0.0"</pre>
     Use annotation for each test:
     <pre>@RunWith(MockKJUnit4Runner::class)</pre>
-    If @RunWith is specified on superclass then it will be used to run after class loader set. So you can specify several runners.
+    If @RunWith is specified on superclass then it will be used to run after class loader set.
+    So you can specify which actual runner is doing the job.
     Use @ChainedRunWith to override such delegated runner.
     If neither is specified default JUnit runner is used.
 </td>
