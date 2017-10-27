@@ -182,7 +182,7 @@ Mock can have child mocks. This allows to mock chains of calls
 
 |Answer|Description|
 |------|-----------|
-|`returns value`|specify that matched call returns only the value|
+|`returns value`|specify that matched call returns one specified value|
 |`returnsMany list`|specify that matched call returns value from the list, returning each time next element|
 |`throws ex`|specify that matched call throws an exception|
 |`answers { code }`|specify that matched call answers with lambda in answer scope|
