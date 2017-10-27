@@ -66,7 +66,7 @@ subprojects {
                     name 'MockK'
                     packaging 'jar'
                     description 'Kotlin Mocking Framework'
-                    url 'http://www.github.com/oleksiyp/mockk'
+                    url 'http://mockk.io'
 
                     scm {
                         connection 'scm:git:http://www.github.com/oleksiyp/mockk/'
