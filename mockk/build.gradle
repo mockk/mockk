@@ -3,20 +3,19 @@ apply plugin: 'kotlin'
 dependencies {
     // agent "io.mockk:mockk-agent:$mockk_version"
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
 
     compile 'org.javassist:javassist:3.22.0-GA'
 
+    compile 'org.objenesis:objenesis:2.6'
+
     compileOnly 'org.slf4j:slf4j-api:1.7.25'
 
-    // JUnit 4
-    compileOnly 'junit:junit:4.12'
-
-    // JUnit 5
-    compileOnly "org.junit.platform:junit-platform-launcher:1.0.1"
-    compileOnly "org.junit.jupiter:junit-jupiter-engine:5.0.1"
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    testCompile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
 
     testCompile 'junit:junit:4.12'
 

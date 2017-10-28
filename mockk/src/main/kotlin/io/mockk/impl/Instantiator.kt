@@ -1,7 +1,5 @@
 package io.mockk.impl
 
-import io.mockk.Instantiator
-import io.mockk.MockKException
 import io.mockk.external.logger
 import javassist.ClassPool
 import javassist.bytecode.ClassFile
@@ -9,15 +7,20 @@ import javassist.util.proxy.MethodFilter
 import javassist.util.proxy.MethodHandler
 import javassist.util.proxy.ProxyFactory
 import javassist.util.proxy.ProxyObject
-import sun.reflect.ReflectionFactory
+import org.objenesis.ObjenesisStd
+import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
 
-internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
+internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Instantiator {
     private val log = logger<InstantiatorImpl>()
 
     private val cp = ClassPool.getDefault()
+
+    private val objenesis = ObjenesisStd()
+
+    private val instantiators = mutableMapOf<Class<*>, ObjectInstantiator<*>>()
 
     private val rnd = Random()
 //    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)
@@ -62,20 +65,11 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         }
     }
 
-    val reflectionFactoryFinder =
-            try {
-                Class.forName("sun.reflect.ReflectionFactory")
-                ReflectionFactoryFinder()
-            } catch (cnf: ClassNotFoundException) {
-                null
-            }
-
     private fun newEmptyInstance(proxyCls: Class<*>): Any {
-//                    factory.create(arrayOf(noArgsType), arrayOf<Any?>(null))
-
-        // TODO : use objenesis
-        reflectionFactoryFinder?.let { return it.newEmptyInstance(proxyCls) }
-        throw MockKException("no instantiation support on platform")
+        val instantiator = instantiators.computeIfAbsent(proxyCls) { cls ->
+            objenesis.getInstantiatorOf(cls)
+        }
+        return instantiator.newInstance()
     }
 
     override fun anyValue(cls: Class<*>, orInstantiateVia: () -> Any?): Any? {
@@ -232,11 +226,3 @@ internal class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class
     }
 }
 
-internal class ReflectionFactoryFinder {
-    fun newEmptyInstance(proxyCls: Class<*>): Any {
-        val rf = ReflectionFactory.getReflectionFactory()
-        val objDef = Object::class.java.getDeclaredConstructor()
-        val intConstr = rf.newConstructorForSerialization(proxyCls, objDef)
-        return intConstr.newInstance()
-    }
-}

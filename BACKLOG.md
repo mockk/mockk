@@ -28,7 +28,7 @@
 - [x] Java 6 compatibility
 - [x] running methods: agent, JUnit4, JUnit5
 - [x] Android
-- [ ] objenesis
+- [x] objenesis
 - [x] register on Maven OSSRH
 - [x] better docs
 - [ ] habr article

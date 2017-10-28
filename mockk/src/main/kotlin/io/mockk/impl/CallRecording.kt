@@ -14,8 +14,6 @@ private data class SignedCall(val retType: Class<*>,
 
 private data class CallRound(val calls: List<SignedCall>)
 
-private fun Invocation.self() = self as MockKInstance
-
 internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder {
     private val log = logger<CallRecorderImpl>()
 
@@ -68,110 +66,12 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun signMatchers() {
-        val nCalls = callRounds[0].calls.size
-        if (nCalls == 0) {
-            throw MockKException("No calls inside every/verify {} block")
-        }
-        if (callRounds.any { it.calls.size != nCalls }) {
-            throw MockKException("Not all call rounds result in same amount of calls")
-        }
-
+        val detector = SignatureMatcherDetector()
         calls.clear()
+        calls.addAll(detector.detect(callRounds, childMocks))
 
-        repeat(nCalls) { callN ->
-
-            val callInAllRounds = callRounds.map { it.calls[callN] }
-            val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
-            val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
-            val zeroCall = callInAllRounds[0]
-
-            log.debug { "Processing call #$callN: ${zeroCall.invocation.method.toStr()}" }
-
-            repeat(zeroCall.matchers.size) { nMatcher ->
-                val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()
-                val signature = callInAllRounds.map { it.signaturePart[nMatcher] }.toList()
-
-                if (matcher is CompositeMatcher<*>) {
-                    compositeMatchers.add(callInAllRounds.map {
-                        it.matchers[nMatcher] as CompositeMatcher<*>
-                    })
-                }
-
-                matcherMap[signature] = matcher
-            }
-
-            log.trace { "Matcher map for ${zeroCall.invocation.method.toStr()}: $matcherMap" }
-
-            val argMatchers = mutableListOf<Matcher<*>>()
-
-            var allAny = false
-
-            repeat(zeroCall.invocation.args.size) { nArgument ->
-                val signature = callInAllRounds.map {
-                    packRef(it.invocation.args[nArgument])
-                }.toList()
-
-
-                log.trace { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
-
-                val matcher = matcherMap.remove(signature)?.let {
-                    if (nArgument == 0 && it is AllAnyMatcher) {
-                        allAny = true
-                        ConstantMatcher<Any>(true)
-                    } else {
-                        it
-                    }
-                } ?: if (allAny)
-                    ConstantMatcher<Any>(true)
-                else
-                    EqMatcher(zeroCall.invocation.args[nArgument])
-
-                argMatchers.add(matcher)
-            }
-
-            for (cmList in compositeMatchers) {
-                val matcher = cmList.last()
-
-                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, _) ->
-                    val signature = cmList.map {
-                        packRef(it.operandValues[nOp])
-                    }.toList()
-
-                    log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
-
-                    matcherMap.remove(signature)
-                            ?: EqMatcher(matcher.operandValues[nOp])
-                } as List<Matcher<Any?>>?
-            }
-
-            if (zeroCall.invocation.method.isSuspend()) {
-                log.trace { "Suspend function found. Replacing continuation with any() matcher" }
-                argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
-            }
-
-            if (matcherMap.isNotEmpty()) {
-                throw MockKException("Failed to find few matchers by signature: $matcherMap")
-            }
-
-            val im = InvocationMatcher(
-                    EqMatcher(zeroCall.invocation.self, ref = true),
-                    EqMatcher(zeroCall.invocation.method),
-                    argMatchers.toList() as List<Matcher<Any>>)
-            log.debug { "Built matcher: $im" }
-            calls.add(Call(zeroCall.retType,
-                    zeroCall.invocation, im,
-                    childMocks.contains(Ref(zeroCall.invocation.self))))
-        }
         childMocks.clear()
-    }
-
-    private fun packRef(arg: Any?): Any? {
-        return if (arg == null || gw.instantiator.isPassedByValue(arg.javaClass))
-            arg
-        else
-            Ref(arg)
     }
 
     override fun <T> matcher(matcher: Matcher<*>, cls: Class<T>): T {
@@ -306,6 +206,109 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     }
 }
 
+private class SignatureMatcherDetector {
+    private val log = logger<SignatureMatcherDetector>()
+
+    @Suppress("UNCHECKED_CAST")
+    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>) : List<Call> {
+        val nCalls = callRounds[0].calls.size
+        if (nCalls == 0) {
+            throw MockKException("No calls inside every/verify {} block")
+        }
+        if (callRounds.any { it.calls.size != nCalls }) {
+            throw MockKException("Not all call rounds result in same amount of calls")
+        }
+
+        val calls = mutableListOf<Call>();
+
+        repeat(nCalls) { callN ->
+
+            val callInAllRounds = callRounds.map { it.calls[callN] }
+            val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
+            val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
+            val zeroCall = callInAllRounds[0]
+
+            log.debug { "Processing call #$callN: ${zeroCall.invocation.method.toStr()}" }
+
+            repeat(zeroCall.matchers.size) { nMatcher ->
+                val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()
+                val signature = callInAllRounds.map { it.signaturePart[nMatcher] }.toList()
+
+                if (matcher is CompositeMatcher<*>) {
+                    compositeMatchers.add(callInAllRounds.map {
+                        it.matchers[nMatcher] as CompositeMatcher<*>
+                    })
+                }
+
+                matcherMap[signature] = matcher
+            }
+
+            log.trace { "Matcher map for ${zeroCall.invocation.method.toStr()}: $matcherMap" }
+
+            val argMatchers = mutableListOf<Matcher<*>>()
+
+            var allAny = false
+
+            repeat(zeroCall.invocation.args.size) { nArgument ->
+                val signature = callInAllRounds.map {
+                    packRef(it.invocation.args[nArgument])
+                }.toList()
+
+
+                log.trace { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
+
+                val matcher = matcherMap.remove(signature)?.let {
+                    if (nArgument == 0 && it is AllAnyMatcher) {
+                        allAny = true
+                        ConstantMatcher<Any>(true)
+                    } else {
+                        it
+                    }
+                } ?: if (allAny)
+                    ConstantMatcher<Any>(true)
+                else
+                    EqMatcher(zeroCall.invocation.args[nArgument])
+
+                argMatchers.add(matcher)
+            }
+
+            for (cmList in compositeMatchers) {
+                val matcher = cmList.last()
+
+                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, _) ->
+                    val signature = cmList.map {
+                        packRef(it.operandValues[nOp])
+                    }.toList()
+
+                    log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
+
+                    matcherMap.remove(signature)
+                            ?: EqMatcher(matcher.operandValues[nOp])
+                } as List<Matcher<Any?>>?
+            }
+
+            if (zeroCall.invocation.method.isSuspend()) {
+                log.trace { "Suspend function found. Replacing continuation with any() matcher" }
+                argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
+            }
+
+            if (matcherMap.isNotEmpty()) {
+                throw MockKException("Failed to find few matchers by signature: $matcherMap")
+            }
+
+            val im = InvocationMatcher(
+                    EqMatcher(zeroCall.invocation.self, ref = true),
+                    EqMatcher(zeroCall.invocation.method),
+                    argMatchers.toList() as List<Matcher<Any>>)
+            log.debug { "Built matcher: $im" }
+            calls.add(Call(zeroCall.retType,
+                    zeroCall.invocation, im,
+                    childMocks.contains(Ref(zeroCall.invocation.self))))
+        }
+        return calls
+    }
+}
+
 internal class UnorderedVerifierImpl(private val gw: MockKGatewayImpl) : Verifier {
     override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
         return calls
@@ -377,4 +380,13 @@ private fun Method.isSuspend(): Boolean {
         return false
     }
     return Continuation::class.java.isAssignableFrom(parameterTypes[sz - 1])
+}
+
+private fun Invocation.self() = self as MockKInstance
+
+private fun packRef(arg: Any?): Any? {
+    return if (arg == null || MockKGateway.LOCATOR().instantiator.isPassedByValue(arg.javaClass))
+        arg
+    else
+        Ref(arg)
 }
