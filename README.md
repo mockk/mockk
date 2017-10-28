@@ -16,7 +16,7 @@
 
 There is two installation steps.
 
-First you need to add dependency on library itself.
+First you need to add dependency to the library itself.
 <table>
 <tr>
     <th>Gradle</th><th>Maven</th>
