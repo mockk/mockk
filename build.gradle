@@ -17,7 +17,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'signing'
-    apply plugin: 'net.researchgate.release'
 
     release {
         failOnPublishNeeded = false
@@ -47,4 +46,10 @@ subprojects {
     artifacts {
         archives javadocJar, sourcesJar
     }
+
+    signing {
+        sign configurations.archives
+    }
+
+
 }
