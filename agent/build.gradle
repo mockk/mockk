@@ -7,19 +7,21 @@ dependencies {
     compileOnly "junit:junit:4.12"
     compileOnly 'org.junit.jupiter:junit-jupiter-api:5.0.1'
     compileOnly 'org.junit.platform:junit-platform-launcher:1.0.1'
-    compile 'org.javassist:javassist:3.22.0-GA'
+    compileOnly 'org.javassist:javassist:3.22.0-GA'
+    runtimeOnly 'org.javassist:javassist:3.22.0-GA'
 }
-
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-jar.enabled = false
-
 assemble.dependsOn(shadowJar)
 
+artifacts {
+    archives shadowJar, sourcesJar, javadocJar
+}
+
 shadowJar {
-    classifier = null
+    classifier = 'agent'
 
     exclude 'META-INF/maven/**'
     relocate 'javassist.', 'shadowed.javassist.'

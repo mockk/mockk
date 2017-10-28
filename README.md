@@ -48,7 +48,7 @@ All others are existing for convenience and should be used at your own risk.
 <td>
 	Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
     Use following agent:
-    <pre>agent "io.mockk:mockk-agent:1.0.0"</pre>
+    <pre>agent "io.mockk:mockk-agent:1.0.0:agent"</pre>
 </td>
 </tr><tr>
 <td>Java Agent maven</td>
