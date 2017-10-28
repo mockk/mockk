@@ -215,10 +215,85 @@ If you need several captured values you can capture values to the `MutableList`.
 
 ### Verification with atLeast
 
+Checking at least how much method was called:
+
+  ```kotlin
+
+    class MockedClass {
+        fun sum(a: Int, b: Int) = a + b
+    }
+
+    val obj = mockk<MockedClass>()
+    val lst = mutableListOf<Int>()
+
+    every { obj.sum(any(), capture(lst)) } answers { 1 + firstArg() + lst.captured() }
+
+    obj.sum(1, 2) // returns 4
+    obj.sum(1, 3) // returns 5
+    obj.sum(2, 2) // returns 5
+
+    verify(atLeast=3) { obj.sum(any(), any()) }
+
+  ```
+
+
 ### Verification sequence
 
+Checking the exact sequence of calls:
+
+  ```kotlin
+
+    class MockedClass {
+        fun sum(a: Int, b: Int) = a + b
+    }
+
+    val obj = mockk<MockedClass>()
+    val slot = slot<Int>()
+
+    every { obj.sum(any(), capture(slot)) } answers { 1 + firstArg() + slot.captured }
+
+    obj.sum(1, 2) // returns 4
+    obj.sum(1, 3) // returns 5
+    obj.sum(2, 2) // returns 5
+
+    verifySequence {
+        obj.sum(1, 2)
+        obj.sum(1, 3)
+        obj.sum(2, 2)
+    }
+
+  ```
+
+### Returning nothing
+
+If the method is returning Unit(i.e. no return value) you still need to specify return value:
+
+  ```kotlin
+
+    class MockedClass {
+        fun sum(a: Int, b: Int): Unit {
+            println(a + b)
+        }
+    }
+
+    val obj = mockk<MockedClass>()
+
+    every { obj.sum(any(), 1) } answers { nothing }
+    every { obj.sum(any(), 2) } returns null
+
+    obj.sum(1, 1)
+    obj.sum(1, 2)
+
+    verify {
+        obj.sum(1, 1)
+        obj.sum(1, 2)
+    }
+
+  ```
 
 ## DSL tables
+
+Here is a few tables helping to master the DSL.
 
 ### Matchers
 
