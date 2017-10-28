@@ -1,5 +1,7 @@
 ![mockk](doc/logo.png)
 
+[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+
 ## Nice features
 
  - removing finals (via Java Agent)
