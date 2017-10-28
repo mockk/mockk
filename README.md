@@ -368,6 +368,7 @@ By default simple arguments are matched using `eq()`
 |`and(left, right)`|combines two matchers via logical and|
 |`or(left, right)`|combines two matchers via logical or|
 |`not(matcher)`|negates the matcher|
+|`capture(slot)`|captures a value to a `CapturingSlot`|
 |`capture(mutableList)`|captures a value to a list|
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda(lambdaClass)`|captures lambda expression(allowed one per call)|
@@ -408,7 +409,7 @@ By default simple arguments are matched using `eq()`
 |`secondArg()`|second argument|
 |`thirdArg()`|third argument|
 |`lastArg()`|last argument|
-|`caputred()`|the last element in the list for convenience when capturing to the list|
+|`captured()`|the last element in the list for convenience when capturing to the list|
 |`lambda`|captured lambda|
 |`nothing`|null value for returning nothing as an answer|
 
