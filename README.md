@@ -294,6 +294,43 @@ If the method is returning Unit(i.e. no return value) you still need to specify 
 
   ```
 
+### Coroutines
+
+You need to add dependency to the support library.
+<table>
+<tr>
+    <th>Gradle</th><th>Maven</th>
+</tr>
+<tr>
+    <td>
+    <pre>testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
+    </td><td>
+    <pre>
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.jetbrains.kotlinx&lt;/groupId&gt;
+        &lt;artifactId&gt;kotlinx-coroutines-core&lt;/artifactId&gt;
+        &lt;version&gt;x.x&lt;/version&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;</pre>
+    </td>
+</tr>
+</table>
+
+  Then you can use `coEvery` and `coVerify` versions to mock coroutine methods
+
+  ```kotlin
+
+    val car = mockk<Car>()
+
+    coEvery { car.drive(Direction.NORTH) } returns Outcome.OK
+
+    car.drive(Direction.NORTH) // returns OK
+
+    coVerify { car.drive(Direction.NORTH) }
+
+  ```
+
+
 ## DSL tables
 
 Here is a few tables helping to master the DSL.

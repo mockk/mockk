@@ -15,14 +15,16 @@ interface MockKGateway {
 
     fun <T> spyk(cls: Class<T>, objToCopy: T?): T
 
-    fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T>
+    fun <T> every(mockBlock: (MockKScope.() -> T)?,
+                  coMockBlock: (suspend MockKScope.() -> T)?): MockKStubScope<T>
 
     fun <T> verify(ordering: Ordering,
                    inverse: Boolean,
                    atLeast: Int,
                    atMost: Int,
                    exactly: Int,
-                   mockBlock: suspend MockKScope.() -> T)
+                   mockBlock: (MockKScope.() -> T)?,
+                   coMockBlock: (suspend MockKScope.() -> T)?)
 
     companion object {
         internal val defaultImpl: MockKGateway = MockKGatewayImpl()

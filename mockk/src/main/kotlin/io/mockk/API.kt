@@ -32,12 +32,12 @@ inline fun <reified T> slot() = CapturingSlot<T>()
 /**
  * Starts a block of stubbing. Part of DSL.
  */
-fun <T> every(stubBlock: MockKScope.() -> T): MockKStubScope<T> = coEvery { stubBlock() }
+fun <T> every(stubBlock: MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock, null)
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
  */
-fun <T> coEvery(stubBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock)
+fun <T> coEvery(stubBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(null, stubBlock)
 
 /**
  * Verification orderding
@@ -66,13 +66,14 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                atMost: Int = Int.MAX_VALUE,
                exactly: Int = -1,
                verifyBlock: MockKScope.() -> T) {
-    coVerify(
+    MockKGateway.LOCATOR().verify(
             ordering,
             inverse,
             atLeast,
             atMost,
             exactly,
-            { verifyBlock() })
+            verifyBlock,
+            null)
 }
 
 /**
@@ -90,7 +91,8 @@ fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
             atLeast,
             atMost,
             exactly,
-            verifyBlock);
+            null,
+            verifyBlock)
 }
 
 /**

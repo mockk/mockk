@@ -21,7 +21,7 @@ internal class MockKGatewayImpl : MockKGateway {
     override val instantiator: Instantiator
         get() = instantiatorTL.get()
 
-    override fun verifier(ordering: Ordering) : Verifier =
+    override fun verifier(ordering: Ordering): Verifier =
             when (ordering) {
                 Ordering.UNORDERED -> unorderedVerifierTL.get()
                 Ordering.ORDERED -> orderedVerifierTL.get()
@@ -54,22 +54,22 @@ internal class MockKGatewayImpl : MockKGateway {
         }
     }
 
-    override fun <T> every(mockBlock: suspend MockKScope.() -> T): MockKStubScope<T> {
+    override fun <T> every(mockBlock: (MockKScope.() -> T)?,
+                           coMockBlock: (suspend MockKScope.() -> T)?): MockKStubScope<T> {
         callRecorder.startStubbing()
         val lambda = slot<Function<*>>()
         val scope = MockKScope(this, lambda)
-        runBlocking {
-            val n = N_CALL_ROUNDS
-            repeat(n) {
-                callRecorder.catchArgs(it, n)
-                scope.mockBlock()
-            }
-            callRecorder.catchArgs(n, n)
+        try {
+            record(scope, mockBlock, coMockBlock)
+        } catch (ex: NoClassDefFoundError) {
+            throw prettifyCoroutinesException(ex)
         }
         return MockKStubScope(this, lambda)
     }
 
-    override fun <T> verify(ordering: Ordering, inverse: Boolean, atLeast: Int, atMost: Int, exactly: Int, mockBlock: suspend MockKScope.() -> T) {
+    override fun <T> verify(ordering: Ordering, inverse: Boolean, atLeast: Int, atMost: Int, exactly: Int,
+                            mockBlock: (MockKScope.() -> T)?,
+                            coMockBlock: (suspend MockKScope.() -> T)?) {
         if (ordering != Ordering.UNORDERED) {
             if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
                 throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
@@ -83,18 +83,37 @@ internal class MockKGatewayImpl : MockKGateway {
         val lambda = slot<Function<*>>()
         val scope = MockKScope(gw, lambda)
 
-        runBlocking {
+        try {
+            record(scope, mockBlock, coMockBlock)
+        } catch (ex: NoClassDefFoundError) {
+            throw prettifyCoroutinesException(ex)
+        }
+
+        callRecorder.verify(ordering, inverse,
+                if (exactly != -1) exactly else atLeast,
+                if (exactly != -1) exactly else atMost)
+    }
+
+    private fun <T> record(scope: MockKScope, mockBlock: (MockKScope.() -> T)?, coMockBlock: (suspend MockKScope.() -> T)?) {
+        if (mockBlock != null) {
             val n = N_CALL_ROUNDS
             repeat(n) {
                 callRecorder.catchArgs(it, n)
                 scope.mockBlock()
             }
             callRecorder.catchArgs(n, n)
+        } else if (coMockBlock != null) {
+            runBlocking {
+                val n = N_CALL_ROUNDS
+                repeat(n) {
+                    callRecorder.catchArgs(it, n)
+                    scope.coMockBlock()
+                }
+                callRecorder.catchArgs(n, n)
+            }
         }
-        callRecorder.verify(ordering, inverse,
-                if (exactly != -1) exactly else atLeast,
-                if (exactly != -1) exactly else atMost)
     }
+
 
     companion object {
         val N_CALL_ROUNDS = 64
@@ -102,9 +121,19 @@ internal class MockKGatewayImpl : MockKGateway {
         val log = logger<MockKGatewayImpl>()
 
         init {
-            log.debug { "Starting MockK implementation. " +
-                    "Java version = ${System.getProperty("java.version")}. " +
-                    "Class loader = ${MockKGatewayImpl::class.java.classLoader}. " }
+            log.debug {
+                "Starting MockK implementation. " +
+                        "Java version = ${System.getProperty("java.version")}. " +
+                        "Class loader = ${MockKGatewayImpl::class.java.classLoader}. "
+            }
         }
+    }
+}
+
+private fun prettifyCoroutinesException(ex: NoClassDefFoundError): Throwable {
+    return if (ex.message?.contains("kotlinx/coroutines/") ?: false) {
+        MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
+    } else {
+        ex
     }
 }
