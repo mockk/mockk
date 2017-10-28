@@ -23,13 +23,13 @@ First you need to add dependency to the library itself.
 </tr>
 <tr>
     <td>
-    <pre>testCompile "io.mockk:mockk:1.0.0"</pre>
+    <pre>testCompile "io.mockk:mockk:1.0"</pre>
     </td><td>
     <pre>
     &lt;dependency&gt;
         &lt;groupId&gt;io.mockk&lt;/groupId&gt;
         &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-        &lt;version&gt;1.0.0&lt;/version&gt;
+        &lt;version&gt;1.0&lt;/version&gt;
         &lt;scope&gt;test&lt;/scope&gt;
     &lt;/dependency&gt;</pre>
     </td>
@@ -48,7 +48,7 @@ All others are existing for convenience and should be used at your own risk.
 <td>
 	Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
     Use following agent:
-    <pre>agent "io.mockk:mockk-agent:1.0.0:agent"</pre>
+    <pre>agent "io.mockk:mockk-agent:1.0:agent"</pre>
 </td>
 </tr><tr>
 <td>Java Agent maven</td>
@@ -63,13 +63,13 @@ All others are existing for convenience and should be used at your own risk.
 <td>Java Agent JVM</td>
 <td>
     Add JVM parameter to launch agent:
-    <pre>-javaagent:libs/mockk-agent-1.0.0.jar</pre>
+    <pre>-javaagent:libs/mockk-agent-1.0.jar</pre>
 </td>
 </tr><tr>
 <td>JUnit4</td>
 <td>
     Add this dependency to your project:
-    <pre>testCompile "io.mockk:mockk-agent:1.0.0"</pre>
+    <pre>testCompile "io.mockk:mockk-agent:1.0"</pre>
     Use annotation for each test:
     <pre>@RunWith(MockKJUnit4Runner::class)</pre>
     If @RunWith is specified on superclass then it will be used to run after class loader is set.
@@ -81,7 +81,7 @@ All others are existing for convenience and should be used at your own risk.
 <td>JUnit5</td>
 <td>
     Just add this dependency to your project:
-    <pre>testCompile "io.mockk:mockk-agent:1.0.0"</pre>
+    <pre>testCompile "io.mockk:mockk-agent:1.0"</pre>
     JUnit5 test will be hooked via TestExecutionListener.
     Note: this implementation is totally a hack.
 </td>
