@@ -1,6 +1,11 @@
 buildscript {
+    ext.kotlin_version = '1.1.51'
+    repositories {
+        mavenCentral()
+    }
     dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "net.researchgate:gradle-release:2.6.0"
     }
 }
 
@@ -9,7 +14,13 @@ plugins {
 }
 
 apply plugin: 'kotlin'
-//apply plugin: "org.junit.platform.gradle.plugin"
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
 
 applicationAgent {
     applyToTests true
@@ -33,9 +44,10 @@ dependencies {
     testCompile 'org.jetbrains.spek:spek-api:1.1.5'
     testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
 
-    agent "io.mockk:mockk-agent:1.0:agent"
+    agent "io.mockk:mockk-agent:1.0-SNAPSHOT:agent"
 
-    testCompile "io.mockk:mockk-agent:1.0"
+    testCompile "io.mockk:mockk-agent:1.0-SNAPSHOT:agent"
+    testCompile "io.mockk:mockk:1.0-SNAPSHOT"
 }
 
 kotlin {

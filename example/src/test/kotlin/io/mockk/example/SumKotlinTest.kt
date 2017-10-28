@@ -6,7 +6,6 @@ import io.mockk.junit.MockKJUnit4Runner
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Assert
-import org.junit.jupiter.api.Test
 import org.junit.runner.RunWith
 
 @RunWith(MockKJUnit4Runner::class)
