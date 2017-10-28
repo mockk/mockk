@@ -3,6 +3,7 @@ package io.mockk
 import io.mockk.impl.MockKInstance
 import io.mockk.impl.toStr
 import java.lang.reflect.Method
+import kotlin.reflect.KClass
 
 /**
  * All mocks are implementing this interface
@@ -150,6 +151,7 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
     inline fun <reified T> refEq(value: T): T = match(EqMatcher(value, ref = true))
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
     inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
+    inline fun <reified T> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst))
     inline fun <reified T> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst))
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0))
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1))
@@ -176,9 +178,9 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
      * classes
      */
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Function<*>> captureLambda(cls: Class<out Function<*>>): T {
+    inline fun <reified T : Function<*>> captureLambda(cls: KClass<out Function<*>>): T {
         val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>)
-        return gw.callRecorder.matcher(matcher, cls as Class<T>)
+        return gw.callRecorder.matcher(matcher, cls.java as Class<T>)
     }
 }
 

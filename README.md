@@ -63,7 +63,7 @@ All others are existing for convenience and should be used at your own risk.
 <td>Java Agent JVM</td>
 <td>
     Add JVM parameter to launch agent:
-    <pre>-javaagent:libs/mockk-agent-1.0.jar</pre>
+    <pre>-javaagent:libs/mockk-agent-1.0-agent.jar</pre>
 </td>
 </tr><tr>
 <td>JUnit4</td>
@@ -147,7 +147,7 @@ Mock can have child mocks. This allows to mock chains of calls:
     obj.op2(1, 2) // returns child mock
     obj.op2(1, 2).op1(3, 22) // returns 5
 
-    verify { obj.op2(any(), 2).op2(3, 22) }
+    verify { obj.op2(1, 2).op1(3, 22) }
 
   ```
 
@@ -164,7 +164,7 @@ Simplest way of capturing is capturing to the `CapturingSlot`:
     val obj = mockk<MockedClass>()
     val slot = slot<Int>()
 
-    every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured }
+    every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured!! }
 
     obj.sum(1, 2) // returns 4
 
@@ -185,10 +185,12 @@ but for convenience there is captureLambda construct present:
     }
 
     val obj = mockk<MockedClass>()
-    val slot = slot<Int>()
 
-    every { obj.sum(1, captureLambda(Function0::class)) }
-        answers { 2 + lambda.invoke() }
+    every {
+        obj.sum(1, captureLambda(Function0::class))
+    } answers {
+        2 + lambda.invoke<Int>()!!
+    }
 
     obj.sum(1) { 2 } // returns 4
 
@@ -231,8 +233,11 @@ Checking at least how much method was called:
     val obj = mockk<MockedClass>()
     val lst = mutableListOf<Int>()
 
-    every { obj.sum(any(), capture(lst)) }
-        answers { 1 + firstArg() + lst.captured() }
+        every {
+            obj.sum(any(), capture(lst))
+        } answers {
+            1 + firstArg<Int>() + lst.captured()
+        }
 
     obj.sum(1, 2) // returns 4
     obj.sum(1, 3) // returns 5
@@ -256,7 +261,11 @@ Checking the exact sequence of calls:
     val obj = mockk<MockedClass>()
     val slot = slot<Int>()
 
-    every { obj.sum(any(), capture(slot)) } answers { 1 + firstArg() + slot.captured }
+    every {
+        obj.sum(any(), capture(slot))
+    } answers {
+        1 + firstArg<Int>() + slot.captured!!
+    }
 
     obj.sum(1, 2) // returns 4
     obj.sum(1, 3) // returns 5
