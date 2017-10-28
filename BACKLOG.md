@@ -30,8 +30,9 @@
 - [x] Android
 - [ ] objenesis
 - [x] register on Maven OSSRH
-- [ ] better docs
+- [x] better docs
 - [ ] habr article
+- [ ] QA on docs before release
 - [ ] ***MILESTONE2 - maven release***
 - [ ] Kotlin popular in Germany, Japan, India, USA and Brasil
 - [ ] running methods: TestNG

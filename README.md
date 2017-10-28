@@ -88,40 +88,46 @@ All others are existing for convenience and should be used at your own risk.
 
 Simplest example:
 
-  ```
+  ```kotlin
+
     val car = mockk<Car>()
+
     every { car.drive(Direction.NORTH) } returns Outcome.OK
 
     car.drive(Direction.NORTH) // returns OK
 
     verify { car.drive(Direction.NORTH) }
+
   ```
 
 ## Partial argument matching
 
 You can skip parameters while specifying matchers.
 MockK runs your block few times, builds so called signature and
-auto-detects places where matchers appear.
+auto-detects places where matchers appear:
 
-  ```
+  ```kotlin
+
     class MockedClass {
-        fun op(a: Int, b: Int) = a + b
+        fun sum(a: Int, b: Int) = a + b
     }
 
     val obj = mockk<MockedClass>()
-    every { obj.op(1, eq(2)) } returns 5
 
-    obj.op(1, 2) // returns 5
+    every { obj.sum(1, eq(2)) } returns 5
 
-    verify { obj.op(eq(1), 2) }
+    obj.sum(1, 2) // returns 5
+
+    verify { obj.sum(eq(1), 2) }
 
   ```
 
 ## Chained calls
 
-Mock can have child mocks. This allows to mock chains of calls
+Mock can have child mocks. This allows to mock chains of calls:
 
-  ```
+  ```kotlin
+
     class MockedClass1 {
         fun op1(a: Int, b: Int) = a + b
     }
@@ -131,6 +137,7 @@ Mock can have child mocks. This allows to mock chains of calls
     }
 
     val obj = mockk<MockedClass2>()
+
     every { obj.op2(1, eq(2)).op1(3, any()) } returns 5
 
     obj.op2(1, 2) // returns child mock
@@ -139,6 +146,77 @@ Mock can have child mocks. This allows to mock chains of calls
     verify { obj.op2(any(), 2).op2(3, 22) }
 
   ```
+
+### Capturing
+
+Simplest way of capturing is capturing to the `CapturingSlot`:
+
+  ```kotlin
+
+    class MockedClass {
+        fun sum(a: Int, b: Int) = a + b
+    }
+
+    val obj = mockk<MockedClass>()
+    val slot = slot<Int>()
+
+    every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured }
+
+    obj.sum(1, 2) // returns 4
+
+    verify { obj.sum(1, 2) }
+
+
+  ```
+
+### Capturing lambda
+
+You can capture lambdas with `CapturingSlot<Any>`,
+but for convenience there is captureLambda construct present:
+
+  ```kotlin
+
+    class MockedClass {
+        fun sum(a: Int, b: () -> Int) = a + b()
+    }
+
+    val obj = mockk<MockedClass>()
+    val slot = slot<Int>()
+
+    every { obj.sum(1, captureLambda(Function0::class)) } answers { 2 + lambda.invoke() }
+
+    obj.sum(1) { 2 } // returns 4
+
+    verify { obj.sum(1, any()) }
+
+  ```
+
+### Capturing to the list
+
+If you need several captured values you can capture values to the `MutableList`.
+`captured()` method is taking the last element of the list.
+
+  ```kotlin
+
+    class MockedClass {
+        fun sum(a: Int, b: Int) = a + b
+    }
+
+    val obj = mockk<MockedClass>()
+    val lst = mutableListOf<Int>()
+
+    every { obj.sum(1, capture(lst)) } answers { 2 + lst.captured() }
+
+    obj.sum(1, 2) // returns 4
+
+    verify { obj.sum(1, 2) }
+
+  ```
+
+### Verification with atLeast
+
+### Verification sequence
+
 
 ## DSL tables
 
@@ -191,7 +269,20 @@ Mock can have child mocks. This allows to mock chains of calls
 
 |Parameter|Description|
 |---------|-----------|
-|||
+|`call`|a call object that consists of invocation and matcher|
+|`invocation`|contains information regarding actual method invoked|
+|`matcher`|contains information regarding matcher used to match invocation|
+|`self`|reference the object invocation made|
+|`method`|reference to the method invocation made|
+|`args`|reference to arguments of invocation|
+|`nArgs`|number of invocation argument|
+|`firstArg()`|first argument|
+|`secondArg()`|second argument|
+|`thirdArg()`|third argument|
+|`lastArg()`|last argument|
+|`caputred()`|the last element in the list for convenience when capturing to the list|
+|`lambda`|captured lambda|
+|`nothing`|null value for returning nothing as an answer|
 
 ## Getting Help
 
