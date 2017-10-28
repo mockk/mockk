@@ -3,7 +3,14 @@
 
 @import "{{ site.theme }}";
 code {
-    background-color: #f8f8f8;
+    background-color: #efc;
+}
+.highlight {
+    background-color: #efc;
+}
+table {
+    border: 1px solid #000;
+    background-color: #ccc;
 }
 td {
     background-color: #ffc;
