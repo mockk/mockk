@@ -366,7 +366,7 @@ Here is a few tables helping to master the DSL.
 
 To ask questions please use stackoverflow or gitter.
 
-* Chat/Gitter: [https://gitter.im/oleksiyp/mockk](https://gitter.im/oleksiyp/mockk)
+* Chat/Gitter: [https://gitter.im/mockk-io/Lobby](https://gitter.im/mockk-io/Lobby)
 * Stack Overflow: [http://stackoverflow.com/questions/tagged/mockk](http://stackoverflow.com/questions/tagged/mockk)
 
 To report bugs, please use the GitHub project.
