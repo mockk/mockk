@@ -32,7 +32,12 @@ inline fun <reified T> slot() = CapturingSlot<T>()
 /**
  * Starts a block of stubbing. Part of DSL.
  */
-fun <T> every(stubBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock)
+fun <T> every(stubBlock: MockKScope.() -> T): MockKStubScope<T> = coEvery { stubBlock() }
+
+/**
+ * Starts a block of stubbing for coroutines. Part of DSL.
+ */
+fun <T> coEvery(stubBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock)
 
 /**
  * Verification orderding
@@ -60,21 +65,39 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                atLeast: Int = 1,
                atMost: Int = Int.MAX_VALUE,
                exactly: Int = -1,
-               verifyBlock: suspend MockKScope.() -> T) {
+               verifyBlock: MockKScope.() -> T) {
+    coVerify(
+            ordering,
+            inverse,
+            atLeast,
+            atMost,
+            exactly,
+            { verifyBlock() })
+}
+
+/**
+ * Verify for coroutines
+ */
+fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
+                 inverse: Boolean = false,
+                 atLeast: Int = 1,
+                 atMost: Int = Int.MAX_VALUE,
+                 exactly: Int = -1,
+                 verifyBlock: suspend MockKScope.() -> T) {
     MockKGateway.LOCATOR().verify(
             ordering,
             inverse,
             atLeast,
             atMost,
             exactly,
-            verifyBlock)
+            verifyBlock);
 }
 
 /**
  * Shortcut for ordered calls verification
  */
 fun <T> verifyOrder(inverse: Boolean = false,
-                    verifyBlock: suspend MockKScope.() -> T) {
+                    verifyBlock: MockKScope.() -> T) {
     verify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
 }
 
@@ -82,7 +105,7 @@ fun <T> verifyOrder(inverse: Boolean = false,
  * Shortcut for sequence calls verification
  */
 fun <T> verifySequence(inverse: Boolean = false,
-                       verifyBlock: suspend MockKScope.() -> T) {
+                       verifyBlock: MockKScope.() -> T) {
     verify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
 }
 
