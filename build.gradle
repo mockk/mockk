@@ -18,10 +18,6 @@ subprojects {
     apply plugin: 'maven'
     apply plugin: 'signing'
 
-    release {
-        failOnPublishNeeded = false
-    }
-
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
 
