@@ -21,7 +21,7 @@ artifacts {
 }
 
 shadowJar {
-    classifier = 'agent'
+    classifier = null
 
     exclude 'META-INF/maven/**'
     relocate 'javassist.', 'shadowed.javassist.'
