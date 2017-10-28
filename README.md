@@ -53,7 +53,8 @@ All others are existing for convenience and should be used at your own risk.
 </tr><tr>
 <td>Java Agent maven</td>
 <td>
-	Configure maven surefire plugin: <pre>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</pre>
+    Add dependency to mockk-agent. Configure maven surefire plugin:
+    <pre>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</pre>
 </td>
 </tr><tr>
 <td>Java Agent JVM</td>
