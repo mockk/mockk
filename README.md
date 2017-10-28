@@ -300,6 +300,8 @@ Here is a few tables helping to master the DSL.
 
 ### Matchers
 
+By default simple arguments are matched using `eq()`
+
 |Matcher|Description|
 |-------|-----------|
 |`any()`|matches any argument|
