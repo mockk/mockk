@@ -35,10 +35,6 @@ subprojects {
         from sourceSets.main.allSource
     }
 
-    build {
-        afterReleaseBuild.dependsOn uploadArchives
-    }
-
     artifacts {
         archives javadocJar, sourcesJar
     }
