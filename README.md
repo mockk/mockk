@@ -296,7 +296,7 @@ If the method is returning Unit(i.e. no return value) you still need to specify 
 
 ### Coroutines
 
-You need to add dependency to the support library.
+To use coroutines you need to add dependency to the support library.
 <table>
 <tr>
     <th>Gradle</th>
