@@ -54,8 +54,8 @@ uploadArchives {
                 url 'http://mockk.io'
 
                 scm {
-                    connection 'scm:git:git://github.com/oleksiyp/mockk.git'
-                    developerConnection 'scm:git:ssh:git@github.com/oleksiyp/mockk.git'
+                    connection 'scm:git@github.com:oleksiyp/mockk.git'
+                    developerConnection 'scm:git@github.com:oleksiyp/mockk.git'
                     url 'http://www.github.com/oleksiyp/mockk/'
                 }
 
