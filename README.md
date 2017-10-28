@@ -2,6 +2,8 @@
 
 ## Nice features
 
+[![Join the chat at https://gitter.im/mockk-io/Lobby](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
  - removing finals (via Java Agent)
  - pure kotlin mocking DSL
  - partial arguments matchers
