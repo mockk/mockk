@@ -10,7 +10,7 @@ import java.lang.reflect.Method
 interface MockK
 
 /**
- * Exception thrown by framework
+ * Exception thrown by library
  */
 class MockKException(message: String) : RuntimeException(message)
 
