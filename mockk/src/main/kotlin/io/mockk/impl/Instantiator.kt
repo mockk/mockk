@@ -1,5 +1,6 @@
 package io.mockk.impl
 
+import io.mockk.MockKException
 import io.mockk.external.logger
 import javassist.ClassPool
 import javassist.bytecode.ClassFile
@@ -31,7 +32,15 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
 
         val pf = ProxyFactoryExt(cls, MockKInstance::class.java)
 
-        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass(cls.classLoader, cls.protectionDomain)
+        val proxyCls = try {
+            cp.makeClass(pf.buildClassFile()).toClass(cls.classLoader, cls.protectionDomain)
+        } catch(ex: RuntimeException) {
+            if (ex.message?.endsWith("is final") ?: false) {
+                throw MockKException("Failed to create proxy for $cls. Class is final. " +
+                        "You need MockK Java agent to make all classes 'open'")
+            }
+            throw ex
+        }
 
         return if (useDefaultConstructor)
             proxyCls.newInstance()
