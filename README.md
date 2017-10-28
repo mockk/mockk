@@ -299,12 +299,20 @@ If the method is returning Unit(i.e. no return value) you still need to specify 
 You need to add dependency to the support library.
 <table>
 <tr>
-    <th>Gradle</th><th>Maven</th>
+    <th>Gradle</th>
 </tr>
 <tr>
     <td>
     <pre>testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
-    </td><td>
+    </td>
+</tr>
+</table>
+<table>
+<tr>
+    <th>Maven</th>
+</tr>
+<tr>
+<td>
     <pre>
     &lt;dependency&gt;
         &lt;groupId&gt;org.jetbrains.kotlinx&lt;/groupId&gt;
