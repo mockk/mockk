@@ -69,7 +69,7 @@ All others are existing for convenience and should be used at your own risk.
 <td>JUnit4</td>
 <td>
     Add this dependency to your project:
-    <pre>testCompile "io.mockk:mockk-agent:1.0"</pre>
+    <pre>testCompile "io.mockk:mockk-agent:1.0:agent"</pre>
     Use annotation for each test:
     <pre>@RunWith(MockKJUnit4Runner::class)</pre>
     If @RunWith is specified on superclass then it will be used to run after class loader is set.
@@ -81,7 +81,7 @@ All others are existing for convenience and should be used at your own risk.
 <td>JUnit5</td>
 <td>
     Just add this dependency to your project:
-    <pre>testCompile "io.mockk:mockk-agent:1.0"</pre>
+    <pre>testCompile "io.mockk:mockk-agent:1.0:agent"</pre>
     JUnit5 test will be hooked via TestExecutionListener.
     Note: this implementation is totally a hack.
 </td>
