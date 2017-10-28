@@ -228,7 +228,8 @@ Checking at least how much method was called:
     val obj = mockk<MockedClass>()
     val lst = mutableListOf<Int>()
 
-    every { obj.sum(any(), capture(lst)) } answers { 1 + firstArg() + lst.captured() }
+    every { obj.sum(any(), capture(lst)) }
+        answers { 1 + firstArg() + lst.captured() }
 
     obj.sum(1, 2) // returns 4
     obj.sum(1, 3) // returns 5
