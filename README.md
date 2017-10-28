@@ -161,7 +161,8 @@ Simplest way of capturing is capturing to the `CapturingSlot`:
     val obj = mockk<MockedClass>()
     val slot = slot<Int>()
 
-    every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured }
+    every { obj.sum(1, capture(slot)) }
+        answers { 2 + slot.captured }
 
     obj.sum(1, 2) // returns 4
 
