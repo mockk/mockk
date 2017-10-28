@@ -2,6 +2,9 @@
 ---
 
 @import "{{ site.theme }}";
+header {
+    background-color: #225;
+}
 code {
     background-color: #efc;
 }
@@ -12,9 +15,9 @@ table {
     border: 1px solid #000;
     background-color: #ccc;
 }
-td {
-    background-color: #ffc;
-}
 th {
     background-color: #225;
+}
+td {
+    background-color: #ffc;
 }
