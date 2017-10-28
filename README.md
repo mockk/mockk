@@ -194,7 +194,7 @@ but for convenience there is captureLambda construct present:
 ### Capturing to the list
 
 If you need several captured values you can capture values to the `MutableList`.
-`captured()` method is taking the last element of the list.
+Method `captured()` is returning the last element of the list.
 
   ```kotlin
 
