@@ -2,8 +2,6 @@ package io.mockk.junit;
 
 import io.mockk.agent.MockKClassLoader;
 import javassist.*;
-import org.junit.jupiter.api.extension.ConditionEvaluationResult;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.platform.launcher.TestExecutionListener;
 import sun.misc.Unsafe;
 
@@ -12,6 +10,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class ExecutionInvokerPatcher implements TestExecutionListener {
+    public static final String INVOKER_PATCHER_CLASS = ExecutionInvokerPatcher.class.getName();
+    public static final String EXTENSION_REGISTRY_CLASS = "org.junit.jupiter.engine.extension.ExtensionRegistry";
+    public static final String EXTENSION_CONTEXT_CLASS = "org.junit.jupiter.api.extension.ExtensionContext";
+    public static final String CONSTRUCTOR_CLASS = "java.lang.reflect.Constructor";
+    public static final String METHOD_CLASS = "java.lang.reflect.Method";
     private static Unsafe unsafe;
 
     private static final ClassLoader CLASS_LOADER = MockKClassLoader.newClassLoader(ExecutionInvokerPatcher.class.getClassLoader());
@@ -22,7 +25,6 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
             field.setAccessible(true);
             unsafe = (Unsafe) field.get(null);
 
-            System.out.println("PATCHING");
             patchExecutableInvokers(new String[]{
                     "org.junit.jupiter.engine.descriptor.ClassTestDescriptor",
                     "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
@@ -62,17 +64,21 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
 
             hackedEI.setSuperclass(pool.get("org.junit.jupiter.engine.execution.ExecutableInvoker"));
 
-            hackedEI.addMethod(CtNewMethod.make("public Object invoke(java.lang.reflect.Constructor constructor, org.junit.jupiter.api.extension.ExtensionContext extensionContext,\n" +
-                    "org.junit.jupiter.engine.extension.ExtensionRegistry extensionRegistry) {\n" +
+            hackedEI.addMethod(CtNewMethod.make("public Object invoke(" +
+                    CONSTRUCTOR_CLASS + " constructor, " +
+                    EXTENSION_CONTEXT_CLASS + " extensionContext,\n" +
+                    EXTENSION_REGISTRY_CLASS + " extensionRegistry) {\n" +
                     "\n" +
-                    "constructor = io.mockk.junit.MockKJUnit5Extension.getConstructor(constructor);\n" +
+                    "constructor = " + INVOKER_PATCHER_CLASS + ".getConstructor(constructor);\n" +
                     "return super.invoke(constructor, extensionContext, extensionRegistry);\n" +
                     "}\n", hackedEI));
 
-            hackedEI.addMethod(CtNewMethod.make("public Object invoke(java.lang.reflect.Method method, Object target, org.junit.jupiter.api.extension.ExtensionContext extensionContext,\n" +
-                    "org.junit.jupiter.engine.extension.ExtensionRegistry extensionRegistry) {\n" +
+            hackedEI.addMethod(CtNewMethod.make("public Object invoke(" +
+                    METHOD_CLASS + " method, Object target, " +
+                    EXTENSION_CONTEXT_CLASS + " extensionContext,\n" +
+                    EXTENSION_REGISTRY_CLASS + " extensionRegistry) {\n" +
                     "\n" +
-                    "method = io.mockk.junit.MockKJUnit5Extension.getMethod(method);\n" +
+                    "method = " + INVOKER_PATCHER_CLASS + ".getMethod(method);\n" +
                     "return super.invoke(method, target, extensionContext, extensionRegistry);\n" +
                     "}\n", hackedEI));
             hackedEICls = hackedEI.toClass();
