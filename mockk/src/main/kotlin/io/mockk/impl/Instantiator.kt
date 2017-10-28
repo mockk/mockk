@@ -32,15 +32,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
 
         val pf = ProxyFactoryExt(cls, MockKInstance::class.java)
 
-        val proxyCls = try {
-            cp.makeClass(pf.buildClassFile()).toClass(cls.classLoader, cls.protectionDomain)
-        } catch(ex: RuntimeException) {
-            if (ex.message?.endsWith("is final") ?: false) {
-                throw MockKException("Failed to create proxy for $cls. Class is final. " +
-                        "You need MockK Java agent to make all classes 'open'")
-            }
-            throw ex
-        }
+        val proxyCls = buildProxy(pf, cls)
 
         return if (useDefaultConstructor)
             proxyCls.newInstance()
@@ -52,10 +44,27 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
     override fun <T> instantiate(cls: Class<T>): T {
         log.trace { "Building empty instance $cls" }
         val pf = ProxyFactoryExt(cls)
-        val proxyCls = cp.makeClass(pf.buildClassFile()).toClass(cls.classLoader, cls.protectionDomain)
+        val proxyCls = buildProxy(pf, cls)
         val instance = newEmptyInstance(proxyCls)
         (instance as ProxyObject).handler = EqualsAndHashCodeHandler()
         return cls.cast(instance)
+    }
+
+    private fun <T> buildProxy(pf: ProxyFactoryExt, cls: Class<T>): Class<*> {
+        return try {
+            val classFile = pf.buildClassFile()
+
+            val proxyClass = cp.makeClass(classFile)
+
+            proxyClass.toClass(cls.classLoader, cls.protectionDomain)
+
+        } catch (ex: RuntimeException) {
+            if (ex.message?.endsWith("is final") ?: false) {
+                throw MockKException("Failed to create proxy for $cls. Class is final. " +
+                        "You need MockK Java agent to make all classes 'open'")
+            }
+            throw ex
+        }
     }
 
     private class EqualsAndHashCodeHandler : MethodHandler {
