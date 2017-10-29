@@ -49,7 +49,7 @@ subprojects {
     jacocoTestReport {
         reports {
             xml.enabled true
-            html.enabled false
+            html.enabled true
         }
     }
 
