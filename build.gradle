@@ -43,5 +43,5 @@ subprojects {
         sign configurations.archives
     }
 
-
+    signing.onlyIf { !project.hasProperty('skipSigning') }
 }

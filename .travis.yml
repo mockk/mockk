@@ -6,7 +6,7 @@ matrix:
       sudo: false
       jdk: oraclejdk8
 
-script: gradle :provider:check --info --stacktrace --console=plain --max-workers=1 --no-daemon -Dkotlin.compiler.execution.strategy="in-process" -Dkotlin.colors.enabled=false -x signArchives
+script: gradle :provider:check --info --stacktrace --console=plain --max-workers=1 --no-daemon -Dkotlin.compiler.execution.strategy="in-process" -Dkotlin.colors.enabled=false -PskipSigning
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
