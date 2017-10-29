@@ -4,7 +4,7 @@ matrix:
   include:
     - os: linux
       sudo: false
-      jdk: oraclejdk6
+      jdk: openjdk6
 
 install:
   - cp ci-gradle.properties $HOME/.gradle/gradle.properties
