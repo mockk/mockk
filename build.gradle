@@ -6,7 +6,6 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "net.researchgate:gradle-release:2.6.0"
     }
 }
 
@@ -17,7 +16,6 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'signing'
-    apply plugin: 'jacoco'
 
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
@@ -46,12 +44,4 @@ subprojects {
 
     signArchives.onlyIf { project.hasProperty('signing.keyId') }
 
-    jacocoTestReport {
-        reports {
-            xml.enabled true
-            html.enabled true
-        }
-    }
-
-    check.dependsOn jacocoTestReport
 }

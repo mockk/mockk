@@ -1,15 +1,21 @@
 apply plugin: 'kotlin'
 
+project.configurations {
+    agent
+    runtime.extendsFrom(agent)
+}
+
+
 dependencies {
-    // agent "io.mockk:mockk-agent:$mockk_version"
+    agent project(path: ":mockk-agent", configuration: "shadow")
+
+    compile 'org.javassist:javassist:3.22.0-GA'
+    compile 'org.objenesis:objenesis:2.6'
+    compile project(":mockk-agent")
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
-
-    compile 'org.javassist:javassist:3.22.0-GA'
-
-    compile 'org.objenesis:objenesis:2.6'
 
     compileOnly 'org.slf4j:slf4j-api:1.7.25'
 
@@ -26,14 +32,30 @@ dependencies {
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 
     testCompile 'io.kotlintest:kotlintest:2.0.7'
-
-    testCompile project(":mockk-agent")
 }
+
 
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
+    doFirst {
+        project.configurations.agent.each { agent ->
+            jvmArgs += ["-javaagent:${agent.path}"]
+        }
+    }
 }
+
+apply plugin: 'jacoco'
+
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+check.dependsOn jacocoTestReport
 
 kotlin {
     experimental {

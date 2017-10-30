@@ -16,9 +16,13 @@ targetCompatibility = 1.6
 
 assemble.dependsOn(shadowJar)
 
+jar.enabled = false
+
 artifacts {
     archives shadowJar, sourcesJar, javadocJar
 }
+
+jar.dependsOn shadowJar
 
 shadowJar {
     classifier = null
