@@ -1,5 +1,6 @@
 package io.mockk.junit;
 
+import io.mockk.agent.MockKAgent;
 import io.mockk.agent.MockKClassLoader;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -23,9 +24,12 @@ public class MockKJUnit4Runner extends Runner {
     private final Runner runner;
 
     public MockKJUnit4Runner(Class<?> cls) throws Exception {
-        ClassLoader loader = MockKClassLoader.newClassLoader(cls.getClassLoader());
-        Thread.currentThread().setContextClassLoader(loader);
-        cls = loader.loadClass(cls.getName());
+        if (!MockKAgent.running) {
+            System.out.println("Agent is not running");
+            cls = changeClassLoader(cls);
+        } else {
+            System.out.println("Agent is running");
+        }
 
         Class<?> runnerClass = findChainedRunner(cls);
         if (runnerClass == null) {
@@ -37,6 +41,13 @@ public class MockKJUnit4Runner extends Runner {
 
         Constructor<?> constructor = runnerClass.getConstructor(Class.class);
         this.runner = (Runner) constructor.newInstance(cls);
+    }
+
+    private Class<?> changeClassLoader(Class<?> cls) throws ClassNotFoundException {
+        ClassLoader loader = MockKClassLoader.newClassLoader(cls.getClassLoader());
+        Thread.currentThread().setContextClassLoader(loader);
+        cls = loader.loadClass(cls.getName());
+        return cls;
     }
 
     private Class<?> findChainedRunner(Class<?> cls) {

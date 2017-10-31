@@ -1,5 +1,6 @@
 package io.mockk.junit;
 
+import io.mockk.agent.MockKAgent;
 import io.mockk.agent.MockKClassLoader;
 import javassist.*;
 import org.junit.platform.launcher.TestExecutionListener;
@@ -20,19 +21,25 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
     private static final ClassLoader CLASS_LOADER = MockKClassLoader.newClassLoader(ExecutionInvokerPatcher.class.getClassLoader());
 
     static {
-        try {
-            Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            unsafe = (Unsafe) field.get(null);
-
-            patchExecutableInvokers(new String[]{
-                    "org.junit.jupiter.engine.descriptor.ClassTestDescriptor",
-                    "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
-            });
-            Thread.currentThread().setContextClassLoader(CLASS_LOADER);
-        } catch (Throwable ex) {
-            System.err.println("WARNING: ExecutionInvokerPatcher failed: " + ex);
+        if (!MockKAgent.running) {
+            try {
+                patch();
+            } catch (Throwable ex) {
+                System.err.println("WARNING: ExecutionInvokerPatcher failed: " + ex);
+            }
         }
+    }
+
+    private static void patch() throws Exception {
+        Field field = Unsafe.class.getDeclaredField("theUnsafe");
+        field.setAccessible(true);
+        unsafe = (Unsafe) field.get(null);
+
+        patchExecutableInvokers(new String[]{
+                "org.junit.jupiter.engine.descriptor.ClassTestDescriptor",
+                "org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor"
+        });
+        Thread.currentThread().setContextClassLoader(CLASS_LOADER);
     }
 
 
@@ -81,11 +88,13 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
                     "method = " + INVOKER_PATCHER_CLASS + ".getMethod(method);\n" +
                     "return super.invoke(method, target, extensionContext, extensionRegistry);\n" +
                     "}\n", hackedEI));
+
             hackedEICls = hackedEI.toClass();
         }
         return hackedEICls;
     }
 
+    @SuppressWarnings("unused") // use from generated class
     public static final Constructor getConstructor(Constructor<?> constructor) {
         try {
             Class<?> cls = constructor.getDeclaringClass();
@@ -113,6 +122,7 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
         return true;
     }
 
+    @SuppressWarnings("unused") // use from generated class
     public static Method getMethod(Method method) {
         try {
             Class<?> cls = method.getDeclaringClass();

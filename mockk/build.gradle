@@ -1,9 +1,9 @@
-apply plugin: 'kotlin'
 
-project.configurations {
-    agent
-    runtime.extendsFrom(agent)
+plugins {
+    id "jacoco"
+    id "com.zoltu.application-agent" version "1.0.8"
 }
+apply plugin: "kotlin"
 
 
 dependencies {
@@ -38,15 +38,7 @@ dependencies {
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
-    doFirst {
-        project.configurations.agent.each { agent ->
-            jvmArgs += ["-javaagent:${agent.path}"]
-        }
-    }
 }
-
-apply plugin: 'jacoco'
-
 
 jacocoTestReport {
     reports {

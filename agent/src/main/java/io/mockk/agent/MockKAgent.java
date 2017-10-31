@@ -11,7 +11,10 @@ import java.lang.reflect.Modifier;
 import static io.mockk.agent.MockKByteCodeTranslationRules.RULES;
 
 public class MockKAgent {
+    public static boolean running = false;
+
     public static void premain(String args, Instrumentation instrumentation) {
+        running = true;
         instrumentation.addTransformer(new MockKClassFileTransformer());
     }
 
