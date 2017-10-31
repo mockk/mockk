@@ -17,9 +17,9 @@
    id="svg8"
    sodipodi:docname="logo.svg"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   inkscape:export-filename="/home/oleksiyp/workspace/mockk/doc/logo.png"
-   inkscape:export-xdpi="72.571426"
-   inkscape:export-ydpi="72.571426">
+   inkscape:export-filename="/home/oleksiyp/workspace/mockk/doc/logo300.png"
+   inkscape:export-xdpi="217.71429"
+   inkscape:export-ydpi="217.71429">
   <defs
      id="defs2">
     <linearGradient
@@ -138,8 +138,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="240.55541"
-     inkscape:cy="257.16767"
+     inkscape:cx="509.84536"
+     inkscape:cy="255.90498"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -148,9 +148,9 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:window-width="1920"
-     inkscape:window-height="1005"
+     inkscape:window-height="1003"
      inkscape:window-x="0"
-     inkscape:window-y="38"
+     inkscape:window-y="40"
      inkscape:window-maximized="1">
     <sodipodi:guide
        position="130,75"
@@ -260,6 +260,11 @@
        inkscape:locked="false"
        inkscape:label=""
        inkscape:color="rgb(0,0,255)" />
+    <sodipodi:guide
+       position="155.2836,49.710128"
+       orientation="0,1"
+       id="guide55"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -282,7 +287,7 @@
        xml:space="preserve"
        id="flowRoot3718"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#faaf17;fill-opacity:1;stroke:none;stroke-opacity:1"
-       transform="matrix(0.26458333,0,0,0.26458333,-0.80180854,175.47451)"><flowRegion
+       transform="matrix(0.26458333,0,0,0.26458333,-5.0351421,174.96685)"><flowRegion
          id="flowRegion3720"
          style="fill:#faaf17;fill-opacity:1;stroke:none;stroke-opacity:1"><rect
            id="rect3722"
@@ -292,7 +297,9 @@
            y="184.54747"
            style="fill:#faaf17;fill-opacity:1;stroke:none;stroke-opacity:1" /></flowRegion><flowPara
          id="flowPara3724"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;font-family:FreeSans;-inkscape-font-specification:FreeSans;fill:#faaf17;fill-opacity:1;stroke:none;stroke-opacity:1">mock</flowPara></flowRoot>    <path
+         style="font-style:normal;font-variant:normal;font-weight:800;font-stretch:normal;font-size:96px;font-family:AXIS;-inkscape-font-specification:'AXIS, Ultra-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#faaf17;fill-opacity:1;stroke:none;stroke-opacity:1">M<flowSpan
+   style="font-style:normal;font-variant:normal;font-weight:800;font-stretch:normal;font-size:66.66666412px;font-family:AXIS;-inkscape-font-specification:'AXIS, Ultra-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start"
+   id="flowSpan53">ock</flowSpan></flowPara></flowRoot>    <path
        style="fill:url(#linearGradient4614);stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 132,237 v -13 h 13 v -2 h -15 v 15 z"
        id="path3787"
@@ -314,14 +321,14 @@
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#faaf17;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
-       x="138.71916"
-       y="248.62622"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#faaf17;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="138.18462"
+       y="247.28987"
        id="text4658"><tspan
          sodipodi:role="line"
          id="tspan4656"
-         x="138.71916"
-         y="248.62622"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.39999962px;font-family:FreeSans;-inkscape-font-specification:FreeSans;stroke-width:0.26458332;fill:#faaf17;fill-opacity:1;">K</tspan></text>
+         x="138.18462"
+         y="247.28987"
+         style="font-style:normal;font-variant:normal;font-weight:800;font-stretch:normal;font-size:25.39999962px;font-family:AXIS;-inkscape-font-specification:'AXIS, Ultra-Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#faaf17;fill-opacity:1;stroke-width:0.26458332">K</tspan></text>
   </g>
 </svg>
