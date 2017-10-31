@@ -2,25 +2,7 @@
 ---
 
 @import "{{ site.theme }}";
-header {
-    background-color: #225;
-}
-h1.header {
-    font-family:Helvetica,Arial,'DejaVu Sans','Liberation Sans',Freesans,sans-serif;
-}
-code {
-    background-color: #fec;
-}
-.highlight {
-    background-color: #fec;
-}
-table {
-    border: 1px solid #000;
-    background-color: #ccc;
-}
-th {
-    background-color: #225;
-}
-td {
-    background-color: #ffc;
+.page-header {
+   background-image: linear-gradient(-90deg, #FF00A1, #F6FF00);
+   background-color: #FF00A1;
 }

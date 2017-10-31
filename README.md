@@ -1,6 +1,11 @@
-![mockk](doc/logo.png)
+![mockk](doc/logo-s.png) ![kotlin](doc/kotlin-logo.png)
 
-[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk) 
+[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Vresion](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
+
+Table of contents:
+
+* auto-gen TOC:
+{:toc}
 
 ## Nice features
 
@@ -90,7 +95,7 @@ All others are existing for convenience and should be used at your own risk.
 </tr>
 </table>
 
-## DSL
+## DSL examples
 
 Simplest example:
 
@@ -106,7 +111,7 @@ Simplest example:
 
   ```
 
-## Partial argument matching
+### Partial argument matching
 
 You can skip parameters while specifying matchers.
 MockK runs your block few times, builds so called signature and
@@ -128,7 +133,7 @@ auto-detects places where matchers appear:
 
   ```
 
-## Chained calls
+### Chained calls
 
 Mock can have child mocks. This allows to mock chains of calls:
 
