@@ -5,6 +5,7 @@ plugins {
 }
 apply plugin: "kotlin"
 
+startScripts.enabled = false
 
 dependencies {
     agent project(path: ":mockk-agent", configuration: "shadow")
