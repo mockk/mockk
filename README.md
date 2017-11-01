@@ -101,7 +101,7 @@ Configure maven surefire plugin:
 See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
 </td>
 </tr><tr>
-<td><img src="doc/java.png" alt="plain JVM" height="18"/></td>
+<td><img src="doc/java.png" alt="plain JVM" height="36"/></td>
 <td>
 Add JVM parameter to launch agent:
 
