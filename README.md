@@ -28,13 +28,13 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/gradle.png" height="18"/></td>
+<td><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
 <td>
     <pre>testCompile "io.mockk:mockk:1.1"</pre>
     </td>
 </tr>
 <tr>
-<td><img src="doc/maven.png" height="18"/></td>
+<td><img src="doc/maven.png" alt="Maven" height="18"/></td>
 <td>
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
@@ -51,7 +51,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/junit4.png" height="18"/>4</td>
+<td><img src="doc/junit4.png" alt="JUnit4" height="18"/>4</td>
 <td>
 Use annotation for each test:
 
@@ -62,7 +62,7 @@ Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
 If neither is specified the default JUnit runner is used.
 </td>
 </tr><tr>
-<td><img src="doc/junit5.png" height="18"/></td>
+<td><img src="doc/junit5.png" alt="JUnit5" height="18"/></td>
 <td>
 
 JUnit5 tests should work auto-magically.
@@ -80,7 +80,7 @@ To disable class modification just create empty file resource 'io/mockk/junit/mo
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/gradle.png" height="18"/></td>
+<td><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
 <td>
 Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
 
@@ -90,7 +90,7 @@ Use following agent:
 
 </td>
 </tr><tr>
-<td><img src="doc/maven.png" height="18"/></td>
+<td><img src="doc/maven.png" alt="Maven" height="18"/></td>
 <td>
 Add <code>dependency:properties</code> plugin.
 
