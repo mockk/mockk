@@ -51,7 +51,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td class="nowrap"><img src="doc/junit4.png" alt="JUnit4" height="18"/></td>
+<td><img src="doc/junit4.png" alt="JUnit4" height="18"/></td>
 <td>
 Use annotation for each test:
 
@@ -101,7 +101,7 @@ Configure maven surefire plugin:
 See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
 </td>
 </tr><tr>
-<td>plain JVM</td>
+<td><img src="doc/java.png" alt="plain JVM" height="18"/></td>
 <td>
 Add JVM parameter to launch agent:
 
