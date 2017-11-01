@@ -51,7 +51,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td>JUnit4</td>
+<td><img src="doc/junit4.png" height="18"/></td>
 <td>
 Use annotation for each test:
 
@@ -62,7 +62,7 @@ Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
 If neither is specified the default JUnit runner is used.
 </td>
 </tr><tr>
-<td>JUnit5</td>
+<td><img src="doc/junit5.png" height="18"/></td>
 <td>
 JUnit5 tests should work auto-magically.
 
