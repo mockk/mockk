@@ -4,8 +4,9 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 - [ ] running methods: TestNG
 - [ ] Kotlin Javascript
-- [ ] rename childAs to nextReturnType(KClass)
+- [ ] rename childAs to hint(KClass)
 - [ ] captureSuspendLambda()
+- [ ] callLambda matcher
 - [ ] logging "mock<CLS>#1"
 - [ ] CONTRIBUTE
 - [ ] CHANGELOG
