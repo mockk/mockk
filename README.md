@@ -93,7 +93,7 @@ Use following agent:
 </tr><tr>
 <td>Maven</td>
 <td>
-Configure dependency:properties plugin run.
+Add <code>dependency:properties</code> plugin.
 
 Configure maven surefire plugin:
 
@@ -106,7 +106,7 @@ See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/p
 <td>
 Add JVM parameter to launch agent:
 
-<code>-javaagent:-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.1/mockk-agent-1.1.jar</code>
+<code>-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.1/mockk-agent-1.1.jar</code>
 </td>
 </tr>
 </table>
