@@ -26,6 +26,7 @@ There is three installation steps.
 #### 1. Add dependency
 
 <table>
+<thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
     <td>Gradle</td>
     <td>
@@ -48,6 +49,7 @@ There is three installation steps.
 #### 2. Add class modification via annotation
 
 <table>
+<thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
 <td>JUnit4</td>
 <td>
@@ -69,7 +71,7 @@ Note: this implementation is totally a hack.
 <tr>
 <td>Disable</td>
 <td>
-Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on classpath
+Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on a classpath
 </td>
 </tr>
 </table>
@@ -77,7 +79,7 @@ Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on classp
 #### 3. Add class modification via agent (optional)
 
 <table>
-<tr><th>Method</th><th>Instruction</th></tr>
+<thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
 <td>Gradle</td>
 <td>
