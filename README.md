@@ -21,9 +21,10 @@ Table of contents:
 
 ## Installation
 
-There is two installation steps.
+There is three installation steps.
 
-First you need to add dependency to the library itself.
+#### 1. Add dependency
+
 <table>
 <tr>
     <th>Gradle</th><th>Maven</th>
@@ -32,22 +33,46 @@ First you need to add dependency to the library itself.
     <td>
     <pre>testCompile "io.mockk:mockk:1.0"</pre>
     </td><td>
-    <pre>
-    &lt;dependency&gt;
-        &lt;groupId&gt;io.mockk&lt;/groupId&gt;
-        &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-        &lt;version&gt;1.0&lt;/version&gt;
-        &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;</pre>
+<pre>&lt;dependency&gt;
+    &lt;groupId&gt;io.mockk&lt;/groupId&gt;
+    &lt;artifactId&gt;mockk&lt;/artifactId&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;</pre>
     </td>
 </tr>
 </table>
 
-Second you need to add class transformation agent.
-This agent is required to remove final modifier from running classes.
-There is few ways to add Java Agent/Class Loader.
-Only running as a Java Agent is an officially supported way.
-All others are existing for convenience and should be used at your own risk.
+#### 2. Add annotation
+
+<table>
+<tr>
+<td>JUnit4</td>
+<td>
+    Use annotation for each test:
+    <pre>@RunWith(MockKJUnit4Runner::class)</pre>
+
+    Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
+
+    If neither is specified default JUnit runner is used.
+</td>
+</tr><tr>
+<td>JUnit5</td>
+<td>
+    JUnit5 tests should work auto-magically.
+    Note: this implementation is totally a hack.
+</td>
+<td>
+</td>
+<td>Disable</td>
+<td>
+    Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on classpath
+</td>
+</tr>
+</table>
+
+#### 3. Add agent to your JVM launch (optional)
+
 <table>
 <tr><th>Method</th><th>Instruction</th></tr>
 <tr>
@@ -60,7 +85,6 @@ All others are existing for convenience and should be used at your own risk.
 </tr><tr>
 <td>Java Agent maven</td>
 <td>
-    Add dependency to mockk-agent.
     Configure dependency:properties plugin run.
     Configure maven surefire plugin:
     <pre>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</pre>
@@ -70,27 +94,7 @@ All others are existing for convenience and should be used at your own risk.
 <td>Java Agent JVM</td>
 <td>
     Add JVM parameter to launch agent:
-    <pre>-javaagent:libs/mockk-agent-1.0.jar</pre>
-</td>
-</tr><tr>
-<td>JUnit4</td>
-<td>
-    Add this dependency to your project:
-    <pre>testCompile "io.mockk:mockk-agent:1.0"</pre>
-    Use annotation for each test:
-    <pre>@RunWith(MockKJUnit4Runner::class)</pre>
-    If @RunWith is specified on superclass then it will be used to run after class loader is set.
-    So you can specify next runner doing the real running job.
-    Use @ChainedRunWith to override such delegated runner.
-    If neither is specified default JUnit runner is used.
-</td>
-</tr><tr>
-<td>JUnit5</td>
-<td>
-    Just add this dependency to your project:
-    <pre>testCompile "io.mockk:mockk-agent:1.0"</pre>
-    JUnit5 test will be hooked via TestExecutionListener.
-    Note: this implementation is totally a hack.
+    <pre>-javaagent:-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.0/mockk-agent-1.0.jar</pre>
 </td>
 </tr>
 </table>
