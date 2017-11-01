@@ -51,8 +51,7 @@ There is three installation steps.
 <tr>
 <td>JUnit4</td>
 <td>
-Use annotation for each test:
-<code>@RunWith(MockKJUnit4Runner::class) </code>
+Use annotation for each test: <code>@RunWith(MockKJUnit4Runner::class) </code>
 
 Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
 
@@ -80,19 +79,21 @@ Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on classp
 <tr>
 <td>Gradle</td>
 <td>
-1. Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
-2. Use following agent:
+Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
 
-   <code>agent "io.mockk:mockk-agent:1.1"</code>
+Use following agent:
+
+<code>agent "io.mockk:mockk-agent:1.1"</code>
 
 </td>
 </tr><tr>
 <td>Maven</td>
 <td>
-1. Configure dependency:properties plugin run.
-2. Configure maven surefire plugin:
+Configure dependency:properties plugin run.
 
-   <code>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</code>
+Configure maven surefire plugin:
+
+<code>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</code>
 
 See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
 </td>
