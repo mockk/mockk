@@ -28,7 +28,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
+<td width="100"><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
 <td>
     <pre>testCompile "io.mockk:mockk:1.1"</pre>
     </td>
@@ -51,7 +51,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/junit4.png" alt="JUnit4" height="22"/></td>
+<td width="100"><img src="doc/junit4.png" alt="JUnit4" height="22"/></td>
 <td>
 Use annotation for each test:
 
@@ -80,7 +80,7 @@ To disable class modification just create empty file resource 'io/mockk/junit/mo
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
+<td width="100"><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
 <td>
 Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
 
