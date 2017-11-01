@@ -55,6 +55,7 @@ There is three installation steps.
     <code>
         @RunWith(MockKJUnit4Runner::class)
     </code>
+
     Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
     If neither is specified the default JUnit runner is used.
 </td>
