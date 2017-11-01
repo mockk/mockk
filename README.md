@@ -27,12 +27,14 @@ There is three installation steps.
 
 <table>
 <tr>
-    <th>Gradle</th><th>Maven</th>
-</tr>
-<tr>
+    <td>Gradle</td>
     <td>
     <pre>testCompile "io.mockk:mockk:1.1"</pre>
-    </td><td>
+    </td>
+</tr>
+<tr>
+    <td>Maven</td>
+    <td>
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
@@ -53,9 +55,7 @@ There is three installation steps.
     <code>
         @RunWith(MockKJUnit4Runner::class)
     </code>
-
     Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
-
     If neither is specified the default JUnit runner is used.
 </td>
 </tr><tr>
@@ -77,14 +77,14 @@ There is three installation steps.
 <table>
 <tr><th>Method</th><th>Instruction</th></tr>
 <tr>
-<td>Java Agent gradle</td>
+<td>Gradle</td>
 <td>
 	Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
     Use following agent:
     <code>agent "io.mockk:mockk-agent:1.1"</code>
 </td>
 </tr><tr>
-<td>Java Agent maven</td>
+<td>Maven</td>
 <td>
     Configure dependency:properties plugin run.
     Configure maven surefire plugin:
@@ -92,7 +92,7 @@ There is three installation steps.
     See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
 </td>
 </tr><tr>
-<td>Java Agent JVM</td>
+<td>plain JVM</td>
 <td>
     Add JVM parameter to launch agent:
     <pre>-javaagent:-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.1/mockk-agent-1.1.jar</pre>
