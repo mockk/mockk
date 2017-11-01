@@ -1,47 +1,11 @@
+Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
+
 # Backlog
 
-- [x] removing final, no-args-consrtuctor byte code transformation
-- [x] matcher signature
-- [x] arguments: firstArg, secondArg, thirdArg, lastArg
-- [x] capturing: captureNullable(lst) .captured() extension
-- [x] verifyOrder { }, verifySequence { }
-- [x] slot.invoke(arg1, arg2, ... lastArg) for lambdas
-- [x] coroutines support
-- [x] stub(returnsMany, throws)
-- [x] clearMocks(answers, calls, mocks)
-- [x] verify(atLeast, atMost, nCalls)
-- [x] rename methods not to clash other mocking frameworks
-- [x] matchers: refEq, more, less, and, or, not, null(), nonNull(), any(isNull=true, ofType=Any)
-- [x] arrays support
-- [x] deep array equality matching
-- [x] child mock chained calls
-- [x] don't display "creating mock" in logs for "fake mocks"
-- [x] add some comments
-- [x] PR
-- [x] nulls
-- [x] ***MILESTONE1***
-- [x] fixing spies
-- [x] spyk copy
-- [x] relax gateway companion object
-- [x] Java 9 support
-- [x] split to separate files
-- [x] Java 6 compatibility
-- [x] running methods: agent, JUnit4, JUnit5
-- [x] Android
-- [x] objenesis
-- [x] register on Maven OSSRH
-- [x] better docs
-- [ ] habr article
-- [ ] QA on docs before release
-- [ ] ***MILESTONE2 - maven release***
-- [ ] Kotlin popular in Germany, Japan, India, USA and Brasil
 - [ ] running methods: TestNG
-- [ ] documentation: matchers table
-- [ ] documentation: answers table
-- [ ] documentation: runners table
 - [ ] logging "mock<CLS>#1"
-- [ ] build agent, coverage ci
-- [ ] contributing wiki, forum/group/chat
+- [ ] CONTRIBUTE
+- [ ] CHANGELOG
 - [ ] IntelliJ javadoc experience
 - [ ] annotation mocking
 - [ ] static methods
