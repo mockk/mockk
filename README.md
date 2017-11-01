@@ -72,8 +72,8 @@ Note: this implementation is totally a hack.
 To disable class modification just create empty file resource 'io/mockk/junit/mockk-classloading-disabled.txt' on a classpath.
 
 </td>
+</tr>
 </table>
-
 
 #### 3. Add class modification via agent (optional)
 
