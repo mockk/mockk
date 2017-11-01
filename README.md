@@ -28,13 +28,13 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/gradle.png" height="15"/></td>
+<td><img src="doc/gradle.png" height="18"/></td>
 <td>
     <pre>testCompile "io.mockk:mockk:1.1"</pre>
     </td>
 </tr>
 <tr>
-<td><img src="doc/maven.png" height="15"/></td>
+<td><img src="doc/maven.png" height="18"/></td>
 <td>
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
@@ -81,7 +81,7 @@ Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on a clas
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/gradle.png" height="15"/></td>
+<td><img src="doc/gradle.png" height="18"/></td>
 <td>
 Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
 
@@ -91,7 +91,7 @@ Use following agent:
 
 </td>
 </tr><tr>
-<td><img src="doc/maven.png" height="15"/></td>
+<td><img src="doc/maven.png" height="18"/></td>
 <td>
 Add <code>dependency:properties</code> plugin.
 
