@@ -51,7 +51,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td><img src="doc/junit4.png" alt="JUnit4" height="18"/>4</td>
+<td><span style="white-space:nowrap"><img src="doc/junit4.png" alt="JUnit4" height="18"/>4</span></td>
 <td>
 Use annotation for each test:
 
