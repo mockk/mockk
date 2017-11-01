@@ -31,30 +31,30 @@ There is three installation steps.
 </tr>
 <tr>
     <td>
-    <pre>testCompile "io.mockk:mockk:1.0"</pre>
+    <pre>testCompile "io.mockk:mockk:1.1"</pre>
     </td><td>
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.0&lt;/version&gt;
+    &lt;version&gt;1.1&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
 </tr>
 </table>
 
-#### 2. Add annotation
+#### 2. Add class modification via annotation
 
 <table>
 <tr>
 <td>JUnit4</td>
 <td>
     Use annotation for each test:
-    <pre>@RunWith(MockKJUnit4Runner::class)</pre>
+    <code>@RunWith(MockKJUnit4Runner::class)</code>
 
     Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
 
-    If neither is specified default JUnit runner is used.
+    If neither is specified the default JUnit runner is used.
 </td>
 </tr><tr>
 <td>JUnit5</td>
@@ -70,7 +70,7 @@ There is three installation steps.
 </tr>
 </table>
 
-#### 3. Add agent to your JVM launch (optional)
+#### 3. Add class modification via agent (optional)
 
 <table>
 <tr><th>Method</th><th>Instruction</th></tr>
@@ -79,7 +79,7 @@ There is three installation steps.
 <td>
 	Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
     Use following agent:
-    <pre>agent "io.mockk:mockk-agent:1.0"</pre>
+    <code>agent "io.mockk:mockk-agent:1.1"</code>
 </td>
 </tr><tr>
 <td>Java Agent maven</td>
@@ -87,13 +87,13 @@ There is three installation steps.
     Configure dependency:properties plugin run.
     Configure maven surefire plugin:
     <pre>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</pre>
-    See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/pom.xml">here</a>
+    See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
 </td>
 </tr><tr>
 <td>Java Agent JVM</td>
 <td>
     Add JVM parameter to launch agent:
-    <pre>-javaagent:-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.0/mockk-agent-1.0.jar</pre>
+    <pre>-javaagent:-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.1/mockk-agent-1.1.jar</pre>
 </td>
 </tr>
 </table>
