@@ -66,15 +66,12 @@ If neither is specified the default JUnit runner is used.
 <td>
 JUnit5 tests should work auto-magically.
 
+Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on a classpath to disable class modification
+
 Note: this implementation is totally a hack.
 </td>
-<tr>
-<td>Disable</td>
-<td>
-Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on a classpath
-</td>
-</tr>
 </table>
+
 
 #### 3. Add class modification via agent (optional)
 
