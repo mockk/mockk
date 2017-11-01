@@ -50,7 +50,9 @@ There is three installation steps.
 <td>JUnit4</td>
 <td>
     Use annotation for each test:
-    <code>@RunWith(MockKJUnit4Runner::class)</code>
+    <code>
+        @RunWith(MockKJUnit4Runner::class)
+    </code>
 
     Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
 
