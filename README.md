@@ -9,7 +9,7 @@ Table of contents:
 
 ## Nice features
 
- - removing finals (via Java Agent)
+ - removing finals (via runtime class modification)
  - pure kotlin mocking DSL
  - partial arguments matchers
  - chained calls / deep stubs
