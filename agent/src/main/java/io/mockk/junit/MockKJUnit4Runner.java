@@ -24,11 +24,8 @@ public class MockKJUnit4Runner extends Runner {
     private final Runner runner;
 
     public MockKJUnit4Runner(Class<?> cls) throws Exception {
-        if (!MockKAgent.running) {
-            System.out.println("Agent is not running");
+        if (!MockKAgent.running && MockKClassLoadingSwitch.ON) {
             cls = changeClassLoader(cls);
-        } else {
-            System.out.println("Agent is running");
         }
 
         Class<?> runnerClass = findChainedRunner(cls);

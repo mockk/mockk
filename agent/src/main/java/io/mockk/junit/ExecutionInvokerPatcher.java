@@ -21,7 +21,7 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
     private static final ClassLoader CLASS_LOADER = MockKClassLoader.newClassLoader(ExecutionInvokerPatcher.class.getClassLoader());
 
     static {
-        if (!MockKAgent.running) {
+        if (!MockKAgent.running && MockKClassLoadingSwitch.ON) {
             try {
                 patch();
             } catch (Throwable ex) {
@@ -67,9 +67,8 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
         try {
             hackedEICls = Class.forName("io.mockk.junit.HackedExecutableInvoker");
         } catch (ClassNotFoundException ex) {
-            CtClass hackedEI = pool.makeClass("io.mockk.junit.HackedExecutableInvoker");
-
-            hackedEI.setSuperclass(pool.get("org.junit.jupiter.engine.execution.ExecutableInvoker"));
+            CtClass hackedEI = pool.makeClass("io.mockk.junit.HackedExecutableInvoker",
+                    pool.get("org.junit.jupiter.engine.execution.ExecutableInvoker"));
 
             hackedEI.addMethod(CtNewMethod.make("public Object invoke(" +
                     CONSTRUCTOR_CLASS + " constructor, " +
