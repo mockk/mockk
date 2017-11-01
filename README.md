@@ -104,9 +104,9 @@ See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/p
 <td><img src="doc/java.png" alt="plain JVM" height="36"/></td>
 <td>
 
-Add JVM parameter to launch agent:
+Add JVM parameter to launch agent(remove spaces):
 
-<input type="text" value="-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.1/mockk-agent-1.1.jar" />
+<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.1/ mockk-agent-1.1.jar</code>
 
 </td>
 </tr>
