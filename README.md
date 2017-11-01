@@ -51,24 +51,24 @@ There is three installation steps.
 <tr>
 <td>JUnit4</td>
 <td>
-    Use annotation for each test:
-    <code>
-        @RunWith(MockKJUnit4Runner::class)
-    </code>
+Use annotation for each test:
+<code>@RunWith(MockKJUnit4Runner::class) </code>
 
 Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
+
 If neither is specified the default JUnit runner is used.
 </td>
 </tr><tr>
 <td>JUnit5</td>
 <td>
-    JUnit5 tests should work auto-magically.
-    Note: this implementation is totally a hack.
+JUnit5 tests should work auto-magically.
+
+Note: this implementation is totally a hack.
 </td>
 <tr>
 <td>Disable</td>
 <td>
-    Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on classpath
+Create empty resource 'io/mockk/junit/mockk-classloading-disabled.txt' on classpath
 </td>
 </tr>
 </table>
@@ -80,23 +80,28 @@ If neither is specified the default JUnit runner is used.
 <tr>
 <td>Gradle</td>
 <td>
-	Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
-    Use following agent:
-    <code>agent "io.mockk:mockk-agent:1.1"</code>
+1. Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
+2. Use following agent:
+
+   <code>agent "io.mockk:mockk-agent:1.1"</code>
+
 </td>
 </tr><tr>
 <td>Maven</td>
 <td>
-    Configure dependency:properties plugin run.
-    Configure maven surefire plugin:
-    <pre>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</pre>
-    See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
+1. Configure dependency:properties plugin run.
+2. Configure maven surefire plugin:
+
+   <code>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</code>
+
+See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
 </td>
 </tr><tr>
 <td>plain JVM</td>
 <td>
-    Add JVM parameter to launch agent:
-    <pre>-javaagent:-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.1/mockk-agent-1.1.jar</pre>
+Add JVM parameter to launch agent:
+
+<code>-javaagent:-javaagent:${HOME}/.m2/repository/io/mockk/mockk-agent/1.1/mockk-agent-1.1.jar</code>
 </td>
 </tr>
 </table>
