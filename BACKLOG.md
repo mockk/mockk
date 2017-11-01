@@ -3,6 +3,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 # Backlog
 
 - [ ] running methods: TestNG
+- [ ] Kotlin Javascript
 - [ ] logging "mock<CLS>#1"
 - [ ] CONTRIBUTE
 - [ ] CHANGELOG
