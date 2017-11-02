@@ -436,7 +436,8 @@ Few special matchers available in verification mode only:
 |`throws ex`|specify that matched call throws an exception|
 |`answers { code }`|specify that matched call answers with lambda in answer scope|
 |`answers answerObj`|specify that matched call answers with Answer object|
-|`just Runs`|specify that matched call is returning Unit / returns null|
+|`answers { nothing }`|specify that matched call answers null|
+|`just Runs`|specify that matched call is returning Unit (returns null)|
 
 ### Answer scope
 
