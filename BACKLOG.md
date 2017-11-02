@@ -20,9 +20,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [ ] extension function
 - [ ] mock: extraInterfaces, mock name
 - [ ] better human readable exceptions
-- [ ] performance optimization: HashableMatcher
-- [ ] performance optimization: ProxyCache
-- [ ] performance optimization: Method mapping
+- [ ] performance optimization: doesn't create class per instance
 - [ ] check nanoTime is OK (otherwise counter)
 - [ ] other JVMs
 - [ ] PowerMock : Remove final modifier from a class, enum, static methods, methods and inner classes
