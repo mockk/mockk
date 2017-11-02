@@ -405,6 +405,7 @@ By default simple arguments are matched using `eq()`
 |`capture(mutableList)`|captures a value to a list|
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda(lambdaClass)`|captures lambda expression(allowed one per call)|
+|`hint(cls)`|hints next return type in case it's get erased|
 
 ### Validators
 
