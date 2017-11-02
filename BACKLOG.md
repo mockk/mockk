@@ -10,6 +10,8 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [ ] no last child mock
 - [ ] returnsNothing / possibility not specify return value
 - [ ] junit only runs all class
+- [ ] verify should put try finally to finish verification
+- [ ] every should finish stubbing on exception
 - [ ] assert, capture matcher (for verification)
 - [ ] logging "mock<CLS>#1"
 - [ ] message "Failed to find few matchers by signature" should be "Failed matching mocking signature for method ___ : matcher1, matcher2"
