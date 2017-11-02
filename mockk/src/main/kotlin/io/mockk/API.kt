@@ -237,6 +237,7 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
     infix fun answers(answer: MockKAnswerScope.(Call) -> T?) =
             answers(FunctionAnswer({ MockKAnswerScope(gw, lambda, it).answer(it) }))
 
+    @Suppress("UNUSED_PARAMETER")
     infix fun just(runs: Runs) = returns(null)
 }
 

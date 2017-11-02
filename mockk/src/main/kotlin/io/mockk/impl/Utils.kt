@@ -43,3 +43,15 @@ internal fun <T> threadLocalOf(init: () -> T): ThreadLocal<T> {
         override fun initialValue(): T = init.invoke()
     }
 }
+
+internal fun <K, V> MutableMap<K, V>.java6ComputeIfAbsent(key: K, valueFunc: (K) -> V): V {
+    val value = get(key)
+    return if (value == null) {
+        val newValue = valueFunc(key)
+        put(key, newValue)
+        newValue
+    } else {
+        value
+    }
+}
+

@@ -32,9 +32,9 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
         log.trace { "Building proxy for $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
 
         val signature = ProxyClassSignature(cls, setOf(MockKInstance::class.java))
-        val proxyCls = proxyClasses.computeIfAbsent(signature, {
+        val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
             ProxyFactoryExt(it).buildProxy(cls)
-        })
+        }
 
         return if (useDefaultConstructor)
             proxyCls.newInstance()
@@ -47,7 +47,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
         log.trace { "Building empty instance $cls" }
         val signature = ProxyClassSignature(cls, setOf())
 
-        val proxyCls = proxyClasses.computeIfAbsent(signature, {
+        val proxyCls = proxyClasses.java6ComputeIfAbsent(signature, {
             ProxyFactoryExt(it).buildProxy(cls)
         })
         val instance = newEmptyInstance(proxyCls)
@@ -89,7 +89,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
     }
 
     private fun newEmptyInstance(proxyCls: Class<*>): Any {
-        val instantiator = instantiators.computeIfAbsent(proxyCls) { cls ->
+        val instantiator = instantiators.java6ComputeIfAbsent(proxyCls) { cls ->
             objenesis.getInstantiatorOf(cls)
         }
         return instantiator.newInstance()

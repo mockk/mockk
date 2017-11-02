@@ -6,9 +6,12 @@ import javassist.util.proxy.ProxyObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
 
 
 internal interface MockKInstance : MockK {
+    val ___id: Long
+
     fun ___type(): Class<*>
 
     fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
@@ -33,6 +36,8 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
     private val answers = Collections.synchronizedList(mutableListOf<InvocationAnswer>())
     private val childs = Collections.synchronizedMap(hashMapOf<InvocationMatcher, MockKInstance>())
     private val recordedCalls = Collections.synchronizedList(mutableListOf<Invocation>())
+
+    override val ___id: Long = MockKInstanceProxyHandler.newId()
 
     override fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         answers.add(InvocationAnswer(matcher, answer))
@@ -89,7 +94,7 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
 
     override fun ___type(): Class<*> = cls
 
-    override fun toString() = "mockk<" + ___type().simpleName + ">()"
+    override fun toString() = "mockk<${___type().simpleName}>()#$___id"
 
     override fun equals(other: Any?): Boolean {
         return obj === other
@@ -100,15 +105,9 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
     }
 
     override fun ___childMockK(call: Call): MockKInstance {
-        // computeIfAbsence Java6 downgrade
         return synchronized(childs) {
-            val child = childs.get(call.matcher)
-            if (child == null) {
-                val newChild = MockKGateway.LOCATOR().mockk(call.retType) as MockKInstance
-                childs.put(call.matcher, newChild)
-                newChild
-            } else {
-                child
+            childs.java6ComputeIfAbsent(call.matcher) {
+                MockKGateway.LOCATOR().mockk(call.retType) as MockKInstance
             }
         }
     }
@@ -149,6 +148,12 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
         if (childMocks) {
             this.childs.clear()
         }
+    }
+
+    companion object {
+        val idCounter = AtomicLong()
+
+        fun newId(): Long = idCounter.incrementAndGet()
     }
 }
 
