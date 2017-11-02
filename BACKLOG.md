@@ -2,18 +2,6 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 # Backlog
 
-- [x] rename childAs to hint(KClass)
-- [x] returnsNothing / possibility not specify return value
-- [x] performance optimization: doesn't create class per instance
-- [x] junit only runs all class
-- [x] verify should put try finally to finish verification
-- [x] every should finish stubbing on exception
-- [x] callLambda()
-- [x] assert, any matcher (for verification)
-- [x] logging "mock<CLS>#1"
-- [x] check Java 6 again
-- [x] message "Failed to find few matchers by signature" should be "Failed matching mocking signature for method ___ : matcher1, matcher2"
-- [ ] MILESTONE: v1.3
 - [ ] running methods: TestNG
 - [ ] Kotlin Javascript
 - [ ] CONTRIBUTE
