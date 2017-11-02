@@ -165,8 +165,8 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
     inline fun <reified T> allAny(): T = match(AllAnyMatcher(0))
 
     @Suppress("NOTHING_TO_INLINE")
-    inline fun <R, T> R.hint(cls: Class<T>, n: Int = 1): R {
-        MockKGateway.LOCATOR().callRecorder.childType(cls, n)
+    inline fun <R, T : Any> R.hint(cls: KClass<T>, n: Int = 1): R {
+        MockKGateway.LOCATOR().callRecorder.childType(cls.java, n)
         return this
     }
 

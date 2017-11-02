@@ -4,6 +4,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 - [x] rename childAs to hint(KClass)
 - [x] returnsNothing / possibility not specify return value
+- [x] performance optimization: doesn't create class per instance
 - [ ] junit only runs all class
 - [ ] callLambda matcher
 - [ ] captureSuspendLambda()
@@ -13,7 +14,6 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [ ] assert, capture matcher (for verification)
 - [ ] logging "mock<CLS>#1"
 - [ ] message "Failed to find few matchers by signature" should be "Failed matching mocking signature for method ___ : matcher1, matcher2"
-- [ ] performance optimization: doesn't create class per instance
 - [ ] MILESTONE: v1.3
 - [ ] running methods: TestNG
 - [ ] Kotlin Javascript

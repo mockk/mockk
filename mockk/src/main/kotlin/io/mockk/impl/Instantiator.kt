@@ -22,6 +22,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
     private val objenesis = ObjenesisStd()
 
     private val instantiators = mutableMapOf<Class<*>, ObjectInstantiator<*>>()
+    private val proxyClasses = mutableMapOf<ProxyClassSignature, Class<*>>()
 
     private val rnd = Random()
 //    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)
@@ -30,9 +31,10 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
     override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
         log.trace { "Building proxy for $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
 
-        val pf = ProxyFactoryExt(cls, MockKInstance::class.java)
-
-        val proxyCls = buildProxy(pf, cls)
+        val signature = ProxyClassSignature(cls, setOf(MockKInstance::class.java))
+        val proxyCls = proxyClasses.computeIfAbsent(signature, {
+            ProxyFactoryExt(it).buildProxy(cls)
+        })
 
         return if (useDefaultConstructor)
             proxyCls.newInstance()
@@ -43,16 +45,19 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
 
     override fun <T> instantiate(cls: Class<T>): T {
         log.trace { "Building empty instance $cls" }
-        val pf = ProxyFactoryExt(cls)
-        val proxyCls = buildProxy(pf, cls)
+        val signature = ProxyClassSignature(cls, setOf())
+
+        val proxyCls = proxyClasses.computeIfAbsent(signature, {
+            ProxyFactoryExt(it).buildProxy(cls)
+        })
         val instance = newEmptyInstance(proxyCls)
         (instance as ProxyObject).handler = EqualsAndHashCodeHandler()
         return cls.cast(instance)
     }
 
-    private fun <T> buildProxy(pf: ProxyFactoryExt, cls: Class<T>): Class<*> {
+    private fun <T> ProxyFactoryExt.buildProxy(cls: Class<T>): Class<*> {
         return try {
-            val classFile = pf.buildClassFile()
+            val classFile = buildClassFile()
 
             val proxyClass = cp.makeClass(classFile)
 
@@ -206,15 +211,18 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
     }
 }
 
-internal class ProxyFactoryExt(cls: Class<*>, vararg additionalInterfaces: Class<*>) : ProxyFactory() {
+data class ProxyClassSignature(val superclass: Class<*>,
+                               val interfaces: Set<Class<*>>)
+
+internal class ProxyFactoryExt(signature: ProxyClassSignature) : ProxyFactory() {
     init {
-        if (cls.isInterface) {
-            val interfaceList = additionalInterfaces.toMutableList()
-            interfaceList.add(cls)
+        if (signature.superclass.isInterface) {
+            val interfaceList = signature.interfaces.toMutableList()
+            interfaceList.add(signature.superclass)
             interfaces = interfaceList.toTypedArray()
         } else {
-            superclass = cls
-            interfaces = additionalInterfaces
+            superclass = signature.superclass
+            interfaces = signature.interfaces.toTypedArray()
         }
     }
 
