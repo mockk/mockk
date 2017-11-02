@@ -287,7 +287,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.2635107"
-     inkscape:cx="329.46167"
+     inkscape:cx="258.679"
      inkscape:cy="240.71254"
      inkscape:document-units="mm"
      inkscape:current-layer="g1901"
@@ -477,7 +477,7 @@
          id="rect338" />
       <rect
          clip-path="url(#clipPath1921)"
-         style="fill:url(#linearGradient1905);fill-opacity:1;fill-rule:nonzero;stroke-width:0.511967"
+         style="fill:url(#linearGradient1905);fill-opacity:1.0;fill-rule:nonzero;stroke-width:0.511967"
          y="209.55728"
          x="48.605289"
          height="29.33976"
