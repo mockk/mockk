@@ -34,7 +34,7 @@ There is three installation steps.
     </td>
 </tr>
 <tr>
-<td><img src="doc/maven.png" alt="Maven" height="18"/></td>
+<td><img src="doc/maven.png" alt="Maven"/></td>
 <td>
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
