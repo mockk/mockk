@@ -6,12 +6,11 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [x] returnsNothing / possibility not specify return value
 - [x] performance optimization: doesn't create class per instance
 - [x] junit only runs all class
-- [ ] callLambda matcher
-- [ ] captureSuspendLambda()
+- [x] verify should put try finally to finish verification
+- [x] every should finish stubbing on exception
+- [x] callLambda()
+- [x] assert, any matcher (for verification)
 - [ ] no last child mock
-- [ ] verify should put try finally to finish verification
-- [ ] every should finish stubbing on exception
-- [ ] assert, capture matcher (for verification)
 - [ ] logging "mock<CLS>#1"
 - [ ] message "Failed to find few matchers by signature" should be "Failed matching mocking signature for method ___ : matcher1, matcher2"
 - [ ] MILESTONE: v1.3

@@ -4,6 +4,7 @@ import io.mockk.*
 import io.mockk.external.logger
 import javassist.util.proxy.ProxyObject
 import kotlinx.coroutines.experimental.runBlocking
+import java.lang.AssertionError
 
 
 internal class MockKGatewayImpl : MockKGateway {
@@ -54,22 +55,25 @@ internal class MockKGatewayImpl : MockKGateway {
         }
     }
 
-    override fun <T> every(mockBlock: (MockKScope.() -> T)?,
-                           coMockBlock: (suspend MockKScope.() -> T)?): MockKStubScope<T> {
+    override fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
+                           coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T> {
         callRecorder.startStubbing()
         val lambda = slot<Function<*>>()
-        val scope = MockKScope(this, lambda)
+        val scope = MockKMatcherScope(this, lambda)
         try {
             record(scope, mockBlock, coMockBlock)
         } catch (ex: NoClassDefFoundError) {
             throw prettifyCoroutinesException(ex)
+        } catch (ex: Exception) {
+            callRecorder.cancel()
+            throw ex
         }
         return MockKStubScope(this, lambda)
     }
 
     override fun <T> verify(ordering: Ordering, inverse: Boolean, atLeast: Int, atMost: Int, exactly: Int,
-                            mockBlock: (MockKScope.() -> T)?,
-                            coMockBlock: (suspend MockKScope.() -> T)?) {
+                            mockBlock: (MockKVerificationScope.() -> T)?,
+                            coMockBlock: (suspend MockKVerificationScope.() -> T)?) {
         if (ordering != Ordering.UNORDERED) {
             if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
                 throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
@@ -81,20 +85,33 @@ internal class MockKGatewayImpl : MockKGateway {
         callRecorder.startVerification()
 
         val lambda = slot<Function<*>>()
-        val scope = MockKScope(gw, lambda)
+        val scope = MockKVerificationScope(gw, lambda)
 
         try {
             record(scope, mockBlock, coMockBlock)
         } catch (ex: NoClassDefFoundError) {
+            callRecorder.cancel()
             throw prettifyCoroutinesException(ex)
+        } catch (ex: Exception) {
+            callRecorder.cancel()
+            throw ex
         }
 
-        callRecorder.verify(ordering, inverse,
-                if (exactly != -1) exactly else atLeast,
-                if (exactly != -1) exactly else atMost)
+        try {
+            callRecorder.verify(ordering, inverse,
+                    if (exactly != -1) exactly else atLeast,
+                    if (exactly != -1) exactly else atMost)
+        } catch (err: AssertionError) {
+            throw err
+        } catch (ex: Exception) {
+            callRecorder.cancel()
+            throw ex
+        }
     }
 
-    private fun <T> record(scope: MockKScope, mockBlock: (MockKScope.() -> T)?, coMockBlock: (suspend MockKScope.() -> T)?) {
+    private fun <T, S : MockKMatcherScope> record(scope: S,
+                                                  mockBlock: (S.() -> T)?,
+                                                  coMockBlock: (suspend S.() -> T)?) {
         if (mockBlock != null) {
             val n = N_CALL_ROUNDS
             repeat(n) {

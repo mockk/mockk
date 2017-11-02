@@ -15,16 +15,16 @@ interface MockKGateway {
 
     fun <T> spyk(cls: Class<T>, objToCopy: T?): T
 
-    fun <T> every(mockBlock: (MockKScope.() -> T)?,
-                  coMockBlock: (suspend MockKScope.() -> T)?): MockKStubScope<T>
+    fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
+                  coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T>
 
     fun <T> verify(ordering: Ordering,
                    inverse: Boolean,
                    atLeast: Int,
                    atMost: Int,
                    exactly: Int,
-                   mockBlock: (MockKScope.() -> T)?,
-                   coMockBlock: (suspend MockKScope.() -> T)?)
+                   mockBlock: (MockKVerificationScope.() -> T)?,
+                   coMockBlock: (suspend MockKVerificationScope.() -> T)?)
 
     companion object {
         internal val defaultImpl: MockKGateway = MockKGatewayImpl()
@@ -53,6 +53,8 @@ interface CallRecorder {
     fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int)
 
     fun childType(cls: Class<*>, n: Int)
+
+    fun cancel()
 }
 
 /**

@@ -405,7 +405,15 @@ By default simple arguments are matched using `eq()`
 |`capture(mutableList)`|captures a value to a list|
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda(lambdaClass)`|captures lambda expression(allowed one per call)|
+|`invoke(args)`|calls matched lambda|
 |`hint(cls)`|hints next return type in case it's got erased|
+
+Few special matchers available in verification mode only:
+
+|Matcher|Description|
+|-------|-----------|
+|`any { code }`|matches any argument and allows to execute some code|
+|`assert { predicate }`|matches any argument, checks if assertions is true|
 
 ### Validators
 

@@ -251,7 +251,7 @@ class MockKTestSuite : StringSpec({
         verify { spy.manyArgsOp(d = 10, c = 12) }
         verify { spy.manyArgsOp(d = 11, c = 12) }
         verify { spy.manyArgsOp(d = 11, c = 12) }
-        verify { spy.lambdaOp(1, any()) }
+        verify { spy.lambdaOp(1, assert { it?.invoke() == 3 }) }
     }.config(enabled = true)
 
     "verify, verifyOrder, verifySequence" {

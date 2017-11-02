@@ -31,14 +31,19 @@ inline fun <reified T> spyk(objToCopy: T? = null): T = MockKGateway.LOCATOR().sp
 inline fun <reified T> slot() = CapturingSlot<T>()
 
 /**
+ * Creates new lambda args
+ */
+fun args(vararg v: Any?) = LambdaArgs(*v)
+
+/**
  * Starts a block of stubbing. Part of DSL.
  */
-fun <T> every(stubBlock: MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock, null)
+fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock, null)
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
  */
-fun <T> coEvery(stubBlock: suspend MockKScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(null, stubBlock)
+fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(null, stubBlock)
 
 /**
  * Verification orderding
@@ -66,7 +71,7 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                atLeast: Int = 1,
                atMost: Int = Int.MAX_VALUE,
                exactly: Int = -1,
-               verifyBlock: MockKScope.() -> T) {
+               verifyBlock: MockKVerificationScope.() -> T) {
     MockKGateway.LOCATOR().verify(
             ordering,
             inverse,
@@ -85,7 +90,7 @@ fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
                  atLeast: Int = 1,
                  atMost: Int = Int.MAX_VALUE,
                  exactly: Int = -1,
-                 verifyBlock: suspend MockKScope.() -> T) {
+                 verifyBlock: suspend MockKVerificationScope.() -> T) {
     MockKGateway.LOCATOR().verify(
             ordering,
             inverse,
@@ -100,7 +105,7 @@ fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
  * Shortcut for ordered calls verification
  */
 fun <T> verifyOrder(inverse: Boolean = false,
-                    verifyBlock: MockKScope.() -> T) {
+                    verifyBlock: MockKVerificationScope.() -> T) {
     verify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
 }
 
@@ -108,7 +113,7 @@ fun <T> verifyOrder(inverse: Boolean = false,
  * Shortcut for sequence calls verification
  */
 fun <T> verifySequence(inverse: Boolean = false,
-                       verifyBlock: MockKScope.() -> T) {
+                       verifyBlock: MockKVerificationScope.() -> T) {
     verify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
 }
 
@@ -124,7 +129,7 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
 }
 
 /**
- * Stubbing/verification scope. Part of DSL.
+ * Basic stub/verification scope. Part of DSL.
  *
  * Inside of the scope you can interact with mocks.
  * You can chain calls to the mock, put argument matchers instead of arguments,
@@ -139,8 +144,8 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
  *
  * Provided information is gathered and associated with mock
  */
-class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
-                 val lambda: CapturingSlot<Function<*>>) {
+open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
+                             val lambda: CapturingSlot<Function<*>>) {
 
     inline fun <reified T> match(matcher: Matcher<T>): T {
         return gw.callRecorder.matcher(matcher, T::class.java)
@@ -161,6 +166,10 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
     inline fun <reified T> not(value: T) = match(NotMatcher(value))
     inline fun <reified T> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T, R : T> ofType(cls: Class<R>) = match(TypeMatcher<T>(cls))
+    inline fun <reified T : Function<*>> invoke(args: LambdaArgs) = match<T> {
+        args.invoke<Any?>(it as Function<*>)
+        true
+    }
 
     inline fun <reified T> allAny(): T = match(AllAnyMatcher(0))
 
@@ -184,6 +193,28 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
     }
 }
 
+/**
+ * Part of DSL. Additional operations for verification scope.
+ */
+class MockKVerificationScope(gw: MockKGateway,
+                             lambda: CapturingSlot<Function<*>>) : MockKMatcherScope(gw, lambda) {
+    inline fun <reified T> assert(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match {
+        if (!assertion(it)) {
+            throw AssertionError("Verification matcher assertion failed" +
+                    (if (msg == null) ": $msg" else ""))
+        }
+        true
+    }
+
+    inline fun <reified T> any(noinline captureBlock: (T?) -> Boolean): T = match {
+        captureBlock(it)
+        true
+    }
+}
+
+/**
+ * Part of DSL. Object to represent phrase "just Runs"
+ */
 object Runs
 
 /**
@@ -248,36 +279,44 @@ class MockKAnswerScope(private val gw: MockKGateway,
  * If this values is lambda then it's possible to invoke it.
  */
 data class CapturingSlot<T>(var captured: T? = null) {
-    @Suppress("UNCHECKED_CAST")
     operator inline fun <reified R> invoke(vararg args: Any?): R? {
+        return LambdaArgs(*args).invoke<R>(captured!! as Function<*>)
+    }
+}
+
+class LambdaArgs(vararg val args: Any?) {
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified R> invoke(function: Function<*>): R? {
         return when (args.size) {
-            0 -> (captured as Function0<R?>).invoke()
-            1 -> (captured as Function1<Any?, R?>).invoke(args[0])
-            2 -> (captured as Function2<Any?, Any?, R?>).invoke(args[0], args[1])
-            3 -> (captured as Function3<Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2])
-            4 -> (captured as Function4<Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3])
-            5 -> (captured as Function5<Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4])
-            6 -> (captured as Function6<Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5])
-            7 -> (captured as Function7<Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
-            8 -> (captured as Function8<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
-            9 -> (captured as Function9<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8])
-            10 -> (captured as Function10<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9])
-            11 -> (captured as Function11<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10])
-            12 -> (captured as Function12<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11])
-            13 -> (captured as Function13<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12])
-            14 -> (captured as Function14<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13])
-            15 -> (captured as Function15<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14])
-            16 -> (captured as Function16<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15])
-            17 -> (captured as Function17<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16])
-            18 -> (captured as Function18<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17])
-            19 -> (captured as Function19<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18])
-            20 -> (captured as Function20<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19])
-            21 -> (captured as Function21<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20])
-            22 -> (captured as Function22<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21])
+            0 -> (function as Function0<R?>).invoke()
+            1 -> (function as Function1<Any?, R?>).invoke(args[0])
+            2 -> (function as Function2<Any?, Any?, R?>).invoke(args[0], args[1])
+            3 -> (function as Function3<Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2])
+            4 -> (function as Function4<Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3])
+            5 -> (function as Function5<Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4])
+            6 -> (function as Function6<Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5])
+            7 -> (function as Function7<Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
+            8 -> (function as Function8<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
+            9 -> (function as Function9<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8])
+            10 -> (function as Function10<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9])
+            11 -> (function as Function11<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10])
+            12 -> (function as Function12<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11])
+            13 -> (function as Function13<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12])
+            14 -> (function as Function14<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13])
+            15 -> (function as Function15<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14])
+            16 -> (function as Function16<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15])
+            17 -> (function as Function17<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16])
+            18 -> (function as Function18<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17])
+            19 -> (function as Function19<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18])
+            20 -> (function as Function20<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19])
+            21 -> (function as Function21<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20])
+            22 -> (function as Function22<Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, Any?, R?>).invoke(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21])
             else -> throw MockKException("too much arguments")
         }
     }
+
 }
+
 
 /**
  * Checks if argument is matching some criteria

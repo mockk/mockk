@@ -190,6 +190,18 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         }
     }
 
+    override fun cancel() {
+        signedCalls.clear()
+        callRounds.clear()
+        calls.clear()
+        childMocks.clear()
+        childTypes.clear()
+        matchers.clear()
+        signatures.clear()
+
+        mode = Mode.ANSWERING
+    }
+
     private fun nextChildType(defaultReturnType: () -> Class<*>): Class<*> {
         val type = childTypes[1]
 
