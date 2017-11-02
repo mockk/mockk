@@ -2,9 +2,6 @@
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/oleksiyp/mockk/releases) [![codecov](https://codecov.io/gh/oleksiyp/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/oleksiyp/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
 
-
-
-
 Table of contents:
 
 * auto-gen TOC:
@@ -31,7 +28,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td width="100"><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
+<td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
     <pre>testCompile "io.mockk:mockk:1.1"</pre>
     </td>
@@ -54,7 +51,7 @@ There is three installation steps.
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td width="100"><img src="doc/junit4.png" alt="JUnit4" height="22"/></td>
+<td width="100"><img src="doc/junit4.png" alt="JUnit4"/></td>
 <td>
 Use annotation for each test:
 
@@ -65,7 +62,7 @@ Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
 If neither is specified the default JUnit runner is used.
 </td>
 </tr><tr>
-<td><img src="doc/junit5.png" alt="JUnit5" height="22"/></td>
+<td><img src="doc/junit5.png" alt="JUnit5"/></td>
 <td>
 
 JUnit5 tests should work auto-magically.
@@ -83,7 +80,7 @@ To disable class modification just create empty file resource 'io/mockk/junit/mo
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
-<td width="100"><img src="doc/gradle.png" alt="Gradle" height="18"/></td>
+<td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
 Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
 
@@ -93,7 +90,7 @@ Use following agent:
 
 </td>
 </tr><tr>
-<td><img src="doc/maven.png" alt="Maven" height="18"/></td>
+<td><img src="doc/maven.png" alt="Maven"/></td>
 <td>
 Add <code>dependency:properties</code> plugin.
 
@@ -104,7 +101,7 @@ Configure maven surefire plugin:
 See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
 </td>
 </tr><tr>
-<td><img src="doc/java.png" alt="plain JVM" height="36"/></td>
+<td><img src="doc/java.png" alt="plain JVM"/></td>
 <td>
 
 Add JVM parameter to launch agent(remove spaces):
