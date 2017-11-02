@@ -5,6 +5,9 @@ import io.mockk.agent.MockKClassLoader;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
+import org.junit.runner.manipulation.Filter;
+import org.junit.runner.manipulation.Filterable;
+import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
 
@@ -20,7 +23,7 @@ import java.lang.reflect.Constructor;
  * <li>JUnit4 default runner</li>
  * </ul>
  */
-public class MockKJUnit4Runner extends Runner {
+public class MockKJUnit4Runner extends Runner implements Filterable {
     private final Runner runner;
 
     public MockKJUnit4Runner(Class<?> cls) throws Exception {
@@ -79,5 +82,12 @@ public class MockKJUnit4Runner extends Runner {
     @Override
     public void run(RunNotifier notifier) {
         runner.run(notifier);
+    }
+
+    @Override
+    public void filter(Filter filter) throws NoTestsRemainException {
+        if (runner instanceof Filterable) {
+            ((Filterable) runner).filter(filter);
+        }
     }
 }

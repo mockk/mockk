@@ -5,7 +5,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [x] rename childAs to hint(KClass)
 - [x] returnsNothing / possibility not specify return value
 - [x] performance optimization: doesn't create class per instance
-- [ ] junit only runs all class
+- [x] junit only runs all class
 - [ ] callLambda matcher
 - [ ] captureSuspendLambda()
 - [ ] no last child mock
