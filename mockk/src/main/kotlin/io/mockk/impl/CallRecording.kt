@@ -305,7 +305,7 @@ private class SignatureMatcherDetector {
             }
 
             if (matcherMap.isNotEmpty()) {
-                throw MockKException("Failed to find few matchers by signature: $matcherMap")
+                throw MockKException("Failed matching mocking signature for ${zeroCall.invocation}: ${matcherMap.values}")
             }
 
             val im = InvocationMatcher(

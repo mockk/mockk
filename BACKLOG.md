@@ -12,7 +12,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [x] assert, any matcher (for verification)
 - [x] logging "mock<CLS>#1"
 - [x] check Java 6 again
-- [ ] message "Failed to find few matchers by signature" should be "Failed matching mocking signature for method ___ : matcher1, matcher2"
+- [x] message "Failed to find few matchers by signature" should be "Failed matching mocking signature for method ___ : matcher1, matcher2"
 - [ ] MILESTONE: v1.3
 - [ ] running methods: TestNG
 - [ ] Kotlin Javascript
