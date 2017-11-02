@@ -184,6 +184,8 @@ class MockKScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
     }
 }
 
+object Runs
+
 /**
  * Stub scope. Part of DSL
  *
@@ -203,6 +205,8 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
 
     infix fun answers(answer: MockKAnswerScope.(Call) -> T?) =
             answers(FunctionAnswer({ MockKAnswerScope(gw, lambda, it).answer(it) }))
+
+    infix fun just(runs: Runs) = returns(null)
 }
 
 /**

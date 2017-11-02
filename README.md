@@ -427,6 +427,8 @@ By default simple arguments are matched using `eq()`
 |`returnsMany list`|specify that matched call returns value from the list, returning each time next element|
 |`throws ex`|specify that matched call throws an exception|
 |`answers { code }`|specify that matched call answers with lambda in answer scope|
+|`answers answerObj`|specify that matched call answers with Answer object|
+|`just Runs`|specify that matched call is returning Unit / returns null|
 
 ### Answer scope
 

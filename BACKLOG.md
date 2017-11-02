@@ -2,12 +2,12 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 # Backlog
 
+- [x] rename childAs to hint(KClass)
+- [x] returnsNothing / possibility not specify return value
 - [ ] junit only runs all class
-- [ ] rename childAs to hint(KClass)
 - [ ] callLambda matcher
 - [ ] captureSuspendLambda()
 - [ ] no last child mock
-- [ ] returnsNothing / possibility not specify return value
 - [ ] verify should put try finally to finish verification
 - [ ] every should finish stubbing on exception
 - [ ] assert, capture matcher (for verification)
