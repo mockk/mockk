@@ -8,7 +8,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [ ] captureSuspendLambda()
 - [ ] callLambda matcher
 - [ ] no last child mock
-- [ ] returnsNothing
+- [ ] returnsNothing / possibility not specify return value
 - [ ] junit only runs all calss
 - [ ] logging "mock<CLS>#1"
 - [ ] CONTRIBUTE
