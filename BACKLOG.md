@@ -2,19 +2,21 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 # Backlog
 
-- [ ] running methods: TestNG
-- [ ] Kotlin Javascript
+- [ ] junit only runs all class
 - [ ] rename childAs to hint(KClass)
-- [ ] captureSuspendLambda()
 - [ ] callLambda matcher
+- [ ] captureSuspendLambda()
 - [ ] no last child mock
 - [ ] returnsNothing / possibility not specify return value
-- [ ] junit only runs all class
 - [ ] verify should put try finally to finish verification
 - [ ] every should finish stubbing on exception
 - [ ] assert, capture matcher (for verification)
 - [ ] logging "mock<CLS>#1"
 - [ ] message "Failed to find few matchers by signature" should be "Failed matching mocking signature for method ___ : matcher1, matcher2"
+- [ ] performance optimization: doesn't create class per instance
+- [ ] MILESTONE: v1.3
+- [ ] running methods: TestNG
+- [ ] Kotlin Javascript
 - [ ] CONTRIBUTE
 - [ ] CHANGELOG
 - [ ] IntelliJ javadoc experience
@@ -23,7 +25,6 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [ ] extension function
 - [ ] mock: extraInterfaces, mock name
 - [ ] better human readable exceptions
-- [ ] performance optimization: doesn't create class per instance
 - [ ] check nanoTime is OK (otherwise counter)
 - [ ] other JVMs
 - [ ] PowerMock : Remove final modifier from a class, enum, static methods, methods and inner classes
