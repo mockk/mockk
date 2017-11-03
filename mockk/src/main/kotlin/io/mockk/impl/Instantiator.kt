@@ -12,6 +12,7 @@ import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.*
 
 internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Instantiator {
@@ -45,6 +46,20 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
 
     override fun <T> instantiate(cls: Class<T>): T {
         log.trace { "Building empty instance $cls" }
+
+        val ret = if (!Modifier.isFinal(cls.modifiers)) {
+            try {
+                instantiateViaProxy(cls)
+            } catch (ex: Exception) {
+                newEmptyInstance(cls)
+            }
+        } else {
+            newEmptyInstance(cls)
+        }
+        return cls.cast(ret)
+    }
+
+    private fun instantiateViaProxy(cls: Class<*>): Any {
         val signature = ProxyClassSignature(cls, setOf())
 
         val proxyCls = proxyClasses.java6ComputeIfAbsent(signature, {
@@ -52,7 +67,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
         })
         val instance = newEmptyInstance(proxyCls)
         (instance as ProxyObject).handler = EqualsAndHashCodeHandler()
-        return cls.cast(instance)
+        return instance
     }
 
     private fun <T> ProxyFactoryExt.buildProxy(cls: Class<T>): Class<*> {
