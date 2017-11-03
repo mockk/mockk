@@ -201,7 +201,7 @@ class MockKVerificationScope(gw: MockKGateway,
     inline fun <reified T> assert(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match {
         if (!assertion(it)) {
             throw AssertionError("Verification matcher assertion failed" +
-                    (if (msg == null) ": $msg" else ""))
+                    (if (msg != null) ": $msg" else ""))
         }
         true
     }
