@@ -2,6 +2,7 @@
 - [ ] better human readable exceptions (see below)
 - [ ] proxy id only for external mocks
 - [ ] mock: extraInterfaces, mock name
+- [ ] captured lateinit var
 - [ ] IntelliJ javadoc experience
 - [ ] Runner + JaCoCo
 - [ ] running methods: TestNG
