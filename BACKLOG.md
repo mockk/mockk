@@ -1,8 +1,7 @@
 Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 # Backlog
-- [ ] HttpStatusCode cannot be cast to PostThoughtToken (matcher casting)
-- [ ] better human readable exceptions
+- [ ] better human readable exceptions (see below)
 - [ ] mock: extraInterfaces, mock name
 - [ ] IntelliJ javadoc experience
 - [ ] Runner + JaCoCo
@@ -15,6 +14,24 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [ ] extension function
 - [ ] other JVMs
 - [ ] Kotlin Javascript
+
+## Tasks
+
+### Human readable exceptions
+
+1. Hint hinting
+```
+java.lang.ClassCastException: javassist.util.proxy.java_lang_Object_$$_jvst935_10 cannot be cast to org.jetbrains.ktor.util.ValuesMap
+
+	at org.jetbrains.demo.thinkter.RegisterKtTest$testPostRegisterOk$1$1.invoke(RegisterKtTest.kt:51)
+	at org.jetbrains.demo.thinkter.RegisterKtTest$testPostRegisterOk$1$1.invoke(RegisterKtTest.kt:20)
+	at io.mockk.impl.MockKGatewayImpl.record(Gateway.kt:119)
+	at io.mockk.impl.MockKGatewayImpl.every(Gateway.kt:64)
+```
+2. Casting matcher
+```
+    HttpStatusCode cannot be cast to PostThoughtToken (matcher casting)
+```
 
 ## Just for reference
 
