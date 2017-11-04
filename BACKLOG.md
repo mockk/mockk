@@ -1,7 +1,6 @@
-Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
-
 # Backlog
 - [ ] better human readable exceptions (see below)
+- [ ] proxy id only for external mocks
 - [ ] mock: extraInterfaces, mock name
 - [ ] IntelliJ javadoc experience
 - [ ] Runner + JaCoCo
@@ -32,6 +31,12 @@ java.lang.ClassCastException: javassist.util.proxy.java_lang_Object_$$_jvst935_1
 ```
     HttpStatusCode cannot be cast to PostThoughtToken (matcher casting)
 ```
+3. Reporting whole chains of calls
+4. Reporting matching calls for method/mockk
+
+## Geo
+
+Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 ## Just for reference
 
