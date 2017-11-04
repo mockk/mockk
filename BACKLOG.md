@@ -8,7 +8,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - [ ] Runner + JaCoCo
 - [ ] running methods: TestNG
 - [ ] documentation coEvery/coVerify/coAny
-- [ ] *** MILESTONE 1.3 ***
+- [ ] **MILESTONE 1.3**
 - [ ] CONTRIBUTE
 - [ ] annotation mocking
 - [ ] static methods
