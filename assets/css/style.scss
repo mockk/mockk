@@ -7,6 +7,15 @@
    background-color: #f38b1c;
 }
 
+.project-name a:link, .project-name a:visited {
+    color: white;
+}
+
+.project-name a:hover, .project-name a:active {
+    color: white;
+    text-decoration: none;
+}
+
 .nowrap {
    white-space:nowrap;
 }
