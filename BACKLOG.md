@@ -2,18 +2,18 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 # Backlog
 - [ ] HttpStatusCode cannot be cast to PostThoughtToken (matcher casting)
-- [ ] running methods: TestNG
-- [ ] Kotlin Javascript
-- [ ] CONTRIBUTE
-- [ ] CHANGELOG
+- [ ] better human readable exceptions
+- [ ] mock: extraInterfaces, mock name
 - [ ] IntelliJ javadoc experience
+- [ ] Runner + JaCoCo
+- [ ] running methods: TestNG
+- [ ] MILESTONE 1.3
+- [ ] CONTRIBUTE
 - [ ] annotation mocking
 - [ ] static methods
 - [ ] extension function
-- [ ] mock: extraInterfaces, mock name
-- [ ] better human readable exceptions
-- [ ] check nanoTime is OK (otherwise counter)
 - [ ] other JVMs
+- [ ] Kotlin Javascript
 - [ ] PowerMock : Remove final modifier from a class, enum, static methods, methods and inner classes
 - [ ] PowerMock : Remove final modifier from
 - [ ] PowerMock : Make all constructor public

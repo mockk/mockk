@@ -2,6 +2,7 @@ package io.mockk
 
 import io.mockk.impl.MockKInstance
 import io.mockk.impl.toStr
+import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
@@ -165,7 +166,7 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
     inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
     inline fun <reified T> not(value: T) = match(NotMatcher(value))
     inline fun <reified T> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
-    inline fun <reified T, R : T> ofType(cls: Class<R>) = match(TypeMatcher<T>(cls))
+    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(TypeMatcher<T>(cls.java))
     inline fun <reified T : Function<*>> invoke(args: LambdaArgs) = match<T> {
         args.invoke<Any?>(it as Function<*>)
         true
@@ -206,9 +207,15 @@ class MockKVerificationScope(gw: MockKGateway,
         true
     }
 
-    inline fun <reified T> any(noinline captureBlock: (T?) -> Boolean): T = match {
+    inline fun <reified T> any(noinline captureBlock: (T?) -> Unit): T = match {
         captureBlock(it)
         true
+    }
+
+    inline fun <reified T> coAny(noinline captureBlock: suspend (T?) -> Unit): T = any {
+        runBlocking {
+            captureBlock(it)
+        }
     }
 }
 

@@ -81,7 +81,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
         } catch (ex: RuntimeException) {
             if (ex.message?.endsWith("is final") ?: false) {
                 throw MockKException("Failed to create proxy for $cls. Class is final. " +
-                        "You need MockK Java agent to make all classes 'open'")
+                        "Put @MockKJUnit4Runner on your test or add MockK Java Agent instrumentation to make all classes 'open'")
             }
             throw ex
         }

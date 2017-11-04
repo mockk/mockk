@@ -18,7 +18,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     private val log = logger<CallRecorderImpl>()
 
     private enum class Mode {
-        STUBBING, VERIFYING, ANSWERING
+        STUBBING, STUBBING_WAITING_ANSWER, VERIFYING, ANSWERING
     }
 
     private var mode = Mode.ANSWERING
@@ -29,11 +29,14 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     private val childMocks = mutableListOf<Ref>()
     private var childTypes = mutableMapOf<Int, Class<*>>()
 
-    val matchers = mutableListOf<Matcher<*>>()
-    val signatures = mutableListOf<Any>()
+    private val matchers = mutableListOf<Matcher<*>>()
+    private val signatures = mutableListOf<Any>()
 
     private fun checkMode(vararg modes: Mode) {
         if (!modes.any { it == mode }) {
+            if (mode == Mode.STUBBING_WAITING_ANSWER) {
+                throw MockKException("Bad recording sequence. Finish every/coEvery with returns/answers/throws/just Runs")
+            }
             throw MockKException("Bad recording sequence. Mode: $mode")
         }
     }
@@ -63,6 +66,9 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             signMatchers()
             mockRealChilds()
             callRounds.clear()
+            if (mode == Mode.STUBBING) {
+                mode = Mode.STUBBING_WAITING_ANSWER
+            }
         }
     }
 
@@ -145,7 +151,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     }
 
     override fun answer(answer: Answer<*>) {
-        checkMode(Mode.STUBBING)
+        checkMode(Mode.STUBBING_WAITING_ANSWER)
 
         for ((idx, ic) in calls.withIndex()) {
             val lastCall = idx == calls.size - 1

@@ -54,7 +54,8 @@ jacocoTestReport {
                     'io/mockk/MockK**Scope**.class'
             ])
         })
-    }}
+    }
+}
 
 check.dependsOn jacocoTestReport
 

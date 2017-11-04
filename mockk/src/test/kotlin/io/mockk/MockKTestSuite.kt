@@ -351,7 +351,7 @@ class MockKTestSuite : StringSpec({
         every { mock.otherOp(a = IntWrapper(7), b = isNull()) } returns 13
         every { mock.otherOp(a = IntWrapper(8), b = isNull(true)) } returns 14
 
-        every { mock.otherOp(a = IntWrapper(9), b = ofType(IntWrapper::class.java)) } returns 15
+        every { mock.otherOp(a = IntWrapper(9), b = ofType(IntWrapper::class)) } returns 15
 
         assertEquals(1, mock.otherOp(a, b))
         assertEquals(0, mock.otherOp(IntWrapper(3), IntWrapper(4)))
