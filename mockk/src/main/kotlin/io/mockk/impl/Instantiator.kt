@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.*
+import kotlin.reflect.KClass
 
 internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
@@ -32,10 +33,11 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     private val rnd = Random()
 
     @Suppress("DEPRECATION")
-    override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
+    override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any {
         log.trace { "Building proxy for $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
 
-        val signature = ProxyClassSignature(cls, setOf(MockKInstance::class.java))
+        val interfaces = setOf(MockKInstance::class.java, *moreInterfaces.map { it.java }.toTypedArray())
+        val signature = ProxyClassSignature(cls, interfaces)
         val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
             ProxyFactoryExt(it).buildProxy(cls)
         }

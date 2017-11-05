@@ -42,14 +42,14 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     }
 
     override fun startStubbing() {
-        log.debug { "Starting stubbing" }
+        log.trace { "Starting stubbing" }
         checkMode(Mode.ANSWERING)
         mode = Mode.STUBBING
         childMocks.clear()
     }
 
     override fun startVerification() {
-        log.debug { "Starting verification" }
+        log.trace { "Starting verification" }
         checkMode(Mode.ANSWERING)
         mode = Mode.VERIFYING
         childMocks.clear()
@@ -95,7 +95,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         if (mode == Mode.ANSWERING) {
             invocation.self().___recordCall(invocation)
             val answer = invocation.self().___answer(invocation)
-            log.debug { "Recorded call: $invocation, answer: $answer" }
+            log.debug { "Recorded call: $invocation, answer: ${answer.toStr()}" }
             return answer
         } else {
             return addCallWithMatchers(invocation)
@@ -115,8 +115,8 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
 
         val instantiator = MockKGateway.LOCATOR().instantiator
         return instantiator.anyValue(retType) {
-            val child = instantiator.proxy(retType, false) as MockK
-            (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, -1, child)
+            val child = instantiator.proxy(retType, false, moreInterfaces = arrayOf()) as MockK
+            (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, "temporary mock", child)
             childMocks.add(Ref(child))
             child
         }
@@ -231,7 +231,7 @@ private class SignatureMatcherDetector {
             val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
             val zeroCall = callInAllRounds[0]
 
-            log.debug { "Processing call #$callN: ${zeroCall.invocation.method.toStr()}" }
+            log.trace { "Processing call #$callN: ${zeroCall.invocation.method.toStr()}" }
 
             repeat(zeroCall.matchers.size) { nMatcher ->
                 val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()
@@ -303,7 +303,7 @@ private class SignatureMatcherDetector {
                     zeroCall.invocation.self,
                     zeroCall.invocation.method,
                     argMatchers.toList() as List<Matcher<Any>>)
-            log.debug { "Built matcher: $im" }
+            log.trace { "Built matcher: $im" }
             calls.add(Call(zeroCall.retType,
                     zeroCall.invocation, im,
                     childMocks.contains(Ref(zeroCall.invocation.self))))

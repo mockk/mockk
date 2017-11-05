@@ -9,7 +9,7 @@ interface Wrapper
 
 @RunWith(MockKJUnit4Runner::class)
 class MockKTestSuite : StringSpec({
-    val mock = mockk<MockCls>()
+    val mock = mockk<MockCls>("mock")
     val spy = spyk<MockCls>()
     "partly argument matching" {
         every { mock.manyArgsOp(allAny()) } returns 0.0
@@ -80,35 +80,35 @@ class MockKTestSuite : StringSpec({
     }.config(enabled = true)
 
     "chained calls" {
-        every { mock.chainOp(1, 2).otherOp(3, 4) } returns 1
-        every { mock.chainOp(5, 6).otherOp(7, 8) } returns 2
-        every { mock.chainOp(9, 10).otherOp(11, 12) } returns 3
+        every { mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4) } returns 1
+        every { mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8) } returns 2
+        every { mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12) } returns 3
 
-        assertEquals(1, mock.chainOp(1, 2).otherOp(3, 4))
-        assertEquals(2, mock.chainOp(5, 6).otherOp(7, 8))
-        assertEquals(3, mock.chainOp(9, 10).otherOp(11, 12))
+        assertEquals(1, mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4))
+        assertEquals(2, mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8))
+        assertEquals(3, mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12))
 
         verify {
-            mock.chainOp(1, 2).otherOp(3, 4)
-            mock.chainOp(9, 10).otherOp(11, 12)
-            mock.chainOp(5, 6).otherOp(7, 8)
+            mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4)
+            mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
+            mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
         }
         verifyOrder {
-            mock.chainOp(1, 2).otherOp(3, 4)
-            mock.chainOp(5, 6).otherOp(7, 8)
+            mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4)
+            mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
         }
         verifyOrder {
-            mock.chainOp(1, 2).otherOp(3, 4)
-            mock.chainOp(9, 10).otherOp(11, 12)
+            mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4)
+            mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
         }
         verifyOrder {
-            mock.chainOp(5, 6).otherOp(7, 8)
-            mock.chainOp(9, 10).otherOp(11, 12)
+            mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
+            mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
         }
         verifySequence {
-            mock.chainOp(1, 2).otherOp(3, 4)
-            mock.chainOp(5, 6).otherOp(7, 8)
-            mock.chainOp(9, 10).otherOp(11, 12)
+            mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4)
+            mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
+            mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
         }
     }.config(enabled = true)
 

@@ -4,8 +4,8 @@
 - [+] discover more co...Matcher
 - [+] proxy id only for external mocks
 - [+] instantiation factory
-- [ ] better human readable exceptions (see below)
-- [ ] mock: extraInterfaces, mock name
+- [+] better human readable exceptions (see below)
+- [+] mock: extraInterfaces, mock name
 - [ ] IntelliJ javadoc experience
 - [ ] Runner + JaCoCo
 - [ ] running methods: TestNG

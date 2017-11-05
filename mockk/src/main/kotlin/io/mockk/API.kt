@@ -20,12 +20,12 @@ class MockKException(message: String, ex: Throwable? = null) : RuntimeException(
 /**
  * Builds a new mock for specified class
  */
-inline fun <reified T> mockk(): T = MockKGateway.LOCATOR().mockFactory.mockk(T::class.java)
+inline fun <reified T> mockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.LOCATOR().mockFactory.mockk(T::class.java, name, moreInterfaces)
 
 /**
  * Builds a new spy for specified class. Copies fields from object if provided
  */
-inline fun <reified T> spyk(objToCopy: T? = null): T = MockKGateway.LOCATOR().mockFactory.spyk(T::class.java, objToCopy)
+inline fun <reified T> spyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.LOCATOR().mockFactory.spyk(T::class.java, objToCopy, name, moreInterfaces)
 
 /**
  * Creates new capturing slot
@@ -460,7 +460,7 @@ data class Invocation(val self: MockK,
                       val args: List<Any?>,
                       val timestamp: Long = System.nanoTime()) {
     override fun toString(): String {
-        return "Invocation(self=$self, method=${method.toStr()}, args=$args)"
+        return "Invocation(self=$self, method=${method.toStr()}, args=${args.map { it.toStr() }})"
     }
 
     fun withSelf(newSelf: MockK) = Invocation(newSelf, method, superMethod, args, timestamp)

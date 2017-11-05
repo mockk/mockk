@@ -1,6 +1,7 @@
 package io.mockk
 
 import io.mockk.impl.MockKGatewayImpl
+import kotlin.reflect.KClass
 
 /**
  * Mediates mocking implementation
@@ -22,10 +23,10 @@ interface MockKGateway {
             LOCATOR().instantiator.registerFactory(factory)
         }
 
-        fun registerInstanceFactory(cls: Class<*>, factory: () -> Any) {
+        fun registerInstanceFactory(filterClass: Class<*>, factory: () -> Any) {
             registerInstanceFactory(object : InstanceFactory {
-                override fun instantiate(clsToInstantiate: Class<*>): Any? {
-                    if (clsToInstantiate == cls) {
+                override fun instantiate(cls: Class<*>): Any? {
+                    if (filterClass == cls) {
                         return factory()
                     }
                     return null
@@ -39,9 +40,14 @@ interface MockKGateway {
  * Create new mocks or spies
  */
 interface MockFactory {
-    fun <T> mockk(cls: Class<T>): T
+    fun <T> mockk(cls: Class<T>,
+                  name: String?,
+                  moreInterfaces: Array<out KClass<*>>): T
 
-    fun <T> spyk(cls: Class<T>, objToCopy: T?): T
+    fun <T> spyk(cls: Class<T>,
+                 objToCopy: T?,
+                 name: String?,
+                 moreInterfaces: Array<out KClass<*>>): T
 
 }
 
@@ -111,7 +117,7 @@ interface Instantiator {
 
     fun anyValue(cls: Class<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
 
-    fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any
+    fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any
 
     fun <T> signatureValue(cls: Class<T>): T
 

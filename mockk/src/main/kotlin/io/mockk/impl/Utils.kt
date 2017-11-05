@@ -32,6 +32,7 @@ internal fun InvocationTargetException.demangle(): Throwable {
 internal fun Any?.toStr() =
         when (this) {
             null -> "null"
+            is Function<*> -> "lambda {}"
             is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
             else -> toString()
         }

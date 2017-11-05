@@ -9,7 +9,7 @@ import java.util.*
 
 
 internal interface MockKInstance : MockK {
-    val ___id: Long
+    val ___name: String
 
     fun ___type(): Class<*>
 
@@ -29,13 +29,13 @@ internal interface MockKInstance : MockK {
 private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
 internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
-                                              private val id: Long,
+                                              private val name: String,
                                               private val obj: Any) : MethodHandler, MockKInstance {
     private val answers = Collections.synchronizedList(mutableListOf<InvocationAnswer>())
     private val childs = Collections.synchronizedMap(hashMapOf<InvocationMatcher, MockKInstance>())
     private val recordedCalls = Collections.synchronizedList(mutableListOf<Invocation>())
 
-    override val ___id: Long = id
+    override val ___name: String = name
 
     override fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         answers.add(InvocationAnswer(matcher, answer))
@@ -85,7 +85,7 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
 
     override fun ___type(): Class<*> = cls
 
-    override fun toString() = "mockk<${___type().simpleName}>()#$___id"
+    override fun toString() = "mockk<${___type().simpleName}>($___name)"
 
     override fun equals(other: Any?): Boolean {
         return obj === other
@@ -98,8 +98,22 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
     override fun ___childMockK(call: Call): MockKInstance {
         return synchronized(childs) {
             childs.java6ComputeIfAbsent(call.matcher) {
-                MockKGateway.LOCATOR().mockFactory.mockk(call.retType) as MockKInstance
+                MockKGateway.LOCATOR().mockFactory.mockk(
+                        call.retType,
+                        childOfName(___name),
+                        moreInterfaces = arrayOf()) as MockKInstance
             }
+        }
+    }
+
+    private fun childOfName(name: String): String {
+        val result = childOfRegex.matchEntire(name)
+        return if (result != null) {
+            val group = result.groupValues[2]
+            val childN = if (group.isEmpty()) 1 else Integer.parseInt(group)
+            "child^" + (childN + 1) + " of " + result.groupValues[3]
+        } else {
+            "child of " + name
         }
     }
 
@@ -107,6 +121,10 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
                         thisMethod: Method,
                         proceed: Method?,
                         args: Array<out Any?>): Any? {
+
+        if (isFinalizeMethod(thisMethod)) {
+            return null
+        }
 
         findMethodInProxy(this, thisMethod)?.let {
             try {
@@ -120,6 +138,9 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
         val invocation = Invocation(self as MockKInstance, thisMethod, proceed, argList)
         return MockKGateway.LOCATOR().callRecorder.call(invocation)
     }
+
+    private fun isFinalizeMethod(thisMethod: Method) = (thisMethod.name == "finalize"
+            && thisMethod.parameterTypes.size == 0)
 
     private fun findMethodInProxy(obj: Any,
                                   method: Method): Method? {
@@ -151,10 +172,14 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
             this.childs.clear()
         }
     }
+
+    companion object {
+        val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
+    }
 }
 
 
-internal class SpyKInstanceProxyHandler<T>(cls: Class<T>, id: Long, obj: ProxyObject) : MockKInstanceProxyHandler(cls, id, obj) {
+internal class SpyKInstanceProxyHandler<T>(cls: Class<T>, name: String, obj: ProxyObject) : MockKInstanceProxyHandler(cls, name, obj) {
     override fun ___defaultAnswer(invocation: Invocation): Any? {
         if (invocation.superMethod == null) {
             throw MockKException("no super method for: ${invocation.method}")
@@ -162,6 +187,6 @@ internal class SpyKInstanceProxyHandler<T>(cls: Class<T>, id: Long, obj: ProxyOb
         return invocation.superMethod.invoke(invocation.self, *invocation.args.toTypedArray())
     }
 
-    override fun toString(): String = "spyk<" + ___type().simpleName + ">()#$___id"
+    override fun toString(): String = "spyk<" + ___type().simpleName + ">($___name)"
 }
 
