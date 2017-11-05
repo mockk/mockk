@@ -72,6 +72,20 @@ Note: this implementation is totally a hack.
 To disable class modification just create empty file resource 'io/mockk/junit/mockk-classloading-disabled.txt' on a classpath.
 
 </td>
+</tr><tr>
+<td width="100"><img src="doc/testng.png" alt="TestNG"/></td>
+<td>
+Add to your test class:
+
+<code>
+class MockKClassTransformer {
+  @ObjectFactory
+  fun getObjectFactory(): IObjectFactory {
+    return MockKObjectFactory()
+  }
+}
+</code>
+</td>
 </tr>
 </table>
 

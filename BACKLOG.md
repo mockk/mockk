@@ -7,9 +7,9 @@
 - [+] better human readable exceptions (see below)
 - [+] mock: extraInterfaces, mock name
 - [+] running methods: TestNG
-- [ ] Runner + JaCoCo
 - [ ] documentation coEvery/coVerify/coAny
 - [ ] **MILESTONE 1.3**
+- [ ] Runner + JaCoCo
 - [ ] JavaDoc
 - [ ] CONTRIBUTE
 - [ ] annotation mocking
