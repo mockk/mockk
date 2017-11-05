@@ -101,7 +101,7 @@ interface CallVerifier {
 /**
  * Result of verification
  */
-data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
+data class VerificationResult(val matches: Boolean, val message: String? = null)
 
 /**
  * Instantiates empty object for provided class

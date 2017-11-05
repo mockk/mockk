@@ -21,8 +21,6 @@ internal interface MockKInstance : MockK {
 
     fun ___recordCall(invocation: Invocation)
 
-    fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher, min: Int, max: Int): Boolean
-
     fun ___allRecordedCalls(): List<Invocation>
 
     fun ___clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
@@ -77,13 +75,6 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
 
     override fun ___recordCall(invocation: Invocation) {
         recordedCalls.add(invocation)
-    }
-
-    override fun ___matchesAnyRecordedCalls(matcher: InvocationMatcher, min: Int, max: Int): Boolean {
-        synchronized(recordedCalls) {
-            val n = recordedCalls.filter { matcher.match(it) }.count()
-            return n in min..max
-        }
     }
 
     override fun ___allRecordedCalls(): List<Invocation> {

@@ -137,7 +137,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             }
 
             val newInvocation = ic.invocation.withSelf(newSelf!!)
-            val newMatcher = ic.matcher.withSelf(EqMatcher(newSelf, ref = true))
+            val newMatcher = ic.matcher.withSelf(newSelf)
             val newCall = ic.withInvocationAndMatcher(newInvocation, newMatcher)
 
             newCalls.add(newCall)
@@ -300,8 +300,8 @@ private class SignatureMatcherDetector {
             }
 
             val im = InvocationMatcher(
-                    EqMatcher(zeroCall.invocation.self, ref = true),
-                    EqMatcher(zeroCall.invocation.method),
+                    zeroCall.invocation.self,
+                    zeroCall.invocation.method,
                     argMatchers.toList() as List<Matcher<Any>>)
             log.debug { "Built matcher: $im" }
             calls.add(Call(zeroCall.retType,

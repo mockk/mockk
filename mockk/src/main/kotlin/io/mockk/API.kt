@@ -74,6 +74,20 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                atMost: Int = Int.MAX_VALUE,
                exactly: Int = -1,
                verifyBlock: MockKVerificationScope.() -> T) {
+
+    if (exactly < -1) {
+        throw MockKException("exactly should be positive")
+    }
+    if (exactly == -1 && atLeast < 0) {
+        throw MockKException("atLeast should be positive")
+    }
+    if (exactly == -1 && atMost < 0) {
+        throw MockKException("atMost should be positive")
+    }
+    if (atLeast > atMost) {
+        throw MockKException("atLeast should less or equal atMost")
+    }
+
     MockKGateway.LOCATOR().verifier.verify(
             ordering,
             inverse,
@@ -455,14 +469,14 @@ data class Invocation(val self: MockK,
 /**
  * Checks if invocation is matching via number of matchers
  */
-data class InvocationMatcher(val self: Matcher<Any>,
-                             val method: Matcher<Method>,
+data class InvocationMatcher(val self: Any,
+                             val method: Method,
                              val args: List<Matcher<Any>>) {
     fun match(invocation: Invocation): Boolean {
-        if (!self.match(invocation.self)) {
+        if (self !== invocation.self) {
             return false
         }
-        if (!method.match(invocation.method)) {
+        if (method != invocation.method) {
             return false
         }
         if (args.size != invocation.args.size) {
@@ -487,7 +501,13 @@ data class InvocationMatcher(val self: Matcher<Any>,
         return true
     }
 
-    fun withSelf(newSelf: Matcher<Any>) = InvocationMatcher(newSelf, method, args)
+    fun withSelf(newSelf: Any) = InvocationMatcher(newSelf, method, args)
+
+    override fun toString(): String {
+        return "InvocationMatcher(self=$self, method=${method.toStr()}, args=$args)"
+    }
+
+
 }
 
 /**

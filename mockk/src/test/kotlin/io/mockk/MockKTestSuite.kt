@@ -2,8 +2,7 @@ package io.mockk
 
 import io.kotlintest.specs.StringSpec
 import io.mockk.junit.MockKJUnit4Runner
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.runner.RunWith
 
 interface Wrapper
@@ -501,7 +500,112 @@ class MockKTestSuite : StringSpec({
         verify { mock.arrayOp(Array<Any>(3, { it + 1 })) }
         verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })) }
     }.config(enabled = true)
+
+    fun expectVerificationError(vararg messages: String, block: () -> Unit) {
+        try {
+            clearMocks(mock)
+            block()
+            fail("Block should throw verification failure")
+        } catch(ex: AssertionError) {
+            if (messages.any { !ex.message!!.contains(it) }) {
+                fail("Bad message: " + ex.message)
+            }
+        }
+    }
+
+    "verification outcome" {
+        expectVerificationError("Only one matching call to ",
+                "but arguments are not matching") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+
+            verify { mock.otherOp(1, 3) }
+        }
+
+        expectVerificationError("No matching calls found.", "Calls to same method") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 4)
+
+            verify { mock.otherOp(1, 3) }
+        }
+
+        expectVerificationError("No calls for", "Calls to same mock") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+
+            verify { mock.manyArgsOp(true, false) }
+        }
+
+        expectVerificationError("No calls for") {
+            verify { mock.otherOp(1, 2) }
+        }
+
+        expectVerificationError("2 matching calls found, but needs at least 3 calls") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 2)
+
+            verify(atLeast = 3) { mock.otherOp(1, 2) }
+        }
+
+        expectVerificationError("One matching call found, but needs at least 3 calls") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+
+            verify(atLeast = 3) { mock.otherOp(1, 2) }
+        }
+        expectVerificationError("calls are not in verification order") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 3)
+
+            verifyOrder {
+                mock.otherOp(1, 3)
+                mock.otherOp(1, 2)
+            }
+        }
+        expectVerificationError("less calls happened then demanded by order verification sequence") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 3)
+
+            verifyOrder {
+                mock.otherOp(1, 3)
+                mock.otherOp(1, 2)
+            }
+        }
+        expectVerificationError("number of calls happened not matching exact number of verification sequence") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 3)
+
+            verifySequence {
+                mock.otherOp(1, 3)
+                mock.otherOp(1, 2)
+            }
+        }
+        expectVerificationError("calls are not exactly matching verification sequence") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 3)
+
+            verifySequence {
+                mock.otherOp(1, 3)
+                mock.otherOp(1, 2)
+            }
+        }
+    }.config(enabled = true)
+
 })
+
 
 
 data class IntWrapper(val data: Int) : Wrapper

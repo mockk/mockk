@@ -7,7 +7,10 @@ import java.lang.AssertionError
 internal class VerifierImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Verifier {
     private val log = logger<VerifierImpl>()
 
-    override fun <T> verify(ordering: Ordering, inverse: Boolean, atLeast: Int, atMost: Int, exactly: Int,
+    override fun <T> verify(ordering: Ordering, inverse: Boolean,
+                            atLeast: Int,
+                            atMost: Int,
+                            exactly: Int,
                             mockBlock: (MockKVerificationScope.() -> T)?,
                             coMockBlock: (suspend MockKVerificationScope.() -> T)?) {
         if (ordering != Ordering.UNORDERED) {
@@ -34,32 +37,34 @@ internal class VerifierImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Verifier
         }
 
         try {
-            val min = if (exactly != -1) exactly else atLeast
-            val max = if (exactly != -1) exactly else atMost
+            try {
+                val min = if (exactly != -1) exactly else atLeast
+                val max = if (exactly != -1) exactly else atMost
 
-            val outcome = gw.verifier(ordering).verify(callRecorder.calls, min, max)
+                val outcome = gw.verifier(ordering).verify(callRecorder.calls, min, max)
 
-            log.trace { "Done verification. Outcome: $outcome" }
+                log.trace { "Done verification. Outcome: $outcome" }
 
-            failIfNotPassed(outcome, inverse)
+                failIfNotPassed(outcome, inverse)
+            } finally {
+                callRecorder.doneVerification()
+            }
         } catch (ex: Throwable) {
             callRecorder.cancel()
             throw ex
-        } finally {
-            callRecorder.doneVerification()
         }
     }
 
     private fun failIfNotPassed(outcome: VerificationResult, inverse: Boolean) {
-        val matcherStr = if (outcome.matcher != null) ", matcher: ${outcome.matcher}" else ""
+        val explanation = if (outcome.message != null) ": ${outcome.message}" else ""
 
         if (inverse) {
             if (outcome.matches) {
-                throw AssertionError("Inverse verification failed$matcherStr")
+                throw AssertionError("Inverse verification failed$explanation")
             }
         } else {
             if (!outcome.matches) {
-                throw AssertionError("Verification failed$matcherStr")
+                throw AssertionError("Verification failed$explanation")
             }
         }
     }
@@ -69,12 +74,82 @@ internal class VerifierImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Verifier
 
 internal class UnorderedCallVerifierImpl(private val gw: MockKGatewayImpl) : CallVerifier {
     override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
-        return calls
-                .firstOrNull { !it.invocation.self().___matchesAnyRecordedCalls(it.matcher, min, max) }
-                ?.matcher
-                ?.let { VerificationResult(false, it) }
-                ?: VerificationResult(true)
+        for ((i, call) in calls.withIndex()) {
+            val result = matchCall(call, min, max, "call ${i + 1} of ${calls.size}.")
+
+            if (!result.matches) {
+                return result
+            }
+        }
+        return VerificationResult(true)
     }
+
+    private fun matchCall(call: Call, min: Int, max: Int, callIdxMsg: String): VerificationResult {
+        val mock = call.invocation.self()
+        val allCallsForMock = mock.___allRecordedCalls()
+        val allCallsForMockMethod = allCallsForMock.filter {
+            call.matcher.method == it.method
+        }
+        val result = when (allCallsForMockMethod.size) {
+            0 -> {
+                if (allCallsForMock.isEmpty()) {
+                    VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}")
+                } else {
+                    VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}.\n" +
+                            "Calls to same mock:\n" + formatCalls(allCallsForMock))
+                }
+            }
+            1 -> {
+                val onlyCall = allCallsForMockMethod.get(0)
+                if (call.matcher.match(onlyCall)) {
+                    if (1 in min..max) {
+                        VerificationResult(true)
+                    } else {
+                        VerificationResult(false, "$callIdxMsg One matching call found, but needs at least $min${atMostMsg(max)} calls")
+                    }
+                } else {
+                    VerificationResult(false, "$callIdxMsg Only one matching call to $mock/${call.matcher.method.toStr()} happened, but arguments are not matching:\n" +
+                            describeArgumentDifference(call.matcher, onlyCall))
+                }
+            }
+            else -> {
+                val n = allCallsForMockMethod.filter { call.matcher.match(it) }.count()
+                if (n in min..max) {
+                    VerificationResult(true)
+                } else {
+                    if (n == 0) {
+                        VerificationResult(false,
+                                "$callIdxMsg No matching calls found.\n" +
+                                        "Calls to same method:\n" + formatCalls(allCallsForMockMethod))
+                    } else {
+                        VerificationResult(false,
+                                "$callIdxMsg $n matching calls found, " +
+                                        "but needs at least $min${atMostMsg(max)} calls")
+                    }
+                }
+            }
+        }
+        return result
+    }
+
+    private fun atMostMsg(max: Int) = if (max == Integer.MAX_VALUE) "" else " and at most $max"
+
+    private fun describeArgumentDifference(matcher: InvocationMatcher,
+                                           invocation: Invocation): String {
+        val str = StringBuilder()
+        for ((i, arg) in invocation.args.withIndex()) {
+            val argMatcher = matcher.args[i]
+            val matches = argMatcher.match(arg)
+            str.append("[$i]: argument: $arg, matcher: $argMatcher, result: ${if (matches) "+" else "-"}\n")
+        }
+        return str.toString()
+    }
+}
+
+private fun formatCalls(calls: List<Invocation>): String {
+    return calls.map {
+        it.toString()
+    }.joinToString("\n")
 }
 
 private fun List<Call>.allCalls() =
@@ -84,12 +159,18 @@ private fun List<Call>.allCalls() =
                 .flatMap { it.___allRecordedCalls() }
                 .sortedBy { it.timestamp }
 
+private fun reportCalls(calls: List<Call>, allCalls: List<Invocation>): String {
+    return "\nMatchers: \n" + calls.map { it.matcher.toString() }.joinToString("\n") +
+            "\nCalls: \n" + formatCalls(allCalls)
+}
+
 internal class OrderedCallVerifierImpl(private val gw: MockKGatewayImpl) : CallVerifier {
     override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
         val allCalls = calls.allCalls()
 
         if (calls.size > allCalls.size) {
-            return VerificationResult(false)
+            return VerificationResult(false, "less calls happened then demanded by order verification sequence. " +
+                    reportCalls(calls, allCalls))
         }
 
         // LCS algorithm
@@ -109,8 +190,13 @@ internal class OrderedCallVerifierImpl(private val gw: MockKGatewayImpl) : CallV
         }
 
         // match only if all matchers present
-        return VerificationResult(prev.last() == calls.size)
+        if (prev.last() == calls.size) {
+            return VerificationResult(true)
+        } else {
+            return VerificationResult(false, "calls are not in verification order" + reportCalls(calls, allCalls))
+        }
     }
+
 }
 
 internal class SequenceCallVerifierImpl(private val gw: MockKGatewayImpl) : CallVerifier {
@@ -118,12 +204,12 @@ internal class SequenceCallVerifierImpl(private val gw: MockKGatewayImpl) : Call
         val allCalls = calls.allCalls()
 
         if (allCalls.size != calls.size) {
-            return VerificationResult(false)
+            return VerificationResult(false, "number of calls happened not matching exact number of verification sequence" + reportCalls(calls, allCalls))
         }
 
         for ((i, call) in allCalls.withIndex()) {
             if (!calls[i].matcher.match(call)) {
-                return VerificationResult(false)
+                return VerificationResult(false, "calls are not exactly matching verification sequence" + reportCalls(calls, allCalls))
             }
         }
 
