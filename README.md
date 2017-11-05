@@ -291,16 +291,19 @@ If the method is returning Unit(i.e. no return value) you still need to specify 
 
     val obj = mockk<MockedClass>()
 
+    // all 3 are actually doing the same
     every { obj.sum(any(), 1) } answers { nothing }
     every { obj.sum(any(), 2) } returns null
-    every { obj.sum(any(), 2) } just Runs
+    every { obj.sum(any(), 3) } just Runs
 
     obj.sum(1, 1)
     obj.sum(1, 2)
+    obj.sum(1, 3)
 
     verify {
         obj.sum(1, 1)
         obj.sum(1, 2)
+        obj.sum(1, 3)
     }
 
   ```
