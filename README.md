@@ -130,7 +130,7 @@ Add JVM parameter to launch agent(remove spaces):
 
 Simplest example:
 
-  ```kotlin
+```kotlin
 
     val car = mockk<Car>()
 
@@ -140,15 +140,13 @@ Simplest example:
 
     verify { car.drive(Direction.NORTH) }
 
-  ```
+```
 
 ### Partial argument matching
 
-You can skip parameters while specifying matchers.
-MockK runs your block few times, builds so called signature and
-auto-detects places where matchers appear:
+You can mix both regular arguments and matchers:
 
-  ```kotlin
+```kotlin
 
     class MockedClass {
         fun sum(a: Int, b: Int) = a + b
@@ -162,13 +160,13 @@ auto-detects places where matchers appear:
 
     verify { obj.sum(eq(1), 2) }
 
-  ```
+```
 
 ### Chained calls
 
-Mock can have child mocks. This allows to mock chains of calls:
+You can stub chains of calls:
 
-  ```kotlin
+```kotlin
 
     class MockedClass1 {
         fun op1(a: Int, b: Int) = a + b
@@ -187,13 +185,13 @@ Mock can have child mocks. This allows to mock chains of calls:
 
     verify { obj.op2(1, 2).op1(3, 22) }
 
-  ```
+```
 
 ### Capturing
 
-Simplest way of capturing is capturing to the `CapturingSlot`:
+You can capture an argument to a `CapturingSlot` or `MutableList`:
 
-  ```kotlin
+```kotlin
 
     class MockedClass {
         fun sum(a: Int, b: Int) = a + b
@@ -201,68 +199,24 @@ Simplest way of capturing is capturing to the `CapturingSlot`:
 
     val obj = mockk<MockedClass>()
     val slot = slot<Int>()
-
-    every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured!! }
-
-    obj.sum(1, 2) // returns 4
-
-    verify { obj.sum(1, 2) }
-
-
-  ```
-
-### Capturing lambda
-
-You can capture lambdas with `CapturingSlot<Any>`,
-but for convenience there is captureLambda construct present:
-
-  ```kotlin
-
-    class MockedClass {
-        fun sum(a: Int, b: () -> Int) = a + b()
-    }
-
-    val obj = mockk<MockedClass>()
-
-    every {
-        obj.sum(1, captureLambda(Function0::class))
-    } answers {
-        2 + lambda.invoke<Int>()!!
-    }
-
-    obj.sum(1) { 2 } // returns 4
-
-    verify { obj.sum(1, any()) }
-
-  ```
-
-### Capturing to the list
-
-If you need several captured values you can capture values to the `MutableList`.
-Method `captured()` is returning the last element of the list.
-
-  ```kotlin
-
-    class MockedClass {
-        fun sum(a: Int, b: Int) = a + b
-    }
-
-    val obj = mockk<MockedClass>()
     val lst = mutableListOf<Int>()
 
-    every { obj.sum(1, capture(lst)) } answers { 2 + lst.captured() }
+    every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured }
+    every { obj.sum(2, capture(lst)) } answers { 3 + lst.captured() }
 
     obj.sum(1, 2) // returns 4
+    obj.sum(2, 3) // returns 6
 
     verify { obj.sum(1, 2) }
+    verify { obj.sum(2, 3) }
 
-  ```
+```
 
-### Verification with atLeast
+### Verification atLeast, atMost or exactly times
 
-Checking at least how much method was called:
+You can check call count with `atLeast`, `atMost` or `exactly` parameters:
 
-  ```kotlin
+```kotlin
 
     class MockedClass {
         fun sum(a: Int, b: Int) = a + b
@@ -283,14 +237,14 @@ Checking at least how much method was called:
 
     verify(atLeast=3) { obj.sum(any(), any()) }
 
-  ```
+```
 
 
 ### Verification sequence
 
-Checking the exact sequence of calls:
+You can check exact sequence of calls with `verifySequence` or just order with `verifyOrder`:
 
-  ```kotlin
+```kotlin
 
     class MockedClass {
         fun sum(a: Int, b: Int) = a + b
@@ -302,7 +256,7 @@ Checking the exact sequence of calls:
     every {
         obj.sum(any(), capture(slot))
     } answers {
-        1 + firstArg<Int>() + slot.captured!!
+        1 + firstArg<Int>() + slot.captured
     }
 
     obj.sum(1, 2) // returns 4
@@ -315,7 +269,11 @@ Checking the exact sequence of calls:
         obj.sum(2, 2)
     }
 
-  ```
+    verifyOrder {
+        obj.sum(1, 2)
+        obj.sum(2, 2)
+    }
+```
 
 ### Returning nothing
 
@@ -376,7 +334,7 @@ To mock coroutines you need to add dependency to the support library.
 
   Then you can use `coEvery` and `coVerify` versions to mock coroutine methods
 
-  ```kotlin
+```kotlin
 
     val car = mockk<Car>()
 
@@ -386,7 +344,7 @@ To mock coroutines you need to add dependency to the support library.
 
     coVerify { car.drive(Direction.NORTH) }
 
-  ```
+```
 
 
 ## DSL tables
@@ -404,7 +362,10 @@ By default simple arguments are matched using `eq()`
 |`isNull()`|checks if values is null|
 |`isNull(inverse=true)`|checks if values is not null|
 |`ofType(type)`|checks if values belongs to the type|
-|`match { it.startsWith("string") }`|matches via arbitary lambda expression|
+|`match { it.startsWith("string") }`|matches via passed predicate|
+|`coMatch { it.startsWith("string") }`|matches via passed coroutine predicate|
+|`matchNullable { it?.startsWith("string") }`|matches nullable value via passe predicate|
+|`coMatchNullable { it?.startsWith("string") }`|matches nullable value via passed coroutine predicate|
 |`eq(value)`|matches if value is equal to the provided via deepEquals method|
 |`refEq(value)`|matches if value is equal to the provided via reference comparation|
 |`cmpEq(value)`|matches if value is equal to the provided via compareTo method|
@@ -419,15 +380,22 @@ By default simple arguments are matched using `eq()`
 |`capture(mutableList)`|captures a value to a list|
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda(lambdaClass)`|captures lambda expression(allowed one per call)|
-|`invoke(args)`|calls matched as lambda|
+|`invoke(...)`|calls matched argument|
+|`coInvoke(...)`|calls matched argument for coroutine|
 |`hint(cls)`|hints next return type in case it's got erased|
 
 Few special matchers available in verification mode only:
 
 |Matcher|Description|
 |-------|-----------|
-|`any { code }`|matches any argument and allows to execute some code|
-|`assert { predicate }`|matches any argument, checks if assertions is true|
+|`run { code }`|matches any value and allows to execute some code|
+|`runNullable { code }`|matches any nullable value and allows to execute some code|
+|`coRun { code }`|matches any value and allows to execute some coroutine code|
+|`coRunNullable { code }`|matches any nullable value and allows to execute some coroutine code|
+|`assert(msg) { predicate }`|matches any value and checks the assertion|
+|`assertNullable(msg) { predicate }`|matches any nullable value and checks the assertion|
+|`coAssert(msg) { predicate }`|matches any value and checks the coroutine assertion|
+|`coAssertNullable(msg) { predicate }`|matches any nullable value and checks the coroutine assertion|
 
 ### Validators
 
@@ -448,7 +416,8 @@ Few special matchers available in verification mode only:
 |`returns value`|specify that matched call returns one specified value|
 |`returnsMany list`|specify that matched call returns value from the list, returning each time next element|
 |`throws ex`|specify that matched call throws an exception|
-|`answers { code }`|specify that matched call answers with lambda in answer scope|
+|`answers { code }`|specify that matched call answers with code block scoped with `answer scope`|
+|`coAnswers { code }`|specify that matched call answers with coroutine code block  with `answer scope`|
 |`answers answerObj`|specify that matched call answers with Answer object|
 |`answers { nothing }`|specify that matched call answers null|
 |`just Runs`|specify that matched call is returning Unit (returns null)|
@@ -464,6 +433,7 @@ Few special matchers available in verification mode only:
 |`method`|reference to the method invocation made|
 |`args`|reference to arguments of invocation|
 |`nArgs`|number of invocation argument|
+|`arg(n)`|n-th argument|
 |`firstArg()`|first argument|
 |`secondArg()`|second argument|
 |`thirdArg()`|third argument|

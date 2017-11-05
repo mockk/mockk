@@ -1,6 +1,7 @@
 package io.mockk
 
 import io.mockk.impl.toStr
+import kotlinx.coroutines.experimental.runBlocking
 
 /**
  * Matcher that checks equality. By reference and by value (equals method)
@@ -217,18 +218,19 @@ class AllAnyMatcher<T> : Matcher<T> {
 /**
  * Invokes lambda
  */
-data class InvokeMatcher<T>(val args: LambdaArgs,
-                            override val argumentType: Class<*>) : Matcher<T>, TypedMatcher {
+class InvokeMatcher<T>(val block: (T) -> Unit) : Matcher<T> {
     override fun match(arg: T?): Boolean {
-        if (arg !is Function<*>) {
-            throw MockKException("Failed to call lambda for non-lambda argument")
+        if (arg == null) {
+            return true
         }
-        args.invoke<Any?>(arg as Function<*>)
+        block(arg)
         return true
     }
 
-    override fun toString(): String = "invoke($args)"
+
+    override fun toString(): String = "coInvoke()"
 }
+
 
 /**
  * Checks if assertion is true

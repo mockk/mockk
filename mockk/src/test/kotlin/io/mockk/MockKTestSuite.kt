@@ -2,6 +2,7 @@ package io.mockk
 
 import io.kotlintest.specs.StringSpec
 import io.mockk.junit.MockKJUnit4Runner
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
 import org.junit.runner.RunWith
 
@@ -456,7 +457,7 @@ class MockKTestSuite : StringSpec({
         every { mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })) } returns Array<Double>(3, { (3 - it).toDouble() })
 
         every { mock.arrayOp(Array<Any>(3, { it + 1 })) } returns Array<Any>(3, { 3 - it })
-        every { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })) } returns Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i}) })
+        every { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })) } returns Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) })
 
         assertArrayEquals(BooleanArray(3, { false }), mock.arrayOp(BooleanArray(3, { true })))
         assertArrayEquals(ByteArray(3, { (3 - it).toByte() }), mock.arrayOp(ByteArray(3, { (it + 1).toByte() })))
@@ -477,7 +478,7 @@ class MockKTestSuite : StringSpec({
         assertArrayEquals(Array<Double>(3, { (3 - it).toDouble() }), mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })))
 
         assertArrayEquals(Array<Any>(3, { 3 - it }), mock.arrayOp(Array<Any>(3, { it + 1 })))
-        assertArrayEquals(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i}) }), mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })))
+        assertArrayEquals(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) }), mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })))
 
         verify { mock.arrayOp(BooleanArray(3, { true })) }
         verify { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) }
@@ -498,7 +499,7 @@ class MockKTestSuite : StringSpec({
         verify { mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })) }
 
         verify { mock.arrayOp(Array<Any>(3, { it + 1 })) }
-        verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j}) })) }
+        verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })) }
     }.config(enabled = true)
 
     fun expectVerificationError(vararg messages: String, block: () -> Unit) {
@@ -506,7 +507,7 @@ class MockKTestSuite : StringSpec({
             clearMocks(mock)
             block()
             fail("Block should throw verification failure")
-        } catch(ex: AssertionError) {
+        } catch (ex: AssertionError) {
             if (messages.any { !ex.message!!.contains(it) }) {
                 fail("Bad message: " + ex.message)
             }
@@ -603,7 +604,6 @@ class MockKTestSuite : StringSpec({
             }
         }
     }.config(enabled = true)
-
 })
 
 
@@ -636,6 +636,7 @@ class MockCls {
             0
         }
     }
+
     fun nullableOp(a: Int = 1, b: Int = 2): Int? = a + b
 
     fun arrayOp(arr: BooleanArray) = arr.map { it }.toBooleanArray()
