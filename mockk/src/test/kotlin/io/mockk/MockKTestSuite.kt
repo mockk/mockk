@@ -220,7 +220,9 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(c = 11) } answers { method.parameterTypes.size.toDouble() }
         every { spy.manyArgsOp(d = capture(lstNonNull), c = 12) } answers { lstNonNull.captured().toDouble() }
         every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
-        every { spy.lambdaOp(1, match(CapturingSlotMatcher(slot))) } answers { 1 - slot.invoke<Int>()!! }
+        every { spy.lambdaOp(1, capture(slot)) } answers {
+            1 - slot.invoke<Int>()
+        }
 
         assertEquals(163.0, spy.manyArgsOp(), 1e-6)
         assertEquals(1.0, spy.manyArgsOp(c = 5), 1e-6)
@@ -346,7 +348,7 @@ class MockKTestSuite : StringSpec({
         every { mock.otherOp(5, or(or(more(20), 17), 13)) } returns 12
 
         val v = slot<Int>()
-        every { mock.otherOp(6, and(match(CapturingSlotMatcher(v)), more(20))) } answers { v.captured }
+        every { mock.otherOp(6, and(capture(v), more(20))) } answers { v.captured }
 
         every { mock.otherOp(a = IntWrapper(7), b = isNull()) } returns 13
         every { mock.otherOp(a = IntWrapper(8), b = isNull(true)) } returns 14

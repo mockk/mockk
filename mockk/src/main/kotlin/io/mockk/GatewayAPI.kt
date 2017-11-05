@@ -52,7 +52,7 @@ interface CallRecorder {
 
     fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int)
 
-    fun childType(cls: Class<*>, n: Int)
+    fun hintNextReturnType(cls: Class<*>, n: Int)
 
     fun cancel()
 }

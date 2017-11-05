@@ -219,7 +219,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         return type ?: defaultReturnType()
     }
 
-    override fun childType(cls: Class<*>, n: Int) {
+    override fun hintNextReturnType(cls: Class<*>, n: Int) {
         childTypes[n] = cls
     }
 }

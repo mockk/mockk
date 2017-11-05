@@ -4,6 +4,7 @@ import io.mockk.impl.MockKInstance
 import io.mockk.impl.toStr
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
+import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -14,7 +15,7 @@ interface MockK
 /**
  * Exception thrown by library
  */
-class MockKException(message: String) : RuntimeException(message)
+class MockKException(message: String, ex: Throwable? = null) : RuntimeException(message, ex)
 
 /**
  * Builds a new mock for specified class
@@ -29,7 +30,7 @@ inline fun <reified T> spyk(objToCopy: T? = null): T = MockKGateway.LOCATOR().sp
 /**
  * Creates new capturing slot
  */
-inline fun <reified T> slot() = CapturingSlot<T>()
+inline fun <reified T : Any> slot() = CapturingSlot<T>()
 
 /**
  * Creates new lambda args
@@ -152,31 +153,35 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
         return gw.callRecorder.matcher(matcher, T::class.java)
     }
 
-    inline fun <reified T> match(noinline matcher: (T?) -> Boolean): T = match(FunctionMatcher(matcher))
-    inline fun <reified T> eq(value: T): T = match(EqMatcher(value))
-    inline fun <reified T> refEq(value: T): T = match(EqMatcher(value, ref = true))
+    inline fun <reified T> match(noinline matcher: (T) -> Boolean): T = matchNullable {
+        if (it == null) {
+            false
+        } else {
+            matcher(it)
+        }
+    }
+    inline fun <reified T> matchNullable(noinline matcher: (T?) -> Boolean): T = match(FunctionMatcher(matcher, T::class.java))
+    inline fun <reified T> eq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, inverse = inverse))
+    inline fun <reified T> refEq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, ref = true, inverse = inverse))
     inline fun <reified T> any(): T = match(ConstantMatcher(true))
-    inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst))
-    inline fun <reified T> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst))
-    inline fun <reified T> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst))
-    inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0))
-    inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1))
-    inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) -2 else -1))
+    inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class.java))
+    inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class.java))
+    inline fun <reified T> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst, T::class.java))
+    inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class.java))
+    inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class.java))
+    inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) -2 else -1, T::class.java))
     inline fun <reified T> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
     inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
     inline fun <reified T> not(value: T) = match(NotMatcher(value))
     inline fun <reified T> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
-    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(TypeMatcher<T>(cls.java))
-    inline fun <reified T : Function<*>> invoke(args: LambdaArgs) = match<T> {
-        args.invoke<Any?>(it as Function<*>)
-        true
-    }
+    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls.java))
+    inline fun <reified T : Function<*>> invoke(args: LambdaArgs) = match(InvokeMatcher<T>(args, T::class.java))
 
-    inline fun <reified T> allAny(): T = match(AllAnyMatcher(0))
+    inline fun <reified T> allAny(): T = match(AllAnyMatcher())
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <R, T : Any> R.hint(cls: KClass<T>, n: Int = 1): R {
-        MockKGateway.LOCATOR().callRecorder.childType(cls.java, n)
+        MockKGateway.LOCATOR().callRecorder.hintNextReturnType(cls.java, n)
         return this
     }
 
@@ -189,8 +194,19 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
      */
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Function<*>> captureLambda(cls: KClass<out Function<*>>): T {
-        val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>)
+        val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>, T::class.java)
         return gw.callRecorder.matcher(matcher, cls.java as Class<T>)
+    }
+
+    inline fun <reified T> coMatch(noinline matcher: suspend (T) -> Boolean): T = match {
+        runBlocking {
+            matcher(it)
+        }
+    }
+    inline fun <reified T> coMatchNullable(noinline matcher: suspend (T?) -> Boolean): T = matchNullable {
+        runBlocking {
+            matcher(it)
+        }
     }
 }
 
@@ -199,20 +215,36 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
  */
 class MockKVerificationScope(gw: MockKGateway,
                              lambda: CapturingSlot<Function<*>>) : MockKMatcherScope(gw, lambda) {
-    inline fun <reified T> assert(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match {
-        if (!assertion(it)) {
-            throw AssertionError("Verification matcher assertion failed" +
-                    (if (msg != null) ": $msg" else ""))
-        }
+    inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T = match(AssertMatcher({ assertion(it as T) }, msg, T::class.java))
+    inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match(AssertMatcher(assertion, msg, T::class.java, nullable = true))
+    inline fun <reified T> any(noinline captureBlock: (T) -> Unit): T = match {
+        captureBlock(it)
         true
     }
-
-    inline fun <reified T> any(noinline captureBlock: (T?) -> Unit): T = match {
+    inline fun <reified T> anyNullable(noinline captureBlock: (T?) -> Unit): T = matchNullable {
         captureBlock(it)
         true
     }
 
-    inline fun <reified T> coAny(noinline captureBlock: suspend (T?) -> Unit): T = any {
+    inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T = assert(msg) {
+        runBlocking {
+            assertion(it)
+        }
+    }
+
+    inline fun <reified T : Any> coAssertNullable(msg: String? = null, noinline assertion: suspend (T?) -> Boolean): T = assertNullable(msg) {
+        runBlocking {
+            assertion(it)
+        }
+    }
+
+    inline fun <reified T> coAny(noinline captureBlock: suspend (T) -> Unit): T = any {
+        runBlocking {
+            captureBlock(it)
+        }
+    }
+
+    inline fun <reified T> coAnyNullable(noinline captureBlock: suspend (T?) -> Unit): T = anyNullable {
         runBlocking {
             captureBlock(it)
         }
@@ -244,6 +276,12 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
     infix fun answers(answer: MockKAnswerScope.(Call) -> T?) =
             answers(FunctionAnswer({ MockKAnswerScope(gw, lambda, it).answer(it) }))
 
+
+    infix fun coAnswers(answer: suspend MockKAnswerScope.(Call) -> T?) = answers {
+        runBlocking {
+            answer(it)
+        }
+    }
     @Suppress("UNUSED_PARAMETER")
     infix fun just(runs: Runs) = returns(null)
 }
@@ -274,6 +312,7 @@ class MockKAnswerScope(private val gw: MockKGateway,
     inline fun <reified T> secondArg() = invocation.args[1] as T
     inline fun <reified T> thirdArg() = invocation.args[2] as T
     inline fun <reified T> lastArg() = invocation.args.last() as T
+    inline fun <reified T> arg(n: Int) = invocation.args[n] as T
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <T> MutableList<T>.captured() = last()
@@ -286,10 +325,27 @@ class MockKAnswerScope(private val gw: MockKGateway,
  *
  * If this values is lambda then it's possible to invoke it.
  */
-data class CapturingSlot<T>(var captured: T? = null) {
-    operator inline fun <reified R> invoke(vararg args: Any?): R? {
-        return LambdaArgs(*args).invoke<R>(captured!! as Function<*>)
+class CapturingSlot<T : Any>() {
+    var isCaptured = false
+
+    var isNull = false
+
+    lateinit var captured: T
+
+    operator inline fun <reified R> invoke(vararg args: Any?): R {
+        return invokeNullable<R>(*args) as R
     }
+
+    inline fun <reified R> invokeNullable(vararg args: Any?): R? {
+        return LambdaArgs(*args).invoke<R>(captured as Function<*>)
+    }
+
+    fun clear() {
+        isCaptured = false
+        isNull = false
+    }
+
+    override fun toString(): String = "slot(${if (isCaptured) "captured=${if (isNull) "null" else captured.toString()}" else ""})"
 }
 
 class LambdaArgs(vararg val args: Any?) {
@@ -323,6 +379,9 @@ class LambdaArgs(vararg val args: Any?) {
         }
     }
 
+    override fun toString(): String = Arrays.toString(args)
+
+
 }
 
 
@@ -331,6 +390,15 @@ class LambdaArgs(vararg val args: Any?) {
  */
 interface Matcher<in T> {
     fun match(arg: T?): Boolean
+}
+
+/**
+ * Checks if argument is of specific type
+ */
+interface TypedMatcher {
+    val argumentType: Class<*>
+
+    fun checkType(arg: Any?): Boolean = argumentType.isInstance(arg)
 }
 
 /**
@@ -398,7 +466,16 @@ data class InvocationMatcher(val self: Matcher<Any>,
         }
 
         for (i in 0 until args.size) {
-            if (!args[i].match(invocation.args[i])) {
+            val matcher = args[i]
+            val arg = invocation.args[i]
+
+            if (matcher is TypedMatcher) {
+                if (!matcher.checkType(arg)) {
+                    return false
+                }
+            }
+
+            if (!matcher.match(arg)) {
                 return false
             }
         }

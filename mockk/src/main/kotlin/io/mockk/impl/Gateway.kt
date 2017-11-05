@@ -63,6 +63,7 @@ internal class MockKGatewayImpl : MockKGateway {
         try {
             record(scope, mockBlock, coMockBlock)
         } catch (ex: NoClassDefFoundError) {
+            callRecorder.cancel()
             throw prettifyCoroutinesException(ex)
         } catch (ex: Exception) {
             callRecorder.cancel()
@@ -92,7 +93,7 @@ internal class MockKGatewayImpl : MockKGateway {
         } catch (ex: NoClassDefFoundError) {
             callRecorder.cancel()
             throw prettifyCoroutinesException(ex)
-        } catch (ex: Exception) {
+        } catch (ex: Throwable) {
             callRecorder.cancel()
             throw ex
         }
@@ -101,9 +102,7 @@ internal class MockKGatewayImpl : MockKGateway {
             callRecorder.verify(ordering, inverse,
                     if (exactly != -1) exactly else atLeast,
                     if (exactly != -1) exactly else atMost)
-        } catch (err: AssertionError) {
-            throw err
-        } catch (ex: Exception) {
+        } catch (ex: Throwable) {
             callRecorder.cancel()
             throw ex
         }
@@ -112,22 +111,29 @@ internal class MockKGatewayImpl : MockKGateway {
     private fun <T, S : MockKMatcherScope> record(scope: S,
                                                   mockBlock: (S.() -> T)?,
                                                   coMockBlock: (suspend S.() -> T)?) {
-        if (mockBlock != null) {
-            val n = N_CALL_ROUNDS
-            repeat(n) {
-                callRecorder.catchArgs(it, n)
-                scope.mockBlock()
-            }
-            callRecorder.catchArgs(n, n)
-        } else if (coMockBlock != null) {
-            runBlocking {
+        try {
+            if (mockBlock != null) {
                 val n = N_CALL_ROUNDS
                 repeat(n) {
                     callRecorder.catchArgs(it, n)
-                    scope.coMockBlock()
+                    scope.mockBlock()
                 }
                 callRecorder.catchArgs(n, n)
+            } else if (coMockBlock != null) {
+                runBlocking {
+                    val n = N_CALL_ROUNDS
+                    repeat(n) {
+                        callRecorder.catchArgs(it, n)
+                        scope.coMockBlock()
+                    }
+                    callRecorder.catchArgs(n, n)
+                }
             }
+        } catch (ex: ClassCastException) {
+            throw MockKException("Class cast exception. " +
+                    "Probably type information was erased.\n" +
+                    "In this case use `hint` before call to specify " +
+                    "exact return type of a method. ", ex)
         }
     }
 
