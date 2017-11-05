@@ -2,14 +2,14 @@
 - [+] get rid of !! as much as possible
 - [+] captured lateinit var
 - [+] discover more co...Matcher
+- [+] proxy id only for external mocks
+- [+] instantiation factory
 - [ ] better human readable exceptions (see below)
-- [ ] proxy id only for external mocks
 - [ ] mock: extraInterfaces, mock name
 - [ ] IntelliJ javadoc experience
 - [ ] Runner + JaCoCo
 - [ ] running methods: TestNG
 - [ ] documentation coEvery/coVerify/coAny
-- [ ] instantiation factory
 - [ ] **MILESTONE 1.3**
 - [ ] CONTRIBUTE
 - [ ] annotation mocking

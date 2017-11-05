@@ -45,7 +45,7 @@ internal class MockKGatewayImpl : MockKGateway {
         val log = logger<MockKGatewayImpl>()
 
         init {
-            log.debug {
+            log.trace {
                 "Starting MockK implementation. " +
                         "Java version = ${System.getProperty("java.version")}. " +
                         "Class loader = ${MockKGatewayImpl::class.java.classLoader}. "

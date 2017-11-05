@@ -1,5 +1,7 @@
 package io.mockk.impl
 
+import io.mockk.InstanceFactory
+import io.mockk.Instantiator
 import io.mockk.MockKException
 import io.mockk.external.logger
 import javassist.ClassPool
@@ -15,7 +17,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.*
 
-internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Instantiator {
+internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
 
     private val cp = ClassPool.getDefault()
@@ -24,6 +26,8 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
 
     private val instantiators = mutableMapOf<Class<*>, ObjectInstantiator<*>>()
     private val proxyClasses = mutableMapOf<ProxyClassSignature, Class<*>>()
+
+    private val instantiationFactories = mutableListOf<InstanceFactory>()
 
     private val rnd = Random()
 
@@ -60,6 +64,13 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
 
     private fun instantiateViaProxy(cls: Class<*>): Any {
         val signature = ProxyClassSignature(cls, setOf())
+
+        for (factory in instantiationFactories) {
+            val instance = factory.instantiate(cls)
+            if (instance != null) {
+                return instance
+            }
+        }
 
         val proxyCls = proxyClasses.java6ComputeIfAbsent(signature, {
             ProxyFactoryExt(it).buildProxy(cls)
@@ -222,6 +233,10 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
                 return true
             }
         }
+    }
+
+    override fun registerFactory(factory: InstanceFactory) {
+        instantiationFactories.add(factory)
     }
 }
 

@@ -17,6 +17,21 @@ interface MockKGateway {
     companion object {
         internal val defaultImpl: MockKGateway = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
+
+        fun registerInstanceFactory(factory: InstanceFactory) {
+            LOCATOR().instantiator.registerFactory(factory)
+        }
+
+        fun registerInstanceFactory(cls: Class<*>, factory: () -> Any) {
+            registerInstanceFactory(object : InstanceFactory {
+                override fun instantiate(clsToInstantiate: Class<*>): Any? {
+                    if (clsToInstantiate == cls) {
+                        return factory()
+                    }
+                    return null
+                }
+            })
+        }
     }
 }
 
@@ -103,4 +118,13 @@ interface Instantiator {
     fun isPassedByValue(cls: Class<*>): Boolean
 
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
+
+    fun registerFactory(factory: InstanceFactory)
+}
+
+/**
+ * Factory of dummy objects
+ */
+interface InstanceFactory {
+    fun instantiate(cls: Class<*>): Any?
 }
