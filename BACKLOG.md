@@ -1,14 +1,4 @@
 # Backlog
-- [+] get rid of !! as much as possible
-- [+] captured lateinit var
-- [+] discover more co...Matcher
-- [+] proxy id only for external mocks
-- [+] instantiation factory
-- [+] better human readable exceptions (see below)
-- [+] mock: extraInterfaces, mock name
-- [+] running methods: TestNG
-- [ ] documentation coEvery/coVerify/coAny
-- [ ] **MILESTONE 1.3**
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc
 - [ ] CONTRIBUTE
