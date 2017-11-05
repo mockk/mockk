@@ -6,11 +6,11 @@
 - [+] instantiation factory
 - [+] better human readable exceptions (see below)
 - [+] mock: extraInterfaces, mock name
-- [ ] IntelliJ javadoc experience
+- [+] running methods: TestNG
 - [ ] Runner + JaCoCo
-- [ ] running methods: TestNG
 - [ ] documentation coEvery/coVerify/coAny
 - [ ] **MILESTONE 1.3**
+- [ ] JavaDoc
 - [ ] CONTRIBUTE
 - [ ] annotation mocking
 - [ ] static methods

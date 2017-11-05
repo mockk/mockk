@@ -233,12 +233,12 @@ class MockKVerificationScope(gw: MockKGateway,
                              lambda: CapturingSlot<Function<*>>) : MockKMatcherScope(gw, lambda) {
     inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T = match(AssertMatcher({ assertion(it as T) }, msg, T::class.java))
     inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match(AssertMatcher(assertion, msg, T::class.java, nullable = true))
-    inline fun <reified T> any(noinline captureBlock: (T) -> Unit): T = match {
+    inline fun <reified T> run(noinline captureBlock: (T) -> Unit): T = match {
         captureBlock(it)
         true
     }
 
-    inline fun <reified T> anyNullable(noinline captureBlock: (T?) -> Unit): T = matchNullable {
+    inline fun <reified T> runNullable(noinline captureBlock: (T?) -> Unit): T = matchNullable {
         captureBlock(it)
         true
     }
@@ -255,13 +255,13 @@ class MockKVerificationScope(gw: MockKGateway,
         }
     }
 
-    inline fun <reified T> coAny(noinline captureBlock: suspend (T) -> Unit): T = any {
+    inline fun <reified T> coRun(noinline captureBlock: suspend (T) -> Unit): T = run {
         runBlocking {
             captureBlock(it)
         }
     }
 
-    inline fun <reified T> coAnyNullable(noinline captureBlock: suspend (T?) -> Unit): T = anyNullable {
+    inline fun <reified T> coRunNullable(noinline captureBlock: suspend (T?) -> Unit): T = runNullable {
         runBlocking {
             captureBlock(it)
         }
@@ -452,7 +452,7 @@ interface Answer<out T> {
 }
 
 /**
- * Mock invocation
+ * MockKClassLoaderUtil invocation
  */
 data class Invocation(val self: MockK,
                       val method: Method,

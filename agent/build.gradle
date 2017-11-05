@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     compileOnly "junit:junit:4.12"
+    compileOnly 'org.testng:testng:6.8'
     compileOnly 'org.junit.jupiter:junit-jupiter-api:5.0.1'
     compileOnly 'org.junit.platform:junit-platform-launcher:1.0.1'
     compileOnly 'org.javassist:javassist:3.22.0-GA'
