@@ -77,14 +77,14 @@ To disable class modification just create empty file resource 'io/mockk/junit/mo
 <td>
 Add to your test class:
 
-<code>
+<pre>
 class MockKClassTransformer {
   @ObjectFactory
   fun getObjectFactory(): IObjectFactory {
     return MockKObjectFactory()
   }
 }
-</code>
+</pre>
 </td>
 </tr>
 </table>
