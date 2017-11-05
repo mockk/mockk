@@ -6,18 +6,42 @@ import io.mockk.impl.MockKGatewayImpl
  * Mediates mocking implementation
  */
 interface MockKGateway {
+    val mockFactory: MockFactory
+    val stubber: Stubber
+    val verifier: Verifier
     val callRecorder: CallRecorder
     val instantiator: Instantiator
-    fun verifier(ordering: Ordering): Verifier
 
+    fun verifier(ordering: Ordering): CallVerifier
 
+    companion object {
+        internal val defaultImpl: MockKGateway = MockKGatewayImpl()
+        var LOCATOR: () -> MockKGateway = { defaultImpl }
+    }
+}
+
+/**
+ * Create new mocks or spies
+ */
+interface MockFactory {
     fun <T> mockk(cls: Class<T>): T
 
     fun <T> spyk(cls: Class<T>, objToCopy: T?): T
 
+}
+
+/**
+ * Stub calls
+ */
+interface Stubber {
     fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
                   coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T>
+}
 
+/**
+ * Verify calls
+ */
+interface Verifier {
     fun <T> verify(ordering: Ordering,
                    inverse: Boolean,
                    atLeast: Int,
@@ -25,19 +49,14 @@ interface MockKGateway {
                    exactly: Int,
                    mockBlock: (MockKVerificationScope.() -> T)?,
                    coMockBlock: (suspend MockKVerificationScope.() -> T)?)
-
-    companion object {
-        internal val defaultImpl: MockKGateway = MockKGatewayImpl()
-        var LOCATOR: () -> MockKGateway = { defaultImpl }
-
-        val NO_ARG_TYPE_NAME = MockK::class.java.name + "NoArgParam"
-    }
 }
 
 /**
- * Backs DSL and build a list of calls
+ * Builds a list of calls
  */
 interface CallRecorder {
+    val calls: List<Call>
+
     fun startStubbing()
 
     fun startVerification()
@@ -50,7 +69,7 @@ interface CallRecorder {
 
     fun answer(answer: Answer<*>)
 
-    fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int)
+    fun doneVerification()
 
     fun hintNextReturnType(cls: Class<*>, n: Int)
 
@@ -60,12 +79,12 @@ interface CallRecorder {
 /**
  * Verifier takes the list of calls and checks what invocations happened to the mocks
  */
-interface Verifier {
+interface CallVerifier {
     fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult
 }
 
 /**
- * Result of verfication
+ * Result of verification
  */
 data class VerificationResult(val matches: Boolean, val matcher: InvocationMatcher? = null)
 

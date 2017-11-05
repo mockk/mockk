@@ -3,7 +3,7 @@ package io.mockk.impl
 import io.mockk.*
 import io.mockk.external.logger
 import javassist.util.proxy.ProxyObject
-import java.lang.AssertionError
+import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
 import kotlin.coroutines.experimental.Continuation
 
@@ -25,7 +25,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
 
     private val signedCalls = mutableListOf<SignedCall>()
     private val callRounds = mutableListOf<CallRound>()
-    private val calls = mutableListOf<Call>()
+    override val calls = mutableListOf<Call>()
     private val childMocks = mutableListOf<Ref>()
     private var childTypes = mutableMapOf<Int, Class<*>>()
 
@@ -63,9 +63,12 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             childTypes.clear()
         }
         if (round == n) {
-            signMatchers()
-            mockRealChilds()
-            callRounds.clear()
+            try {
+                signMatchers()
+                mockRealChilds()
+            } finally {
+                callRounds.clear()
+            }
             if (mode == Mode.STUBBING) {
                 mode = Mode.STUBBING_WAITING_ANSWER
             }
@@ -113,7 +116,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         val instantiator = MockKGateway.LOCATOR().instantiator
         return instantiator.anyValue(retType) {
             val child = instantiator.proxy(retType, false) as MockK
-            (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, child)
+            (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, -1, child)
             childMocks.add(Ref(child))
             child
         }
@@ -171,30 +174,12 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         mode = Mode.ANSWERING
     }
 
-    override fun verify(ordering: Ordering, inverse: Boolean, min: Int, max: Int) {
+    override fun doneVerification() {
         checkMode(Mode.VERIFYING)
-
-        val outcome = gw.verifier(ordering).verify(calls, min, max)
-
-        log.trace { "Done verification. Outcome: $outcome" }
+        calls.clear()
         mode = Mode.ANSWERING
-
-        failIfNotPassed(outcome, inverse)
     }
 
-    private fun failIfNotPassed(outcome: VerificationResult, inverse: Boolean) {
-        val matcherStr = if (outcome.matcher != null) ", matcher: ${outcome.matcher}" else ""
-
-        if (inverse) {
-            if (outcome.matches) {
-                throw AssertionError("Inverse verification failed$matcherStr")
-            }
-        } else {
-            if (!outcome.matches) {
-                throw AssertionError("Verification failed$matcherStr")
-            }
-        }
-    }
 
     override fun cancel() {
         signedCalls.clear()
@@ -231,10 +216,10 @@ private class SignatureMatcherDetector {
     fun detect(callRounds: List<CallRound>, childMocks: List<Ref>) : List<Call> {
         val nCalls = callRounds[0].calls.size
         if (nCalls == 0) {
-            throw MockKException("No calls inside every/verify {} block")
+            throw MockKException("Missing calls inside every/verify {} block")
         }
         if (callRounds.any { it.calls.size != nCalls }) {
-            throw MockKException("Not all call rounds result in same amount of calls")
+            throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs")
         }
 
         val calls = mutableListOf<Call>();
@@ -327,70 +312,45 @@ private class SignatureMatcherDetector {
     }
 }
 
-internal class UnorderedVerifierImpl(private val gw: MockKGatewayImpl) : Verifier {
-    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
-        return calls
-                .firstOrNull { !it.invocation.self().___matchesAnyRecordedCalls(it.matcher, min, max) }
-                ?.matcher
-                ?.let { VerificationResult(false, it) }
-                ?: VerificationResult(true)
-    }
-}
+internal open class CommonRecorder(val gw: MockKGatewayImpl) {
 
-private fun List<Call>.allCalls() =
-        this.map { Ref(it.invocation.self) }
-                .distinct()
-                .map { it.value as MockKInstance }
-                .flatMap { it.___allRecordedCalls() }
-                .sortedBy { it.timestamp }
-
-internal class OrderedVerifierImpl(private val gw: MockKGatewayImpl) : Verifier {
-    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
-        val allCalls = calls.allCalls()
-
-        if (calls.size > allCalls.size) {
-            return VerificationResult(false)
-        }
-
-        // LCS algorithm
-        var prev = Array(calls.size, { 0 })
-        var curr = Array(calls.size, { 0 })
-        for (call in allCalls) {
-            for ((matcherIdx, matcher) in calls.map { it.matcher }.withIndex()) {
-                curr[matcherIdx] = if (matcher.match(call)) {
-                    if (matcherIdx == 0) 1 else prev[matcherIdx - 1] + 1
-                } else {
-                    maxOf(prev[matcherIdx], if (matcherIdx == 0) 0 else curr[matcherIdx - 1])
+    internal fun <T, S : MockKMatcherScope> record(scope: S,
+                                                   mockBlock: (S.() -> T)?,
+                                                   coMockBlock: (suspend S.() -> T)?) {
+        try {
+            if (mockBlock != null) {
+                val n = MockKGatewayImpl.N_CALL_ROUNDS
+                repeat(n) {
+                    gw.callRecorder.catchArgs(it, n)
+                    scope.mockBlock()
+                }
+                gw.callRecorder.catchArgs(n, n)
+            } else if (coMockBlock != null) {
+                runBlocking {
+                    val n = MockKGatewayImpl.N_CALL_ROUNDS
+                    repeat(n) {
+                        gw.callRecorder.catchArgs(it, n)
+                        scope.coMockBlock()
+                    }
+                    gw.callRecorder.catchArgs(n, n)
                 }
             }
-            val swap = curr
-            curr = prev
-            prev = swap
+        } catch (ex: ClassCastException) {
+            throw MockKException("Class cast exception. " +
+                    "Probably type information was erased.\n" +
+                    "In this case use `hint` before call to specify " +
+                    "exact return type of a method. ", ex)
         }
+    }
 
-        // match only if all matchers present
-        return VerificationResult(prev.last() == calls.size)
+    internal fun prettifyCoroutinesException(ex: NoClassDefFoundError): Throwable {
+        return if (ex.message?.contains("kotlinx/coroutines/") ?: false) {
+            MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
+        } else {
+            ex
+        }
     }
 }
-
-internal class SequenceVerifierImpl(private val gw: MockKGatewayImpl) : Verifier {
-    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
-        val allCalls = calls.allCalls()
-
-        if (allCalls.size != calls.size) {
-            return VerificationResult(false)
-        }
-
-        for ((i, call) in allCalls.withIndex()) {
-            if (!calls[i].matcher.match(call)) {
-                return VerificationResult(false)
-            }
-        }
-
-        return VerificationResult(true)
-    }
-}
-
 
 private fun Method.isSuspend(): Boolean {
     val sz = parameterTypes.size

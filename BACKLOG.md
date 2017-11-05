@@ -1,15 +1,15 @@
 # Backlog
+- [+] get rid of !! as much as possible
+- [+] captured lateinit var
+- [+] discover more co...Matcher
 - [ ] better human readable exceptions (see below)
-- [ ] get rid of !! as much as possible
 - [ ] proxy id only for external mocks
 - [ ] mock: extraInterfaces, mock name
-- [ ] captured lateinit var
 - [ ] IntelliJ javadoc experience
 - [ ] Runner + JaCoCo
 - [ ] running methods: TestNG
 - [ ] documentation coEvery/coVerify/coAny
 - [ ] instantiation factory
-- [ ] discover more co...Matcher
 - [ ] **MILESTONE 1.3**
 - [ ] CONTRIBUTE
 - [ ] annotation mocking
@@ -35,8 +35,7 @@ java.lang.ClassCastException: javassist.util.proxy.java_lang_Object_$$_jvst935_1
 ```
     HttpStatusCode cannot be cast to PostThoughtToken (matcher casting)
 ```
-3. Reporting whole chains of calls
-4. Reporting matching calls for method/mockk
+3. Reporting matching calls for method/mockk
 
 ## Geo
 

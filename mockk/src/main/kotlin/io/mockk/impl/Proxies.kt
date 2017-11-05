@@ -6,7 +6,6 @@ import javassist.util.proxy.ProxyObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
-import java.util.concurrent.atomic.AtomicLong
 
 
 internal interface MockKInstance : MockK {
@@ -32,12 +31,13 @@ internal interface MockKInstance : MockK {
 private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
 internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
-                                             private val obj: Any) : MethodHandler, MockKInstance {
+                                              private val id: Long,
+                                              private val obj: Any) : MethodHandler, MockKInstance {
     private val answers = Collections.synchronizedList(mutableListOf<InvocationAnswer>())
     private val childs = Collections.synchronizedMap(hashMapOf<InvocationMatcher, MockKInstance>())
     private val recordedCalls = Collections.synchronizedList(mutableListOf<Invocation>())
 
-    override val ___id: Long = MockKInstanceProxyHandler.newId()
+    override val ___id: Long = id
 
     override fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         answers.add(InvocationAnswer(matcher, answer))
@@ -107,7 +107,7 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
     override fun ___childMockK(call: Call): MockKInstance {
         return synchronized(childs) {
             childs.java6ComputeIfAbsent(call.matcher) {
-                MockKGateway.LOCATOR().mockk(call.retType) as MockKInstance
+                MockKGateway.LOCATOR().mockFactory.mockk(call.retType) as MockKInstance
             }
         }
     }
@@ -133,9 +133,20 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
     private fun findMethodInProxy(obj: Any,
                                   method: Method): Method? {
         return obj.javaClass.methods.find {
-            it.name == method.name &&
-                    Arrays.equals(it.parameterTypes, method.parameterTypes)
+            proxiableMethod(it) && sameSignature(it, method)
         }
+    }
+
+    private fun sameSignature(method1: Method, method2: Method) =
+            method1.name == method2.name && Arrays.equals(method1.parameterTypes, method2.parameterTypes)
+
+    private fun proxiableMethod(method: Method): Boolean {
+        val name = method.name
+
+        return name.startsWith("___")
+                || name.equals("toString")
+                || name.equals("equals")
+                || name.equals("hashCode")
     }
 
     override fun ___clear(answers: Boolean, calls: Boolean, childMocks: Boolean) {
@@ -149,16 +160,10 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
             this.childs.clear()
         }
     }
-
-    companion object {
-        val idCounter = AtomicLong()
-
-        fun newId(): Long = idCounter.incrementAndGet()
-    }
 }
 
 
-internal class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject) : MockKInstanceProxyHandler(cls, obj) {
+internal class SpyKInstanceProxyHandler<T>(cls: Class<T>, id: Long, obj: ProxyObject) : MockKInstanceProxyHandler(cls, id, obj) {
     override fun ___defaultAnswer(invocation: Invocation): Any? {
         if (invocation.superMethod == null) {
             throw MockKException("no super method for: ${invocation.method}")
@@ -166,6 +171,6 @@ internal class SpyKInstanceProxyHandler<T>(cls: Class<T>, obj: ProxyObject) : Mo
         return invocation.superMethod.invoke(invocation.self, *invocation.args.toTypedArray())
     }
 
-    override fun toString(): String = "spyk<" + ___type().simpleName + ">()"
+    override fun toString(): String = "spyk<" + ___type().simpleName + ">()#$___id"
 }
 

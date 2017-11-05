@@ -20,12 +20,12 @@ class MockKException(message: String, ex: Throwable? = null) : RuntimeException(
 /**
  * Builds a new mock for specified class
  */
-inline fun <reified T> mockk(): T = MockKGateway.LOCATOR().mockk(T::class.java)
+inline fun <reified T> mockk(): T = MockKGateway.LOCATOR().mockFactory.mockk(T::class.java)
 
 /**
  * Builds a new spy for specified class. Copies fields from object if provided
  */
-inline fun <reified T> spyk(objToCopy: T? = null): T = MockKGateway.LOCATOR().spyk(T::class.java, objToCopy)
+inline fun <reified T> spyk(objToCopy: T? = null): T = MockKGateway.LOCATOR().mockFactory.spyk(T::class.java, objToCopy)
 
 /**
  * Creates new capturing slot
@@ -40,12 +40,12 @@ fun args(vararg v: Any?) = LambdaArgs(*v)
 /**
  * Starts a block of stubbing. Part of DSL.
  */
-fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(stubBlock, null)
+fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().stubber.every(stubBlock, null)
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
  */
-fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().every(null, stubBlock)
+fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().stubber.every(null, stubBlock)
 
 /**
  * Verification orderding
@@ -74,7 +74,7 @@ fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                atMost: Int = Int.MAX_VALUE,
                exactly: Int = -1,
                verifyBlock: MockKVerificationScope.() -> T) {
-    MockKGateway.LOCATOR().verify(
+    MockKGateway.LOCATOR().verifier.verify(
             ordering,
             inverse,
             atLeast,
@@ -93,7 +93,7 @@ fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
                  atMost: Int = Int.MAX_VALUE,
                  exactly: Int = -1,
                  verifyBlock: suspend MockKVerificationScope.() -> T) {
-    MockKGateway.LOCATOR().verify(
+    MockKGateway.LOCATOR().verifier.verify(
             ordering,
             inverse,
             atLeast,
@@ -160,6 +160,7 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
             matcher(it)
         }
     }
+
     inline fun <reified T> matchNullable(noinline matcher: (T?) -> Boolean): T = match(FunctionMatcher(matcher, T::class.java))
     inline fun <reified T> eq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, inverse = inverse))
     inline fun <reified T> refEq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, ref = true, inverse = inverse))
@@ -203,6 +204,7 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
             matcher(it)
         }
     }
+
     inline fun <reified T> coMatchNullable(noinline matcher: suspend (T?) -> Boolean): T = matchNullable {
         runBlocking {
             matcher(it)
@@ -221,6 +223,7 @@ class MockKVerificationScope(gw: MockKGateway,
         captureBlock(it)
         true
     }
+
     inline fun <reified T> anyNullable(noinline captureBlock: (T?) -> Unit): T = matchNullable {
         captureBlock(it)
         true
@@ -282,6 +285,7 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
             answer(it)
         }
     }
+
     @Suppress("UNUSED_PARAMETER")
     infix fun just(runs: Runs) = returns(null)
 }

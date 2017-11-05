@@ -26,7 +26,6 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : io.mockk.Ins
     private val proxyClasses = mutableMapOf<ProxyClassSignature, Class<*>>()
 
     private val rnd = Random()
-//    private val noArgsType = Class.forName(MockKGateway.NO_ARG_TYPE_NAME)
 
     @Suppress("DEPRECATION")
     override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean): Any {
