@@ -48,6 +48,8 @@ There is three installation steps.
 
 #### 2. Add class modification via annotation
 
+Known issue: JaCoCo works only with agent
+
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
 <tr>
