@@ -36,16 +36,23 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any {
         log.trace { "Building proxy for $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
 
-        val interfaces = setOf(MockKInstance::class.java, *moreInterfaces.map { it.java }.toTypedArray())
-        val signature = ProxyClassSignature(cls, interfaces)
-        val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
-            ProxyFactoryExt(it).buildProxy(cls)
-        }
+        try {
+            val interfaces = setOf(MockKInstance::class.java, *moreInterfaces.map { it.java }.toTypedArray())
+            val signature = ProxyClassSignature(cls, interfaces)
+            val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
+                ProxyFactoryExt(it).buildProxy(cls)
+            }
 
-        return if (useDefaultConstructor)
-            proxyCls.newInstance()
-        else
-            newEmptyInstance(proxyCls)
+            return if (useDefaultConstructor)
+                proxyCls.newInstance()
+            else
+                newEmptyInstance(proxyCls)
+        } catch (ex: Exception) {
+            log.trace(ex) { "Failed to build proxy for $cls. " +
+                    "Trying just instantiate it. " +
+                    "This can help if it's last call in the chain" }
+            return instantiate(cls) as Any
+        }
     }
 
 
@@ -56,6 +63,8 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
             try {
                 instantiateViaProxy(cls)
             } catch (ex: Exception) {
+                log.trace(ex) { "Failed to instantiate via proxy $cls. " +
+                        "Doing just instantiation" }
                 newEmptyInstance(cls)
             }
         } else {
@@ -239,6 +248,10 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
     override fun registerFactory(factory: InstanceFactory) {
         instantiationFactories.add(factory)
+    }
+
+    override fun unregisterFactory(factory: InstanceFactory) {
+        instantiationFactories.remove(factory)
     }
 }
 

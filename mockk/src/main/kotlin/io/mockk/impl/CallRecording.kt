@@ -115,8 +115,10 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
 
         val instantiator = MockKGateway.LOCATOR().instantiator
         return instantiator.anyValue(retType) {
-            val child = instantiator.proxy(retType, false, moreInterfaces = arrayOf()) as MockK
-            (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, "temporary mock", child)
+            val child = instantiator.proxy(retType, false, moreInterfaces = arrayOf())
+            if (child is MockK) {
+                (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, "temporary mock", child)
+            }
             childMocks.add(Ref(child))
             child
         }

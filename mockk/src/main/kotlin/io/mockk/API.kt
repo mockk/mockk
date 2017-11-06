@@ -280,13 +280,13 @@ class MockKVerificationScope(gw: MockKGateway,
                              lambda: CapturingSlot<Function<*>>) : MockKMatcherScope(gw, lambda) {
     inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T = match(AssertMatcher({ assertion(it as T) }, msg, T::class.java))
     inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match(AssertMatcher(assertion, msg, T::class.java, nullable = true))
-    inline fun <reified T> run(noinline captureBlock: (T) -> Unit): T = match {
-        captureBlock(it)
+    inline fun <reified T> run(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
+        MockKAssertScope(it).captureBlock(it)
         true
     }
 
-    inline fun <reified T> runNullable(noinline captureBlock: (T?) -> Unit): T = matchNullable {
-        captureBlock(it)
+    inline fun <reified T> runNullable(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = matchNullable {
+        MockKAssertScope(it).captureBlock(it)
         true
     }
 
@@ -302,17 +302,38 @@ class MockKVerificationScope(gw: MockKGateway,
         }
     }
 
-    inline fun <reified T> coRun(noinline captureBlock: suspend (T) -> Unit): T = run {
+    inline fun <reified T> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
         runBlocking {
             captureBlock(it)
         }
     }
 
-    inline fun <reified T> coRunNullable(noinline captureBlock: suspend (T?) -> Unit): T = runNullable {
+    inline fun <reified T> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T = runNullable {
         runBlocking {
             captureBlock(it)
         }
     }
+}
+
+class MockKAssertScope(val actual: Any?) {
+    fun assertEquals(expected: Any?) {
+        if (!MockKGateway.LOCATOR().instantiator.deepEquals(expected, actual)) {
+            throw AssertionError(format(actual, expected))
+        }
+    }
+
+    fun assertEquals(msg: String, expected: Any?) {
+        if (!MockKGateway.LOCATOR().instantiator.deepEquals(expected, actual)) {
+            throw AssertionError(format(actual, expected, msg))
+        }
+    }
+
+    private fun format(actual: Any?, expected: Any?, message: String? = null): String {
+        val msgFormatted = if (message != null) "$message " else ""
+
+        return "${msgFormatted}expected [$expected] but found [$actual]"
+    }
+
 }
 
 /**

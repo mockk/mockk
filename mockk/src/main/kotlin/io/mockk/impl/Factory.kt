@@ -1,6 +1,8 @@
 package io.mockk.impl
 
 import io.mockk.MockFactory
+import io.mockk.MockK
+import io.mockk.MockKException
 import io.mockk.external.logger
 import javassist.util.proxy.ProxyObject
 import java.util.*
@@ -14,6 +16,9 @@ internal class MockFactoryImpl(val gw: MockKGatewayImpl) : MockFactory {
         val newName = name ?: "#${newId()}"
         log.debug { "Creating mockk for $cls name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
         val obj = gw.instantiator.proxy(cls, false, moreInterfaces)
+        if (obj !is MockK) {
+            throw MockKException("Failed to create mock for $cls")
+        }
         (obj as ProxyObject).handler = MockKInstanceProxyHandler(
                 cls,
                 newName,
@@ -25,6 +30,9 @@ internal class MockFactoryImpl(val gw: MockKGatewayImpl) : MockFactory {
         val newName = name ?: "#${newId()}"
         log.debug { "Creating spyk for $cls name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}"  }
         val obj = gw.instantiator.proxy(cls, objToCopy == null, moreInterfaces)
+        if (obj !is MockK) {
+            throw MockKException("Failed to create spy for $cls")
+        }
         if (objToCopy != null) {
             copyFields(obj, objToCopy as Any)
         }

@@ -19,14 +19,18 @@ interface MockKGateway {
         internal val defaultImpl: MockKGateway = MockKGatewayImpl()
         var LOCATOR: () -> MockKGateway = { defaultImpl }
 
-        fun registerInstanceFactory(factory: InstanceFactory) {
+        fun registerInstanceFactory(factory: InstanceFactory): AutoCloseable {
             LOCATOR().instantiator.registerFactory(factory)
+            return AutoCloseable {
+                LOCATOR().instantiator.unregisterFactory(factory)
+            }
         }
 
-        fun registerInstanceFactory(filterClass: Class<*>, factory: () -> Any) {
-            registerInstanceFactory(object : InstanceFactory {
+        fun registerInstanceFactory(filterClass: KClass<*>,
+                                    factory: () -> Any) : AutoCloseable {
+            return registerInstanceFactory(object : InstanceFactory {
                 override fun instantiate(cls: Class<*>): Any? {
-                    if (filterClass == cls) {
+                    if (filterClass.java == cls) {
                         return factory()
                     }
                     return null
@@ -126,6 +130,8 @@ interface Instantiator {
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 
     fun registerFactory(factory: InstanceFactory)
+
+    fun unregisterFactory(factory: InstanceFactory)
 }
 
 /**
