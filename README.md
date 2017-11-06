@@ -30,7 +30,7 @@ There is three installation steps.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.2"</pre>
+    <pre>testCompile "io.mockk:mockk:1.3"</pre>
     </td>
 </tr>
 <tr>
@@ -39,7 +39,7 @@ There is three installation steps.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.2&lt;/version&gt;
+    &lt;version&gt;1.3&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -102,7 +102,7 @@ Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a>
 
 Use following agent:
 
-<code>agent "io.mockk:mockk-agent:1.2"</code>
+<code>agent "io.mockk:mockk-agent:1.3"</code>
 
 </td>
 </tr><tr>
