@@ -1,3 +1,5 @@
+<img float="right" src="doc/logo300k-alt2.png" />
+
 # Backlog
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc
