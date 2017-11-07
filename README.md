@@ -122,7 +122,7 @@ See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/p
 
 Add JVM parameter to launch agent(remove spaces):
 
-<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.2/ mockk-agent-1.2.jar</code>
+<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.3/ mockk-agent-1.3.jar</code>
 
 </td>
 </tr>
