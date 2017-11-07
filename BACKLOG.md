@@ -1,4 +1,4 @@
-<img float="right" src="doc/logo300k-alt2.png" />
+<img align="right" src="doc/logo300k-alt2.png" />
 
 # Backlog
 - [ ] Runner + JaCoCo
