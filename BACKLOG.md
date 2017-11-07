@@ -1,4 +1,4 @@
-<img align="right" src="doc/logo300k-alt2.png" />
+<img align="left" src="doc/logo300k-alt2.png" width="50" height="50"/>
 
 # Backlog
 - [ ] Runner + JaCoCo
