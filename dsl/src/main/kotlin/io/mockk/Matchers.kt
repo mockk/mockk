@@ -271,6 +271,5 @@ internal fun Any?.toStr() =
         when (this) {
             null -> "null"
             is Function<*> -> "lambda {}"
-            is MethodDescription -> name + "(" + paramTypes.map { it.simpleName }.joinToString() + ")"
             else -> toString()
         }

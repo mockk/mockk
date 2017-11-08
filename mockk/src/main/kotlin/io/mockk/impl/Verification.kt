@@ -37,21 +37,19 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
         }
 
         try {
-            try {
-                val min = if (exactly != -1) exactly else atLeast
-                val max = if (exactly != -1) exactly else atMost
+            val min = if (exactly != -1) exactly else atLeast
+            val max = if (exactly != -1) exactly else atMost
 
-                val outcome = gateway.verifier(ordering).verify(callRecorder.calls, min, max)
+            val outcome = gateway.verifier(ordering).verify(callRecorder.calls, min, max)
 
-                log.trace { "Done verification. Outcome: $outcome" }
+            log.trace { "Done verification. Outcome: $outcome" }
 
-                failIfNotPassed(outcome, inverse)
-            } finally {
-                callRecorder.doneVerification()
-            }
+            failIfNotPassed(outcome, inverse)
         } catch (ex: Throwable) {
             callRecorder.cancel()
             throw ex
+        } finally {
+            callRecorder.doneVerification()
         }
     }
 

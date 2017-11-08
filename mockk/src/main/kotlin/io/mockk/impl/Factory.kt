@@ -15,10 +15,10 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
 
     override fun <T : Any> mockk(cls: KClass<T>, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
-        log.debug { "Creating mockk for $cls name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
+        log.debug { "Creating mockk for ${cls.toStr()} name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
         val obj = gateway.instantiator.proxy(cls, false, moreInterfaces)
         if (obj !is MockK) {
-            throw MockKException("Failed to create mock for $cls")
+            throw MockKException("Failed to create mock for ${cls.toStr()}")
         }
         (obj as ProxyObject).handler = MockKInstanceProxyHandler(
                 cls,
@@ -29,10 +29,10 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
 
     override fun <T : Any> spyk(cls: KClass<T>, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
-        log.debug { "Creating spyk for $cls name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
+        log.debug { "Creating spyk for ${cls.toStr()} name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
         val obj = gateway.instantiator.proxy(cls, objToCopy == null, moreInterfaces)
         if (obj !is MockK) {
-            throw MockKException("Failed to create spy for $cls")
+            throw MockKException("Failed to create spy for ${cls.toStr()}")
         }
         if (objToCopy != null) {
             copyFields(obj, objToCopy as Any)

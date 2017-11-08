@@ -17,7 +17,7 @@ internal class StubberImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Stubber {
         } catch (ex: NoClassDefFoundError) {
             gateway.callRecorder.cancel()
             throw prettifyCoroutinesException(ex)
-        } catch (ex: Exception) {
+        } catch (ex: Throwable) {
             gateway.callRecorder.cancel()
             throw ex
         }

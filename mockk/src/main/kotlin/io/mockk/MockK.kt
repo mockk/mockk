@@ -102,3 +102,11 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
             recordedCalls = recordedCalls,
             childMocks = childMocks)
 }
+
+
+/**
+ * Executes block of code with registering and unregistering instance factory.
+ */
+inline fun <reified T: Any> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> Unit) {
+    MockKDsl.withInstanceFactory(instanceFactory, block)
+}

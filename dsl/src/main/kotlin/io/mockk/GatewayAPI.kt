@@ -17,17 +17,17 @@ interface MockKGateway {
     companion object {
         lateinit var implementation: () -> MockKGateway
 
-        fun registerInstanceFactory(factory: InstanceFactory): Disposable {
+        fun registerInstanceFactory(factory: InstanceFactory): Unregisterable {
             implementation().instantiator.registerFactory(factory)
-            return object : Disposable {
-                override fun dispose() {
+            return object : Unregisterable {
+                override fun unregister() {
                     implementation().instantiator.unregisterFactory(factory)
                 }
             }
         }
 
         fun registerInstanceFactory(filterClass: KClass<*>,
-                                    factory: () -> Any): Disposable {
+                                    factory: () -> Any): Unregisterable {
             return registerInstanceFactory(object : InstanceFactory {
                 override fun instantiate(cls: KClass<*>): Any? {
                     if (filterClass == cls) {
@@ -39,7 +39,7 @@ interface MockKGateway {
         }
     }
 
-    fun <T>runCoroutine(block: suspend () -> T): T
+    fun <T> runCoroutine(block: suspend () -> T): T
 
 
     /**
@@ -147,8 +147,25 @@ interface MockKGateway {
         fun instantiate(cls: KClass<*>): Any?
     }
 
+    /**
+     * Allows to unregister something was registered before
+     */
+    interface Unregisterable {
+        fun unregister()
+    }
 
-    interface Disposable {
-        fun dispose()
+
+}
+
+inline fun <T : MockKGateway.Unregisterable, R> T.use(block: (T) -> R): R {
+    try {
+        return block(this)
+    } finally {
+        try {
+            this.unregister()
+        } catch (closeException: Throwable) {
+            // skip
+        }
     }
 }
+

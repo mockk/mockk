@@ -125,6 +125,15 @@ object MockKDsl {
                 recordedCalls = recordedCalls,
                 childMocks = childMocks)
     }
+
+    /**
+     * Executes block of code with registering and unregistering instance factory.
+     */
+    inline fun <reified T: Any> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> Unit) {
+        MockKGateway.registerInstanceFactory(T::class, instanceFactory).use {
+            block()
+        }
+    }
 }
 
 /**
@@ -527,8 +536,12 @@ data class MethodDescription(val name: String,
                              val returnType: KClass<*>,
                              val declaringClass: KClass<*>,
                              val paramTypes: List<KClass<*>>,
-                             val langDependentRef : Any) {
-    override fun toString() = "$name(${paramTypes.map { it.simpleName }.joinToString(", ")})"
+                             val langDependentRef: Any) {
+    override fun toString() = "$name(${argsToStr()})"
+
+    fun argsToStr() = paramTypes.map(this::argToStr).joinToString(", ")
+
+    fun argToStr(argType: KClass<*>) = argType.simpleName
 }
 
 /**
@@ -538,7 +551,22 @@ data class Invocation(val self: MockK,
                       val method: MethodDescription,
                       val superMethod: MethodDescription?,
                       val args: List<Any?>,
-                      val timestamp: Long)
+                      val timestamp: Long) {
+    override fun toString(): String {
+        return "Invocation(self=$self, method=$method, args=${argsToStr()})"
+    }
+
+    fun argsToStr() = args.map(this::argToStr).joinToString(", ")
+
+    fun argToStr(arg: Any?) =
+            if (arg == null) {
+                "null"
+            } else if (arg is Function<*>) {
+                "lambda {}"
+            } else {
+                arg.toString()
+            }
+}
 
 /**
  * Checks if invocation is matching via number of matchers

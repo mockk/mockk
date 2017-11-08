@@ -33,7 +33,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
     @Suppress("DEPRECATION")
     override fun <T : Any> proxy(cls: KClass<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any {
-        log.trace { "Building proxy for $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
+        log.trace { "Building proxy for ${cls.toStr()} hashcode=${Integer.toHexString(cls.hashCode())}" }
 
         try {
             val signature = ProxyClassSignature(cls, linkedSetOf(MockKInstance::class, *moreInterfaces))
@@ -46,7 +46,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
             else
                 newEmptyInstance(proxyCls)
         } catch (ex: Exception) {
-            log.trace(ex) { "Failed to build proxy for $cls. " +
+            log.trace(ex) { "Failed to build proxy for ${cls.toStr()}. " +
                     "Trying just instantiate it. " +
                     "This can help if it's last call in the chain" }
             return instantiate(cls)
@@ -55,13 +55,13 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
 
     override fun <T : Any> instantiate(cls: KClass<T>): T {
-        log.trace { "Building empty instance $cls" }
+        log.trace { "Building empty instance ${cls.toStr()}" }
 
         val ret = if (!cls.isFinal) {
             try {
                 instantiateViaProxy(cls)
             } catch (ex: Exception) {
-                log.trace(ex) { "Failed to instantiate via proxy $cls. " +
+                log.trace(ex) { "Failed to instantiate via proxy ${cls.toStr()}. " +
                         "Doing just instantiation" }
                 newEmptyInstance(cls)
             }
@@ -99,8 +99,8 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
         } catch (ex: RuntimeException) {
             if (ex.message?.endsWith("is final") ?: false) {
-                throw MockKException("Failed to create proxy for $cls. Class is final. " +
-                        "Put @MockKJUnit4Runner on your test or add MockK Java Agent instrumentation to make all classes 'open'")
+                throw MockKException("Failed to create proxy for ${cls.toStr()}. Class is final. " +
+                        "Put @MockKJUnit4Runner on your test or add MockK Java Agent instrumentation to make all classes 'open'", ex)
             }
             throw ex
         }
@@ -131,7 +131,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
     override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
         return when (cls) {
-            Void.TYPE -> Unit
+            Void.TYPE.kotlin -> Unit
 
             Boolean::class -> false
             Byte::class -> 0.toByte()

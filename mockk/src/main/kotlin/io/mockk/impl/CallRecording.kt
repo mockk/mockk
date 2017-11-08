@@ -117,12 +117,17 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
 
         val instantiator = MockKGateway.implementation().instantiator
         return instantiator.anyValue(retType) {
-            val child = instantiator.proxy(retType, false, moreInterfaces = arrayOf())
-            if (child is MockK) {
-                (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, "temporary mock", child)
+            try {
+                val child = instantiator.proxy(retType, false, moreInterfaces = arrayOf())
+                if (child is MockK) {
+                    (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, "temporary mock", child)
+                }
+                childMocks.add(Ref(child))
+                child
+            } catch (ex: MockKException) {
+                log.trace(ex) { "Returning 'null' for a final class assuming it is last in a call chain" }
+                null
             }
-            childMocks.add(Ref(child))
-            child
         }
     }
 
