@@ -1,10 +1,5 @@
 package io.mockk
 
-import io.mockk.impl.MockKInstance
-import io.mockk.impl.toStr
-import kotlinx.coroutines.experimental.runBlocking
-import java.lang.reflect.Method
-import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -15,37 +10,122 @@ interface MockK
 /**
  * Exception thrown by library
  */
-class MockKException(message: String, ex: Throwable? = null) : RuntimeException(message, ex)
+class MockKException(message: String, ex: Throwable? = null) : Throwable(message, ex)
 
 /**
- * Builds a new mock for specified class
+ * DSL entry points.
  */
-inline fun <reified T> mockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.LOCATOR().mockFactory.mockk(T::class.java, name, moreInterfaces)
+@Suppress("NOTHING_TO_INLINE")
+object MockKDsl {
+    /**
+     * Builds a new mock for specified class
+     */
+    inline fun <reified T : Any> mockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.mockk(T::class, name, moreInterfaces)
 
-/**
- * Builds a new spy for specified class. Copies fields from object if provided
- */
-inline fun <reified T> spyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.LOCATOR().mockFactory.spyk(T::class.java, objToCopy, name, moreInterfaces)
+    /**
+     * Builds a new spy for specified class. Copies fields from object if provided
+     */
+    inline fun <reified T : Any> spyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.spyk(T::class, objToCopy, name, moreInterfaces)
 
-/**
- * Creates new capturing slot
- */
-inline fun <reified T : Any> slot() = CapturingSlot<T>()
+    /**
+     * Creates new capturing slot
+     */
+    inline fun <reified T : Any> slot() = CapturingSlot<T>()
 
-/**
- * Creates new lambda args
- */
-fun args(vararg v: Any?) = LambdaArgs(*v)
+    /**
+     * Creates new lambda args
+     */
+    fun args(vararg v: Any?) = LambdaArgs(*v)
 
-/**
- * Starts a block of stubbing. Part of DSL.
- */
-fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().stubber.every(stubBlock, null)
+    /**
+     * Starts a block of stubbing. Part of DSL.
+     */
+    inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(stubBlock, null)
 
-/**
- * Starts a block of stubbing for coroutines. Part of DSL.
- */
-fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.LOCATOR().stubber.every(null, stubBlock)
+    /**
+     * Starts a block of stubbing for coroutines. Part of DSL.
+     */
+    inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(null, stubBlock)
+
+    /**
+     * Verifies calls happened in the past. Part of DSL
+     */
+    inline fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
+                          inverse: Boolean = false,
+                          atLeast: Int = 1,
+                          atMost: Int = Int.MAX_VALUE,
+                          exactly: Int = -1,
+                          noinline verifyBlock: MockKVerificationScope.() -> T) {
+
+        if (exactly < -1) {
+            throw MockKException("exactly should be positive")
+        }
+        if (exactly == -1 && atLeast < 0) {
+            throw MockKException("atLeast should be positive")
+        }
+        if (exactly == -1 && atMost < 0) {
+            throw MockKException("atMost should be positive")
+        }
+        if (atLeast > atMost) {
+            throw MockKException("atLeast should less or equal atMost")
+        }
+
+        MockKGateway.implementation().verifier.verify(
+                ordering,
+                inverse,
+                atLeast,
+                atMost,
+                exactly,
+                verifyBlock,
+                null)
+    }
+
+    /**
+     * Verify for coroutines
+     */
+    inline fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
+                            inverse: Boolean = false,
+                            atLeast: Int = 1,
+                            atMost: Int = Int.MAX_VALUE,
+                            exactly: Int = -1,
+                            noinline verifyBlock: suspend MockKVerificationScope.() -> T) {
+        MockKGateway.implementation().verifier.verify(
+                ordering,
+                inverse,
+                atLeast,
+                atMost,
+                exactly,
+                null,
+                verifyBlock)
+    }
+
+    /**
+     * Shortcut for ordered calls verification
+     */
+    inline fun <T> verifyOrder(inverse: Boolean = false,
+                               noinline verifyBlock: MockKVerificationScope.() -> T) {
+        verify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
+    }
+
+    /**
+     * Shortcut for sequence calls verification
+     */
+    inline fun <T> verifySequence(inverse: Boolean = false,
+                                  noinline verifyBlock: MockKVerificationScope.() -> T) {
+        verify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
+    }
+
+    /**
+     * Resets information associated with mock
+     */
+    fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
+        MockKGateway.implementation().mockFactory.clear(
+                mocks = mocks,
+                answers = answers,
+                recordedCalls = recordedCalls,
+                childMocks = childMocks)
+    }
+}
 
 /**
  * Verification orderding
@@ -66,85 +146,6 @@ enum class Ordering {
 }
 
 /**
- * Verifies calls happened in the past. Part of DSL
- */
-fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
-               inverse: Boolean = false,
-               atLeast: Int = 1,
-               atMost: Int = Int.MAX_VALUE,
-               exactly: Int = -1,
-               verifyBlock: MockKVerificationScope.() -> T) {
-
-    if (exactly < -1) {
-        throw MockKException("exactly should be positive")
-    }
-    if (exactly == -1 && atLeast < 0) {
-        throw MockKException("atLeast should be positive")
-    }
-    if (exactly == -1 && atMost < 0) {
-        throw MockKException("atMost should be positive")
-    }
-    if (atLeast > atMost) {
-        throw MockKException("atLeast should less or equal atMost")
-    }
-
-    MockKGateway.LOCATOR().verifier.verify(
-            ordering,
-            inverse,
-            atLeast,
-            atMost,
-            exactly,
-            verifyBlock,
-            null)
-}
-
-/**
- * Verify for coroutines
- */
-fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
-                 inverse: Boolean = false,
-                 atLeast: Int = 1,
-                 atMost: Int = Int.MAX_VALUE,
-                 exactly: Int = -1,
-                 verifyBlock: suspend MockKVerificationScope.() -> T) {
-    MockKGateway.LOCATOR().verifier.verify(
-            ordering,
-            inverse,
-            atLeast,
-            atMost,
-            exactly,
-            null,
-            verifyBlock)
-}
-
-/**
- * Shortcut for ordered calls verification
- */
-fun <T> verifyOrder(inverse: Boolean = false,
-                    verifyBlock: MockKVerificationScope.() -> T) {
-    verify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
-}
-
-/**
- * Shortcut for sequence calls verification
- */
-fun <T> verifySequence(inverse: Boolean = false,
-                       verifyBlock: MockKVerificationScope.() -> T) {
-    verify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
-}
-
-/**
- * Resets information associated with mock
- */
-fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
-    for (mock in mocks) {
-        if (mock is MockKInstance) {
-            mock.___clear(answers, recordedCalls, childMocks)
-        }
-    }
-}
-
-/**
  * Basic stub/verification scope. Part of DSL.
  *
  * Inside of the scope you can interact with mocks.
@@ -160,14 +161,14 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
  *
  * Provided information is gathered and associated with mock
  */
-open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
+open class MockKMatcherScope(val gateway: MockKGateway,
                              val lambda: CapturingSlot<Function<*>>) {
 
-    inline fun <reified T> match(matcher: Matcher<T>): T {
-        return gw.callRecorder.matcher(matcher, T::class.java)
+    inline fun <reified T : Any> match(matcher: Matcher<T>): T {
+        return gateway.callRecorder.matcher(matcher, T::class)
     }
 
-    inline fun <reified T> match(noinline matcher: (T) -> Boolean): T = matchNullable {
+    inline fun <reified T : Any> match(noinline matcher: (T) -> Boolean): T = matchNullable {
         if (it == null) {
             false
         } else {
@@ -175,21 +176,21 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
         }
     }
 
-    inline fun <reified T> matchNullable(noinline matcher: (T?) -> Boolean): T = match(FunctionMatcher(matcher, T::class.java))
-    inline fun <reified T> eq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, inverse = inverse))
-    inline fun <reified T> refEq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, ref = true, inverse = inverse))
-    inline fun <reified T> any(): T = match(ConstantMatcher(true))
-    inline fun <reified T> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class.java))
-    inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class.java))
-    inline fun <reified T> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst, T::class.java))
-    inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class.java))
-    inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class.java))
-    inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) -2 else -1, T::class.java))
-    inline fun <reified T> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
-    inline fun <reified T> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
-    inline fun <reified T> not(value: T) = match(NotMatcher(value))
-    inline fun <reified T> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
-    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls.java))
+    inline fun <reified T : Any> matchNullable(noinline matcher: (T?) -> Boolean): T = match(FunctionMatcher(matcher, T::class))
+    inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, inverse = inverse))
+    inline fun <reified T : Any> refEq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, ref = true, inverse = inverse))
+    inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
+    inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
+    inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class))
+    inline fun <reified T : Any> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst, T::class))
+    inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class))
+    inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class))
+    inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T = match(ComparingMatcher(value, if (andEquals) -2 else -1, T::class))
+    inline fun <reified T : Any> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
+    inline fun <reified T : Any> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
+    inline fun <reified T : Any> not(value: T) = match(NotMatcher(value))
+    inline fun <reified T : Any> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
+    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls))
 
     inline fun <reified T : () -> Any> invoke() = match(InvokeMatcher<T> { it() })
     inline fun <reified T : (A1) -> Any, A1> invoke(arg1: A1) = match(InvokeMatcher<T> { it(arg1) })
@@ -215,35 +216,35 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
     inline fun <reified T : (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> invoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = match(InvokeMatcher<T> { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) })
     inline fun <reified T : (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> invoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = match(InvokeMatcher<T> { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) })
 
-    inline fun <reified T : suspend () -> Any> coInvoke() = match(InvokeMatcher<T> { runBlocking { it() } })
-    inline fun <reified T : suspend (A1) -> Any, A1> coInvoke(arg1: A1) = match(InvokeMatcher<T> { runBlocking { it(arg1) } })
-    inline fun <reified T : suspend (A1, A2) -> Any, A1, A2> coInvoke(arg1: A1, arg2: A2) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2) } })
-    inline fun <reified T : suspend (A1, A2, A3) -> Any, A1, A2, A3> coInvoke(arg1: A1, arg2: A2, arg3: A3) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4) -> Any, A1, A2, A3, A4> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5) -> Any, A1, A2, A3, A4, A5> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6) -> Any, A1, A2, A3, A4, A5, A6> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7) -> Any, A1, A2, A3, A4, A5, A6, A7> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8) -> Any, A1, A2, A3, A4, A5, A6, A7, A8> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = match(InvokeMatcher<T> { runBlocking { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) } })
+    inline fun <reified T : suspend () -> Any> coInvoke() = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it() } })
+    inline fun <reified T : suspend (A1) -> Any, A1> coInvoke(arg1: A1) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1) } })
+    inline fun <reified T : suspend (A1, A2) -> Any, A1, A2> coInvoke(arg1: A1, arg2: A2) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2) } })
+    inline fun <reified T : suspend (A1, A2, A3) -> Any, A1, A2, A3> coInvoke(arg1: A1, arg2: A2, arg3: A3) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4) -> Any, A1, A2, A3, A4> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5) -> Any, A1, A2, A3, A4, A5> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6) -> Any, A1, A2, A3, A4, A5, A6> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7) -> Any, A1, A2, A3, A4, A5, A6, A7> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8) -> Any, A1, A2, A3, A4, A5, A6, A7, A8> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> Any, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) } })
 
-    inline fun <reified T> allAny(): T = match(AllAnyMatcher())
+    inline fun <reified T : Any> allAny(): T = match(AllAnyMatcher())
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <R, T : Any> R.hint(cls: KClass<T>, n: Int = 1): R {
-        MockKGateway.LOCATOR().callRecorder.hintNextReturnType(cls.java, n)
+        MockKGateway.implementation().callRecorder.hintNextReturnType(cls, n)
         return this
     }
 
@@ -256,18 +257,18 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
      */
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Function<*>> captureLambda(cls: KClass<out Function<*>>): T {
-        val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>, T::class.java)
-        return gw.callRecorder.matcher(matcher, cls.java as Class<T>)
+        val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>, T::class)
+        return gateway.callRecorder.matcher(matcher, cls as KClass<T>)
     }
 
-    inline fun <reified T> coMatch(noinline matcher: suspend (T) -> Boolean): T = match {
-        runBlocking {
+    inline fun <reified T : Any> coMatch(noinline matcher: suspend (T) -> Boolean): T = match {
+        MockKGateway.implementation().runCoroutine {
             matcher(it)
         }
     }
 
-    inline fun <reified T> coMatchNullable(noinline matcher: suspend (T?) -> Boolean): T = matchNullable {
-        runBlocking {
+    inline fun <reified T : Any> coMatchNullable(noinline matcher: suspend (T?) -> Boolean): T = matchNullable {
+        MockKGateway.implementation().runCoroutine {
             matcher(it)
         }
     }
@@ -278,38 +279,38 @@ open class MockKMatcherScope(@JvmSynthetic @PublishedApi internal val gw: MockKG
  */
 class MockKVerificationScope(gw: MockKGateway,
                              lambda: CapturingSlot<Function<*>>) : MockKMatcherScope(gw, lambda) {
-    inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T = match(AssertMatcher({ assertion(it as T) }, msg, T::class.java))
-    inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match(AssertMatcher(assertion, msg, T::class.java, nullable = true))
-    inline fun <reified T> run(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
+    inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T = match(AssertMatcher({ assertion(it as T) }, msg, T::class))
+    inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match(AssertMatcher(assertion, msg, T::class, nullable = true))
+    inline fun <reified T : Any> run(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
         MockKAssertScope(it).captureBlock(it)
         true
     }
 
-    inline fun <reified T> runNullable(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = matchNullable {
+    inline fun <reified T : Any> runNullable(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = matchNullable {
         MockKAssertScope(it).captureBlock(it)
         true
     }
 
     inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T = assert(msg) {
-        runBlocking {
+        MockKGateway.implementation().runCoroutine {
             assertion(it)
         }
     }
 
     inline fun <reified T : Any> coAssertNullable(msg: String? = null, noinline assertion: suspend (T?) -> Boolean): T = assertNullable(msg) {
-        runBlocking {
+        MockKGateway.implementation().runCoroutine {
             assertion(it)
         }
     }
 
-    inline fun <reified T> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
-        runBlocking {
+    inline fun <reified T : Any> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
+        MockKGateway.implementation().runCoroutine {
             captureBlock(it)
         }
     }
 
-    inline fun <reified T> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T = runNullable {
-        runBlocking {
+    inline fun <reified T : Any> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T = runNullable {
+        MockKGateway.implementation().runCoroutine {
             captureBlock(it)
         }
     }
@@ -317,13 +318,13 @@ class MockKVerificationScope(gw: MockKGateway,
 
 class MockKAssertScope(val actual: Any?) {
     fun assertEquals(expected: Any?) {
-        if (!MockKGateway.LOCATOR().instantiator.deepEquals(expected, actual)) {
+        if (!MockKGateway.implementation().instantiator.deepEquals(expected, actual)) {
             throw AssertionError(format(actual, expected))
         }
     }
 
     fun assertEquals(msg: String, expected: Any?) {
-        if (!MockKGateway.LOCATOR().instantiator.deepEquals(expected, actual)) {
+        if (!MockKGateway.implementation().instantiator.deepEquals(expected, actual)) {
             throw AssertionError(format(actual, expected, msg))
         }
     }
@@ -346,9 +347,9 @@ object Runs
  *
  * Allows to specify function result
  */
-class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGateway,
+class MockKStubScope<T>(val gateway: MockKGateway,
                         private val lambda: CapturingSlot<Function<*>>) {
-    infix fun answers(answer: Answer<T?>) = gw.callRecorder.answer(answer)
+    infix fun answers(answer: Answer<T?>) = gateway.callRecorder.answer(answer)
 
     infix fun returns(returnValue: T?) = answers(ConstantAnswer(returnValue))
 
@@ -359,11 +360,11 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
     infix fun answers(answer: MockKAnswerScope.(Call) -> T?) =
-            answers(FunctionAnswer({ MockKAnswerScope(gw, lambda, it).answer(it) }))
+            answers(FunctionAnswer({ MockKAnswerScope(gateway, lambda, it).answer(it) }))
 
 
     infix fun coAnswers(answer: suspend MockKAnswerScope.(Call) -> T?) = answers {
-        runBlocking {
+        MockKGateway.implementation().runCoroutine {
             answer(it)
         }
     }
@@ -375,7 +376,7 @@ class MockKStubScope<T>(@JvmSynthetic @PublishedApi internal val gw: MockKGatewa
 /**
  * Scope for answering functions. Part of DSL
  */
-class MockKAnswerScope(private val gw: MockKGateway,
+class MockKAnswerScope(val gateway: MockKGateway,
                        val lambda: CapturingSlot<Function<*>>,
                        val call: Call) {
 
@@ -465,7 +466,7 @@ class LambdaArgs(vararg val args: Any?) {
         }
     }
 
-    override fun toString(): String = Arrays.toString(args)
+    override fun toString(): String = args.toString()
 
 
 }
@@ -482,7 +483,7 @@ interface Matcher<in T> {
  * Checks if argument is of specific type
  */
 interface TypedMatcher {
-    val argumentType: Class<*>
+    val argumentType: KClass<*>
 
     fun checkType(arg: Any?): Boolean = argumentType.isInstance(arg)
 }
@@ -520,25 +521,30 @@ interface Answer<out T> {
 }
 
 /**
- * MockKClassLoaderUtil invocation
+ * Provides inromation about method
+ */
+data class MethodDescription(val name: String,
+                             val returnType: KClass<*>,
+                             val declaringClass: KClass<*>,
+                             val paramTypes: List<KClass<*>>,
+                             val langDependentRef : Any) {
+    override fun toString() = "$name(${paramTypes.map { it.simpleName }.joinToString(", ")})"
+}
+
+/**
+ * Mock invocation
  */
 data class Invocation(val self: MockK,
-                      val method: Method,
-                      val superMethod: Method?,
+                      val method: MethodDescription,
+                      val superMethod: MethodDescription?,
                       val args: List<Any?>,
-                      val timestamp: Long = System.nanoTime()) {
-    override fun toString(): String {
-        return "Invocation(self=$self, method=${method.toStr()}, args=${args.map { it.toStr() }})"
-    }
-
-    fun withSelf(newSelf: MockK) = Invocation(newSelf, method, superMethod, args, timestamp)
-}
+                      val timestamp: Long)
 
 /**
  * Checks if invocation is matching via number of matchers
  */
 data class InvocationMatcher(val self: Any,
-                             val method: Method,
+                             val method: MethodDescription,
                              val args: List<Matcher<Any>>) {
     fun match(invocation: Invocation): Boolean {
         if (self !== invocation.self) {
@@ -569,22 +575,13 @@ data class InvocationMatcher(val self: Any,
         return true
     }
 
-    fun withSelf(newSelf: Any) = InvocationMatcher(newSelf, method, args)
-
-    override fun toString(): String {
-        return "InvocationMatcher(self=$self, method=${method.toStr()}, args=$args)"
-    }
-
-
 }
 
 /**
  * Matched invocation
  */
-data class Call(val retType: Class<*>,
+data class Call(val retType: KClass<*>,
                 val invocation: Invocation,
                 val matcher: InvocationMatcher,
-                val chained: Boolean) {
-    fun withInvocationAndMatcher(newInvocation: Invocation, newMatcher: InvocationMatcher) =
-            Call(retType, newInvocation, newMatcher, chained)
-}
+                val chained: Boolean)
+

@@ -1,4 +1,7 @@
 # Backlog
+- [ ] Kotlin Javascript
+- [ ] performance optimization: proxy answer findMethodInProxy
+- [ ] MILESTONE 1.4
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc
 - [ ] CONTRIBUTE
@@ -6,7 +9,6 @@
 - [ ] static methods
 - [ ] extension function
 - [ ] other JVMs
-- [ ] Kotlin Javascript
 
 ## Geo
 

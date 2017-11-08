@@ -1,13 +1,15 @@
 package io.mockk.impl
 
 import io.mockk.*
+import io.mockk.MockKGateway.*
 import io.mockk.external.logger
 import javassist.util.proxy.ProxyObject
 import kotlinx.coroutines.experimental.runBlocking
-import java.lang.reflect.Method
 import kotlin.coroutines.experimental.Continuation
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
-private data class SignedCall(val retType: Class<*>,
+private data class SignedCall(val retType: KClass<*>,
                               val invocation: Invocation,
                               val matchers: List<Matcher<*>>,
                               val signaturePart: List<Any>)
@@ -27,7 +29,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     private val callRounds = mutableListOf<CallRound>()
     override val calls = mutableListOf<Call>()
     private val childMocks = mutableListOf<Ref>()
-    private var childTypes = mutableMapOf<Int, Class<*>>()
+    private var childTypes = mutableMapOf<Int, KClass<*>>()
 
     private val matchers = mutableListOf<Matcher<*>>()
     private val signatures = mutableListOf<Any>()
@@ -83,7 +85,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         childMocks.clear()
     }
 
-    override fun <T> matcher(matcher: Matcher<*>, cls: Class<T>): T {
+    override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         matchers.add(matcher)
         val signatureValue = gw.instantiator.signatureValue(cls)
@@ -113,7 +115,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         matchers.clear()
         signatures.clear()
 
-        val instantiator = MockKGateway.LOCATOR().instantiator
+        val instantiator = MockKGateway.implementation().instantiator
         return instantiator.anyValue(retType) {
             val child = instantiator.proxy(retType, false, moreInterfaces = arrayOf())
             if (child is MockK) {
@@ -138,9 +140,9 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
                 newSelf = invocation.self()
             }
 
-            val newInvocation = ic.invocation.withSelf(newSelf!!)
-            val newMatcher = ic.matcher.withSelf(newSelf)
-            val newCall = ic.withInvocationAndMatcher(newInvocation, newMatcher)
+            val newInvocation = ic.invocation.copy(self = newSelf!!)
+            val newMatcher = ic.matcher.copy(self = newSelf)
+            val newCall = ic.copy(invocation = newInvocation, matcher = newMatcher)
 
             newCalls.add(newCall)
 
@@ -195,7 +197,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         mode = Mode.ANSWERING
     }
 
-    private fun nextChildType(defaultReturnType: () -> Class<*>): Class<*> {
+    private fun nextChildType(defaultReturnType: () -> KClass<*>): KClass<*> {
         val type = childTypes[1]
 
         childTypes = childTypes
@@ -206,7 +208,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         return type ?: defaultReturnType()
     }
 
-    override fun hintNextReturnType(cls: Class<*>, n: Int) {
+    override fun hintNextReturnType(cls: KClass<*>, n: Int) {
         childTypes[n] = cls
     }
 }
@@ -298,7 +300,7 @@ private class SignatureMatcherDetector {
             }
 
             if (matcherMap.isNotEmpty()) {
-                throw MockKException("Failed matching mocking signature for ${zeroCall.invocation}: ${matcherMap.values}")
+                throw MockKException("Failed matching mocking signature for\n${zeroCall.invocation}\nleft matchers: ${matcherMap.values}")
             }
 
             val im = InvocationMatcher(
@@ -314,7 +316,7 @@ private class SignatureMatcherDetector {
     }
 }
 
-internal open class CommonRecorder(val gw: MockKGatewayImpl) {
+internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
 
     internal fun <T, S : MockKMatcherScope> record(scope: S,
                                                    mockBlock: (S.() -> T)?,
@@ -323,18 +325,18 @@ internal open class CommonRecorder(val gw: MockKGatewayImpl) {
             if (mockBlock != null) {
                 val n = MockKGatewayImpl.N_CALL_ROUNDS
                 repeat(n) {
-                    gw.callRecorder.catchArgs(it, n)
+                    gateway.callRecorder.catchArgs(it, n)
                     scope.mockBlock()
                 }
-                gw.callRecorder.catchArgs(n, n)
+                gateway.callRecorder.catchArgs(n, n)
             } else if (coMockBlock != null) {
                 runBlocking {
                     val n = MockKGatewayImpl.N_CALL_ROUNDS
                     repeat(n) {
-                        gw.callRecorder.catchArgs(it, n)
+                        gateway.callRecorder.catchArgs(it, n)
                         scope.coMockBlock()
                     }
-                    gw.callRecorder.catchArgs(n, n)
+                    gateway.callRecorder.catchArgs(n, n)
                 }
             }
         } catch (ex: ClassCastException) {
@@ -354,18 +356,18 @@ internal open class CommonRecorder(val gw: MockKGatewayImpl) {
     }
 }
 
-private fun Method.isSuspend(): Boolean {
-    val sz = parameterTypes.size
+private fun MethodDescription.isSuspend(): Boolean {
+    val sz = paramTypes.size
     if (sz == 0) {
         return false
     }
-    return Continuation::class.java.isAssignableFrom(parameterTypes[sz - 1])
+    return paramTypes[sz - 1].isSubclassOf(Continuation::class)
 }
 
 private fun Invocation.self() = self as MockKInstance
 
 private fun packRef(arg: Any?): Any? {
-    return if (arg == null || MockKGateway.LOCATOR().instantiator.isPassedByValue(arg.javaClass))
+    return if (arg == null || MockKGateway.implementation().instantiator.isPassedByValue(arg::class))
         arg
     else
         Ref(arg)

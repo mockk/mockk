@@ -4,7 +4,6 @@ apply plugin: "kotlin"
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
 }
 
 sourceSets {

@@ -2,8 +2,9 @@ package io.mockk.external
 
 import org.slf4j.LoggerFactory
 import java.util.logging.Level
+import kotlin.reflect.KClass
 
-internal inline fun <reified T> logger(): Logger = loggerFactory(T::class.java)
+internal inline fun <reified T> logger(): Logger = loggerFactory(T::class)
 
 internal interface Logger {
     fun error(msg: () -> String)
@@ -21,11 +22,11 @@ internal interface Logger {
 
 private val loggerFactory =
         link("org.slf4j.Logger") {
-            { cls: Class<*> -> Slf4jLogger(cls) }
-        } ?: { cls: Class<*> -> JULLogger(cls) }
+            { cls: KClass<*> -> Slf4jLogger(cls) }
+        } ?: { cls: KClass<*> -> JULLogger(cls) }
 
-private class Slf4jLogger(cls: Class<*>) : Logger {
-    val log: org.slf4j.Logger = LoggerFactory.getLogger(cls)
+private class Slf4jLogger(cls: KClass<*>) : Logger {
+    val log: org.slf4j.Logger = LoggerFactory.getLogger(cls.java)
 
     override fun error(msg: () -> String) = if (log.isErrorEnabled) log.error(msg()) else Unit
     override fun error(ex: Throwable, msg: () -> String) = if (log.isErrorEnabled) log.error(msg(), ex) else Unit
@@ -39,8 +40,8 @@ private class Slf4jLogger(cls: Class<*>) : Logger {
     override fun trace(ex: Throwable, msg: () -> String) = if (log.isTraceEnabled) log.trace(msg(), ex) else Unit
 }
 
-private class JULLogger(cls: Class<*>) : Logger {
-    val log: java.util.logging.Logger = java.util.logging.Logger.getLogger(cls.name)
+private class JULLogger(cls: KClass<*>) : Logger {
+    val log: java.util.logging.Logger = java.util.logging.Logger.getLogger(cls.java.name)
 
     override fun error(msg: () -> String) = if (log.isLoggable(Level.SEVERE)) log.severe(msg()) else Unit
     override fun error(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.SEVERE)) log.log(Level.SEVERE, msg(), ex) else Unit

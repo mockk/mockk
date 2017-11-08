@@ -1,6 +1,5 @@
 package io.mockk
 
-import io.mockk.impl.MockKGatewayImpl
 import kotlin.reflect.KClass
 
 /**
@@ -16,21 +15,22 @@ interface MockKGateway {
     fun verifier(ordering: Ordering): CallVerifier
 
     companion object {
-        internal val defaultImpl: MockKGateway = MockKGatewayImpl()
-        var LOCATOR: () -> MockKGateway = { defaultImpl }
+        lateinit var implementation: () -> MockKGateway
 
-        fun registerInstanceFactory(factory: InstanceFactory): AutoCloseable {
-            LOCATOR().instantiator.registerFactory(factory)
-            return AutoCloseable {
-                LOCATOR().instantiator.unregisterFactory(factory)
+        fun registerInstanceFactory(factory: InstanceFactory): Disposable {
+            implementation().instantiator.registerFactory(factory)
+            return object : Disposable {
+                override fun dispose() {
+                    implementation().instantiator.unregisterFactory(factory)
+                }
             }
         }
 
         fun registerInstanceFactory(filterClass: KClass<*>,
-                                    factory: () -> Any) : AutoCloseable {
+                                    factory: () -> Any): Disposable {
             return registerInstanceFactory(object : InstanceFactory {
-                override fun instantiate(cls: Class<*>): Any? {
-                    if (filterClass.java == cls) {
+                override fun instantiate(cls: KClass<*>): Any? {
+                    if (filterClass == cls) {
                         return factory()
                     }
                     return null
@@ -38,105 +38,117 @@ interface MockKGateway {
             })
         }
     }
-}
 
-/**
- * Create new mocks or spies
- */
-interface MockFactory {
-    fun <T> mockk(cls: Class<T>,
-                  name: String?,
-                  moreInterfaces: Array<out KClass<*>>): T
+    fun <T>runCoroutine(block: suspend () -> T): T
 
-    fun <T> spyk(cls: Class<T>,
-                 objToCopy: T?,
-                 name: String?,
-                 moreInterfaces: Array<out KClass<*>>): T
 
-}
+    /**
+     * Create new mocks or spies
+     */
+    interface MockFactory {
+        fun <T : Any> mockk(cls: KClass<T>,
+                            name: String?,
+                            moreInterfaces: Array<out KClass<*>>): T
 
-/**
- * Stub calls
- */
-interface Stubber {
-    fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
-                  coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T>
-}
+        fun <T : Any> spyk(cls: KClass<T>,
+                           objToCopy: T?,
+                           name: String?,
+                           moreInterfaces: Array<out KClass<*>>): T
 
-/**
- * Verify calls
- */
-interface Verifier {
-    fun <T> verify(ordering: Ordering,
-                   inverse: Boolean,
-                   atLeast: Int,
-                   atMost: Int,
-                   exactly: Int,
-                   mockBlock: (MockKVerificationScope.() -> T)?,
-                   coMockBlock: (suspend MockKVerificationScope.() -> T)?)
-}
+        fun clear(mocks: Array<out Any>,
+                  answers: Boolean,
+                  recordedCalls: Boolean,
+                  childMocks: Boolean)
+    }
 
-/**
- * Builds a list of calls
- */
-interface CallRecorder {
-    val calls: List<Call>
+    /**
+     * Stub calls
+     */
+    interface Stubber {
+        fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
+                      coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T>
+    }
 
-    fun startStubbing()
+    /**
+     * Verify calls
+     */
+    interface Verifier {
+        fun <T> verify(ordering: Ordering,
+                       inverse: Boolean,
+                       atLeast: Int,
+                       atMost: Int,
+                       exactly: Int,
+                       mockBlock: (MockKVerificationScope.() -> T)?,
+                       coMockBlock: (suspend MockKVerificationScope.() -> T)?)
+    }
 
-    fun startVerification()
+    /**
+     * Builds a list of calls
+     */
+    interface CallRecorder {
+        val calls: List<Call>
 
-    fun catchArgs(round: Int, n: Int)
+        fun startStubbing()
 
-    fun <T> matcher(matcher: Matcher<*>, cls: Class<T>): T
+        fun startVerification()
 
-    fun call(invocation: Invocation): Any?
+        fun catchArgs(round: Int, n: Int)
 
-    fun answer(answer: Answer<*>)
+        fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T
 
-    fun doneVerification()
+        fun call(invocation: Invocation): Any?
 
-    fun hintNextReturnType(cls: Class<*>, n: Int)
+        fun answer(answer: Answer<*>)
 
-    fun cancel()
-}
+        fun doneVerification()
 
-/**
- * Verifier takes the list of calls and checks what invocations happened to the mocks
- */
-interface CallVerifier {
-    fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult
-}
+        fun hintNextReturnType(cls: KClass<*>, n: Int)
 
-/**
- * Result of verification
- */
-data class VerificationResult(val matches: Boolean, val message: String? = null)
+        fun cancel()
+    }
 
-/**
- * Instantiates empty object for provided class
- */
-interface Instantiator {
-    fun <T> instantiate(cls: Class<T>): T
+    /**
+     * Verifier takes the list of calls and checks what invocations happened to the mocks
+     */
+    interface CallVerifier {
+        fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult
+    }
 
-    fun anyValue(cls: Class<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
+    /**
+     * Result of verification
+     */
+    data class VerificationResult(val matches: Boolean, val message: String? = null)
 
-    fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any
+    /**
+     * Instantiates empty object for provided class
+     */
+    interface Instantiator {
+        fun <T : Any> instantiate(cls: KClass<T>): T
 
-    fun <T> signatureValue(cls: Class<T>): T
+        fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
 
-    fun isPassedByValue(cls: Class<*>): Boolean
+        fun <T : Any> proxy(cls: KClass<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any
 
-    fun deepEquals(obj1: Any?, obj2: Any?): Boolean
+        fun <T : Any> signatureValue(cls: KClass<T>): T
 
-    fun registerFactory(factory: InstanceFactory)
+        fun isPassedByValue(cls: KClass<*>): Boolean
 
-    fun unregisterFactory(factory: InstanceFactory)
-}
+        fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 
-/**
- * Factory of dummy objects
- */
-interface InstanceFactory {
-    fun instantiate(cls: Class<*>): Any?
+        fun registerFactory(factory: InstanceFactory)
+
+        fun unregisterFactory(factory: InstanceFactory)
+    }
+
+    /**
+     * Factory of dummy objects
+     */
+    interface InstanceFactory {
+        fun instantiate(cls: KClass<*>): Any?
+    }
+
+
+    interface Disposable {
+        fun dispose()
+    }
 }

@@ -12,6 +12,7 @@ dependencies {
 
     compile 'org.javassist:javassist:3.22.0-GA'
     compile 'org.objenesis:objenesis:2.6'
+    compile project(':mockk-dsl-jvm')
     compile project(":mockk-agent")
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

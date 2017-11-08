@@ -1,7 +1,6 @@
 package io.mockk
 
-import io.mockk.impl.toStr
-import kotlinx.coroutines.experimental.runBlocking
+import kotlin.reflect.KClass
 
 /**
  * Matcher that checks equality. By reference and by value (equals method)
@@ -11,7 +10,7 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false, val inverse: Boo
         val result = if (ref) {
             arg === value
         } else {
-            MockKGateway.LOCATOR().instantiator.deepEquals(arg, value)
+            MockKGateway.implementation().instantiator.deepEquals(arg, value)
         }
         return if (inverse) !result else result
     }
@@ -37,7 +36,7 @@ data class ConstantMatcher<in T>(val constValue: Boolean) : Matcher<T> {
  * Delegates matching to lambda function
  */
 data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean,
-                              override val argumentType: Class<*>) : Matcher<T>, TypedMatcher {
+                              override val argumentType: KClass<*>) : Matcher<T>, TypedMatcher {
     override fun match(arg: T?): Boolean = matchingFunc(arg)
 
     override fun toString(): String = "matcher<${argumentType.simpleName}>()"
@@ -47,7 +46,7 @@ data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean,
  * Matcher capturing all results to the list.
  */
 data class CaptureMatcher<T>(val captureList: MutableList<T>,
-                             override val argumentType: Class<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
+                             override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         captureList.add(arg as T)
@@ -62,7 +61,7 @@ data class CaptureMatcher<T>(val captureList: MutableList<T>,
  * Matcher capturing all results to the list. Allows nulls
  */
 data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>,
-                                     override val argumentType: Class<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
+                                     override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         captureList.add(arg as T?)
@@ -77,7 +76,7 @@ data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>,
  * Matcher capturing one last value to the CapturingSlot
  */
 data class CapturingSlotMatcher<T : Any>(val captureSlot: CapturingSlot<T>,
-                                         override val argumentType: Class<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
+                                         override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         if (arg == null) {
@@ -99,7 +98,7 @@ data class CapturingSlotMatcher<T : Any>(val captureSlot: CapturingSlot<T>,
  */
 data class ComparingMatcher<T : Comparable<T>>(val value: T,
                                                val cmpFunc: Int,
-                                               override val argumentType: Class<T>) : Matcher<T>, TypedMatcher {
+                                               override val argumentType: KClass<T>) : Matcher<T>, TypedMatcher {
     override fun match(arg: T?): Boolean {
         if (arg == null) return false
         val n = arg.compareTo(value)
@@ -199,10 +198,10 @@ data class NullCheckMatcher<T>(val inverse: Boolean) : Matcher<T> {
 /**
  * Checks matcher data type
  */
-data class OfTypeMatcher<T>(val cls: Class<*>) : Matcher<T> {
+data class OfTypeMatcher<T>(val cls: KClass<*>) : Matcher<T> {
     override fun match(arg: T?): Boolean = cls.isInstance(arg)
 
-    override fun toString() = "ofType(${cls.name})"
+    override fun toString() = "ofType(${cls.simpleName})"
 }
 
 /**
@@ -237,13 +236,13 @@ class InvokeMatcher<T>(val block: (T) -> Unit) : Matcher<T> {
  */
 data class AssertMatcher<T>(val assertFunction: (T?) -> Boolean,
                             val msg: String? = null,
-                            override val argumentType: Class<*>,
+                            override val argumentType: KClass<*>,
                             val nullable: Boolean = false) : Matcher<T>, TypedMatcher {
 
     override fun checkType(arg: Any?): Boolean {
         if (arg != null && !argumentType.isInstance(arg)) {
-            val argType = arg.javaClass.name
-            val requiredType = argumentType.name
+            val argType = arg::class.simpleName
+            val requiredType = argumentType.simpleName
             throw AssertionError("Verification matcher assertion failed:\n" +
                     "    type <$argType> is not matching\n" +
                     "    required by assertion type <$requiredType>\n")
@@ -263,7 +262,15 @@ data class AssertMatcher<T>(val assertFunction: (T?) -> Boolean,
         }
         return true
     }
-
+    
     override fun toString(): String = "assert<${argumentType.simpleName}>()"
 }
 
+
+internal fun Any?.toStr() =
+        when (this) {
+            null -> "null"
+            is Function<*> -> "lambda {}"
+            is MethodDescription -> name + "(" + paramTypes.map { it.simpleName }.joinToString() + ")"
+            else -> toString()
+        }

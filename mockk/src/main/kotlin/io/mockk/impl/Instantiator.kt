@@ -1,7 +1,6 @@
 package io.mockk.impl
 
-import io.mockk.InstanceFactory
-import io.mockk.Instantiator
+import io.mockk.MockKGateway.*
 import io.mockk.MockKException
 import io.mockk.external.logger
 import javassist.ClassPool
@@ -14,9 +13,9 @@ import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-import java.lang.reflect.Modifier
 import java.util.*
 import kotlin.reflect.KClass
+import kotlin.reflect.full.cast
 
 internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
@@ -25,41 +24,40 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
 
     private val objenesis = ObjenesisStd()
 
-    private val instantiators = mutableMapOf<Class<*>, ObjectInstantiator<*>>()
-    private val proxyClasses = mutableMapOf<ProxyClassSignature, Class<*>>()
+    private val instantiators = mutableMapOf<KClass<*>, ObjectInstantiator<*>>()
+    private val proxyClasses = mutableMapOf<ProxyClassSignature, KClass<*>>()
 
     private val instantiationFactories = mutableListOf<InstanceFactory>()
 
     private val rnd = Random()
 
     @Suppress("DEPRECATION")
-    override fun <T> proxy(cls: Class<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any {
+    override fun <T : Any> proxy(cls: KClass<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any {
         log.trace { "Building proxy for $cls hashcode=${Integer.toHexString(cls.hashCode())}" }
 
         try {
-            val interfaces = setOf(MockKInstance::class.java, *moreInterfaces.map { it.java }.toTypedArray())
-            val signature = ProxyClassSignature(cls, interfaces)
+            val signature = ProxyClassSignature(cls, linkedSetOf(MockKInstance::class, *moreInterfaces))
             val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
                 ProxyFactoryExt(it).buildProxy(cls)
             }
 
             return if (useDefaultConstructor)
-                proxyCls.newInstance()
+                proxyCls.java.newInstance()
             else
                 newEmptyInstance(proxyCls)
         } catch (ex: Exception) {
             log.trace(ex) { "Failed to build proxy for $cls. " +
                     "Trying just instantiate it. " +
                     "This can help if it's last call in the chain" }
-            return instantiate(cls) as Any
+            return instantiate(cls)
         }
     }
 
 
-    override fun <T> instantiate(cls: Class<T>): T {
+    override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance $cls" }
 
-        val ret = if (!Modifier.isFinal(cls.modifiers)) {
+        val ret = if (!cls.isFinal) {
             try {
                 instantiateViaProxy(cls)
             } catch (ex: Exception) {
@@ -73,8 +71,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         return cls.cast(ret)
     }
 
-    private fun instantiateViaProxy(cls: Class<*>): Any {
-        val signature = ProxyClassSignature(cls, setOf())
+    private fun instantiateViaProxy(cls: KClass<*>): Any {
 
         for (factory in instantiationFactories) {
             val instance = factory.instantiate(cls)
@@ -83,6 +80,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
             }
         }
 
+        val signature = ProxyClassSignature(cls, setOf())
         val proxyCls = proxyClasses.java6ComputeIfAbsent(signature, {
             ProxyFactoryExt(it).buildProxy(cls)
         })
@@ -91,13 +89,13 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         return instance
     }
 
-    private fun <T> ProxyFactoryExt.buildProxy(cls: Class<T>): Class<*> {
+    private fun <T : Any> ProxyFactoryExt.buildProxy(cls: KClass<T>): KClass<*> {
         return try {
             val classFile = buildClassFile()
 
             val proxyClass = cp.makeClass(classFile)
 
-            proxyClass.toClass(cls.classLoader, cls.protectionDomain)
+            proxyClass.toClass(cls.java.classLoader, cls.java.protectionDomain).kotlin
 
         } catch (ex: RuntimeException) {
             if (ex.message?.endsWith("is final") ?: false) {
@@ -124,47 +122,47 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         }
     }
 
-    private fun newEmptyInstance(proxyCls: Class<*>): Any {
+    private fun newEmptyInstance(proxyCls: KClass<*>): Any {
         val instantiator = instantiators.java6ComputeIfAbsent(proxyCls) { cls ->
-            objenesis.getInstantiatorOf(cls)
+            objenesis.getInstantiatorOf(cls.java)
         }
         return instantiator.newInstance()
     }
 
-    override fun anyValue(cls: Class<*>, orInstantiateVia: () -> Any?): Any? {
+    override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
         return when (cls) {
             Void.TYPE -> Unit
 
-            Boolean::class.java -> false
-            Byte::class.java -> 0.toByte()
-            Short::class.java -> 0.toShort()
-            Char::class.java -> 0.toChar()
-            Int::class.java -> 0
-            Long::class.java -> 0L
-            Float::class.java -> 0.0F
-            Double::class.java -> 0.0
-            String::class.java -> ""
+            Boolean::class -> false
+            Byte::class -> 0.toByte()
+            Short::class -> 0.toShort()
+            Char::class -> 0.toChar()
+            Int::class -> 0
+            Long::class -> 0L
+            Float::class -> 0.0F
+            Double::class -> 0.0
+            String::class -> ""
 
-            java.lang.Boolean::class.java -> false
-            java.lang.Byte::class.java -> 0.toByte()
-            java.lang.Short::class.java -> 0.toShort()
-            java.lang.Character::class.java -> 0.toChar()
-            java.lang.Integer::class.java -> 0
-            java.lang.Long::class.java -> 0L
-            java.lang.Float::class.java -> 0.0F
-            java.lang.Double::class.java -> 0.0
+            java.lang.Boolean::class -> false
+            java.lang.Byte::class -> 0.toByte()
+            java.lang.Short::class -> 0.toShort()
+            java.lang.Character::class -> 0.toChar()
+            java.lang.Integer::class -> 0
+            java.lang.Long::class -> 0L
+            java.lang.Float::class -> 0.0F
+            java.lang.Double::class -> 0.0
 
-            BooleanArray::class.java -> BooleanArray(0)
-            ByteArray::class.java -> ByteArray(0)
-            CharArray::class.java -> CharArray(0)
-            ShortArray::class.java -> ShortArray(0)
-            IntArray::class.java -> IntArray(0)
-            LongArray::class.java -> LongArray(0)
-            FloatArray::class.java -> FloatArray(0)
-            DoubleArray::class.java -> DoubleArray(0)
+            BooleanArray::class -> BooleanArray(0)
+            ByteArray::class -> ByteArray(0)
+            CharArray::class -> CharArray(0)
+            ShortArray::class -> ShortArray(0)
+            IntArray::class -> IntArray(0)
+            LongArray::class -> LongArray(0)
+            FloatArray::class -> FloatArray(0)
+            DoubleArray::class -> DoubleArray(0)
             else -> {
-                if (cls.isArray) {
-                    java.lang.reflect.Array.newInstance(cls.componentType, 0)
+                if (cls.java.isArray) {
+                    java.lang.reflect.Array.newInstance(cls.java.componentType, 0)
                 } else {
                     orInstantiateVia()
                 }
@@ -172,33 +170,33 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         }
     }
 
-    override fun <T> signatureValue(cls: Class<T>): T {
+    override fun <T : Any> signatureValue(cls: KClass<T>): T {
         return cls.cast(when (cls) {
-            java.lang.Boolean::class.java -> rnd.nextBoolean()
-            java.lang.Byte::class.java -> rnd.nextInt().toByte()
-            java.lang.Short::class.java -> rnd.nextInt().toShort()
-            java.lang.Character::class.java -> rnd.nextInt().toChar()
-            java.lang.Integer::class.java -> rnd.nextInt()
-            java.lang.Long::class.java -> rnd.nextLong()
-            java.lang.Float::class.java -> rnd.nextFloat()
-            java.lang.Double::class.java -> rnd.nextDouble()
-            java.lang.String::class.java -> rnd.nextLong().toString(16)
-//            java.lang.Object::class.java -> java.lang.Object()
+            java.lang.Boolean::class -> rnd.nextBoolean()
+            java.lang.Byte::class -> rnd.nextInt().toByte()
+            java.lang.Short::class -> rnd.nextInt().toShort()
+            java.lang.Character::class -> rnd.nextInt().toChar()
+            java.lang.Integer::class -> rnd.nextInt()
+            java.lang.Long::class -> rnd.nextLong()
+            java.lang.Float::class -> rnd.nextFloat()
+            java.lang.Double::class -> rnd.nextDouble()
+            java.lang.String::class -> rnd.nextLong().toString(16)
+//            java.lang.Object::class -> java.lang.Object()
             else -> instantiate(cls)
         })
     }
 
-    override fun isPassedByValue(cls: Class<*>): Boolean {
+    override fun isPassedByValue(cls: KClass<*>): Boolean {
         return when (cls) {
-            java.lang.Boolean::class.java -> true
-            java.lang.Byte::class.java -> true
-            java.lang.Short::class.java -> true
-            java.lang.Character::class.java -> true
-            java.lang.Integer::class.java -> true
-            java.lang.Long::class.java -> true
-            java.lang.Float::class.java -> true
-            java.lang.Double::class.java -> true
-            java.lang.String::class.java -> true
+            java.lang.Boolean::class -> true
+            java.lang.Byte::class -> true
+            java.lang.Short::class -> true
+            java.lang.Character::class -> true
+            java.lang.Integer::class -> true
+            java.lang.Long::class -> true
+            java.lang.Float::class -> true
+            java.lang.Double::class -> true
+            java.lang.String::class -> true
             else -> false
         }
     }
@@ -221,15 +219,15 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     }
 
     private fun arrayDeepEquals(obj1: Any, obj2: Any): Boolean {
-        return when (obj1.javaClass) {
-            BooleanArray::class.java -> Arrays.equals(obj1 as BooleanArray, obj2 as BooleanArray)
-            ByteArray::class.java -> Arrays.equals(obj1 as ByteArray, obj2 as ByteArray)
-            CharArray::class.java -> Arrays.equals(obj1 as CharArray, obj2 as CharArray)
-            ShortArray::class.java -> Arrays.equals(obj1 as ShortArray, obj2 as ShortArray)
-            IntArray::class.java -> Arrays.equals(obj1 as IntArray, obj2 as IntArray)
-            LongArray::class.java -> Arrays.equals(obj1 as LongArray, obj2 as LongArray)
-            FloatArray::class.java -> Arrays.equals(obj1 as FloatArray, obj2 as FloatArray)
-            DoubleArray::class.java -> Arrays.equals(obj1 as DoubleArray, obj2 as DoubleArray)
+        return when (obj1::class) {
+            BooleanArray::class -> Arrays.equals(obj1 as BooleanArray, obj2 as BooleanArray)
+            ByteArray::class -> Arrays.equals(obj1 as ByteArray, obj2 as ByteArray)
+            CharArray::class -> Arrays.equals(obj1 as CharArray, obj2 as CharArray)
+            ShortArray::class -> Arrays.equals(obj1 as ShortArray, obj2 as ShortArray)
+            IntArray::class -> Arrays.equals(obj1 as IntArray, obj2 as IntArray)
+            LongArray::class -> Arrays.equals(obj1 as LongArray, obj2 as LongArray)
+            FloatArray::class -> Arrays.equals(obj1 as FloatArray, obj2 as FloatArray)
+            DoubleArray::class -> Arrays.equals(obj1 as DoubleArray, obj2 as DoubleArray)
             else -> {
                 val arr1 = obj1 as Array<*>
                 val arr2 = obj2 as Array<*>
@@ -255,19 +253,19 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     }
 }
 
-data class ProxyClassSignature(val superclass: Class<*>,
-                               val interfaces: Set<Class<*>>)
+data class ProxyClassSignature(val superclass: KClass<*>,
+                               val interfaces: Set<KClass<*>>)
 
 internal class ProxyFactoryExt(signature: ProxyClassSignature) : ProxyFactory() {
     init {
-        if (signature.superclass.isInterface) {
-            val interfaceList = signature.interfaces.toMutableList()
+        val interfaceList = mutableListOf<KClass<*>>()
+        if (signature.superclass.java.isInterface) {
             interfaceList.add(signature.superclass)
-            interfaces = interfaceList.toTypedArray()
         } else {
-            superclass = signature.superclass
-            interfaces = signature.interfaces.toTypedArray()
+            superclass = signature.superclass.java
         }
+        interfaceList.addAll(signature.interfaces)
+        interfaces = interfaceList.map { it.java }.toTypedArray()
     }
 
     fun buildClassFile(): ClassFile {
