@@ -1,5 +1,8 @@
 
 # Backlog
+- [ ] Kotlin Javascript
+- [ ] MILESTONE 1.4
+- [ ] runs on Android devices
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc
 - [ ] CONTRIBUTE
@@ -7,7 +10,6 @@
 - [ ] static methods
 - [ ] extension function
 - [ ] other JVMs
-- [ ] Kotlin Javascript
 
 ## Geo
 
