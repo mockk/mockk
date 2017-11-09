@@ -92,11 +92,15 @@ internal class UnorderedCallVerifierImpl(private val gw: MockKGatewayImpl) : Cal
         }
         val result = when (allCallsForMockMethod.size) {
             0 -> {
-                if (allCallsForMock.isEmpty()) {
-                    VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}")
+                if (min == 0 && max == 0) {
+                    VerificationResult(true)
                 } else {
-                    VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}.\n" +
-                            "Calls to same mock:\n" + formatCalls(allCallsForMock))
+                    if (allCallsForMock.isEmpty()) {
+                        VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}")
+                    } else {
+                        VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}.\n" +
+                                "Calls to same mock:\n" + formatCalls(allCallsForMock))
+                    }
                 }
             }
             1 -> {
