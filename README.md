@@ -279,7 +279,8 @@ You can check exact sequence of calls with `verifySequence` or just order with `
 
 ### Returning nothing
 
-If the method is returning Unit(i.e. no return value) you still need to specify return value:
+If the method is returning Unit(i.e. no return value) you
+still need to specify return value:
 
   ```kotlin
 
