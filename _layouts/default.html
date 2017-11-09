@@ -5,7 +5,7 @@
 
 {% seo %}
     <meta property="og:image" content="http://mockk.io/doc/logo300k-alt2.png" />
-    <meta name="description" content="{{ page.description | default: site.description | default: site.github.project_tagline }}"/>
+    <meta name="description" content="{{ page.description | default: site.seo_description | default: site.description | default: site.github.project_tagline }}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f38b1c">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
