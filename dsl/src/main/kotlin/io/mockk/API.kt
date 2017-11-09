@@ -349,9 +349,7 @@ class MockKAssertScope(val actual: Any?) {
 /**
  * Part of DSL. Object to represent phrase "just Runs"
  */
-object Runs {
-    val x = 5
-}
+object Runs
 
 /**
  * Stub scope. Part of DSL
