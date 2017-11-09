@@ -19,6 +19,10 @@ Table of contents:
  - bunch of matchers
  - few verification modes
 
+## Examples
+
+ - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files) project covered with tests
+
 ## Installation
 
 There is three installation steps.
