@@ -1,7 +1,8 @@
 package io.mockk.impl
 
-import io.mockk.MockKGateway.*
 import io.mockk.MockKException
+import io.mockk.MockKGateway.InstanceFactory
+import io.mockk.MockKGateway.Instantiator
 import io.mockk.external.logger
 import javassist.ClassPool
 import javassist.bytecode.ClassFile
@@ -36,10 +37,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         log.trace { "Building proxy for ${cls.toStr()} hashcode=${Integer.toHexString(cls.hashCode())}" }
 
         try {
-            val signature = ProxyClassSignature(cls, linkedSetOf(MockKInstance::class, *moreInterfaces))
-            val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
-                ProxyFactoryExt(it).buildProxy(cls)
-            }
+            val proxyCls = inlineProxy(cls, moreInterfaces) ?: proxyViaJavassist(cls, moreInterfaces)
 
             return if (useDefaultConstructor)
                 proxyCls.java.newInstance()
@@ -51,6 +49,18 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
                     "This can help if it's last call in the chain" }
             return instantiate(cls)
         }
+    }
+
+    private fun <T : Any> inlineProxy(cls: KClass<T>, moreInterfaces: Array<out KClass<*>>): KClass<*>? {
+        return null
+    }
+
+    private fun <T : Any> proxyViaJavassist(cls: KClass<T>, moreInterfaces: Array<out KClass<*>>): KClass<*> {
+        val signature = ProxyClassSignature(cls, linkedSetOf(MockKInstance::class, *moreInterfaces))
+        val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
+            ProxyFactoryExt(it).buildProxy(cls)
+        }
+        return proxyCls
     }
 
 

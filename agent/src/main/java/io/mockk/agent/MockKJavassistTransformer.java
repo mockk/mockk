@@ -1,8 +1,6 @@
 package io.mockk.agent;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
+import javassist.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,14 +10,14 @@ import java.security.ProtectionDomain;
 
 import static io.mockk.agent.MockKByteCodeTranslationRules.RULES;
 
-class MockKClassFileTransformer implements ClassFileTransformer {
+class MockKJavassistTransformer implements ClassFileTransformer {
     private final ClassPool pool;
-    private final MockKByteCodeTranslator translator;
+    private final JavassistTranslator translator;
 
-    public MockKClassFileTransformer() {
+    public MockKJavassistTransformer(JavassistTranslator translator) {
         pool = new ClassPool();
-        translator = new MockKByteCodeTranslator();
-        translator.start(pool);
+        this.translator = translator;
+        this.translator.start(pool);
     }
 
     @Override

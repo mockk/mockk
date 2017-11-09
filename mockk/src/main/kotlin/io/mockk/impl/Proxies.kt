@@ -31,7 +31,7 @@ private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: 
 
 internal open class MockKInstanceProxyHandler(private val cls: KClass<*>,
                                               private val name: String,
-                                              private val obj: Any) : MethodHandler, MockKInstance {
+                                              private val selfReference: Any) : MethodHandler, MockKInstance {
     private val answers = Collections.synchronizedList(mutableListOf<InvocationAnswer>())
     private val childs = Collections.synchronizedMap(hashMapOf<InvocationMatcher, MockKInstance>())
     private val recordedCalls = Collections.synchronizedList(mutableListOf<Invocation>())
@@ -89,11 +89,11 @@ internal open class MockKInstanceProxyHandler(private val cls: KClass<*>,
     override fun toString() = "mockk<${___type().simpleName}>($___name)"
 
     override fun equals(other: Any?): Boolean {
-        return obj === other
+        return selfReference === other
     }
 
     override fun hashCode(): Int {
-        return System.identityHashCode(obj)
+        return System.identityHashCode(selfReference)
     }
 
     override fun ___childMockK(call: Call): MockKInstance {

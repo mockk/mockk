@@ -1,11 +1,7 @@
 package io.mockk.agent;
 
-import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.Loader;
-import javassist.NotFoundException;
-
-import java.lang.reflect.Modifier;
 
 import static io.mockk.agent.MockKByteCodeTranslationRules.RULES;
 
@@ -21,7 +17,7 @@ public class MockKClassLoader extends Loader {
             loader.delegateLoadingOf(pkg);
         }
         try {
-            loader.addTranslator(cp, new MockKByteCodeTranslator());
+            loader.addTranslator(cp, new MockKTranslatorAdaptor(new MockKDefinalizer()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

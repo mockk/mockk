@@ -8,6 +8,10 @@ dependencies {
     compileOnly 'org.testng:testng:6.8'
     compileOnly 'org.junit.jupiter:junit-jupiter-api:5.0.1'
     compileOnly 'org.junit.platform:junit-platform-launcher:1.0.1'
+    compileOnly 'net.bytebuddy:byte-buddy:1.7.9'
+    runtimeOnly 'net.bytebuddy:byte-buddy:1.7.9'
+    compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
+    runtimeOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
     compileOnly 'org.javassist:javassist:3.22.0-GA'
     runtimeOnly 'org.javassist:javassist:3.22.0-GA'
 }
@@ -30,6 +34,7 @@ shadowJar {
 
     exclude 'META-INF/maven/**'
     relocate 'javassist.', 'shadowed.javassist.'
+    relocate 'net.bytebuddy.', 'shadowed.bytebuddy.'
 
     manifest {
         attributes(

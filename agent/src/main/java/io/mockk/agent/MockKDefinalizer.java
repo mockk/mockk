@@ -9,7 +9,7 @@ import javassist.bytecode.InnerClassesAttribute;
 import java.lang.reflect.Method;
 
 
-public class MockKByteCodeTranslator implements Translator {
+public class MockKDefinalizer implements JavassistTranslator {
     private Method checkModify;
 
     public void start(ClassPool pool) {
@@ -19,12 +19,6 @@ public class MockKByteCodeTranslator implements Translator {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void onLoad(ClassPool pool, String classname) throws NotFoundException, CannotCompileException {
-        CtClass cls = pool.get(classname);
-        onLoad(cls);
     }
 
     public void onLoad(CtClass cls) {
