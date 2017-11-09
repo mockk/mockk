@@ -174,6 +174,9 @@ class MockKTestSuite : StringSpec({
         verify(exactly = 0, inverse = true) {
             mock.otherOp(0, 2)
         }
+        verify(exactly = 0) {
+            mock.neverCalled()
+        }
     }.config(enabled = true)
 
     "stubbing actions" {
@@ -659,4 +662,6 @@ class MockCls {
     fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+
+    fun neverCalled():Int = 1
 }
