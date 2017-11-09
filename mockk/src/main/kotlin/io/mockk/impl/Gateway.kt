@@ -1,12 +1,12 @@
 package io.mockk.impl
 
 import io.mockk.*
+import io.mockk.MockKGateway.*
 import io.mockk.external.logger
-import javassist.util.proxy.ProxyObject
 import kotlinx.coroutines.experimental.runBlocking
 
 
-internal class MockKGatewayImpl : MockKGateway {
+class MockKGatewayImpl : MockKGateway {
     private val mockFactoryTL = threadLocalOf { MockFactoryImpl(this) }
     private val stubberTL = threadLocalOf { StubberImpl(this) }
     private val verifierTL = threadLocalOf { VerifierImpl(this) }
@@ -42,15 +42,25 @@ internal class MockKGatewayImpl : MockKGateway {
     companion object {
         val N_CALL_ROUNDS = 64
 
-        val log = logger<MockKGatewayImpl>()
+        private val log = logger<MockKGatewayImpl>()
 
         init {
             log.trace {
-                "Starting MockK implementation. " +
+                "Starting Java MockK implementation. " +
                         "Java version = ${System.getProperty("java.version")}. " +
                         "Class loader = ${MockKGatewayImpl::class.java.classLoader}. "
             }
         }
+
+        val defaultImplementation = MockKGatewayImpl()
+        val defaultImplementationBuilder = { defaultImplementation }
+
+        inline fun <T> useImpl(block: () -> T) : T {
+            MockKGateway.implementation = defaultImplementationBuilder
+            return block()
+        }
     }
+
+    override fun <T> runCoroutine(block: suspend () -> T): T =  runBlocking { block() }
 }
 

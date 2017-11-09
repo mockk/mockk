@@ -1,13 +1,7 @@
 package io.mockk
 
-import io.kotlintest.specs.StringSpec
-import io.mockk.junit.MockKJUnit4Runner
-import org.junit.Assert.*
-import org.junit.runner.RunWith
-
 interface Wrapper
 
-@RunWith(MockKJUnit4Runner::class)
 class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>("mock")
     val spy = spyk<MockCls>()
@@ -77,7 +71,7 @@ class MockKTestSuite : StringSpec({
         verify { mock.manyArgsOp(r = eq("33")) }
         verify { mock.manyArgsOp(s = eq(IntWrapper(33))) }
         verify { mock.manyArgsOp(t = eq(IntWrapper(33))) }
-    }.config(enabled = true)
+    }
 
     "chained calls" {
         every { mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4) } returns 1
@@ -110,7 +104,7 @@ class MockKTestSuite : StringSpec({
             mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
             mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
         }
-    }.config(enabled = true)
+    }
 
     "clearMocks" {
         every { mock.otherOp(0, 2) } returns 5
@@ -125,7 +119,7 @@ class MockKTestSuite : StringSpec({
         verifySequence {
             mock.otherOp(0, 2)
         }
-    }.config(enabled = true)
+    }
 
     "atLeast, atMost, exactly" {
         every { mock.otherOp(0, 2) } throws RuntimeException("test")
@@ -174,7 +168,7 @@ class MockKTestSuite : StringSpec({
         verify(exactly = 0, inverse = true) {
             mock.otherOp(0, 2)
         }
-    }.config(enabled = true)
+    }
 
     "stubbing actions" {
         every { mock.otherOp(0, 2) } throws RuntimeException("test")
@@ -204,7 +198,7 @@ class MockKTestSuite : StringSpec({
             mock.otherOp(1, 3)
             mock.otherOp(1, 3)
         }
-    }.config(enabled = true)
+    }
 
     "answers" {
         val lst = mutableListOf<Byte?>()
@@ -253,7 +247,7 @@ class MockKTestSuite : StringSpec({
         verify { spy.manyArgsOp(d = 11, c = 12) }
         verify { spy.manyArgsOp(d = 11, c = 12) }
         verify { spy.lambdaOp(1, assert { it.invoke() == 3 }) }
-    }.config(enabled = true)
+    }
 
     "verify, verifyOrder, verifySequence" {
         every { spy.manyArgsOp(c = 5) } returns 1.0
@@ -320,7 +314,7 @@ class MockKTestSuite : StringSpec({
             spy.manyArgsOp(c = 5)
             spy.manyArgsOp(c = 7)
         }
-    }.config(enabled = true)
+    }
 
     "matchers" {
         val a = IntWrapper(3)
@@ -423,18 +417,18 @@ class MockKTestSuite : StringSpec({
 
             mock.otherOp(3, or(3, 5))
         }
-    }.config(enabled = true)
+    }
 
     "nulls" {
         every { mock.otherOp(null, isNull()) } returns 4
-        every { mock.nullableOp(1, 2) } just Runs
+        //every { mock.nullableOp(1, 2) } just Runs
 
         assertEquals(4, mock.otherOp(null, null))
         assertEquals(null, mock.nullableOp(1, 2))
 
         verify { mock.otherOp(isNull(), null) }
         verify { mock.nullableOp(1, 2) }
-    }.config(enabled = true)
+    }
 
     "arrays" {
         every { mock.arrayOp(BooleanArray(3, { true })) } returns BooleanArray(3, { false })
@@ -499,7 +493,7 @@ class MockKTestSuite : StringSpec({
 
         verify { mock.arrayOp(Array<Any>(3, { it + 1 })) }
         verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })) }
-    }.config(enabled = true)
+    }
 
     fun expectVerificationError(vararg messages: String, block: () -> Unit) {
         try {
@@ -602,9 +596,8 @@ class MockKTestSuite : StringSpec({
                 mock.otherOp(1, 2)
             }
         }
-    }.config(enabled = true)
+    }
 })
-
 
 
 data class IntWrapper(val data: Int) : Wrapper
@@ -659,4 +652,10 @@ class MockCls {
     fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+}
+
+
+
+fun main(args: Array<String>) {
+    MockKTestSuite()
 }

@@ -1,8 +1,9 @@
 
 # Backlog
-- [ ] Kotlin Javascript
-- [ ] MILESTONE 1.4
+- [ ] performance optimization: proxy answer findMethodInProxy
 - [ ] runs on Android devices
+- [ ] MILESTONE 1.4
+- [ ] Kotlin Javascript
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc
 - [ ] CONTRIBUTE

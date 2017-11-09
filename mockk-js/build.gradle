@@ -1,0 +1,17 @@
+apply plugin: 'kotlin2js'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+    compile project(":mockk-dsl-js")
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

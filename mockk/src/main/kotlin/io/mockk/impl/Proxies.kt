@@ -6,12 +6,13 @@ import javassist.util.proxy.ProxyObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.*
+import kotlin.reflect.KClass
 
 
 internal interface MockKInstance : MockK {
     val ___name: String
 
-    fun ___type(): Class<*>
+    fun ___type(): KClass<*>
 
     fun ___addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
 
@@ -28,7 +29,7 @@ internal interface MockKInstance : MockK {
 
 private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
-internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
+internal open class MockKInstanceProxyHandler(private val cls: KClass<*>,
                                               private val name: String,
                                               private val obj: Any) : MethodHandler, MockKInstance {
     private val answers = Collections.synchronizedList(mutableListOf<InvocationAnswer>())
@@ -83,7 +84,7 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
         }
     }
 
-    override fun ___type(): Class<*> = cls
+    override fun ___type(): KClass<*> = cls
 
     override fun toString() = "mockk<${___type().simpleName}>($___name)"
 
@@ -98,7 +99,7 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
     override fun ___childMockK(call: Call): MockKInstance {
         return synchronized(childs) {
             childs.java6ComputeIfAbsent(call.matcher) {
-                MockKGateway.LOCATOR().mockFactory.mockk(
+                MockKGateway.implementation().mockFactory.mockk(
                         call.retType,
                         childOfName(___name),
                         moreInterfaces = arrayOf()) as MockKInstance
@@ -135,8 +136,12 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
         }
 
         val argList = args.toList()
-        val invocation = Invocation(self as MockKInstance, thisMethod, proceed, argList)
-        return MockKGateway.LOCATOR().callRecorder.call(invocation)
+        val invocation = Invocation(self as MockKInstance,
+                thisMethod.toDescription(),
+                proceed?.toDescription(),
+                argList,
+                System.nanoTime())
+        return MockKGateway.implementation().callRecorder.call(invocation)
     }
 
     private fun isFinalizeMethod(thisMethod: Method) = (thisMethod.name == "finalize"
@@ -179,14 +184,20 @@ internal open class MockKInstanceProxyHandler(private val cls: Class<*>,
 }
 
 
-internal class SpyKInstanceProxyHandler<T>(cls: Class<T>, name: String, obj: ProxyObject) : MockKInstanceProxyHandler(cls, name, obj) {
+internal class SpyKInstanceProxyHandler<T : Any>(cls: KClass<T>, name: String, obj: ProxyObject) : MockKInstanceProxyHandler(cls, name, obj) {
     override fun ___defaultAnswer(invocation: Invocation): Any? {
-        if (invocation.superMethod == null) {
+        val superMethod = invocation.superMethod
+        if (superMethod == null) {
             throw MockKException("no super method for: ${invocation.method}")
         }
-        return invocation.superMethod.invoke(invocation.self, *invocation.args.toTypedArray())
+        return superMethod.invoke(invocation.self, *invocation.args.toTypedArray())
     }
 
     override fun toString(): String = "spyk<" + ___type().simpleName + ">($___name)"
 }
 
+private fun MethodDescription.invoke(self: Any, vararg args : Any?) =
+        (langDependentRef as Method).invoke(self, *args)
+
+private fun Method.toDescription() =
+        MethodDescription(name, returnType.kotlin, declaringClass.kotlin, parameterTypes.map { it.kotlin }, this)

@@ -2,6 +2,7 @@ package io.mockk.impl
 
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import kotlin.reflect.KClass
 
 
 internal class Ref(val value: Any) {
@@ -32,6 +33,7 @@ internal fun InvocationTargetException.demangle(): Throwable {
 internal fun Any?.toStr() =
         when (this) {
             null -> "null"
+            is KClass<*> -> this.java.name
             is Function<*> -> "lambda {}"
             is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
             else -> toString()

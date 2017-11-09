@@ -1,10 +1,11 @@
 package io.mockk.impl
 
 import io.mockk.*
+import io.mockk.MockKGateway.*
 import io.mockk.external.logger
 import java.lang.AssertionError
 
-internal class VerifierImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Verifier {
+internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway), Verifier {
     private val log = logger<VerifierImpl>()
 
     override fun <T> verify(ordering: Ordering, inverse: Boolean,
@@ -19,12 +20,11 @@ internal class VerifierImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Verifier
             }
         }
 
-        val gw = MockKGateway.LOCATOR()
-        val callRecorder = gw.callRecorder
+        val callRecorder = gateway.callRecorder
         callRecorder.startVerification()
 
         val lambda = slot<Function<*>>()
-        val scope = MockKVerificationScope(gw, lambda)
+        val scope = MockKVerificationScope(gateway, lambda)
 
         try {
             record(scope, mockBlock, coMockBlock)
@@ -41,7 +41,7 @@ internal class VerifierImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Verifier
                 val min = if (exactly != -1) exactly else atLeast
                 val max = if (exactly != -1) exactly else atMost
 
-                val outcome = gw.verifier(ordering).verify(callRecorder.calls, min, max)
+                val outcome = gateway.verifier(ordering).verify(callRecorder.calls, min, max)
 
                 log.trace { "Done verification. Outcome: $outcome" }
 
