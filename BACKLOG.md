@@ -3,6 +3,7 @@
 - [ ] **BIG** runs on Android devices
 - [ ] **BIG** Kotlin Javascript
 - [ ] **BIG** Inlining
+- [ ] hiding MockKDsl
 - [ ] performance optimization: proxy answer findMethodInProxy
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc
