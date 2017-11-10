@@ -4,6 +4,7 @@
 - [ ] **BIG** Kotlin Javascript
 - [ ] **BIG** Inlining
 - [ ] hiding MockKDsl
+- [ ] warn on final methods that they are not mocked
 - [ ] performance optimization: proxy answer findMethodInProxy
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc
