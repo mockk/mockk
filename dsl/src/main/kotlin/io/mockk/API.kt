@@ -20,42 +20,42 @@ object MockKDsl {
     /**
      * Builds a new mock for specified class
      */
-    inline fun <reified T : Any> mockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.mockk(T::class, name, moreInterfaces)
+    inline fun <reified T : Any> internalMockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.mockk(T::class, name, moreInterfaces)
 
     /**
      * Builds a new spy for specified class. Copies fields from object if provided
      */
-    inline fun <reified T : Any> spyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.spyk(T::class, objToCopy, name, moreInterfaces)
+    inline fun <reified T : Any> internalSpyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.spyk(T::class, objToCopy, name, moreInterfaces)
 
     /**
      * Creates new capturing slot
      */
-    inline fun <reified T : Any> slot() = CapturingSlot<T>()
+    inline fun <reified T : Any> internalSlot() = CapturingSlot<T>()
 
     /**
      * Creates new lambda args
      */
-    fun args(vararg v: Any?) = LambdaArgs(*v)
+    inline fun internalArgs(vararg v: Any?) = LambdaArgs(*v)
 
     /**
      * Starts a block of stubbing. Part of DSL.
      */
-    inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(stubBlock, null)
+    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(stubBlock, null)
 
     /**
      * Starts a block of stubbing for coroutines. Part of DSL.
      */
-    inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(null, stubBlock)
+    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(null, stubBlock)
 
     /**
      * Verifies calls happened in the past. Part of DSL
      */
-    inline fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
-                          inverse: Boolean = false,
-                          atLeast: Int = 1,
-                          atMost: Int = Int.MAX_VALUE,
-                          exactly: Int = -1,
-                          noinline verifyBlock: MockKVerificationScope.() -> T) {
+    inline fun <T> internalVerify(ordering: Ordering = Ordering.UNORDERED,
+                             inverse: Boolean = false,
+                             atLeast: Int = 1,
+                             atMost: Int = Int.MAX_VALUE,
+                             exactly: Int = -1,
+                             noinline verifyBlock: MockKVerificationScope.() -> T) {
 
         if (exactly < -1) {
             throw MockKException("exactly should be positive")
@@ -83,12 +83,12 @@ object MockKDsl {
     /**
      * Verify for coroutines
      */
-    inline fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
-                            inverse: Boolean = false,
-                            atLeast: Int = 1,
-                            atMost: Int = Int.MAX_VALUE,
-                            exactly: Int = -1,
-                            noinline verifyBlock: suspend MockKVerificationScope.() -> T) {
+    inline fun <T> internalCoVerify(ordering: Ordering = Ordering.UNORDERED,
+                               inverse: Boolean = false,
+                               atLeast: Int = 1,
+                               atMost: Int = Int.MAX_VALUE,
+                               exactly: Int = -1,
+                               noinline verifyBlock: suspend MockKVerificationScope.() -> T) {
         MockKGateway.implementation().verifier.verify(
                 ordering,
                 inverse,
@@ -102,23 +102,23 @@ object MockKDsl {
     /**
      * Shortcut for ordered calls verification
      */
-    inline fun <T> verifyOrder(inverse: Boolean = false,
-                               noinline verifyBlock: MockKVerificationScope.() -> T) {
-        verify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
+    inline fun <T> internalVerifyOrder(inverse: Boolean = false,
+                                  noinline verifyBlock: MockKVerificationScope.() -> T) {
+        internalVerify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
     }
 
     /**
      * Shortcut for sequence calls verification
      */
-    inline fun <T> verifySequence(inverse: Boolean = false,
-                                  noinline verifyBlock: MockKVerificationScope.() -> T) {
-        verify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
+    inline fun <T> internalVerifySequence(inverse: Boolean = false,
+                                     noinline verifyBlock: MockKVerificationScope.() -> T) {
+        internalVerify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
     }
 
     /**
      * Resets information associated with mock
      */
-    fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
+    inline fun internalClearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
         MockKGateway.implementation().mockFactory.clear(
                 mocks = mocks,
                 answers = answers,
@@ -129,7 +129,7 @@ object MockKDsl {
     /**
      * Executes block of code with registering and unregistering instance factory.
      */
-    inline fun <reified T: Any> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> Unit) {
+    inline fun <reified T: Any> internalWithInstanceFactory(noinline instanceFactory: () -> T, block: () -> Unit) {
         MockKGateway.registerInstanceFactory(T::class, instanceFactory).use {
             block()
         }
