@@ -3,12 +3,9 @@ package io.mockk.agent.inline;
 import io.mockk.agent.hot.MockKHotAgent;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.asm.Advice;
-import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.ClassFileLocator;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation;
-import net.bytebuddy.matcher.ElementMatcher;
-import net.bytebuddy.matcher.ElementMatcher.Junction;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -22,10 +19,9 @@ import static java.util.Collections.synchronizedSet;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class MockKInliner implements ClassFileTransformer {
-    public static final Junction<MethodDescription> JUNCTION =
-            isVirtual()
-                    .and(not(isBridge().or(isHashCode()).or(isEquals()).or(isDefaultFinalizer())))
-                    .and(not(isDeclaredBy(nameStartsWith("java.")).<MethodDescription>and(isPackagePrivate())));
+    private static final Set<Class<?>> TO_TRANSFORM = synchronizedSet(newSetFromMap(new IdentityHashMap<Class<?>, Boolean>()));
+    private static final Map<Class<?>, Boolean> TRANSFORMED_CLASSES = new IdentityHashMap<Class<?>, Boolean>();
+
 
     static {
         Instrumentation instrumentation = MockKHotAgent.getInstrumentation();
@@ -53,23 +49,24 @@ public class MockKInliner implements ClassFileTransformer {
             return null;
         }
 
+        System.out.println("Inlining: " + className);
+
         return byteBuddy.redefine(classBeingRedefined, ClassFileLocator.Simple.of(classBeingRedefined.getName(), classfileBuffer))
 //                .visit(new ParameterWritingVisitorWrapper(classBeingRedefined))
                 .visit(Advice.withCustomMapping()
-                        .to(MockKAdvice.class)
-                        .on(JUNCTION))
-                .visit(Advice.withCustomMapping()
-                        .to(MockKAdvice.HashCode.class).on(isHashCode()))
-                .visit(Advice.withCustomMapping()
-                        .to(MockKAdvice.Equals.class).on(isEquals()))
+                        .to(MockKAdvice.class).on(isVirtual()))
                 .make()
                 .getBytes();
     }
 
-    private static final Set<Class<?>> TO_TRANSFORM = synchronizedSet(newSetFromMap(new IdentityHashMap<Class<?>, Boolean>()));
-    private static final Map<Class<?>, Boolean> TRANSFORMED_CLASSES = new IdentityHashMap<Class<?>, Boolean>();
-
     public static boolean inject(Class<?> cls) {
+        if (cls.isPrimitive()) {
+            return false;
+        }
+        if (cls.getName().equals(Object.class.getName())) {
+            return false;
+        }
+
         synchronized (TRANSFORMED_CLASSES) {
             Boolean transformationFlag = TRANSFORMED_CLASSES.get(cls);
             if (transformationFlag != null) {
@@ -90,5 +87,9 @@ public class MockKInliner implements ClassFileTransformer {
             TRANSFORMED_CLASSES.put(cls, result);
             return result;
         }
+    }
+
+    public static void registerHandler(Object instance, MockKMethodHandler handler) {
+        MockKAdvice.REGISTRY.put(instance, handler);
     }
 }

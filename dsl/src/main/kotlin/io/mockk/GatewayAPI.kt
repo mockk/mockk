@@ -14,6 +14,8 @@ interface MockKGateway {
 
     fun verifier(ordering: Ordering): CallVerifier
 
+    fun stubFor(mock: Any): Stub
+
     companion object {
         lateinit var implementation: () -> MockKGateway
 
@@ -60,6 +62,30 @@ interface MockKGateway {
                   recordedCalls: Boolean,
                   childMocks: Boolean)
     }
+
+    interface Stub {
+        val name: String
+
+        val type: KClass<*>
+
+        fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
+
+        fun answer(invocation: Invocation): Any?
+
+        fun childMockK(call: Call): Any?
+
+        fun recordCall(invocation: Invocation)
+
+        fun allRecordedCalls(): List<Invocation>
+
+        fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
+
+        fun handleInvocation(self: Any,
+                             thisMethod: MethodDescription,
+                             proceed: () -> Any?,
+                             args: Array<out Any?>): Any?
+    }
+
 
     /**
      * Stub calls
@@ -127,7 +153,10 @@ interface MockKGateway {
 
         fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
 
-        fun <T : Any> proxy(cls: KClass<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any
+        fun <T : Any> proxy(cls: KClass<T>,
+                            useDefaultConstructor: Boolean,
+                            moreInterfaces: Array<out KClass<*>>,
+                            stub: Stub): Any
 
         fun <T : Any> signatureValue(cls: KClass<T>): T
 

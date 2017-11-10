@@ -3,11 +3,6 @@ package io.mockk
 import kotlin.reflect.KClass
 
 /**
- * All mocks are implementing this interface
- */
-interface MockK
-
-/**
  * Exception thrown by library
  */
 class MockKException(message: String, ex: Throwable? = null) : Throwable(message, ex)
@@ -547,11 +542,11 @@ data class MethodDescription(val name: String,
 /**
  * Mock invocation
  */
-data class Invocation(val self: MockK,
+data class Invocation(val self: Any,
                       val method: MethodDescription,
-                      val superMethod: MethodDescription?,
                       val args: List<Any?>,
-                      val timestamp: Long) {
+                      val timestamp: Long,
+                      val realCall: Any?) {
     override fun toString(): String {
         return "Invocation(self=$self, method=$method, args=${argsToStr()})"
     }

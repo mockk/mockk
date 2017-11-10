@@ -4,9 +4,13 @@ import io.mockk.*
 import io.mockk.MockKGateway.*
 import io.mockk.external.logger
 import kotlinx.coroutines.experimental.runBlocking
+import java.util.*
+import java.util.Collections.synchronizedMap
 
 
 class MockKGatewayImpl : MockKGateway {
+    internal val stubs = synchronizedMap(IdentityHashMap<Any, Stub>())
+
     private val mockFactoryTL = threadLocalOf { MockFactoryImpl(this) }
     private val stubberTL = threadLocalOf { StubberImpl(this) }
     private val verifierTL = threadLocalOf { VerifierImpl(this) }
@@ -60,6 +64,9 @@ class MockKGatewayImpl : MockKGateway {
             return block()
         }
     }
+
+    override fun stubFor(mock: Any): Stub = stubs[mock]
+            ?: throw MockKException("can't find stub for $mock")
 
     override fun <T> runCoroutine(block: suspend () -> T): T =  runBlocking { block() }
 }

@@ -1,8 +1,8 @@
 package io.mockk.impl
 
 import io.mockk.MockKException
-import io.mockk.MockKGateway.InstanceFactory
-import io.mockk.MockKGateway.Instantiator
+import io.mockk.MockKGateway.*
+import io.mockk.agent.inline.MockKInliner
 import io.mockk.external.logger
 import javassist.ClassPool
 import javassist.bytecode.ClassFile
@@ -33,34 +33,90 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     private val rnd = Random()
 
     @Suppress("DEPRECATION")
-    override fun <T : Any> proxy(cls: KClass<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any {
+    override fun <T : Any> proxy(cls: KClass<T>,
+                                 useDefaultConstructor: Boolean,
+                                 moreInterfaces: Array<out KClass<*>>,
+                                 stub: Stub): Any {
         log.trace { "Building proxy for ${cls.toStr()} hashcode=${Integer.toHexString(cls.hashCode())}" }
 
         try {
-            val proxyCls = inlineProxy(cls, moreInterfaces) ?: proxyViaJavassist(cls, moreInterfaces)
+            val newInstance: (KClass<*>) -> Any = {
+                if (useDefaultConstructor)
+                    it.java.newInstance()
+                else
+                    newEmptyInstance(it)
+            }
 
-            return if (useDefaultConstructor)
-                proxyCls.java.newInstance()
-            else
-                newEmptyInstance(proxyCls)
+            val instance: Any = inlineProxy(cls, moreInterfaces, newInstance, stub) ?:
+                    subclassProxy(cls, moreInterfaces, newInstance, stub)
+
+            if (stub is MockKStub) {
+                stub.selfReference = instance
+            }
+
+            return instance
+
         } catch (ex: Exception) {
-            log.trace(ex) { "Failed to build proxy for ${cls.toStr()}. " +
-                    "Trying just instantiate it. " +
-                    "This can help if it's last call in the chain" }
+            log.trace(ex) {
+                "Failed to build proxy for ${cls.toStr()}. " +
+                        "Trying just instantiate it. " +
+                        "This can help if it's last call in the chain"
+            }
             return instantiate(cls)
         }
     }
 
-    private fun <T : Any> inlineProxy(cls: KClass<T>, moreInterfaces: Array<out KClass<*>>): KClass<*>? {
-        return null
+    private fun <T : Any> inlineProxy(cls: KClass<T>,
+                                      moreInterfaces: Array<out KClass<*>>,
+                                      newInstance: (KClass<*>) -> Any,
+                                      stub: Stub): T? {
+        if (!moreInterfaces.isEmpty()) {
+            log.debug { "Requested more interfaces ${moreInterfaces.contentToString()}. Skipping inlining and proceeding to subclassing" }
+            return null
+        }
+        if (cls.java.isInterface) {
+            return null
+        }
+
+        if (!MockKInliner.inject(cls.java)) {
+            return null
+        }
+
+        log.trace { "Building inline proxy $cls" }
+        val instance = newInstance(cls)
+
+        MockKInliner.registerHandler(instance) { self, thisMethod, callRealMethod, args ->
+            stub.handleInvocation(self,
+                    thisMethod.toDescription(),
+                    { callRealMethod.call() },
+                    args)
+        }
+
+        return cls.cast(instance)
     }
 
-    private fun <T : Any> proxyViaJavassist(cls: KClass<T>, moreInterfaces: Array<out KClass<*>>): KClass<*> {
-        val signature = ProxyClassSignature(cls, linkedSetOf(MockKInstance::class, *moreInterfaces))
+    private fun <T : Any> subclassProxy(cls: KClass<T>,
+                                        moreInterfaces: Array<out KClass<*>>,
+                                        newInstance: (KClass<*>) -> Any,
+                                        stub: Stub): T {
+        log.trace { "Building subclass proxy $cls" }
+        val signature = ProxyClassSignature(cls, linkedSetOf(*moreInterfaces))
         val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
             ProxyFactoryExt(it).buildProxy(cls)
         }
-        return proxyCls
+
+        val proxyObj = newInstance(proxyCls)
+
+        if (proxyObj is ProxyObject) {
+            proxyObj.handler = MethodHandler { self, thisMethod, proceed, args ->
+                stub.handleInvocation(self,
+                        thisMethod.toDescription(),
+                        { proceed.invoke(self, args) },
+                        args)
+            }
+        }
+
+        return cls.cast(proxyObj)
     }
 
 
@@ -71,8 +127,10 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
             try {
                 instantiateViaProxy(cls)
             } catch (ex: Exception) {
-                log.trace(ex) { "Failed to instantiate via proxy ${cls.toStr()}. " +
-                        "Doing just instantiation" }
+                log.trace(ex) {
+                    "Failed to instantiate via proxy ${cls.toStr()}. " +
+                            "Doing just instantiation"
+                }
                 newEmptyInstance(cls)
             }
         } else {
