@@ -1,8 +1,13 @@
 
 # Backlog
+- [x] hiding MockKDsl
+- [x] warn on final methods that they are not mocked
+- [ ] merge inlining branch with inlinging disabled
+- [ ] _MILESTONE 1.4.2_
+- [ ] **BIG** Inlining
+- [ ] _MILESTONE 1.5_
 - [ ] **BIG** runs on Android devices
 - [ ] **BIG** Kotlin Javascript
-- [ ] **BIG** Inlining
 - [ ] performance optimization: proxy answer findMethodInProxy
 - [ ] Runner + JaCoCo
 - [ ] JavaDoc

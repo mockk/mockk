@@ -9,42 +9,42 @@ import kotlin.reflect.KClass
  * Builds a new mock for specified class
  */
 inline fun <reified T : Any> mockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = useImpl {
-    MockKDsl.mockk(name, *moreInterfaces)
+    MockKDsl.internalMockk(name, *moreInterfaces)
 }
 
 /**
  * Builds a new spy for specified class. Copies fields from object if provided
  */
 inline fun <reified T : Any> spyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = useImpl {
-    MockKDsl.spyk(objToCopy, name, *moreInterfaces)
+    MockKDsl.internalSpyk(objToCopy, name, *moreInterfaces)
 }
 
 /**
  * Creates new capturing slot
  */
 inline fun <reified T : Any> slot() = useImpl {
-    MockKDsl.slot<T>()
+    MockKDsl.internalSlot<T>()
 }
 
 /**
  * Creates new lambda args
  */
 fun args(vararg v: Any?) = useImpl {
-    MockKDsl.args(*v)
+    MockKDsl.internalArgs(*v)
 }
 
 /**
  * Starts a block of stubbing. Part of DSL.
  */
 inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = useImpl {
-    MockKDsl.every(stubBlock)
+    MockKDsl.internalEvery(stubBlock)
 }
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
  */
 inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = useImpl {
-    MockKDsl.coEvery(stubBlock)
+    MockKDsl.internalCoEvery(stubBlock)
 }
 
 /**
@@ -56,7 +56,7 @@ inline fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
                       atMost: Int = Int.MAX_VALUE,
                       exactly: Int = -1,
                       noinline verifyBlock: MockKVerificationScope.() -> T) = useImpl {
-    MockKDsl.verify(ordering, inverse, atLeast, atMost, exactly, verifyBlock)
+    MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, verifyBlock)
 }
 
 /**
@@ -68,7 +68,7 @@ inline fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
                         atMost: Int = Int.MAX_VALUE,
                         exactly: Int = -1,
                         noinline verifyBlock: suspend MockKVerificationScope.() -> T) = useImpl {
-    MockKDsl.coVerify(
+    MockKDsl.internalCoVerify(
             ordering,
             inverse,
             atLeast,
@@ -82,7 +82,7 @@ inline fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
  */
 inline fun <T> verifyOrder(inverse: Boolean = false,
                            noinline verifyBlock: MockKVerificationScope.() -> T) = useImpl {
-    MockKDsl.verifyOrder(inverse, verifyBlock)
+    MockKDsl.internalVerifyOrder(inverse, verifyBlock)
 }
 
 /**
@@ -90,14 +90,14 @@ inline fun <T> verifyOrder(inverse: Boolean = false,
  */
 inline fun <T> verifySequence(inverse: Boolean = false,
                               noinline verifyBlock: MockKVerificationScope.() -> T) = useImpl {
-    MockKDsl.verifySequence(inverse, verifyBlock)
+    MockKDsl.internalVerifySequence(inverse, verifyBlock)
 }
 
 /**
  * Resets information associated with mock
  */
 fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) = useImpl {
-    MockKDsl.clearMocks(mocks = *mocks,
+    MockKDsl.internalClearMocks(mocks = *mocks,
             answers = answers,
             recordedCalls = recordedCalls,
             childMocks = childMocks)
@@ -108,5 +108,5 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
  * Executes block of code with registering and unregistering instance factory.
  */
 inline fun <reified T: Any> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> Unit) {
-    MockKDsl.withInstanceFactory(instanceFactory, block)
+    MockKDsl.internalWithInstanceFactory(instanceFactory, block)
 }

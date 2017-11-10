@@ -15,6 +15,7 @@ import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
@@ -336,9 +337,27 @@ internal class ProxyFactoryExt(signature: ProxyClassSignature) : ProxyFactory() 
             interfaceList.add(signature.superclass)
         } else {
             superclass = signature.superclass.java
+            warnOnFinalMethods(superclass)
         }
         interfaceList.addAll(signature.interfaces)
         interfaces = interfaceList.map { it.java }.toTypedArray()
+    }
+
+    private fun warnOnFinalMethods(clazz: Class<out Any>) {
+        var cls : Class<*>? = clazz
+        val methods = mutableListOf<Method>()
+        while (cls != Any::class.java) {
+            methods.addAll(cls!!.declaredMethods)
+            cls = cls.superclass
+        }
+
+        methods.filter {
+            !Modifier.isPrivate(it.modifiers)
+        }.filter {
+            Modifier.isFinal(it.modifiers)
+        } .forEach { method ->
+            log.warn { "It is impossible to intercept calls to $method for $clazz because it is final" }
+        }
     }
 
     fun buildClassFile(): ClassFile {
@@ -352,6 +371,7 @@ internal class ProxyFactoryExt(signature: ProxyClassSignature) : ProxyFactory() 
     }
 
     companion object {
+        val log = logger<ProxyFactoryExt>()
         val makeMethod: Method = ProxyFactory::class.java.getDeclaredMethod("make")
 
         val computeSignatureMethod: Method = ProxyFactory::class.java.getDeclaredMethod("computeSignature",
