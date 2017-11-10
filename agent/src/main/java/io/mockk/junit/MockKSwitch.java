@@ -1,9 +1,13 @@
 package io.mockk.junit;
 
-public class MockKClassLoadingSwitch {
-    public static final boolean ON = !checkResourcePresent(
-            MockKClassLoadingSwitch.class,
+public class MockKSwitch {
+    public static final boolean CLASS_LOADING = !checkResourcePresent(
+            MockKSwitch.class,
             "mockk-classloading-disabled.txt");
+
+    public static final boolean INLINING = checkResourcePresent(
+            MockKSwitch.class,
+            "mockk-inlining-enabled.txt");
 
     private static boolean checkResourcePresent(Class<?> classBase,
                                                 String resource) {

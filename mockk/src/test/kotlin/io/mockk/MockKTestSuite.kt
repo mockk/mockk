@@ -7,6 +7,7 @@ import org.junit.runner.RunWith
 
 interface Wrapper
 
+@RunWith(MockKJUnit4Runner::class)
 class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>("mock")
     val spy = spyk<MockCls>()

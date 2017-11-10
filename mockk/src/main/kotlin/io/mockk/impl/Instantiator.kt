@@ -4,6 +4,7 @@ import io.mockk.MockKException
 import io.mockk.MockKGateway.*
 import io.mockk.agent.inline.MockKInliner
 import io.mockk.external.logger
+import io.mockk.junit.MockKSwitch
 import javassist.ClassPool
 import javassist.bytecode.ClassFile
 import javassist.util.proxy.MethodFilter
@@ -18,7 +19,7 @@ import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
-internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
+internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
 
     private val cp = ClassPool.getDefault()
@@ -70,6 +71,10 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
                                       moreInterfaces: Array<out KClass<*>>,
                                       newInstance: (KClass<*>) -> Any,
                                       stub: Stub): T? {
+        if (!MockKSwitch.INLINING) {
+            return null
+        }
+
         if (!moreInterfaces.isEmpty()) {
             log.debug { "Requested more interfaces ${moreInterfaces.contentToString()}. Skipping inlining and proceeding to subclassing" }
             return null
@@ -111,7 +116,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
             proxyObj.handler = MethodHandler { self, thisMethod, proceed, args ->
                 stub.handleInvocation(self,
                         thisMethod.toDescription(),
-                        { proceed.invoke(self, args) },
+                        { proceed.invoke(self, *args) },
                         args)
             }
         }

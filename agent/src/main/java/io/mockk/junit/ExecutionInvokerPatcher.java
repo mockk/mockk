@@ -16,7 +16,7 @@ public class ExecutionInvokerPatcher implements TestExecutionListener {
     private static Unsafe unsafe;
 
     static {
-        if (!MockKAgent.running && MockKClassLoadingSwitch.ON) {
+        if (!MockKAgent.running && MockKSwitch.CLASS_LOADING) {
             try {
                 patch();
             } catch (Throwable ex) {

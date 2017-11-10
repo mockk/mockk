@@ -27,7 +27,7 @@ public class MockKJUnit4Runner extends Runner implements Filterable {
     private final Runner runner;
 
     public MockKJUnit4Runner(Class<?> cls) throws Exception {
-        if (!MockKAgent.running && MockKClassLoadingSwitch.ON) {
+        if (!MockKAgent.running && MockKSwitch.CLASS_LOADING) {
             cls = changeClassLoader(cls);
         }
 
