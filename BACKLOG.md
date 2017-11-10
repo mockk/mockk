@@ -1,7 +1,7 @@
 
 # Backlog
 - [x] hiding MockKDsl
-- [ ] warn on final methods that they are not mocked
+- [x] warn on final methods that they are not mocked
 - [ ] merge inlining branch with inlinging disabled
 - [ ] _MILESTONE 1.4.2_
 - [ ] **BIG** Inlining
