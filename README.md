@@ -21,7 +21,7 @@ Table of contents:
 
 ## Examples
 
- - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files) project covered with tests
+ - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
 
 ## Installation
 
