@@ -49,8 +49,6 @@ public class MockKInliner implements ClassFileTransformer {
             return null;
         }
 
-        System.out.println("Inlining: " + className);
-
         return byteBuddy.redefine(classBeingRedefined, ClassFileLocator.Simple.of(classBeingRedefined.getName(), classfileBuffer))
 //                .visit(new ParameterWritingVisitorWrapper(classBeingRedefined))
                 .visit(Advice.withCustomMapping()
