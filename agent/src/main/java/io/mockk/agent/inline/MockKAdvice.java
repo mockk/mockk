@@ -40,11 +40,6 @@ public class MockKAdvice extends MockKDispatcher {
     @interface Id {
     }
 
-    public static boolean isFinalizeMethod(Method origin) {
-        return "finalize".equals(origin.getName()) &&
-                origin.getParameterTypes().length == 0;
-    }
-
     @Advice.OnMethodExit
     private static void exit(@Advice.Return(readOnly = false, typing = Assigner.Typing.DYNAMIC) Object returned,
                              @Advice.Enter Callable<?> mocked) throws Throwable {
@@ -56,8 +51,12 @@ public class MockKAdvice extends MockKDispatcher {
     @Override
     public Callable<?> handle(Object self, Method origin, Object[] arguments) throws Exception {
         if (self == REGISTRY ||
-                self == CALL_SELF ||
-                isFinalizeMethod(origin)) {
+                self == CALL_SELF) {
+            return null;
+        }
+
+        final MockKMethodHandler handler = REGISTRY.get(new Ref(self));
+        if (handler == null) {
             return null;
         }
 
@@ -66,46 +65,7 @@ public class MockKAdvice extends MockKDispatcher {
         }
         CALL_SELF.set(null);
 
-        final MockKMethodHandler handler = REGISTRY.get(new Ref(self));
-        if (handler == null) {
-            return null;
-        }
-
         return new Call(handler, self, origin, arguments);
-    }
-
-    public static class HashCode {
-        @Advice.OnMethodEnter(skipOn = Advice.OnNonDefaultValue.class)
-        private static boolean enter(@Advice.This Object self) {
-            return false;
-        }
-
-        @Advice.OnMethodExit
-        private static void enter(@Advice.This Object self,
-                                  @Advice.Return(readOnly = false) int hashCode,
-                                  @Advice.Enter boolean skipped) {
-            if (skipped) {
-                hashCode = System.identityHashCode(self);
-            }
-        }
-    }
-
-    public static class Equals {
-
-        @Advice.OnMethodEnter(skipOn = Advice.OnNonDefaultValue.class)
-        private static boolean enter(@Advice.This Object self) {
-            return false;
-        }
-
-        @Advice.OnMethodExit
-        private static void enter(@Advice.This Object self,
-                                  @Advice.Argument(0) Object other,
-                                  @Advice.Return(readOnly = false) boolean equals,
-                                  @Advice.Enter boolean skipped) {
-            if (skipped) {
-                equals = self == other;
-            }
-        }
     }
 
     public static class CallOriginal implements Callable<Object> {
