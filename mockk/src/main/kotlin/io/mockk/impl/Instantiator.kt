@@ -58,9 +58,17 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }
 
+        for (factory in instantiationFactories) {
+            val instance = factory.instantiate(cls)
+            if (instance != null) {
+                return cls.cast(instance)
+            }
+        }
+
         val ret = if (!cls.isFinal) {
             try {
                 instantiateViaProxy(cls)
+                        ?: newEmptyInstance(cls)
             } catch (ex: Exception) {
                 log.trace(ex) { "Failed to instantiate via proxy ${cls.toStr()}. " +
                         "Doing just instantiation" }
@@ -72,21 +80,19 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         return cls.cast(ret)
     }
 
-    private fun instantiateViaProxy(cls: KClass<*>): Any {
-
-        for (factory in instantiationFactories) {
-            val instance = factory.instantiate(cls)
-            if (instance != null) {
-                return instance
-            }
-        }
-
+    private fun instantiateViaProxy(cls: KClass<*>): Any? {
         val signature = ProxyClassSignature(cls, setOf())
         val proxyCls = proxyClasses.java6ComputeIfAbsent(signature, {
             ProxyFactoryExt(it).buildProxy(cls)
         })
         val instance = newEmptyInstance(proxyCls)
-        (instance as ProxyObject).handler = EqualsAndHashCodeHandler()
+
+        if (!(instance is ProxyObject)) {
+            return null
+        }
+
+        instance.handler = InstanceMethodHandler()
+
         return instance
     }
 
@@ -107,7 +113,7 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         }
     }
 
-    private class EqualsAndHashCodeHandler : MethodHandler {
+    private class InstanceMethodHandler : MethodHandler {
         override fun invoke(self: Any, thisMethod: Method, proceed: Method?, args: Array<out Any>): Any? {
             return if (thisMethod.name == "hashCode" && thisMethod.parameterCount() == 0) {
                 System.identityHashCode(self)
