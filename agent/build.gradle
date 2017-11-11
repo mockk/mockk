@@ -12,8 +12,6 @@ dependencies {
     runtimeOnly 'net.bytebuddy:byte-buddy:1.7.9'
     compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
     runtimeOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
-    compileOnly 'org.javassist:javassist:3.22.0-GA'
-    runtimeOnly 'org.javassist:javassist:3.22.0-GA'
 }
 
 sourceCompatibility = 1.6
@@ -33,7 +31,6 @@ shadowJar {
     classifier = null
 
     exclude 'META-INF/maven/**'
-    relocate 'javassist.', 'shadowed.javassist.'
     relocate 'net.bytebuddy.', 'shadowed.bytebuddy.'
 
     manifest {
