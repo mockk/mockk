@@ -28,6 +28,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     private val callRounds = mutableListOf<CallRound>()
     override val calls = mutableListOf<Call>()
     private val childMocks = mutableListOf<Ref>()
+    private val temporaryMocks = mutableMapOf<KClass<*>, Any>()
     private var childTypes = mutableMapOf<Int, KClass<*>>()
 
     private val matchers = mutableListOf<Matcher<*>>()
@@ -49,6 +50,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         checkMode(Mode.ANSWERING)
         mode = Mode.STUBBING
         childMocks.clear()
+        temporaryMocks.clear()
     }
 
     override fun startVerification() {
@@ -56,6 +58,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         checkMode(Mode.ANSWERING)
         mode = Mode.VERIFYING
         childMocks.clear()
+        temporaryMocks.clear()
     }
 
     override fun catchArgs(round: Int, n: Int) {
@@ -84,6 +87,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         calls.addAll(detector.detect(callRounds, childMocks))
 
         childMocks.clear()
+        temporaryMocks.clear()
     }
 
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
@@ -120,11 +124,19 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         val instantiator = MockKGateway.implementation().instantiator
         return instantiator.anyValue(retType) {
             try {
+                val mock = temporaryMocks[retType]
+                if (mock != null) {
+                    return@anyValue mock
+                }
+
                 val child = instantiator.proxy(retType,
                         false,
                         moreInterfaces = arrayOf(),
                         stub = MockKStub(retType, "temporary mock"))
                 childMocks.add(Ref(child))
+
+                temporaryMocks[retType] = child
+
                 child
             } catch (ex: MockKException) {
                 log.trace(ex) { "Returning 'null' for a final class assuming it is last in a call chain" }
@@ -197,6 +209,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         callRounds.clear()
         calls.clear()
         childMocks.clear()
+        temporaryMocks.clear()
         childTypes.clear()
         matchers.clear()
         signatures.clear()

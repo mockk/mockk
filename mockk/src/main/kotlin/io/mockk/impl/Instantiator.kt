@@ -49,14 +49,8 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
                     newEmptyInstance(it)
             }
 
-            val instance: Any = inlineProxy(cls, moreInterfaces, newInstance, stub) ?:
+            return inlineProxy(cls, moreInterfaces, newInstance, stub) ?:
                     subclassProxy(cls, moreInterfaces, newInstance, stub)
-
-            if (stub is MockKStub) {
-                stub.selfReference = instance
-            }
-
-            return instance
 
         } catch (ex: Exception) {
             log.trace(ex) {

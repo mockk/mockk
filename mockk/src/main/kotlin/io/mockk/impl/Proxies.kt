@@ -18,8 +18,6 @@ internal open class MockKStub(override val type: KClass<*>,
     private val childs = synchronizedMap(hashMapOf<InvocationMatcher, Any>())
     private val recordedCalls = synchronizedList(mutableListOf<Invocation>())
 
-    lateinit var selfReference: Any
-
     override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         answers.add(InvocationAnswer(matcher, answer))
     }
@@ -68,14 +66,6 @@ internal open class MockKStub(override val type: KClass<*>,
 
     override fun toString() = "mockk<${type.simpleName}>(${this.name})"
 
-    override fun equals(other: Any?): Boolean {
-        return selfReference === other
-    }
-
-    override fun hashCode(): Int {
-        return System.identityHashCode(selfReference)
-    }
-
     override fun childMockK(call: Call): Any? {
         return synchronized(childs) {
             childs.java6ComputeIfAbsent(call.matcher) {
@@ -106,13 +96,13 @@ internal open class MockKStub(override val type: KClass<*>,
         if (thisMethod.isToString()) {
             return toString()
         } else if (thisMethod.isHashCode()) {
-            return hashCode()
+            return System.identityHashCode(self)
         } else if (thisMethod.isEquals()) {
-            return equals(args[0])
+            return self === args[0]
         }
 
         val invocation = Invocation(
-                selfReference,
+                self,
                 thisMethod,
                 args.toList(),
                 System.nanoTime(),
@@ -159,8 +149,8 @@ internal fun MethodDescription.invoke(self: Any, vararg args: Any?) =
 internal fun Method.toDescription() =
         MethodDescription(name, returnType.kotlin, declaringClass.kotlin, parameterTypes.map { it.kotlin }, this)
 
-private fun MethodDescription.isToString() = name == "toString" && paramTypes.size == 0
+private fun MethodDescription.isToString() = name == "toString" && paramTypes.isEmpty()
 
-private fun MethodDescription.isHashCode() = name == "hashCode" && paramTypes.size == 0
+private fun MethodDescription.isHashCode() = name == "hashCode" && paramTypes.isEmpty()
 
 private fun MethodDescription.isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
