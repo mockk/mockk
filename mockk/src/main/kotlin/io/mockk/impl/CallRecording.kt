@@ -231,13 +231,32 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     override fun hintNextReturnType(cls: KClass<*>, n: Int) {
         childTypes[n] = cls
     }
+
+    override fun estimateCallRounds(): Int {
+        return signedCalls
+                .flatMap { it.invocation.args }
+                .filterNotNull()
+                .map {
+                    when (it::class) {
+                        Boolean::class -> 40
+                        Byte::class -> 8
+                        Char::class -> 4
+                        Short::class -> 4
+                        Int::class -> 2
+                        Float::class -> 2
+                        else -> 1
+                    }
+                }
+                .max() ?: 1
+    }
+
 }
 
 private class SignatureMatcherDetector {
     private val log = logger<SignatureMatcherDetector>()
 
     @Suppress("UNCHECKED_CAST")
-    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>) : List<Call> {
+    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<Call> {
         val nCalls = callRounds[0].calls.size
         if (nCalls == 0) {
             throw MockKException("Missing calls inside every/verify {} block.\n" +
@@ -345,21 +364,27 @@ internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
                                                    mockBlock: (S.() -> T)?,
                                                    coMockBlock: (suspend S.() -> T)?) {
         try {
+            val callRecorder = gateway.callRecorder
+
             if (mockBlock != null) {
-                val n = MockKGatewayImpl.N_CALL_ROUNDS
-                repeat(n) {
-                    gateway.callRecorder.catchArgs(it, n)
+                callRecorder.catchArgs(0)
+                scope.mockBlock()
+                val n = callRecorder.estimateCallRounds();
+                for (i in 1 until n) {
+                    callRecorder.catchArgs(i, n)
                     scope.mockBlock()
                 }
-                gateway.callRecorder.catchArgs(n, n)
+                callRecorder.catchArgs(n, n)
             } else if (coMockBlock != null) {
                 runBlocking {
-                    val n = MockKGatewayImpl.N_CALL_ROUNDS
-                    repeat(n) {
-                        gateway.callRecorder.catchArgs(it, n)
+                    callRecorder.catchArgs(0)
+                    scope.coMockBlock()
+                    val n = callRecorder.estimateCallRounds()
+                    for (i in 1 until n) {
+                        callRecorder.catchArgs(i, n)
                         scope.coMockBlock()
                     }
-                    gateway.callRecorder.catchArgs(n, n)
+                    callRecorder.catchArgs(n, n)
                 }
             }
         } catch (ex: ClassCastException) {

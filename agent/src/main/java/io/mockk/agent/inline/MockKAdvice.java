@@ -61,9 +61,9 @@ public class MockKAdvice extends MockKDispatcher {
         }
 
         if (CALL_SELF.get() == self) {
+            CALL_SELF.set(null);
             return null;
         }
-        CALL_SELF.set(null);
 
         return new Call(handler, self, origin, arguments);
     }

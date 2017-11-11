@@ -52,7 +52,7 @@ public class WeakConcurrentHashMap<K, V> extends ReferenceQueue<K> {
 
     private static class StrongKey<K> {
         private final int hashCode;
-        private K key;
+        private final K key;
 
         public StrongKey(K key) {
             this.key = key;

@@ -118,7 +118,7 @@ interface MockKGateway {
 
         fun startVerification()
 
-        fun catchArgs(round: Int, n: Int)
+        fun catchArgs(round: Int, n: Int = 64)
 
         fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T
 
@@ -131,6 +131,8 @@ interface MockKGateway {
         fun hintNextReturnType(cls: KClass<*>, n: Int)
 
         fun cancel()
+
+        fun estimateCallRounds(): Int
     }
 
     /**

@@ -15,12 +15,17 @@ public class MockKHotAgent {
     public static final String DISPATCHER_CLASS_NAME = "io.mockk.agent.inline.MockKDispatcher";
 
     private static boolean disabled = false;
+    private static MockKInlineTransformer transformer;
 
     static {
         try {
             ByteBuddyAgent.install();
 
             loadDispatcherAtBootstrapClassLoader();
+
+            Instrumentation instrumentation = ByteBuddyAgent.getInstrumentation();
+
+            transformer = new MockKInlineTransformer(instrumentation);
         } catch (IllegalStateException ex) {
             disabled = true;
         }
@@ -34,17 +39,16 @@ public class MockKHotAgent {
             return;
         }
 
+        Instrumentation instrumentation = ByteBuddyAgent.getInstrumentation();
         try {
-            ByteBuddyAgent.getInstrumentation()
-                    .appendToBootstrapClassLoaderSearch(new JarFile(bootJar));
+            instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(bootJar));
         } catch (IOException e) {
             disabled = true;
             return;
         }
 
         try {
-            Class<?> cls = getClassLoader()
-                    .loadClass(DISPATCHER_CLASS_NAME);
+            Class<?> cls = getClassLoader().loadClass(DISPATCHER_CLASS_NAME);
             if (cls.getClassLoader() != null) {
                 disabled = true;
             }
@@ -65,7 +69,11 @@ public class MockKHotAgent {
         if (disabled) {
             return null;
         }
-        return ByteBuddyAgent.getInstrumentation();
+        Instrumentation instrumentation = ByteBuddyAgent.getInstrumentation();
+        if (instrumentation == null) {
+            return null;
+        }
+        return instrumentation;
     }
 
     private static File getBootJar() {
@@ -75,26 +83,9 @@ public class MockKHotAgent {
 
             JarOutputStream out = new JarOutputStream(new FileOutputStream(boot));
             try {
-                String source = DISPATCHER_CLASS_NAME.replace('.', '/');
-                InputStream inputStream = MockKHotAgent.class.getClassLoader().getResourceAsStream(source + ".clazz");
-                if (inputStream == null) {
-                    inputStream = MockKHotAgent.class.getClassLoader().getResourceAsStream(source + ".class");
-                }
-                if (inputStream == null) {
+                if (!addClass(out, DISPATCHER_CLASS_NAME)) {
                     return null;
                 }
-
-                out.putNextEntry(new JarEntry(source + ".class"));
-                try {
-                    int length;
-                    byte[] buffer = new byte[1024];
-                    while ((length = inputStream.read(buffer)) != -1) {
-                        out.write(buffer, 0, length);
-                    }
-                } finally {
-                    inputStream.close();
-                }
-                out.closeEntry();
             } finally {
                 out.close();
             }
@@ -102,5 +93,30 @@ public class MockKHotAgent {
         } catch (IOException ex) {
             return null;
         }
+    }
+
+    private static boolean addClass(JarOutputStream out, String source) throws IOException {
+        source = source.replace('.', '/');
+
+        InputStream inputStream = MockKHotAgent.class.getClassLoader().getResourceAsStream(source + ".clazz");
+        if (inputStream == null) {
+            inputStream = MockKHotAgent.class.getClassLoader().getResourceAsStream(source + ".class");
+        }
+        if (inputStream == null) {
+            return false;
+        }
+
+        out.putNextEntry(new JarEntry(source + ".class"));
+        try {
+            int length;
+            byte[] buffer = new byte[1024];
+            while ((length = inputStream.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+            }
+        } finally {
+            inputStream.close();
+        }
+        out.closeEntry();
+        return true;
     }
 }
