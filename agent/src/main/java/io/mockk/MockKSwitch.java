@@ -1,4 +1,4 @@
-package io.mockk.junit;
+package io.mockk;
 
 public class MockKSwitch {
     public static final boolean CLASS_LOADING = !checkResourcePresent(

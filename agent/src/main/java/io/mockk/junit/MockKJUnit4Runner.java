@@ -1,5 +1,6 @@
 package io.mockk.junit;
 
+import io.mockk.MockKSwitch;
 import io.mockk.agent.MockKAgent;
 import io.mockk.agent.MockKClassLoader;
 import org.junit.runner.Description;

@@ -1,5 +1,6 @@
 package io.mockk.junit;
 
+import io.mockk.MockKSwitch;
 import io.mockk.agent.MockKAgent;
 import javassist.*;
 import org.junit.platform.launcher.TestExecutionListener;
