@@ -118,8 +118,6 @@ internal open class MockKStub(override val type: KClass<*>,
                 System.nanoTime(),
                 proceed)
 
-        log.trace { "Invocation happened $invocation" }
-
         return MockKGateway.implementation().callRecorder.call(invocation)
     }
 

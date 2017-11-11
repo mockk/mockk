@@ -13,8 +13,8 @@ public class MockKClassLoader extends Loader {
     public static ClassLoader newClassLoader(ClassLoader parent) {
         ClassPool cp = new ClassPool(true);
         Loader loader = new MockKClassLoader(parent, cp);
-        for (String pkg : RULES.getIgnoredPackages()) {
-            loader.delegateLoadingOf(pkg);
+        for (String ignore : RULES.getIgnoredPackagesAndClasses()) {
+            loader.delegateLoadingOf(ignore);
         }
         try {
             loader.addTranslator(cp, new MockKTranslatorAdaptor(new MockKDefinalizer()));

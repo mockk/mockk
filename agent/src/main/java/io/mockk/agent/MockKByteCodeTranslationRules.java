@@ -1,7 +1,8 @@
 package io.mockk.agent;
 
+import io.mockk.agent.inline.MockKHotAgent;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
@@ -9,33 +10,34 @@ import static java.util.Collections.unmodifiableList;
 class MockKByteCodeTranslationRules {
     public static final MockKByteCodeTranslationRules RULES = new MockKByteCodeTranslationRules();
 
-    private final List<String> ignoredPackages;
+    private final List<String> ignoredPackagesAndClasses;
 
     private MockKByteCodeTranslationRules() {
-        ignoredPackages = new ArrayList<String>();
-        ignoredPackages.add("jdk.internal.");
-        ignoredPackages.add("org.junit.");
-        ignoredPackages.add("junit.");
-        ignoredPackages.add("org.testng.");
-        ignoredPackages.add("org.easymock.");
-        ignoredPackages.add("org.powermock.");
-        ignoredPackages.add("net.sf.cglib.");
-        ignoredPackages.add("javassist.");
-        ignoredPackages.add("org.hamcrest.");
-        ignoredPackages.add("java.");
-        ignoredPackages.add("java.accessibility.");
-        ignoredPackages.add("java.accessibility.");
-        ignoredPackages.add("org.pitest");
-        ignoredPackages.add("org.jacoco.agent.rt.");
-        ignoredPackages.add("sun.");
+        ignoredPackagesAndClasses = new ArrayList<String>();
+        ignoredPackagesAndClasses.add("jdk.internal.");
+        ignoredPackagesAndClasses.add("org.junit.");
+        ignoredPackagesAndClasses.add("junit.");
+        ignoredPackagesAndClasses.add("org.testng.");
+        ignoredPackagesAndClasses.add("org.easymock.");
+        ignoredPackagesAndClasses.add("org.powermock.");
+        ignoredPackagesAndClasses.add("net.sf.cglib.");
+        ignoredPackagesAndClasses.add("javassist.");
+        ignoredPackagesAndClasses.add("org.hamcrest.");
+        ignoredPackagesAndClasses.add("java.");
+        ignoredPackagesAndClasses.add("java.accessibility.");
+        ignoredPackagesAndClasses.add("java.accessibility.");
+        ignoredPackagesAndClasses.add("org.pitest");
+        ignoredPackagesAndClasses.add("org.jacoco.agent.rt.");
+        ignoredPackagesAndClasses.add("sun.");
+        ignoredPackagesAndClasses.add(MockKHotAgent.DISPATCHER_CLASS_NAME);
     }
 
-    public List<String> getIgnoredPackages() {
-        return unmodifiableList(ignoredPackages);
+    public List<String> getIgnoredPackagesAndClasses() {
+        return unmodifiableList(ignoredPackagesAndClasses);
     }
 
     public boolean isIgnored(String className) {
-        for (String prefix : ignoredPackages) {
+        for (String prefix : ignoredPackagesAndClasses) {
             if (className.replace('/', '.').startsWith(prefix)) {
                 return true;
             }

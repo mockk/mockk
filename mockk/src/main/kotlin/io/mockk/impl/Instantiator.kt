@@ -80,7 +80,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
             log.debug { "Requested more interfaces ${moreInterfaces.contentToString()}. Skipping inlining and proceeding to subclassing" }
             return null
         }
-        if (cls.java.isInterface) {
+        if (cls.java.isInterface || Modifier.isAbstract(cls.java.modifiers)) {
             return null
         }
 
@@ -129,6 +129,14 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }
 
+        for (factory in instantiationFactories) {
+            val instance = factory.instantiate(cls)
+            if (instance != null) {
+                log.trace { "Instance factory returned instance $instance" }
+                return cls.cast(instance)
+            }
+        }
+
         val ret = if (!cls.isFinal) {
             try {
                 instantiateViaProxy(cls)
@@ -146,13 +154,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
     }
 
     private fun instantiateViaProxy(cls: KClass<*>): Any {
-
-        for (factory in instantiationFactories) {
-            val instance = factory.instantiate(cls)
-            if (instance != null) {
-                return instance
-            }
-        }
+        log.trace { "Instantiating via subclass proxy" }
 
         val signature = ProxyClassSignature(cls, setOf())
         val proxyCls = proxyClasses.java6ComputeIfAbsent(signature, {

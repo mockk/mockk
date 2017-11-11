@@ -1,6 +1,5 @@
 package io.mockk.agent.inline;
 
-import io.mockk.agent.hot.MockKHotAgent;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.dynamic.ClassFileLocator;
@@ -22,7 +21,6 @@ public class MockKInliner implements ClassFileTransformer {
     private static final Set<Class<?>> TO_TRANSFORM = synchronizedSet(newSetFromMap(new IdentityHashMap<Class<?>, Boolean>()));
     private static final Map<Class<?>, Boolean> TRANSFORMED_CLASSES = new IdentityHashMap<Class<?>, Boolean>();
 
-
     static {
         Instrumentation instrumentation = MockKHotAgent.getInstrumentation();
         if (instrumentation != null) {
@@ -31,11 +29,15 @@ public class MockKInliner implements ClassFileTransformer {
     }
 
     private final ByteBuddy byteBuddy;
+    private final MockKAdvice advice;
 
     public MockKInliner() {
         byteBuddy = new ByteBuddy()
                 .with(TypeValidation.DISABLED)
                 .with(Implementation.Context.Disabled.Factory.INSTANCE);
+
+        advice = new MockKAdvice();
+        MockKDispatcher.set(advice.getId(), advice);
     }
 
     @Override
@@ -52,6 +54,7 @@ public class MockKInliner implements ClassFileTransformer {
         return byteBuddy.redefine(classBeingRedefined, ClassFileLocator.Simple.of(classBeingRedefined.getName(), classfileBuffer))
 //                .visit(new ParameterWritingVisitorWrapper(classBeingRedefined))
                 .visit(Advice.withCustomMapping()
+                        .bind(MockKAdvice.Id.class, advice.getId())
                         .to(MockKAdvice.class).on(isVirtual()))
                 .make()
                 .getBytes();
@@ -61,9 +64,6 @@ public class MockKInliner implements ClassFileTransformer {
         if (cls.isPrimitive()) {
             return false;
         }
-        if (cls.getName().equals(Object.class.getName())) {
-            return false;
-        }
 
         synchronized (TRANSFORMED_CLASSES) {
             Boolean transformationFlag = TRANSFORMED_CLASSES.get(cls);
@@ -71,23 +71,40 @@ public class MockKInliner implements ClassFileTransformer {
                 return transformationFlag;
             }
 
-            boolean result = false;
-            try {
-                Instrumentation instrumentation = MockKHotAgent.getInstrumentation();
-                if (instrumentation != null) {
-                    TO_TRANSFORM.add(cls);
-                    instrumentation.retransformClasses(cls);
-                    result = true;
-                }
-            } catch (UnmodifiableClassException e) {
-                // skip
-            }
+            boolean result = transformClassAndSuperclasses(cls);
             TRANSFORMED_CLASSES.put(cls, result);
             return result;
         }
     }
 
+    private static boolean transformClassAndSuperclasses(Class<?> cls) {
+        try {
+            Instrumentation instrumentation = MockKHotAgent.getInstrumentation();
+            if (instrumentation == null ||
+                    !instrumentation.isRetransformClassesSupported()) {
+                return false;
+            }
+
+            Set<Class<?>> superClasses = scanSuperClasses(cls);
+            TO_TRANSFORM.addAll(superClasses);
+            instrumentation.retransformClasses(superClasses.toArray(new Class<?>[0]));
+            return true;
+        } catch (UnmodifiableClassException e) {
+            return false;
+        }
+    }
+
+    private static Set<Class<?>> scanSuperClasses(Class<?> cls) {
+        Set<Class<?>> superClasses = new HashSet<Class<?>>();
+
+        while (cls != null) {
+            superClasses.add(cls);
+            cls = cls.getSuperclass();
+        }
+        return superClasses;
+    }
+
     public static void registerHandler(Object instance, MockKMethodHandler handler) {
-        MockKAdvice.REGISTRY.put(instance, handler);
+        MockKAdvice.registerHandler(instance, handler);
     }
 }

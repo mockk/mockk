@@ -5,9 +5,9 @@ public class MockKSwitch {
             MockKSwitch.class,
             "mockk-classloading-disabled.txt");
 
-    public static final boolean INLINING = checkResourcePresent(
+    public static final boolean INLINING = !checkResourcePresent(
             MockKSwitch.class,
-            "mockk-inlining-enabled.txt");
+            "mockk-inlining-disabled.txt");
 
     private static boolean checkResourcePresent(Class<?> classBase,
                                                 String resource) {
