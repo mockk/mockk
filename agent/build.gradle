@@ -13,6 +13,7 @@ dependencies {
     compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
     runtimeOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
     testCompileOnly "junit:junit:4.12"
+    testRuntimeOnly "junit:junit:4.12"
     compile 'org.objenesis:objenesis:2.6'
 }
 
