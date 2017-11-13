@@ -125,7 +125,6 @@ internal open class MockKStub(override val type: KClass<*>,
 
     companion object {
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
-        val log = logger<MockKStub>()
     }
 }
 

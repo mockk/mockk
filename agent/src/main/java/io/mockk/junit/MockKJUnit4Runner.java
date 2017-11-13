@@ -2,37 +2,36 @@ package io.mockk.junit;
 
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
-import org.junit.runner.manipulation.Filter;
-import org.junit.runner.manipulation.Filterable;
-import org.junit.runner.manipulation.NoTestsRemainException;
 import org.junit.runner.notification.RunNotifier;
 
 /**
- * Do class translation for JUnit4 tests.
- * <p>
- * Delegates actual running responsibility to one of runners:
- * <ul>
- * <li>runner annotated with @ChainedRunWith (first found in class hierarchy)</li>
- * <li>annotated with @RunWith for superclasses</li>
- * <li>JUnit4 default runner</li>
- * </ul>
+ * Deprecated because inlining is implemented and
+ * final classes and methods possible to mock through this technique.
+ * So class loading transformation is not needed anymore.
+ *
+ * Inlining is complex feature, so
+ * please report any issues to:
+ * https://github.com/oleksiyp/mockk/issues
  */
-public class MockKJUnit4Runner extends Runner implements Filterable {
+public class MockKJUnit4Runner extends Runner {
+    private void deprecated() {
+        throw new RuntimeException(
+                "Please remove @RunWith(MockKJUnit4Runner.class) annotation. " +
+                        "Check JavaDoc for deprecation note.");
+    }
+
     public MockKJUnit4Runner(Class<?> cls) throws Exception {
     }
 
     @Override
     public Description getDescription() {
+        deprecated();
         return null;
     }
 
+
     @Override
     public void run(RunNotifier notifier) {
-
-    }
-
-    @Override
-    public void filter(Filter filter) throws NoTestsRemainException {
-
+        deprecated();
     }
 }
