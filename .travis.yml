@@ -6,7 +6,7 @@ matrix:
       sudo: false
       jdk: oraclejdk8
 
-script: ./gradlew build --debug --stacktrace
+script: ./gradlew check --debug --stacktrace
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
