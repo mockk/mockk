@@ -605,9 +605,23 @@ class MockKTestSuite : StringSpec({
             }
         }
     }.config(enabled = true)
+
+    "extension functions" {
+        staticMockk("io.mockk.MockKTestSuiteKt").use {
+            every {
+                IntWrapper(5).f()
+            } returns 11
+
+            assertEquals(11, IntWrapper(5).f())
+
+            verify {
+                IntWrapper(5).f()
+            }
+        }
+    }.config(enabled = true)
 })
 
-
+fun IntWrapper.f() = data + 5
 
 data class IntWrapper(val data: Int) : Wrapper
 data class DoubleWrapper(val data: Double) : Wrapper
@@ -662,5 +676,5 @@ class MockCls {
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
 
-    fun neverCalled():Int = 1
+    fun neverCalled(): Int = 1
 }

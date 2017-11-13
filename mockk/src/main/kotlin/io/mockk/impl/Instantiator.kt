@@ -1,5 +1,6 @@
 package io.mockk.impl
 
+import io.mockk.MockKException
 import io.mockk.MockKGateway.*
 import io.mockk.agent.MockKAgentException
 import io.mockk.external.logger
@@ -175,5 +176,22 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
 
     override fun unregisterFactory(factory: InstanceFactory) {
         instantiationFactories.remove(factory)
+    }
+
+    override fun staticMockk(cls: KClass<*>, stub: Stub) {
+        log.trace { "Building static proxy for ${cls.toStr()} hashcode=${Integer.toHexString(cls.hashCode())}" }
+
+        try {
+            return MockKProxyMaker.INSTANCE.staticProxy(cls.java,
+                    { self, method, originalMethod, args ->
+                        stub.handleInvocation(self, method.toDescription(), { originalMethod.call() }, args)
+                    })
+        } catch (ex: MockKAgentException) {
+            throw MockKException("Failed to build static proxy", ex)
+        }
+    }
+
+    override fun staticUnMockk(cls: KClass<*>) {
+        MockKProxyMaker.INSTANCE.staticUnProxy(cls.java)
     }
 }

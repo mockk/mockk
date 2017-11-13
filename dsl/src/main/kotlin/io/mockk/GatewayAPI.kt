@@ -61,6 +61,9 @@ interface MockKGateway {
                   answers: Boolean,
                   recordedCalls: Boolean,
                   childMocks: Boolean)
+
+        fun staticMockk(cls: KClass<*>)
+        fun staticUnMockk(cls: KClass<*>)
     }
 
     interface Stub {
@@ -169,6 +172,10 @@ interface MockKGateway {
         fun registerFactory(factory: InstanceFactory)
 
         fun unregisterFactory(factory: InstanceFactory)
+
+        fun staticMockk(cls: KClass<*>, stub: Stub)
+
+        fun staticUnMockk(cls: KClass<*>)
     }
 
     /**

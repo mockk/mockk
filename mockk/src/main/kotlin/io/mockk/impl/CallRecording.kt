@@ -259,9 +259,7 @@ private class SignatureMatcherDetector {
     fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<Call> {
         val nCalls = callRounds[0].calls.size
         if (nCalls == 0) {
-            throw MockKException("Missing calls inside every/verify {} block.\n" +
-                    "This usually happens when method you are calling is final and can't be intercepted.\n" +
-                    "Try putting 'open' modifier on method or use class loading annotation @MockKJunit4Runner or agent (check docs)")
+            throw MockKException("Missing calls inside every/verify {} block.")
         }
         if (callRounds.any { it.calls.size != nCalls }) {
             throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +

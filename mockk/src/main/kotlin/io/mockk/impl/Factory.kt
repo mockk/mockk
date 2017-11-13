@@ -60,6 +60,20 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
         }
     }
 
+    override fun staticMockk(cls: KClass<*>) {
+        log.debug { "Creating static mockk for ${cls.toStr()}" }
+
+        val stub = MockKStub(cls, "static " + cls.simpleName)
+
+        gateway.instantiator.staticMockk(cls, stub)
+
+        gateway.stubs.put(cls.java, stub)
+    }
+
+    override fun staticUnMockk(cls: KClass<*>) {
+        gateway.instantiator.staticUnMockk(cls)
+    }
+
     companion object {
         val idCounter = AtomicLong()
 

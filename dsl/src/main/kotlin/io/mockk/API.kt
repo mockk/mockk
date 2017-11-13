@@ -46,11 +46,11 @@ object MockKDsl {
      * Verifies calls happened in the past. Part of DSL
      */
     inline fun <T> internalVerify(ordering: Ordering = Ordering.UNORDERED,
-                             inverse: Boolean = false,
-                             atLeast: Int = 1,
-                             atMost: Int = Int.MAX_VALUE,
-                             exactly: Int = -1,
-                             noinline verifyBlock: MockKVerificationScope.() -> T) {
+                                  inverse: Boolean = false,
+                                  atLeast: Int = 1,
+                                  atMost: Int = Int.MAX_VALUE,
+                                  exactly: Int = -1,
+                                  noinline verifyBlock: MockKVerificationScope.() -> T) {
 
         if (exactly < -1) {
             throw MockKException("exactly should be positive")
@@ -79,11 +79,11 @@ object MockKDsl {
      * Verify for coroutines
      */
     inline fun <T> internalCoVerify(ordering: Ordering = Ordering.UNORDERED,
-                               inverse: Boolean = false,
-                               atLeast: Int = 1,
-                               atMost: Int = Int.MAX_VALUE,
-                               exactly: Int = -1,
-                               noinline verifyBlock: suspend MockKVerificationScope.() -> T) {
+                                    inverse: Boolean = false,
+                                    atLeast: Int = 1,
+                                    atMost: Int = Int.MAX_VALUE,
+                                    exactly: Int = -1,
+                                    noinline verifyBlock: suspend MockKVerificationScope.() -> T) {
         MockKGateway.implementation().verifier.verify(
                 ordering,
                 inverse,
@@ -98,7 +98,7 @@ object MockKDsl {
      * Shortcut for ordered calls verification
      */
     inline fun <T> internalVerifyOrder(inverse: Boolean = false,
-                                  noinline verifyBlock: MockKVerificationScope.() -> T) {
+                                       noinline verifyBlock: MockKVerificationScope.() -> T) {
         internalVerify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
     }
 
@@ -106,7 +106,7 @@ object MockKDsl {
      * Shortcut for sequence calls verification
      */
     inline fun <T> internalVerifySequence(inverse: Boolean = false,
-                                     noinline verifyBlock: MockKVerificationScope.() -> T) {
+                                          noinline verifyBlock: MockKVerificationScope.() -> T) {
         internalVerify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
     }
 
@@ -124,11 +124,21 @@ object MockKDsl {
     /**
      * Executes block of code with registering and unregistering instance factory.
      */
-    inline fun <reified T: Any> internalWithInstanceFactory(noinline instanceFactory: () -> T, block: () -> Unit) {
-        MockKGateway.registerInstanceFactory(T::class, instanceFactory).use {
+    inline fun <reified T : Any, R> internalWithInstanceFactory(noinline instanceFactory: () -> T, block: () -> R) : R {
+        return MockKGateway.registerInstanceFactory(T::class, instanceFactory).use {
             block()
         }
     }
+
+    /**
+     * Declares static mockk.
+     */
+    inline fun <reified T : Any> internalStaticMockk(): MockKStaticScope = MockKStaticScope(T::class)
+
+    /**
+     * Declares static mockk.
+     */
+    inline fun internalStaticMockk(vararg kClass: KClass<out Any>): MockKStaticScope = MockKStaticScope(*kClass)
 }
 
 /**
@@ -412,6 +422,33 @@ class MockKAnswerScope(val gateway: MockKGateway,
 }
 
 /**
+ * Scope for static mockks. Part of DSL
+ */
+class MockKStaticScope(vararg val staticTypes: KClass<*>) {
+    fun mock() {
+        for (type in staticTypes) {
+            MockKGateway.implementation().mockFactory.staticMockk(type)
+        }
+    }
+    fun unmock() {
+        for (type in staticTypes) {
+            MockKGateway.implementation().mockFactory.staticUnMockk(type)
+        }
+    }
+
+    inline fun <reified T : Any> and() = MockKStaticScope(T::class, *staticTypes)
+
+    inline fun <T> use(block: () -> T): T {
+        mock()
+        return try {
+            block()
+        } finally {
+            unmock()
+        }
+    }
+}
+
+/**
  * Slot allows to capture one value.
  *
  * If this values is lambda then it's possible to invoke it.
@@ -607,4 +644,5 @@ data class Call(val retType: KClass<*>,
                 val invocation: Invocation,
                 val matcher: InvocationMatcher,
                 val chained: Boolean)
+
 

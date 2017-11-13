@@ -5,7 +5,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 public class MockKWeakConcurrentHashMap<K, V> {
     private final Map<Object, V> map = new ConcurrentHashMap<Object, V>();
@@ -43,13 +42,19 @@ public class MockKWeakConcurrentHashMap<K, V> {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof WeakKey<?>) {
-                return get() == ((WeakKey<?>) o).get();
-            } else if (o instanceof StrongKey<?>){
-                return get() == ((StrongKey<?>)o).get();
+            if (o == this) {
+                return true;
             } else {
-                return false;
+                K key = get();
+                if (key != null) {
+                    if (o instanceof WeakKey<?>) {
+                        return key == ((WeakKey<?>) o).get();
+                    } else if (o instanceof StrongKey<?>){
+                        return key == ((StrongKey<?>)o).get();
+                    }
+                }
             }
+            return false;
         }
 
         @Override
@@ -69,13 +74,19 @@ public class MockKWeakConcurrentHashMap<K, V> {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof WeakKey<?>) {
-                return get() == ((WeakKey<?>) o).get();
-            } else if (o instanceof StrongKey<?>){
-                return get() == ((StrongKey<?>)o).get();
+            if (this == o) {
+                return true;
             } else {
-                return false;
+                K key = get();
+                if (key != null) {
+                    if (o instanceof WeakKey<?>) {
+                        return key == ((WeakKey<?>) o).get();
+                    } else if (o instanceof StrongKey<?>) {
+                        return key == ((StrongKey<?>) o).get();
+                    }
+                }
             }
+            return false;
         }
 
         @Override

@@ -128,12 +128,11 @@ public class MockKProxyMaker {
             if (!transformed) {
                 throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
                         "Instrumentation is not available and class is final.\n" +
-                        "Put @MockKJUnit4Runner on your test or add MockK Java Agent instrumentation to make all classes 'open'");
+                        "Add -javaagent option to your JVM with MockK Java Agent");
             }
             if (interfaces.length != 0) {
                 throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
-                        "More interfaces requested and class is final.\n" +
-                        "Put @MockKJUnit4Runner on your test or add MockK Java Agent instrumentation to make all classes 'open'");
+                        "More interfaces requested and class is final.");
             }
 
             log.trace("Taking instance of " + clazz + " itself because it is final.");
@@ -187,7 +186,7 @@ public class MockKProxyMaker {
 
     public void staticProxy(Class<?> clazz,
                             MockKInvocationHandler handler) {
-        log.debug("Injecting handler to " + clazz + " static methods");
+        log.debug("Injecting handler to " + clazz + " for static methods");
 
         boolean transformed = MockKInstrumentation.INSTANCE.inject(clazz);
         if (!transformed) {
