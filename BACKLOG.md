@@ -1,6 +1,7 @@
 
 # Backlog
 - [ ] **BIG** Inlining
+- [ ] static API docs
 - [ ] _MILESTONE 1.5_
 - [ ] **BIG** runs on Android devices
 - [ ] **BIG** Kotlin Javascript
