@@ -2,7 +2,6 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.Stub
-import io.mockk.external.logger
 import java.lang.reflect.Method
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
@@ -90,7 +89,7 @@ internal open class MockKStub(override val type: KClass<*>,
 
     override fun handleInvocation(self: Any,
                                   thisMethod: MethodDescription,
-                                  proceed: () -> Any?,
+                                  originalCall: () -> Any?,
                                   args: Array<out Any?>): Any? {
 
         if (thisMethod.isToString()) {
@@ -106,7 +105,7 @@ internal open class MockKStub(override val type: KClass<*>,
                 thisMethod,
                 args.toList(),
                 System.nanoTime(),
-                proceed)
+                originalCall)
 
         return MockKGateway.implementation().callRecorder.call(invocation)
     }
@@ -132,10 +131,10 @@ internal open class MockKStub(override val type: KClass<*>,
 
 internal class SpyKStub<T : Any>(cls: KClass<T>, name: String) : MockKStub(cls, name) {
     override fun defaultAnswer(invocation: Invocation): Any? {
-        if (invocation.realCall == null) {
+        if (invocation.originalCall == null) {
             throw MockKException("no super method for: ${invocation.method}")
         }
-        val realCall = invocation.realCall as () -> Any?
+        val realCall = invocation.originalCall as () -> Any?
         return realCall()
     }
 

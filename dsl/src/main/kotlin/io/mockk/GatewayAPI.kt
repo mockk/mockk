@@ -85,7 +85,7 @@ interface MockKGateway {
 
         fun handleInvocation(self: Any,
                              thisMethod: MethodDescription,
-                             proceed: () -> Any?,
+                             originalCall: () -> Any?,
                              args: Array<out Any?>): Any?
     }
 

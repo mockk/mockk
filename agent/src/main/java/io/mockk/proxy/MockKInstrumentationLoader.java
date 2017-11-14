@@ -12,7 +12,7 @@ import java.util.jar.JarOutputStream;
 public class MockKInstrumentationLoader {
     public static final MockKInstrumentationLoader INSTANCE = new MockKInstrumentationLoader();
 
-    public static final String PKG = "io.mockk.proxy.";
+    private static final String PKG = "io.mockk.proxy.";
 
     private static final String[] BOOTSTRAP_CLASSES = {
             PKG + "MockKDispatcher"

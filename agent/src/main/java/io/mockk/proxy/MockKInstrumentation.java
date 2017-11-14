@@ -83,21 +83,6 @@ public class MockKInstrumentation implements ClassFileTransformer {
         }
     }
 
-    public boolean inject(Class<?> clazz) {
-        if (instrumentation == null) {
-            return false;
-        }
-
-        classesToTransform.add(clazz);
-
-        try {
-            instrumentation.retransformClasses(clazz);
-            return true;
-        } catch (UnmodifiableClassException e) {
-            return false;
-        }
-    }
-
     public void enable() {
         instrumentation = ByteBuddyAgent.getInstrumentation();
     }
@@ -131,7 +116,6 @@ public class MockKInstrumentation implements ClassFileTransformer {
                                             .and(not(isPackagePrivateJavaMethods()))))
                     .make();
 
-            unloaded.saveIn(new File("."));
             return unloaded.getBytes();
         } catch (Throwable e) {
             log.trace(e, "Failed to tranform class");

@@ -583,7 +583,7 @@ data class Invocation(val self: Any,
                       val method: MethodDescription,
                       val args: List<Any?>,
                       val timestamp: Long,
-                      val realCall: Any?) {
+                      val originalCall: Any?) {
     override fun toString(): String {
         return "Invocation(self=$self, method=$method, args=${argsToStr()})"
     }

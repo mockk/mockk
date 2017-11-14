@@ -128,7 +128,7 @@ public class MockKProxyMaker {
             if (!transformed) {
                 throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
                         "Instrumentation is not available and class is final.\n" +
-                        "Add -javaagent option to your JVM with MockK Java Agent");
+                        "Add -javaagent option to enabled MockK Java Agent at JVM startup");
             }
             if (interfaces.length != 0) {
                 throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
@@ -188,7 +188,9 @@ public class MockKProxyMaker {
                             MockKInvocationHandler handler) {
         log.debug("Injecting handler to " + clazz + " for static methods");
 
-        boolean transformed = MockKInstrumentation.INSTANCE.inject(clazz);
+        ArrayList<Class<?>> lst = new ArrayList<Class<?>>();
+        lst.add(clazz);
+        boolean transformed = MockKInstrumentation.INSTANCE.inject(lst);
         if (!transformed) {
             throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
                     "Add MockK Java Agent instrumentation.");
@@ -206,14 +208,25 @@ public class MockKProxyMaker {
     }
 
     private List<Class<?>> getAllSuperclasses(Class<?> clazz) {
-        List<Class<?>> result = new ArrayList<Class<?>>();
+        Set<Class<?>> result = new HashSet<Class<?>>();
 
         while (clazz != null) {
             result.add(clazz);
+            addInterfaces(result, clazz);
             clazz = clazz.getSuperclass();
         }
 
-        return result;
+        return new ArrayList<Class<?>>(result);
+    }
+
+    private void addInterfaces(Set<Class<?>> result, Class<?> clazz) {
+        if (clazz == null) {
+            return;
+        }
+        for (Class<?> intf : clazz.getInterfaces()) {
+            result.add(intf);
+            addInterfaces(result, intf.getSuperclass());
+        }
     }
 
     private Junction<MethodDescription> isFinal() {
