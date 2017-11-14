@@ -9,14 +9,15 @@ Table of contents:
 
 ## Nice features
 
- - mocking finals (via inline mocking)
+ - mocking final classes and methods (via inlining)
  - pure kotlin mocking DSL
  - partial matchers specification
  - chained calls
- - extension function mocking
  - matcher expressions
  - mocking coroutines
  - capturing lambdas
+ - extension function mocking
+ - 
  
 ## Examples
 
@@ -33,7 +34,7 @@ All you need to get started is just to add dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.4.2"</pre>
+    <pre>testCompile "io.mockk:mockk:1.5"</pre>
     </td>
 </tr>
 <tr>
@@ -42,7 +43,7 @@ All you need to get started is just to add dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.4.2&lt;/version&gt;
+    &lt;version&gt;1.5&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -62,7 +63,7 @@ Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a>
 
 Use following agent:
 
-<code>agent "io.mockk:mockk-agent:1.4.2"</code>
+<code>agent "io.mockk:mockk-agent:1.5"</code>
 
 </td>
 </tr><tr>
@@ -82,7 +83,7 @@ See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/p
 
 Add JVM parameter to launch agent(remove spaces):
 
-<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.4.2/ mockk-agent-1.4.2.jar</code>
+<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.5/ mockk-agent-1.5.jar</code>
 
 </td>
 </tr>
@@ -286,7 +287,7 @@ To mock coroutines you need to add dependency to the support library.
 </tr>
 </table>
 
-  Then you can use `coEvery` and `coVerify` versions to mock coroutine methods
+Then you can use `coEvery` and `coVerify` versions to mock suspend methods
 
 ```kotlin
 val car = mockk<Car>()
@@ -297,7 +298,32 @@ car.drive(Direction.NORTH) // returns OK
 
 coVerify { car.drive(Direction.NORTH) }
 ```
+### Extension functions
 
+To mock extension function you need to build staticMockk(...) and provide as
+an argument the class where it is defined.
+
+For modules you need to specify full class name via String 
+(alike "pkg.FileKt" for module "File.kt" in "pkg" package).
+
+```kotlin
+data class Obj(val value: Int)
+
+// declared in File.kt ("pkg" package)
+fun Obj.extensionFunc() = value + 5
+
+staticMockk("pkg.FileKt").use {
+    every {
+        Obj(5).extensionFunc()
+    } returns 11
+
+    assertEquals(11, Obj(5).extensionFunc())
+
+    verify {
+        Obj(5).extensionFunc()
+    }
+}
+```
 
 ## DSL tables
 
@@ -331,7 +357,8 @@ By default simple arguments are matched using `eq()`
 |`capture(slot)`|captures a value to a `CapturingSlot`|
 |`capture(mutableList)`|captures a value to a list|
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
-|`captureLambda(lambdaClass)`|captures lambda expression(allowed one per call)|
+|`captureLambda()`|captures lambda|
+|`captureCoroutine()`|captures coroutine)|
 |`invoke(...)`|calls matched argument|
 |`coInvoke(...)`|calls matched argument for coroutine|
 |`hint(cls)`|hints next return type in case it's got erased|
@@ -391,12 +418,13 @@ Few special matchers available in verification mode only:
 |`thirdArg()`|third argument|
 |`lastArg()`|last argument|
 |`captured()`|the last element in the list for convenience when capturing to the list|
-|`lambda`|captured lambda|
+|`lambda<...>().invoke()`|call captured lambda|
+|`coroutine<...>().coInvoke()`|call captured coroutine|
 |`nothing`|null value for returning nothing as an answer|
 
 ## Getting Help
 
-To ask questions please use stackoverflow or gitter.
+To ask questions, please use stackoverflow or gitter.
 
 * Chat/Gitter: [https://gitter.im/mockk-io/Lobby](https://gitter.im/mockk-io/Lobby)
 * Stack Overflow: [http://stackoverflow.com/questions/tagged/mockk](http://stackoverflow.com/questions/tagged/mockk)
