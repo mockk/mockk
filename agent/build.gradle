@@ -34,7 +34,8 @@ shadowJar {
     classifier = null
 
     exclude 'META-INF/maven/**'
-    relocate 'net.bytebuddy.', 'shadowed.bytebuddy.'
+    relocate 'net.bytebuddy.', 'io.mockk.shadowed.bytebuddy.'
+    relocate 'org.objenesis.', 'io.mockk.shadowed.objenesis.'
 
     manifest {
         attributes(

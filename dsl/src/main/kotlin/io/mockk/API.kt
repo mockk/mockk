@@ -1,5 +1,6 @@
 package io.mockk
 
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 
 /**
@@ -258,16 +259,21 @@ open class MockKMatcherScope(val gateway: MockKGateway,
     }
 
     /**
-     * Captures lambda function. "cls" is one of
-     *
-     * Function0::class.java, Function1::class.java ... Function22::class.java
-     *
-     * classes
+     * Captures lambda function. Captured lambda<(A1, A2, ...) -> R>().invoke(...) can be used in answer scope.
      */
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Function<*>> captureLambda(cls: KClass<out Function<*>>): T {
+    inline fun <reified T : Function<*>> captureLambda(): T {
         val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>, T::class)
-        return gateway.callRecorder.matcher(matcher, cls as KClass<T>)
+        return gateway.callRecorder.matcher(matcher, T::class)
+    }
+
+    /**
+     * Captures coroutine. Captured coroutine<suspend (A1, A2, ...) -> R>().coInvoke(...) can be used in answer scope.
+     */
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : Any> captureCoroutine(): T {
+        val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>, T::class)
+        return gateway.callRecorder.matcher(matcher, T::class)
     }
 
     inline fun <reified T : Any> coMatch(noinline matcher: suspend (T) -> Boolean): T = match {
@@ -386,7 +392,8 @@ class MockKStubScope<T>(val gateway: MockKGateway,
  * Scope for answering functions. Part of DSL
  */
 class MockKAnswerScope(val gateway: MockKGateway,
-                       val lambda: CapturingSlot<Function<*>>,
+                       @PublishedApi
+                       internal val lambda: CapturingSlot<Function<*>>,
                        val call: Call) {
 
     val invocation = call.invocation
@@ -412,6 +419,12 @@ class MockKAnswerScope(val gateway: MockKGateway,
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <T> MutableList<T>.captured() = last()
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : Function<*>>lambda() = lambda as CapturingSlot<T>
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : Any>coroutine() = lambda as CapturingSlot<T>
 
     val nothing = null
 }

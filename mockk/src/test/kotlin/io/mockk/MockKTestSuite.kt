@@ -630,6 +630,31 @@ class MockKTestSuite : StringSpec({
         }
     }.config(enabled = true)
 
+
+    "lambda functions" {
+        every {
+            mock.lambdaOp(1, captureLambda())
+        } answers { 1 - lambda<() -> Int>().invoke() }
+
+        assertEquals(-4, mock.lambdaOp(1, { 5 }))
+
+        verify {
+            mock.lambdaOp(1, any())
+        }
+
+        coEvery {
+            mock.coLambdaOp(1, captureCoroutine())
+        } answers { 1 - coroutine<suspend () -> Int>().coInvoke() }
+
+        runBlocking {
+            assertEquals(-4, mock.coLambdaOp(1, { 5 }))
+        }
+
+        coVerify {
+            mock.lambdaOp(1, any())
+        }
+    }
+
     "extension functions" {
         staticMockk("io.mockk.MockKTestSuiteKt").use {
             every {
