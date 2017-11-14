@@ -9,25 +9,24 @@ Table of contents:
 
 ## Nice features
 
- - removing finals (via runtime class modification)
+ - mocking finals (via inline mocking)
  - pure kotlin mocking DSL
- - partial arguments matchers
- - chained calls / deep stubs
+ - partial matchers specification
+ - chained calls
+ - extension function mocking
  - matcher expressions
  - mocking coroutines
  - capturing lambdas
- - bunch of matchers
- - few verification modes
-
+ 
 ## Examples
 
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
 
 ## Installation
 
-There is three installation steps.
+All you need to get started is just to add dependency to `MockK` library.
 
-#### 1. Add dependency
+#### Gradle/maven dependency
 
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
@@ -50,52 +49,9 @@ There is three installation steps.
 </tr>
 </table>
 
-#### 2. Add class modification via annotation
+#### (Optional) Launch Java agent at startup
 
-Known issue: JaCoCo works only with agent
-
-<table>
-<thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
-<tr>
-<td width="100"><img src="doc/junit4.png" alt="JUnit4"/></td>
-<td>
-Use annotation for each test:
-
-<code>@RunWith(MockKJUnit4Runner::class) </code>
-
-Use @ChainedRunWith or @RunWith on superclass to override delegated runner.
-
-If neither is specified the default JUnit runner is used.
-</td>
-</tr><tr>
-<td><img src="doc/junit5.png" alt="JUnit5"/></td>
-<td>
-
-JUnit5 tests should work auto-magically.
-
-Note: this implementation is totally a hack.
-
-To disable class modification just create empty file resource 'io/mockk/junit/mockk-classloading-disabled.txt' on a classpath.
-
-</td>
-</tr><tr>
-<td width="100"><img src="doc/testng.png" alt="TestNG"/></td>
-<td>
-Add to your test class:
-
-<pre>
-class MockKClassTransformer {
-  @ObjectFactory
-  fun getObjectFactory(): IObjectFactory {
-    return MockKObjectFactory()
-  }
-}
-</pre>
-</td>
-</tr>
-</table>
-
-#### 3. Add class modification via agent (optional)
+Just in case agent can not be loaded at runtime you can launch it at JVM startup.
 
 <table>
 <thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
@@ -137,15 +93,13 @@ Add JVM parameter to launch agent(remove spaces):
 Simplest example:
 
 ```kotlin
+val car = mockk<Car>()
 
-    val car = mockk<Car>()
+every { car.drive(Direction.NORTH) } returns Outcome.OK
 
-    every { car.drive(Direction.NORTH) } returns Outcome.OK
+car.drive(Direction.NORTH) // returns OK
 
-    car.drive(Direction.NORTH) // returns OK
-
-    verify { car.drive(Direction.NORTH) }
-
+verify { car.drive(Direction.NORTH) }
 ```
 
 ### Partial argument matching
@@ -153,19 +107,17 @@ Simplest example:
 You can mix both regular arguments and matchers:
 
 ```kotlin
+class MockedClass {
+    fun sum(a: Int, b: Int) = a + b
+}
 
-    class MockedClass {
-        fun sum(a: Int, b: Int) = a + b
-    }
+val obj = mockk<MockedClass>()
 
-    val obj = mockk<MockedClass>()
+every { obj.sum(1, eq(2)) } returns 5
 
-    every { obj.sum(1, eq(2)) } returns 5
+obj.sum(1, 2) // returns 5
 
-    obj.sum(1, 2) // returns 5
-
-    verify { obj.sum(eq(1), 2) }
-
+verify { obj.sum(eq(1), 2) }
 ```
 
 ### Chained calls
@@ -173,24 +125,22 @@ You can mix both regular arguments and matchers:
 You can stub chains of calls:
 
 ```kotlin
+class MockedClass1 {
+    fun op1(a: Int, b: Int) = a + b
+}
 
-    class MockedClass1 {
-        fun op1(a: Int, b: Int) = a + b
-    }
+class MockedClass2 {
+    fun op2(c: Int, d: Int): MockedClass1 = ...
+}
 
-    class MockedClass2 {
-        fun op2(c: Int, d: Int): MockedClass1 = ...
-    }
+val obj = mockk<MockedClass2>()
 
-    val obj = mockk<MockedClass2>()
+every { obj.op2(1, eq(2)).op1(3, any()) } returns 5
 
-    every { obj.op2(1, eq(2)).op1(3, any()) } returns 5
+obj.op2(1, 2) // returns child mock
+obj.op2(1, 2).op1(3, 22) // returns 5
 
-    obj.op2(1, 2) // returns child mock
-    obj.op2(1, 2).op1(3, 22) // returns 5
-
-    verify { obj.op2(1, 2).op1(3, 22) }
-
+verify { obj.op2(1, 2).op1(3, 22) }
 ```
 
 ### Capturing
@@ -198,24 +148,22 @@ You can stub chains of calls:
 You can capture an argument to a `CapturingSlot` or `MutableList`:
 
 ```kotlin
+class MockedClass {
+    fun sum(a: Int, b: Int) = a + b
+}
 
-    class MockedClass {
-        fun sum(a: Int, b: Int) = a + b
-    }
+val obj = mockk<MockedClass>()
+val slot = slot<Int>()
+val lst = mutableListOf<Int>()
 
-    val obj = mockk<MockedClass>()
-    val slot = slot<Int>()
-    val lst = mutableListOf<Int>()
+every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured }
+every { obj.sum(2, capture(lst)) } answers { 3 + lst.captured() }
 
-    every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured }
-    every { obj.sum(2, capture(lst)) } answers { 3 + lst.captured() }
+obj.sum(1, 2) // returns 4
+obj.sum(2, 3) // returns 6
 
-    obj.sum(1, 2) // returns 4
-    obj.sum(2, 3) // returns 6
-
-    verify { obj.sum(1, 2) }
-    verify { obj.sum(2, 3) }
-
+verify { obj.sum(1, 2) }
+verify { obj.sum(2, 3) }
 ```
 
 ### Verification atLeast, atMost or exactly times
@@ -223,26 +171,24 @@ You can capture an argument to a `CapturingSlot` or `MutableList`:
 You can check call count with `atLeast`, `atMost` or `exactly` parameters:
 
 ```kotlin
+class MockedClass {
+    fun sum(a: Int, b: Int) = a + b
+}
 
-    class MockedClass {
-        fun sum(a: Int, b: Int) = a + b
-    }
+val obj = mockk<MockedClass>()
+val lst = mutableListOf<Int>()
 
-    val obj = mockk<MockedClass>()
-    val lst = mutableListOf<Int>()
+every {
+    obj.sum(any(), capture(lst))
+} answers {
+    1 + firstArg<Int>() + lst.captured()
+}
 
-        every {
-            obj.sum(any(), capture(lst))
-        } answers {
-            1 + firstArg<Int>() + lst.captured()
-        }
+obj.sum(1, 2) // returns 4
+obj.sum(1, 3) // returns 5
+obj.sum(2, 2) // returns 5
 
-    obj.sum(1, 2) // returns 4
-    obj.sum(1, 3) // returns 5
-    obj.sum(2, 2) // returns 5
-
-    verify(atLeast=3) { obj.sum(any(), any()) }
-
+verify(atLeast=3) { obj.sum(any(), any()) }
 ```
 
 
@@ -251,34 +197,33 @@ You can check call count with `atLeast`, `atMost` or `exactly` parameters:
 You can check exact sequence of calls with `verifySequence` or just order with `verifyOrder`:
 
 ```kotlin
+class MockedClass {
+    fun sum(a: Int, b: Int) = a + b
+}
 
-    class MockedClass {
-        fun sum(a: Int, b: Int) = a + b
-    }
+val obj = mockk<MockedClass>()
+val slot = slot<Int>()
 
-    val obj = mockk<MockedClass>()
-    val slot = slot<Int>()
+every {
+    obj.sum(any(), capture(slot))
+} answers {
+    1 + firstArg<Int>() + slot.captured
+}
 
-    every {
-        obj.sum(any(), capture(slot))
-    } answers {
-        1 + firstArg<Int>() + slot.captured
-    }
+obj.sum(1, 2) // returns 4
+obj.sum(1, 3) // returns 5
+obj.sum(2, 2) // returns 5
 
-    obj.sum(1, 2) // returns 4
-    obj.sum(1, 3) // returns 5
-    obj.sum(2, 2) // returns 5
+verifySequence {
+    obj.sum(1, 2)
+    obj.sum(1, 3)
+    obj.sum(2, 2)
+}
 
-    verifySequence {
-        obj.sum(1, 2)
-        obj.sum(1, 3)
-        obj.sum(2, 2)
-    }
-
-    verifyOrder {
-        obj.sum(1, 2)
-        obj.sum(2, 2)
-    }
+verifyOrder {
+    obj.sum(1, 2)
+    obj.sum(2, 2)
+}
 ```
 
 ### Returning nothing
@@ -286,32 +231,30 @@ You can check exact sequence of calls with `verifySequence` or just order with `
 If the method is returning Unit(i.e. no return value) you
 still need to specify return value:
 
-  ```kotlin
-
-    class MockedClass {
-        fun sum(a: Int, b: Int): Unit {
-            println(a + b)
-        }
+```kotlin
+class MockedClass {
+    fun sum(a: Int, b: Int): Unit {
+        println(a + b)
     }
+}
 
-    val obj = mockk<MockedClass>()
+val obj = mockk<MockedClass>()
 
-    // all 3 are actually doing the same
-    every { obj.sum(any(), 1) } answers { nothing }
-    every { obj.sum(any(), 2) } returns null
-    every { obj.sum(any(), 3) } just Runs
+// all 3 are actually doing the same
+every { obj.sum(any(), 1) } answers { nothing }
+every { obj.sum(any(), 2) } returns null
+every { obj.sum(any(), 3) } just Runs
 
+obj.sum(1, 1)
+obj.sum(1, 2)
+obj.sum(1, 3)
+
+verify {
     obj.sum(1, 1)
     obj.sum(1, 2)
     obj.sum(1, 3)
-
-    verify {
-        obj.sum(1, 1)
-        obj.sum(1, 2)
-        obj.sum(1, 3)
-    }
-
-  ```
+}
+```
 
 ### Coroutines
 
@@ -346,15 +289,13 @@ To mock coroutines you need to add dependency to the support library.
   Then you can use `coEvery` and `coVerify` versions to mock coroutine methods
 
 ```kotlin
+val car = mockk<Car>()
 
-    val car = mockk<Car>()
+coEvery { car.drive(Direction.NORTH) } returns Outcome.OK
 
-    coEvery { car.drive(Direction.NORTH) } returns Outcome.OK
+car.drive(Direction.NORTH) // returns OK
 
-    car.drive(Direction.NORTH) // returns OK
-
-    coVerify { car.drive(Direction.NORTH) }
-
+coVerify { car.drive(Direction.NORTH) }
 ```
 
 
