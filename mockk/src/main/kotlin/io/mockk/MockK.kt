@@ -27,13 +27,6 @@ inline fun <reified T : Any> slot() = useImpl {
 }
 
 /**
- * Creates new lambda args
- */
-fun args(vararg v: Any?) = useImpl {
-    MockKDsl.internalArgs(*v)
-}
-
-/**
  * Starts a block of stubbing. Part of DSL.
  */
 inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = useImpl {

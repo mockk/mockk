@@ -2,6 +2,7 @@ package io.mockk
 
 import io.kotlintest.specs.StringSpec
 import io.mockk.junit.MockKJUnit4Runner
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
 import org.junit.runner.RunWith
 
@@ -222,7 +223,7 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(d = capture(lstNonNull), c = 12) } answers { lstNonNull.captured().toDouble() }
         every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
         every { spy.lambdaOp(1, capture(slot)) } answers {
-            1 - slot.invoke<Int>()
+            1 - slot.invoke()
         }
 
         assertEquals(163.0, spy.manyArgsOp(), 1e-6)
@@ -606,6 +607,29 @@ class MockKTestSuite : StringSpec({
         }
     }.config(enabled = true)
 
+    "coroutines" {
+        coEvery { mock.coOtherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+        runBlocking {
+            mock.coOtherOp(1, 2)
+        }
+
+        coVerify { mock.coOtherOp(1, 2) }
+
+        val slot = slot<suspend () -> Int>()
+        coEvery { spy.coLambdaOp(1, capture(slot)) } answers {
+            1 - slot.coInvoke()
+        }
+
+        runBlocking {
+            spy.coLambdaOp(1, { 2 })
+        }
+
+        coVerify {
+            spy.coLambdaOp(1, any())
+        }
+    }.config(enabled = true)
+
     "extension functions" {
         staticMockk("io.mockk.MockKTestSuiteKt").use {
             every {
@@ -644,6 +668,8 @@ class MockCls {
 
     fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun lambdaOp(a: Int, b: () -> Int) = a + b()
+    suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
+    suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun otherOp(a: Wrapper? = IntWrapper(1), b: Wrapper? = IntWrapper(2)): Int {
         return if (a is IntWrapper && b is IntWrapper) {
             a.data + b.data
