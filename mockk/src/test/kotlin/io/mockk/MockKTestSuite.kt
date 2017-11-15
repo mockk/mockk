@@ -1,10 +1,8 @@
 package io.mockk
 
 import io.kotlintest.specs.StringSpec
-import io.mockk.junit.MockKJUnit4Runner
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
-import org.junit.runner.RunWith
 
 interface Wrapper
 
@@ -667,8 +665,31 @@ class MockKTestSuite : StringSpec({
                 IntWrapper(5).f()
             }
         }
+
+        with(mockk<ExtObj>()) {
+            every {
+                IntWrapper(5).h()
+            } returns 11
+
+            assertEquals(11, IntWrapper(5).h())
+
+            verify {
+                IntWrapper(5).h()
+            }
+        }
+
+
+
     }.config(enabled = true)
 })
+
+class ExtCls {
+    fun IntWrapper.g() = data + 5
+}
+
+object ExtObj {
+    fun IntWrapper.h() = data + 5
+}
 
 fun IntWrapper.f() = data + 5
 
