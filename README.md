@@ -17,7 +17,6 @@ Table of contents:
  - mocking coroutines
  - capturing lambdas
  - extension function mocking
- - 
  
 ## Examples
 
@@ -355,7 +354,7 @@ staticMockk("pkg.FileKt").use {
 
 ## DSL tables
 
-Here is a few tables helping to master the DSL.
+Here are few tables helping to master the DSL.
 
 ### Matchers
 
