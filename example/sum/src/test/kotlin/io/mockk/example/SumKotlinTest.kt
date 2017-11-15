@@ -8,7 +8,6 @@ import io.mockk.verify
 import org.junit.Assert
 import org.junit.runner.RunWith
 
-@RunWith(MockKJUnit4Runner::class)
 class SumKotlinTest : StringSpec({
     class Abc {
         fun sum(a: Int, b: Int) = a + b

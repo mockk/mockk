@@ -9,16 +9,17 @@ import io.mockk.slot
 internal class StubberImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Stubber {
     override fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
                            coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T> {
-        gateway.callRecorder.startStubbing()
+        val callRecorder = gateway.callRecorder
+        callRecorder.startStubbing()
         val lambda = slot<Function<*>>()
         val scope = MockKMatcherScope(gateway, lambda)
         try {
             record(scope, mockBlock, coMockBlock)
         } catch (ex: NoClassDefFoundError) {
-            gateway.callRecorder.cancel()
+            callRecorder.cancel()
             throw prettifyCoroutinesException(ex)
         } catch (ex: Throwable) {
-            gateway.callRecorder.cancel()
+            callRecorder.cancel()
             throw ex
         }
         return MockKStubScope(gateway, lambda)

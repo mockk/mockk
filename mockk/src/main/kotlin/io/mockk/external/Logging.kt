@@ -1,6 +1,8 @@
 package io.mockk.external
 
+import io.mockk.agent.MockKAgentLogger
 import org.slf4j.LoggerFactory
+import java.lang.Exception
 import java.util.logging.Level
 import kotlin.reflect.KClass
 
@@ -53,4 +55,15 @@ private class JULLogger(cls: KClass<*>) : Logger {
     override fun debug(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.FINE)) log.log(Level.FINE, msg(), ex) else Unit
     override fun trace(msg: () -> String) = if (log.isLoggable(Level.FINER)) log.finer(msg()) else Unit
     override fun trace(ex: Throwable, msg: () -> String) = if (log.isLoggable(Level.FINER)) log.log(Level.FINER, msg(), ex) else Unit
+}
+
+internal fun Logger.adaptor(): MockKAgentLogger {
+    return object : MockKAgentLogger {
+        override fun debug(msg: String) {  this@adaptor.debug { msg } }
+
+        override fun trace(msg: String) {  this@adaptor.trace { msg } }
+
+        override fun trace(ex: Throwable, msg: String) {  this@adaptor.trace(ex) { msg } }
+
+    }
 }

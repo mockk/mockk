@@ -16,6 +16,7 @@ plugins {
 apply plugin: 'kotlin'
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
@@ -44,8 +45,7 @@ dependencies {
     testCompile 'org.jetbrains.spek:spek-api:1.1.5'
     testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.5'
 
-    agent "io.mockk:mockk-agent:1.1-SNAPSHOT"
-    testCompile "io.mockk:mockk:1.1-SNAPSHOT"
+    testCompile "io.mockk:mockk:1.5"
 }
 
 kotlin {

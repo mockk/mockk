@@ -22,7 +22,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 
-    testCompile "io.mockk:mockk:1.1-SNAPSHOT"
+    testCompile "io.mockk:mockk:1.5"
 
     testCompile 'org.junit.jupiter:junit-jupiter-api:5.0.1'
     testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.0.1'

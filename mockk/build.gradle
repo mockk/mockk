@@ -1,17 +1,10 @@
 
 plugins {
     id "jacoco"
-    id "com.zoltu.application-agent" version "1.0.8"
 }
 apply plugin: "kotlin"
 
-startScripts.enabled = false
-
 dependencies {
-    agent project(path: ":mockk-agent", configuration: "shadow")
-
-    compile 'org.javassist:javassist:3.22.0-GA'
-    compile 'org.objenesis:objenesis:2.6'
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compile project(':mockk-dsl-jvm')
     compile project(":mockk-agent")

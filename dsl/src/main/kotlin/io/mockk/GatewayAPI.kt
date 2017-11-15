@@ -14,6 +14,8 @@ interface MockKGateway {
 
     fun verifier(ordering: Ordering): CallVerifier
 
+    fun stubFor(mock: Any): Stub
+
     companion object {
         lateinit var implementation: () -> MockKGateway
 
@@ -59,7 +61,34 @@ interface MockKGateway {
                   answers: Boolean,
                   recordedCalls: Boolean,
                   childMocks: Boolean)
+
+        fun staticMockk(cls: KClass<*>)
+        fun staticUnMockk(cls: KClass<*>)
     }
+
+    interface Stub {
+        val name: String
+
+        val type: KClass<*>
+
+        fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
+
+        fun answer(invocation: Invocation): Any?
+
+        fun childMockK(call: Call): Any?
+
+        fun recordCall(invocation: Invocation)
+
+        fun allRecordedCalls(): List<Invocation>
+
+        fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
+
+        fun handleInvocation(self: Any,
+                             thisMethod: MethodDescription,
+                             originalCall: () -> Any?,
+                             args: Array<out Any?>): Any?
+    }
+
 
     /**
      * Stub calls
@@ -92,7 +121,7 @@ interface MockKGateway {
 
         fun startVerification()
 
-        fun catchArgs(round: Int, n: Int)
+        fun catchArgs(round: Int, n: Int = 64)
 
         fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T
 
@@ -105,6 +134,8 @@ interface MockKGateway {
         fun hintNextReturnType(cls: KClass<*>, n: Int)
 
         fun cancel()
+
+        fun estimateCallRounds(): Int
     }
 
     /**
@@ -127,7 +158,10 @@ interface MockKGateway {
 
         fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
 
-        fun <T : Any> proxy(cls: KClass<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any
+        fun <T : Any> proxy(cls: KClass<T>,
+                            useDefaultConstructor: Boolean,
+                            moreInterfaces: Array<out KClass<*>>,
+                            stub: Stub): Any
 
         fun <T : Any> signatureValue(cls: KClass<T>): T
 
@@ -138,6 +172,10 @@ interface MockKGateway {
         fun registerFactory(factory: InstanceFactory)
 
         fun unregisterFactory(factory: InstanceFactory)
+
+        fun staticMockk(cls: KClass<*>, stub: Stub)
+
+        fun staticUnMockk(cls: KClass<*>)
     }
 
     /**

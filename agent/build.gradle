@@ -8,8 +8,13 @@ dependencies {
     compileOnly 'org.testng:testng:6.8'
     compileOnly 'org.junit.jupiter:junit-jupiter-api:5.0.1'
     compileOnly 'org.junit.platform:junit-platform-launcher:1.0.1'
-    compileOnly 'org.javassist:javassist:3.22.0-GA'
-    runtimeOnly 'org.javassist:javassist:3.22.0-GA'
+    compileOnly 'net.bytebuddy:byte-buddy:1.7.9'
+    runtimeOnly 'net.bytebuddy:byte-buddy:1.7.9'
+    compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
+    runtimeOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
+    testCompileOnly "junit:junit:4.12"
+    testRuntimeOnly "junit:junit:4.12"
+    compile 'org.objenesis:objenesis:2.6'
 }
 
 sourceCompatibility = 1.6
@@ -29,7 +34,8 @@ shadowJar {
     classifier = null
 
     exclude 'META-INF/maven/**'
-    relocate 'javassist.', 'shadowed.javassist.'
+    relocate 'net.bytebuddy.', 'io.mockk.shadowed.bytebuddy.'
+    relocate 'org.objenesis.', 'io.mockk.shadowed.objenesis.'
 
     manifest {
         attributes(

@@ -1,13 +1,11 @@
 package io.mockk
 
 import io.kotlintest.specs.StringSpec
-import io.mockk.junit.MockKJUnit4Runner
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
-import org.junit.runner.RunWith
 
 interface Wrapper
 
-@RunWith(MockKJUnit4Runner::class)
 class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>("mock")
     val spy = spyk<MockCls>()
@@ -223,7 +221,7 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(d = capture(lstNonNull), c = 12) } answers { lstNonNull.captured().toDouble() }
         every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
         every { spy.lambdaOp(1, capture(slot)) } answers {
-            1 - slot.invoke<Int>()
+            1 - slot.invoke()
         }
 
         assertEquals(163.0, spy.manyArgsOp(), 1e-6)
@@ -606,9 +604,94 @@ class MockKTestSuite : StringSpec({
             }
         }
     }.config(enabled = true)
+
+    "coroutines" {
+        coEvery { mock.coOtherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+        runBlocking {
+            mock.coOtherOp(1, 2)
+        }
+
+        coVerify { mock.coOtherOp(1, 2) }
+
+        val slot = slot<suspend () -> Int>()
+        coEvery { spy.coLambdaOp(1, capture(slot)) } answers {
+            1 - slot.coInvoke()
+        }
+
+        runBlocking {
+            spy.coLambdaOp(1, { 2 })
+        }
+
+        coVerify {
+            spy.coLambdaOp(1, any())
+        }
+    }.config(enabled = true)
+
+
+    "lambda functions" {
+        every {
+            mock.lambdaOp(1, captureLambda())
+        } answers { 1 - lambda<() -> Int>().invoke() }
+
+        assertEquals(-4, mock.lambdaOp(1, { 5 }))
+
+        verify {
+            mock.lambdaOp(1, any())
+        }
+
+        coEvery {
+            mock.coLambdaOp(1, captureCoroutine())
+        } answers { 1 - coroutine<suspend () -> Int>().coInvoke() }
+
+        runBlocking {
+            assertEquals(-4, mock.coLambdaOp(1, { 5 }))
+        }
+
+        coVerify {
+            mock.lambdaOp(1, any())
+        }
+    }
+
+    "extension functions" {
+        staticMockk("io.mockk.MockKTestSuiteKt").use {
+            every {
+                IntWrapper(5).f()
+            } returns 11
+
+            assertEquals(11, IntWrapper(5).f())
+
+            verify {
+                IntWrapper(5).f()
+            }
+        }
+
+        with(mockk<ExtObj>()) {
+            every {
+                IntWrapper(5).h()
+            } returns 11
+
+            assertEquals(11, IntWrapper(5).h())
+
+            verify {
+                IntWrapper(5).h()
+            }
+        }
+
+
+
+    }.config(enabled = true)
 })
 
+class ExtCls {
+    fun IntWrapper.g() = data + 5
+}
 
+object ExtObj {
+    fun IntWrapper.h() = data + 5
+}
+
+fun IntWrapper.f() = data + 5
 
 data class IntWrapper(val data: Int) : Wrapper
 data class DoubleWrapper(val data: Double) : Wrapper
@@ -631,6 +714,8 @@ class MockCls {
 
     fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun lambdaOp(a: Int, b: () -> Int) = a + b()
+    suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
+    suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun otherOp(a: Wrapper? = IntWrapper(1), b: Wrapper? = IntWrapper(2)): Int {
         return if (a is IntWrapper && b is IntWrapper) {
             a.data + b.data
@@ -663,5 +748,5 @@ class MockCls {
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
 
-    fun neverCalled():Int = 1
+    fun neverCalled(): Int = 1
 }

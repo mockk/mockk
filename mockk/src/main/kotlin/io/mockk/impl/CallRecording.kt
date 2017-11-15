@@ -3,7 +3,6 @@ package io.mockk.impl
 import io.mockk.*
 import io.mockk.MockKGateway.*
 import io.mockk.external.logger
-import javassist.util.proxy.ProxyObject
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
@@ -16,7 +15,7 @@ private data class SignedCall(val retType: KClass<*>,
 
 private data class CallRound(val calls: List<SignedCall>)
 
-internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder {
+internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRecorder {
     private val log = logger<CallRecorderImpl>()
 
     private enum class Mode {
@@ -29,6 +28,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     private val callRounds = mutableListOf<CallRound>()
     override val calls = mutableListOf<Call>()
     private val childMocks = mutableListOf<Ref>()
+    private val temporaryMocks = mutableMapOf<KClass<*>, Any>()
     private var childTypes = mutableMapOf<Int, KClass<*>>()
 
     private val matchers = mutableListOf<Matcher<*>>()
@@ -37,8 +37,10 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     private fun checkMode(vararg modes: Mode) {
         if (!modes.any { it == mode }) {
             if (mode == Mode.STUBBING_WAITING_ANSWER) {
+                cancel()
                 throw MockKException("Bad recording sequence. Finish every/coEvery with returns/answers/throws/just Runs")
             }
+            cancel()
             throw MockKException("Bad recording sequence. Mode: $mode")
         }
     }
@@ -48,6 +50,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         checkMode(Mode.ANSWERING)
         mode = Mode.STUBBING
         childMocks.clear()
+        temporaryMocks.clear()
     }
 
     override fun startVerification() {
@@ -55,6 +58,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         checkMode(Mode.ANSWERING)
         mode = Mode.VERIFYING
         childMocks.clear()
+        temporaryMocks.clear()
     }
 
     override fun catchArgs(round: Int, n: Int) {
@@ -83,20 +87,22 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         calls.addAll(detector.detect(callRounds, childMocks))
 
         childMocks.clear()
+        temporaryMocks.clear()
     }
 
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         matchers.add(matcher)
-        val signatureValue = gw.instantiator.signatureValue(cls)
+        val signatureValue = gateway.instantiator.signatureValue(cls)
         signatures.add(packRef(signatureValue)!!)
         return signatureValue
     }
 
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
-            invocation.self().___recordCall(invocation)
-            val answer = invocation.self().___answer(invocation)
+            val stub = gateway.stubFor(invocation.self)
+            stub.recordCall(invocation.copy(originalCall = null))
+            val answer = stub.answer(invocation)
             log.debug { "Recorded call: $invocation, answer: ${answer.toStr()}" }
             return answer
         } else {
@@ -118,11 +124,19 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         val instantiator = MockKGateway.implementation().instantiator
         return instantiator.anyValue(retType) {
             try {
-                val child = instantiator.proxy(retType, false, moreInterfaces = arrayOf())
-                if (child is MockK) {
-                    (child as ProxyObject).handler = MockKInstanceProxyHandler(retType, "temporary mock", child)
+                val mock = temporaryMocks[retType]
+                if (mock != null) {
+                    return@anyValue mock
                 }
+
+                val child = instantiator.proxy(retType,
+                        false,
+                        moreInterfaces = arrayOf(),
+                        stub = MockKStub(retType, "temporary mock"))
                 childMocks.add(Ref(child))
+
+                temporaryMocks[retType] = child
+
                 child
             } catch (ex: MockKException) {
                 log.trace(ex) { "Returning 'null' for a final class assuming it is last in a call chain" }
@@ -133,7 +147,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
 
 
     fun mockRealChilds() {
-        var newSelf: MockKInstance? = null
+        var newSelf: Any? = null
         val newCalls = mutableListOf<Call>()
 
         for ((idx, ic) in calls.withIndex()) {
@@ -142,7 +156,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             val invocation = ic.invocation
 
             if (!ic.chained) {
-                newSelf = invocation.self()
+                newSelf = invocation.self
             }
 
             val newInvocation = ic.invocation.copy(self = newSelf!!)
@@ -152,7 +166,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
             newCalls.add(newCall)
 
             if (!lastCall && calls[idx + 1].chained) {
-                newSelf = newSelf.___childMockK(newCall)
+                newSelf = gateway.stubFor(newSelf).childMockK(newCall)
             }
         }
 
@@ -174,7 +188,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
                 ConstantAnswer(calls[idx + 1].invocation.self)
             }
 
-            ic.invocation.self().___addAnswer(ic.matcher, ans)
+            gateway.stubFor(ic.invocation.self).addAnswer(ic.matcher, ans)
         }
 
         calls.clear()
@@ -195,6 +209,7 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
         callRounds.clear()
         calls.clear()
         childMocks.clear()
+        temporaryMocks.clear()
         childTypes.clear()
         matchers.clear()
         signatures.clear()
@@ -216,21 +231,45 @@ internal class CallRecorderImpl(private val gw: MockKGatewayImpl) : CallRecorder
     override fun hintNextReturnType(cls: KClass<*>, n: Int) {
         childTypes[n] = cls
     }
+
+    /**
+     * Main idea is to have enough random information
+     * to create signature for the argument.
+     *
+     * Max 40 calls looks like reasonable compromise
+     */
+    override fun estimateCallRounds(): Int {
+        return signedCalls
+                .flatMap { it.invocation.args }
+                .filterNotNull()
+                .map {
+                    when (it::class) {
+                        Boolean::class -> 40
+                        Byte::class -> 8
+                        Char::class -> 4
+                        Short::class -> 4
+                        Int::class -> 2
+                        Float::class -> 2
+                        else -> 1
+                    }
+                }
+                .max() ?: 1
+    }
+
 }
 
 private class SignatureMatcherDetector {
     private val log = logger<SignatureMatcherDetector>()
 
     @Suppress("UNCHECKED_CAST")
-    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>) : List<Call> {
+    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<Call> {
         val nCalls = callRounds[0].calls.size
         if (nCalls == 0) {
-            throw MockKException("Missing calls inside every/verify {} block.\n" +
-                    "This usually happens when method you are calling is final and can't be intercepted.\n" +
-                    "Try putting 'open' modifier on method or use class loading annotation @MockKJunit4Runner or agent (check docs)")
+            throw MockKException("Missing calls inside every/verify {} block.")
         }
         if (callRounds.any { it.calls.size != nCalls }) {
-            throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs")
+            throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
+                    callRounds.map { it.calls.map { it.invocation }.joinToString(", ") }.joinToString("\n"))
         }
 
         val calls = mutableListOf<Call>();
@@ -329,21 +368,27 @@ internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
                                                    mockBlock: (S.() -> T)?,
                                                    coMockBlock: (suspend S.() -> T)?) {
         try {
+            val callRecorder = gateway.callRecorder
+
             if (mockBlock != null) {
-                val n = MockKGatewayImpl.N_CALL_ROUNDS
-                repeat(n) {
-                    gateway.callRecorder.catchArgs(it, n)
+                callRecorder.catchArgs(0)
+                scope.mockBlock()
+                val n = callRecorder.estimateCallRounds();
+                for (i in 1 until n) {
+                    callRecorder.catchArgs(i, n)
                     scope.mockBlock()
                 }
-                gateway.callRecorder.catchArgs(n, n)
+                callRecorder.catchArgs(n, n)
             } else if (coMockBlock != null) {
                 runBlocking {
-                    val n = MockKGatewayImpl.N_CALL_ROUNDS
-                    repeat(n) {
-                        gateway.callRecorder.catchArgs(it, n)
+                    callRecorder.catchArgs(0)
+                    scope.coMockBlock()
+                    val n = callRecorder.estimateCallRounds()
+                    for (i in 1 until n) {
+                        callRecorder.catchArgs(i, n)
                         scope.coMockBlock()
                     }
-                    gateway.callRecorder.catchArgs(n, n)
+                    callRecorder.catchArgs(n, n)
                 }
             }
         } catch (ex: ClassCastException) {
@@ -370,8 +415,6 @@ private fun MethodDescription.isSuspend(): Boolean {
     }
     return paramTypes[sz - 1].isSubclassOf(Continuation::class)
 }
-
-private fun Invocation.self() = self as MockKInstance
 
 private fun packRef(arg: Any?): Any? {
     return if (arg == null || MockKGateway.implementation().instantiator.isPassedByValue(arg::class))

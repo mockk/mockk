@@ -1,59 +1,45 @@
 package io.mockk.impl
 
-import io.mockk.MockKGateway.*
 import io.mockk.MockKException
+import io.mockk.MockKGateway.*
+import io.mockk.agent.MockKAgentException
 import io.mockk.external.logger
-import javassist.ClassPool
-import javassist.bytecode.ClassFile
-import javassist.util.proxy.MethodFilter
-import javassist.util.proxy.MethodHandler
-import javassist.util.proxy.ProxyFactory
-import javassist.util.proxy.ProxyObject
-import org.objenesis.ObjenesisStd
-import org.objenesis.instantiator.ObjectInstantiator
-import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
+import io.mockk.proxy.MockKProxyMaker
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
-internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator {
+internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instantiator {
     private val log = logger<InstantiatorImpl>()
-
-    private val cp = ClassPool.getDefault()
-
-    private val objenesis = ObjenesisStd()
-
-    private val instantiators = mutableMapOf<KClass<*>, ObjectInstantiator<*>>()
-    private val proxyClasses = mutableMapOf<ProxyClassSignature, KClass<*>>()
 
     private val instantiationFactories = mutableListOf<InstanceFactory>()
 
     private val rnd = Random()
 
     @Suppress("DEPRECATION")
-    override fun <T : Any> proxy(cls: KClass<T>, useDefaultConstructor: Boolean, moreInterfaces: Array<out KClass<*>>): Any {
+    override fun <T : Any> proxy(cls: KClass<T>,
+                                 useDefaultConstructor: Boolean,
+                                 moreInterfaces: Array<out KClass<*>>,
+                                 stub: Stub): Any {
         log.trace { "Building proxy for ${cls.toStr()} hashcode=${Integer.toHexString(cls.hashCode())}" }
 
         try {
-            val signature = ProxyClassSignature(cls, linkedSetOf(MockKInstance::class, *moreInterfaces))
-            val proxyCls = proxyClasses.java6ComputeIfAbsent(signature) {
-                ProxyFactoryExt(it).buildProxy(cls)
+            return MockKProxyMaker.INSTANCE.proxy(
+                    cls.java,
+                    moreInterfaces.map { it.java }.toTypedArray(),
+                    { self, method, originalMethod, args ->
+                        stub.handleInvocation(self, method.toDescription(), { originalMethod.call() }, args)
+                    },
+                    useDefaultConstructor)
+        } catch (ex: MockKAgentException) {
+            log.trace(ex) {
+                "Failed to build proxy for ${cls.toStr()}. " +
+                        "Trying just instantiate it. " +
+                        "This can help if it's last call in the chain"
             }
-
-            return if (useDefaultConstructor)
-                proxyCls.java.newInstance()
-            else
-                newEmptyInstance(proxyCls)
-        } catch (ex: Exception) {
-            log.trace(ex) { "Failed to build proxy for ${cls.toStr()}. " +
-                    "Trying just instantiate it. " +
-                    "This can help if it's last call in the chain" }
             return instantiate(cls)
         }
     }
-
 
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }
@@ -61,79 +47,12 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
         for (factory in instantiationFactories) {
             val instance = factory.instantiate(cls)
             if (instance != null) {
+                log.trace { "Instance factory returned instance $instance" }
                 return cls.cast(instance)
             }
         }
 
-        val ret = if (!cls.isFinal) {
-            try {
-                instantiateViaProxy(cls)
-                        ?: newEmptyInstance(cls)
-            } catch (ex: Exception) {
-                log.trace(ex) { "Failed to instantiate via proxy ${cls.toStr()}. " +
-                        "Doing just instantiation" }
-                newEmptyInstance(cls)
-            }
-        } else {
-            newEmptyInstance(cls)
-        }
-        return cls.cast(ret)
-    }
-
-    private fun instantiateViaProxy(cls: KClass<*>): Any? {
-        val signature = ProxyClassSignature(cls, setOf())
-        val proxyCls = proxyClasses.java6ComputeIfAbsent(signature, {
-            ProxyFactoryExt(it).buildProxy(cls)
-        })
-        val instance = newEmptyInstance(proxyCls)
-
-        if (!(instance is ProxyObject)) {
-            return null
-        }
-
-        instance.handler = InstanceMethodHandler()
-
-        return instance
-    }
-
-    private fun <T : Any> ProxyFactoryExt.buildProxy(cls: KClass<T>): KClass<*> {
-        return try {
-            val classFile = buildClassFile()
-
-            val proxyClass = cp.makeClass(classFile)
-
-            proxyClass.toClass(cls.java.classLoader, cls.java.protectionDomain).kotlin
-
-        } catch (ex: RuntimeException) {
-            if (ex.message?.endsWith("is final") ?: false) {
-                throw MockKException("Failed to create proxy for ${cls.toStr()}. Class is final. " +
-                        "Put @MockKJUnit4Runner on your test or add MockK Java Agent instrumentation to make all classes 'open'", ex)
-            }
-            throw ex
-        }
-    }
-
-    private class InstanceMethodHandler : MethodHandler {
-        override fun invoke(self: Any, thisMethod: Method, proceed: Method?, args: Array<out Any>): Any? {
-            return if (thisMethod.name == "hashCode" && thisMethod.parameterCount() == 0) {
-                System.identityHashCode(self)
-            } else if (thisMethod.name == "equals" &&
-                    thisMethod.parameterCount() == 1 &&
-                    thisMethod.parameterTypes[0] == java.lang.Object::class.java) {
-                self === args[0]
-            } else if (thisMethod.name == "toString" && thisMethod.parameterCount() == 0) {
-                "instance<" + self.javaClass.superclass.simpleName + ">()"
-            } else {
-                null
-            }
-        }
-    }
-
-    private fun newEmptyInstance(proxyCls: KClass<*>): Any {
-        val instantiator = instantiators.java6ComputeIfAbsent(proxyCls) { cls ->
-            objenesis.getInstantiatorOf(cls.java)
-        }
-        return instantiator.newInstance()
+        return MockKProxyMaker.INSTANCE.instance(cls.java)
     }
 
     override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
@@ -258,65 +177,21 @@ internal class InstantiatorImpl(private val gw: MockKGatewayImpl) : Instantiator
     override fun unregisterFactory(factory: InstanceFactory) {
         instantiationFactories.remove(factory)
     }
-}
 
-data class ProxyClassSignature(val superclass: KClass<*>,
-                               val interfaces: Set<KClass<*>>)
+    override fun staticMockk(cls: KClass<*>, stub: Stub) {
+        log.trace { "Building static proxy for ${cls.toStr()} hashcode=${Integer.toHexString(cls.hashCode())}" }
 
-internal class ProxyFactoryExt(signature: ProxyClassSignature) : ProxyFactory() {
-    init {
-        val interfaceList = mutableListOf<KClass<*>>()
-        if (signature.superclass.java.isInterface) {
-            interfaceList.add(signature.superclass)
-        } else {
-            superclass = signature.superclass.java
-            warnOnFinalMethods(superclass)
-        }
-        interfaceList.addAll(signature.interfaces)
-        interfaces = interfaceList.map { it.java }.toTypedArray()
-    }
-
-    private fun warnOnFinalMethods(clazz: Class<out Any>) {
-        var cls : Class<*>? = clazz
-        val methods = mutableListOf<Method>()
-        while (cls != Any::class.java) {
-            methods.addAll(cls!!.declaredMethods)
-            cls = cls.superclass
-        }
-
-        methods.filter {
-            !Modifier.isPrivate(it.modifiers)
-        }.filter {
-            Modifier.isFinal(it.modifiers)
-        } .forEach { method ->
-            log.warn { "It is impossible to intercept calls to $method for $clazz because it is final" }
-        }
-    }
-
-    fun buildClassFile(): ClassFile {
         try {
-            computeSignatureMethod.invoke(this, MethodFilter { true })
-            allocateClassNameMethod.invoke(this)
-            return makeMethod.invoke(this) as ClassFile
-        } catch (ex: InvocationTargetException) {
-            throw ex.demangle()
+            return MockKProxyMaker.INSTANCE.staticProxy(cls.java,
+                    { self, method, originalMethod, args ->
+                        stub.handleInvocation(self, method.toDescription(), { originalMethod.call() }, args)
+                    })
+        } catch (ex: MockKAgentException) {
+            throw MockKException("Failed to build static proxy", ex)
         }
     }
 
-    companion object {
-        val log = logger<ProxyFactoryExt>()
-        val makeMethod: Method = ProxyFactory::class.java.getDeclaredMethod("make")
-
-        val computeSignatureMethod: Method = ProxyFactory::class.java.getDeclaredMethod("computeSignature",
-                MethodFilter::class.java)
-
-        val allocateClassNameMethod: Method = ProxyFactory::class.java.getDeclaredMethod("allocateClassName")
-
-        init {
-            makeMethod.isAccessible = true
-            computeSignatureMethod.isAccessible = true
-            allocateClassNameMethod.isAccessible = true
-        }
+    override fun staticUnMockk(cls: KClass<*>) {
+        MockKProxyMaker.INSTANCE.staticUnProxy(cls.java)
     }
 }
-

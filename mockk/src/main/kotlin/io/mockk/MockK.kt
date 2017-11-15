@@ -27,13 +27,6 @@ inline fun <reified T : Any> slot() = useImpl {
 }
 
 /**
- * Creates new lambda args
- */
-fun args(vararg v: Any?) = useImpl {
-    MockKDsl.internalArgs(*v)
-}
-
-/**
  * Starts a block of stubbing. Part of DSL.
  */
 inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = useImpl {
@@ -107,6 +100,22 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
 /**
  * Executes block of code with registering and unregistering instance factory.
  */
-inline fun <reified T: Any> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> Unit) {
-    MockKDsl.internalWithInstanceFactory(instanceFactory, block)
+inline fun <reified T: Any, R> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> R) : R {
+    return MockKDsl.internalWithInstanceFactory(instanceFactory, block)
+}
+
+/**
+ * Builds a static mock via static mock scope.
+ * To actually use it you need to call use or mock/unmock.
+ */
+inline fun <reified T : Any> staticMockk(): MockKStaticScope = useImpl {
+    MockKDsl.internalStaticMockk<T>()
+}
+
+/**
+ * Builds a static mock via static mock scope.
+ * To actually use it you need to call use or mock/unmock.
+ */
+inline fun staticMockk(vararg cls: String): MockKStaticScope = useImpl {
+    MockKDsl.internalStaticMockk(*cls.map { Class.forName(it).kotlin }.toTypedArray())
 }
