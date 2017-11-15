@@ -265,7 +265,7 @@ To mock coroutines you need to add dependency to the support library.
 </tr>
 <tr>
     <td>
-    <pre>testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
+<pre>testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
     </td>
 </tr>
 </table>
@@ -276,17 +276,17 @@ To mock coroutines you need to add dependency to the support library.
 <tr>
 <td>
     <pre>
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.jetbrains.kotlinx&lt;/groupId&gt;
-        &lt;artifactId&gt;kotlinx-coroutines-core&lt;/artifactId&gt;
-        &lt;version&gt;x.x&lt;/version&gt;
-        &lt;scope&gt;test&lt;/scope&gt;
-    &lt;/dependency&gt;</pre>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.jetbrains.kotlinx&lt;/groupId&gt;
+    &lt;artifactId&gt;kotlinx-coroutines-core&lt;/artifactId&gt;
+    &lt;version&gt;x.x&lt;/version&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;</pre>
     </td>
 </tr>
 </table>
 
-Then you can use `coEvery` and `coVerify` versions to mock suspend methods
+Then you can use `coEvery`, `coVerify`, `coMatch`, `coAssert`, `coRun`, `coAnswers` or `coInvoke` to mock suspend methods
 
 ```kotlin
 val car = mockk<Car>()
