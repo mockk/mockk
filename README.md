@@ -24,7 +24,7 @@ Table of contents:
 
 ## Installation
 
-All you need to get started is just to add dependency to `MockK` library.
+All you need to get started is just to add a dependency to `MockK` library.
 
 #### Gradle/maven dependency
 
