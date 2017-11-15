@@ -300,11 +300,38 @@ coVerify { car.drive(Direction.NORTH) }
 ```
 ### Extension functions
 
-To mock extension function you need to build staticMockk(...) and provide as
-an argument the class where it is defined.
+There a 3 cases of extension function:
 
-For modules you need to specify full class name via String 
-(alike "pkg.FileKt" for module "File.kt" in "pkg" package).
+* class wide
+* object wide
+* module wide
+
+In case of object and class you can mock extension function just by creating
+regular `mockk`:
+
+```kotlin
+data class Obj(val value: Int)
+
+// declared in File.kt ("pkg" package)
+class Ext {
+    fun Obj.extensionFunc() = value + 5
+}
+
+with(mockk<Ext>()) {
+    every {
+        Obj(5).extensionFunc()
+    } returns 11
+
+    assertEquals(11, Obj(5).extensionFunc())
+
+    verify {
+        Obj(5).extensionFunc()
+    }
+}
+
+To mock module wide extension function you need to 
+build staticMockk(...) with argument specifying module class name.
+For example "pkg.FileKt" for module "File.kt" in "pkg" package
 
 ```kotlin
 data class Obj(val value: Int)
