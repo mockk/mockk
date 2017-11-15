@@ -8,7 +8,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(MockKJUnit4Runner::class)
 class SumJUnit4Test {
     class Abc {
         fun sum(a: Int, b: Int) = a + b
