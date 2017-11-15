@@ -328,6 +328,7 @@ with(mockk<Ext>()) {
         Obj(5).extensionFunc()
     }
 }
+```
 
 To mock module wide extension function you need to 
 build staticMockk(...) with argument specifying module class name.
