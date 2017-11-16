@@ -50,15 +50,13 @@ class MockKGatewayImpl : MockKGateway {
 
 
     companion object {
-        val N_CALL_ROUNDS = 64
 
         private val log = logger<MockKGatewayImpl>()
 
         init {
             log.trace {
                 "Starting Java MockK implementation. " +
-                        "Java version = ${System.getProperty("java.version")}. " +
-                        "Class loader = ${MockKGatewayImpl::class.java.classLoader}. "
+                        "Java version = ${System.getProperty("java.version")}. "
             }
             MockKProxyMaker.log = logger<MockKProxyMaker>().adaptor()
             MockKInstrumentation.log = logger<MockKInstrumentation>().adaptor()
@@ -67,7 +65,7 @@ class MockKGatewayImpl : MockKGateway {
         val defaultImplementation = MockKGatewayImpl()
         val defaultImplementationBuilder = { defaultImplementation }
 
-        inline fun <T> useImpl(block: () -> T) : T {
+        inline fun <T> useImpl(block: () -> T): T {
             MockKGateway.implementation = defaultImplementationBuilder
             return block()
         }
@@ -76,6 +74,6 @@ class MockKGatewayImpl : MockKGateway {
     override fun stubFor(mock: Any): Stub = stubs[mock]
             ?: throw MockKException("can't find stub for $mock")
 
-    override fun <T> runCoroutine(block: suspend () -> T): T =  runBlocking { block() }
+    override fun <T> runCoroutine(block: suspend () -> T): T = runBlocking { block() }
 }
 

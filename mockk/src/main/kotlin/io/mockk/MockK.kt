@@ -43,24 +43,24 @@ inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): M
 /**
  * Verifies calls happened in the past. Part of DSL
  */
-inline fun <T> verify(ordering: Ordering = Ordering.UNORDERED,
-                      inverse: Boolean = false,
-                      atLeast: Int = 1,
-                      atMost: Int = Int.MAX_VALUE,
-                      exactly: Int = -1,
-                      noinline verifyBlock: MockKVerificationScope.() -> T) = useImpl {
+inline fun verify(ordering: Ordering = Ordering.UNORDERED,
+                  inverse: Boolean = false,
+                  atLeast: Int = 1,
+                  atMost: Int = Int.MAX_VALUE,
+                  exactly: Int = -1,
+                  noinline verifyBlock: MockKVerificationScope.() -> Unit) = useImpl {
     MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, verifyBlock)
 }
 
 /**
  * Verify for coroutines
  */
-inline fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
-                        inverse: Boolean = false,
-                        atLeast: Int = 1,
-                        atMost: Int = Int.MAX_VALUE,
-                        exactly: Int = -1,
-                        noinline verifyBlock: suspend MockKVerificationScope.() -> T) = useImpl {
+inline fun coVerify(ordering: Ordering = Ordering.UNORDERED,
+                    inverse: Boolean = false,
+                    atLeast: Int = 1,
+                    atMost: Int = Int.MAX_VALUE,
+                    exactly: Int = -1,
+                    noinline verifyBlock: suspend MockKVerificationScope.() -> Unit) = useImpl {
     MockKDsl.internalCoVerify(
             ordering,
             inverse,
@@ -73,16 +73,16 @@ inline fun <T> coVerify(ordering: Ordering = Ordering.UNORDERED,
 /**
  * Shortcut for ordered calls verification
  */
-inline fun <T> verifyOrder(inverse: Boolean = false,
-                           noinline verifyBlock: MockKVerificationScope.() -> T) = useImpl {
+inline fun verifyOrder(inverse: Boolean = false,
+                       noinline verifyBlock: MockKVerificationScope.() -> Unit) = useImpl {
     MockKDsl.internalVerifyOrder(inverse, verifyBlock)
 }
 
 /**
  * Shortcut for sequence calls verification
  */
-inline fun <T> verifySequence(inverse: Boolean = false,
-                              noinline verifyBlock: MockKVerificationScope.() -> T) = useImpl {
+inline fun verifySequence(inverse: Boolean = false,
+                          noinline verifyBlock: MockKVerificationScope.() -> Unit) = useImpl {
     MockKDsl.internalVerifySequence(inverse, verifyBlock)
 }
 
@@ -100,7 +100,7 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
 /**
  * Executes block of code with registering and unregistering instance factory.
  */
-inline fun <reified T: Any, R> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> R) : R {
+inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> R): R {
     return MockKDsl.internalWithInstanceFactory(instanceFactory, block)
 }
 

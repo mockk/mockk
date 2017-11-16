@@ -6,14 +6,12 @@ import io.mockk.external.logger
 import java.lang.AssertionError
 
 internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway), Verifier {
-    private val log = logger<VerifierImpl>()
-
-    override fun <T> verify(ordering: Ordering, inverse: Boolean,
-                            atLeast: Int,
-                            atMost: Int,
-                            exactly: Int,
-                            mockBlock: (MockKVerificationScope.() -> T)?,
-                            coMockBlock: (suspend MockKVerificationScope.() -> T)?) {
+    override fun verify(ordering: Ordering, inverse: Boolean,
+                        atLeast: Int,
+                        atMost: Int,
+                        exactly: Int,
+                        mockBlock: (MockKVerificationScope.() -> Unit)?,
+                        coMockBlock: (suspend MockKVerificationScope.() -> Unit)?) {
         if (ordering != Ordering.UNORDERED) {
             if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
                 throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
@@ -69,7 +67,9 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
         }
     }
 
-
+    companion object {
+        val log = logger<VerifierImpl>()
+    }
 }
 
 internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayImpl) : CallVerifier {
@@ -95,9 +95,9 @@ internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayImpl) 
                 if (min == 0 && max == 0) {
                     VerificationResult(true)
                 } else if (allCallsForMock.isEmpty()) {
-                    VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}")
+                    VerificationResult(false, "$callIdxMsg $mock/${call.matcher.method.toStr()} was not called")
                 } else {
-                    VerificationResult(false, "$callIdxMsg No calls for $mock/${call.matcher.method.toStr()}.\n" +
+                    VerificationResult(false, "$callIdxMsg $mock/${call.matcher.method.toStr()} was not called.\n" +
                             "Calls to same mock:\n" + formatCalls(allCallsForMock))
                 }
             }

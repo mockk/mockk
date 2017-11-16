@@ -10,8 +10,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
 internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instantiator {
-    private val log = logger<InstantiatorImpl>()
-
     private val instantiationFactories = mutableListOf<InstanceFactory>()
 
     private val rnd = Random()
@@ -193,5 +191,9 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
 
     override fun staticUnMockk(cls: KClass<*>) {
         MockKProxyMaker.INSTANCE.staticUnProxy(cls.java)
+    }
+
+    companion object {
+        val log = logger<InstantiatorImpl>()
     }
 }

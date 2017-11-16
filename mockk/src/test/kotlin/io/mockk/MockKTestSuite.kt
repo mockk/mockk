@@ -533,7 +533,7 @@ class MockKTestSuite : StringSpec({
             verify { mock.otherOp(1, 3) }
         }
 
-        expectVerificationError("No calls for", "Calls to same mock") {
+        expectVerificationError("was not called", "Calls to same mock") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -541,7 +541,7 @@ class MockKTestSuite : StringSpec({
             verify { mock.manyArgsOp(true, false) }
         }
 
-        expectVerificationError("No calls for") {
+        expectVerificationError("was not called") {
             verify { mock.otherOp(1, 2) }
         }
 

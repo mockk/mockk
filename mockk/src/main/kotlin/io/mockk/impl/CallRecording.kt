@@ -2,6 +2,7 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
+import io.mockk.external.Logger
 import io.mockk.external.logger
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.Continuation
@@ -16,8 +17,6 @@ private data class SignedCall(val retType: KClass<*>,
 private data class CallRound(val calls: List<SignedCall>)
 
 internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRecorder {
-    private val log = logger<CallRecorderImpl>()
-
     private enum class Mode {
         STUBBING, STUBBING_WAITING_ANSWER, VERIFYING, ANSWERING
     }
@@ -65,9 +64,9 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         if (round > 0) {
             callRounds.add(CallRound(signedCalls.toList()))
-            signedCalls.clear()
-            childTypes.clear()
         }
+        signedCalls.clear()
+        childTypes.clear()
         if (round == n) {
             try {
                 signMatchers()
@@ -80,6 +79,8 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
             }
         }
     }
+
+    override fun nCalls() = signedCalls.size
 
     private fun signMatchers() {
         val detector = SignatureMatcherDetector()
@@ -114,7 +115,6 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         if (childMocks.any { mock -> invocation.args.any { it === mock } }) {
             throw MockKException("Passing child mocks to arguments is prohibited")
         }
-
         val retType = nextChildType { invocation.method.returnType }
 
         signedCalls.add(SignedCall(retType, invocation, matchers.toList(), signatures.toList()))
@@ -166,7 +166,19 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
             newCalls.add(newCall)
 
             if (!lastCall && calls[idx + 1].chained) {
-                newSelf = gateway.stubFor(newSelf).childMockK(newCall)
+
+                val args = newCall.matcher.args.map {
+                    when (it) {
+                        is EquivalentMatcher -> it.equivalent()
+                        else -> it
+                    }
+                }
+                val matcher = newCall.matcher.copy(args = args)
+                val equivalentCall = newCall.copy(matcher = matcher)
+
+                log.trace { "Child search key: $matcher" }
+
+                newSelf = gateway.stubFor(newSelf).childMockK(equivalentCall)
             }
         }
 
@@ -256,11 +268,12 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
                 .max() ?: 1
     }
 
+    companion object {
+        val log = logger<CallRecorderImpl>()
+    }
 }
 
 private class SignatureMatcherDetector {
-    private val log = logger<SignatureMatcherDetector>()
-
     @Suppress("UNCHECKED_CAST")
     fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<Call> {
         val nCalls = callRounds[0].calls.size
@@ -360,6 +373,10 @@ private class SignatureMatcherDetector {
         }
         return calls
     }
+
+    companion object {
+        val log = logger<SignatureMatcherDetector>()
+    }
 }
 
 internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
@@ -370,32 +387,52 @@ internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
         try {
             val callRecorder = gateway.callRecorder
 
-            if (mockBlock != null) {
-                callRecorder.catchArgs(0)
-                scope.mockBlock()
-                val n = callRecorder.estimateCallRounds();
-                for (i in 1 until n) {
-                    callRecorder.catchArgs(i, n)
-                    scope.mockBlock()
-                }
-                callRecorder.catchArgs(n, n)
+            val block: () -> T = if (mockBlock != null) {
+                { scope.mockBlock() }
             } else if (coMockBlock != null) {
-                runBlocking {
-                    callRecorder.catchArgs(0)
-                    scope.coMockBlock()
-                    val n = callRecorder.estimateCallRounds()
-                    for (i in 1 until n) {
-                        callRecorder.catchArgs(i, n)
-                        scope.coMockBlock()
-                    }
-                    callRecorder.catchArgs(n, n)
-                }
+                { runBlocking { scope.coMockBlock() } }
+            } else {
+                { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
             }
+
+            var childTypes = mutableMapOf<Int, KClass<*>>()
+            callRecorder.autoHint(childTypes,0, 64, block)
+            val n = callRecorder.estimateCallRounds();
+            for (i in 1 until n) {
+                callRecorder.autoHint(childTypes, i, n, block)
+            }
+            callRecorder.catchArgs(n, n)
+
         } catch (ex: ClassCastException) {
             throw MockKException("Class cast exception. " +
                     "Probably type information was erased.\n" +
                     "In this case use `hint` before call to specify " +
                     "exact return type of a method. ", ex)
+        }
+    }
+
+    private fun <T> CallRecorder.autoHint(childTypes: MutableMap<Int, KClass<*>>, i: Int, n: Int, block: () -> T) {
+        var callsPassed = -1
+        while (true) {
+            catchArgs(i, n)
+            childTypes.forEach { callN, cls ->
+                hintNextReturnType(cls, callN)
+            }
+            try {
+                block()
+                break
+            } catch (ex: ClassCastException) {
+                val clsName = extractClassName(ex) ?: throw ex
+                val nCalls = nCalls()
+                if (nCalls <= callsPassed) {
+                    throw ex
+                }
+                callsPassed = nCalls
+                val cls = Class.forName(clsName).kotlin
+
+                log.trace { "Auto hint for $nCalls-th call: $cls" }
+                childTypes[nCalls] = cls
+            }
         }
     }
 
@@ -405,6 +442,15 @@ internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
         } else {
             ex
         }
+    }
+
+    fun extractClassName(ex: ClassCastException): String? {
+        return cannotBeCastRegex.find(ex.message!!)?.groups?.get(1)?.value
+    }
+
+    companion object {
+        val cannotBeCastRegex = Regex("cannot be cast to (.+)$")
+        val log = logger<CommonRecorder>()
     }
 }
 

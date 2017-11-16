@@ -36,7 +36,9 @@ data class ConstantMatcher<in T>(val constValue: Boolean) : Matcher<T> {
  * Delegates matching to lambda function
  */
 data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean,
-                              override val argumentType: KClass<*>) : Matcher<T>, TypedMatcher {
+                              override val argumentType: KClass<*>) : Matcher<T>, TypedMatcher, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+
     override fun match(arg: T?): Boolean = matchingFunc(arg)
 
     override fun toString(): String = "matcher<${argumentType.simpleName}>()"
@@ -46,7 +48,9 @@ data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean,
  * Matcher capturing all results to the list.
  */
 data class CaptureMatcher<T>(val captureList: MutableList<T>,
-                             override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
+                             override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         captureList.add(arg as T)
@@ -61,7 +65,9 @@ data class CaptureMatcher<T>(val captureList: MutableList<T>,
  * Matcher capturing all results to the list. Allows nulls
  */
 data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>,
-                                     override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
+                                     override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         captureList.add(arg as T?)
@@ -76,7 +82,9 @@ data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>,
  * Matcher capturing one last value to the CapturingSlot
  */
 data class CapturingSlotMatcher<T : Any>(val captureSlot: CapturingSlot<T>,
-                                         override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher {
+                                         override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         if (arg == null) {
@@ -217,7 +225,9 @@ class AllAnyMatcher<T> : Matcher<T> {
 /**
  * Invokes lambda
  */
-class InvokeMatcher<T>(val block: (T) -> Unit) : Matcher<T> {
+class InvokeMatcher<T>(val block: (T) -> Unit) : Matcher<T>, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+
     override fun match(arg: T?): Boolean {
         if (arg == null) {
             return true
@@ -234,10 +244,11 @@ class InvokeMatcher<T>(val block: (T) -> Unit) : Matcher<T> {
 /**
  * Checks if assertion is true
  */
-data class AssertMatcher<T>(val assertFunction: (T?) -> Boolean,
-                            val msg: String? = null,
-                            override val argumentType: KClass<*>,
-                            val nullable: Boolean = false) : Matcher<T>, TypedMatcher {
+class AssertMatcher<T>(val assertFunction: (T?) -> Boolean,
+                       val msg: String? = null,
+                       override val argumentType: KClass<*>,
+                       val nullable: Boolean = false) : Matcher<T>, TypedMatcher, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     override fun checkType(arg: Any?): Boolean {
         if (arg != null && !argumentType.isInstance(arg)) {
@@ -262,7 +273,7 @@ data class AssertMatcher<T>(val assertFunction: (T?) -> Boolean,
         }
         return true
     }
-    
+
     override fun toString(): String = "assert<${argumentType.simpleName}>()"
 }
 

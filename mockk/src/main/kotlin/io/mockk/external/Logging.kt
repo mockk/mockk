@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 
 internal inline fun <reified T> logger(): Logger = loggerFactory(T::class)
 
-internal interface Logger {
+internal interface  Logger {
     fun error(msg: () -> String)
     fun error(ex: Throwable, msg: () -> String)
     fun warn(msg: () -> String)

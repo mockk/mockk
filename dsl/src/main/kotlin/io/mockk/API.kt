@@ -41,12 +41,12 @@ object MockKDsl {
     /**
      * Verifies calls happened in the past. Part of DSL
      */
-    inline fun <T> internalVerify(ordering: Ordering = Ordering.UNORDERED,
-                                  inverse: Boolean = false,
-                                  atLeast: Int = 1,
-                                  atMost: Int = Int.MAX_VALUE,
-                                  exactly: Int = -1,
-                                  noinline verifyBlock: MockKVerificationScope.() -> T) {
+    inline fun internalVerify(ordering: Ordering = Ordering.UNORDERED,
+                              inverse: Boolean = false,
+                              atLeast: Int = 1,
+                              atMost: Int = Int.MAX_VALUE,
+                              exactly: Int = -1,
+                              noinline verifyBlock: MockKVerificationScope.() -> Unit) {
 
         if (exactly < -1) {
             throw MockKException("exactly should be positive")
@@ -74,12 +74,12 @@ object MockKDsl {
     /**
      * Verify for coroutines
      */
-    inline fun <T> internalCoVerify(ordering: Ordering = Ordering.UNORDERED,
-                                    inverse: Boolean = false,
-                                    atLeast: Int = 1,
-                                    atMost: Int = Int.MAX_VALUE,
-                                    exactly: Int = -1,
-                                    noinline verifyBlock: suspend MockKVerificationScope.() -> T) {
+    inline fun internalCoVerify(ordering: Ordering = Ordering.UNORDERED,
+                                inverse: Boolean = false,
+                                atLeast: Int = 1,
+                                atMost: Int = Int.MAX_VALUE,
+                                exactly: Int = -1,
+                                noinline verifyBlock: suspend MockKVerificationScope.() -> Unit) {
         MockKGateway.implementation().verifier.verify(
                 ordering,
                 inverse,
@@ -93,16 +93,16 @@ object MockKDsl {
     /**
      * Shortcut for ordered calls verification
      */
-    inline fun <T> internalVerifyOrder(inverse: Boolean = false,
-                                       noinline verifyBlock: MockKVerificationScope.() -> T) {
+    inline fun internalVerifyOrder(inverse: Boolean = false,
+                                   noinline verifyBlock: MockKVerificationScope.() -> Unit) {
         internalVerify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
     }
 
     /**
      * Shortcut for sequence calls verification
      */
-    inline fun <T> internalVerifySequence(inverse: Boolean = false,
-                                          noinline verifyBlock: MockKVerificationScope.() -> T) {
+    inline fun internalVerifySequence(inverse: Boolean = false,
+                                      noinline verifyBlock: MockKVerificationScope.() -> Unit) {
         internalVerify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
     }
 
@@ -120,7 +120,7 @@ object MockKDsl {
     /**
      * Executes block of code with registering and unregistering instance factory.
      */
-    inline fun <reified T : Any, R> internalWithInstanceFactory(noinline instanceFactory: () -> T, block: () -> R) : R {
+    inline fun <reified T : Any, R> internalWithInstanceFactory(noinline instanceFactory: () -> T, block: () -> R): R {
         return MockKGateway.registerInstanceFactory(T::class, instanceFactory).use {
             block()
         }
@@ -421,10 +421,10 @@ class MockKAnswerScope(val gateway: MockKGateway,
     inline fun <T> MutableList<T>.captured() = last()
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Function<*>>lambda() = lambda as CapturingSlot<T>
+    inline fun <reified T : Function<*>> lambda() = lambda as CapturingSlot<T>
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Any>coroutine() = lambda as CapturingSlot<T>
+    inline fun <reified T : Any> coroutine() = lambda as CapturingSlot<T>
 
     val nothing = null
 }
@@ -438,6 +438,7 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) {
             MockKGateway.implementation().mockFactory.staticMockk(type)
         }
     }
+
     fun unmock() {
         for (type in staticTypes) {
             MockKGateway.implementation().mockFactory.staticUnMockk(type)
@@ -467,7 +468,7 @@ class CapturingSlot<T : Any>() {
     var isNull = false
 
     lateinit var captured: T
-    
+
     fun clear() {
         isCaptured = false
         isNull = false
@@ -539,6 +540,13 @@ interface TypedMatcher {
     val argumentType: KClass<*>
 
     fun checkType(arg: Any?): Boolean = argumentType.isInstance(arg)
+}
+
+/**
+ * Allows to substitute matcher to find correct chained call
+ */
+interface EquivalentMatcher {
+    fun equivalent(): Matcher<Any>
 }
 
 /**

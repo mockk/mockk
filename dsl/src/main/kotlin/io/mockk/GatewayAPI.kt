@@ -19,9 +19,9 @@ interface MockKGateway {
     companion object {
         lateinit var implementation: () -> MockKGateway
 
-        fun registerInstanceFactory(factory: InstanceFactory): Unregisterable {
+        fun registerInstanceFactory(factory: InstanceFactory): Deregisterable {
             implementation().instantiator.registerFactory(factory)
-            return object : Unregisterable {
+            return object : Deregisterable {
                 override fun unregister() {
                     implementation().instantiator.unregisterFactory(factory)
                 }
@@ -29,7 +29,7 @@ interface MockKGateway {
         }
 
         fun registerInstanceFactory(filterClass: KClass<*>,
-                                    factory: () -> Any): Unregisterable {
+                                    factory: () -> Any): Deregisterable {
             return registerInstanceFactory(object : InstanceFactory {
                 override fun instantiate(cls: KClass<*>): Any? {
                     if (filterClass == cls) {
@@ -102,13 +102,13 @@ interface MockKGateway {
      * Verify calls
      */
     interface Verifier {
-        fun <T> verify(ordering: Ordering,
-                       inverse: Boolean,
-                       atLeast: Int,
-                       atMost: Int,
-                       exactly: Int,
-                       mockBlock: (MockKVerificationScope.() -> T)?,
-                       coMockBlock: (suspend MockKVerificationScope.() -> T)?)
+        fun verify(ordering: Ordering,
+                   inverse: Boolean,
+                   atLeast: Int,
+                   atMost: Int,
+                   exactly: Int,
+                   mockBlock: (MockKVerificationScope.() -> Unit)?,
+                   coMockBlock: (suspend MockKVerificationScope.() -> Unit)?)
     }
 
     /**
@@ -136,6 +136,8 @@ interface MockKGateway {
         fun cancel()
 
         fun estimateCallRounds(): Int
+
+        fun nCalls(): Int
     }
 
     /**
@@ -188,14 +190,14 @@ interface MockKGateway {
     /**
      * Allows to unregister something was registered before
      */
-    interface Unregisterable {
+    interface Deregisterable {
         fun unregister()
     }
 
 
 }
 
-inline fun <T : MockKGateway.Unregisterable, R> T.use(block: (T) -> R): R {
+inline fun <T : MockKGateway.Deregisterable, R> T.use(block: (T) -> R): R {
     try {
         return block(this)
     } finally {

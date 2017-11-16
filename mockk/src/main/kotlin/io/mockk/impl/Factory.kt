@@ -8,8 +8,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
 internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
-    internal val log = logger<MockFactoryImpl>()
-
     override fun <T : Any> mockk(cls: KClass<T>, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
         log.debug { "Creating mockk for ${cls.toStr()} name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
@@ -78,6 +76,8 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
         val idCounter = AtomicLong()
 
         fun newId(): Long = idCounter.incrementAndGet()
+
+        val log = logger<MockFactoryImpl>()
     }
 
 }
