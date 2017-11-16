@@ -385,7 +385,7 @@ By default simple arguments are matched using `eq()`
 |`capture(mutableList)`|captures a value to a list|
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda()`|captures lambda|
-|`captureCoroutine()`|captures coroutine)|
+|`captureCoroutine()`|captures coroutine|
 |`invoke(...)`|calls matched argument|
 |`coInvoke(...)`|calls matched argument for coroutine|
 |`hint(cls)`|hints next return type in case it's got erased|
