@@ -11,7 +11,7 @@ Table of contents:
 
  - mocking final classes and methods (via inlining)
  - pure kotlin mocking DSL
- - partial matchers specification
+ - matchers partial specification
  - chained calls
  - matcher expressions
  - mocking coroutines
