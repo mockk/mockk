@@ -10,8 +10,8 @@ Table of contents:
 ## Nice features
 
  - mocking final classes and methods (via inlining)
- - pure kotlin mocking DSL
- - partial matchers specification
+ - pure Kotlin mocking DSL
+ - matchers partial specification
  - chained calls
  - matcher expressions
  - mocking coroutines
@@ -24,7 +24,7 @@ Table of contents:
 
 ## Installation
 
-All you need to get started is just to add dependency to `MockK` library.
+All you need to get started is just to add a dependency to `MockK` library.
 
 #### Gradle/maven dependency
 
