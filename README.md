@@ -10,7 +10,7 @@ Table of contents:
 ## Nice features
 
  - mocking final classes and methods (via inlining)
- - pure kotlin mocking DSL
+ - pure Kotlin mocking DSL
  - matchers partial specification
  - chained calls
  - matcher expressions
