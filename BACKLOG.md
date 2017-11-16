@@ -1,16 +1,9 @@
 
 # Backlog
-- [ ] **BIG** Inlining
-- [ ] static API docs
-- [ ] _MILESTONE 1.5_
 - [ ] **BIG** runs on Android devices
 - [ ] **BIG** Kotlin Javascript
-- [ ] performance optimization: proxy answer findMethodInProxy
-- [ ] Runner + JaCoCo
 - [ ] JavaDoc
 - [ ] annotation mocking
-- [ ] static methods
-- [ ] extension function
 - [ ] other JVMs
 
 ## Geo
