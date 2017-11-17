@@ -102,7 +102,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
             val stub = gateway.stubFor(invocation.self)
-            stub.recordCall(invocation.copy(originalCall = null))
+            stub.recordCall(invocation.copy(originalCall = { null }))
             val answer = stub.answer(invocation)
             log.debug { "Recorded call: $invocation, answer: ${answer.toStr()}" }
             return answer

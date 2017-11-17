@@ -3,6 +3,7 @@ package io.mockk
 import io.kotlintest.specs.StringSpec
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
+import org.slf4j.LoggerFactory
 
 interface Wrapper
 
@@ -677,9 +678,39 @@ class MockKTestSuite : StringSpec({
                 IntWrapper(5).h()
             }
         }
+    }.config(enabled = true)
 
+    "spy" {
+        val executed = arrayOf(false, false, false, false)
+        val spyObj = spyk(SpyTest(executed)) // uncomment this as a semi-workaround
 
+        every {
+            spyObj.doSomething()
+        } answers {
+            println("Intercepted");
+            callOriginal()
+        }
 
+        every {
+            spyObj.computeSomething(1)
+        } returns null
+
+        every {
+            spyObj.computeSomething(2)
+        } answers { callOriginal()?.plus(4) }
+
+        assertNotNull(spyObj.someReference)
+
+        spyObj.doSomething()
+
+        assertNull(spyObj.computeSomething(1))
+        assertEquals(11, spyObj.computeSomething(2))
+        assertEquals(8, spyObj.computeSomething(3))
+
+        assertTrue(executed[0])
+        assertTrue(executed[1])
+        assertTrue(executed[2])
+        assertTrue(executed[3])
     }.config(enabled = true)
 })
 
@@ -749,4 +780,30 @@ class MockCls {
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
 
     fun neverCalled(): Int = 1
+}
+
+
+open class BaseTest(val someReference: String, val executed: Array<Boolean>) {
+    private var logger: org.slf4j.Logger = LoggerFactory.getLogger(BaseTest::class.java)
+    open fun doSomething() {
+        executed[0] = true
+    }
+
+    open fun computeSomething(a: Int) : Int? {
+        executed[2] = true
+        return null
+    }
+}
+
+class SpyTest(executed: Array<Boolean>) : BaseTest("A spy", executed) {
+    override fun doSomething() {
+        executed[1] = true
+        super.doSomething()
+    }
+
+    override fun computeSomething(a: Int): Int? {
+        executed[3] = true
+        super.computeSomething(a)
+        return 5 + a
+    }
 }

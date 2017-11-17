@@ -36,7 +36,7 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
                 stub)
 
         if (objToCopy != null) {
-            copyFields(obj, objToCopy as Any)
+            copyFields(obj, objToCopy as Any, (objToCopy as Any).javaClass)
         }
 
         gateway.stubs.put(obj, stub)
@@ -44,11 +44,15 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
         return cls.cast(obj)
     }
 
-    private fun copyFields(obj: Any, objToCopy: Any) {
-        for (field in objToCopy.javaClass.declaredFields) {
+    private fun copyFields(obj: Any, objToCopy: Any, cls: Class<*>) {
+        for (field in cls.declaredFields) {
             field.isAccessible = true
-            field.set(obj, field.get(objToCopy))
-            log.trace { "Copied field $field" }
+            val value = field.get(objToCopy)
+            field.set(obj, value)
+            log.trace { "Copied field $field of $cls" }
+        }
+        if (cls.superclass != null) {
+            copyFields(obj, objToCopy, cls.superclass)
         }
     }
 

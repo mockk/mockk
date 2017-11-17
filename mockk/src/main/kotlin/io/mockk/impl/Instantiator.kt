@@ -5,6 +5,7 @@ import io.mockk.MockKGateway.*
 import io.mockk.agent.MockKAgentException
 import io.mockk.external.logger
 import io.mockk.proxy.MockKProxyMaker
+import java.lang.reflect.InvocationTargetException
 import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
@@ -26,7 +27,14 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
                     cls.java,
                     moreInterfaces.map { it.java }.toTypedArray(),
                     { self, method, originalMethod, args ->
-                        stub.handleInvocation(self, method.toDescription(), { originalMethod.call() }, args)
+                        val handler = {
+                            try {
+                                originalMethod.call()
+                            } catch(ex: InvocationTargetException) {
+                                throw MockKException("Failed to execute original call. Check cause please", ex.cause)
+                            }
+                        }
+                        stub.handleInvocation(self, method.toDescription(), handler, args)
                     },
                     useDefaultConstructor)
         } catch (ex: MockKAgentException) {

@@ -363,37 +363,37 @@ object Runs
  */
 class MockKStubScope<T>(val gateway: MockKGateway,
                         private val lambda: CapturingSlot<Function<*>>) {
-    infix fun answers(answer: Answer<T?>) = gateway.callRecorder.answer(answer)
+    infix fun answers(answer: Answer<T>) = gateway.callRecorder.answer(answer)
 
-    infix fun returns(returnValue: T?) = answers(ConstantAnswer(returnValue))
+    infix fun returns(returnValue: T) = answers(ConstantAnswer(returnValue))
 
-    infix fun returnsMany(values: List<T?>) = answers(ManyAnswersAnswer(values))
+    infix fun returnsMany(values: List<T>) = answers(ManyAnswersAnswer(values))
 
-    fun returnsMany(vararg values: T?) = returnsMany(values.toList())
+    fun returnsMany(vararg values: T) = returnsMany(values.toList())
 
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
-    infix fun answers(answer: MockKAnswerScope.(Call) -> T?) =
-            answers(FunctionAnswer({ MockKAnswerScope(gateway, lambda, it).answer(it) }))
+    infix fun answers(answer: MockKAnswerScope<T>.(Call) -> T) =
+            answers(FunctionAnswer({ MockKAnswerScope<T>(gateway, lambda, it).answer(it) }))
 
 
-    infix fun coAnswers(answer: suspend MockKAnswerScope.(Call) -> T?) = answers {
+    infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(Call) -> T) = answers {
         MockKGateway.implementation().runCoroutine {
             answer(it)
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    infix fun just(runs: Runs) = returns(null)
+    @Suppress("UNUSED_PARAMETER", "UNCHECKED_CAST")
+    infix fun just(runs: Runs) = answers(ConstantAnswer<T?>(null) as ConstantAnswer<T>)
 }
 
 /**
  * Scope for answering functions. Part of DSL
  */
-class MockKAnswerScope(val gateway: MockKGateway,
-                       @PublishedApi
+class MockKAnswerScope<T>(val gateway: MockKGateway,
+                          @PublishedApi
                        internal val lambda: CapturingSlot<Function<*>>,
-                       val call: Call) {
+                          val call: Call) {
 
     val invocation = call.invocation
     val matcher = call.matcher
@@ -426,6 +426,9 @@ class MockKAnswerScope(val gateway: MockKGateway,
     inline fun <reified T : Any> coroutine() = lambda as CapturingSlot<T>
 
     val nothing = null
+
+    @Suppress("UNCHECKED_CAST")
+    fun callOriginal(): T = call.invocation.originalCall.invoke() as T
 }
 
 /**
@@ -602,7 +605,7 @@ data class Invocation(val self: Any,
                       val method: MethodDescription,
                       val args: List<Any?>,
                       val timestamp: Long,
-                      val originalCall: Any?) {
+                      val originalCall: () -> Any?) {
     override fun toString(): String {
         return "Invocation(self=$self, method=$method, args=${argsToStr()})"
     }

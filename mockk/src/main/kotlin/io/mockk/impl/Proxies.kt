@@ -131,11 +131,7 @@ internal open class MockKStub(override val type: KClass<*>,
 
 internal class SpyKStub<T : Any>(cls: KClass<T>, name: String) : MockKStub(cls, name) {
     override fun defaultAnswer(invocation: Invocation): Any? {
-        if (invocation.originalCall == null) {
-            throw MockKException("no super method for: ${invocation.method}")
-        }
-        val realCall = invocation.originalCall as () -> Any?
-        return realCall()
+        return invocation.originalCall()
     }
 
     override fun toString(): String = "spyk<" + type.simpleName + ">($name)"
