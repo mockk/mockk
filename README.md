@@ -33,7 +33,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.5"</pre>
+    <pre>testCompile "io.mockk:mockk:1.5.1"</pre>
     </td>
 </tr>
 <tr>
@@ -42,7 +42,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.5&lt;/version&gt;
+    &lt;version&gt;1.5.1&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -62,7 +62,7 @@ Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a>
 
 Use following agent:
 
-<code>agent "io.mockk:mockk-agent:1.5"</code>
+<code>agent "io.mockk:mockk-agent:1.5.1"</code>
 
 </td>
 </tr><tr>
@@ -82,7 +82,7 @@ See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/p
 
 Add JVM parameter to launch agent(remove spaces):
 
-<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.5/ mockk-agent-1.5.jar</code>
+<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.5.1/ mockk-agent-1.5.1.jar</code>
 
 </td>
 </tr>
