@@ -392,7 +392,7 @@ class MockKStubScope<T>(val gateway: MockKGateway,
  */
 class MockKAnswerScope<T>(val gateway: MockKGateway,
                           @PublishedApi
-                       internal val lambda: CapturingSlot<Function<*>>,
+                          internal val lambda: CapturingSlot<Function<*>>,
                           val call: Call) {
 
     val invocation = call.invocation

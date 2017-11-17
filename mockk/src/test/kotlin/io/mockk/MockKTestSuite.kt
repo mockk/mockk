@@ -3,7 +3,6 @@ package io.mockk
 import io.kotlintest.specs.StringSpec
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
-import org.slf4j.LoggerFactory
 
 interface Wrapper
 
@@ -784,12 +783,11 @@ class MockCls {
 
 
 open class BaseTest(val someReference: String, val executed: Array<Boolean>) {
-    private var logger: org.slf4j.Logger = LoggerFactory.getLogger(BaseTest::class.java)
     open fun doSomething() {
         executed[0] = true
     }
 
-    open fun computeSomething(a: Int) : Int? {
+    open fun computeSomething(a: Int): Int? {
         executed[2] = true
         return null
     }

@@ -36,7 +36,7 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
                 stub)
 
         if (objToCopy != null) {
-            copyFields(obj, objToCopy as Any, (objToCopy as Any).javaClass)
+            copyFields(obj, objToCopy, objToCopy.javaClass)
         }
 
         gateway.stubs.put(obj, stub)
