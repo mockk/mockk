@@ -1,6 +1,5 @@
 package io.mockk
 
-import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 
 /**
