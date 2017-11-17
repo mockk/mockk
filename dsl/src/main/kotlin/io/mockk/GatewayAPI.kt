@@ -52,7 +52,7 @@ interface MockKGateway {
                             name: String?,
                             moreInterfaces: Array<out KClass<*>>): T
 
-        fun <T : Any> spyk(cls: KClass<T>,
+        fun <T : Any> spyk(cls: KClass<T>?,
                            objToCopy: T?,
                            name: String?,
                            moreInterfaces: Array<out KClass<*>>): T

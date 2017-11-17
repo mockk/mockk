@@ -1,5 +1,6 @@
 package io.mockk.impl
 
+import io.mockk.MockKException
 import io.mockk.MockKGateway.*
 import io.mockk.external.logger
 import java.util.*
@@ -24,13 +25,19 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
         return cls.cast(obj)
     }
 
-    override fun <T : Any> spyk(cls: KClass<T>, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
+    override fun <T : Any> spyk(cls: KClass<T>?, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
         log.debug { "Creating spyk for ${cls.toStr()} name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
 
-        val stub = SpyKStub(cls, newName)
+        val clazz = when {
+            objToCopy != null -> objToCopy::class
+            cls != null -> cls
+            else -> throw MockKException("Either cls or objToCopy should not be null")
+        }
 
-        val obj = gateway.instantiator.proxy(cls,
+        val stub = SpyKStub(clazz, newName)
+
+        val obj = gateway.instantiator.proxy(clazz,
                 objToCopy == null,
                 moreInterfaces,
                 stub)
@@ -41,7 +48,7 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
 
         gateway.stubs.put(obj, stub)
 
-        return cls.cast(obj)
+        return clazz.cast(obj)
     }
 
     private fun copyFields(obj: Any, objToCopy: Any, cls: Class<*>) {

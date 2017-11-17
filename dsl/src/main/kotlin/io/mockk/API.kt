@@ -18,9 +18,14 @@ object MockKDsl {
     inline fun <reified T : Any> internalMockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.mockk(T::class, name, moreInterfaces)
 
     /**
-     * Builds a new spy for specified class. Copies fields from object if provided
+     * Builds a new spy for specified class. Initializes object via default constructor.
      */
-    inline fun <reified T : Any> internalSpyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.spyk(T::class, objToCopy, name, moreInterfaces)
+    inline fun <T : Any> internalSpyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.spyk(null, objToCopy, name, moreInterfaces)
+
+    /**
+     * Builds a new spy for specified class. Copies fields from provided object
+     */
+    inline fun <reified T : Any> internalSpyk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.spyk(T::class, null, name, moreInterfaces)
 
     /**
      * Creates new capturing slot

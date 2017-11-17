@@ -13,9 +13,16 @@ inline fun <reified T : Any> mockk(name: String? = null, vararg moreInterfaces: 
 }
 
 /**
- * Builds a new spy for specified class. Copies fields from object if provided
+ * Builds a new spy for specified class. Initializes object via default constructor.
  */
-inline fun <reified T : Any> spyk(objToCopy: T? = null, name: String? = null, vararg moreInterfaces: KClass<*>): T = useImpl {
+inline fun <reified T : Any> spyk(name: String? = null, vararg moreInterfaces: KClass<*>): T = useImpl {
+    MockKDsl.internalSpyk(name, *moreInterfaces)
+}
+
+/**
+ * Builds a new spy for specified class. Copies fields from provided object
+ */
+inline fun <reified T : Any> spyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>): T = useImpl {
     MockKDsl.internalSpyk(objToCopy, name, *moreInterfaces)
 }
 
