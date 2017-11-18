@@ -30,12 +30,25 @@ artifacts {
 
 jar.dependsOn shadowJar
 
+task copyMockKDispatcher(type: Copy) {
+    dependsOn compileJava
+    println(buildDir)
+    from "${buildDir}/classes/main/io/mockk/proxy"
+    into "${buildDir}/classes/main/io/mockk/proxy"
+    include "MockKDispatcher.class"
+    rename { String fileName ->
+        fileName.replace('.class', '.clazz')
+    }
+}
+classes.dependsOn(copyMockKDispatcher)
+
 shadowJar {
     classifier = null
 
     exclude 'META-INF/maven/**'
     relocate 'net.bytebuddy.', 'io.mockk.shadowed.bytebuddy.'
     relocate 'org.objenesis.', 'io.mockk.shadowed.objenesis.'
+    exclude "io/mockk/proxy/MockKDispatcher.class"
 
     manifest {
         attributes(

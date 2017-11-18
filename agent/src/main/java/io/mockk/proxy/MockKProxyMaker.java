@@ -14,10 +14,7 @@ import org.objenesis.instantiator.ObjectInstantiator;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static java.lang.Thread.currentThread;
@@ -38,6 +35,18 @@ public class MockKProxyMaker {
     private TypeCache<CacheKey> instanceProxyClassCache;
 
     private MockKWeakConcurrentHashMap<Class<?>, ObjectInstantiator<?>> instantiators = new MockKWeakConcurrentHashMap<Class<?>, ObjectInstantiator<?>>();
+
+    private static final Set<Class<?>> EXCLUDES = new HashSet<Class<?>>(Arrays.asList(Class.class,
+            Boolean.class,
+            Byte.class,
+            Short.class,
+            Character.class,
+            Integer.class,
+            Long.class,
+            Float.class,
+            Double.class,
+            String.class));
+
 
     public MockKProxyMaker() {
         byteBuddy = new ByteBuddy()
@@ -90,7 +99,7 @@ public class MockKProxyMaker {
             MockKInvocationHandler handler,
             boolean useDefaultConstructor) {
 
-        boolean transformed = MockKInstrumentation.INSTANCE.inject(getAllSuperclasses(clazz));
+        boolean transformed = canInject(clazz) && MockKInstrumentation.INSTANCE.inject(getAllSuperclasses(clazz));
 
         Class<?> proxyClass;
         if (!Modifier.isFinal(clazz.getModifiers())) {
@@ -126,9 +135,20 @@ public class MockKProxyMaker {
         } else {
 
             if (!transformed) {
-                throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
-                        "Instrumentation is not available and class is final.\n" +
-                        "Add -javaagent option to enabled MockK Java Agent at JVM startup");
+                if (clazz.isPrimitive()) {
+                    throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
+                            clazz + " is a primitive");
+                } else if (clazz.isArray()) {
+                    throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
+                            clazz + " is an array");
+                } else if (!canInject(clazz)) {
+                    throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
+                            clazz + " is one of excluded classes");
+                } else {
+                    throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
+                            "Instrumentation is not available and class is final.\n" +
+                            "Add -javaagent option to enabled MockK Java Agent at JVM startup");
+                }
             }
             if (interfaces.length != 0) {
                 throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
@@ -156,6 +176,10 @@ public class MockKProxyMaker {
         } catch (Exception e) {
             throw new MockKAgentException("Instantiation exception", e);
         }
+    }
+
+    private <T> boolean canInject(Class<T> clazz) {
+        return !EXCLUDES.contains(clazz);
     }
 
     private void warnOnFinalMethods(Class<?> clazz) {
@@ -227,10 +251,6 @@ public class MockKProxyMaker {
             result.add(intf);
             addInterfaces(result, intf.getSuperclass());
         }
-    }
-
-    private Junction<MethodDescription> isFinal() {
-        return ElementMatchers.<MethodDescription>isFinal();
     }
 
     private static final class CacheKey {

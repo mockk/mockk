@@ -14,9 +14,16 @@ public class MockKInstrumentationLoader {
 
     private static final String PKG = "io.mockk.proxy.";
 
-    private static final String[] BOOTSTRAP_CLASSES = {
+    private static final String[] BOOTSTRAP_CLASS_NAMES = {
             PKG + "MockKDispatcher"
     };
+
+    public static final Class<?>[] BOOTSTRAP_CLASSS = new Class[BOOTSTRAP_CLASS_NAMES.length];
+
+    public static Class<?> dispatcher() {
+        return BOOTSTRAP_CLASSS[0];
+    }
+
 
     private MockKInstrumentationLoader() {
     }
@@ -34,11 +41,13 @@ public class MockKInstrumentationLoader {
         }
 
         try {
-            for (String name : BOOTSTRAP_CLASSES) {
+            int i = 0;
+            for (String name : BOOTSTRAP_CLASS_NAMES) {
                 Class<?> cls = getClassLoader().loadClass(name);
                 if (cls.getClassLoader() != null) {
                     return false;
                 }
+                BOOTSTRAP_CLASSS[i] = cls;
             }
         } catch (ClassNotFoundException cnfe) {
             return false;
@@ -61,7 +70,7 @@ public class MockKInstrumentationLoader {
 
             JarOutputStream out = new JarOutputStream(new FileOutputStream(boot));
             try {
-                for (String name : BOOTSTRAP_CLASSES) {
+                for (String name : BOOTSTRAP_CLASS_NAMES) {
                     if (!addClass(out, name)) {
                         return null;
                     }

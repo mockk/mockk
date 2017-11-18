@@ -16,6 +16,7 @@ public class MockKCallMethod implements Callable<Object> {
 
     @Override
     public Object call() throws Exception {
+        method.setAccessible(true);
         return method.invoke(self, args);
     }
 }
