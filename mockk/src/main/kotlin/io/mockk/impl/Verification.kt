@@ -85,8 +85,8 @@ internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayImpl) 
     }
 
     private fun matchCall(call: Call, min: Int, max: Int, callIdxMsg: String): VerificationResult {
-        val mock = gateway.stubFor(call.invocation.self)
-        val allCallsForMock = mock.allRecordedCalls()
+        val stub = gateway.stubFor(call.invocation.self)
+        val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = allCallsForMock.filter {
             call.matcher.method == it.method
         }
@@ -95,9 +95,9 @@ internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayImpl) 
                 if (min == 0 && max == 0) {
                     VerificationResult(true)
                 } else if (allCallsForMock.isEmpty()) {
-                    VerificationResult(false, "$callIdxMsg $mock/${call.matcher.method.toStr()} was not called")
+                    VerificationResult(false, "$callIdxMsg ${stub.toStr()}/${call.matcher.method.toStr()} was not called")
                 } else {
-                    VerificationResult(false, "$callIdxMsg $mock/${call.matcher.method.toStr()} was not called.\n" +
+                    VerificationResult(false, "$callIdxMsg ${stub.toStr()}/${call.matcher.method.toStr()} was not called.\n" +
                             "Calls to same mock:\n" + formatCalls(allCallsForMock))
                 }
             }
@@ -110,7 +110,7 @@ internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayImpl) 
                         VerificationResult(false, "$callIdxMsg One matching call found, but needs at least $min${atMostMsg(max)} calls")
                     }
                 } else {
-                    VerificationResult(false, "$callIdxMsg Only one matching call to $mock/${call.matcher.method.toStr()} happened, but arguments are not matching:\n" +
+                    VerificationResult(false, "$callIdxMsg Only one matching call to ${stub.toStr()}/${call.matcher.method.toStr()} happened, but arguments are not matching:\n" +
                             describeArgumentDifference(call.matcher, onlyCall))
                 }
             }

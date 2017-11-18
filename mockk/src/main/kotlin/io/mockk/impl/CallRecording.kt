@@ -2,7 +2,6 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
-import io.mockk.external.Logger
 import io.mockk.external.logger
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.Continuation
@@ -104,12 +103,14 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
             val stub = gateway.stubFor(invocation.self)
             stub.recordCall(invocation.copy(originalCall = { null }))
             val answer = stub.answer(invocation)
-            log.debug { "Recorded call: $invocation, answer: ${answer.toStr()}" }
+            log.debug { "Recorded call: $invocation, answer: ${answerToString(answer)}" }
             return answer
         } else {
             return addCallWithMatchers(invocation)
         }
     }
+
+    private fun answerToString(answer: Any?) = gateway.stubs[answer]?.toStr() ?: answer.toString()
 
     private fun addCallWithMatchers(invocation: Invocation): Any? {
         if (childMocks.any { mock -> invocation.args.any { it === mock } }) {
@@ -131,6 +132,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
                 val child = instantiator.proxy(retType,
                         false,
+                        true,
                         moreInterfaces = arrayOf(),
                         stub = MockKStub(retType, "temporary mock"))
                 childMocks.add(Ref(child))

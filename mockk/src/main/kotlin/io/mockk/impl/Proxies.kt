@@ -49,8 +49,25 @@ internal open class MockKStub(override val type: KClass<*>,
         }
     }
 
+    protected inline fun stdObjectFunctions(self: Any,
+                                            method: MethodDescription,
+                                            args: List<Any?>,
+                                            otherwise: () -> Any?): Any? {
+        if (method.isToString()) {
+            return toStr()
+        } else if (method.isHashCode()) {
+            return System.identityHashCode(self)
+        } else if (method.isEquals()) {
+            return self === args[0]
+        } else {
+            return otherwise()
+        }
+    }
+
     protected open fun defaultAnswer(invocation: Invocation): Any? {
-        throw MockKException("no answer found for: $invocation")
+        return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
+            throw MockKException("no answer found for: $invocation")
+        }
     }
 
     override fun recordCall(invocation: Invocation) {
@@ -63,7 +80,9 @@ internal open class MockKStub(override val type: KClass<*>,
         }
     }
 
-    override fun toString() = "mockk<${type.simpleName}>(${this.name})"
+    protected val hash = Integer.toUnsignedString(System.identityHashCode(this), 16)
+
+    override fun toStr() = "mockk<${type.simpleName}>(${this.name})#$hash"
 
     override fun childMockK(call: Call): Any? {
         return synchronized(childs) {
@@ -88,24 +107,24 @@ internal open class MockKStub(override val type: KClass<*>,
     }
 
     override fun handleInvocation(self: Any,
-                                  thisMethod: MethodDescription,
+                                  method: MethodDescription,
                                   originalCall: () -> Any?,
                                   args: Array<out Any?>): Any? {
-
-        if (thisMethod.isToString()) {
-            return toString()
-        } else if (thisMethod.isHashCode()) {
-            return System.identityHashCode(self)
-        } else if (thisMethod.isEquals()) {
-            return self === args[0]
+        val originalPlusToString = {
+            if (method.isToString()) {
+                toStr()
+            } else {
+                originalCall()
+            }
         }
 
         val invocation = Invocation(
                 self,
-                thisMethod,
+                toStr(),
+                method,
                 args.toList(),
                 System.nanoTime(),
-                originalCall)
+                originalPlusToString)
 
         return MockKGateway.implementation().callRecorder.call(invocation)
     }
@@ -128,13 +147,12 @@ internal open class MockKStub(override val type: KClass<*>,
 }
 
 
-
 internal class SpyKStub<T : Any>(cls: KClass<T>, name: String) : MockKStub(cls, name) {
     override fun defaultAnswer(invocation: Invocation): Any? {
         return invocation.originalCall()
     }
 
-    override fun toString(): String = "spyk<" + type.simpleName + ">($name)"
+    override fun toStr(): String = "spyk<" + type.simpleName + ">($name)#$hash"
 }
 
 internal fun MethodDescription.invoke(self: Any, vararg args: Any?) =

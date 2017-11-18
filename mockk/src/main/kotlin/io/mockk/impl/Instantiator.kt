@@ -6,7 +6,9 @@ import io.mockk.agent.MockKAgentException
 import io.mockk.external.logger
 import io.mockk.proxy.MockKProxyMaker
 import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import java.util.*
+import java.util.concurrent.Callable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
@@ -18,6 +20,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
     @Suppress("DEPRECATION")
     override fun <T : Any> proxy(cls: KClass<T>,
                                  useDefaultConstructor: Boolean,
+                                 instantiateOnFailure: Boolean,
                                  moreInterfaces: Array<out KClass<*>>,
                                  stub: Stub): Any {
         log.trace { "Building proxy for ${cls.toStr()} hashcode=${Integer.toHexString(cls.hashCode())}" }
@@ -26,24 +29,40 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
             return MockKProxyMaker.INSTANCE.proxy(
                     cls.java,
                     moreInterfaces.map { it.java }.toTypedArray(),
-                    { self, method, originalMethod, args ->
-                        val handler = {
-                            try {
-                                originalMethod.call()
-                            } catch(ex: InvocationTargetException) {
-                                throw MockKException("Failed to execute original call. Check cause please", ex.cause)
-                            }
+                    { self, method, originalCall, args ->
+                        stdClassFunctions(self, method, args) {
+                            stub.handleInvocation(self, method.toDescription(), {
+                                handleOriginalCall(originalCall, method)
+                            }, args)
                         }
-                        stub.handleInvocation(self, method.toDescription(), handler, args)
                     },
                     useDefaultConstructor)
         } catch (ex: MockKAgentException) {
+            if (!instantiateOnFailure) {
+                if (useDefaultConstructor) {
+                    throw MockKException("Can't instantiate proxy via default constructor", ex)
+                } else {
+                    throw MockKException("Can't instantiate proxy", ex)
+                }
+            }
             log.trace(ex) {
                 "Failed to build proxy for ${cls.toStr()}. " +
                         "Trying just instantiate it. " +
                         "This can help if it's last call in the chain"
             }
             return instantiate(cls)
+        }
+    }
+
+    private fun handleOriginalCall(originalMethod: Callable<*>?, method: Method): Any? {
+        if (originalMethod == null) {
+            throw MockKException("No way to call original method ${method.toDescription()}")
+        }
+
+        return try {
+            originalMethod.call()
+        } catch (ex: InvocationTargetException) {
+            throw MockKException("Failed to execute original call. Check cause please", ex.cause)
         }
     }
 
@@ -190,7 +209,11 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         try {
             return MockKProxyMaker.INSTANCE.staticProxy(cls.java,
                     { self, method, originalMethod, args ->
-                        stub.handleInvocation(self, method.toDescription(), { originalMethod.call() }, args)
+                        stdClassFunctions(self, method, args) {
+                            stub.handleInvocation(self, method.toDescription(), {
+                                handleOriginalCall(originalMethod, method)
+                            }, args)
+                        }
                     })
         } catch (ex: MockKAgentException) {
             throw MockKException("Failed to build static proxy", ex)
@@ -201,7 +224,25 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         MockKProxyMaker.INSTANCE.staticUnProxy(cls.java)
     }
 
+    protected inline fun stdClassFunctions(self: Any,
+                                           method: Method,
+                                           args: Array<Any?>,
+                                           otherwise: () -> Any?): Any? {
+        if (self is Class<*>) {
+            if (method.isHashCode()) {
+                return System.identityHashCode(self)
+            } else if (method.isEquals()) {
+                return self === args[0]
+            }
+        }
+        return otherwise()
+    }
+
     companion object {
         val log = logger<InstantiatorImpl>()
     }
 }
+
+private fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
+
+private fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java

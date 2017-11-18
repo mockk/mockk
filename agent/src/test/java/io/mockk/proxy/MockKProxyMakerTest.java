@@ -398,12 +398,12 @@ public class MockKProxyMakerTest {
         @Override
         public Object invocation(Object self,
                                  Method method,
-                                 Callable<?> originalMethod,
+                                 Callable<?> originalCall,
                                  Object[] args) throws Exception {
 
             calls.add(new Call(self, method, args));
             if (callOriginal) {
-                return originalMethod.call();
+                return originalCall.call();
             } else {
                 return returnValue;
             }

@@ -84,9 +84,11 @@ interface MockKGateway {
         fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
 
         fun handleInvocation(self: Any,
-                             thisMethod: MethodDescription,
+                             method: MethodDescription,
                              originalCall: () -> Any?,
                              args: Array<out Any?>): Any?
+
+        fun toStr(): String
     }
 
 
@@ -162,8 +164,8 @@ interface MockKGateway {
 
         fun <T : Any> proxy(cls: KClass<T>,
                             useDefaultConstructor: Boolean,
-                            moreInterfaces: Array<out KClass<*>>,
-                            stub: Stub): Any
+                            instantiateOnFailure: Boolean,
+                            moreInterfaces: Array<out KClass<*>>, stub: Stub): Any
 
         fun <T : Any> signatureValue(cls: KClass<T>): T
 

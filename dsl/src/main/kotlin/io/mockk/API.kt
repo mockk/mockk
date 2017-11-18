@@ -601,19 +601,42 @@ data class MethodDescription(val name: String,
     fun argsToStr() = paramTypes.map(this::argToStr).joinToString(", ")
 
     fun argToStr(argType: KClass<*>) = argType.simpleName
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MethodDescription
+
+        if (name !== other.name) return false
+        if (returnType != other.returnType) return false
+        if (declaringClass != other.declaringClass) return false
+        if (paramTypes != other.paramTypes) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + returnType.hashCode()
+        result = 31 * result + declaringClass.hashCode()
+        result = 31 * result + paramTypes.hashCode()
+        return result
+    }
+
 }
 
 /**
  * Mock invocation
  */
 data class Invocation(val self: Any,
+                      val selfStr: String,
                       val method: MethodDescription,
                       val args: List<Any?>,
                       val timestamp: Long,
                       val originalCall: () -> Any?) {
-    override fun toString(): String {
-        return "Invocation(self=$self, method=$method, args=${argsToStr()})"
-    }
+    override fun toString(): String = "Invocation(self=$selfStr, method=$method, args=${argsToStr()})"
 
     fun argsToStr() = args.map(this::argToStr).joinToString(", ")
 
@@ -625,6 +648,28 @@ data class Invocation(val self: Any,
             } else {
                 arg.toString()
             }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Invocation
+
+        if (self !== other.self) return false
+        if (method != other.method) return false
+        if (args != other.args) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = System.identityHashCode(self)
+        result = 31 * result + method.hashCode()
+        result = 31 * result + args.hashCode()
+        return result
+    }
+
+
 }
 
 /**
@@ -660,6 +705,26 @@ data class InvocationMatcher(val self: Any,
         }
 
         return true
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as InvocationMatcher
+
+        if (self !== other.self) return false
+        if (method != other.method) return false
+        if (args != other.args) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = System.identityHashCode(self)
+        result = 31 * result + method.hashCode()
+        result = 31 * result + args.hashCode()
+        return result
     }
 
 }

@@ -3,6 +3,7 @@ package io.mockk.impl
 import io.mockk.MockKException
 import io.mockk.MockKGateway.*
 import io.mockk.external.logger
+import java.lang.reflect.Modifier
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.reflect.KClass
@@ -16,6 +17,7 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
         val stub = MockKStub(cls, newName)
 
         val obj = gateway.instantiator.proxy(cls,
+                false,
                 false,
                 moreInterfaces,
                 stub)
@@ -39,6 +41,7 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
 
         val obj = gateway.instantiator.proxy(clazz,
                 objToCopy == null,
+                false,
                 moreInterfaces,
                 stub)
 
@@ -53,6 +56,9 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
 
     private fun copyFields(obj: Any, objToCopy: Any, cls: Class<*>) {
         for (field in cls.declaredFields) {
+            if (Modifier.isStatic(field.modifiers)) {
+                continue
+            }
             field.isAccessible = true
             val value = field.get(objToCopy)
             field.set(obj, value)

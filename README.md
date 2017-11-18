@@ -352,6 +352,28 @@ staticMockk("pkg.FileKt").use {
 }
 ```
 
+### More interfaces
+
+Adding additional behaviours via interfaces and stubbing them:
+
+```kotlin
+
+val spy = spyk(System.out, moreInterfaces = Runnable::class)
+
+spy.println(555)
+
+every {
+    (spy as Runnable).run()
+} answers {
+    (self as PrintStream).println("Run! Run! Run!")
+}
+
+val thread = Thread(spy as Runnable)
+thread.start()
+thread.join()
+
+```
+
 ## DSL tables
 
 Here are few tables helping to master the DSL.

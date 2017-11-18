@@ -8,6 +8,6 @@ public interface MockKInvocationHandler {
 
     Object invocation(Object self,
                       Method method,
-                      Callable<?> originalMethod,
+                      Callable<?> originalCall,
                       Object []args) throws Exception;
 }
