@@ -686,7 +686,6 @@ class MockKTestSuite : StringSpec({
         every {
             spyObj.doSomething()
         } answers {
-            println("Intercepted");
             callOriginal()
         }
 
