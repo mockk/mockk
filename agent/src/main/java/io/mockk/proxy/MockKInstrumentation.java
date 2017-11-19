@@ -30,11 +30,6 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
     public static MockKInstrumentation INSTANCE;
 
-    public static void init(MockKAgentLogger log) {
-        MockKInstrumentation.log = log;
-        INSTANCE = new MockKInstrumentation();
-    }
-
     private volatile Instrumentation instrumentation;
     private final MockKProxyAdvice advice;
     private final MockKStaticProxyAdvice staticAdvice;
@@ -43,6 +38,9 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
     private ByteBuddy byteBuddy;
 
+    public static void init() {
+        INSTANCE = new MockKInstrumentation();
+    }
 
     MockKInstrumentation() {
         instrumentation = ByteBuddyAgent.install();
@@ -75,13 +73,8 @@ public class MockKInstrumentation implements ClassFileTransformer {
         advice = new MockKProxyAdvice();
         staticAdvice = new MockKStaticProxyAdvice();
 
-        class AdviceRegisterer {
-            private void register() {
-                MockKDispatcher.set(advice.getId(), advice);
-                MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
-            }
-        }
-        new AdviceRegisterer().register();
+        MockKDispatcher.set(advice.getId(), advice);
+        MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
     }
 
     public boolean inject(List<Class<?>> classes) {

@@ -2,14 +2,12 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
-import io.mockk.agent.MockKAgentLogger
-import io.mockk.external.Logger
 import io.mockk.external.adaptor
 import io.mockk.external.logger
 import io.mockk.proxy.MockKInstrumentation
+import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
 import kotlinx.coroutines.experimental.runBlocking
-import java.lang.Exception
 import java.util.*
 import java.util.Collections.synchronizedMap
 
@@ -58,8 +56,12 @@ class MockKGatewayImpl : MockKGateway {
                 "Starting Java MockK implementation. " +
                         "Java version = ${System.getProperty("java.version")}. "
             }
+
             MockKProxyMaker.log = logger<MockKProxyMaker>().adaptor()
-            MockKInstrumentation.init(logger<MockKInstrumentation>().adaptor())
+            MockKInstrumentationLoader.log = logger<MockKInstrumentationLoader>().adaptor()
+            MockKInstrumentation.log = logger<MockKInstrumentation>().adaptor()
+
+            MockKInstrumentation.init()
         }
 
         val defaultImplementation = MockKGatewayImpl()

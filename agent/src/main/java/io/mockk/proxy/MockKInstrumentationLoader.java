@@ -1,5 +1,7 @@
 package io.mockk.proxy;
 
+import io.mockk.agent.MockKAgentLogger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
 public class MockKInstrumentationLoader {
+    public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
+
     private static final String PKG = "io.mockk.proxy.";
 
     private static final String[] BOOTSTRAP_CLASS_NAMES = {
@@ -37,24 +41,34 @@ public class MockKInstrumentationLoader {
 
         try {
             instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(bootJar));
-            instrumentation.appendToSystemClassLoaderSearch(new JarFile(bootJar));
         } catch (IOException e) {
+            log.trace(e,"Can't add to bootstrap classpath");
             return false;
         }
 
         try {
             int i = 0;
             for (String name : BOOTSTRAP_CLASS_NAMES) {
-                Class<?> cls = Class.forName(name);
+                Class<?> cls = topClassLoader().loadClass(name);
                 if (cls.getClassLoader() != null) {
+                    log.trace("Classloader is not bootstrap for " + name);
                     return false;
                 }
                 bootstrapClasses[i++] = cls;
             }
         } catch (ClassNotFoundException cnfe) {
+            log.trace(cnfe,"Can't load class");
             return false;
         }
         return true;
+    }
+
+    private ClassLoader topClassLoader() {
+        ClassLoader cls = ClassLoader.getSystemClassLoader();
+        while (cls.getParent() != null) {
+            cls = cls.getParent();
+        }
+        return cls;
     }
 
     private File getBootJar() {
@@ -74,6 +88,7 @@ public class MockKInstrumentationLoader {
             }
             return boot;
         } catch (IOException ex) {
+            log.trace(ex,"Error creating boot jar");
             return null;
         }
     }
@@ -86,6 +101,7 @@ public class MockKInstrumentationLoader {
             inputStream = MockKInstrumentationLoader.class.getClassLoader().getResourceAsStream(source + ".class");
         }
         if (inputStream == null) {
+            log.trace(source + " not found");
             return false;
         }
 

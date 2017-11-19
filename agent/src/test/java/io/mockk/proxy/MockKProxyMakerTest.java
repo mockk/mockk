@@ -24,6 +24,7 @@ public class MockKProxyMakerTest {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
         maker = new MockKProxyMaker();
+        MockKInstrumentation.init();
         MockKInstrumentation.INSTANCE.enable();
     }
 
