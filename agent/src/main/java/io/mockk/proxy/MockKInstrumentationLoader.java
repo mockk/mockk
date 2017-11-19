@@ -37,6 +37,7 @@ public class MockKInstrumentationLoader {
 
         try {
             instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(bootJar));
+            instrumentation.appendToSystemClassLoaderSearch(new JarFile(bootJar));
         } catch (IOException e) {
             return false;
         }
@@ -44,24 +45,16 @@ public class MockKInstrumentationLoader {
         try {
             int i = 0;
             for (String name : BOOTSTRAP_CLASS_NAMES) {
-                Class<?> cls = topClassLoader().loadClass(name);
+                Class<?> cls = Class.forName(name);
                 if (cls.getClassLoader() != null) {
                     return false;
                 }
-                bootstrapClasses[i] = cls;
+                bootstrapClasses[i++] = cls;
             }
         } catch (ClassNotFoundException cnfe) {
             return false;
         }
         return true;
-    }
-
-    private ClassLoader topClassLoader() {
-        ClassLoader cls = ClassLoader.getSystemClassLoader();
-        while (cls.getParent() != null) {
-            cls = cls.getParent();
-        }
-        return cls;
     }
 
     private File getBootJar() {

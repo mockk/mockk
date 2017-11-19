@@ -1,6 +1,5 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.MockKAgentException;
 import io.mockk.agent.MockKAgentLogger;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -16,7 +15,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
-import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.*;
 
@@ -37,7 +35,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
         INSTANCE = new MockKInstrumentation();
     }
 
-    private Instrumentation instrumentation;
+    private volatile Instrumentation instrumentation;
     private final MockKProxyAdvice advice;
     private final MockKStaticProxyAdvice staticAdvice;
 
@@ -77,14 +75,13 @@ public class MockKInstrumentation implements ClassFileTransformer {
         advice = new MockKProxyAdvice();
         staticAdvice = new MockKStaticProxyAdvice();
 
-        Class<?> dispatcher = LOADER.dispatcher();
-        try {
-            Method setMethod = dispatcher.getMethod("set", long.class, dispatcher);
-            setMethod.invoke(null, advice.getId(), advice);
-            setMethod.invoke(null, staticAdvice.getId(), staticAdvice);
-        } catch (Exception e) {
-            throw new MockKAgentException("Failed to set advice", e);
+        class AdviceRegisterer {
+            private void register() {
+                MockKDispatcher.set(advice.getId(), advice);
+                MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
+            }
         }
+        new AdviceRegisterer().register();
     }
 
     public boolean inject(List<Class<?>> classes) {

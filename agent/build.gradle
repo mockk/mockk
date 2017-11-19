@@ -32,7 +32,6 @@ jar.dependsOn shadowJar
 
 task copyMockKDispatcher(type: Copy) {
     dependsOn compileJava
-    println(buildDir)
     from "${buildDir}/classes/main/io/mockk/proxy"
     into "${buildDir}/classes/main/io/mockk/proxy"
     include "MockKDispatcher.class"
