@@ -12,7 +12,6 @@ import net.bytebuddy.implementation.Implementation.Context.Disabled.Factory;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
 
-import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -21,17 +20,26 @@ import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.*;
 
+import static io.mockk.proxy.MockKInstrumentationLoader.LOADER;
+import static java.lang.Integer.toHexString;
+import static java.lang.System.identityHashCode;
 import static java.util.Collections.synchronizedSet;
 import static net.bytebuddy.dynamic.ClassFileLocator.Simple.of;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 public class MockKInstrumentation implements ClassFileTransformer {
-    public static final MockKInstrumentation INSTANCE = new MockKInstrumentation();
+    public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
+
+    public static MockKInstrumentation INSTANCE;
+
+    public static void init(MockKAgentLogger log) {
+        MockKInstrumentation.log = log;
+        INSTANCE = new MockKInstrumentation();
+    }
+
     private Instrumentation instrumentation;
     private final MockKProxyAdvice advice;
     private final MockKStaticProxyAdvice staticAdvice;
-
-    public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
 
     private final Set<Class<?>> classesToTransform = synchronizedSet(new HashSet<Class<?>>());
 
@@ -40,11 +48,25 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
     MockKInstrumentation() {
         instrumentation = ByteBuddyAgent.install();
+        if (instrumentation != null) {
+            log.trace("Byte buddy agent installed");
 
-        if (!MockKInstrumentationLoader.INSTANCE.loadBootJar(instrumentation)) {
-            log.trace("Failed to load mockk_boot.jar");
-            instrumentation = null;
+            if (!LOADER.loadBootJar(instrumentation)) {
+                log.trace("Failed to load mockk_boot.jar");
+                instrumentation = null;
+            } else {
+                Class<?> dispatcher = LOADER.dispatcher();
+                log.trace(dispatcher + " loaded at bootstrap classpath hashcode=" +
+                        toHexString(identityHashCode(dispatcher)));
+            }
+
         } else {
+            log.trace("Can't install byte buddy agent");
+        }
+
+
+        if (instrumentation != null) {
+            log.trace("Installing MockKInstrumentation transformer");
             instrumentation.addTransformer(this, true);
         }
 
@@ -55,7 +77,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
         advice = new MockKProxyAdvice();
         staticAdvice = new MockKStaticProxyAdvice();
 
-        Class<?> dispatcher = MockKInstrumentationLoader.dispatcher();
+        Class<?> dispatcher = LOADER.dispatcher();
         try {
             Method setMethod = dispatcher.getMethod("set", long.class, dispatcher);
             setMethod.invoke(null, advice.getId(), advice);
@@ -85,6 +107,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
         Class[] cls = classes.toArray(new Class[classes.size()]);
         try {
             instrumentation.retransformClasses(cls);
+            log.trace("Injected OK");
             return true;
         } catch (UnmodifiableClassException e) {
             return false;

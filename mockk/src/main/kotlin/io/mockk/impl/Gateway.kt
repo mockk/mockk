@@ -59,7 +59,7 @@ class MockKGatewayImpl : MockKGateway {
                         "Java version = ${System.getProperty("java.version")}. "
             }
             MockKProxyMaker.log = logger<MockKProxyMaker>().adaptor()
-            MockKInstrumentation.log = logger<MockKInstrumentation>().adaptor()
+            MockKInstrumentation.init(logger<MockKInstrumentation>().adaptor())
         }
 
         val defaultImplementation = MockKGatewayImpl()

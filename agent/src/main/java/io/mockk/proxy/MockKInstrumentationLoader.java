@@ -10,22 +10,23 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
 public class MockKInstrumentationLoader {
-    public static final MockKInstrumentationLoader INSTANCE = new MockKInstrumentationLoader();
-
     private static final String PKG = "io.mockk.proxy.";
 
     private static final String[] BOOTSTRAP_CLASS_NAMES = {
             PKG + "MockKDispatcher"
     };
 
-    public static final Class<?>[] BOOTSTRAP_CLASSS = new Class[BOOTSTRAP_CLASS_NAMES.length];
+    public static final MockKInstrumentationLoader LOADER = new MockKInstrumentationLoader();
 
-    public static Class<?> dispatcher() {
-        return BOOTSTRAP_CLASSS[0];
+    public final Class<?>[] bootstrapClasses;
+
+    public Class<?> dispatcher() {
+        return bootstrapClasses[0];
     }
 
 
     private MockKInstrumentationLoader() {
+        bootstrapClasses = new Class[BOOTSTRAP_CLASS_NAMES.length];
     }
 
     public boolean loadBootJar(Instrumentation instrumentation) {
@@ -43,11 +44,11 @@ public class MockKInstrumentationLoader {
         try {
             int i = 0;
             for (String name : BOOTSTRAP_CLASS_NAMES) {
-                Class<?> cls = getClassLoader().loadClass(name);
+                Class<?> cls = topClassLoader().loadClass(name);
                 if (cls.getClassLoader() != null) {
                     return false;
                 }
-                BOOTSTRAP_CLASSS[i] = cls;
+                bootstrapClasses[i] = cls;
             }
         } catch (ClassNotFoundException cnfe) {
             return false;
@@ -55,7 +56,7 @@ public class MockKInstrumentationLoader {
         return true;
     }
 
-    private ClassLoader getClassLoader() {
+    private ClassLoader topClassLoader() {
         ClassLoader cls = ClassLoader.getSystemClassLoader();
         while (cls.getParent() != null) {
             cls = cls.getParent();
