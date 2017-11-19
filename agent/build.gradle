@@ -47,7 +47,7 @@ shadowJar {
     exclude 'META-INF/maven/**'
     relocate 'net.bytebuddy.', 'io.mockk.shadowed.bytebuddy.'
     relocate 'org.objenesis.', 'io.mockk.shadowed.objenesis.'
-//    exclude "io/mockk/proxy/MockKDispatcher.class"
+    exclude "io/mockk/proxy/MockKDispatcher.class"
 
     manifest {
         attributes(

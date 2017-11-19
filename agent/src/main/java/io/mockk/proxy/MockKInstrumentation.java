@@ -73,8 +73,13 @@ public class MockKInstrumentation implements ClassFileTransformer {
         advice = new MockKProxyAdvice();
         staticAdvice = new MockKStaticProxyAdvice();
 
-        MockKDispatcher.set(advice.getId(), advice);
-        MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
+        class AdviceSetter {
+            void set() {
+                MockKDispatcher.set(advice.getId(), advice);
+                MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
+            }
+        }
+        new AdviceSetter().set();
     }
 
     public boolean inject(List<Class<?>> classes) {

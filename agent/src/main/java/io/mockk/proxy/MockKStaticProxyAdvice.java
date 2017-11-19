@@ -4,10 +4,8 @@ import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.Advice.*;
 
 import java.lang.reflect.Method;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
-import static io.mockk.proxy.MockKInvocationHandler.HANDLERS;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
