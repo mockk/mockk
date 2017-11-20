@@ -1,5 +1,6 @@
 package io.mockk.proxy;
 
+import io.mockk.agent.MockKAgentException;
 import io.mockk.agent.MockKAgentLogger;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -47,23 +48,19 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
     MockKInstrumentation() {
         instrumentation = ByteBuddyAgent.install();
-        if (instrumentation != null) {
-            log.trace("Byte buddy agent installed");
+        if (instrumentation == null) {
+            throw new MockKAgentException("Failed to install ByteBuddy agent.\n" +
+                    "Try running VM with MockK Java Agent i.e. with -javaagent:mockk-agent.jar option.");
+        }
+        log.trace("Byte buddy agent installed");
 
-            if (!LOADER.loadBootJar(instrumentation)) {
-                log.trace("Failed to load mockk_boot.jar");
-                instrumentation = null;
-            }
-
-        } else {
-            log.trace("Can't install byte buddy agent");
+        if (!LOADER.loadBootJar(instrumentation)) {
+            throw new MockKAgentException("Failed to inject boot jar.");
         }
 
 
-        if (instrumentation != null) {
-            log.trace("Installing MockKInstrumentation transformer");
-            instrumentation.addTransformer(this, true);
-        }
+        log.trace("Installing MockKInstrumentation transformer");
+        instrumentation.addTransformer(this, true);
 
         byteBuddy = new ByteBuddy()
                 .with(TypeValidation.DISABLED)
