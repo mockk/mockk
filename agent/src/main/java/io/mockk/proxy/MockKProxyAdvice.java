@@ -9,7 +9,12 @@ import java.util.concurrent.Callable;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
+
 public class MockKProxyAdvice extends MockKProxyDispatcher {
+    public MockKProxyAdvice(MockKWeakMap<Object, MockKInvocationHandler> handlers) {
+        super(handlers);
+    }
+
     @OnMethodEnter(skipOn = OnNonDefaultValue.class)
     private static Callable<?> enter(@MockKProxyAdviceId long id,
                                      @This Object self,

@@ -24,6 +24,8 @@ import static net.bytebuddy.implementation.MethodDelegation.to;
 public class MockKProxyMaker {
     public static final MockKProxyMaker INSTANCE = new MockKProxyMaker();
 
+    private static final Object BOOTSTRAP_MONITOR = new Object();
+
     private final ByteBuddy byteBuddy;
 
     public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
@@ -34,7 +36,7 @@ public class MockKProxyMaker {
 
     private TypeCache<CacheKey> instanceProxyClassCache;
 
-    private MockKWeakConcurrentHashMap<Class<?>, ObjectInstantiator<?>> instantiators = new MockKWeakConcurrentHashMap<Class<?>, ObjectInstantiator<?>>();
+    private Map<Class<?>, ObjectInstantiator<?>> instantiators = Collections.synchronizedMap(new WeakHashMap<Class<?>, ObjectInstantiator<?>>());
 
     private static final Set<Class<?>> EXCLUDES = new HashSet<Class<?>>(Arrays.asList(Class.class,
             Boolean.class,
@@ -76,18 +78,20 @@ public class MockKProxyMaker {
     private <T> T instantiateViaProxy(final Class<T> cls) {
         log.trace("Instantiating " + cls + " via subclass proxy");
 
+        final ClassLoader classLoader = cls.getClassLoader();
+        Object monitor = classLoader == null ? BOOTSTRAP_MONITOR : classLoader;
         Class<?> proxyCls =
-                instanceProxyClassCache.findOrInsert(cls.getClassLoader(),
+                instanceProxyClassCache.findOrInsert(classLoader,
                         new CacheKey(cls, new Class[0]),
                         new Callable<Class<?>>() {
                             @Override
                             public Class<?> call() throws Exception {
                                 return byteBuddy.subclass(cls)
                                         .make()
-                                        .load(cls.getClassLoader())
+                                        .load(classLoader)
                                         .getLoaded();
                             }
-                        });
+                        }, monitor);
 
         return cls.cast(newEmptyInstance(proxyCls));
     }
@@ -107,6 +111,7 @@ public class MockKProxyMaker {
                     " with additional interfaces " + asList(interfaces));
             CacheKey key = new CacheKey(clazz, interfaces);
             final ClassLoader classLoader = clazz.getClassLoader();
+            Object monitor = classLoader == null ? BOOTSTRAP_MONITOR : classLoader;
             proxyClass = proxyClassCache.findOrInsert(classLoader, key,
                     new Callable<Class<?>>() {
                         @Override
@@ -127,7 +132,7 @@ public class MockKProxyMaker {
                                     .load(classLoader)
                                     .getLoaded();
                         }
-                    });
+                    }, monitor);
 
             if (!transformed) {
                 warnOnFinalMethods(clazz);
@@ -170,7 +175,7 @@ public class MockKProxyMaker {
                     ? proxyClass.newInstance()
                     : newEmptyInstance(proxyClass));
 
-            MockKInvocationHandler.HANDLERS.put(instance, handler);
+            MockKInstrumentation.INSTANCE.hook(instance, handler);
 
             return instance;
         } catch (Exception e) {
@@ -220,11 +225,11 @@ public class MockKProxyMaker {
                     "Add MockK Java Agent instrumentation.");
         }
 
-        MockKInvocationHandler.HANDLERS.put(clazz, handler);
+        MockKInstrumentation.INSTANCE.hookStatic(clazz, handler);
     }
 
     public void staticUnProxy(Class<?> clazz) {
-        MockKInvocationHandler.HANDLERS.remove(clazz);
+        MockKInstrumentation.INSTANCE.unhookStatic(clazz);
     }
 
     private static Junction<MethodDescription> any() {

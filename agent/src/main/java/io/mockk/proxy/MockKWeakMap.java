@@ -6,7 +6,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MockKWeakConcurrentHashMap<K, V> {
+public class MockKWeakMap<K, V> {
     private final Map<Object, V> map = new ConcurrentHashMap<Object, V>();
     private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
 

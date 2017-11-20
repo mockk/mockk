@@ -13,7 +13,7 @@ public class MockKProxyInterceptor {
                                    @AllArguments Object[] args,
                                    @SuperCall final Callable<Object> originalMethod) throws Throwable {
 
-        final MockKInvocationHandler handler = MockKInvocationHandler.HANDLERS.get(self);
+        MockKInvocationHandler handler = MockKInstrumentation.INSTANCE.getHook(self);
         if (handler == null ||
                 MockKSelfCall.SELF_CALL.get() == self) {
             return originalMethod.call();
@@ -29,8 +29,7 @@ public class MockKProxyInterceptor {
     public static Object interceptNoSuper(@This Object self,
                                           @Origin Method method,
                                           @AllArguments Object[] args) throws Throwable {
-
-        final MockKInvocationHandler handler = MockKInvocationHandler.HANDLERS.get(self);
+        MockKInvocationHandler handler = MockKInstrumentation.INSTANCE.getHook(self);
 
         if (handler == null) {
             return null;

@@ -11,6 +11,7 @@ import net.bytebuddy.implementation.Implementation.Context.Disabled.Factory;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
 
+import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -29,10 +30,12 @@ public class MockKInstrumentation implements ClassFileTransformer {
     public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
 
     public static MockKInstrumentation INSTANCE;
+    private MockKWeakMap<Object, MockKInvocationHandler> handlers;
+    private MockKWeakMap<Object, MockKInvocationHandler> staticHandlers;
 
     private volatile Instrumentation instrumentation;
-    private final MockKProxyAdvice advice;
-    private final MockKStaticProxyAdvice staticAdvice;
+    private MockKProxyAdvice advice;
+    private MockKStaticProxyAdvice staticAdvice;
 
     private final Set<Class<?>> classesToTransform = synchronizedSet(new HashSet<Class<?>>());
 
@@ -50,10 +53,6 @@ public class MockKInstrumentation implements ClassFileTransformer {
             if (!LOADER.loadBootJar(instrumentation)) {
                 log.trace("Failed to load mockk_boot.jar");
                 instrumentation = null;
-            } else {
-                Class<?> dispatcher = LOADER.dispatcher();
-                log.trace(dispatcher + " loaded at bootstrap classpath hashcode=" +
-                        toHexString(identityHashCode(dispatcher)));
             }
 
         } else {
@@ -70,16 +69,18 @@ public class MockKInstrumentation implements ClassFileTransformer {
                 .with(TypeValidation.DISABLED)
                 .with(Factory.INSTANCE);
 
-        advice = new MockKProxyAdvice();
-        staticAdvice = new MockKStaticProxyAdvice();
+        class AdviceBuilder {
+            void build() {
+                handlers = new MockKWeakMap<Object, MockKInvocationHandler>();
+                advice = new MockKProxyAdvice(handlers);
+                staticHandlers = new MockKWeakMap<Object, MockKInvocationHandler>();
+                staticAdvice = new MockKStaticProxyAdvice(staticHandlers);
 
-        class AdviceSetter {
-            void set() {
                 MockKDispatcher.set(advice.getId(), advice);
                 MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
             }
         }
-        new AdviceSetter().set();
+        new AdviceBuilder().build();
     }
 
     public boolean inject(List<Class<?>> classes) {
@@ -135,6 +136,12 @@ public class MockKInstrumentation implements ClassFileTransformer {
                                     isVirtual()
                                             .and(not(isDefaultFinalizer()))
                                             .and(not(isPackagePrivateJavaMethods()))))
+//                    .visit(Advice.withCustomMapping()
+//                            .bind(MockKProxyAdviceId.class, advice.getId())
+//                            .to(MockKProxyAdvice.ForHashCode.class).on(isHashCode()))
+//                    .visit(Advice.withCustomMapping()
+//                            .bind(MockKProxyAdviceId.class, advice.getId())
+//                            .to(MockKProxyAdvice.ForEquals.class).on(isEquals()))
                     .visit(Advice.withCustomMapping()
                             .bind(MockKProxyAdviceId.class, staticAdvice.getId())
                             .to(MockKStaticProxyAdvice.class).on(
@@ -153,4 +160,19 @@ public class MockKInstrumentation implements ClassFileTransformer {
         return isDeclaredBy(nameStartsWith("java.")).and(isPackagePrivate());
     }
 
+    public <T> void hook(T instance, MockKInvocationHandler handler) {
+        handlers.put(instance, handler);
+    }
+
+    public void hookStatic(Class<?> clazz, MockKInvocationHandler handler) {
+        staticHandlers.put(clazz, handler);
+    }
+
+    public void unhookStatic(Class<?> clazz) {
+        staticHandlers.remove(clazz);
+    }
+
+    public MockKInvocationHandler getHook(Object self) {
+        return handlers.get(self);
+    }
 }

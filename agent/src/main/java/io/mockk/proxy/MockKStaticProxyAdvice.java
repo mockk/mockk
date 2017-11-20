@@ -4,12 +4,17 @@ import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.Advice.*;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
 public class MockKStaticProxyAdvice extends MockKProxyDispatcher {
+    public MockKStaticProxyAdvice(MockKWeakMap<Object, MockKInvocationHandler> handlers) {
+        super(handlers);
+    }
+
     @OnMethodEnter(skipOn = OnNonDefaultValue.class)
     private static Callable<?> enterStatic(@MockKProxyAdviceId long id,
                                            @Origin final Method method,

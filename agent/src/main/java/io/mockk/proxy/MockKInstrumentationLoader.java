@@ -17,20 +17,16 @@ public class MockKInstrumentationLoader {
     private static final String PKG = "io.mockk.proxy.";
 
     private static final String[] BOOTSTRAP_CLASS_NAMES = {
-            PKG + "MockKDispatcher"
+            PKG + "MockKDispatcher",
+            PKG + "MockKWeakMap",
+            PKG + "MockKWeakMap$StrongKey",
+            PKG + "MockKWeakMap$WeakKey",
     };
 
     public static final MockKInstrumentationLoader LOADER = new MockKInstrumentationLoader();
 
-    public final Class<?>[] bootstrapClasses;
-
-    public Class<?> dispatcher() {
-        return bootstrapClasses[0];
-    }
-
 
     private MockKInstrumentationLoader() {
-        bootstrapClasses = new Class[BOOTSTRAP_CLASS_NAMES.length];
     }
 
     public boolean loadBootJar(Instrumentation instrumentation) {
@@ -54,7 +50,7 @@ public class MockKInstrumentationLoader {
                     log.trace("Classloader is not bootstrap for " + name);
                     return false;
                 }
-                bootstrapClasses[i++] = cls;
+                log.trace("Bootstrap class loaded " + cls.getName());
             }
         } catch (ClassNotFoundException cnfe) {
             log.trace(cnfe,"Can't load class");

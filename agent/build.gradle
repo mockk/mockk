@@ -35,6 +35,9 @@ task copyMockKDispatcher(type: Copy) {
     from "${buildDir}/classes/main/io/mockk/proxy"
     into "${buildDir}/classes/main/io/mockk/proxy"
     include "MockKDispatcher.class"
+    include "MockKWeakMap.class"
+    include "MockKWeakMap\$StrongKey.class"
+    include "MockKWeakMap\$WeakKey.class"
     rename { String fileName ->
         fileName.replace('.class', '.clazz')
     }
@@ -48,6 +51,7 @@ shadowJar {
     relocate 'net.bytebuddy.', 'io.mockk.shadowed.bytebuddy.'
     relocate 'org.objenesis.', 'io.mockk.shadowed.objenesis.'
     exclude "io/mockk/proxy/MockKDispatcher.class"
+    exclude "io/mockk/proxy/MockKWeakMap*.class"
 
     manifest {
         attributes(
