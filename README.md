@@ -323,7 +323,6 @@ regular `mockk`:
 ```kotlin
 data class Obj(val value: Int)
 
-// declared in File.kt ("pkg" package)
 class Ext {
     fun Obj.extensionFunc() = value + 5
 }
