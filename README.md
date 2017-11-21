@@ -143,6 +143,18 @@ obj.op2(1, 2).op1(3, 22) // returns 5
 verify { obj.op2(1, 2).op1(3, 22) }
 ```
 
+In case function return type is generic this information is erased.
+To make chained calls work additional information is required.
+Most of the times framework will catch the cast exception and do `autohinting`.
+But in the case it is explicitly needed just place `hint` before calls.
+
+```kotlin
+
+every { obj.op2(1, eq(2)).hint(Int::class).op1(3, any()) } returns 5
+
+```
+
+
 ### Capturing
 
 You can capture an argument to a `CapturingSlot` or `MutableList`:

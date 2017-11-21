@@ -1,6 +1,7 @@
 
 # Backlog
 - [ ] remove dependency on agent install
+- [ ] first operation hint
 - [ ] **BIG** runs on Android devices
 - [ ] **BIG** Kotlin Javascript
 - [ ] JavaDoc
