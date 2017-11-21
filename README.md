@@ -241,7 +241,7 @@ verifyOrder {
 ### Returning nothing
 
 If the method is returning Unit(i.e. no return value) you
-still need to specify return value:
+still need to specify `null` return value:
 
 ```kotlin
 class MockedClass {
@@ -252,7 +252,7 @@ class MockedClass {
 
 val obj = mockk<MockedClass>()
 
-// all 3 are actually doing the same
+// all 3 are actually acceptable and doing the same
 every { obj.sum(any(), 1) } answers { nothing }
 every { obj.sum(any(), 2) } returns null
 every { obj.sum(any(), 3) } just Runs
