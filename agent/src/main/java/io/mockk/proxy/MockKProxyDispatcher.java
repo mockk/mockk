@@ -1,6 +1,7 @@
 package io.mockk.proxy;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
@@ -8,9 +9,9 @@ public class MockKProxyDispatcher extends MockKDispatcher {
     private static final Random RNG = new Random();
     private final long id = RNG.nextLong();
 
-    private final MockKWeakMap<Object, MockKInvocationHandler> handlers;
+    private final Map<Object, MockKInvocationHandler> handlers;
 
-    public MockKProxyDispatcher(MockKWeakMap<Object, MockKInvocationHandler> handlers) {
+    public MockKProxyDispatcher(Map<Object, MockKInvocationHandler> handlers) {
         this.handlers = handlers;
     }
 

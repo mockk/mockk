@@ -4,14 +4,14 @@ import net.bytebuddy.asm.Advice;
 import net.bytebuddy.asm.Advice.*;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
-
 public class MockKProxyAdvice extends MockKProxyDispatcher {
-    public MockKProxyAdvice(MockKWeakMap<Object, MockKInvocationHandler> handlers) {
+    public MockKProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
         super(handlers);
     }
 

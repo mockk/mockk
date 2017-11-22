@@ -221,8 +221,9 @@ public class MockKProxyMaker {
         lst.add(clazz);
         boolean transformed = MockKInstrumentation.INSTANCE.inject(lst);
         if (!transformed) {
-            throw new MockKAgentException("Failed to create proxy for " + clazz + ".\n" +
-                    "Add MockK Java Agent instrumentation.");
+            throw new MockKAgentException("Failed to create static proxy for " + clazz + ".\n" +
+                    "Try running VM with MockK Java Agent\n" +
+                    "i.e. with -javaagent:mockk-agent.jar option.");
         }
 
         MockKInstrumentation.INSTANCE.hookStatic(clazz, handler);

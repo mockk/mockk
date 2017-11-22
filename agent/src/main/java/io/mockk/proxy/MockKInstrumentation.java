@@ -1,6 +1,5 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.MockKAgentException;
 import io.mockk.agent.MockKAgentLogger;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -12,7 +11,6 @@ import net.bytebuddy.implementation.Implementation.Context.Disabled.Factory;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
 
-import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -21,8 +19,7 @@ import java.security.ProtectionDomain;
 import java.util.*;
 
 import static io.mockk.proxy.MockKInstrumentationLoader.LOADER;
-import static java.lang.Integer.toHexString;
-import static java.lang.System.identityHashCode;
+import static java.util.Collections.synchronizedMap;
 import static java.util.Collections.synchronizedSet;
 import static net.bytebuddy.dynamic.ClassFileLocator.Simple.of;
 import static net.bytebuddy.matcher.ElementMatchers.*;
@@ -31,8 +28,8 @@ public class MockKInstrumentation implements ClassFileTransformer {
     public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
 
     public static MockKInstrumentation INSTANCE;
-    private MockKWeakMap<Object, MockKInvocationHandler> handlers;
-    private MockKWeakMap<Object, MockKInvocationHandler> staticHandlers;
+    private Map<Object, MockKInvocationHandler> handlers;
+    private Map<Object, MockKInvocationHandler> staticHandlers;
 
     private volatile Instrumentation instrumentation;
     private MockKProxyAdvice advice;
@@ -51,14 +48,13 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
         if (instrumentation != null) {
             log.trace("Byte buddy agent installed");
-
-            if (!LOADER.loadBootJar(instrumentation)) {
+            if (LOADER.loadBootJar(instrumentation)) {
+                log.trace("Installing MockKInstrumentation transformer");
+                instrumentation.addTransformer(this, true);
+            } else {
                 log.trace("Can't inject boot jar.");
+                instrumentation = null;
             }
-
-
-            log.trace("Installing MockKInstrumentation transformer");
-            instrumentation.addTransformer(this, true);
         } else {
             log.trace("Can't install ByteBuddy agent.\n" +
                     "Try running VM with MockK Java Agent\n" +
@@ -70,18 +66,23 @@ public class MockKInstrumentation implements ClassFileTransformer {
                 .with(TypeValidation.DISABLED)
                 .with(Factory.INSTANCE);
 
-        class AdviceBuilder {
-            void build() {
-                handlers = new MockKWeakMap<Object, MockKInvocationHandler>();
-                advice = new MockKProxyAdvice(handlers);
-                staticHandlers = new MockKWeakMap<Object, MockKInvocationHandler>();
-                staticAdvice = new MockKStaticProxyAdvice(staticHandlers);
+        if (instrumentation != null) {
+            class AdviceBuilder {
+                void build() {
+                    handlers = new MockKWeakMap<Object, MockKInvocationHandler>();
+                    advice = new MockKProxyAdvice(handlers);
+                    staticHandlers = new MockKWeakMap<Object, MockKInvocationHandler>();
+                    staticAdvice = new MockKStaticProxyAdvice(staticHandlers);
 
-                MockKDispatcher.set(advice.getId(), advice);
-                MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
+                    MockKDispatcher.set(advice.getId(), advice);
+                    MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
+                }
             }
+            new AdviceBuilder().build();
+        } else {
+            handlers = synchronizedMap(new IdentityHashMap<Object, MockKInvocationHandler>());
+            staticHandlers = synchronizedMap(new IdentityHashMap<Object, MockKInvocationHandler>());
         }
-        new AdviceBuilder().build();
     }
 
     public boolean inject(List<Class<?>> classes) {
@@ -137,12 +138,6 @@ public class MockKInstrumentation implements ClassFileTransformer {
                                     isVirtual()
                                             .and(not(isDefaultFinalizer()))
                                             .and(not(isPackagePrivateJavaMethods()))))
-//                    .visit(Advice.withCustomMapping()
-//                            .bind(MockKProxyAdviceId.class, advice.getId())
-//                            .to(MockKProxyAdvice.ForHashCode.class).on(isHashCode()))
-//                    .visit(Advice.withCustomMapping()
-//                            .bind(MockKProxyAdviceId.class, advice.getId())
-//                            .to(MockKProxyAdvice.ForEquals.class).on(isEquals()))
                     .visit(Advice.withCustomMapping()
                             .bind(MockKProxyAdviceId.class, staticAdvice.getId())
                             .to(MockKStaticProxyAdvice.class).on(

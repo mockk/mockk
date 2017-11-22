@@ -11,7 +11,7 @@ import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAM
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
 public class MockKStaticProxyAdvice extends MockKProxyDispatcher {
-    public MockKStaticProxyAdvice(MockKWeakMap<Object, MockKInvocationHandler> handlers) {
+    public MockKStaticProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
         super(handlers);
     }
 
