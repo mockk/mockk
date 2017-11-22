@@ -48,19 +48,23 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
     MockKInstrumentation() {
         instrumentation = ByteBuddyAgent.install();
-        if (instrumentation == null) {
-            throw new MockKAgentException("Failed to install ByteBuddy agent.\n" +
-                    "Try running VM with MockK Java Agent i.e. with -javaagent:mockk-agent.jar option.");
+
+        if (instrumentation != null) {
+            log.trace("Byte buddy agent installed");
+
+            if (!LOADER.loadBootJar(instrumentation)) {
+                log.trace("Can't inject boot jar.");
+            }
+
+
+            log.trace("Installing MockKInstrumentation transformer");
+            instrumentation.addTransformer(this, true);
+        } else {
+            log.trace("Can't install ByteBuddy agent.\n" +
+                    "Try running VM with MockK Java Agent\n" +
+                    "i.e. with -javaagent:mockk-agent.jar option.");
         }
-        log.trace("Byte buddy agent installed");
 
-        if (!LOADER.loadBootJar(instrumentation)) {
-            throw new MockKAgentException("Failed to inject boot jar.");
-        }
-
-
-        log.trace("Installing MockKInstrumentation transformer");
-        instrumentation.addTransformer(this, true);
 
         byteBuddy = new ByteBuddy()
                 .with(TypeValidation.DISABLED)

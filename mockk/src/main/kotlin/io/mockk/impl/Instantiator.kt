@@ -40,9 +40,9 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         } catch (ex: MockKAgentException) {
             if (!instantiateOnFailure) {
                 if (useDefaultConstructor) {
-                    throw MockKException("Can't instantiate proxy via default constructor", ex)
+                    throw MockKException("Can't instantiate proxy via default constructor for " + cls, ex)
                 } else {
-                    throw MockKException("Can't instantiate proxy", ex)
+                    throw MockKException("Can't instantiate proxy for " + cls, ex)
                 }
             }
             log.trace(ex) {
