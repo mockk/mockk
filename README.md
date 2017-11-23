@@ -33,7 +33,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.5.3"</pre>
+    <pre>testCompile "io.mockk:mockk:1.5.4"</pre>
     </td>
 </tr>
 <tr>
@@ -42,7 +42,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.5.3&lt;/version&gt;
+    &lt;version&gt;1.5.4&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -62,7 +62,7 @@ Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a>
 
 Use following agent:
 
-<code>agent "io.mockk:mockk-agent:1.5.3"</code>
+<code>agent "io.mockk:mockk-agent:1.5.4"</code>
 
 </td>
 </tr><tr>
@@ -82,7 +82,7 @@ See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/p
 
 Add JVM parameter to launch agent(remove spaces):
 
-<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.5.3/ mockk-agent-1.5.3.jar</code>
+<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.5.4/ mockk-agent-1.5.4.jar</code>
 
 </td>
 </tr>
@@ -204,9 +204,11 @@ verify(atLeast=3) { obj.sum(any(), any()) }
 ```
 
 
-### Verification sequence
+### Verification
 
-You can check exact sequence of calls with `verifySequence` or just order with `verifyOrder`:
+`verifyAll` verifies that all calls happened without checking it's order.
+`verifySequence` verifies that the exact sequence happened and `verifyOrder` that calls happened in order.
+`wasNot Called` verifies that mock or list of mocks was not called at all.
 
 ```kotlin
 class MockedClass {
@@ -226,6 +228,12 @@ obj.sum(1, 2) // returns 4
 obj.sum(1, 3) // returns 5
 obj.sum(2, 2) // returns 5
 
+verifyAll {
+    obj.sum(1, 3)
+    obj.sum(1, 2)
+    obj.sum(2, 2)
+}
+
 verifySequence {
     obj.sum(1, 2)
     obj.sum(1, 3)
@@ -235,6 +243,12 @@ verifySequence {
 verifyOrder {
     obj.sum(1, 2)
     obj.sum(2, 2)
+}
+
+val obj2 = mockk<MockedClass>()
+val obj3 = mockk<MockedClass>()
+verify {
+    listOf(obj2, obj3) wasNot Called
 }
 ```
 
