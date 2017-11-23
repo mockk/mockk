@@ -52,18 +52,7 @@ object MockKDsl {
                               exactly: Int = -1,
                               noinline verifyBlock: MockKVerificationScope.() -> Unit) {
 
-        if (exactly < -1) {
-            throw MockKException("exactly should be positive")
-        }
-        if (exactly == -1 && atLeast < 0) {
-            throw MockKException("atLeast should be positive")
-        }
-        if (exactly == -1 && atMost < 0) {
-            throw MockKException("atMost should be positive")
-        }
-        if (atLeast > atMost) {
-            throw MockKException("atLeast should less or equal atMost")
-        }
+        internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost)
 
         MockKGateway.implementation().verifier.verify(
                 ordering,
@@ -84,6 +73,9 @@ object MockKDsl {
                                 atMost: Int = Int.MAX_VALUE,
                                 exactly: Int = -1,
                                 noinline verifyBlock: suspend MockKVerificationScope.() -> Unit) {
+
+        internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost)
+
         MockKGateway.implementation().verifier.verify(
                 ordering,
                 inverse,
@@ -94,12 +86,39 @@ object MockKDsl {
                 verifyBlock)
     }
 
+    @PublishedApi
+    internal fun internalCheckExactlyAtMostAtLeast(exactly: Int, atLeast: Int, atMost: Int) {
+        if (exactly != -1 && (atLeast != 1 || atMost != Int.MAX_VALUE)) {
+            throw MockKException("specify either atLeast/atMost or exactly")
+        }
+        if (exactly < -1) {
+            throw MockKException("exactly should be positive")
+        }
+        if (atLeast < 0) {
+            throw MockKException("atLeast should be positive")
+        }
+        if (atMost < 0) {
+            throw MockKException("atMost should be positive")
+        }
+        if (atLeast > atMost) {
+            throw MockKException("atLeast should less or equal atMost")
+        }
+    }
+
     /**
      * Shortcut for ordered calls verification
      */
     inline fun internalVerifyOrder(inverse: Boolean = false,
                                    noinline verifyBlock: MockKVerificationScope.() -> Unit) {
         internalVerify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
+    }
+
+    /**
+     * Shortcut for all calls verification
+     */
+    inline fun internalVerifyAll(inverse: Boolean = false,
+                                 noinline verifyBlock: MockKVerificationScope.() -> Unit) {
+        internalVerify(Ordering.ALL, inverse, verifyBlock = verifyBlock)
     }
 
     /**
@@ -146,9 +165,13 @@ object MockKDsl {
  */
 enum class Ordering {
     /**
-     * Order is not important. Calls just should happen
+     * Order is not important. Some calls just should happen
      */
     UNORDERED,
+    /**
+     * Order is not important. All calls should happen
+     */
+    ALL,
     /**
      * Order is important, but not all calls are checked
      */
@@ -333,7 +356,21 @@ class MockKVerificationScope(gw: MockKGateway,
             captureBlock(it)
         }
     }
+
+    infix fun Any.wasNot(called: Called) {
+        listOf(this) wasNot called
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    infix fun List<Any>.wasNot(called: Called) {
+        MockKGateway.implementation().verifier.checkWasNotCalled(this)
+    }
 }
+
+/**
+ * Part of DSL. Object to represent phrase "wasNot Called"
+ */
+object Called
 
 class MockKAssertScope(val actual: Any?) {
     fun assertEquals(expected: Any?) {

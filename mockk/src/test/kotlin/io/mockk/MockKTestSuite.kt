@@ -108,6 +108,11 @@ class MockKTestSuite : StringSpec({
             mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
             mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
         }
+        verifyAll {
+            mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
+            mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
+            mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4)
+        }
     }.config(enabled = true)
 
     "clearMocks" {
@@ -125,7 +130,7 @@ class MockKTestSuite : StringSpec({
         }
     }.config(enabled = true)
 
-    "atLeast, atMost, exactly" {
+    "atLeast, atMost, exactly, wasNot Called" {
         every { mock.otherOp(0, 2) } throws RuntimeException("test")
         every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
 
@@ -173,7 +178,15 @@ class MockKTestSuite : StringSpec({
             mock.otherOp(0, 2)
         }
         verify(exactly = 0) {
-            mock.neverCalled()
+            mock.opNeverCalled()
+        }
+        verifyAll(inverse = true) {
+            mock.otherOp(0, 2)
+        }
+        val secondMock = mockk<MockCls>()
+        val thirdMock = mockk<MockCls>()
+        verify {
+            listOf(secondMock, thirdMock) wasNot Called
         }
     }.config(enabled = true)
 
@@ -603,6 +616,16 @@ class MockKTestSuite : StringSpec({
                 mock.otherOp(1, 2)
             }
         }
+        expectVerificationError("some calls were not matched") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 3)
+
+            verifyAll {
+                mock.otherOp(1, 2)
+            }
+        }
     }.config(enabled = true)
 
     "coroutines" {
@@ -777,7 +800,7 @@ class MockCls {
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
 
-    fun neverCalled(): Int = 1
+    fun opNeverCalled(): Int = 1
 }
 
 

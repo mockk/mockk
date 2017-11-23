@@ -111,6 +111,8 @@ interface MockKGateway {
                    exactly: Int,
                    mockBlock: (MockKVerificationScope.() -> Unit)?,
                    coMockBlock: (suspend MockKVerificationScope.() -> Unit)?)
+
+        fun checkWasNotCalled(mocks: List<Any>)
     }
 
     /**

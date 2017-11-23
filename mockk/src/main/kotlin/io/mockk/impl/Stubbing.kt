@@ -1,5 +1,6 @@
 package io.mockk.impl
 
+import io.mockk.MockKException
 import io.mockk.MockKMatcherScope
 import io.mockk.MockKStubScope
 import io.mockk.MockKGateway.*
@@ -22,7 +23,14 @@ internal class StubberImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Stubber {
             callRecorder.cancel()
             throw ex
         }
+        checkMissingCalls()
         return MockKStubScope(gateway, lambda)
+    }
+
+    fun checkMissingCalls() {
+        if (gateway.callRecorder.calls.isEmpty()) {
+            throw MockKException("Missing calls inside every { ... } block.")
+        }
     }
 
 }

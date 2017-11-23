@@ -21,6 +21,7 @@ class MockKGatewayImpl : MockKGateway {
     private val callRecorderTL = threadLocalOf { CallRecorderImpl(this) }
     private val instantiatorTL = threadLocalOf { InstantiatorImpl(this) }
     private val unorderedVerifierTL = threadLocalOf { UnorderedCallVerifierImpl(this) }
+    private val allVerifierTL = threadLocalOf { AllCallVerifierImpl(this) }
     private val orderedVerifierTL = threadLocalOf { OrderedCallVerifierImpl(this) }
     private val sequenceVerifierTL = threadLocalOf { SequenceCallVerifierImpl(this) }
 
@@ -42,6 +43,7 @@ class MockKGatewayImpl : MockKGateway {
     override fun verifier(ordering: Ordering): CallVerifier =
             when (ordering) {
                 Ordering.UNORDERED -> unorderedVerifierTL.get()
+                Ordering.ALL -> allVerifierTL.get()
                 Ordering.ORDERED -> orderedVerifierTL.get()
                 Ordering.SEQUENCE -> sequenceVerifierTL.get()
             }

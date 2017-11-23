@@ -80,6 +80,14 @@ inline fun coVerify(ordering: Ordering = Ordering.UNORDERED,
 /**
  * Shortcut for ordered calls verification
  */
+inline fun verifyAll(inverse: Boolean = false,
+                     noinline verifyBlock: MockKVerificationScope.() -> Unit) = useImpl {
+    MockKDsl.internalVerifyAll(inverse, verifyBlock)
+}
+
+/**
+ * Shortcut for ordered calls verification
+ */
 inline fun verifyOrder(inverse: Boolean = false,
                        noinline verifyBlock: MockKVerificationScope.() -> Unit) = useImpl {
     MockKDsl.internalVerifyOrder(inverse, verifyBlock)

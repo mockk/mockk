@@ -279,9 +279,6 @@ private class SignatureMatcherDetector {
     @Suppress("UNCHECKED_CAST")
     fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<Call> {
         val nCalls = callRounds[0].calls.size
-        if (nCalls == 0) {
-            throw MockKException("Missing calls inside every/verify {} block.")
-        }
         if (callRounds.any { it.calls.size != nCalls }) {
             throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
                     callRounds.map { it.calls.map { it.invocation }.joinToString(", ") }.joinToString("\n"))
