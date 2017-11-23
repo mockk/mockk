@@ -459,8 +459,11 @@ Few special matchers available in verification mode only:
 |`verify(atLeast=n) { mock.call() }`|Do unordered verification that call were performed at least `n` times|
 |`verify(atMost=n) { mock.call() }`|Do unordered verification that call were performed at most `n` times|
 |`verify(excatly=n) { mock.call() }`|Do unordered verification that call were performed at exactly `n` times|
+|`verifyAll { mock.call1(); mock.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks|
 |`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
 |`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
+|`verify { mock wasNot Called }`|Do verification that mock was not called|
+|`verify { listOf(mock1, mock2) wasNot Called }`|Do verification that list of mocks were not called|
 
 ### Answers
 
