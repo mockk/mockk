@@ -17,7 +17,7 @@ Table of contents:
  - mocking coroutines
  - capturing lambdas
  - extension function mocking
- 
+
 ## Examples
 
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
@@ -354,7 +354,7 @@ with(mockk<Ext>()) {
 }
 ```
 
-To mock module wide extension function you need to 
+To mock module wide extension function you need to
 build staticMockk(...) with argument specifying module class name.
 For example "pkg.FileKt" for module "File.kt" in "pkg" package
 
@@ -458,7 +458,7 @@ Few special matchers available in verification mode only:
 |`verify(inverse=true) { mock.call() }`|Do unordered verification that call were not performed|
 |`verify(atLeast=n) { mock.call() }`|Do unordered verification that call were performed at least `n` times|
 |`verify(atMost=n) { mock.call() }`|Do unordered verification that call were performed at most `n` times|
-|`verify(excatly=n) { mock.call() }`|Do unordered verification that call were performed at exactly `n` times|
+|`verify(exactly=n) { mock.call() }`|Do unordered verification that call were performed at exactly `n` times|
 |`verifyAll { mock.call1(); mock.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks|
 |`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
 |`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
