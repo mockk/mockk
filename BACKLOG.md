@@ -1,6 +1,7 @@
 
 # Backlog
 - [ ] article on translaion Mockito to MockK
+- [ ] object mocking ruins singleton
 - [ ] **BIG** runs on Android devices
 - [ ] **BIG** Kotlin Javascript
 - [ ] JavaDoc
