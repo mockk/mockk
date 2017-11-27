@@ -2,7 +2,6 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
-import io.mockk.external.logger
 import java.lang.AssertionError
 import io.mockk.InternalPlatform.toStr
 import io.mockk.impl.MockKGatewayImpl.Stub

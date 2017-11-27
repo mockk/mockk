@@ -4,7 +4,6 @@ import io.mockk.InternalPlatform.toStr
 import io.mockk.MockKException
 import io.mockk.impl.MockKGatewayImpl.Stub
 import io.mockk.agent.MockKAgentException
-import io.mockk.external.logger
 import io.mockk.impl.MockKGatewayImpl.Instantiator
 import io.mockk.proxy.MockKProxyMaker
 import java.lang.reflect.InvocationTargetException
@@ -176,12 +175,12 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
                                       method: Method,
                                       args: Array<Any?>,
                                       otherwise: () -> Any?): Any? {
-        if (method.isHashCode()) {
-            return System.identityHashCode(self)
-        } else if (method.isEquals()) {
-            return self === args[0]
-        } else if (method.isToString()) {
-            return gateway.stubs[self]?.toStr() ?: "<mock not found>"
+        if (self is Class<*>) {
+            if (method.isHashCode()) {
+                return System.identityHashCode(self)
+            } else if (method.isEquals()) {
+                return self === args[0]
+            }
         }
         return otherwise()
     }
@@ -194,5 +193,3 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
 private fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
 
 private fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
-
-private fun Method.isToString() = name == "toString" && parameterTypes.isEmpty()

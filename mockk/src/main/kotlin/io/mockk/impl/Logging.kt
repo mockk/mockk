@@ -1,8 +1,7 @@
-package io.mockk.external
+package io.mockk.impl
 
 import io.mockk.agent.MockKAgentLogger
 import org.slf4j.LoggerFactory
-import java.lang.Exception
 import java.util.logging.Level
 import kotlin.reflect.KClass
 
@@ -21,11 +20,31 @@ internal interface  Logger {
     fun trace(ex: Throwable, msg: () -> String)
 }
 
+internal class NoOpLogger() : Logger {
+    override fun error(msg: () -> String) {}
+    override fun error(ex: Throwable, msg: () -> String) {}
+    override fun warn(msg: () -> String) {}
+    override fun warn(ex: Throwable, msg: () -> String) {}
+    override fun info(msg: () -> String) {}
+    override fun info(ex: Throwable, msg: () -> String) {}
+    override fun debug(msg: () -> String) {}
+    override fun debug(ex: Throwable, msg: () -> String) {}
+    override fun trace(msg: () -> String) {}
+    override fun trace(ex: Throwable, msg: () -> String) {}
+}
 
-private val loggerFactory =
-        link("org.slf4j.Logger") {
-            { cls: KClass<*> -> Slf4jLogger(cls) }
-        } ?: { cls: KClass<*> -> JULLogger(cls) }
+internal var loggerFactory : (KClass<*>) -> Logger = { NoOpLogger() }
+
+/* ---- Java ---- */
+
+internal fun slf4jOrJulLogging(): (KClass<*>) -> Logger {
+    return try {
+        Class.forName("org.slf4j.Logger");
+        { cls: KClass<*> -> Slf4jLogger(cls) }
+    } catch (ex: ClassNotFoundException) {
+        { cls: KClass<*> -> JULLogger(cls) }
+    }
+}
 
 private class Slf4jLogger(cls: KClass<*>) : Logger {
     val log: org.slf4j.Logger = LoggerFactory.getLogger(cls.java)

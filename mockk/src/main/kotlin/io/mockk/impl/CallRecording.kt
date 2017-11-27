@@ -2,7 +2,6 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
-import io.mockk.external.logger
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass

@@ -2,7 +2,6 @@ package io.mockk.impl
 
 import io.mockk.MockKException
 import io.mockk.MockKGateway.*
-import io.mockk.external.logger
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong

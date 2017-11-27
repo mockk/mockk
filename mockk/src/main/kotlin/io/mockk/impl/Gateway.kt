@@ -2,8 +2,6 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
-import io.mockk.external.adaptor
-import io.mockk.external.logger
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
@@ -47,6 +45,8 @@ class MockKGatewayImpl : MockKGateway {
         private val log = logger<MockKGatewayImpl>()
 
         init {
+            loggerFactory = slf4jOrJulLogging()
+
             log.trace {
                 "Starting Java MockK implementation. " +
                         "Java version = ${System.getProperty("java.version")}. "
