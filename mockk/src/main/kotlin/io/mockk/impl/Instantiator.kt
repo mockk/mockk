@@ -159,10 +159,8 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         return if (obj1 === obj2) {
             true
         } else if (obj1 == null || obj2 == null) {
-            obj2 == null
-        } else if (obj1.javaClass != obj2.javaClass) {
-            false
-        } else if (obj1.javaClass.isArray) {
+            true
+        } else if (obj1.javaClass.isArray && obj2.javaClass.isArray) {
             arrayDeepEquals(obj1, obj2)
         } else {
             obj1 == obj2
@@ -170,28 +168,16 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
     }
 
     private fun arrayDeepEquals(obj1: Any, obj2: Any): Boolean {
-        return when (obj1::class) {
-            BooleanArray::class -> Arrays.equals(obj1 as BooleanArray, obj2 as BooleanArray)
-            ByteArray::class -> Arrays.equals(obj1 as ByteArray, obj2 as ByteArray)
-            CharArray::class -> Arrays.equals(obj1 as CharArray, obj2 as CharArray)
-            ShortArray::class -> Arrays.equals(obj1 as ShortArray, obj2 as ShortArray)
-            IntArray::class -> Arrays.equals(obj1 as IntArray, obj2 as IntArray)
-            LongArray::class -> Arrays.equals(obj1 as LongArray, obj2 as LongArray)
-            FloatArray::class -> Arrays.equals(obj1 as FloatArray, obj2 as FloatArray)
-            DoubleArray::class -> Arrays.equals(obj1 as DoubleArray, obj2 as DoubleArray)
-            else -> {
-                val arr1 = obj1 as Array<*>
-                val arr2 = obj2 as Array<*>
-                if (arr1.size != arr2.size) {
-                    return false
-                }
-                repeat(arr1.size) { i ->
-                    if (!deepEquals(arr1[i], arr2[i])) {
-                        return false
-                    }
-                }
-                return true
-            }
+        return when (obj1) {
+            is BooleanArray -> obj1 contentEquals obj2 as BooleanArray
+            is ByteArray -> obj1 contentEquals obj2 as ByteArray
+            is CharArray -> obj1 contentEquals obj2 as CharArray
+            is ShortArray -> obj1 contentEquals obj2 as ShortArray
+            is IntArray -> obj1 contentEquals obj2 as IntArray
+            is LongArray -> obj1 contentEquals obj2 as LongArray
+            is FloatArray -> obj1 contentEquals obj2 as FloatArray
+            is DoubleArray -> obj1 contentEquals obj2 as DoubleArray
+            else -> return obj1 as Array<*> contentDeepEquals obj2 as Array<*>
         }
     }
 
