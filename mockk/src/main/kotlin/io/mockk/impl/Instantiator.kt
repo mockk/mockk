@@ -30,7 +30,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
                     cls.java,
                     moreInterfaces.map { it.java }.toTypedArray(),
                     { self, method, originalCall, args ->
-                        stdClassFunctions(self, method, args) {
+                        stdFunctions(self, method, args) {
                             stub.handleInvocation(self, method.toDescription(), {
                                 handleOriginalCall(originalCall, method)
                             }, args)
@@ -195,7 +195,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         try {
             return MockKProxyMaker.INSTANCE.staticProxy(cls.java,
                     { self, method, originalMethod, args ->
-                        stdClassFunctions(self, method, args) {
+                        stdFunctions(self, method, args) {
                             stub.handleInvocation(self, method.toDescription(), {
                                 handleOriginalCall(originalMethod, method)
                             }, args)
@@ -210,16 +210,16 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         MockKProxyMaker.INSTANCE.staticUnProxy(cls.java)
     }
 
-    protected inline fun stdClassFunctions(self: Any,
-                                           method: Method,
-                                           args: Array<Any?>,
-                                           otherwise: () -> Any?): Any? {
-        if (self is Class<*>) {
-            if (method.isHashCode()) {
-                return System.identityHashCode(self)
-            } else if (method.isEquals()) {
-                return self === args[0]
-            }
+    protected inline fun stdFunctions(self: Any,
+                                      method: Method,
+                                      args: Array<Any?>,
+                                      otherwise: () -> Any?): Any? {
+        if (method.isHashCode()) {
+            return System.identityHashCode(self)
+        } else if (method.isEquals()) {
+            return self === args[0]
+        } else if (method.isToString()) {
+            return gateway.stubFor(self).toStr()
         }
         return otherwise()
     }
@@ -232,3 +232,5 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
 private fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
 
 private fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
+
+private fun Method.isToString() = name == "toString" && parameterTypes.isEmpty()
