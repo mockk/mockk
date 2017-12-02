@@ -642,9 +642,7 @@ data class MethodDescription(val name: String,
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as MethodDescription
+        if (other !is MethodDescription) return false
 
         if (name !== other.name) return false
         if (returnType != other.returnType) return false
@@ -688,9 +686,7 @@ data class Invocation(val self: Any,
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Invocation
+        if (other !is Invocation) return false
 
         if (self !== other.self) return false
         if (method != other.method) return false
@@ -700,7 +696,7 @@ data class Invocation(val self: Any,
     }
 
     override fun hashCode(): Int {
-        var result = System.identityHashCode(self)
+        var result = InternalPlatform.identityHashCode(self)
         result = 31 * result + method.hashCode()
         result = 31 * result + args.hashCode()
         return result
@@ -746,9 +742,7 @@ data class InvocationMatcher(val self: Any,
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as InvocationMatcher
+        if (other !is InvocationMatcher) return false
 
         if (self !== other.self) return false
         if (method != other.method) return false
@@ -758,7 +752,7 @@ data class InvocationMatcher(val self: Any,
     }
 
     override fun hashCode(): Int {
-        var result = System.identityHashCode(self)
+        var result = InternalPlatform.identityHashCode(self)
         result = 31 * result + method.hashCode()
         result = 31 * result + args.hashCode()
         return result
@@ -775,3 +769,9 @@ data class Call(val retType: KClass<*>,
                 val chained: Boolean)
 
 
+/**
+ * Platform related functions
+ */
+expect object InternalPlatform {
+    fun identityHashCode(obj: Any): Int
+}

@@ -3,9 +3,7 @@ rootProject.name = 'mockk-top'
 include 'mockk'
 //include 'mockk-js'
 include 'mockk-agent'
-//include 'mockk-dsl-js'
-include 'mockk-dsl-jvm'
+include 'mockk-dsl'
 
 project(":mockk-agent").projectDir = file("agent")
-// project(":mockk-dsl-js").projectDir = file("dsl/js")
-project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
+project(":mockk-dsl").projectDir = file("dsl")

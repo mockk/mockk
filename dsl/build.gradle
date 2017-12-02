@@ -1,22 +1,9 @@
-
-apply plugin: "kotlin"
+apply plugin: 'kotlin-platform-common'
 
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
 }
-
-sourceSets {
-    main {
-        kotlin {
-            srcDirs = ['../src/main/kotlin']
-        }
-        resources {
-            srcDirs = ['../src/main/resources']
-        }
-    }
-}
-
 
 kotlin {
     experimental {
@@ -38,7 +25,7 @@ uploadArchives {
             }
 
             pom.project {
-                name 'MockK Java DSL'
+                name 'MockK DSL'
                 packaging 'jar'
                 description 'MockK DSL extracted to a module'
                 url 'http://mockk.io'
