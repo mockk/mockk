@@ -4,7 +4,7 @@ import io.mockk.InternalPlatform
 import io.mockk.MockKGateway.InstanceFactory
 import io.mockk.MockKGateway.InstanceFactoryRegistry
 
-internal class InstanceFactoryRegistryImpl(gateway: MockKGatewayImpl) : InstanceFactoryRegistry {
+internal class InstanceFactoryRegistryImpl : InstanceFactoryRegistry {
     private val factories = InternalPlatform.synchronizedMutableList<InstanceFactory>()
 
     val instanceFactories: List<InstanceFactory>

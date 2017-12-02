@@ -79,21 +79,6 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         return MockKProxyMaker.INSTANCE.instance(cls.java)
     }
 
-    override fun <T : Any> signatureValue(cls: KClass<T>): T {
-        return cls.cast(when (cls) {
-            java.lang.Boolean::class -> rnd.nextBoolean()
-            java.lang.Byte::class -> rnd.nextInt().toByte()
-            java.lang.Short::class -> rnd.nextInt().toShort()
-            java.lang.Character::class -> rnd.nextInt().toChar()
-            java.lang.Integer::class -> rnd.nextInt()
-            java.lang.Long::class -> rnd.nextLong()
-            java.lang.Float::class -> rnd.nextFloat()
-            java.lang.Double::class -> rnd.nextDouble()
-            java.lang.String::class -> rnd.nextLong().toString(16)
-            else -> instantiate(cls)
-        })
-    }
-
     override fun isPassedByValue(cls: KClass<*>): Boolean {
         return when (cls) {
             java.lang.Boolean::class -> true

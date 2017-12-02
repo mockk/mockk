@@ -93,7 +93,9 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         matchers.add(matcher)
-        val signatureValue = gateway.instantiator.signatureValue(cls)
+        val signatureValue = gateway.signatureValueGenerator.signatureValue(cls) {
+            gateway.instantiator.instantiate(cls)
+        }
         signatures.add(packRef(signatureValue, gateway)!!)
         return signatureValue
     }

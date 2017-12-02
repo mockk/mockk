@@ -3,9 +3,11 @@ package io.mockk.impl
 import io.mockk.*
 import io.mockk.MockKGateway.*
 import io.mockk.jvm.JvmAnyValueGenerator
+import io.mockk.jvm.JvmSignatureValueGenerator
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
+import java.util.*
 import kotlin.reflect.KClass
 
 
@@ -15,11 +17,12 @@ class MockKGatewayImpl : MockKGateway {
     override val mockFactory: MockFactory = MockFactoryImpl(this)
     override val stubber: Stubber = StubberImpl(this)
     override val verifier: Verifier = VerifierImpl(this)
-    internal val factoryRegistryIntrnl: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl(this)
+    internal val factoryRegistryIntrnl: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl()
     override val factoryRegistry: InstanceFactoryRegistry = factoryRegistryIntrnl
 
     internal val instantiator = InstantiatorImpl(this)
     internal val anyValueGenerator = JvmAnyValueGenerator()
+    internal val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
     internal val unorderedVerifier = UnorderedCallVerifierImpl(this)
     internal val allVerifier = AllCallVerifierImpl(this)
@@ -104,8 +107,6 @@ class MockKGatewayImpl : MockKGateway {
                             useDefaultConstructor: Boolean,
                             instantiateOnFailure: Boolean,
                             moreInterfaces: Array<out KClass<*>>, stub: Stub): Any
-
-        fun <T : Any> signatureValue(cls: KClass<T>): T
 
         fun isPassedByValue(cls: KClass<*>): Boolean
 
