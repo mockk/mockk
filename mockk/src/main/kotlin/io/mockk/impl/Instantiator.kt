@@ -1,8 +1,8 @@
 package io.mockk.impl
 
-import io.mockk.InternalPlatform
+import io.mockk.InternalPlatform.toStr
 import io.mockk.MockKException
-import io.mockk.MockKGateway.*
+import io.mockk.MockKGateway.Stub
 import io.mockk.agent.MockKAgentException
 import io.mockk.external.logger
 import io.mockk.proxy.MockKProxyMaker
@@ -12,11 +12,8 @@ import java.util.*
 import java.util.concurrent.Callable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
-import io.mockk.InternalPlatform.toStr
 
 internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instantiator {
-    private val instantiationFactories = mutableListOf<InstanceFactory>()
-
     private val rnd = Random()
 
     @Suppress("DEPRECATION")
@@ -71,7 +68,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }
 
-        for (factory in instantiationFactories) {
+        for (factory in gateway.factoryRegistry.instanceFactories) {
             val instance = factory.instantiate(cls)
             if (instance != null) {
                 log.trace { "Instance factory returned instance $instance" }
@@ -151,14 +148,6 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
             java.lang.String::class -> true
             else -> false
         }
-    }
-
-    override fun registerFactory(factory: InstanceFactory) {
-        instantiationFactories.add(factory)
-    }
-
-    override fun unregisterFactory(factory: InstanceFactory) {
-        instantiationFactories.remove(factory)
     }
 
     override fun staticMockk(cls: KClass<*>, stub: Stub) {

@@ -57,10 +57,10 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
             callRecorder.cancel()
             throw ex
         } finally {
+            checkMissingCalls()
+            wasNotCalledWasCalled = false
             callRecorder.doneVerification()
         }
-        checkMissingCalls()
-        wasNotCalledWasCalled = false
 
         try {
             val min = if (exactly != -1) exactly else atLeast
@@ -74,6 +74,8 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
         } catch (ex: Throwable) {
             callRecorder.cancel()
             throw ex
+        } finally {
+            gateway.callRecorder.cancel()
         }
     }
 
@@ -202,7 +204,7 @@ private fun formatCalls(calls: List<Invocation>): String {
 }
 
 private fun List<MatchedCall>.allInvocations(gateway: MockKGateway) =
-        this.map { Ref(it.invocation.self) }
+        this.map { InternalPlatform.ref(it.invocation.self) }
                 .distinct()
                 .map { it.value }
                 .flatMap { gateway.stubFor(it).allRecordedCalls() }

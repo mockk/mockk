@@ -85,7 +85,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     private fun signMatchers() {
         val detector = SignatureMatcherDetector()
         calls.clear()
-        calls.addAll(detector.detect(callRounds, childMocks))
+        calls.addAll(detector.detect(callRounds, childMocks, gateway))
 
         childMocks.clear()
         temporaryMocks.clear()
@@ -95,7 +95,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         matchers.add(matcher)
         val signatureValue = gateway.instantiator.signatureValue(cls)
-        signatures.add(packRef(signatureValue)!!)
+        signatures.add(packRef(signatureValue, gateway)!!)
         return signatureValue
     }
 
@@ -123,20 +123,19 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         matchers.clear()
         signatures.clear()
 
-        val instantiator = MockKGateway.implementation().instantiator
-        return instantiator.anyValue(retType) {
+        return gateway.instantiator.anyValue(retType) {
             try {
                 val mock = temporaryMocks[retType]
                 if (mock != null) {
                     return@anyValue mock
                 }
 
-                val child = instantiator.proxy(retType,
+                val child = gateway.instantiator.proxy(retType,
                         false,
                         true,
                         moreInterfaces = arrayOf(),
                         stub = MockKStub(retType, "temporary mock"))
-                childMocks.add(Ref(child))
+                childMocks.add(InternalPlatform.ref(child))
 
                 temporaryMocks[retType] = child
 
@@ -214,7 +213,6 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
     override fun doneVerification() {
         checkMode(Mode.VERIFYING)
-        calls.clear()
         mode = Mode.ANSWERING
     }
 
@@ -278,7 +276,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
 private class SignatureMatcherDetector {
     @Suppress("UNCHECKED_CAST")
-    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<MatchedCall> {
+    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>, gateway: MockKGatewayImpl): List<MatchedCall> {
         val nCalls = callRounds[0].calls.size
         if (callRounds.any { it.calls.size != nCalls }) {
             throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
@@ -317,7 +315,7 @@ private class SignatureMatcherDetector {
 
             repeat(zeroCall.invocation.args.size) { nArgument ->
                 val signature = callInAllRounds.map {
-                    packRef(it.invocation.args[nArgument])
+                    packRef(it.invocation.args[nArgument], gateway)
                 }.toList()
 
 
@@ -343,7 +341,7 @@ private class SignatureMatcherDetector {
 
                 matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, _) ->
                     val signature = cmList.map {
-                        packRef(it.operandValues[nOp])
+                        packRef(it.operandValues[nOp], gateway)
                     }.toList()
 
                     log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
@@ -370,7 +368,7 @@ private class SignatureMatcherDetector {
             log.trace { "Built matcher: $im" }
             calls.add(MatchedCall(zeroCall.retType,
                     zeroCall.invocation, im,
-                    childMocks.contains(Ref(zeroCall.invocation.self))))
+                    childMocks.contains(InternalPlatform.ref(zeroCall.invocation.self))))
         }
         return calls
     }
@@ -463,9 +461,9 @@ private fun MethodDescription.isSuspend(): Boolean {
     return paramTypes[sz - 1].isSubclassOf(Continuation::class)
 }
 
-private fun packRef(arg: Any?): Any? {
-    return if (arg == null || MockKGateway.implementation().instantiator.isPassedByValue(arg::class))
+private fun packRef(arg: Any?, gateway: MockKGatewayImpl): Any? {
+    return if (arg == null || gateway.instantiator.isPassedByValue(arg::class))
         arg
     else
-        Ref(arg)
+        InternalPlatform.ref(arg)
 }

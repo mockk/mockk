@@ -111,12 +111,19 @@ fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolea
             childMocks = childMocks)
 }
 
+/**
+ * Registers instance factory and returns object able to do deregistration.
+ */
+inline fun <reified T : Any> registerInstanceFactory(noinline instanceFactory: () -> T): Deregisterable = useImpl {
+    MockKDsl.internalRegisterInstanceFactory(instanceFactory)
+}
+
 
 /**
  * Executes block of code with registering and unregistering instance factory.
  */
-inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> R): R {
-    return MockKDsl.internalWithInstanceFactory(instanceFactory, block)
+inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> R): R = useImpl {
+    MockKDsl.internalWithInstanceFactory(instanceFactory, block)
 }
 
 /**

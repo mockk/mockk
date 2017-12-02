@@ -2,10 +2,14 @@ package io.mockk
 
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
+import java.util.Collections.synchronizedList
 import kotlin.reflect.KClass
+
 
 actual object InternalPlatform {
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
+
+    actual fun ref(obj: Any): Ref = JvmRef(obj)
 
     actual fun <T> runCoroutine(block: suspend () -> T): T {
         return runBlocking {
@@ -58,4 +62,21 @@ actual object InternalPlatform {
             value
         }
     }
+
+    actual fun <T> synchronizedMutableList(): MutableList<T> {
+        return synchronizedList(mutableListOf<T>())
+    }
+}
+
+
+class JvmRef(override val value: Any) : Ref {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Ref) return false
+        return value === other.value
+    }
+
+    override fun hashCode(): Int = System.identityHashCode(value)
+    override fun toString(): String = "Ref(${value::class.simpleName}@${hashCode()})"
+
 }

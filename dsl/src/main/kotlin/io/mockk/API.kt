@@ -1,6 +1,7 @@
 package io.mockk
 
 import kotlin.reflect.KClass
+import io.mockk.InternalPlatform.toStr
 
 /**
  * Exception thrown by library
@@ -141,10 +142,31 @@ object MockKDsl {
     }
 
     /**
+     * Registers instance factory and returns object able to do deregistration.
+     */
+    inline fun <reified T : Any> internalRegisterInstanceFactory(noinline instanceFactory: () -> T): Deregisterable {
+        val factoryObj = object : MockKGateway.InstanceFactory {
+            override fun instantiate(cls: KClass<*>): Any? {
+                if (T::class == cls) {
+                    return instanceFactory()
+                }
+                return null
+            }
+        }
+
+        MockKGateway.implementation().factoryRegistry.registerFactory(factoryObj)
+        return object : Deregisterable {
+            override fun deregister() {
+                MockKGateway.implementation().factoryRegistry.deregisterFactory(factoryObj)
+            }
+        }
+    }
+
+    /**
      * Executes block of code with registering and unregistering instance factory.
      */
     inline fun <reified T : Any, R> internalWithInstanceFactory(noinline instanceFactory: () -> T, block: () -> R): R {
-        return MockKGateway.registerInstanceFactory(T::class, instanceFactory).use {
+        return internalRegisterInstanceFactory(instanceFactory).use {
             block()
         }
     }
@@ -518,7 +540,7 @@ class CapturingSlot<T : Any>() {
         isNull = false
     }
 
-    override fun toString(): String = "slot(${if (isCaptured) "captured=${if (isNull) "null" else captured.toString()}" else ""})"
+    override fun toString(): String = "slot(${if (isCaptured) "captured=${if (isNull) "null" else captured.toStr()}" else ""})"
 }
 
 inline fun <reified T : () -> R, R> CapturingSlot<T>.invoke() = captured.invoke()
@@ -685,18 +707,9 @@ data class Invocation(val self: Any,
         return result
     }
 
-    override fun toString(): String = "Invocation(self=$selfStr, method=$method, args=${argsToStr()})"
+    override fun toString(): String = "Invocation(self=$selfStr, method=$method, " +
+            "args=${args.map({ it.toStr() }).joinToString(", ")})"
 
-    fun argsToStr() = args.map(this::argToStr).joinToString(", ")
-
-    fun argToStr(arg: Any?) =
-            if (arg == null) {
-                "null"
-            } else if (arg is Function<*>) {
-                "lambda {}"
-            } else {
-                arg.toString()
-            }
 }
 
 /**
@@ -770,3 +783,22 @@ data class MatchedCall(val retType: KClass<*>,
                        val matcher: InvocationMatcher,
                        val chained: Boolean)
 
+/**
+ * Allows to deregister something was registered before
+ */
+interface Deregisterable {
+    fun deregister()
+}
+
+
+inline fun <T : Deregisterable, R> T.use(block: (T) -> R): R {
+    try {
+        return block(this)
+    } finally {
+        try {
+            this.deregister()
+        } catch (closeException: Throwable) {
+            // skip
+        }
+    }
+}

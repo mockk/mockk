@@ -10,7 +10,7 @@ interface MockKGateway {
     val stubber: Stubber
     val verifier: Verifier
     val callRecorder: CallRecorder
-    val instantiator: Instantiator
+    val factoryRegistry: InstanceFactoryRegistry
 
     fun verifier(ordering: Ordering): CallVerifier
 
@@ -18,29 +18,7 @@ interface MockKGateway {
 
     companion object {
         lateinit var implementation: () -> MockKGateway
-
-        fun registerInstanceFactory(factory: InstanceFactory): Deregisterable {
-            implementation().instantiator.registerFactory(factory)
-            return object : Deregisterable {
-                override fun unregister() {
-                    implementation().instantiator.unregisterFactory(factory)
-                }
-            }
-        }
-
-        fun registerInstanceFactory(filterClass: KClass<*>,
-                                    factory: () -> Any): Deregisterable {
-            return registerInstanceFactory(object : InstanceFactory {
-                override fun instantiate(cls: KClass<*>): Any? {
-                    if (filterClass == cls) {
-                        return factory()
-                    }
-                    return null
-                }
-            })
-        }
     }
-
 
     /**
      * Create new mocks or spies
@@ -154,30 +132,11 @@ interface MockKGateway {
      */
     data class VerificationResult(val matches: Boolean, val message: String? = null)
 
-    /**
-     * Instantiates empty object for provided class
-     */
-    interface Instantiator {
-        fun <T : Any> instantiate(cls: KClass<T>): T
 
-        fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
-
-        fun <T : Any> proxy(cls: KClass<T>,
-                            useDefaultConstructor: Boolean,
-                            instantiateOnFailure: Boolean,
-                            moreInterfaces: Array<out KClass<*>>, stub: Stub): Any
-
-        fun <T : Any> signatureValue(cls: KClass<T>): T
-
-        fun isPassedByValue(cls: KClass<*>): Boolean
-
+    interface InstanceFactoryRegistry {
         fun registerFactory(factory: InstanceFactory)
 
-        fun unregisterFactory(factory: InstanceFactory)
-
-        fun staticMockk(cls: KClass<*>, stub: Stub)
-
-        fun staticUnMockk(cls: KClass<*>)
+        fun deregisterFactory(factory: InstanceFactory)
     }
 
     /**
@@ -186,35 +145,20 @@ interface MockKGateway {
     interface InstanceFactory {
         fun instantiate(cls: KClass<*>): Any?
     }
-
-    /**
-     * Allows to unregister something was registered before
-     */
-    interface Deregisterable {
-        fun unregister()
-    }
-
-
 }
 
-inline fun <T : MockKGateway.Deregisterable, R> T.use(block: (T) -> R): R {
-    try {
-        return block(this)
-    } finally {
-        try {
-            this.unregister()
-        } catch (closeException: Throwable) {
-            // skip
-        }
-    }
-}
 
+interface Ref {
+    val value: Any
+}
 
 /**
  * Platform related functions
  */
 expect object InternalPlatform {
     fun identityHashCode(obj: Any): Int
+
+    fun ref(obj: Any): Ref
 
     fun <T> runCoroutine(block: suspend () -> T): T
 
@@ -223,4 +167,6 @@ expect object InternalPlatform {
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 
     fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V
+
+    fun <T> synchronizedMutableList(): MutableList<T>
 }

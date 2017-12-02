@@ -7,50 +7,62 @@ import io.mockk.external.logger
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
-import kotlinx.coroutines.experimental.runBlocking
 import java.util.*
 import java.util.Collections.synchronizedMap
+import kotlin.reflect.KClass
+
+interface Instantiator {
+    fun <T : Any> instantiate(cls: KClass<T>): T
+
+    fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
+
+    fun <T : Any> proxy(cls: KClass<T>,
+                        useDefaultConstructor: Boolean,
+                        instantiateOnFailure: Boolean,
+                        moreInterfaces: Array<out KClass<*>>, stub: Stub): Any
+
+    fun <T : Any> signatureValue(cls: KClass<T>): T
+
+    fun isPassedByValue(cls: KClass<*>): Boolean
+
+    fun staticMockk(cls: KClass<*>, stub: Stub)
+
+    fun staticUnMockk(cls: KClass<*>)
+}
 
 
 class MockKGatewayImpl : MockKGateway {
     internal val stubs = synchronizedMap(IdentityHashMap<Any, Stub>())
 
-    private val mockFactoryTL = threadLocalOf { MockFactoryImpl(this) }
-    private val stubberTL = threadLocalOf { StubberImpl(this) }
-    private val verifierTL = threadLocalOf { VerifierImpl(this) }
-    private val callRecorderTL = threadLocalOf { CallRecorderImpl(this) }
-    private val instantiatorTL = threadLocalOf { InstantiatorImpl(this) }
-    private val unorderedVerifierTL = threadLocalOf { UnorderedCallVerifierImpl(this) }
-    private val allVerifierTL = threadLocalOf { AllCallVerifierImpl(this) }
-    private val orderedVerifierTL = threadLocalOf { OrderedCallVerifierImpl(this) }
-    private val sequenceVerifierTL = threadLocalOf { SequenceCallVerifierImpl(this) }
+    override val mockFactory: MockFactory = MockFactoryImpl(this)
+    override val stubber: Stubber = StubberImpl(this)
+    override val verifier: Verifier = VerifierImpl(this)
+    override val factoryRegistry: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl(this)
+
+    internal val instantiator = InstantiatorImpl(this)
+
+    internal val unorderedVerifier = UnorderedCallVerifierImpl(this)
+    internal val allVerifier = AllCallVerifierImpl(this)
+    internal val orderedVerifier = OrderedCallVerifierImpl(this)
+    internal val sequenceVerifier = SequenceCallVerifierImpl(this)
+
+    override fun verifier(ordering: Ordering): CallVerifier =
+            when (ordering) {
+                Ordering.UNORDERED -> unorderedVerifier
+                Ordering.ALL -> allVerifier
+                Ordering.ORDERED -> orderedVerifier
+                Ordering.SEQUENCE -> sequenceVerifier
+            }
+
+    private val callRecorderTL = object : ThreadLocal<CallRecorderImpl>() {
+        override fun initialValue() = CallRecorderImpl(this@MockKGatewayImpl)
+    }
 
     override val callRecorder: CallRecorder
         get() = callRecorderTL.get()
 
-    override val instantiator: Instantiator
-        get() = instantiatorTL.get()
-
-    override val mockFactory: MockFactory
-        get() = mockFactoryTL.get()
-
-    override val stubber: Stubber
-        get() = stubberTL.get()
-
-    override val verifier: Verifier
-        get() = verifierTL.get()
-
-    override fun verifier(ordering: Ordering): CallVerifier =
-            when (ordering) {
-                Ordering.UNORDERED -> unorderedVerifierTL.get()
-                Ordering.ALL -> allVerifierTL.get()
-                Ordering.ORDERED -> orderedVerifierTL.get()
-                Ordering.SEQUENCE -> sequenceVerifierTL.get()
-            }
-
 
     companion object {
-
         private val log = logger<MockKGatewayImpl>()
 
         init {
