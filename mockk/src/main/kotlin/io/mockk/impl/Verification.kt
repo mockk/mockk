@@ -56,23 +56,21 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
         } catch (ex: Throwable) {
             callRecorder.cancel()
             throw ex
+        } finally {
+            callRecorder.doneVerification()
         }
         checkMissingCalls()
         wasNotCalledWasCalled = false
 
         try {
-            try {
-                val min = if (exactly != -1) exactly else atLeast
-                val max = if (exactly != -1) exactly else atMost
+            val min = if (exactly != -1) exactly else atLeast
+            val max = if (exactly != -1) exactly else atMost
 
-                val outcome = gateway.verifier(ordering).verify(callRecorder.calls, min, max)
+            val outcome = gateway.verifier(ordering).verify(callRecorder.calls, min, max)
 
-                log.trace { "Done verification. Outcome: $outcome" }
+            log.trace { "Done verification. Outcome: $outcome" }
 
-                failIfNotPassed(outcome, inverse)
-            } finally {
-                callRecorder.doneVerification()
-            }
+            failIfNotPassed(outcome, inverse)
         } catch (ex: Throwable) {
             callRecorder.cancel()
             throw ex
@@ -105,7 +103,7 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
 }
 
 open internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayImpl) : CallVerifier {
-    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
+    override fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult {
         for ((i, call) in calls.withIndex()) {
             val result = matchCall(call, min, max, "call ${i + 1} of ${calls.size}.")
 
@@ -116,7 +114,7 @@ open internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayI
         return VerificationResult(true)
     }
 
-    private fun matchCall(call: Call, min: Int, max: Int, callIdxMsg: String): VerificationResult {
+    private fun matchCall(call: MatchedCall, min: Int, max: Int, callIdxMsg: String): VerificationResult {
         val stub = gateway.stubFor(call.invocation.self)
         val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = allCallsForMock.filter {
@@ -182,7 +180,7 @@ open internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayI
 
 
 internal class AllCallVerifierImpl(private val gateway: MockKGatewayImpl) : UnorderedCallVerifierImpl(gateway) {
-    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
+    override fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult {
         val result = super.verify(calls, min, max)
         if (result.matches) {
             val nonMatchingInvocations = calls.allInvocations(gateway)
@@ -203,20 +201,20 @@ private fun formatCalls(calls: List<Invocation>): String {
     }.joinToString("\n")
 }
 
-private fun List<Call>.allInvocations(gateway: MockKGateway) =
+private fun List<MatchedCall>.allInvocations(gateway: MockKGateway) =
         this.map { Ref(it.invocation.self) }
                 .distinct()
                 .map { it.value }
                 .flatMap { gateway.stubFor(it).allRecordedCalls() }
                 .sortedBy { it.timestamp }
 
-private fun reportCalls(calls: List<Call>, allCalls: List<Invocation>): String {
+private fun reportCalls(calls: List<MatchedCall>, allCalls: List<Invocation>): String {
     return "\nMatchers: \n" + calls.map { it.matcher.toString() }.joinToString("\n") +
             "\nCalls: \n" + formatCalls(allCalls)
 }
 
 internal class OrderedCallVerifierImpl(private val gateway: MockKGatewayImpl) : CallVerifier {
-    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
+    override fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult {
         val allCalls = calls.allInvocations(gateway)
 
         if (calls.size > allCalls.size) {
@@ -251,7 +249,7 @@ internal class OrderedCallVerifierImpl(private val gateway: MockKGatewayImpl) : 
 }
 
 internal class SequenceCallVerifierImpl(private val gateway: MockKGatewayImpl) : CallVerifier {
-    override fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult {
+    override fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult {
         val allCalls = calls.allInvocations(gateway)
 
         if (allCalls.size != calls.size) {

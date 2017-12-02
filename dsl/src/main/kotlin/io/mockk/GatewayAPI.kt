@@ -73,7 +73,7 @@ interface MockKGateway {
 
         fun answer(invocation: Invocation): Any?
 
-        fun childMockK(call: Call): Any?
+        fun childMockK(call: MatchedCall): Any?
 
         fun recordCall(invocation: Invocation)
 
@@ -117,7 +117,7 @@ interface MockKGateway {
      * Builds a list of calls
      */
     interface CallRecorder {
-        val calls: List<Call>
+        val calls: List<MatchedCall>
 
         fun startStubbing()
 
@@ -146,7 +146,7 @@ interface MockKGateway {
      * Verifier takes the list of calls and checks what invocations happened to the mocks
      */
     interface CallVerifier {
-        fun verify(calls: List<Call>, min: Int, max: Int): VerificationResult
+        fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult
     }
 
     /**
@@ -222,5 +222,5 @@ expect object InternalPlatform {
 
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 
-    fun <K, V> MutableMap<K, V>.java6ComputeIfAbsent(key: K, valueFunc: (K) -> V): V
+    fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V
 }

@@ -48,7 +48,7 @@ actual object InternalPlatform {
         }
     }
 
-    actual fun <K, V> MutableMap<K, V>.java6ComputeIfAbsent(key: K, valueFunc: (K) -> V): V {
+    actual fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V {
         val value = get(key)
         return if (value == null) {
             val newValue = valueFunc(key)

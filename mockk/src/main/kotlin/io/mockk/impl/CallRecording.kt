@@ -25,7 +25,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
     private val signedCalls = mutableListOf<SignedCall>()
     private val callRounds = mutableListOf<CallRound>()
-    override val calls = mutableListOf<Call>()
+    override val calls = mutableListOf<MatchedCall>()
     private val childMocks = mutableListOf<Ref>()
     private val temporaryMocks = mutableMapOf<KClass<*>, Any>()
     private var childTypes = mutableMapOf<Int, KClass<*>>()
@@ -151,7 +151,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
     fun mockRealChilds() {
         var newSelf: Any? = null
-        val newCalls = mutableListOf<Call>()
+        val newCalls = mutableListOf<MatchedCall>()
 
         for ((idx, ic) in calls.withIndex()) {
             val lastCall = idx == calls.size - 1
@@ -278,14 +278,14 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
 private class SignatureMatcherDetector {
     @Suppress("UNCHECKED_CAST")
-    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<Call> {
+    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>): List<MatchedCall> {
         val nCalls = callRounds[0].calls.size
         if (callRounds.any { it.calls.size != nCalls }) {
             throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
                     callRounds.map { it.calls.map { it.invocation }.joinToString(", ") }.joinToString("\n"))
         }
 
-        val calls = mutableListOf<Call>();
+        val calls = mutableListOf<MatchedCall>();
 
         repeat(nCalls) { callN ->
 
@@ -368,7 +368,7 @@ private class SignatureMatcherDetector {
                     zeroCall.invocation.method,
                     argMatchers.toList() as List<Matcher<Any>>)
             log.trace { "Built matcher: $im" }
-            calls.add(Call(zeroCall.retType,
+            calls.add(MatchedCall(zeroCall.retType,
                     zeroCall.invocation, im,
                     childMocks.contains(Ref(zeroCall.invocation.self))))
         }

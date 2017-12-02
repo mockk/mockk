@@ -415,11 +415,11 @@ class MockKStubScope<T>(val gateway: MockKGateway,
 
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
-    infix fun answers(answer: MockKAnswerScope<T>.(Call) -> T) =
+    infix fun answers(answer: MockKAnswerScope<T>.(MatchedCall) -> T) =
             answers(FunctionAnswer({ MockKAnswerScope<T>(gateway, lambda, it).answer(it) }))
 
 
-    infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(Call) -> T) = answers {
+    infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(MatchedCall) -> T) = answers {
         InternalPlatform.runCoroutine {
             answer(it)
         }
@@ -435,7 +435,7 @@ class MockKStubScope<T>(val gateway: MockKGateway,
 class MockKAnswerScope<T>(val gateway: MockKGateway,
                           @PublishedApi
                           internal val lambda: CapturingSlot<Function<*>>,
-                          val call: Call) {
+                          val call: MatchedCall) {
 
     val invocation = call.invocation
     val matcher = call.matcher
@@ -616,7 +616,7 @@ interface CompositeMatcher<T> {
  * Provides return value for mocked function
  */
 interface Answer<out T> {
-    fun answer(call: Call): T
+    fun answer(call: MatchedCall): T
 }
 
 /**
@@ -625,8 +625,7 @@ interface Answer<out T> {
 data class MethodDescription(val name: String,
                              val returnType: KClass<*>,
                              val declaringClass: KClass<*>,
-                             val paramTypes: List<KClass<*>>,
-                             val langDependentRef: Any) {
+                             val paramTypes: List<KClass<*>>) {
     override fun toString() = "$name(${argsToStr()})"
 
     fun argsToStr() = paramTypes.map(this::argToStr).joinToString(", ")
@@ -740,11 +739,13 @@ data class InvocationMatcher(val self: Any,
         if (this === other) return true
         if (other !is InvocationMatcher) return false
 
-        if (self !== other.self) return false
-        if (method != other.method) return false
-        if (args != other.args) return false
+        return when {
+            self !== other.self -> false
+            method != other.method -> false
+            args != other.args -> false
+            else -> true
+        }
 
-        return true
     }
 
     override fun hashCode(): Int {
@@ -764,8 +765,8 @@ data class InvocationMatcher(val self: Any,
 /**
  * Matched invocation
  */
-data class Call(val retType: KClass<*>,
-                val invocation: Invocation,
-                val matcher: InvocationMatcher,
-                val chained: Boolean)
+data class MatchedCall(val retType: KClass<*>,
+                       val invocation: Invocation,
+                       val matcher: InvocationMatcher,
+                       val chained: Boolean)
 

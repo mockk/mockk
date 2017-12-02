@@ -6,7 +6,7 @@ import java.lang.reflect.Method
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
 import kotlin.reflect.KClass
-import io.mockk.InternalPlatform.java6ComputeIfAbsent
+import io.mockk.InternalPlatform.customComputeIfAbsent
 
 
 private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
@@ -33,7 +33,7 @@ internal open class MockKStub(override val type: KClass<*>,
         return with(invocationAndMatcher) {
             captureAnswer(matcher, invocation)
 
-            val call = Call(invocation.method.returnType,
+            val call = MatchedCall(invocation.method.returnType,
                     invocation,
                     matcher, false)
 
@@ -85,9 +85,9 @@ internal open class MockKStub(override val type: KClass<*>,
 
     override fun toStr() = "mockk<${type.simpleName}>(${this.name})#$hash"
 
-    override fun childMockK(call: Call): Any? {
+    override fun childMockK(call: MatchedCall): Any? {
         return synchronized(childs) {
-            childs.java6ComputeIfAbsent(call.matcher) {
+            childs.customComputeIfAbsent(call.matcher) {
                 MockKGateway.implementation().mockFactory.mockk(
                         call.retType,
                         childName(this.name),
@@ -156,14 +156,9 @@ internal class SpyKStub<T : Any>(cls: KClass<T>, name: String) : MockKStub(cls, 
     override fun toStr(): String = "spyk<" + type.simpleName + ">($name)#$hash"
 }
 
-internal fun MethodDescription.invoke(self: Any, vararg args: Any?) =
-        (langDependentRef as Method).invoke(self, *args)
-
 internal fun Method.toDescription() =
-        MethodDescription(name, returnType.kotlin, declaringClass.kotlin, parameterTypes.map { it.kotlin }, this)
+        MethodDescription(name, returnType.kotlin, declaringClass.kotlin, parameterTypes.map { it.kotlin })
 
 private fun MethodDescription.isToString() = name == "toString" && paramTypes.isEmpty()
-
 private fun MethodDescription.isHashCode() = name == "hashCode" && paramTypes.isEmpty()
-
 private fun MethodDescription.isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
