@@ -68,7 +68,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }
 
-        for (factory in gateway.factoryRegistry.instanceFactories) {
+        for (factory in gateway.factoryRegistryIntrnl.instanceFactories) {
             val instance = factory.instantiate(cls)
             if (instance != null) {
                 log.trace { "Instance factory returned instance $instance" }
@@ -77,47 +77,6 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         }
 
         return MockKProxyMaker.INSTANCE.instance(cls.java)
-    }
-
-    override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
-        return when (cls) {
-            Void.TYPE.kotlin -> Unit
-
-            Boolean::class -> false
-            Byte::class -> 0.toByte()
-            Short::class -> 0.toShort()
-            Char::class -> 0.toChar()
-            Int::class -> 0
-            Long::class -> 0L
-            Float::class -> 0.0F
-            Double::class -> 0.0
-            String::class -> ""
-
-            java.lang.Boolean::class -> false
-            java.lang.Byte::class -> 0.toByte()
-            java.lang.Short::class -> 0.toShort()
-            java.lang.Character::class -> 0.toChar()
-            java.lang.Integer::class -> 0
-            java.lang.Long::class -> 0L
-            java.lang.Float::class -> 0.0F
-            java.lang.Double::class -> 0.0
-
-            BooleanArray::class -> BooleanArray(0)
-            ByteArray::class -> ByteArray(0)
-            CharArray::class -> CharArray(0)
-            ShortArray::class -> ShortArray(0)
-            IntArray::class -> IntArray(0)
-            LongArray::class -> LongArray(0)
-            FloatArray::class -> FloatArray(0)
-            DoubleArray::class -> DoubleArray(0)
-            else -> {
-                if (cls.java.isArray) {
-                    java.lang.reflect.Array.newInstance(cls.java.componentType, 0)
-                } else {
-                    orInstantiateVia()
-                }
-            }
-        }
     }
 
     override fun <T : Any> signatureValue(cls: KClass<T>): T {

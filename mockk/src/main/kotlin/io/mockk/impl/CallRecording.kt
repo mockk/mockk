@@ -122,7 +122,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         matchers.clear()
         signatures.clear()
 
-        return gateway.instantiator.anyValue(retType) {
+        return gateway.anyValueGenerator.anyValue(retType) {
             try {
                 val mock = temporaryMocks[retType]
                 if (mock != null) {

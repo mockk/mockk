@@ -2,23 +2,24 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
+import io.mockk.jvm.JvmAnyValueGenerator
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
-import java.util.*
-import java.util.Collections.synchronizedMap
 import kotlin.reflect.KClass
 
 
 class MockKGatewayImpl : MockKGateway {
-    internal val stubs = synchronizedMap(IdentityHashMap<Any, Stub>())
+    internal val stubs = InternalPlatform.weakMap<Any, Stub>()
 
     override val mockFactory: MockFactory = MockFactoryImpl(this)
     override val stubber: Stubber = StubberImpl(this)
     override val verifier: Verifier = VerifierImpl(this)
-    override val factoryRegistry: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl(this)
+    internal val factoryRegistryIntrnl: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl(this)
+    override val factoryRegistry: InstanceFactoryRegistry = factoryRegistryIntrnl
 
     internal val instantiator = InstantiatorImpl(this)
+    internal val anyValueGenerator = JvmAnyValueGenerator()
 
     internal val unorderedVerifier = UnorderedCallVerifierImpl(this)
     internal val allVerifier = AllCallVerifierImpl(this)
@@ -98,8 +99,6 @@ class MockKGatewayImpl : MockKGateway {
 
     interface Instantiator {
         fun <T : Any> instantiate(cls: KClass<T>): T
-
-        fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
 
         fun <T : Any> proxy(cls: KClass<T>,
                             useDefaultConstructor: Boolean,

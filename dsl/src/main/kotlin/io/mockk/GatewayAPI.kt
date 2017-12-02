@@ -142,4 +142,6 @@ expect object InternalPlatform {
     fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V
 
     fun <T> synchronizedMutableList(): MutableList<T>
+
+    fun <K, V> weakMap(): MutableMap<K, V>
 }
