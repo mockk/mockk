@@ -4,6 +4,7 @@ import io.mockk.*
 import io.mockk.MockKGateway.*
 import io.mockk.external.logger
 import java.lang.AssertionError
+import io.mockk.InternalPlatform.toStr
 
 internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway), Verifier {
     var wasNotCalledWasCalled = false

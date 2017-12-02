@@ -253,29 +253,29 @@ open class MockKMatcherScope(val gateway: MockKGateway,
     inline fun <reified T : (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> invoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = match(InvokeMatcher<T> { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) })
     inline fun <reified T : (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> invoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = match(InvokeMatcher<T> { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) })
 
-    inline fun <reified T : suspend () -> R, R> coInvoke() = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it() } })
-    inline fun <reified T : suspend (A1) -> R, R, A1> coInvoke(arg1: A1) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1) } })
-    inline fun <reified T : suspend (A1, A2) -> R, R, A1, A2> coInvoke(arg1: A1, arg2: A2) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2) } })
-    inline fun <reified T : suspend (A1, A2, A3) -> R, R, A1, A2, A3> coInvoke(arg1: A1, arg2: A2, arg3: A3) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4) -> R, R, A1, A2, A3, A4> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5) -> R, R, A1, A2, A3, A4, A5> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6) -> R, R, A1, A2, A3, A4, A5, A6> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7) -> R, R, A1, A2, A3, A4, A5, A6, A7> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) } })
-    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = match(InvokeMatcher<T> { MockKGateway.implementation().runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) } })
+    inline fun <reified T : suspend () -> R, R> coInvoke() = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it() } })
+    inline fun <reified T : suspend (A1) -> R, R, A1> coInvoke(arg1: A1) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1) } })
+    inline fun <reified T : suspend (A1, A2) -> R, R, A1, A2> coInvoke(arg1: A1, arg2: A2) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2) } })
+    inline fun <reified T : suspend (A1, A2, A3) -> R, R, A1, A2, A3> coInvoke(arg1: A1, arg2: A2, arg3: A3) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4) -> R, R, A1, A2, A3, A4> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5) -> R, R, A1, A2, A3, A4, A5> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6) -> R, R, A1, A2, A3, A4, A5, A6> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7) -> R, R, A1, A2, A3, A4, A5, A6, A7> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) } })
+    inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = match(InvokeMatcher<T> { InternalPlatform.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) } })
 
     inline fun <reified T : Any> allAny(): T = match(AllAnyMatcher())
 
@@ -304,13 +304,13 @@ open class MockKMatcherScope(val gateway: MockKGateway,
     }
 
     inline fun <reified T : Any> coMatch(noinline matcher: suspend (T) -> Boolean): T = match {
-        MockKGateway.implementation().runCoroutine {
+        InternalPlatform.runCoroutine {
             matcher(it)
         }
     }
 
     inline fun <reified T : Any> coMatchNullable(noinline matcher: suspend (T?) -> Boolean): T = matchNullable {
-        MockKGateway.implementation().runCoroutine {
+        InternalPlatform.runCoroutine {
             matcher(it)
         }
     }
@@ -334,25 +334,25 @@ class MockKVerificationScope(gw: MockKGateway,
     }
 
     inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T = assert(msg) {
-        MockKGateway.implementation().runCoroutine {
+        InternalPlatform.runCoroutine {
             assertion(it)
         }
     }
 
     inline fun <reified T : Any> coAssertNullable(msg: String? = null, noinline assertion: suspend (T?) -> Boolean): T = assertNullable(msg) {
-        MockKGateway.implementation().runCoroutine {
+        InternalPlatform.runCoroutine {
             assertion(it)
         }
     }
 
     inline fun <reified T : Any> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
-        MockKGateway.implementation().runCoroutine {
+        InternalPlatform.runCoroutine {
             captureBlock(it)
         }
     }
 
     inline fun <reified T : Any> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T = runNullable {
-        MockKGateway.implementation().runCoroutine {
+        InternalPlatform.runCoroutine {
             captureBlock(it)
         }
     }
@@ -374,13 +374,13 @@ object Called
 
 class MockKAssertScope(val actual: Any?) {
     fun assertEquals(expected: Any?) {
-        if (!MockKGateway.implementation().instantiator.deepEquals(expected, actual)) {
+        if (!InternalPlatform.deepEquals(expected, actual)) {
             throw AssertionError(format(actual, expected))
         }
     }
 
     fun assertEquals(msg: String, expected: Any?) {
-        if (!MockKGateway.implementation().instantiator.deepEquals(expected, actual)) {
+        if (!InternalPlatform.deepEquals(expected, actual)) {
             throw AssertionError(format(actual, expected, msg))
         }
     }
@@ -420,7 +420,7 @@ class MockKStubScope<T>(val gateway: MockKGateway,
 
 
     infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(Call) -> T) = answers {
-        MockKGateway.implementation().runCoroutine {
+        InternalPlatform.runCoroutine {
             answer(it)
         }
     }
@@ -545,29 +545,29 @@ inline fun <reified T : (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
 inline fun <reified T : (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> CapturingSlot<T>.invoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21)
 inline fun <reified T : (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> CapturingSlot<T>.invoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22)
 
-inline fun <reified T : suspend () -> R, R> CapturingSlot<T>.coInvoke() = MockKGateway.implementation().runCoroutine { captured.invoke() }
-inline fun <reified T : suspend (A1) -> R, R, A1> CapturingSlot<T>.coInvoke(arg1: A1) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1) }
-inline fun <reified T : suspend (A1, A2) -> R, R, A1, A2> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2) }
-inline fun <reified T : suspend (A1, A2, A3) -> R, R, A1, A2, A3> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3) }
-inline fun <reified T : suspend (A1, A2, A3, A4) -> R, R, A1, A2, A3, A4> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5) -> R, R, A1, A2, A3, A4, A5> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6) -> R, R, A1, A2, A3, A4, A5, A6> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7) -> R, R, A1, A2, A3, A4, A5, A6, A7> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) }
-inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = MockKGateway.implementation().runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) }
+inline fun <reified T : suspend () -> R, R> CapturingSlot<T>.coInvoke() = InternalPlatform.runCoroutine { captured.invoke() }
+inline fun <reified T : suspend (A1) -> R, R, A1> CapturingSlot<T>.coInvoke(arg1: A1) = InternalPlatform.runCoroutine { captured.invoke(arg1) }
+inline fun <reified T : suspend (A1, A2) -> R, R, A1, A2> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2) }
+inline fun <reified T : suspend (A1, A2, A3) -> R, R, A1, A2, A3> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3) }
+inline fun <reified T : suspend (A1, A2, A3, A4) -> R, R, A1, A2, A3, A4> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5) -> R, R, A1, A2, A3, A4, A5> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6) -> R, R, A1, A2, A3, A4, A5, A6> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7) -> R, R, A1, A2, A3, A4, A5, A6, A7> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) }
+inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> CapturingSlot<T>.coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = InternalPlatform.runCoroutine { captured.invoke(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) }
 
 
 /**
@@ -610,12 +610,6 @@ interface CompositeMatcher<T> {
 
     var subMatchers: List<Matcher<T>>?
 
-    fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
-        subMatchers?.let {
-            it.filterIsInstance<CapturingMatcher>()
-                    .forEach { it.capture(arg) }
-        }
-    }
 }
 
 /**
@@ -626,7 +620,7 @@ interface Answer<out T> {
 }
 
 /**
- * Provides inromation about method
+ * Provides information about method
  */
 data class MethodDescription(val name: String,
                              val returnType: KClass<*>,
@@ -644,12 +638,14 @@ data class MethodDescription(val name: String,
         if (this === other) return true
         if (other !is MethodDescription) return false
 
-        if (name !== other.name) return false
-        if (returnType != other.returnType) return false
-        if (declaringClass != other.declaringClass) return false
-        if (paramTypes != other.paramTypes) return false
+        return when {
+            name !== other.name -> false
+            returnType != other.returnType -> false
+            declaringClass != other.declaringClass -> false
+            paramTypes != other.paramTypes -> false
+            else -> true
+        }
 
-        return true
     }
 
     override fun hashCode(): Int {
@@ -666,11 +662,30 @@ data class MethodDescription(val name: String,
  * Mock invocation
  */
 data class Invocation(val self: Any,
-                      val selfStr: String,
+                      private val selfStr: String,
                       val method: MethodDescription,
                       val args: List<Any?>,
                       val timestamp: Long,
                       val originalCall: () -> Any?) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Invocation) return false
+
+        return when {
+            self !== other.self -> false
+            method != other.method -> false
+            args != other.args -> false
+            else -> true
+        }
+    }
+
+    override fun hashCode(): Int {
+        var result = InternalPlatform.identityHashCode(self)
+        result = 31 * result + method.hashCode()
+        result = 31 * result + args.hashCode()
+        return result
+    }
+
     override fun toString(): String = "Invocation(self=$selfStr, method=$method, args=${argsToStr()})"
 
     fun argsToStr() = args.map(this::argToStr).joinToString(", ")
@@ -683,32 +698,13 @@ data class Invocation(val self: Any,
             } else {
                 arg.toString()
             }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Invocation) return false
-
-        if (self !== other.self) return false
-        if (method != other.method) return false
-        if (args != other.args) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = InternalPlatform.identityHashCode(self)
-        result = 31 * result + method.hashCode()
-        result = 31 * result + args.hashCode()
-        return result
-    }
-
-
 }
 
 /**
  * Checks if invocation is matching via number of matchers
  */
 data class InvocationMatcher(val self: Any,
+                             private val selfStr: String,
                              val method: MethodDescription,
                              val args: List<Matcher<Any>>) {
     fun match(invocation: Invocation): Boolean {
@@ -758,6 +754,11 @@ data class InvocationMatcher(val self: Any,
         return result
     }
 
+    override fun toString(): String {
+        return "InvocationMatcher(self=$selfStr, method=$method, args=$args)"
+    }
+
+
 }
 
 /**
@@ -768,10 +769,3 @@ data class Call(val retType: KClass<*>,
                 val matcher: InvocationMatcher,
                 val chained: Boolean)
 
-
-/**
- * Platform related functions
- */
-expect object InternalPlatform {
-    fun identityHashCode(obj: Any): Int
-}

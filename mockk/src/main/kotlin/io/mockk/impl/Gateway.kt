@@ -77,7 +77,5 @@ class MockKGatewayImpl : MockKGateway {
 
     override fun stubFor(mock: Any): Stub = stubs[mock]
             ?: throw MockKException("can't find stub for $mock")
-
-    override fun <T> runCoroutine(block: suspend () -> T): T = runBlocking { block() }
 }
 

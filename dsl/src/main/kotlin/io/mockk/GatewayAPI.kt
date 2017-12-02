@@ -41,8 +41,6 @@ interface MockKGateway {
         }
     }
 
-    fun <T> runCoroutine(block: suspend () -> T): T
-
 
     /**
      * Create new mocks or spies
@@ -173,8 +171,6 @@ interface MockKGateway {
 
         fun isPassedByValue(cls: KClass<*>): Boolean
 
-        fun deepEquals(obj1: Any?, obj2: Any?): Boolean
-
         fun registerFactory(factory: InstanceFactory)
 
         fun unregisterFactory(factory: InstanceFactory)
@@ -213,3 +209,18 @@ inline fun <T : MockKGateway.Deregisterable, R> T.use(block: (T) -> R): R {
     }
 }
 
+
+/**
+ * Platform related functions
+ */
+expect object InternalPlatform {
+    fun identityHashCode(obj: Any): Int
+
+    fun <T> runCoroutine(block: suspend () -> T): T
+
+    fun Any?.toStr(): String
+
+    fun deepEquals(obj1: Any?, obj2: Any?): Boolean
+
+    fun <K, V> MutableMap<K, V>.java6ComputeIfAbsent(key: K, valueFunc: (K) -> V): V
+}

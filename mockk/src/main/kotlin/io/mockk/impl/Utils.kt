@@ -30,15 +30,6 @@ internal fun InvocationTargetException.demangle(): Throwable {
     throw ex
 }
 
-internal fun Any?.toStr() =
-        when (this) {
-            null -> "null"
-            is KClass<*> -> this.java.name
-            is Function<*> -> "lambda {}"
-            is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
-            else -> toString()
-        }
-
 internal fun Method.parameterCount(): Int = parameterTypes.size
 
 internal fun <T> threadLocalOf(init: () -> T): ThreadLocal<T> {
@@ -47,14 +38,4 @@ internal fun <T> threadLocalOf(init: () -> T): ThreadLocal<T> {
     }
 }
 
-internal fun <K, V> MutableMap<K, V>.java6ComputeIfAbsent(key: K, valueFunc: (K) -> V): V {
-    val value = get(key)
-    return if (value == null) {
-        val newValue = valueFunc(key)
-        put(key, newValue)
-        newValue
-    } else {
-        value
-    }
-}
 

@@ -7,6 +7,7 @@ import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
+import io.mockk.InternalPlatform.toStr
 
 private data class SignedCall(val retType: KClass<*>,
                               val invocation: Invocation,
@@ -363,6 +364,7 @@ private class SignatureMatcherDetector {
 
             val im = InvocationMatcher(
                     zeroCall.invocation.self,
+                    zeroCall.invocation.self.toStr(),
                     zeroCall.invocation.method,
                     argMatchers.toList() as List<Matcher<Any>>)
             log.trace { "Built matcher: $im" }

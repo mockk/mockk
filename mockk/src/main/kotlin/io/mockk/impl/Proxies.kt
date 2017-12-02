@@ -6,6 +6,7 @@ import java.lang.reflect.Method
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
 import kotlin.reflect.KClass
+import io.mockk.InternalPlatform.java6ComputeIfAbsent
 
 
 private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
@@ -80,7 +81,7 @@ internal open class MockKStub(override val type: KClass<*>,
         }
     }
 
-    protected val hash = Integer.toUnsignedString(System.identityHashCode(this), 16)
+    protected val hash = Integer.toUnsignedString(InternalPlatform.identityHashCode(this), 16)
 
     override fun toStr() = "mockk<${type.simpleName}>(${this.name})#$hash"
 

@@ -1,6 +1,7 @@
 package io.mockk
 
 import kotlin.reflect.KClass
+import io.mockk.InternalPlatform.toStr
 
 /**
  * Matcher that checks equality. By reference and by value (equals method)
@@ -10,7 +11,7 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false, val inverse: Boo
         val result = if (ref) {
             arg === value
         } else {
-            MockKGateway.implementation().instantiator.deepEquals(arg, value)
+            InternalPlatform.deepEquals(arg, value)
         }
         return if (inverse) !result else result
     }
@@ -278,9 +279,10 @@ class AssertMatcher<T>(val assertFunction: (T?) -> Boolean,
 }
 
 
-internal fun Any?.toStr() =
-        when (this) {
-            null -> "null"
-            is Function<*> -> "lambda {}"
-            else -> toString()
-        }
+fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
+    subMatchers?.let {
+        it.filterIsInstance<CapturingMatcher>()
+                .forEach { it.capture(arg) }
+    }
+}
+

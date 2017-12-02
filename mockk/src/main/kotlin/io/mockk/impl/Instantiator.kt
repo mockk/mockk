@@ -1,5 +1,6 @@
 package io.mockk.impl
 
+import io.mockk.InternalPlatform
 import io.mockk.MockKException
 import io.mockk.MockKGateway.*
 import io.mockk.agent.MockKAgentException
@@ -11,6 +12,7 @@ import java.util.*
 import java.util.concurrent.Callable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
+import io.mockk.InternalPlatform.toStr
 
 internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instantiator {
     private val instantiationFactories = mutableListOf<InstanceFactory>()
@@ -132,7 +134,6 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
             java.lang.Float::class -> rnd.nextFloat()
             java.lang.Double::class -> rnd.nextDouble()
             java.lang.String::class -> rnd.nextLong().toString(16)
-//            java.lang.Object::class -> java.lang.Object()
             else -> instantiate(cls)
         })
     }
@@ -149,35 +150,6 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
             java.lang.Double::class -> true
             java.lang.String::class -> true
             else -> false
-        }
-    }
-
-    /**
-     * Java 6 complaint deep equals
-     */
-    override fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
-        return if (obj1 === obj2) {
-            true
-        } else if (obj1 == null || obj2 == null) {
-            obj1 === obj2
-        } else if (obj1.javaClass.isArray && obj2.javaClass.isArray) {
-            arrayDeepEquals(obj1, obj2)
-        } else {
-            obj1 == obj2
-        }
-    }
-
-    private fun arrayDeepEquals(obj1: Any, obj2: Any): Boolean {
-        return when (obj1) {
-            is BooleanArray -> obj1 contentEquals obj2 as BooleanArray
-            is ByteArray -> obj1 contentEquals obj2 as ByteArray
-            is CharArray -> obj1 contentEquals obj2 as CharArray
-            is ShortArray -> obj1 contentEquals obj2 as ShortArray
-            is IntArray -> obj1 contentEquals obj2 as IntArray
-            is LongArray -> obj1 contentEquals obj2 as LongArray
-            is FloatArray -> obj1 contentEquals obj2 as FloatArray
-            is DoubleArray -> obj1 contentEquals obj2 as DoubleArray
-            else -> return obj1 as Array<*> contentDeepEquals obj2 as Array<*>
         }
     }
 
@@ -219,7 +191,7 @@ internal class InstantiatorImpl(private val gateway: MockKGatewayImpl) : Instant
         } else if (method.isEquals()) {
             return self === args[0]
         } else if (method.isToString()) {
-            return gateway.stubFor(self).toStr()
+            return gateway.stubs[self]?.toStr() ?: "<mock not found>"
         }
         return otherwise()
     }

@@ -8,6 +8,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
+import io.mockk.InternalPlatform.toStr
 
 internal class MockFactoryImpl(val gateway: MockKGatewayImpl) : MockFactory {
     override fun <T : Any> mockk(cls: KClass<T>, name: String?, moreInterfaces: Array<out KClass<*>>): T {
