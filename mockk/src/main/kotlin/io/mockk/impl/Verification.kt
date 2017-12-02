@@ -5,6 +5,7 @@ import io.mockk.MockKGateway.*
 import io.mockk.external.logger
 import java.lang.AssertionError
 import io.mockk.InternalPlatform.toStr
+import io.mockk.impl.MockKGatewayImpl.Stub
 
 internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway), Verifier {
     var wasNotCalledWasCalled = false
@@ -203,7 +204,7 @@ private fun formatCalls(calls: List<Invocation>): String {
     }.joinToString("\n")
 }
 
-private fun List<MatchedCall>.allInvocations(gateway: MockKGateway) =
+private fun List<MatchedCall>.allInvocations(gateway: MockKGatewayImpl) =
         this.map { InternalPlatform.ref(it.invocation.self) }
                 .distinct()
                 .map { it.value }

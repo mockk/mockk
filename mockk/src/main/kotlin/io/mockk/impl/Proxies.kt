@@ -1,7 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.*
-import io.mockk.MockKGateway.Stub
+import io.mockk.impl.MockKGatewayImpl.Stub
 import java.lang.reflect.Method
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap

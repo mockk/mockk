@@ -2,9 +2,10 @@ package io.mockk.impl
 
 import io.mockk.InternalPlatform.toStr
 import io.mockk.MockKException
-import io.mockk.MockKGateway.Stub
+import io.mockk.impl.MockKGatewayImpl.Stub
 import io.mockk.agent.MockKAgentException
 import io.mockk.external.logger
+import io.mockk.impl.MockKGatewayImpl.Instantiator
 import io.mockk.proxy.MockKProxyMaker
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method

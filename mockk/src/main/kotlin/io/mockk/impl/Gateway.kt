@@ -11,25 +11,6 @@ import java.util.*
 import java.util.Collections.synchronizedMap
 import kotlin.reflect.KClass
 
-interface Instantiator {
-    fun <T : Any> instantiate(cls: KClass<T>): T
-
-    fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
-
-    fun <T : Any> proxy(cls: KClass<T>,
-                        useDefaultConstructor: Boolean,
-                        instantiateOnFailure: Boolean,
-                        moreInterfaces: Array<out KClass<*>>, stub: Stub): Any
-
-    fun <T : Any> signatureValue(cls: KClass<T>): T
-
-    fun isPassedByValue(cls: KClass<*>): Boolean
-
-    fun staticMockk(cls: KClass<*>, stub: Stub)
-
-    fun staticUnMockk(cls: KClass<*>)
-}
-
 
 class MockKGatewayImpl : MockKGateway {
     internal val stubs = synchronizedMap(IdentityHashMap<Any, Stub>())
@@ -87,7 +68,52 @@ class MockKGatewayImpl : MockKGateway {
         }
     }
 
-    override fun stubFor(mock: Any): Stub = stubs[mock]
+    fun stubFor(mock: Any): Stub = stubs[mock]
             ?: throw MockKException("can't find stub for $mock")
+
+    interface Stub {
+        val name: String
+
+        val type: KClass<*>
+
+        fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
+
+        fun answer(invocation: Invocation): Any?
+
+        fun childMockK(call: MatchedCall): Any?
+
+        fun recordCall(invocation: Invocation)
+
+        fun allRecordedCalls(): List<Invocation>
+
+        fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
+
+        fun handleInvocation(self: Any,
+                             method: MethodDescription,
+                             originalCall: () -> Any?,
+                             args: Array<out Any?>): Any?
+
+        fun toStr(): String
+    }
+
+    interface Instantiator {
+        fun <T : Any> instantiate(cls: KClass<T>): T
+
+        fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any? = { instantiate(cls) }): Any?
+
+        fun <T : Any> proxy(cls: KClass<T>,
+                            useDefaultConstructor: Boolean,
+                            instantiateOnFailure: Boolean,
+                            moreInterfaces: Array<out KClass<*>>, stub: Stub): Any
+
+        fun <T : Any> signatureValue(cls: KClass<T>): T
+
+        fun isPassedByValue(cls: KClass<*>): Boolean
+
+        fun staticMockk(cls: KClass<*>, stub: Stub)
+
+        fun staticUnMockk(cls: KClass<*>)
+    }
+
 }
 
