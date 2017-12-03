@@ -3,6 +3,7 @@ package io.mockk.impl
 import io.mockk.InternalPlatform
 import io.mockk.InternalPlatform.hkd
 import io.mockk.InternalPlatform.toStr
+import io.mockk.MethodDescription
 import io.mockk.MockKException
 import io.mockk.MockKGateway.MockFactory
 import io.mockk.agent.MockKAgentException
@@ -191,10 +192,14 @@ internal class MockFactoryImpl(val gateway: MockKGatewayImpl,
 
         fun newId(): Long = idCounter()
 
-        val log = logger<MockFactoryImpl>()
+        val log = Logger<MockFactoryImpl>()
+
+        fun Method.toDescription() =
+                MethodDescription(name, returnType.kotlin, declaringClass.kotlin, parameterTypes.map { it.kotlin })
+
+        fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
+        fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
     }
 
 }
 
-private fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
-private fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java

@@ -1,15 +1,17 @@
 package io.mockk.impl
 
-import io.mockk.*
+import io.mockk.InternalPlatform
+import io.mockk.MockKException
+import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
+import io.mockk.Ordering
 import io.mockk.jvm.JvmAnyValueGenerator
 import io.mockk.jvm.JvmSignatureValueGenerator
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
+import io.mockk.impl.JvmLogging.adaptor
 import java.util.*
-import kotlin.reflect.KClass
-
 
 class MockKGatewayImpl : MockKGateway {
     internal val stubs = InternalPlatform.weakMap<Any, Stub>()
@@ -46,19 +48,21 @@ class MockKGatewayImpl : MockKGateway {
 
 
     companion object {
-        private val log = logger<MockKGatewayImpl>()
+        private var log: Logger
 
         init {
-            loggerFactory = slf4jOrJulLogging()
+            Logger.loggerFactory = JvmLogging.slf4jOrJulLogging()
+
+            log = Logger<MockKGatewayImpl>()
 
             log.trace {
                 "Starting Java MockK implementation. " +
                         "Java version = ${System.getProperty("java.version")}. "
             }
 
-            MockKProxyMaker.log = logger<MockKProxyMaker>().adaptor()
-            MockKInstrumentationLoader.log = logger<MockKInstrumentationLoader>().adaptor()
-            MockKInstrumentation.log = logger<MockKInstrumentation>().adaptor()
+            MockKProxyMaker.log = Logger<MockKProxyMaker>().adaptor()
+            MockKInstrumentationLoader.log = Logger<MockKInstrumentationLoader>().adaptor()
+            MockKInstrumentation.log = Logger<MockKInstrumentation>().adaptor()
 
             MockKInstrumentation.init()
         }
@@ -74,37 +78,6 @@ class MockKGatewayImpl : MockKGateway {
 
     fun stubFor(mock: Any): Stub = stubs[mock]
             ?: throw MockKException("can't find stub for $mock")
-
-    interface Stub {
-        val name: String
-
-        val type: KClass<*>
-
-        fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
-
-        fun answer(invocation: Invocation): Any?
-
-        fun childMockK(call: MatchedCall): Any?
-
-        fun recordCall(invocation: Invocation)
-
-        fun allRecordedCalls(): List<Invocation>
-
-        fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
-
-        fun handleInvocation(self: Any,
-                             method: MethodDescription,
-                             originalCall: () -> Any?,
-                             args: Array<out Any?>): Any?
-
-        fun toStr(): String
-    }
-
-    interface Instantiator {
-        fun <T : Any> instantiate(cls: KClass<T>): T
-
-        fun isPassedByValue(cls: KClass<*>): Boolean
-    }
 
 }
 

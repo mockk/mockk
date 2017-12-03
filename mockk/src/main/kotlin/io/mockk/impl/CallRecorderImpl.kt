@@ -1,19 +1,10 @@
 package io.mockk.impl
 
 import io.mockk.*
-import io.mockk.InternalPlatform.toStr
 import io.mockk.MockKGateway.CallRecorder
-import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
-
-private data class SignedCall(val retType: KClass<*>,
-                              val invocation: Invocation,
-                              val matchers: List<Matcher<*>>,
-                              val signaturePart: List<Any>)
-
-private data class CallRound(val calls: List<SignedCall>)
 
 internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRecorder {
     private enum class Mode {
@@ -268,200 +259,15 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     }
 
     companion object {
-        val log = logger<CallRecorderImpl>()
-    }
-}
+        val log = Logger<CallRecorderImpl>()
 
-private class SignatureMatcherDetector {
-    @Suppress("UNCHECKED_CAST")
-    fun detect(callRounds: List<CallRound>, childMocks: List<Ref>, gateway: MockKGatewayImpl): List<MatchedCall> {
-        val nCalls = callRounds[0].calls.size
-        if (callRounds.any { it.calls.size != nCalls }) {
-            throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
-                    callRounds.map { it.calls.map { it.invocation }.joinToString(", ") }.joinToString("\n"))
-        }
-
-        val calls = mutableListOf<MatchedCall>();
-
-        repeat(nCalls) { callN ->
-
-            val callInAllRounds = callRounds.map { it.calls[callN] }
-            val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
-            val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
-            val zeroCall = callInAllRounds[0]
-
-            log.trace { "Processing call #$callN: ${zeroCall.invocation.method.toStr()}" }
-
-            repeat(zeroCall.matchers.size) { nMatcher ->
-                val matcher = callInAllRounds.map { it.matchers[nMatcher] }.last()
-                val signature = callInAllRounds.map { it.signaturePart[nMatcher] }.toList()
-
-                if (matcher is CompositeMatcher<*>) {
-                    compositeMatchers.add(callInAllRounds.map {
-                        it.matchers[nMatcher] as CompositeMatcher<*>
-                    })
-                }
-
-                matcherMap[signature] = matcher
-            }
-
-            log.trace { "Matcher map for ${zeroCall.invocation.method.toStr()}: $matcherMap" }
-
-            val argMatchers = mutableListOf<Matcher<*>>()
-
-            var allAny = false
-
-            repeat(zeroCall.invocation.args.size) { nArgument ->
-                val signature = callInAllRounds.map {
-                    packRef(it.invocation.args[nArgument], gateway)
-                }.toList()
-
-
-                log.trace { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
-
-                val matcher = matcherMap.remove(signature)?.let {
-                    if (nArgument == 0 && it is AllAnyMatcher) {
-                        allAny = true
-                        ConstantMatcher<Any>(true)
-                    } else {
-                        it
-                    }
-                } ?: if (allAny)
-                    ConstantMatcher<Any>(true)
-                else
-                    EqMatcher(zeroCall.invocation.args[nArgument])
-
-                argMatchers.add(matcher)
-            }
-
-            for (cmList in compositeMatchers) {
-                val matcher = cmList.last()
-
-                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, _) ->
-                    val signature = cmList.map {
-                        packRef(it.operandValues[nOp], gateway)
-                    }.toList()
-
-                    log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
-
-                    matcherMap.remove(signature)
-                            ?: EqMatcher(matcher.operandValues[nOp])
-                } as List<Matcher<Any?>>?
-            }
-
-            if (zeroCall.invocation.method.isSuspend()) {
-                log.trace { "Suspend function found. Replacing continuation with any() matcher" }
-                argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
-            }
-
-            if (matcherMap.isNotEmpty()) {
-                throw MockKException("Failed matching mocking signature for\n${zeroCall.invocation}\nleft matchers: ${matcherMap.values}")
-            }
-
-            val im = InvocationMatcher(
-                    zeroCall.invocation.self,
-                    zeroCall.invocation.self.toStr(),
-                    zeroCall.invocation.method,
-                    argMatchers.toList() as List<Matcher<Any>>)
-            log.trace { "Built matcher: $im" }
-            calls.add(MatchedCall(zeroCall.retType,
-                    zeroCall.invocation, im,
-                    childMocks.contains(InternalPlatform.ref(zeroCall.invocation.self))))
-        }
-        return calls
-    }
-
-    companion object {
-        val log = logger<SignatureMatcherDetector>()
-    }
-}
-
-internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
-
-    internal fun <T, S : MockKMatcherScope> record(scope: S,
-                                                   mockBlock: (S.() -> T)?,
-                                                   coMockBlock: (suspend S.() -> T)?) {
-        try {
-            val callRecorder = gateway.callRecorder
-
-            val block: () -> T = if (mockBlock != null) {
-                { scope.mockBlock() }
-            } else if (coMockBlock != null) {
-                { runBlocking { scope.coMockBlock() } }
-            } else {
-                { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
-            }
-
-            var childTypes = mutableMapOf<Int, KClass<*>>()
-            callRecorder.autoHint(childTypes,0, 64, block)
-            val n = callRecorder.estimateCallRounds();
-            for (i in 1 until n) {
-                callRecorder.autoHint(childTypes, i, n, block)
-            }
-            callRecorder.catchArgs(n, n)
-
-        } catch (ex: ClassCastException) {
-            throw MockKException("Class cast exception. " +
-                    "Probably type information was erased.\n" +
-                    "In this case use `hint` before call to specify " +
-                    "exact return type of a method. ", ex)
+        fun packRef(arg: Any?, gateway: MockKGatewayImpl): Any? {
+            return if (arg == null || gateway.instantiator.isPassedByValue(arg::class))
+                arg
+            else
+                InternalPlatform.ref(arg)
         }
     }
 
-    private fun <T> CallRecorder.autoHint(childTypes: MutableMap<Int, KClass<*>>, i: Int, n: Int, block: () -> T) {
-        var callsPassed = -1
-        while (true) {
-            catchArgs(i, n)
-            childTypes.forEach { callN, cls ->
-                hintNextReturnType(cls, callN)
-            }
-            try {
-                block()
-                break
-            } catch (ex: ClassCastException) {
-                val clsName = extractClassName(ex) ?: throw ex
-                val nCalls = nCalls()
-                if (nCalls <= callsPassed) {
-                    throw ex
-                }
-                callsPassed = nCalls
-                val cls = Class.forName(clsName).kotlin
-
-                log.trace { "Auto hint for $nCalls-th call: $cls" }
-                childTypes[nCalls] = cls
-            }
-        }
-    }
-
-    internal fun prettifyCoroutinesException(ex: NoClassDefFoundError): Throwable {
-        return if (ex.message?.contains("kotlinx/coroutines/") ?: false) {
-            MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
-        } else {
-            ex
-        }
-    }
-
-    fun extractClassName(ex: ClassCastException): String? {
-        return cannotBeCastRegex.find(ex.message!!)?.groups?.get(1)?.value
-    }
-
-    companion object {
-        val cannotBeCastRegex = Regex("cannot be cast to (.+)$")
-        val log = logger<CommonRecorder>()
-    }
 }
 
-private fun MethodDescription.isSuspend(): Boolean {
-    val sz = paramTypes.size
-    if (sz == 0) {
-        return false
-    }
-    return paramTypes[sz - 1].isSubclassOf(Continuation::class)
-}
-
-private fun packRef(arg: Any?, gateway: MockKGatewayImpl): Any? {
-    return if (arg == null || gateway.instantiator.isPassedByValue(arg::class))
-        arg
-    else
-        InternalPlatform.ref(arg)
-}

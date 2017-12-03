@@ -1,15 +1,11 @@
 package io.mockk.impl
 
 import io.mockk.*
-import io.mockk.impl.MockKGatewayImpl.Stub
-import java.lang.reflect.Method
+import io.mockk.InternalPlatform.customComputeIfAbsent
 import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
 import kotlin.reflect.KClass
-import io.mockk.InternalPlatform.customComputeIfAbsent
 
-
-private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
 internal open class MockKStub(override val type: KClass<*>,
                               override val name: String) : Stub {
@@ -143,21 +139,12 @@ internal open class MockKStub(override val type: KClass<*>,
 
     companion object {
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
-    }
-}
 
+        fun MethodDescription.isToString() = name == "toString" && paramTypes.isEmpty()
+        fun MethodDescription.isHashCode() = name == "hashCode" && paramTypes.isEmpty()
+        fun MethodDescription.isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
 
-internal class SpyKStub<T : Any>(cls: KClass<T>, name: String) : MockKStub(cls, name) {
-    override fun defaultAnswer(invocation: Invocation): Any? {
-        return invocation.originalCall()
     }
 
-    override fun toStr(): String = "spyk<" + type.simpleName + ">($name)#$hashCodeStr"
+    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 }
-
-internal fun Method.toDescription() =
-        MethodDescription(name, returnType.kotlin, declaringClass.kotlin, parameterTypes.map { it.kotlin })
-
-private fun MethodDescription.isToString() = name == "toString" && paramTypes.isEmpty()
-private fun MethodDescription.isHashCode() = name == "hashCode" && paramTypes.isEmpty()
-private fun MethodDescription.isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
