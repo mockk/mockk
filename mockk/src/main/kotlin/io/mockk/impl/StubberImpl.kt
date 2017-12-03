@@ -15,12 +15,9 @@ internal class StubberImpl(callRecorderGetter: () -> CallRecorder) : CommonRecor
         val scope = MockKMatcherScope(callRecorder, lambda)
         try {
             record(scope, mockBlock, coMockBlock)
-        } catch (ex: NoClassDefFoundError) {
-            callRecorder.cancel()
-            throw prettifyCoroutinesException(ex)
         } catch (ex: Throwable) {
             callRecorder.cancel()
-            throw ex
+            throw prettifyCoroutinesException(ex)
         }
         checkMissingCalls()
         return MockKStubScope(callRecorder, lambda)

@@ -71,9 +71,6 @@ internal class VerifierImpl(callRecorderGetter: () -> CallRecorder,
             log.trace { "Done verification. Outcome: $outcome" }
 
             failIfNotPassed(outcome, inverse)
-        } catch (ex: Throwable) {
-            callRecorder.cancel()
-            throw ex
         } finally {
             callRecorder.cancel()
         }

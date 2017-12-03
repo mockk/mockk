@@ -65,8 +65,9 @@ internal open class CommonRecorder(val callRecorderGetter: () -> CallRecorder) {
         }
     }
 
-    internal fun prettifyCoroutinesException(ex: NoClassDefFoundError): Throwable {
-        return if (ex.message?.contains("kotlinx/coroutines/") ?: false) {
+    internal fun prettifyCoroutinesException(ex: Throwable): Throwable {
+        return if (ex is NoClassDefFoundError &&
+                ex.message?.contains("kotlinx/coroutines/") ?: false) {
             MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
         } else {
             ex
