@@ -5,11 +5,11 @@ import io.mockk.MatchedCall
 import io.mockk.MockKGateway
 import io.mockk.impl.VerificationHelpers.allInvocations
 
-internal class AllCallVerifierImpl(private val gateway: MockKGatewayImpl) : UnorderedCallVerifierImpl(gateway) {
+internal class AllCallVerifierImpl(stubRepo: StubRepository) : UnorderedCallVerifierImpl(stubRepo) {
     override fun verify(calls: List<MatchedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
         val result = super.verify(calls, min, max)
         if (result.matches) {
-            val nonMatchingInvocations = calls.allInvocations(gateway)
+            val nonMatchingInvocations = calls.allInvocations(stubRepo)
                     .filter { invoke -> doesNotMatchAnyCalls(calls, invoke) }
 
             if (nonMatchingInvocations.isNotEmpty()) {

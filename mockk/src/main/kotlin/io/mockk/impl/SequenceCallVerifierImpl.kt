@@ -5,9 +5,9 @@ import io.mockk.MockKGateway
 import io.mockk.impl.VerificationHelpers.allInvocations
 import io.mockk.impl.VerificationHelpers.reportCalls
 
-internal class SequenceCallVerifierImpl(private val gateway: MockKGatewayImpl) : MockKGateway.CallVerifier {
+internal class SequenceCallVerifierImpl(val stubRepo: StubRepository) : MockKGateway.CallVerifier {
     override fun verify(calls: List<MatchedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
-        val allCalls = calls.allInvocations(gateway)
+        val allCalls = calls.allInvocations(stubRepo)
 
         if (allCalls.size != calls.size) {
             return MockKGateway.VerificationResult(false, "number of calls happened not matching exact number of verification sequence" + reportCalls(calls, allCalls))

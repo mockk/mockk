@@ -1,16 +1,20 @@
 package io.mockk.impl
 
 import io.mockk.*
+import io.mockk.MockKGateway.CallRecorder
+import io.mockk.MockKGateway.CallVerifier
 import java.lang.AssertionError
 
-internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway), MockKGateway.Verifier {
+internal class VerifierImpl(callRecorderGetter: () -> CallRecorder,
+                            val stubRepo: StubRepository,
+                            val verifier: (Ordering) -> CallVerifier) : CommonRecorder(callRecorderGetter), MockKGateway.Verifier {
     var wasNotCalledWasCalled = false
 
     override fun checkWasNotCalled(mocks: List<Any>) {
         wasNotCalledWasCalled = true
         val calledStubs = mutableListOf<Stub>()
         for (mock in mocks) {
-            val stub = gateway.stubFor(mock)
+            val stub = stubRepo.stubFor(mock)
             val calls = stub.allRecordedCalls()
             if (calls.isNotEmpty()) {
                 calledStubs += stub
@@ -39,11 +43,10 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
             }
         }
 
-        val callRecorder = gateway.callRecorder
         callRecorder.startVerification()
 
         val lambda = slot<Function<*>>()
-        val scope = MockKVerificationScope(gateway, lambda)
+        val scope = MockKVerificationScope(callRecorder, lambda)
 
         try {
             record(scope, mockBlock, coMockBlock)
@@ -63,7 +66,7 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
             val min = if (exactly != -1) exactly else atLeast
             val max = if (exactly != -1) exactly else atMost
 
-            val outcome = gateway.verifier(ordering).verify(callRecorder.calls, min, max)
+            val outcome = verifier(ordering).verify(callRecorder.calls, min, max)
 
             log.trace { "Done verification. Outcome: $outcome" }
 
@@ -72,12 +75,12 @@ internal class VerifierImpl(gateway: MockKGatewayImpl) : CommonRecorder(gateway)
             callRecorder.cancel()
             throw ex
         } finally {
-            gateway.callRecorder.cancel()
+            callRecorder.cancel()
         }
     }
 
     private fun checkMissingCalls() {
-        if (gateway.callRecorder.calls.isEmpty() && !wasNotCalledWasCalled) {
+        if (callRecorder.calls.isEmpty() && !wasNotCalledWasCalled) {
             throw MockKException("Missing calls inside verify { ... } block.")
         }
     }

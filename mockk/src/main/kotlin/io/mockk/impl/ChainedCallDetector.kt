@@ -5,7 +5,7 @@ import io.mockk.InternalPlatform.toStr
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.full.isSubclassOf
 
-internal class ChainedCallDetector(val callRounds: List<CallRound>,
+internal class ChainedCallDetector(callRounds: List<CallRound>,
                                    val childMocks: List<Ref>,
                                    val callN: Int) {
     val callInAllRounds = callRounds.map { it.calls[callN] }
@@ -101,15 +101,15 @@ internal class ChainedCallDetector(val callRounds: List<CallRound>,
                 childMocks.contains(InternalPlatform.ref(zeroCall.invocation.self)))
     }
 
+    fun MethodDescription.isSuspend(): Boolean {
+        val sz = paramTypes.size
+        if (sz == 0) {
+            return false
+        }
+        return paramTypes[sz - 1].isSubclassOf(Continuation::class)
+    }
+
     companion object {
         val log = Logger<SignatureMatcherDetector>()
-
-        fun MethodDescription.isSuspend(): Boolean {
-            val sz = paramTypes.size
-            if (sz == 0) {
-                return false
-            }
-            return paramTypes[sz - 1].isSubclassOf(Continuation::class)
-        }
     }
 }

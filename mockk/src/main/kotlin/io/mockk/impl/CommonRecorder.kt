@@ -2,18 +2,20 @@ package io.mockk.impl
 
 import io.mockk.MockKException
 import io.mockk.MockKGateway
+import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKMatcherScope
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.reflect.KClass
 
-internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
+internal open class CommonRecorder(val callRecorderGetter: () -> CallRecorder) {
+
+    val callRecorder: CallRecorder
+        get() = callRecorderGetter()
 
     internal fun <T, S : MockKMatcherScope> record(scope: S,
-                                                            mockBlock: (S.() -> T)?,
-                                                            coMockBlock: (suspend S.() -> T)?) {
+                                                   mockBlock: (S.() -> T)?,
+                                                   coMockBlock: (suspend S.() -> T)?) {
         try {
-            val callRecorder = gateway.callRecorder
-
             val block: () -> T = if (mockBlock != null) {
                 { scope.mockBlock() }
             } else if (coMockBlock != null) {
@@ -23,7 +25,7 @@ internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
             }
 
             var childTypes = mutableMapOf<Int, KClass<*>>()
-            callRecorder.autoHint(childTypes,0, 64, block)
+            callRecorder.autoHint(childTypes, 0, 64, block)
             val n = callRecorder.estimateCallRounds();
             for (i in 1 until n) {
                 callRecorder.autoHint(childTypes, i, n, block)
@@ -38,7 +40,7 @@ internal open class CommonRecorder(val gateway: MockKGatewayImpl) {
         }
     }
 
-    private fun <T> MockKGateway.CallRecorder.autoHint(childTypes: MutableMap<Int, KClass<*>>, i: Int, n: Int, block: () -> T) {
+    private fun <T> CallRecorder.autoHint(childTypes: MutableMap<Int, KClass<*>>, i: Int, n: Int, block: () -> T) {
         var callsPassed = -1
         while (true) {
             catchArgs(i, n)

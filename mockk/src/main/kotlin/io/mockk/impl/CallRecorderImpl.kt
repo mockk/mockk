@@ -2,9 +2,14 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.CallRecorder
+import io.mockk.MockKGateway.MockFactory
 import kotlin.reflect.KClass
 
-internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRecorder {
+internal class CallRecorderImpl(val stubRepo: StubRepository,
+                                val instantiator: Instantiator,
+                                val signatureValueGenerator: SignatureValueGenerator,
+                                val mockFactory: MockFactory,
+                                val anyValueGenerator: AnyValueGenerator) : CallRecorder {
     private enum class Mode {
         STUBBING, STUBBING_WAITING_ANSWER, VERIFYING, ANSWERING
     }
@@ -71,8 +76,8 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     override fun nCalls() = signedCalls.size
 
     private fun signMatchers() {
-        val detector = SignatureMatcherDetector(callRounds, childMocks, gateway)
         calls.clear()
+        val detector = SignatureMatcherDetector(callRounds, childMocks)
         calls.addAll(detector.detect())
 
         childMocks.clear()
@@ -82,8 +87,8 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
         checkMode(Mode.STUBBING, Mode.VERIFYING)
         matchers.add(matcher)
-        val signatureValue = gateway.signatureValueGenerator.signatureValue(cls) {
-            gateway.instantiator.instantiate(cls)
+        val signatureValue = signatureValueGenerator.signatureValue(cls) {
+            instantiator.instantiate(cls)
         }
         signatures.add(InternalPlatform.packRef(signatureValue)!!)
         return signatureValue
@@ -91,7 +96,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
     override fun call(invocation: Invocation): Any? {
         if (mode == Mode.ANSWERING) {
-            val stub = gateway.stubFor(invocation.self)
+            val stub = stubRepo.stubFor(invocation.self)
             stub.recordCall(invocation.copy(originalCall = { null }))
             val answer = stub.answer(invocation)
             log.debug { "Recorded call: $invocation, answer: ${answerToString(answer)}" }
@@ -101,7 +106,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         }
     }
 
-    private fun answerToString(answer: Any?) = gateway.stubs[answer]?.toStr() ?: answer.toString()
+    private fun answerToString(answer: Any?) = stubRepo[answer]?.toStr() ?: answer.toString()
 
     private fun addCallWithMatchers(invocation: Invocation): Any? {
         if (childMocks.any { mock -> invocation.args.any { it === mock } }) {
@@ -113,14 +118,14 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         matchers.clear()
         signatures.clear()
 
-        return gateway.anyValueGenerator.anyValue(retType) {
+        return anyValueGenerator.anyValue(retType) {
             try {
                 val mock = temporaryMocks[retType]
                 if (mock != null) {
                     return@anyValue mock
                 }
 
-                val child = gateway.mockFactory.childMock(retType)
+                val child = mockFactory.childMock(retType)
 
                 childMocks.add(InternalPlatform.ref(child))
 
@@ -167,7 +172,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
                 log.trace { "Child search key: $matcher" }
 
-                newSelf = gateway.stubFor(newSelf).childMockK(equivalentCall)
+                newSelf = stubRepo.stubFor(newSelf).childMockK(equivalentCall)
             }
         }
 
@@ -189,7 +194,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
                 ConstantAnswer(calls[idx + 1].invocation.self)
             }
 
-            gateway.stubFor(ic.invocation.self).addAnswer(ic.matcher, ans)
+            stubRepo.stubFor(ic.invocation.self).addAnswer(ic.matcher, ans)
         }
 
         calls.clear()

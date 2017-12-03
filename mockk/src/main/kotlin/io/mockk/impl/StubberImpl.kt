@@ -7,13 +7,12 @@ import io.mockk.MockKGateway.*
 import io.mockk.slot
 
 
-internal class StubberImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Stubber {
+internal class StubberImpl(callRecorderGetter: () -> CallRecorder) : CommonRecorder(callRecorderGetter), Stubber {
     override fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
                            coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T> {
-        val callRecorder = gateway.callRecorder
         callRecorder.startStubbing()
         val lambda = slot<Function<*>>()
-        val scope = MockKMatcherScope(gateway, lambda)
+        val scope = MockKMatcherScope(callRecorder, lambda)
         try {
             record(scope, mockBlock, coMockBlock)
         } catch (ex: NoClassDefFoundError) {
@@ -24,11 +23,11 @@ internal class StubberImpl(gw: MockKGatewayImpl) : CommonRecorder(gw), Stubber {
             throw ex
         }
         checkMissingCalls()
-        return MockKStubScope(gateway, lambda)
+        return MockKStubScope(callRecorder, lambda)
     }
 
     fun checkMissingCalls() {
-        if (gateway.callRecorder.calls.isEmpty()) {
+        if (callRecorder.calls.isEmpty()) {
             throw MockKException("Missing calls inside every { ... } block.")
         }
     }

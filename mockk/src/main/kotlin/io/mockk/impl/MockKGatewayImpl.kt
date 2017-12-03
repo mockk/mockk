@@ -1,7 +1,5 @@
 package io.mockk.impl
 
-import io.mockk.InternalPlatform
-import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
@@ -14,22 +12,24 @@ import io.mockk.impl.JvmLogging.adaptor
 import java.util.*
 
 class MockKGatewayImpl : MockKGateway {
-    internal val stubs = InternalPlatform.weakMap<Any, Stub>()
-
-    override val mockFactory: MockFactory = MockFactoryImpl(this, MockKProxyMaker.INSTANCE)
-    override val stubber: Stubber = StubberImpl(this)
-    override val verifier: Verifier = VerifierImpl(this)
     internal val factoryRegistryIntrnl: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl()
     override val factoryRegistry: InstanceFactoryRegistry = factoryRegistryIntrnl
 
-    internal val instantiator = InstantiatorImpl(MockKProxyMaker.INSTANCE, factoryRegistryIntrnl)
+    val stubRepo = StubRepository()
+    internal val instantiator = Instantiator(MockKProxyMaker.INSTANCE, factoryRegistryIntrnl)
     internal val anyValueGenerator = JvmAnyValueGenerator()
     internal val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
-    internal val unorderedVerifier = UnorderedCallVerifierImpl(this)
-    internal val allVerifier = AllCallVerifierImpl(this)
-    internal val orderedVerifier = OrderedCallVerifierImpl(this)
-    internal val sequenceVerifier = SequenceCallVerifierImpl(this)
+
+    override val mockFactory: MockFactory = MockFactoryImpl(
+            MockKProxyMaker.INSTANCE,
+            instantiator,
+            stubRepo)
+
+    internal val unorderedVerifier = UnorderedCallVerifierImpl(stubRepo)
+    internal val allVerifier = AllCallVerifierImpl(stubRepo)
+    internal val orderedVerifier = OrderedCallVerifierImpl(stubRepo)
+    internal val sequenceVerifier = SequenceCallVerifierImpl(stubRepo)
 
     override fun verifier(ordering: Ordering): CallVerifier =
             when (ordering) {
@@ -40,12 +40,19 @@ class MockKGatewayImpl : MockKGateway {
             }
 
     private val callRecorderTL = object : ThreadLocal<CallRecorderImpl>() {
-        override fun initialValue() = CallRecorderImpl(this@MockKGatewayImpl)
+        override fun initialValue() = CallRecorderImpl(
+                stubRepo,
+                instantiator,
+                signatureValueGenerator,
+                mockFactory,
+                anyValueGenerator)
     }
 
     override val callRecorder: CallRecorder
         get() = callRecorderTL.get()
 
+    override val stubber: Stubber = StubberImpl(callRecorderTL::get)
+    override val verifier: Verifier = VerifierImpl(callRecorderTL::get, stubRepo, this::verifier)
 
     companion object {
         private var log: Logger
@@ -75,9 +82,6 @@ class MockKGatewayImpl : MockKGateway {
             return block()
         }
     }
-
-    fun stubFor(mock: Any): Stub = stubs[mock]
-            ?: throw MockKException("can't find stub for $mock")
 
 }
 

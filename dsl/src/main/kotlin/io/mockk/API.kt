@@ -2,6 +2,7 @@ package io.mockk
 
 import kotlin.reflect.KClass
 import io.mockk.InternalPlatform.toStr
+import io.mockk.MockKGateway.CallRecorder
 
 /**
  * Exception thrown by library
@@ -220,11 +221,11 @@ enum class Ordering {
  *
  * Provided information is gathered and associated with mock
  */
-open class MockKMatcherScope(val gateway: MockKGateway,
+open class MockKMatcherScope(val callRecorder: CallRecorder,
                              val lambda: CapturingSlot<Function<*>>) {
 
     inline fun <reified T : Any> match(matcher: Matcher<T>): T {
-        return gateway.callRecorder.matcher(matcher, T::class)
+        return callRecorder.matcher(matcher, T::class)
     }
 
     inline fun <reified T : Any> match(noinline matcher: (T) -> Boolean): T = matchNullable {
@@ -313,7 +314,7 @@ open class MockKMatcherScope(val gateway: MockKGateway,
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Function<*>> captureLambda(): T {
         val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>, T::class)
-        return gateway.callRecorder.matcher(matcher, T::class)
+        return callRecorder.matcher(matcher, T::class)
     }
 
     /**
@@ -322,7 +323,7 @@ open class MockKMatcherScope(val gateway: MockKGateway,
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any> captureCoroutine(): T {
         val matcher = CapturingSlotMatcher(lambda as CapturingSlot<T>, T::class)
-        return gateway.callRecorder.matcher(matcher, T::class)
+        return callRecorder.matcher(matcher, T::class)
     }
 
     inline fun <reified T : Any> coMatch(noinline matcher: suspend (T) -> Boolean): T = match {
@@ -341,8 +342,8 @@ open class MockKMatcherScope(val gateway: MockKGateway,
 /**
  * Part of DSL. Additional operations for verification scope.
  */
-class MockKVerificationScope(gw: MockKGateway,
-                             lambda: CapturingSlot<Function<*>>) : MockKMatcherScope(gw, lambda) {
+class MockKVerificationScope(callRecorder: CallRecorder,
+                             lambda: CapturingSlot<Function<*>>) : MockKMatcherScope(callRecorder, lambda) {
     inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T = match(AssertMatcher({ assertion(it as T) }, msg, T::class))
     inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T = match(AssertMatcher(assertion, msg, T::class, nullable = true))
     inline fun <reified T : Any> run(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
@@ -425,9 +426,9 @@ object Runs
  *
  * Allows to specify function result
  */
-class MockKStubScope<T>(val gateway: MockKGateway,
+class MockKStubScope<T>(val callRecorder: CallRecorder,
                         private val lambda: CapturingSlot<Function<*>>) {
-    infix fun answers(answer: Answer<T>) = gateway.callRecorder.answer(answer)
+    infix fun answers(answer: Answer<T>) = callRecorder.answer(answer)
 
     infix fun returns(returnValue: T) = answers(ConstantAnswer(returnValue))
 
@@ -438,7 +439,7 @@ class MockKStubScope<T>(val gateway: MockKGateway,
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
     infix fun answers(answer: MockKAnswerScope<T>.(MatchedCall) -> T) =
-            answers(FunctionAnswer({ MockKAnswerScope<T>(gateway, lambda, it).answer(it) }))
+            answers(FunctionAnswer({ MockKAnswerScope<T>(lambda, it).answer(it) }))
 
 
     infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(MatchedCall) -> T) = answers {
@@ -454,8 +455,7 @@ class MockKStubScope<T>(val gateway: MockKGateway,
 /**
  * Scope for answering functions. Part of DSL
  */
-class MockKAnswerScope<T>(val gateway: MockKGateway,
-                          @PublishedApi
+class MockKAnswerScope<T>(@PublishedApi
                           internal val lambda: CapturingSlot<Function<*>>,
                           val call: MatchedCall) {
 

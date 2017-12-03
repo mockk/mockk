@@ -10,11 +10,11 @@ object VerificationHelpers {
         }.joinToString("\n")
     }
 
-    fun List<MatchedCall>.allInvocations(gateway: MockKGatewayImpl) =
+    fun List<MatchedCall>.allInvocations(stubRepo: StubRepository) =
             this.map { InternalPlatform.ref(it.invocation.self) }
                     .distinct()
                     .map { it.value }
-                    .flatMap { gateway.stubFor(it).allRecordedCalls() }
+                    .flatMap { stubRepo.stubFor(it).allRecordedCalls() }
                     .sortedBy { it.timestamp }
 
     fun reportCalls(calls: List<MatchedCall>, allCalls: List<Invocation>): String {

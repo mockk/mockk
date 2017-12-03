@@ -4,8 +4,7 @@ import io.mockk.*
 
 internal class SignatureMatcherDetector(
         val callRounds: List<CallRound>,
-        val childMocks: List<Ref>,
-        val gateway: MockKGatewayImpl) {
+        val childMocks: List<Ref>) {
 
     val nCalls = callRounds[0].calls.size
 

@@ -5,9 +5,9 @@ import io.mockk.MockKGateway
 import io.mockk.impl.VerificationHelpers.allInvocations
 import io.mockk.impl.VerificationHelpers.reportCalls
 
-internal class OrderedCallVerifierImpl(private val gateway: MockKGatewayImpl) : MockKGateway.CallVerifier {
+internal class OrderedCallVerifierImpl(val stubRepo: StubRepository) : MockKGateway.CallVerifier {
     override fun verify(calls: List<MatchedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
-        val allCalls = calls.allInvocations(gateway)
+        val allCalls = calls.allInvocations(stubRepo)
 
         if (calls.size > allCalls.size) {
             return MockKGateway.VerificationResult(false, "less calls happened then demanded by order verification sequence. " +

@@ -7,7 +7,7 @@ import io.mockk.MatchedCall
 import io.mockk.MockKGateway
 import io.mockk.impl.VerificationHelpers.formatCalls
 
-open internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayImpl) : MockKGateway.CallVerifier {
+open internal class UnorderedCallVerifierImpl(val stubRepo: StubRepository) : MockKGateway.CallVerifier {
     override fun verify(calls: List<MatchedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
         for ((i, call) in calls.withIndex()) {
             val result = matchCall(call, min, max, "call ${i + 1} of ${calls.size}.")
@@ -20,7 +20,7 @@ open internal class UnorderedCallVerifierImpl(private val gateway: MockKGatewayI
     }
 
     private fun matchCall(call: MatchedCall, min: Int, max: Int, callIdxMsg: String): MockKGateway.VerificationResult {
-        val stub = gateway.stubFor(call.invocation.self)
+        val stub = stubRepo.stubFor(call.invocation.self)
         val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = allCallsForMock.filter {
             call.matcher.method == it.method
