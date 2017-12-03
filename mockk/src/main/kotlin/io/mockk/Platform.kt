@@ -32,6 +32,21 @@ actual object InternalPlatform {
 
     actual fun hkd(obj: Any): String = Integer.toUnsignedString(InternalPlatform.identityHashCode(obj), 16)
 
+    actual fun isPassedByValue(cls: KClass<*>): Boolean {
+        return when (cls) {
+            java.lang.Boolean::class -> true
+            java.lang.Byte::class -> true
+            java.lang.Short::class -> true
+            java.lang.Character::class -> true
+            java.lang.Integer::class -> true
+            java.lang.Long::class -> true
+            java.lang.Float::class -> true
+            java.lang.Double::class -> true
+            java.lang.String::class -> true
+            else -> false
+        }
+    }
+
     actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
         return if (obj1 === obj2) {
             true
@@ -76,6 +91,13 @@ actual object InternalPlatform {
     actual fun <K, V> weakMap(): MutableMap<K, V> = WeakConcurrentMap<K, V>()
 
     actual fun counter(): () -> Long = AtomicLong()::incrementAndGet
+
+    actual fun packRef(arg: Any?): Any? {
+        return if (arg == null || isPassedByValue(arg::class))
+            arg
+        else
+            ref(arg)
+    }
 }
 
 

@@ -22,7 +22,7 @@ class MockKGatewayImpl : MockKGateway {
     internal val factoryRegistryIntrnl: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl()
     override val factoryRegistry: InstanceFactoryRegistry = factoryRegistryIntrnl
 
-    internal val instantiator = InstantiatorImpl(this)
+    internal val instantiator = InstantiatorImpl(MockKProxyMaker.INSTANCE, factoryRegistryIntrnl)
     internal val anyValueGenerator = JvmAnyValueGenerator()
     internal val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 

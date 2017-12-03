@@ -141,6 +141,8 @@ expect object InternalPlatform {
 
     fun hkd(obj: Any): String
 
+    fun isPassedByValue(cls: KClass<*>): Boolean
+
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 
     fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V
@@ -150,4 +152,6 @@ expect object InternalPlatform {
     fun <K, V> weakMap(): MutableMap<K, V>
 
     fun counter(): () -> Long
+
+    fun packRef(arg: Any?): Any?
 }

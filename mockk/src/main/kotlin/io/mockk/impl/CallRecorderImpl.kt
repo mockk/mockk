@@ -2,9 +2,7 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.MockKGateway.CallRecorder
-import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
 internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRecorder {
     private enum class Mode {
@@ -73,9 +71,9 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
     override fun nCalls() = signedCalls.size
 
     private fun signMatchers() {
-        val detector = SignatureMatcherDetector()
+        val detector = SignatureMatcherDetector(callRounds, childMocks, gateway)
         calls.clear()
-        calls.addAll(detector.detect(callRounds, childMocks, gateway))
+        calls.addAll(detector.detect())
 
         childMocks.clear()
         temporaryMocks.clear()
@@ -87,7 +85,7 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
         val signatureValue = gateway.signatureValueGenerator.signatureValue(cls) {
             gateway.instantiator.instantiate(cls)
         }
-        signatures.add(packRef(signatureValue, gateway)!!)
+        signatures.add(InternalPlatform.packRef(signatureValue)!!)
         return signatureValue
     }
 
@@ -260,14 +258,6 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
 
     companion object {
         val log = Logger<CallRecorderImpl>()
-
-        fun packRef(arg: Any?, gateway: MockKGatewayImpl): Any? {
-            return if (arg == null || gateway.instantiator.isPassedByValue(arg::class))
-                arg
-            else
-                InternalPlatform.ref(arg)
-        }
     }
-
 }
 
