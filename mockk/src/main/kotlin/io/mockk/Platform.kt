@@ -7,6 +7,7 @@ import java.lang.ref.WeakReference
 import java.lang.reflect.Method
 import java.util.Collections.synchronizedList
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.reflect.KClass
 
 actual object InternalPlatform {
@@ -28,6 +29,8 @@ actual object InternalPlatform {
                 is Function<*> -> "lambda {}"
                 else -> toString()
             }
+
+    actual fun hkd(obj: Any): String = Integer.toUnsignedString(InternalPlatform.identityHashCode(obj), 16)
 
     actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
         return if (obj1 === obj2) {
@@ -71,6 +74,8 @@ actual object InternalPlatform {
     }
 
     actual fun <K, V> weakMap(): MutableMap<K, V> = WeakConcurrentMap<K, V>()
+
+    actual fun counter(): () -> Long = AtomicLong()::incrementAndGet
 }
 
 

@@ -1,12 +1,12 @@
 package io.mockk.impl
 
 import io.mockk.*
-import io.mockk.MockKGateway.*
+import io.mockk.InternalPlatform.toStr
+import io.mockk.MockKGateway.CallRecorder
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
-import io.mockk.InternalPlatform.toStr
 
 private data class SignedCall(val retType: KClass<*>,
                               val invocation: Invocation,
@@ -131,11 +131,8 @@ internal class CallRecorderImpl(private val gateway: MockKGatewayImpl) : CallRec
                     return@anyValue mock
                 }
 
-                val child = gateway.instantiator.proxy(retType,
-                        false,
-                        true,
-                        moreInterfaces = arrayOf(),
-                        stub = MockKStub(retType, "temporary mock"))
+                val child = gateway.mockFactory.childMock(retType)
+
                 childMocks.add(InternalPlatform.ref(child))
 
                 temporaryMocks[retType] = child

@@ -17,6 +17,7 @@ internal open class MockKStub(override val type: KClass<*>,
     private val answers = synchronizedList(mutableListOf<InvocationAnswer>())
     private val childs = synchronizedMap(hashMapOf<InvocationMatcher, Any>())
     private val recordedCalls = synchronizedList(mutableListOf<Invocation>())
+    lateinit var hashCodeStr: String
 
     override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         answers.add(InvocationAnswer(matcher, answer))
@@ -81,9 +82,7 @@ internal open class MockKStub(override val type: KClass<*>,
         }
     }
 
-    protected val hash = Integer.toUnsignedString(InternalPlatform.identityHashCode(this), 16)
-
-    override fun toStr() = "mockk<${type.simpleName}>(${this.name})#$hash"
+    override fun toStr() = "mockk<${type.simpleName}>(${this.name})#$hashCodeStr"
 
     override fun childMockK(call: MatchedCall): Any? {
         return synchronized(childs) {
@@ -153,7 +152,7 @@ internal class SpyKStub<T : Any>(cls: KClass<T>, name: String) : MockKStub(cls, 
         return invocation.originalCall()
     }
 
-    override fun toStr(): String = "spyk<" + type.simpleName + ">($name)#$hash"
+    override fun toStr(): String = "spyk<" + type.simpleName + ">($name)#$hashCodeStr"
 }
 
 internal fun Method.toDescription() =

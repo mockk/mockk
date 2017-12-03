@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 class MockKGatewayImpl : MockKGateway {
     internal val stubs = InternalPlatform.weakMap<Any, Stub>()
 
-    override val mockFactory: MockFactory = MockFactoryImpl(this)
+    override val mockFactory: MockFactory = MockFactoryImpl(this, MockKProxyMaker.INSTANCE)
     override val stubber: Stubber = StubberImpl(this)
     override val verifier: Verifier = VerifierImpl(this)
     internal val factoryRegistryIntrnl: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl()
@@ -103,17 +103,9 @@ class MockKGatewayImpl : MockKGateway {
     interface Instantiator {
         fun <T : Any> instantiate(cls: KClass<T>): T
 
-        fun <T : Any> proxy(cls: KClass<T>,
-                            useDefaultConstructor: Boolean,
-                            instantiateOnFailure: Boolean,
-                            moreInterfaces: Array<out KClass<*>>, stub: Stub): Any
-
         fun isPassedByValue(cls: KClass<*>): Boolean
-
-        fun staticMockk(cls: KClass<*>, stub: Stub)
-
-        fun staticUnMockk(cls: KClass<*>)
     }
 
 }
+
 

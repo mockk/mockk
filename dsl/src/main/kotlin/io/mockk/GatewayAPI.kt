@@ -31,13 +31,15 @@ interface MockKGateway {
                            name: String?,
                            moreInterfaces: Array<out KClass<*>>): T
 
+        fun staticMockk(cls: KClass<*>)
+        fun staticUnMockk(cls: KClass<*>)
+
+        fun childMock(cls: KClass<*>): Any
+
         fun clear(mocks: Array<out Any>,
                   answers: Boolean,
                   recordedCalls: Boolean,
                   childMocks: Boolean)
-
-        fun staticMockk(cls: KClass<*>)
-        fun staticUnMockk(cls: KClass<*>)
     }
 
 
@@ -137,6 +139,8 @@ expect object InternalPlatform {
 
     fun Any?.toStr(): String
 
+    fun hkd(obj: Any): String
+
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 
     fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V
@@ -144,4 +148,6 @@ expect object InternalPlatform {
     fun <T> synchronizedMutableList(): MutableList<T>
 
     fun <K, V> weakMap(): MutableMap<K, V>
+
+    fun counter(): () -> Long
 }
