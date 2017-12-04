@@ -16,7 +16,7 @@ internal class StubberImpl(callRecorderGetter: () -> CallRecorder) : CommonRecor
         try {
             record(scope, mockBlock, coMockBlock)
         } catch (ex: Throwable) {
-            callRecorder.cancel()
+            callRecorder.reset()
             throw prettifyCoroutinesException(ex)
         }
         checkMissingCalls()

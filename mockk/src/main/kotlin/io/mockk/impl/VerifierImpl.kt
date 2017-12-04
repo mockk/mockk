@@ -51,10 +51,10 @@ internal class VerifierImpl(callRecorderGetter: () -> CallRecorder,
         try {
             record(scope, mockBlock, coMockBlock)
         } catch (ex: NoClassDefFoundError) {
-            callRecorder.cancel()
+            callRecorder.reset()
             throw prettifyCoroutinesException(ex)
         } catch (ex: Throwable) {
-            callRecorder.cancel()
+            callRecorder.reset()
             throw ex
         } finally {
             checkMissingCalls()
@@ -72,7 +72,7 @@ internal class VerifierImpl(callRecorderGetter: () -> CallRecorder,
 
             failIfNotPassed(outcome, inverse)
         } finally {
-            callRecorder.cancel()
+            callRecorder.reset()
         }
     }
 

@@ -88,7 +88,7 @@ interface MockKGateway {
 
         fun hintNextReturnType(cls: KClass<*>, n: Int)
 
-        fun cancel()
+        fun reset()
 
         fun estimateCallRounds(): Int
 
