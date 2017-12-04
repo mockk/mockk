@@ -15,27 +15,6 @@ internal class CallRecorderImpl(val stubRepo: StubRepository,
     internal var state: CallRecorderState = AnsweringCallRecorderState(this)
     internal var childHinter = ChildHinter()
 
-    class ChildHinter {
-        private var childTypes = mutableMapOf<Int, KClass<*>>()
-
-        fun nextChildType(defaultReturnType: () -> KClass<*>): KClass<*> {
-            val type = childTypes[1]
-            shift()
-            return type ?: defaultReturnType()
-        }
-
-        private fun shift() {
-            childTypes = childTypes
-                    .mapKeys { (k, _) -> k - 1 }
-                    .filter { (k, _) -> k > 0 }
-                    .toMutableMap()
-        }
-
-        fun hint(n: Int, cls: KClass<*>) {
-            childTypes[n] = cls
-        }
-    }
-
     override fun startStubbing() {
         state = state.startStubbing()
         log.trace { "Starting stubbing" }

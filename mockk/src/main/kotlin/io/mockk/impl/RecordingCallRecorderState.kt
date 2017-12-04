@@ -18,7 +18,7 @@ internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) :
         }
 
         signedCalls.clear()
-        recorder.childHinter = CallRecorderImpl.ChildHinter()
+        recorder.childHinter = ChildHinter()
 
         if (round == n) {
             try {
