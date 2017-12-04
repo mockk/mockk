@@ -13,7 +13,6 @@ internal class SignatureMatcherDetector(
 
         checkAllSameNumberOfCalls()
         repeat(nCalls) { callN ->
-
             val detector = ChainedCallDetector(callRounds, childMocks, callN)
 
             detector.gatherMatchers()

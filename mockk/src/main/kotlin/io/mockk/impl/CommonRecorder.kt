@@ -21,7 +21,7 @@ internal open class CommonRecorder(val callRecorder: () -> CallRecorder) {
                 { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
             }
 
-            var childTypes = mutableMapOf<Int, KClass<*>>()
+            val childTypes = mutableMapOf<Int, KClass<*>>()
             callRecorder().autoHint(childTypes, 0, 64, block)
             val n = callRecorder().estimateCallRounds();
             for (i in 1 until n) {
