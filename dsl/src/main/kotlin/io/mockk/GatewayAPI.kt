@@ -7,8 +7,8 @@ import kotlin.reflect.KClass
  */
 interface MockKGateway {
     val mockFactory: MockFactory
-    val stubber: Stubber
-    val verifier: Verifier
+    val stubbingRecorder: Stubber
+    val verifyingRecorder: Verifier
     val callRecorder: CallRecorder
     val factoryRegistry: InstanceFactoryRegistry
 
@@ -55,16 +55,19 @@ interface MockKGateway {
      * Verify calls
      */
     interface Verifier {
-        fun verify(ordering: Ordering,
-                   inverse: Boolean,
-                   atLeast: Int,
-                   atMost: Int,
-                   exactly: Int,
+        fun verify(params: VerificationParameters,
                    mockBlock: (MockKVerificationScope.() -> Unit)?,
                    coMockBlock: (suspend MockKVerificationScope.() -> Unit)?)
-
-        fun checkWasNotCalled(mocks: List<Any>)
     }
+
+    /**
+     * Parameters of verification
+     */
+    data class VerificationParameters(val ordering: Ordering,
+                                      val min: Int,
+                                      val max: Int,
+                                      val inverse: Boolean)
+
 
     /**
      * Builds a list of calls
@@ -74,7 +77,7 @@ interface MockKGateway {
 
         fun startStubbing()
 
-        fun startVerification()
+        fun startVerification(params: VerificationParameters)
 
         fun catchArgs(round: Int, n: Int = 64)
 
@@ -84,7 +87,7 @@ interface MockKGateway {
 
         fun answer(answer: Answer<*>)
 
-        fun doneVerification()
+        fun done()
 
         fun hintNextReturnType(cls: KClass<*>, n: Int)
 
@@ -93,6 +96,8 @@ interface MockKGateway {
         fun estimateCallRounds(): Int
 
         fun nCalls(): Int
+
+        fun wasNotCalled(list: List<Any>)
     }
 
     /**

@@ -1,32 +1,23 @@
 package io.mockk.impl
 
-import io.mockk.MockKException
+import io.mockk.MockKGateway.CallRecorder
+import io.mockk.MockKGateway.Stubber
 import io.mockk.MockKMatcherScope
 import io.mockk.MockKStubScope
-import io.mockk.MockKGateway.*
 import io.mockk.slot
 
+internal class StubberImpl(callRecorder: () -> CallRecorder) : CommonRecorder(callRecorder), Stubber {
 
-internal class StubberImpl(callRecorderGetter: () -> CallRecorder) : CommonRecorder(callRecorderGetter), Stubber {
     override fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
                            coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T> {
-        callRecorder.startStubbing()
+
+        callRecorder().startStubbing()
+
         val lambda = slot<Function<*>>()
-        val scope = MockKMatcherScope(callRecorder, lambda)
-        try {
-            record(scope, mockBlock, coMockBlock)
-        } catch (ex: Throwable) {
-            callRecorder.reset()
-            throw prettifyCoroutinesException(ex)
-        }
-        checkMissingCalls()
-        return MockKStubScope(callRecorder, lambda)
-    }
+        val scope = MockKMatcherScope(callRecorder(), lambda)
 
-    fun checkMissingCalls() {
-        if (callRecorder.calls.isEmpty()) {
-            throw MockKException("Missing calls inside every { ... } block.")
-        }
-    }
+        record(scope, mockBlock, coMockBlock)
 
+        return MockKStubScope(callRecorder(), lambda)
+    }
 }

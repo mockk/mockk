@@ -61,7 +61,7 @@ internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) :
 
                 child
             } catch (ex: MockKException) {
-                CallRecorderImpl.log.trace(ex) { "Returning 'null' for a final class assuming it is last in a call chain" }
+                log.trace(ex) { "Returning 'null' for a final class assuming it is last in a call chain" }
                 null
             }
         }
@@ -97,7 +97,7 @@ internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) :
                 val matcher = newCall.matcher.copy(args = args)
                 val equivalentCall = newCall.copy(matcher = matcher)
 
-                CallRecorderImpl.log.trace { "Child search key: $matcher" }
+                log.trace { "Child search key: $matcher" }
 
                 newSelf = recorder.stubRepo.stubFor(newSelf).childMockK(equivalentCall)
             }
@@ -106,7 +106,7 @@ internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) :
         recorder.calls.clear()
         recorder.calls.addAll(newCalls)
 
-        CallRecorderImpl.log.trace { "Mocked childs" }
+        log.trace { "Mocked childs" }
     }
 
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
@@ -142,5 +142,9 @@ internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) :
                     }
                 }
                 .max() ?: 1
+    }
+
+    companion object {
+        val log = Logger<RecordingCallRecorderState>()
     }
 }

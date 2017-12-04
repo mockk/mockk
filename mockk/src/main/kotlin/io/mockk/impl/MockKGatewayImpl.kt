@@ -45,14 +45,15 @@ class MockKGatewayImpl : MockKGateway {
                 instantiator,
                 signatureValueGenerator,
                 mockFactory,
-                anyValueGenerator)
+                anyValueGenerator,
+                this@MockKGatewayImpl::verifier)
     }
 
     override val callRecorder: CallRecorder
         get() = callRecorderTL.get()
 
-    override val stubber: Stubber = StubberImpl(callRecorderTL::get)
-    override val verifier: Verifier = VerifierImpl(callRecorderTL::get, stubRepo, this::verifier)
+    override val stubbingRecorder: Stubber = StubberImpl(callRecorderTL::get)
+    override val verifyingRecorder: Verifier = VerifierImpl(callRecorderTL::get, stubRepo)
 
     companion object {
         private var log: Logger

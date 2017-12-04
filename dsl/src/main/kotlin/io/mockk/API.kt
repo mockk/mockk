@@ -2,7 +2,7 @@ package io.mockk
 
 import kotlin.reflect.KClass
 import io.mockk.InternalPlatform.toStr
-import io.mockk.MockKGateway.CallRecorder
+import io.mockk.MockKGateway.*
 
 /**
  * Exception thrown by library
@@ -37,12 +37,12 @@ object MockKDsl {
     /**
      * Starts a block of stubbing. Part of DSL.
      */
-    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(stubBlock, null)
+    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubbingRecorder.every(stubBlock, null)
 
     /**
      * Starts a block of stubbing for coroutines. Part of DSL.
      */
-    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(null, stubBlock)
+    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubbingRecorder.every(null, stubBlock)
 
     /**
      * Verifies calls happened in the past. Part of DSL
@@ -54,14 +54,13 @@ object MockKDsl {
                               exactly: Int = -1,
                               noinline verifyBlock: MockKVerificationScope.() -> Unit) {
 
-        internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost)
+        internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost, ordering)
 
-        MockKGateway.implementation().verifier.verify(
-                ordering,
-                inverse,
-                atLeast,
-                atMost,
-                exactly,
+        val min = if (exactly != -1) exactly else atLeast
+        val max = if (exactly != -1) exactly else atMost
+
+        MockKGateway.implementation().verifyingRecorder.verify(
+                VerificationParameters(ordering, min, max, inverse),
                 verifyBlock,
                 null)
     }
@@ -76,20 +75,19 @@ object MockKDsl {
                                 exactly: Int = -1,
                                 noinline verifyBlock: suspend MockKVerificationScope.() -> Unit) {
 
-        internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost)
+        internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost, ordering)
 
-        MockKGateway.implementation().verifier.verify(
-                ordering,
-                inverse,
-                atLeast,
-                atMost,
-                exactly,
+        val min = if (exactly != -1) exactly else atLeast
+        val max = if (exactly != -1) exactly else atMost
+
+        MockKGateway.implementation().verifyingRecorder.verify(
+                VerificationParameters(ordering, min, max, inverse),
                 null,
                 verifyBlock)
     }
 
     @PublishedApi
-    internal fun internalCheckExactlyAtMostAtLeast(exactly: Int, atLeast: Int, atMost: Int) {
+    internal fun internalCheckExactlyAtMostAtLeast(exactly: Int, atLeast: Int, atMost: Int, ordering: Ordering) {
         if (exactly != -1 && (atLeast != 1 || atMost != Int.MAX_VALUE)) {
             throw MockKException("specify either atLeast/atMost or exactly")
         }
@@ -104,6 +102,12 @@ object MockKDsl {
         }
         if (atLeast > atMost) {
             throw MockKException("atLeast should less or equal atMost")
+        }
+
+        if (ordering != Ordering.UNORDERED) {
+            if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
+                throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
+            }
         }
     }
 
@@ -204,6 +208,7 @@ enum class Ordering {
      */
     SEQUENCE
 }
+
 
 /**
  * Basic stub/verification scope. Part of DSL.
@@ -386,7 +391,7 @@ class MockKVerificationScope(callRecorder: CallRecorder,
 
     @Suppress("UNUSED_PARAMETER")
     infix fun List<Any>.wasNot(called: Called) {
-        MockKGateway.implementation().verifier.checkWasNotCalled(this)
+        callRecorder.wasNotCalled(this)
     }
 }
 

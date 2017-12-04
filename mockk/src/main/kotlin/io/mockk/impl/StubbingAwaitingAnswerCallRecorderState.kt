@@ -2,6 +2,7 @@ package io.mockk.impl
 
 import io.mockk.Answer
 import io.mockk.ConstantAnswer
+import io.mockk.MockKException
 
 internal class StubbingAwaitingAnswerCallRecorderState(recorder: CallRecorderImpl) : CallRecorderState(recorder) {
     override fun answer(answer: Answer<*>) {
@@ -19,8 +20,20 @@ internal class StubbingAwaitingAnswerCallRecorderState(recorder: CallRecorderImp
 
         recorder.calls.clear()
 
-        CallRecorderImpl.log.trace { "Done stubbing" }
+        log.trace { "Done stubbing" }
 
         recorder.state = AnsweringCallRecorderState(recorder)
+    }
+
+    override fun done(): CallRecorderState {
+        if (recorder.calls.isEmpty()) {
+            throw MockKException("Missing calls inside every { ... } block.")
+        }
+
+        return StubbingAwaitingAnswerCallRecorderState(recorder)
+    }
+
+    companion object {
+        val log = Logger<StubbingAwaitingAnswerCallRecorderState>()
     }
 }

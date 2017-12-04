@@ -7,10 +7,7 @@ import io.mockk.MockKMatcherScope
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.reflect.KClass
 
-internal open class CommonRecorder(val callRecorderGetter: () -> CallRecorder) {
-
-    val callRecorder: CallRecorder
-        get() = callRecorderGetter()
+internal open class CommonRecorder(val callRecorder: () -> CallRecorder) {
 
     internal fun <T, S : MockKMatcherScope> record(scope: S,
                                                    mockBlock: (S.() -> T)?,
@@ -25,18 +22,20 @@ internal open class CommonRecorder(val callRecorderGetter: () -> CallRecorder) {
             }
 
             var childTypes = mutableMapOf<Int, KClass<*>>()
-            callRecorder.autoHint(childTypes, 0, 64, block)
-            val n = callRecorder.estimateCallRounds();
+            callRecorder().autoHint(childTypes, 0, 64, block)
+            val n = callRecorder().estimateCallRounds();
             for (i in 1 until n) {
-                callRecorder.autoHint(childTypes, i, n, block)
+                callRecorder().autoHint(childTypes, i, n, block)
             }
-            callRecorder.catchArgs(n, n)
-
+            callRecorder().catchArgs(n, n)
+            callRecorder().done()
         } catch (ex: ClassCastException) {
             throw MockKException("Class cast exception. " +
                     "Probably type information was erased.\n" +
                     "In this case use `hint` before call to specify " +
                     "exact return type of a method. ", ex)
+        } catch (ex: Throwable) {
+            throw prettifyCoroutinesException(ex)
         }
     }
 
