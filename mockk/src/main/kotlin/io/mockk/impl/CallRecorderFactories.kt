@@ -11,6 +11,7 @@ internal typealias CallRoundBuilderFactory = () -> CallRoundBuilder
 internal typealias ChildHinterFactory = () -> ChildHinter
 internal typealias CallRecorderStateFactory = (recorder: CallRecorderImpl) -> CallRecorderState
 internal typealias VerifyingCallRecorderStateFactory = (recorder: CallRecorderImpl, verificationParams: VerificationParameters) -> CallRecorderState
+internal typealias ChainedCallDetectorFactory = (List<CallRound>, List<Ref>, Int) -> ChainedCallDetector
 
 internal data class CallRecorderFactories(val signatureMatcherDetector: SignatureMatcherDetectorFactory,
                                           val callRoundBuilder: CallRoundBuilderFactory,

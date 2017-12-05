@@ -24,6 +24,4 @@ internal abstract class CallRecorderState(val recorder: CallRecorderImpl) {
         recorder.reset()
         throw MockKException("Bad recording sequence. State: ${recorder.state::class.simpleName}")
     }
-
-
 }

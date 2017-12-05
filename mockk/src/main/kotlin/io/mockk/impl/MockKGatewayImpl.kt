@@ -3,6 +3,7 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
+import io.mockk.Ref
 import io.mockk.impl.JvmLogging.adaptor
 import io.mockk.jvm.JvmAnyValueGenerator
 import io.mockk.jvm.JvmSignatureValueGenerator
@@ -39,8 +40,12 @@ class MockKGatewayImpl : MockKGateway {
                 Ordering.SEQUENCE -> sequenceVerifier
             }
 
+    internal fun signatureMatcherDetectorFactory(callRounds: List<CallRound>, mocks: List<Ref>): SignatureMatcherDetector {
+        return SignatureMatcherDetector(callRounds, mocks, ::ChainedCallDetector)
+    }
+
     internal val callRecorderFactories = CallRecorderFactories(
-            ::SignatureMatcherDetector,
+            this::signatureMatcherDetectorFactory,
             ::CallRoundBuilder,
             ::ChildHinter,
             this::verifier,

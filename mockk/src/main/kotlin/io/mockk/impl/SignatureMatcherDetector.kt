@@ -6,7 +6,8 @@ import io.mockk.Ref
 
 internal class  SignatureMatcherDetector(
         val callRounds: List<CallRound>,
-        val childMocks: List<Ref>) {
+        val childMocks: List<Ref>,
+        val chainedCallDetectorFactory: ChainedCallDetectorFactory) {
 
     val nCalls = callRounds[0].calls.size
 
@@ -15,7 +16,7 @@ internal class  SignatureMatcherDetector(
 
         checkAllSameNumberOfCalls()
         repeat(nCalls) { callN ->
-            val detector = ChainedCallDetector(callRounds, childMocks, callN)
+            val detector = chainedCallDetectorFactory(callRounds, childMocks, callN)
 
             detector.gatherMatchers()
             detector.detectArgMatchers()

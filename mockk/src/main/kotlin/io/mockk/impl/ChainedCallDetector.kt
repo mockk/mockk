@@ -9,9 +9,9 @@ internal class ChainedCallDetector(callRounds: List<CallRound>,
                                    val childMocks: List<Ref>,
                                    val callN: Int) {
     val callInAllRounds = callRounds.map { it.calls[callN] }
+    val zeroCall = callInAllRounds[0]
     val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
     val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
-    val zeroCall = callInAllRounds[0]
     val argMatchers = mutableListOf<Matcher<*>>()
 
     init {
@@ -44,17 +44,21 @@ internal class ChainedCallDetector(callRounds: List<CallRound>,
 
             log.trace { "Signature for $nArgument argument of ${zeroCall.invocation.method.toStr()}: $signature" }
 
-            val matcher = matcherMap.remove(signature)?.let {
-                if (nArgument == 0 && it is AllAnyMatcher) {
+            val matcherBySignature = matcherMap.remove(signature)
+
+            val matcher = if (matcherBySignature == null) {
+                if (allAny)
+                    ConstantMatcher<Any>(true)
+                else
+                    EqMatcher(zeroCall.invocation.args[nArgument])
+            } else {
+                if (nArgument == 0 && matcherBySignature is AllAnyMatcher) {
                     allAny = true
                     ConstantMatcher<Any>(true)
                 } else {
-                    it
+                    matcherBySignature
                 }
-            } ?: if (allAny)
-                ConstantMatcher<Any>(true)
-            else
-                EqMatcher(zeroCall.invocation.args[nArgument])
+            }
 
             argMatchers.add(matcher)
         }
