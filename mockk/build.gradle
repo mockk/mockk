@@ -2,12 +2,11 @@
 plugins {
     id "jacoco"
 }
-apply plugin: "kotlin-platform-jvm"
+apply plugin: "kotlin"
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    expectedBy project(':mockk-dsl')
-    compile project(':mockk-dsl')
+    compile project(':mockk-dsl-jvm')
     compile project(":mockk-agent")
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -30,6 +29,16 @@ dependencies {
     testCompile 'io.kotlintest:kotlintest:2.0.7'
 }
 
+sourceSets {
+    main {
+        kotlin {
+            srcDirs += '../common/src/main/kotlin'
+        }
+        resources {
+            srcDirs += '../common/src/main/resources'
+        }
+    }
+}
 
 test {
     testLogging.showStandardStreams = true
