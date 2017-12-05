@@ -1,9 +1,9 @@
 package io.mockk.jvm
 
-import io.mockk.common.CommonAnyValueGenerator
+import io.mockk.common.AnyValueGenerator
 import kotlin.reflect.KClass
 
-class JvmAnyValueGenerator : CommonAnyValueGenerator() {
+class JvmAnyValueGenerator : AnyValueGenerator() {
     override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
         return when (cls) {
             Void.TYPE.kotlin -> Unit

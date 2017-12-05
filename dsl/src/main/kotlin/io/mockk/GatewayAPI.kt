@@ -138,6 +138,8 @@ interface Ref {
 expect object InternalPlatform {
     fun identityHashCode(obj: Any): Int
 
+    fun nanoTime(): Long
+
     fun ref(obj: Any): Ref
 
     fun <T> runCoroutine(block: suspend () -> T): T
@@ -159,4 +161,12 @@ expect object InternalPlatform {
     fun counter(): () -> Long
 
     fun packRef(arg: Any?): Any?
+
+    fun isSuspend(paramTypes: List<KClass<*>>): Boolean
+
+    fun prettifyRecordingException(ex: Throwable): Throwable
+
+    fun <T> synchronizedList(): MutableList<T>
+
+    fun <K, V> synchronizedMap(): MutableMap<K, V>
 }

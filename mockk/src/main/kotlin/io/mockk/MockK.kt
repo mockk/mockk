@@ -2,7 +2,7 @@
 
 package io.mockk
 
-import io.mockk.impl.MockKGatewayImpl.Companion.useImpl
+import io.mockk.jvm.JvmMockKGateway.Companion.useImpl
 import kotlin.reflect.KClass
 
 /**
