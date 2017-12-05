@@ -16,7 +16,12 @@ class CallRoundBuilder {
     }
 
     fun addSignedCall(retType: KClass<*>, invocation: Invocation) {
-        signedCalls.add(SignedCall(retType, invocation, matchers.toList(), signatures.toList()))
+        val signedCall = SignedCall(retType,
+                invocation,
+                matchers.toList(),
+                signatures.toList())
+
+        signedCalls.add(signedCall)
 
         matchers.clear()
         signatures.clear()

@@ -18,7 +18,6 @@ internal abstract class CallRecorderState(val recorder: CallRecorderImpl) {
     open fun nCalls(): Int = cancelAndThrowBadRecordingState()
     open fun estimateCallRounds(): Int = cancelAndThrowBadRecordingState()
     open fun wasNotCalled(list: List<Any>): Unit = cancelAndThrowBadRecordingState()
-    open fun wasNotCalledWasCalled(): Boolean = cancelAndThrowBadRecordingState()
 
     private fun cancelAndThrowBadRecordingState(): Nothing {
         recorder.reset()

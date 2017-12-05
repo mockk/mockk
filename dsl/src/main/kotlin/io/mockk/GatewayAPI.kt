@@ -10,7 +10,7 @@ interface MockKGateway {
     val stubbingRecorder: Stubber
     val verifyingRecorder: Verifier
     val callRecorder: CallRecorder
-    val factoryRegistry: InstanceFactoryRegistry
+    val instanceFactoryRegistry: InstanceFactoryRegistry
 
     fun verifier(ordering: Ordering): CallVerifier
 

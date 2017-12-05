@@ -159,10 +159,10 @@ object MockKDsl {
             }
         }
 
-        MockKGateway.implementation().factoryRegistry.registerFactory(factoryObj)
+        MockKGateway.implementation().instanceFactoryRegistry.registerFactory(factoryObj)
         return object : Deregisterable {
             override fun deregister() {
-                MockKGateway.implementation().factoryRegistry.deregisterFactory(factoryObj)
+                MockKGateway.implementation().instanceFactoryRegistry.deregisterFactory(factoryObj)
             }
         }
     }

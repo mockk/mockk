@@ -13,11 +13,11 @@ import io.mockk.proxy.MockKProxyMaker
 import java.util.*
 
 class MockKGatewayImpl : MockKGateway {
-    internal val factoryRegistryIntrnl: InstanceFactoryRegistryImpl = InstanceFactoryRegistryImpl()
-    override val factoryRegistry: InstanceFactoryRegistry = factoryRegistryIntrnl
+    internal val instanceFactoryRegistryIntrnl = InstanceFactoryRegistryImpl()
+    override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
     val stubRepo = StubRepository()
-    internal val instantiator = Instantiator(MockKProxyMaker.INSTANCE, factoryRegistryIntrnl)
+    internal val instantiator = Instantiator(MockKProxyMaker.INSTANCE, instanceFactoryRegistryIntrnl)
     internal val anyValueGenerator = JvmAnyValueGenerator()
     internal val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 

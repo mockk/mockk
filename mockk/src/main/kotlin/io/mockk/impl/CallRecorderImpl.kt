@@ -28,18 +28,19 @@ internal class CallRecorderImpl(val stubRepo: StubRepository,
         log.trace { "Starting verification" }
     }
 
+    override fun done() {
+        state = state.recordingDone()
+    }
+
     override fun catchArgs(round: Int, n: Int) = state.catchArgs(round, n)
     override fun nCalls() = state.nCalls()
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T = state.matcher(matcher, cls)
     override fun call(invocation: Invocation) = state.call(invocation)
     override fun answer(answer: Answer<*>) = state.answer(answer)
-    override fun hintNextReturnType(cls: KClass<*>, n: Int) = childHinter.hint(n, cls)
     override fun estimateCallRounds(): Int = state.estimateCallRounds()
     override fun wasNotCalled(list: List<Any>) = state.wasNotCalled(list)
 
-    override fun done() {
-        state = state.recordingDone()
-    }
+    override fun hintNextReturnType(cls: KClass<*>, n: Int) = childHinter.hint(n, cls)
 
     override fun reset() {
         calls.clear()
