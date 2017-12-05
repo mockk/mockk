@@ -12,8 +12,8 @@ internal class AnsweringCallRecorderState(recorder: CallRecorderImpl) : CallReco
         return answer
     }
 
-    override fun startStubbing() = StubbingCallRecorderState(recorder)
-    override fun startVerification(params: VerificationParameters) = VerifyingCallRecorderState(recorder, params)
+    override fun startStubbing() = recorder.factories.stubbingCallRecorderState(recorder)
+    override fun startVerification(params: VerificationParameters) = recorder.factories.verifyingCallRecorderState(recorder, params)
 
     private fun answerToString(answer: Any?) = recorder.stubRepo[answer]?.toStr() ?: answer.toString()
 

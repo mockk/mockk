@@ -22,15 +22,15 @@ internal class StubbingAwaitingAnswerCallRecorderState(recorder: CallRecorderImp
 
         log.trace { "Done stubbing" }
 
-        recorder.state = AnsweringCallRecorderState(recorder)
+        recorder.state = recorder.factories.answeringCallRecorderState(recorder)
     }
 
-    override fun done(): CallRecorderState {
+    override fun recordingDone(): CallRecorderState {
         if (recorder.calls.isEmpty()) {
             throw MockKException("Missing calls inside every { ... } block.")
         }
 
-        return StubbingAwaitingAnswerCallRecorderState(recorder)
+        return recorder.factories.stubbingAwaitingAnswerCallRecorderState(recorder)
     }
 
     companion object {

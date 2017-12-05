@@ -1,6 +1,9 @@
 package io.mockk.impl
 
-import io.mockk.*
+import io.mockk.Answer
+import io.mockk.Invocation
+import io.mockk.MatchedCall
+import io.mockk.Matcher
 import io.mockk.MockKGateway.*
 import kotlin.reflect.KClass
 
@@ -9,11 +12,11 @@ internal class CallRecorderImpl(val stubRepo: StubRepository,
                                 val signatureValueGenerator: SignatureValueGenerator,
                                 val mockFactory: MockFactory,
                                 val anyValueGenerator: AnyValueGenerator,
-                                val verifier: (Ordering) -> CallVerifier) : CallRecorder {
+                                val factories: CallRecorderFactories) : CallRecorder {
 
     override val calls = mutableListOf<MatchedCall>()
-    internal var state: CallRecorderState = AnsweringCallRecorderState(this)
-    internal var childHinter = ChildHinter()
+    internal var state: CallRecorderState = factories.answeringCallRecorderState(this)
+    internal var childHinter = factories.childHinter()
 
     override fun startStubbing() {
         state = state.startStubbing()
@@ -35,13 +38,13 @@ internal class CallRecorderImpl(val stubRepo: StubRepository,
     override fun wasNotCalled(list: List<Any>) = state.wasNotCalled(list)
 
     override fun done() {
-        state = state.done()
+        state = state.recordingDone()
     }
 
     override fun reset() {
         calls.clear()
-        childHinter = ChildHinter()
-        state = AnsweringCallRecorderState(this)
+        childHinter = factories.childHinter()
+        state = factories.answeringCallRecorderState(this)
     }
 
     companion object {

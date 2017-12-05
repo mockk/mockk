@@ -1,7 +1,8 @@
 package io.mockk.impl
 
-import io.mockk.*
 import io.mockk.MockKGateway.*
+import io.mockk.MockKVerificationScope
+import io.mockk.slot
 
 internal class VerifierImpl(callRecorder: () -> CallRecorder,
                             val stubRepo: StubRepository) : CommonRecorder(callRecorder), Verifier {

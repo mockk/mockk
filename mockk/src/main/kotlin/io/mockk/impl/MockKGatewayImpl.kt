@@ -3,12 +3,12 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
+import io.mockk.impl.JvmLogging.adaptor
 import io.mockk.jvm.JvmAnyValueGenerator
 import io.mockk.jvm.JvmSignatureValueGenerator
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
-import io.mockk.impl.JvmLogging.adaptor
 import java.util.*
 
 class MockKGatewayImpl : MockKGateway {
@@ -39,6 +39,16 @@ class MockKGatewayImpl : MockKGateway {
                 Ordering.SEQUENCE -> sequenceVerifier
             }
 
+    internal val callRecorderFactories = CallRecorderFactories(
+            ::SignatureMatcherDetector,
+            ::CallRoundBuilder,
+            ::ChildHinter,
+            this::verifier,
+            ::AnsweringCallRecorderState,
+            ::StubbingCallRecorderState,
+            ::VerifyingCallRecorderState,
+            ::StubbingAwaitingAnswerCallRecorderState)
+
     private val callRecorderTL = object : ThreadLocal<CallRecorderImpl>() {
         override fun initialValue() = CallRecorderImpl(
                 stubRepo,
@@ -46,7 +56,7 @@ class MockKGatewayImpl : MockKGateway {
                 signatureValueGenerator,
                 mockFactory,
                 anyValueGenerator,
-                this@MockKGatewayImpl::verifier)
+                callRecorderFactories)
     }
 
     override val callRecorder: CallRecorder

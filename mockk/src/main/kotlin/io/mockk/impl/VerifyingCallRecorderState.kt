@@ -9,12 +9,12 @@ internal class VerifyingCallRecorderState(recorder: CallRecorderImpl,
                                           val params: VerificationParameters) : RecordingCallRecorderState(recorder) {
     val wasNotCalled = mutableListOf<Any>()
 
-    override fun done(): CallRecorderState {
+    override fun recordingDone(): CallRecorderState {
         if (recorder.calls.isEmpty() && wasNotCalled.isEmpty()) {
             throw MockKException("Missing calls inside verify { ... } block.")
         }
 
-        val outcome = recorder.verifier(params.ordering)
+        val outcome = recorder.factories.verifier(params.ordering)
                 .verify(recorder.calls, params.min, params.max)
 
         log.trace { "Done verification. Outcome: $outcome" }
@@ -22,7 +22,7 @@ internal class VerifyingCallRecorderState(recorder: CallRecorderImpl,
 
         checkWasNotCalled()
 
-        return AnsweringCallRecorderState(recorder)
+        return recorder.factories.answeringCallRecorderState(recorder)
     }
 
     private fun failIfNotPassed(outcome: MockKGateway.VerificationResult, inverse: Boolean) {

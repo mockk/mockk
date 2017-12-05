@@ -1,7 +1,6 @@
 package io.mockk.impl
 
 import io.mockk.MockKException
-import io.mockk.MockKGateway
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKMatcherScope
 import kotlinx.coroutines.experimental.runBlocking

@@ -1,6 +1,9 @@
 package io.mockk.impl
 
-import io.mockk.*
+import io.mockk.InternalPlatform
+import io.mockk.Invocation
+import io.mockk.Matcher
+import io.mockk.MockKException
 import kotlin.reflect.KClass
 
 internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) : CallRecorderState(recorder) {
@@ -14,8 +17,8 @@ internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) :
             callRounds.add(builder.build())
         }
 
-        callRoundBuilder = CallRoundBuilder()
-        recorder.childHinter = ChildHinter()
+        callRoundBuilder = recorder.factories.callRoundBuilder()
+        recorder.childHinter = recorder.factories.childHinter()
 
         if (round == n) {
             signMatchers()
@@ -25,7 +28,7 @@ internal abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) :
 
     private fun signMatchers() {
         recorder.calls.clear()
-        val detector = SignatureMatcherDetector(callRounds, childMocks.mocks)
+        val detector = recorder.factories.signatureMatcherDetector(callRounds, childMocks.mocks)
         recorder.calls.addAll(detector.detect())
     }
 

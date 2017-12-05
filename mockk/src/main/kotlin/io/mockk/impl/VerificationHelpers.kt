@@ -1,6 +1,8 @@
 package io.mockk.impl
 
-import io.mockk.*
+import io.mockk.InternalPlatform
+import io.mockk.Invocation
+import io.mockk.MatchedCall
 
 
 object VerificationHelpers {

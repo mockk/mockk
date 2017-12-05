@@ -1,8 +1,10 @@
 package io.mockk.impl
 
-import io.mockk.*
+import io.mockk.MatchedCall
+import io.mockk.MockKException
+import io.mockk.Ref
 
-internal class SignatureMatcherDetector(
+internal class  SignatureMatcherDetector(
         val callRounds: List<CallRound>,
         val childMocks: List<Ref>) {
 
