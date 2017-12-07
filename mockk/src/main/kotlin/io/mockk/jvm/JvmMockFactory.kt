@@ -1,6 +1,6 @@
 package io.mockk.jvm
 
-import io.mockk.InternalPlatform.toStr
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.agent.MockKAgentException
 import io.mockk.common.AbstractMockFactory

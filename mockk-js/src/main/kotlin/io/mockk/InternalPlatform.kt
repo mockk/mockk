@@ -7,15 +7,13 @@ import kotlin.js.Date
 import kotlin.reflect.KClass
 
 object InternalPlatform {
-    fun identityHashCode(obj: Any): Int = Kotlin.identityHashCode(obj)
-
     fun nanoTime() = (Date().getTime() * 1e6).toLong()
 
     fun ref(obj: Any): Ref = JsRef(obj)
 
-    fun <T> runCoroutine(block: suspend () -> T): T {
-        TODO()
-    }
+    fun <T> runCoroutine(block: suspend () -> T): T =
+            throw UnsupportedOperationException(
+                    "Coroutines are not supported for JS MockK version")
 
     fun Any?.toStr(): String =
             when (this) {
@@ -106,6 +104,3 @@ object InternalPlatform {
     }
 }
 
-internal external object Kotlin {
-    fun identityHashCode(obj: Any): Int
-}

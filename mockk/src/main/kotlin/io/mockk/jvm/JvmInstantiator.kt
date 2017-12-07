@@ -1,6 +1,6 @@
 package io.mockk.jvm
 
-import io.mockk.InternalPlatform.toStr
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.InstanceFactoryRegistryImpl
 import io.mockk.impl.Instantiator
 import io.mockk.impl.Logger

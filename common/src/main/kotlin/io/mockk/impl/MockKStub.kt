@@ -53,7 +53,7 @@ open class MockKStub(override val type: KClass<*>,
         if (method.isToString()) {
             return toStr()
         } else if (method.isHashCode()) {
-            return InternalPlatform.identityHashCode(self)
+            return InternalPlatformDsl.identityHashCode(self)
         } else if (method.isEquals()) {
             return self === args[0]
         } else {

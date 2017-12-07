@@ -1,7 +1,7 @@
 package io.mockk
 
 import kotlin.reflect.KClass
-import io.mockk.InternalPlatform.toStr
+import io.mockk.InternalPlatformDsl.toStr
 
 /**
  * Matcher that checks equality. By reference and by value (equals method)
@@ -11,7 +11,7 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false, val inverse: Boo
         val result = if (ref) {
             arg === value
         } else {
-            InternalPlatform.deepEquals(arg, value)
+            InternalPlatformDsl.deepEquals(arg, value)
         }
         return if (inverse) !result else result
     }

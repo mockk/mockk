@@ -1,7 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.*
-import io.mockk.InternalPlatform.toStr
+import io.mockk.InternalPlatformDsl.toStr
 
 class ChainedCallDetector(callRounds: List<CallRound>,
                                    val childMocks: List<Ref>,

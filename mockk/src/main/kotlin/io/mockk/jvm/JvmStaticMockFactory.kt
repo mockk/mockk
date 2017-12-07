@@ -1,7 +1,7 @@
 package io.mockk.jvm
 
 import io.mockk.InternalPlatform.hkd
-import io.mockk.InternalPlatform.toStr
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.MockKGateway.StaticMockFactory
 import io.mockk.agent.MockKAgentException

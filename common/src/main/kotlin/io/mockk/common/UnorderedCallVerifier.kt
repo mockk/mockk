@@ -1,6 +1,6 @@
 package io.mockk.common
 
-import io.mockk.InternalPlatform.toStr
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
 import io.mockk.MatchedCall

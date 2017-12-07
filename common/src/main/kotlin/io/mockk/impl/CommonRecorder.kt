@@ -1,6 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.InternalPlatform
+import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKMatcherScope
@@ -15,7 +16,7 @@ open class CommonRecorder(val callRecorder: () -> CallRecorder,
             val block: () -> T = if (mockBlock != null) {
                 { scope.mockBlock() }
             } else if (coMockBlock != null) {
-                { InternalPlatform.runCoroutine { scope.coMockBlock() } }
+                { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
             } else {
                 { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
             }

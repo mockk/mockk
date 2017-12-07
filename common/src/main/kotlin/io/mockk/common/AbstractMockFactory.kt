@@ -1,7 +1,7 @@
 package io.mockk.common
 
 import io.mockk.InternalPlatform
-import io.mockk.InternalPlatform.toStr
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.impl.Instantiator
