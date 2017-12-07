@@ -1,4 +1,5 @@
 package io.mockk
+
 import kotlin.js.Math
 
 open class StringSpec(block: StringSpec.() -> Unit) {
@@ -8,16 +9,26 @@ open class StringSpec(block: StringSpec.() -> Unit) {
     operator fun String.invoke(block: () -> Unit) = tests.add(Test(this, block))
 
     init {
-        block()
-        for (test in tests) {
+        var nTest = 0
+        while (true) {
+            tests.clear()
+            block()
+            if (nTest >= tests.size) {
+                break
+            }
+            val test = tests[nTest++]
             print(test.name + " [")
             try {
                 test.block()
                 println("+]")
             } catch (ex: AssertionError) {
-                println("-]: " + ex.message)
+                println("-]: failure")
+                console.log(js("ex.stack"))
+                break
             } catch (ex: Throwable) {
-                println("x]: " + ex.toString())
+                println("x]: exception")
+                console.log(js("ex.stack"))
+                break
             }
         }
     }
@@ -31,12 +42,17 @@ open class StringSpec(block: StringSpec.() -> Unit) {
     }
 
     fun assertEquals(expected: Any?, actual: Any?) {
+        if (expected is BooleanArray && actual is BooleanArray) {
+            return assertArrayEquals(expected, actual)
+        } else if (expected is Array<*> && actual is Array<*>) {
+            return assertArrayEquals(expected, actual)
+        }
         if (expected != actual) {
             fail("expected [$expected] != actual [$actual]")
         }
     }
 
-    fun <T> assertArrayEquals(expected: Array<T>, actual: Array<T>) {
+    fun assertArrayEquals(expected: Array<*>, actual: Array<*>) {
         if (expected contentDeepEquals actual) {
             fail("expected [${expected.contentDeepToString()}] != actual [${actual.contentDeepToString()}]")
         }
@@ -75,7 +91,7 @@ open class StringSpec(block: StringSpec.() -> Unit) {
                     expected.contentToString(), actual.contentToString())
 
     private fun failIfFalse(cond: Boolean, expected: String, actual: String) {
-        if (cond) {
+        if (!cond) {
             fail("expected [$expected] != actual [$actual]")
         }
     }

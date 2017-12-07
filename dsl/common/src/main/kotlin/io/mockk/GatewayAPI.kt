@@ -7,10 +7,12 @@ import kotlin.reflect.KClass
  */
 interface MockKGateway {
     val mockFactory: MockFactory
+    val staticMockFactory: StaticMockFactory
     val stubbingRecorder: Stubber
     val verifyingRecorder: Verifier
     val callRecorder: CallRecorder
     val instanceFactoryRegistry: InstanceFactoryRegistry
+    val clearer: Clearer
 
     fun verifier(ordering: Ordering): CallVerifier
 
@@ -31,17 +33,29 @@ interface MockKGateway {
                            name: String?,
                            moreInterfaces: Array<out KClass<*>>): T
 
-        fun staticMockk(cls: KClass<*>)
-        fun staticUnMockk(cls: KClass<*>)
 
         fun childMock(cls: KClass<*>): Any
+    }
 
+
+    /**
+     * Binds new static mocks
+     */
+    interface StaticMockFactory {
+        fun staticMockk(cls: KClass<*>)
+
+        fun staticUnMockk(cls: KClass<*>)
+    }
+
+    /**
+     * Clears mocks
+     */
+    interface Clearer {
         fun clear(mocks: Array<out Any>,
                   answers: Boolean,
                   recordedCalls: Boolean,
                   childMocks: Boolean)
     }
-
 
     /**
      * Stub calls

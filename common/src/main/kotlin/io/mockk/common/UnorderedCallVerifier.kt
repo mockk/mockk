@@ -11,7 +11,7 @@ import io.mockk.common.VerificationHelpers.formatCalls
 open class UnorderedCallVerifier(val stubRepo: StubRepository) : CallVerifier {
     override fun verify(calls: List<MatchedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
         for ((i, call) in calls.withIndex()) {
-            val result = matchCall(call, min, max, "call ${i + 1} of ${calls.size}.")
+            val result = matchCall(call, min, max, "call ${i + 1} of ${calls.size}: ${call.invocation}.")
 
             if (!result.matches) {
                 return result

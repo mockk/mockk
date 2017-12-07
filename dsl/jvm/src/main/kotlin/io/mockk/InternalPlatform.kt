@@ -4,6 +4,7 @@ import io.mockk.jvm.JvmRef
 import io.mockk.jvm.WeakConcurrentMap
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.concurrent.atomic.AtomicLong
@@ -111,7 +112,7 @@ object InternalPlatform {
     }
 
     fun prettifyRecordingException(ex: Throwable): Throwable {
-        throw when {
+        return when {
             ex is ClassCastException ->
                 MockKException("Class cast exception. " +
                         "Probably type information was erased.\n" +
@@ -129,4 +130,21 @@ object InternalPlatform {
     fun <T> synchronizedList(): MutableList<T> = Collections.synchronizedList(mutableListOf())
 
     fun <K, V> synchronizedMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
+
+    fun <T : Any> copyFields(to: T, from: T) {
+        fun copy(to: Any, from: Any, cls: Class<*>) {
+            for (field in cls.declaredFields) {
+                if (Modifier.isStatic(field.modifiers)) {
+                    continue
+                }
+                field.isAccessible = true
+                val value = field.get(from)
+                field.set(to, value)
+            }
+            if (cls.superclass != null) {
+                copy(to, from, cls.superclass)
+            }
+        }
+        copy(to, from, from::class.java)
+    }
 }

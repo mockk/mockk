@@ -139,7 +139,7 @@ object MockKDsl {
      * Resets information associated with mock
      */
     inline fun internalClearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) {
-        MockKGateway.implementation().mockFactory.clear(
+        MockKGateway.implementation().clearer.clear(
                 mocks = mocks,
                 answers = answers,
                 recordedCalls = recordedCalls,
@@ -506,13 +506,13 @@ class MockKAnswerScope<T>(@PublishedApi
 class MockKStaticScope(vararg val staticTypes: KClass<*>) {
     fun mock() {
         for (type in staticTypes) {
-            MockKGateway.implementation().mockFactory.staticMockk(type)
+            MockKGateway.implementation().staticMockFactory.staticMockk(type)
         }
     }
 
     fun unmock() {
         for (type in staticTypes) {
-            MockKGateway.implementation().mockFactory.staticUnMockk(type)
+            MockKGateway.implementation().staticMockFactory.staticUnMockk(type)
         }
     }
 
@@ -774,7 +774,7 @@ data class InvocationMatcher(val self: Any,
     }
 
     override fun toString(): String {
-        return "InvocationMatcher(self=$selfStr, method=$method, args=$args)"
+        return "InvocationMatcher(method=${method.toStr()}, args=$args)"
     }
 
 

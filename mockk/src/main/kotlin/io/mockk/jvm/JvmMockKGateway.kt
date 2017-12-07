@@ -5,6 +5,7 @@ import io.mockk.MockKGateway.*
 import io.mockk.Ordering
 import io.mockk.Ref
 import io.mockk.common.AllCallsCallVerifier
+import io.mockk.common.CommonClearer
 import io.mockk.common.StubRepository
 import io.mockk.common.UnorderedCallVerifier
 import io.mockk.impl.*
@@ -28,6 +29,12 @@ class JvmMockKGateway : MockKGateway {
             MockKProxyMaker.INSTANCE,
             instantiator,
             stubRepo)
+
+    override val staticMockFactory = JvmStaticMockFactory(
+            MockKProxyMaker.INSTANCE,
+            stubRepo)
+
+    override val clearer = CommonClearer(stubRepo)
 
     val unorderedVerifier = UnorderedCallVerifier(stubRepo)
     val allVerifier = AllCallsCallVerifier(stubRepo)

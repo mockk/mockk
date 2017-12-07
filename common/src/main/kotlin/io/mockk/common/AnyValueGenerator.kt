@@ -2,7 +2,7 @@ package io.mockk.common
 
 import kotlin.reflect.KClass
 
-abstract class AnyValueGenerator {
+open class AnyValueGenerator {
     open fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
         return when (cls) {
             Boolean::class -> false

@@ -15,3 +15,28 @@ kotlin {
         coroutines "enable"
     }
 }
+
+sourceSets {
+    main {
+        kotlin {
+            srcDirs += '../common/src/main/kotlin'
+        }
+        resources {
+            srcDirs += '../common/src/main/resources'
+        }
+    }
+}
+
+
+task unpackStdLib() {
+    configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        if (artifact.getFile().exists()) {
+            copy {
+                from zipTree(artifact.getFile())
+                into "${buildDir}/" + artifact.name
+            }
+        }
+    }
+}
+
+test.dependsOn(unpackStdLib)
