@@ -88,11 +88,15 @@ object InternalPlatform {
         }
     }
 
+
+    fun <K, V> weakMap(): MutableMap<K, V> = WeakConcurrentMap<K, V>()
+
     fun <T> synchronizedMutableList(): MutableList<T> {
         return synchronizedList(mutableListOf<T>())
     }
 
-    fun <K, V> weakMap(): MutableMap<K, V> = WeakConcurrentMap<K, V>()
+    fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
+
 
     fun counter(): () -> Long = AtomicLong()::incrementAndGet
 
@@ -126,10 +130,6 @@ object InternalPlatform {
             else -> ex
         }
     }
-
-    fun <T> synchronizedList(): MutableList<T> = Collections.synchronizedList(mutableListOf())
-
-    fun <K, V> synchronizedMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
 
     fun <T : Any> copyFields(to: T, from: T) {
         fun copy(to: Any, from: Any, cls: Class<*>) {

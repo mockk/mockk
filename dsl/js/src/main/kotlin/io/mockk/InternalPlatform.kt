@@ -93,13 +93,11 @@ object InternalPlatform {
 
     fun prettifyRecordingException(ex: Throwable) = ex
 
-    fun <T> synchronizedMutableList(): MutableList<T> = mutableListOf()
-
     fun <K : Any, V> weakMap(): MutableMap<K, V> = JsIdentityHashMapOf()
 
-    fun <T> synchronizedList(): MutableList<T> = mutableListOf()
+    fun <T> synchronizedMutableList(): MutableList<T> = mutableListOf()
 
-    fun <K, V> synchronizedMap(): MutableMap<K, V> = hashMapOf()
+    fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = hashMapOf()
 
     fun <T> copyFields(to: T, from: T) {
         val to = to.asDynamic()

@@ -8,10 +8,7 @@ import io.mockk.impl.Instantiator
 import io.mockk.impl.Logger
 import io.mockk.impl.MockKStub
 import io.mockk.impl.SpyKStub
-import java.lang.reflect.Modifier
-import java.util.*
 import kotlin.reflect.KClass
-import kotlin.reflect.full.cast
 
 abstract class AbstractMockFactory(val stubRepository: StubRepository,
                                    val instantiator: Instantiator) : MockKGateway.MockFactory {
@@ -24,7 +21,7 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
 
     override fun <T : Any> mockk(cls: KClass<T>, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
-        log.debug { "Creating mockk for ${cls.toStr()} name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
+        log.debug { "Creating mockk for ${cls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
         val stub = MockKStub(cls, newName)
 
@@ -35,12 +32,12 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
 
         stubRepository.add(proxy, stub)
 
-        return cls.cast(proxy)
+        return proxy
     }
 
     override fun <T : Any> spyk(cls: KClass<T>?, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
-        log.debug { "Creating spyk for ${cls.toStr()} name=$newName, moreInterfaces=${Arrays.toString(moreInterfaces)}" }
+        log.debug { "Creating spyk for ${cls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
         val actualCls = when {
             objToCopy != null -> objToCopy::class
@@ -64,7 +61,7 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
 
         stubRepository.add(proxy, stub)
 
-        return actualCls.cast(proxy)
+        return proxy
     }
 
 

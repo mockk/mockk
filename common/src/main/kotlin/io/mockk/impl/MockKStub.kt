@@ -8,9 +8,9 @@ import io.mockk.InternalPlatform.customComputeIfAbsent
 open class MockKStub(override val type: KClass<*>,
                               override val name: String) : Stub {
 
-    private val answers = InternalPlatform.synchronizedList<InvocationAnswer>()
-    private val childs = InternalPlatform.synchronizedMap<InvocationMatcher, Any>()
-    private val recordedCalls = InternalPlatform.synchronizedList<Invocation>()
+    private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
+    private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
+    private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
 
     lateinit var hashCodeStr: String
 
