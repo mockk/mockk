@@ -1,20 +1,10 @@
-apply plugin: 'kotlin'
+apply plugin: 'kotlin-platform-jvm'
 
 dependencies {
+    expectedBy project(":mockk-dsl")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-}
-
-sourceSets {
-    main {
-        kotlin {
-            srcDirs += '../common/src/main/kotlin'
-        }
-        resources {
-            srcDirs += '../common/src/main/resources'
-        }
-    }
 }
 
 kotlin {

@@ -4,16 +4,16 @@ import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
-object InternalPlatformDsl {
-    fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
+actual object InternalPlatformDsl {
+    actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
 
-    fun <T> runCoroutine(block: suspend () -> T): T {
+    actual fun <T> runCoroutine(block: suspend () -> T): T {
         return runBlocking {
             block()
         }
     }
 
-    fun Any?.toStr() =
+    actual fun Any?.toStr() =
             when (this) {
                 null -> "null"
                 is KClass<*> -> this.java.name
@@ -22,7 +22,7 @@ object InternalPlatformDsl {
                 else -> toString()
             }
 
-    fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
+    actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
         return if (obj1 === obj2) {
             true
         } else if (obj1 == null || obj2 == null) {

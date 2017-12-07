@@ -1,19 +1,9 @@
-apply plugin: 'kotlin2js'
+apply plugin: 'kotlin-platform-js'
 
 dependencies {
+    expectedBy project(":mockk-dsl")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
-}
-
-sourceSets {
-    main {
-        kotlin {
-            srcDirs += '../common/src/main/kotlin'
-        }
-        resources {
-            srcDirs += '../common/src/main/resources'
-        }
-    }
 }
 
 kotlin {

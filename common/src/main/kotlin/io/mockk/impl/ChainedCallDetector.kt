@@ -2,6 +2,7 @@ package io.mockk.impl
 
 import io.mockk.*
 import io.mockk.InternalPlatformDsl.toStr
+import kotlin.reflect.KClass
 
 class ChainedCallDetector(callRounds: List<CallRound>,
                                    val childMocks: List<Ref>,
@@ -103,8 +104,9 @@ class ChainedCallDetector(callRounds: List<CallRound>,
                 childMocks.contains(InternalPlatform.ref(zeroCall.invocation.self)))
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun MethodDescription.isSuspend(): Boolean {
-        return InternalPlatform.isSuspend(paramTypes)
+        return InternalPlatform.isSuspend(paramTypes as List<KClass<Any>>)
     }
 
     companion object {

@@ -10,14 +10,14 @@ import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-object InternalPlatform {
-    fun nanoTime() = System.nanoTime()
+actual object InternalPlatform {
+    actual fun nanoTime(): Long = System.nanoTime()
 
-    fun ref(obj: Any): Ref = JvmRef(obj)
+    actual fun ref(obj: Any): Ref = JvmRef(obj)
 
-    fun hkd(obj: Any): String = Integer.toUnsignedString(InternalPlatformDsl.identityHashCode(obj), 16)
+    actual fun hkd(obj: Any): String = Integer.toUnsignedString(InternalPlatformDsl.identityHashCode(obj), 16)
 
-    fun isPassedByValue(cls: KClass<*>): Boolean {
+    actual fun isPassedByValue(cls: KClass<*>): Boolean {
         return when (cls) {
             java.lang.Boolean::class -> true
             java.lang.Byte::class -> true
@@ -32,7 +32,7 @@ object InternalPlatform {
         }
     }
 
-    fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V {
+    actual fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V {
         val value = get(key)
         return if (value == null) {
             val newValue = valueFunc(key)
@@ -44,25 +44,25 @@ object InternalPlatform {
     }
 
 
-    fun <K, V> weakMap(): MutableMap<K, V> = WeakConcurrentMap<K, V>()
+    actual fun <K, V> weakMap(): MutableMap<K, V> = WeakConcurrentMap<K, V>()
 
-    fun <T> synchronizedMutableList(): MutableList<T> {
+    actual fun <T> synchronizedMutableList(): MutableList<T> {
         return synchronizedList(mutableListOf<T>())
     }
 
-    fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
+    actual fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
 
 
-    fun counter(): () -> Long = AtomicLong()::incrementAndGet
+    actual fun counter(): () -> Long = AtomicLong()::incrementAndGet
 
-    fun packRef(arg: Any?): Any? {
+    actual fun packRef(arg: Any?): Any? {
         return if (arg == null || isPassedByValue(arg::class))
             arg
         else
             ref(arg)
     }
 
-    fun isSuspend(paramTypes: List<KClass<*>>): Boolean {
+    actual fun isSuspend(paramTypes: List<KClass<Any>>): Boolean {
         val sz = paramTypes.size
         if (sz == 0) {
             return false
@@ -70,7 +70,7 @@ object InternalPlatform {
         return paramTypes[sz - 1].isSubclassOf(Continuation::class)
     }
 
-    fun prettifyRecordingException(ex: Throwable): Throwable {
+    actual fun prettifyRecordingException(ex: Throwable): Throwable {
         return when {
             ex is ClassCastException ->
                 MockKException("Class cast exception. " +
@@ -86,7 +86,7 @@ object InternalPlatform {
         }
     }
 
-    fun <T : Any> copyFields(to: T, from: T) {
+    actual fun <T : Any> copyFields(to: T, from: T) {
         fun copy(to: Any, from: Any, cls: Class<*>) {
             for (field in cls.declaredFields) {
                 if (Modifier.isStatic(field.modifiers)) {

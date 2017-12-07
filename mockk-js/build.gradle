@@ -1,10 +1,11 @@
-apply plugin: 'kotlin2js'
+apply plugin: 'kotlin-platform-js'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    expectedBy project(":mockk-common")
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     compile project(":mockk-dsl-js")
@@ -13,17 +14,6 @@ dependencies {
 kotlin {
     experimental {
         coroutines "enable"
-    }
-}
-
-sourceSets {
-    main {
-        kotlin {
-            srcDirs += '../common/src/main/kotlin'
-        }
-        resources {
-            srcDirs += '../common/src/main/resources'
-        }
     }
 }
 

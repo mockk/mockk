@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.mockk
 
 import kotlin.js.Math

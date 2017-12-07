@@ -2,14 +2,14 @@ package io.mockk
 
 import kotlin.reflect.KClass
 
-object InternalPlatformDsl {
-    fun identityHashCode(obj: Any): Int = Kotlin.identityHashCode(obj)
+actual object InternalPlatformDsl {
+    actual fun identityHashCode(obj: Any): Int = Kotlin.identityHashCode(obj)
 
-    fun <T> runCoroutine(block: suspend () -> T): T =
+    actual fun <T> runCoroutine(block: suspend () -> T): T =
             throw UnsupportedOperationException(
                     "Coroutines are not supported for JS MockK version")
 
-    fun Any?.toStr(): String =
+    actual fun Any?.toStr(): String =
             when (this) {
                 null -> "null"
                 is KClass<*> -> this.simpleName ?: "<no name class>"
@@ -17,7 +17,7 @@ object InternalPlatformDsl {
                 else -> toString()
             }
 
-    fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
+    actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
         return if (obj1 === obj2) {
             true
         } else if (obj1 == null || obj2 == null) {
