@@ -4,7 +4,7 @@ import io.mockk.Ref
 import kotlin.reflect.KClass
 
 expect object InternalPlatform {
-    fun nanoTime(): Long
+    fun time(): Long
 
     fun ref(obj: Any): Ref
 

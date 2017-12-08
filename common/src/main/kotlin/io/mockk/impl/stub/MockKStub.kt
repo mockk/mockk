@@ -4,6 +4,7 @@ import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import kotlin.reflect.KClass
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
+import kotlin.math.sign
 
 open class MockKStub(override val type: KClass<*>,
                               override val name: String) : Stub {
@@ -118,7 +119,7 @@ open class MockKStub(override val type: KClass<*>,
                 toStr(),
                 method,
                 args.toList(),
-                InternalPlatform.nanoTime(),
+                InternalPlatform.time(),
                 originalPlusToString)
 
         return MockKGateway.implementation().callRecorder.call(invocation)

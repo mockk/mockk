@@ -9,6 +9,7 @@ import kotlin.reflect.KClass
 class JsMockFactory(stubRepository: StubRepository,
                     instantiator: JsInstantiator) : AbstractMockFactory(stubRepository, instantiator) {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> newProxy(cls: KClass<out T>,
                                     moreInterfaces: Array<out KClass<*>>,
                                     stub: Stub,

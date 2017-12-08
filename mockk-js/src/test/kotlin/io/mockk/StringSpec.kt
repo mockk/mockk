@@ -55,7 +55,7 @@ open class StringSpec(block: StringSpec.() -> Unit) {
     }
 
     fun assertArrayEquals(expected: Array<*>, actual: Array<*>) {
-        if (expected contentDeepEquals actual) {
+        if (!(expected contentDeepEquals actual)) {
             fail("expected [${expected.contentDeepToString()}] != actual [${actual.contentDeepToString()}]")
         }
     }

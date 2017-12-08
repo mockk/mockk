@@ -610,7 +610,13 @@ interface Matcher<in T> {
 interface TypedMatcher {
     val argumentType: KClass<*>
 
-    fun checkType(arg: Any?): Boolean = argumentType.isInstance(arg)
+    fun checkType(arg: Any?): Boolean {
+        if (argumentType.simpleName === null) {
+            return true
+        }
+
+        return argumentType.isInstance(arg)
+    }
 }
 
 /**
@@ -774,7 +780,7 @@ data class InvocationMatcher(val self: Any,
     }
 
     override fun toString(): String {
-        return "InvocationMatcher(method=${method.toStr()}, args=$args)"
+        return "InvocationMatcher(selfmethod=${method.toStr()}, args=$args)"
     }
 
 

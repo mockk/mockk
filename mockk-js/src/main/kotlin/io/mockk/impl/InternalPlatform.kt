@@ -2,18 +2,20 @@ package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
 import io.mockk.Ref
+import io.mockk.impl.platform.CommonRef
+import io.mockk.impl.platform.JsHexLongHelper
 import io.mockk.impl.platform.JsCounter
 import io.mockk.impl.platform.JsIdentityHashMapOf
-import io.mockk.impl.platform.JsRef
-import kotlin.js.Date
 import kotlin.reflect.KClass
 
 actual object InternalPlatform {
-    actual fun nanoTime() = (Date().getTime() * 1e6).toLong()
+    internal val timeCounter = JsCounter()
 
-    actual fun ref(obj: Any): Ref = JsRef(obj)
+    actual fun time() = timeCounter.next()
 
-    actual fun hkd(obj: Any): String = InternalPlatformDsl.identityHashCode(obj).toString()
+    actual fun ref(obj: Any): Ref = CommonRef(obj)
+
+    actual fun hkd(obj: Any): String = JsHexLongHelper.toHexString(InternalPlatformDsl.identityHashCode(obj).toLong())
 
     actual fun isPassedByValue(cls: KClass<*>): Boolean {
         return when (cls) {

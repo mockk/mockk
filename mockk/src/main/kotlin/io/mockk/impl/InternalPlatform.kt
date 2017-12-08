@@ -3,7 +3,7 @@ package io.mockk.impl
 import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
 import io.mockk.Ref
-import io.mockk.impl.platform.JvmRef
+import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
 import java.lang.reflect.Modifier
 import java.util.*
@@ -14,9 +14,9 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 actual object InternalPlatform {
-    actual fun nanoTime(): Long = System.nanoTime()
+    actual fun time(): Long = System.nanoTime()
 
-    actual fun ref(obj: Any): Ref = JvmRef(obj)
+    actual fun ref(obj: Any): Ref = CommonRef(obj)
 
     actual fun hkd(obj: Any): String = Integer.toUnsignedString(InternalPlatformDsl.identityHashCode(obj), 16)
 

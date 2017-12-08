@@ -38,13 +38,14 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
 
     override fun <T : Any> spyk(cls: KClass<T>?, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
-        log.debug { "Creating spyk for ${cls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
         val actualCls = when {
             objToCopy != null -> objToCopy::class
             cls != null -> cls
             else -> throw MockKException("Either cls or objToCopy should not be null")
         }
+
+        log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
         val stub = SpyKStub(actualCls, newName)
 

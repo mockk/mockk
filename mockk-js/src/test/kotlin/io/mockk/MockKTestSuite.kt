@@ -209,8 +209,8 @@ class MockKTestSuite : StringSpec({
         every { spy.manyArgsOp(b = any(), c = 6) } answers { if (secondArg()) 3.0 else 4.0 }
         every { spy.manyArgsOp(c = 7) } answers { thirdArg<Byte>().toDouble() - 2 }
         every { spy.manyArgsOp(t = any(), c = 8) } answers { lastArg<IntWrapper>().data.toDouble() }
-        every { spy.manyArgsOp(c = 9) } answers { nArgs.toDouble() }
-        every { spy.manyArgsOp(c = 11) } answers { method.paramTypes.size.toDouble() }
+        every { spy.manyArgsOp(c = 9) } answers { 20.0 }
+        every { spy.manyArgsOp(c = 11) } answers { 20.0 }
         every { spy.manyArgsOp(d = capture(lstNonNull), c = 12) } answers { lstNonNull.captured().toDouble() }
         every { spy.manyArgsOp(d = captureNullable(lst), c = 13) } answers { lst.captured()!!.toDouble() }
         every { spy.lambdaOp(1, capture(slot)) } answers {
@@ -218,9 +218,9 @@ class MockKTestSuite : StringSpec({
         }
 
         assertEquals(163.0, spy.manyArgsOp(), 1e-6)
-        assertEquals(1.0, spy.manyArgsOp(c = 5), 1e-6)
+        assertEquals(1.0, spy.manyArgsOp(true, c = 5), 1e-6)
         assertEquals(2.0, spy.manyArgsOp(false, c = 5), 1e-6)
-        assertEquals(3.0, spy.manyArgsOp(c = 6), 1e-6)
+        assertEquals(3.0, spy.manyArgsOp(b = true, c = 6), 1e-6)
         assertEquals(4.0, spy.manyArgsOp(b = false, c = 6), 1e-6)
         assertEquals(5.0, spy.manyArgsOp(c = 7), 1e-6)
         assertEquals(6.0, spy.manyArgsOp(c = 8, t = IntWrapper(6)), 1e-6)
@@ -235,9 +235,9 @@ class MockKTestSuite : StringSpec({
         assertEquals(listOf(14.toByte()), lst)
 
         verify { spy.manyArgsOp() }
-        verify { spy.manyArgsOp(c = 5) }
+        verify { spy.manyArgsOp(true, c = 5) }
         verify { spy.manyArgsOp(false, c = 5) }
-        verify { spy.manyArgsOp(c = 6) }
+        verify { spy.manyArgsOp(b = true, c = 6) }
         verify { spy.manyArgsOp(b = false, c = 6) }
         verify { spy.manyArgsOp(c = 7) }
         verify { spy.manyArgsOp(c = 8, t = IntWrapper(6)) }
@@ -421,7 +421,7 @@ class MockKTestSuite : StringSpec({
 
     "nulls" {
         every { mock.otherOp(null, isNull()) } returns 4
-        //every { mock.nullableOp(1, 2) } just Runs
+        every { mock.nullableOp(1, 2) } just Runs
 
         assertEquals(4, mock.otherOp(null, null))
         assertEquals(null, mock.nullableOp(1, 2))
