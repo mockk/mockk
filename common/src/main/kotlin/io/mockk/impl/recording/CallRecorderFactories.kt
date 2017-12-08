@@ -10,8 +10,8 @@ typealias VerifierFactory = (Ordering) -> CallVerifier
 typealias SignatureMatcherDetectorFactory = (List<CallRound>, List<Ref>) -> SignatureMatcherDetector
 typealias CallRoundBuilderFactory = () -> CallRoundBuilder
 typealias ChildHinterFactory = () -> ChildHinter
-typealias CallRecorderStateFactory = (recorder: CallRecorderImpl) -> CallRecorderState
-typealias VerifyingCallRecorderStateFactory = (recorder: CallRecorderImpl, verificationParams: VerificationParameters) -> CallRecorderState
+typealias CallRecorderStateFactory = (recorder: CommonCallRecorder) -> CallRecorderState
+typealias VerifyingCallRecorderStateFactory = (recorder: CommonCallRecorder, verificationParams: VerificationParameters) -> CallRecorderState
 typealias ChainedCallDetectorFactory = (List<CallRound>, List<Ref>, Int) -> ChainedCallDetector
 
 data class CallRecorderFactories(val signatureMatcherDetector: SignatureMatcherDetectorFactory,

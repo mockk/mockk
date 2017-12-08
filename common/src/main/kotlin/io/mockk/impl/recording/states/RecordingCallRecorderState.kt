@@ -8,7 +8,7 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.*
 import kotlin.reflect.KClass
 
-abstract class RecordingCallRecorderState(recorder: CallRecorderImpl) : CallRecorderState(recorder) {
+abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRecorderState(recorder) {
     private var callRoundBuilder: CallRoundBuilder? = null
     private val callRounds = mutableListOf<CallRound>()
     val childMocks = ChildMocks()

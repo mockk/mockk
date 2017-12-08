@@ -4,9 +4,9 @@ import io.mockk.Answer
 import io.mockk.ConstantAnswer
 import io.mockk.MockKException
 import io.mockk.impl.log.Logger
-import io.mockk.impl.recording.CallRecorderImpl
+import io.mockk.impl.recording.CommonCallRecorder
 
-class StubbingAwaitingAnswerCallRecorderState(recorder: CallRecorderImpl) : CallRecorderState(recorder) {
+class StubbingAwaitingAnswerCallRecorderState(recorder: CommonCallRecorder) : CallRecorderState(recorder) {
     override fun answer(answer: Answer<*>) {
         for ((idx, ic) in recorder.calls.withIndex()) {
             val lastCall = idx == recorder.calls.size - 1

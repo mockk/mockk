@@ -1,8 +1,8 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.impl.recording.CallRecorderImpl
+import io.mockk.impl.recording.CommonCallRecorder
 
-class StubbingCallRecorderState(recorder: CallRecorderImpl) : RecordingCallRecorderState(recorder) {
+class StubbingCallRecorderState(recorder: CommonCallRecorder) : RecordingCallRecorderState(recorder) {
     override fun recordingDone(): CallRecorderState {
         return recorder.factories.stubbingAwaitingAnswerCallRecorderState(recorder)
     }

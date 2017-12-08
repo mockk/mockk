@@ -6,7 +6,7 @@ import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.allInvocations
 import io.mockk.impl.verify.VerificationHelpers.reportCalls
 
-class OrderedCallVerifierImpl(val stubRepo: StubRepository) : MockKGateway.CallVerifier {
+class OrderedCallVerifier(val stubRepo: StubRepository) : MockKGateway.CallVerifier {
     override fun verify(calls: List<MatchedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
         val allCalls = calls.allInvocations(stubRepo)
 

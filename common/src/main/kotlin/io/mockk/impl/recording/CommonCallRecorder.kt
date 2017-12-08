@@ -12,12 +12,12 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.states.CallRecorderState
 import kotlin.reflect.KClass
 
-class CallRecorderImpl(val stubRepo: StubRepository,
-                       val instantiator: AbstractInstantiator,
-                       val signatureValueGenerator: SignatureValueGenerator,
-                       val mockFactory: MockFactory,
-                       val anyValueGenerator: AnyValueGenerator,
-                       val factories: CallRecorderFactories) : CallRecorder {
+class CommonCallRecorder(val stubRepo: StubRepository,
+                         val instantiator: AbstractInstantiator,
+                         val signatureValueGenerator: SignatureValueGenerator,
+                         val mockFactory: MockFactory,
+                         val anyValueGenerator: AnyValueGenerator,
+                         val factories: CallRecorderFactories) : CallRecorder {
 
     override val calls = mutableListOf<MatchedCall>()
     var state: CallRecorderState = factories.answeringCallRecorderState(this)
@@ -54,7 +54,7 @@ class CallRecorderImpl(val stubRepo: StubRepository,
     }
 
     companion object {
-        val log = Logger<CallRecorderImpl>()
+        val log = Logger<CommonCallRecorder>()
     }
 }
 

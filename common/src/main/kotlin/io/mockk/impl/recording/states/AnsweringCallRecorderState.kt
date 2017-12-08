@@ -3,9 +3,9 @@ package io.mockk.impl.recording.states
 import io.mockk.Invocation
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.impl.log.Logger
-import io.mockk.impl.recording.CallRecorderImpl
+import io.mockk.impl.recording.CommonCallRecorder
 
-class AnsweringCallRecorderState(recorder: CallRecorderImpl) : CallRecorderState(recorder) {
+class AnsweringCallRecorderState(recorder: CommonCallRecorder) : CallRecorderState(recorder) {
     override fun call(invocation: Invocation): Any? {
         val stub = recorder.stubRepo.stubFor(invocation.self)
         stub.recordCall(invocation.copy(originalCall = { null }))

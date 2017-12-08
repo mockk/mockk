@@ -5,10 +5,10 @@ import io.mockk.Invocation
 import io.mockk.Matcher
 import io.mockk.MockKException
 import io.mockk.MockKGateway.VerificationParameters
-import io.mockk.impl.recording.CallRecorderImpl
+import io.mockk.impl.recording.CommonCallRecorder
 import kotlin.reflect.KClass
 
-abstract class CallRecorderState(val recorder: CallRecorderImpl) {
+abstract class CallRecorderState(val recorder: CommonCallRecorder) {
     open fun call(invocation: Invocation): Any? = cancelAndThrowBadRecordingState()
     open fun startStubbing(): CallRecorderState = cancelAndThrowBadRecordingState()
     open fun startVerification(params: VerificationParameters): CallRecorderState = cancelAndThrowBadRecordingState()

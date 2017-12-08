@@ -5,9 +5,9 @@ import io.mockk.MockKGateway
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.log.Logger
-import io.mockk.impl.recording.CallRecorderImpl
+import io.mockk.impl.recording.CommonCallRecorder
 
-class VerifyingCallRecorderState(recorder: CallRecorderImpl,
+class VerifyingCallRecorderState(recorder: CommonCallRecorder,
                                  val params: VerificationParameters) : RecordingCallRecorderState(recorder) {
     val wasNotCalled = mutableListOf<Any>()
 

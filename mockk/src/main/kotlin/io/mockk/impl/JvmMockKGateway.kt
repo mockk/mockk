@@ -18,8 +18,8 @@ import io.mockk.impl.recording.states.AnsweringCallRecorderState
 import io.mockk.impl.recording.states.StubbingAwaitingAnswerCallRecorderState
 import io.mockk.impl.recording.states.StubbingCallRecorderState
 import io.mockk.impl.recording.states.VerifyingCallRecorderState
-import io.mockk.impl.verify.OrderedCallVerifierImpl
-import io.mockk.impl.verify.SequenceCallVerifierImpl
+import io.mockk.impl.verify.OrderedCallVerifier
+import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.log.JvmLogging.adaptor
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
@@ -49,8 +49,8 @@ class JvmMockKGateway : MockKGateway {
 
     val unorderedVerifier = UnorderedCallVerifier(stubRepo)
     val allVerifier = AllCallsCallVerifier(stubRepo)
-    val orderedVerifier = OrderedCallVerifierImpl(stubRepo)
-    val sequenceVerifier = SequenceCallVerifierImpl(stubRepo)
+    val orderedVerifier = OrderedCallVerifier(stubRepo)
+    val sequenceVerifier = SequenceCallVerifier(stubRepo)
 
     override fun verifier(ordering: Ordering): CallVerifier =
             when (ordering) {
@@ -74,8 +74,8 @@ class JvmMockKGateway : MockKGateway {
             ::VerifyingCallRecorderState,
             ::StubbingAwaitingAnswerCallRecorderState)
 
-    private val callRecorderTL = object : ThreadLocal<CallRecorderImpl>() {
-        override fun initialValue() = CallRecorderImpl(
+    private val callRecorderTL = object : ThreadLocal<CommonCallRecorder>() {
+        override fun initialValue() = CommonCallRecorder(
                 stubRepo,
                 instantiator,
                 signatureValueGenerator,
