@@ -4,43 +4,46 @@ import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
 import io.mockk.Ref
+import io.mockk.impl.verify.AllCallsCallVerifier
+import io.mockk.impl.stub.CommonClearer
+import io.mockk.impl.stub.StubRepository
+import io.mockk.impl.verify.UnorderedCallVerifier
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
-import io.mockk.impl.instantiation.AnyValueGenerator
-import io.mockk.impl.instantiation.CommonInstanceFactoryRegistry
-import io.mockk.impl.instantiation.JsInstantiator
-import io.mockk.impl.instantiation.JsMockFactory
-import io.mockk.impl.log.JsConsoleLogger
+import io.mockk.impl.instantiation.*
+import io.mockk.impl.log.JvmLogging
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.*
 import io.mockk.impl.recording.states.AnsweringCallRecorderState
 import io.mockk.impl.recording.states.StubbingAwaitingAnswerCallRecorderState
 import io.mockk.impl.recording.states.StubbingCallRecorderState
 import io.mockk.impl.recording.states.VerifyingCallRecorderState
-import io.mockk.impl.stub.CommonClearer
-import io.mockk.impl.stub.StubRepository
-import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifierImpl
 import io.mockk.impl.verify.SequenceCallVerifierImpl
-import io.mockk.impl.verify.UnorderedCallVerifier
-import kotlin.reflect.KClass
+import io.mockk.impl.log.JvmLogging.adaptor
+import io.mockk.proxy.MockKInstrumentation
+import io.mockk.proxy.MockKInstrumentationLoader
+import io.mockk.proxy.MockKProxyMaker
+import java.util.*
 
-class JsMockKGateway : MockKGateway {
+class JvmMockKGateway : MockKGateway {
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
     val stubRepo = StubRepository()
-    val instantiator = JsInstantiator(instanceFactoryRegistryIntrnl)
-    val anyValueGenerator = AnyValueGenerator()
-    val signatureValueGenerator = JsSignatureValueGenerator()
+    val instantiator = JvmInstantiator(MockKProxyMaker.INSTANCE, instanceFactoryRegistryIntrnl)
+    val anyValueGenerator = JvmAnyValueGenerator()
+    val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
-    override val mockFactory: MockFactory = JsMockFactory(
-            stubRepo,
-            instantiator)
+    override val mockFactory: MockFactory = JvmMockFactory(
+            MockKProxyMaker.INSTANCE,
+            instantiator,
+            stubRepo)
 
-    override val staticMockFactory: StaticMockFactory
-        get() = throw UnsupportedOperationException("Static mocks are not supported in JS version")
+    override val staticMockFactory = JvmStaticMockFactory(
+            MockKProxyMaker.INSTANCE,
+            stubRepo)
 
     override val clearer = CommonClearer(stubRepo)
 
@@ -71,31 +74,43 @@ class JsMockKGateway : MockKGateway {
             ::VerifyingCallRecorderState,
             ::StubbingAwaitingAnswerCallRecorderState)
 
-    override val callRecorder: CallRecorder = CallRecorderImpl(
-            stubRepo,
-            instantiator,
-            signatureValueGenerator,
-            mockFactory,
-            anyValueGenerator,
-            callRecorderFactories)
+    private val callRecorderTL = object : ThreadLocal<CallRecorderImpl>() {
+        override fun initialValue() = CallRecorderImpl(
+                stubRepo,
+                instantiator,
+                signatureValueGenerator,
+                mockFactory,
+                anyValueGenerator,
+                callRecorderFactories)
+    }
 
-    override val stubbingRecorder: Stubber = EveryBlockEvaluator({ callRecorder }, ::AutoHinter)
-    override val verifyingRecorder: Verifier = VerifyBlockEvaluator({ callRecorder }, stubRepo, ::AutoHinter)
+    override val callRecorder: CallRecorder
+        get() = callRecorderTL.get()
+
+    override val stubbingRecorder: Stubber = EveryBlockEvaluator(callRecorderTL::get, ::JvmAutoHinter)
+    override val verifyingRecorder: Verifier = VerifyBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
 
     companion object {
         private var log: Logger
 
         init {
-            Logger.loggerFactory = { cls: KClass<*> -> JsConsoleLogger(cls) }
+            Logger.loggerFactory = JvmLogging.slf4jOrJulLogging()
 
-            log = Logger<JsMockKGateway>()
+            log = Logger<JvmMockKGateway>()
 
             log.trace {
-                "Starting JavaScript MockK implementation. "
+                "Starting Java MockK implementation. " +
+                        "Java version = ${System.getProperty("java.version")}. "
             }
+
+            MockKProxyMaker.log = Logger<MockKProxyMaker>().adaptor()
+            MockKInstrumentationLoader.log = Logger<MockKInstrumentationLoader>().adaptor()
+            MockKInstrumentation.log = Logger<MockKInstrumentation>().adaptor()
+
+            MockKInstrumentation.init()
         }
 
-        val defaultImplementation = JsMockKGateway()
+        val defaultImplementation = JvmMockKGateway()
         val defaultImplementationBuilder = { defaultImplementation }
 
         inline fun <T> useImpl(block: () -> T): T {
