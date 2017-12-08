@@ -104,6 +104,11 @@ class MockKTestSuite : StringSpec({
             mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
             mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
         }
+        verifyAll {
+            mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
+            mock.chainOp(5, 6).chainOp(7, 8).otherOp(7, 8)
+            mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4)
+        }
     }
 
     "clearMocks" {
@@ -121,7 +126,7 @@ class MockKTestSuite : StringSpec({
         }
     }
 
-    "atLeast, atMost, exactly" {
+    "atLeast, atMost, exactly, wasNot Called" {
         every { mock.otherOp(0, 2) } throws RuntimeException("test")
         every { mock.otherOp(1, 3) } returnsMany listOf(1, 2, 3)
 
@@ -167,6 +172,17 @@ class MockKTestSuite : StringSpec({
         }
         verify(exactly = 0, inverse = true) {
             mock.otherOp(0, 2)
+        }
+        verify(exactly = 0) {
+            mock.opNeverCalled()
+        }
+        verifyAll(inverse = true) {
+            mock.otherOp(0, 2)
+        }
+        val secondMock = mockk<MockCls>()
+        val thirdMock = mockk<MockCls>()
+        verify {
+            listOf(secondMock, thirdMock) wasNot Called
         }
     }
 
@@ -526,7 +542,7 @@ class MockKTestSuite : StringSpec({
             verify { mock.otherOp(1, 3) }
         }
 
-        expectVerificationError("No calls for", "Calls to same mock") {
+        expectVerificationError("was not called", "Calls to same mock") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -534,7 +550,7 @@ class MockKTestSuite : StringSpec({
             verify { mock.manyArgsOp(true, false) }
         }
 
-        expectVerificationError("No calls for") {
+        expectVerificationError("was not called") {
             verify { mock.otherOp(1, 2) }
         }
 
@@ -596,9 +612,72 @@ class MockKTestSuite : StringSpec({
                 mock.otherOp(1, 2)
             }
         }
+        expectVerificationError("some calls were not matched") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 3)
+
+            verifyAll {
+                mock.otherOp(1, 2)
+            }
+        }
+    }
+
+    "lambda functions" {
+        every {
+            mock.lambdaOp(1, captureLambda())
+        } answers { 1 - lambda<() -> Int>().invoke() }
+
+        assertEquals(-4, mock.lambdaOp(1, { 5 }))
+
+        verify {
+            mock.lambdaOp(1, any())
+        }
+    }
+
+    "spy" {
+        val executed = arrayOf(false, false, false, false)
+        val spyObj = spyk(SpyTest(executed)) // uncomment this as a semi-workaround
+
+        every {
+            spyObj.doSomething()
+        } answers {
+            callOriginal()
+        }
+
+        every {
+            spyObj.computeSomething(1)
+        } returns null
+
+        every {
+            spyObj.computeSomething(2)
+        } answers { callOriginal()?.plus(4) }
+
+        assertNotNull(spyObj.someReference)
+
+        spyObj.doSomething()
+
+        assertNull(spyObj.computeSomething(1))
+        assertEquals(11, spyObj.computeSomething(2))
+        assertEquals(8, spyObj.computeSomething(3))
+
+        assertTrue(executed[0])
+        assertTrue(executed[1])
+        assertTrue(executed[2])
+        assertTrue(executed[3])
     }
 })
 
+class ExtCls {
+    fun IntWrapper.g() = data + 5
+}
+
+object ExtObj {
+    fun IntWrapper.h() = data + 5
+}
+
+fun IntWrapper.f() = data + 5
 
 data class IntWrapper(val data: Int) : Wrapper
 data class DoubleWrapper(val data: Double) : Wrapper
@@ -621,6 +700,8 @@ class MockCls {
 
     fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun lambdaOp(a: Int, b: () -> Int) = a + b()
+    suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
+    suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun otherOp(a: Wrapper? = IntWrapper(1), b: Wrapper? = IntWrapper(2)): Int {
         return if (a is IntWrapper && b is IntWrapper) {
             a.data + b.data
@@ -652,6 +733,33 @@ class MockCls {
     fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+
+    fun opNeverCalled(): Int = 1
+}
+
+
+open class BaseTest(val someReference: String, val executed: Array<Boolean>) {
+    open fun doSomething() {
+        executed[0] = true
+    }
+
+    open fun computeSomething(a: Int): Int? {
+        executed[2] = true
+        return null
+    }
+}
+
+class SpyTest(executed: Array<Boolean>) : BaseTest("A spy", executed) {
+    override fun doSomething() {
+        executed[1] = true
+        super.doSomething()
+    }
+
+    override fun computeSomething(a: Int): Int? {
+        executed[3] = true
+        super.computeSomething(a)
+        return 5 + a
+    }
 }
 
 

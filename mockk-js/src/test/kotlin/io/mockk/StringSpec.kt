@@ -37,6 +37,24 @@ open class StringSpec(block: StringSpec.() -> Unit) {
 
     fun fail(msg: String): Nothing = throw AssertionError(msg)
 
+    fun assertTrue(condition: Boolean) {
+        if (!condition) {
+            fail("Not true")
+        }
+    }
+
+    fun assertNull(actual: Any?) {
+        if (actual != null) {
+            fail("Not null")
+        }
+    }
+
+    fun assertNotNull(actual: Any?) {
+        if (actual == null) {
+            fail("Null")
+        }
+    }
+
     fun assertEquals(expected: Double, actual: Double, precession: Double) {
         if (Math.abs(expected - actual) >= precession) {
             fail("expected [$expected] != actual [$actual]")
