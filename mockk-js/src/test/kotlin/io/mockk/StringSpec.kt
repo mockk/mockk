@@ -2,6 +2,12 @@
 
 package io.mockk
 
+import org.w3c.dom.HTMLCollection
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.asList
+import org.w3c.dom.get
+import kotlin.browser.document
+import kotlin.dom.appendText
 import kotlin.js.Math
 
 open class StringSpec(block: StringSpec.() -> Unit) {
@@ -15,24 +21,28 @@ open class StringSpec(block: StringSpec.() -> Unit) {
         while (true) {
             tests.clear()
             block()
-            if (nTest >= tests.size) {
-                break
-            }
             val test = tests[nTest++]
-            print(test.name + " [")
             try {
                 test.block()
-                println("+]")
+                report("[+] " + test.name)
             } catch (ex: AssertionError) {
-                println("-]: failure")
+                report("[-] " + test.name + " : failure")
                 console.log(js("ex.stack"))
                 break
             } catch (ex: Throwable) {
-                println("x]: exception")
+                report("[x] " + test.name + " : exception")
                 console.log(js("ex.stack"))
                 break
             }
+            if (nTest >= tests.size) {
+                break
+            }
         }
+    }
+
+    private fun report(str: String) {
+        val report = document.getElementById("report")
+        report?.appendText(str + "\n")
     }
 
     fun fail(msg: String): Nothing = throw AssertionError(msg)

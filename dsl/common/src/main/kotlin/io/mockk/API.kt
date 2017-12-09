@@ -37,12 +37,12 @@ object MockKDsl {
     /**
      * Starts a block of stubbing. Part of DSL.
      */
-    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubbingRecorder.every(stubBlock, null)
+    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(stubBlock, null)
 
     /**
      * Starts a block of stubbing for coroutines. Part of DSL.
      */
-    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubbingRecorder.every(null, stubBlock)
+    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockKGateway.implementation().stubber.every(null, stubBlock)
 
     /**
      * Verifies calls happened in the past. Part of DSL
@@ -59,7 +59,7 @@ object MockKDsl {
         val min = if (exactly != -1) exactly else atLeast
         val max = if (exactly != -1) exactly else atMost
 
-        MockKGateway.implementation().verifyingRecorder.verify(
+        MockKGateway.implementation().verifier.verify(
                 VerificationParameters(ordering, min, max, inverse),
                 verifyBlock,
                 null)
@@ -80,7 +80,7 @@ object MockKDsl {
         val min = if (exactly != -1) exactly else atLeast
         val max = if (exactly != -1) exactly else atMost
 
-        MockKGateway.implementation().verifyingRecorder.verify(
+        MockKGateway.implementation().verifier.verify(
                 VerificationParameters(ordering, min, max, inverse),
                 null,
                 verifyBlock)

@@ -87,8 +87,8 @@ class JvmMockKGateway : MockKGateway {
     override val callRecorder: CallRecorder
         get() = callRecorderTL.get()
 
-    override val stubbingRecorder: Stubber = EveryBlockEvaluator(callRecorderTL::get, ::JvmAutoHinter)
-    override val verifyingRecorder: Verifier = VerifyBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
+    override val stubber: Stubber = EveryBlockEvaluator(callRecorderTL::get, ::JvmAutoHinter)
+    override val verifier: Verifier = VerifyBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
 
     companion object {
         private var log: Logger

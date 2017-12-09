@@ -79,8 +79,8 @@ class JsMockKGateway : MockKGateway {
             anyValueGenerator,
             callRecorderFactories)
 
-    override val stubbingRecorder: Stubber = EveryBlockEvaluator({ callRecorder }, ::AutoHinter)
-    override val verifyingRecorder: Verifier = VerifyBlockEvaluator({ callRecorder }, stubRepo, ::AutoHinter)
+    override val stubber: Stubber = EveryBlockEvaluator({ callRecorder }, ::AutoHinter)
+    override val verifier: Verifier = VerifyBlockEvaluator({ callRecorder }, stubRepo, ::AutoHinter)
 
     companion object {
         private var log: Logger

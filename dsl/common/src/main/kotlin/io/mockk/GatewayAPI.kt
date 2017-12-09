@@ -8,8 +8,8 @@ import kotlin.reflect.KClass
 interface MockKGateway {
     val mockFactory: MockFactory
     val staticMockFactory: StaticMockFactory
-    val stubbingRecorder: Stubber
-    val verifyingRecorder: Verifier
+    val stubber: Stubber
+    val verifier: Verifier
     val callRecorder: CallRecorder
     val instanceFactoryRegistry: InstanceFactoryRegistry
     val clearer: Clearer

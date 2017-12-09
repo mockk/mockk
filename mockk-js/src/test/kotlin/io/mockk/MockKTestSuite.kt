@@ -652,7 +652,9 @@ class MockKTestSuite : StringSpec({
 
         every {
             spyObj.computeSomething(2)
-        } answers { callOriginal()?.plus(4) }
+        } answers {
+            callOriginal()?.plus(4)
+        }
 
         assertNotNull(spyObj.someReference)
 

@@ -54,8 +54,8 @@ internal class OperationProxyHandler(val name: String,
         return super.get(target, name, receiver)
     }
 
-    fun originalCall(target: dynamic, thisValue: dynamic, args: Array<*>) {
-        js("target.apply(thisValue, args)")
+    fun originalCall(target: dynamic, thisValue: dynamic, args: Array<*>): Any? {
+        return js("target.apply(thisValue, args)")
     }
 
     override fun apply(target: dynamic, thisValue: dynamic, args: Array<*>): Any? {
@@ -78,7 +78,20 @@ internal class StubProxyHandler(val cls: KClass<*>, val stub: Stub) : EmptyProxy
         if (isJsNativeMethods(name) || name == "stub") {
             return target[name]
         }
-        val targetOp = {}
-        return Proxy(targetOp, OperationProxyHandler(name, stub, cls, receiver))
+
+        val targetMember = if (checkKeyExists(name, target)) {
+            if (checkJsFunction(target[name])) {
+                target[name]
+            } else {
+                return target[name]
+            }
+        } else {
+            js("function (){}")
+        }
+        return Proxy(targetMember,
+                OperationProxyHandler(name, stub, cls, receiver))
     }
+
+    private fun checkKeyExists(name: String, target: dynamic): Boolean = js("name in target")
+    private fun checkJsFunction(value: dynamic): Boolean = js("value instanceof Function")
 }
