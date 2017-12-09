@@ -16,7 +16,7 @@ class JvmStaticMockFactory(val proxyMaker: MockKProxyMaker,
     override fun staticMockk(cls: KClass<*>) {
         log.debug { "Creating static mockk for ${cls.toStr()}" }
 
-        val stub = MockKStub(cls, "static " + cls.simpleName)
+        val stub = MockKStub(cls, "static " + cls.simpleName, null)
 
         log.trace { "Building static proxy for ${cls.toStr()} hashcode=${hkd(cls)}" }
         try {

@@ -17,7 +17,7 @@ object MockKDsl {
     /**
      * Builds a new mock for specified class
      */
-    inline fun <reified T : Any> internalMockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.mockk(T::class, name, moreInterfaces)
+    inline fun <reified T : Any> internalMockk(name: String? = null, relaxed: Boolean = false, vararg moreInterfaces: KClass<*>): T = MockKGateway.implementation().mockFactory.mockk(T::class, name, relaxed, moreInterfaces)
 
     /**
      * Builds a new spy for specified class. Initializes object via default constructor.
@@ -226,7 +226,8 @@ enum class Ordering {
  *
  * Provided information is gathered and associated with mock
  */
-open class MockKMatcherScope(val callRecorder: CallRecorder,
+open class MockKMatcherScope(@PublishedApi
+                             internal val callRecorder: CallRecorder,
                              val lambda: CapturingSlot<Function<*>>) {
 
     inline fun <reified T : Any> match(matcher: Matcher<T>): T {

@@ -24,17 +24,18 @@ interface MockKGateway {
      * Create new mocks or spies
      */
     interface MockFactory {
-        fun <T : Any> mockk(cls: KClass<T>,
+        fun <T : Any> mockk(mockType: KClass<T>,
                             name: String?,
+                            relaxed: Boolean,
                             moreInterfaces: Array<out KClass<*>>): T
 
-        fun <T : Any> spyk(cls: KClass<T>?,
+        fun <T : Any> spyk(mockType: KClass<T>?,
                            objToCopy: T?,
                            name: String?,
                            moreInterfaces: Array<out KClass<*>>): T
 
 
-        fun childMock(cls: KClass<*>): Any
+        fun childMock(mockType: KClass<*>): Any
     }
 
 

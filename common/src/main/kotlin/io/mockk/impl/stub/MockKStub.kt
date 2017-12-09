@@ -7,7 +7,8 @@ import io.mockk.impl.InternalPlatform.customComputeIfAbsent
 import kotlin.math.sign
 
 open class MockKStub(override val type: KClass<*>,
-                              override val name: String) : Stub {
+                     override val name: String,
+                     val answerGenerator: AnswerGenerator?) : Stub {
 
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
@@ -64,7 +65,12 @@ open class MockKStub(override val type: KClass<*>,
 
     protected open fun defaultAnswer(invocation: Invocation): Any? {
         return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
-            throw MockKException("no answer found for: $invocation")
+            val gen = answerGenerator
+            if (gen == null) {
+                throw MockKException("no answer found for: $invocation")
+            } else {
+                return gen(invocation.method.returnType)
+            }
         }
     }
 
@@ -86,7 +92,8 @@ open class MockKStub(override val type: KClass<*>,
                 MockKGateway.implementation().mockFactory.mockk(
                         call.retType,
                         childName(this.name),
-                        moreInterfaces = arrayOf())
+                        moreInterfaces = arrayOf(),
+                        relaxed = answerGenerator != null)
             }
         }
     }
@@ -148,3 +155,5 @@ open class MockKStub(override val type: KClass<*>,
 
     private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 }
+
+typealias AnswerGenerator = (KClass<*>) -> Any?

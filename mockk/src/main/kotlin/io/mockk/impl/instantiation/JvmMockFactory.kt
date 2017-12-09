@@ -11,7 +11,12 @@ import kotlin.reflect.KClass
 
 class JvmMockFactory(val proxyMaker: MockKProxyMaker,
                      instantiator: JvmInstantiator,
-                     stubRepository: StubRepository) : AbstractMockFactory(stubRepository, instantiator) {
+                     stubRepository: StubRepository,
+                     anyValueGenerator : AnyValueGenerator) :
+        AbstractMockFactory(
+                stubRepository,
+                instantiator,
+                anyValueGenerator) {
 
     override fun <T : Any> newProxy(cls: KClass<out T>,
                                     moreInterfaces: Array<out KClass<*>>,

@@ -39,7 +39,8 @@ class JvmMockKGateway : MockKGateway {
     override val mockFactory: MockFactory = JvmMockFactory(
             MockKProxyMaker.INSTANCE,
             instantiator,
-            stubRepo)
+            stubRepo,
+            anyValueGenerator)
 
     override val staticMockFactory = JvmStaticMockFactory(
             MockKProxyMaker.INSTANCE,

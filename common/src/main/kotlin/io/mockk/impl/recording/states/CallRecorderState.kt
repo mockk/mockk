@@ -21,7 +21,12 @@ abstract class CallRecorderState(val recorder: CommonCallRecorder) {
     open fun wasNotCalled(list: List<Any>): Unit = cancelAndThrowBadRecordingState()
 
     private fun cancelAndThrowBadRecordingState(): Nothing {
+        val state = recorder.state
         recorder.reset()
-        throw MockKException("Bad recording sequence. State: ${recorder.state::class.simpleName}")
+        if (state is StubbingAwaitingAnswerCallRecorderState) {
+            throw MockKException("Bad recording sequence. Please finalize every { ... } block with returns/answers/just Runs")
+        } else {
+            throw MockKException("Bad recording sequence. State: ${state::class.simpleName}")
+        }
     }
 }

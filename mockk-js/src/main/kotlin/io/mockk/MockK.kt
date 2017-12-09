@@ -8,8 +8,8 @@ import kotlin.reflect.KClass
 /**
  * Builds a new mock for specified class
  */
-inline fun <reified T : Any> mockk(name: String? = null, vararg moreInterfaces: KClass<*>): T = useImpl {
-    MockKDsl.internalMockk(name, *moreInterfaces)
+inline fun <reified T : Any> mockk(name: String? = null, relaxed: Boolean = false, vararg moreInterfaces: KClass<*>): T = useImpl {
+    MockKDsl.internalMockk(name, relaxed, *moreInterfaces)
 }
 
 /**

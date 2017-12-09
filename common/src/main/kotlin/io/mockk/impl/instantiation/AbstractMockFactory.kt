@@ -12,7 +12,8 @@ import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 
 abstract class AbstractMockFactory(val stubRepository: StubRepository,
-                                   val instantiator: AbstractInstantiator) : MockKGateway.MockFactory {
+                                   val instantiator: AbstractInstantiator,
+                                   val anyValueGenerator: AnyValueGenerator) : MockKGateway.MockFactory {
 
     protected abstract fun <T : Any> newProxy(cls: KClass<out T>,
                                               moreInterfaces: Array<out KClass<*>>,
@@ -20,14 +21,17 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
                                               useDefaultConstructor: Boolean = false,
                                               instantiate: Boolean = false): T
 
-    override fun <T : Any> mockk(cls: KClass<T>, name: String?, moreInterfaces: Array<out KClass<*>>): T {
+    override fun <T : Any> mockk(mockType: KClass<T>,
+                                 name: String?,
+                                 relaxed: Boolean,
+                                 moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
-        log.debug { "Creating mockk for ${cls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
+        log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
-        val stub = MockKStub(cls, newName)
+        val stub = MockKStub(mockType, newName, this::simpleAnswerGenerator)
 
-        log.trace { "Building proxy for ${cls.toStr()} hashcode=${InternalPlatform.hkd(cls)}" }
-        val proxy = newProxy(cls, moreInterfaces, stub)
+        log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }
+        val proxy = newProxy(mockType, moreInterfaces, stub)
 
         stub.hashCodeStr = InternalPlatform.hkd(proxy)
 
@@ -36,12 +40,12 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
         return proxy
     }
 
-    override fun <T : Any> spyk(cls: KClass<T>?, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
+    override fun <T : Any> spyk(mockType: KClass<T>?, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
 
         val actualCls = when {
             objToCopy != null -> objToCopy::class
-            cls != null -> cls
+            mockType != null -> mockType
             else -> throw MockKException("Either cls or objToCopy should not be null")
         }
 
@@ -67,17 +71,23 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
     }
 
 
+    override fun childMock(mockType: KClass<*>): Any {
 
-    override fun childMock(cls: KClass<*>): Any {
-        val stub = MockKStub(cls, "temporary mock");
+        val stub = MockKStub(mockType, "temporary mock", this::simpleAnswerGenerator);
 
-        log.trace { "Building proxy for ${cls.toStr()} hashcode=${InternalPlatform.hkd(cls)}" }
+        log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }
 
-        val proxy = newProxy(cls, arrayOf(), stub, instantiate = true)
+        val proxy = newProxy(mockType, arrayOf(), stub, instantiate = true)
 
         stub.hashCodeStr = InternalPlatform.hkd(proxy)
 
         return proxy
+    }
+
+    private fun simpleAnswerGenerator(returnType: KClass<*>): Any? {
+        return anyValueGenerator.anyValue(returnType) {
+            childMock(returnType)
+        }
     }
 
     companion object {

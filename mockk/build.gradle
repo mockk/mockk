@@ -28,6 +28,7 @@ dependencies {
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 
     testCompile 'io.kotlintest:kotlintest:2.0.7'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }
 
 test {

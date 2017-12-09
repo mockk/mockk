@@ -8,7 +8,7 @@ import java.lang.reflect.Method
 import java.util.concurrent.Callable
 
 internal object JvmMockFactoryHelper {
-    fun mockHandler(stub: Stub): (Any, Method, Callable<*>, Array<Any?>) -> Any? {
+    fun mockHandler(stub: Stub): (Any, Method, Callable<*>?, Array<Any?>) -> Any? {
         return { self, method, originalMethod, args ->
             stdFunctions(self, method, args) {
                 stub.handleInvocation(self, method.toDescription(), {

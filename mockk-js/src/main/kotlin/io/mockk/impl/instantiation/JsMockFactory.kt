@@ -7,7 +7,11 @@ import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 
 class JsMockFactory(stubRepository: StubRepository,
-                    instantiator: JsInstantiator) : AbstractMockFactory(stubRepository, instantiator) {
+                    instantiator: JsInstantiator,
+                    anyValueGenerator: AnyValueGenerator) :
+        AbstractMockFactory(stubRepository,
+                instantiator,
+                anyValueGenerator) {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> newProxy(cls: KClass<out T>,
