@@ -8,4 +8,6 @@ expect object InternalPlatformDsl {
     fun Any?.toStr(): String
 
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
+
+    fun unboxChar(value: Any): Any
 }

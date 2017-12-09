@@ -10,9 +10,9 @@ class CallRoundBuilder {
     val matchers = mutableListOf<Matcher<*>>()
     val signatures = mutableListOf<Any>()
 
-    fun addMatcher(matcher: Matcher<*>, ref: Any) {
+    fun addMatcher(matcher: Matcher<*>, sigValue: Any) {
         matchers.add(matcher)
-        signatures.add(ref)
+        signatures.add(sigValue)
     }
 
     fun addSignedCall(retType: KClass<*>, invocation: Invocation) {

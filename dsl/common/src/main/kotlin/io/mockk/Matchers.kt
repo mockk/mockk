@@ -6,12 +6,19 @@ import io.mockk.InternalPlatformDsl.toStr
 /**
  * Matcher that checks equality. By reference and by value (equals method)
  */
-data class EqMatcher<T>(val value: T, val ref: Boolean = false, val inverse: Boolean = false) : Matcher<T> {
+data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = false, val inverse: Boolean = false) : Matcher<T> {
+    val value = InternalPlatformDsl.unboxChar(valueArg)
+
     override fun match(arg: T?): Boolean {
         val result = if (ref) {
             arg === value
         } else {
-            InternalPlatformDsl.deepEquals(arg, value)
+            if (arg == null) {
+                false
+            } else {
+                val unboxedArg = InternalPlatformDsl.unboxChar(arg)
+                InternalPlatformDsl.deepEquals(unboxedArg, value)
+            }
         }
         return if (inverse) !result else result
     }
@@ -27,7 +34,7 @@ data class EqMatcher<T>(val value: T, val ref: Boolean = false, val inverse: Boo
 /**
  * Matcher that always returns one same value.
  */
-data class ConstantMatcher<in T>(val constValue: Boolean) : Matcher<T> {
+data class ConstantMatcher<in T : Any>(val constValue: Boolean) : Matcher<T> {
     override fun match(arg: T?): Boolean = constValue
 
     override fun toString(): String = if (constValue) "any()" else "none()"
@@ -36,8 +43,8 @@ data class ConstantMatcher<in T>(val constValue: Boolean) : Matcher<T> {
 /**
  * Delegates matching to lambda function
  */
-data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean,
-                              override val argumentType: KClass<*>) : Matcher<T>, TypedMatcher, EquivalentMatcher {
+data class FunctionMatcher<in T : Any>(val matchingFunc: (T?) -> Boolean,
+                                       override val argumentType: KClass<*>) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     override fun match(arg: T?): Boolean = matchingFunc(arg)
@@ -48,8 +55,8 @@ data class FunctionMatcher<T>(val matchingFunc: (T?) -> Boolean,
 /**
  * Matcher capturing all results to the list.
  */
-data class CaptureMatcher<T>(val captureList: MutableList<T>,
-                             override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+data class CaptureMatcher<T : Any>(val captureList: MutableList<T>,
+                                   override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     @Suppress("UNCHECKED_CAST")
@@ -65,8 +72,8 @@ data class CaptureMatcher<T>(val captureList: MutableList<T>,
 /**
  * Matcher capturing all results to the list. Allows nulls
  */
-data class CaptureNullableMatcher<T>(val captureList: MutableList<T?>,
-                                     override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+data class CaptureNullableMatcher<T : Any>(val captureList: MutableList<T?>,
+                                           override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     @Suppress("UNCHECKED_CAST")
@@ -135,9 +142,9 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T,
 /**
  * Boolean logic "AND" and "OR" matcher composed of two other matchers
  */
-data class AndOrMatcher<T>(val and: Boolean,
-                           val first: T,
-                           val second: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
+data class AndOrMatcher<T : Any>(val and: Boolean,
+                                 val first: T,
+                                 val second: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
     override val operandValues: List<T>
         get() = listOf(first, second)
 
@@ -168,7 +175,7 @@ data class AndOrMatcher<T>(val and: Boolean,
 /**
  * Boolean logic "NOT" matcher composed of one matcher
  */
-data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
+data class NotMatcher<T : Any>(val value: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
     override val operandValues: List<T>
         get() = listOf(value)
 
@@ -193,21 +200,21 @@ data class NotMatcher<T>(val value: T) : Matcher<T>, CompositeMatcher<T>, Captur
 /**
  * Checks if argument is null or non-null
  */
-data class NullCheckMatcher<T>(val inverse: Boolean) : Matcher<T> {
+data class NullCheckMatcher<in T : Any>(val inverse: Boolean) : Matcher<T> {
     override fun match(arg: T?): Boolean = if (inverse) arg != null else arg == null
 
     override fun toString(): String {
         return if (inverse)
-            "isNull()"
+            "notNull()"
         else
-            "nonNullable()"
+            "null()"
     }
 }
 
 /**
  * Checks matcher data type
  */
-data class OfTypeMatcher<T>(val cls: KClass<*>) : Matcher<T> {
+data class OfTypeMatcher<in T : Any>(val cls: KClass<*>) : Matcher<T> {
     override fun match(arg: T?): Boolean = cls.isInstance(arg)
 
     override fun toString() = "ofType(${cls.simpleName})"
@@ -226,7 +233,7 @@ class AllAnyMatcher<T> : Matcher<T> {
 /**
  * Invokes lambda
  */
-class InvokeMatcher<T>(val block: (T) -> Unit) : Matcher<T>, EquivalentMatcher {
+class InvokeMatcher<in T : Any>(val block: (T) -> Unit) : Matcher<T>, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     override fun match(arg: T?): Boolean {
@@ -245,10 +252,10 @@ class InvokeMatcher<T>(val block: (T) -> Unit) : Matcher<T>, EquivalentMatcher {
 /**
  * Checks if assertion is true
  */
-class AssertMatcher<T>(val assertFunction: (T?) -> Boolean,
-                       val msg: String? = null,
-                       override val argumentType: KClass<*>,
-                       val nullable: Boolean = false) : Matcher<T>, TypedMatcher, EquivalentMatcher {
+class AssertMatcher<in T : Any>(val assertFunction: (T?) -> Boolean,
+                                val msg: String? = null,
+                                override val argumentType: KClass<*>,
+                                val nullable: Boolean = false) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     override fun checkType(arg: Any?): Boolean {

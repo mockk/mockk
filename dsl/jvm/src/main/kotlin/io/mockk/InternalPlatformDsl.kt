@@ -48,4 +48,5 @@ actual object InternalPlatformDsl {
         }
     }
 
+    actual fun unboxChar(value: Any): Any = value
 }

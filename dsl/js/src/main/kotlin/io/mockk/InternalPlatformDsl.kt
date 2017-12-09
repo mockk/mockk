@@ -41,6 +41,13 @@ actual object InternalPlatformDsl {
             else -> obj1 == obj2
         }
     }
+
+    actual fun unboxChar(value: Any): Any =
+            if (value is Char) {
+                value.toInt()
+            } else {
+                value
+            }
 }
 
 internal external object Kotlin {

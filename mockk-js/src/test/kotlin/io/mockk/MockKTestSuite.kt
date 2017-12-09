@@ -57,8 +57,8 @@ class MockKTestSuite : StringSpec({
         verify { mock.manyArgsOp(d = eq(33)) }
         verify { mock.manyArgsOp(e = eq(33)) }
         verify { mock.manyArgsOp(f = eq(33)) }
-//        verify { mock.manyArgsOp(g = eq(33.toChar())) }
-//        verify { mock.manyArgsOp(h = eq(33.toChar())) }
+        verify { mock.manyArgsOp(g = eq(33.toChar())) }
+        verify { mock.manyArgsOp(h = eq(33.toChar())) }
         verify { mock.manyArgsOp(i = eq(33)) }
         verify { mock.manyArgsOp(j = eq(33)) }
         verify { mock.manyArgsOp(k = eq(33)) }

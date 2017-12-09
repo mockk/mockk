@@ -50,9 +50,10 @@ class ChainedCallDetector(callRounds: List<CallRound>,
 
             val matcher = if (matcherBySignature == null) {
                 if (allAny)
-                    ConstantMatcher<Any>(true)
-                else
-                    EqMatcher(zeroCall.invocation.args[nArgument])
+                    ConstantMatcher(true)
+                else {
+                    eqOrNullMatcher(zeroCall.invocation.args[nArgument])
+                }
             } else {
                 if (nArgument == 0 && matcherBySignature is AllAnyMatcher) {
                     allAny = true
@@ -79,7 +80,7 @@ class ChainedCallDetector(callRounds: List<CallRound>,
                 log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
 
                 matcherMap.remove(signature)
-                        ?: EqMatcher(matcher.operandValues[nOp])
+                        ?: eqOrNullMatcher(matcher.operandValues[nOp])
             } as List<Matcher<Any?>>?
         }
     }
@@ -109,11 +110,21 @@ class ChainedCallDetector(callRounds: List<CallRound>,
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun MethodDescription.isSuspend(): Boolean {
+    protected fun MethodDescription.isSuspend(): Boolean {
         return InternalPlatform.isSuspend(paramTypes as List<KClass<Any>>)
+    }
+
+    protected fun eqOrNullMatcher(arg: Any?): Matcher<Any> {
+        return if (arg == null) {
+            NullCheckMatcher(false)
+        } else {
+            EqMatcher(arg)
+        }
     }
 
     companion object {
         val log = Logger<SignatureMatcherDetector>()
+
     }
+
 }

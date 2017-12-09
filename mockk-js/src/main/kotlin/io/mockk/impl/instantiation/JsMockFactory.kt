@@ -65,7 +65,15 @@ internal class OperationProxyHandler(val name: String,
                         cls,
                         listOf()),
                 { originalCall(target, thisValue, args) },
-                args)
+                args.map { unboxChar(it) }.toTypedArray())
+    }
+
+    private fun unboxChar(value: Any?): Any? {
+        if (value is Char) {
+            return value.toInt()
+        } else {
+            return value
+        }
     }
 }
 
