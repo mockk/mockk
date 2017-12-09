@@ -14,6 +14,7 @@ class ChainedCallDetector(callRounds: List<CallRound>,
     val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
     val compositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
     val argMatchers = mutableListOf<Matcher<*>>()
+    var allAny: Boolean = false
 
     init {
         log.trace { "Processing call #$callN: ${zeroCall.invocation.method.toStr()}" }
@@ -37,7 +38,7 @@ class ChainedCallDetector(callRounds: List<CallRound>,
     }
 
     fun detectArgMatchers() {
-        var allAny = false
+        allAny = false
         repeat(zeroCall.invocation.args.size) { nArgument ->
             val signature = callInAllRounds.map {
                 InternalPlatform.packRef(it.invocation.args[nArgument])
@@ -98,7 +99,8 @@ class ChainedCallDetector(callRounds: List<CallRound>,
                 zeroCall.invocation.self,
                 zeroCall.invocation.self.toStr(),
                 zeroCall.invocation.method,
-                argMatchers.toList() as List<Matcher<Any>>)
+                argMatchers.toList() as List<Matcher<Any>>,
+                allAny)
         log.trace { "Built matcher: $im" }
 
         return MatchedCall(zeroCall.retType,

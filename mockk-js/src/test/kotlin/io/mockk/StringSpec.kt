@@ -2,10 +2,6 @@
 
 package io.mockk
 
-import org.w3c.dom.HTMLCollection
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.asList
-import org.w3c.dom.get
 import kotlin.browser.document
 import kotlin.dom.appendText
 import kotlin.js.Math

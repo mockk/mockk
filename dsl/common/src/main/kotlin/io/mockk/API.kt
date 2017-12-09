@@ -729,7 +729,8 @@ data class Invocation(val self: Any,
 data class InvocationMatcher(val self: Any,
                              private val selfStr: String,
                              val method: MethodDescription,
-                             val args: List<Matcher<Any>>) {
+                             val args: List<Matcher<Any>>,
+                             val allAny: Boolean) {
     fun match(invocation: Invocation): Boolean {
         if (self !== invocation.self) {
             return false
@@ -737,11 +738,17 @@ data class InvocationMatcher(val self: Any,
         if (method != invocation.method) {
             return false
         }
-        if (args.size != invocation.args.size) {
-            return false
+        if (allAny) {
+            if (args.size < invocation.args.size) {
+                return false
+            }
+        } else {
+            if (args.size != invocation.args.size) {
+                return false
+            }
         }
 
-        for (i in 0 until args.size) {
+        for (i in 0 until invocation.args.size) {
             val matcher = args[i]
             val arg = invocation.args[i]
 

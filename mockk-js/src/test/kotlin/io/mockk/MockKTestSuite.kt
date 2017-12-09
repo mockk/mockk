@@ -29,15 +29,15 @@ class MockKTestSuite : StringSpec({
         every { mock.manyArgsOp(t = eq(IntWrapper(33))) } returns 20.0
 
         assertEquals(163.0, spy.manyArgsOp(), 1e-6)
-//        assertEquals(0.0, mock.manyArgsOp(), 1e-6)
+        assertEquals(0.0, mock.manyArgsOp(), 1e-6)
         assertEquals(1.0, mock.manyArgsOp(a = false), 1e-6)
         assertEquals(2.0, mock.manyArgsOp(b = false), 1e-6)
         assertEquals(3.0, mock.manyArgsOp(c = 33), 1e-6)
         assertEquals(4.0, mock.manyArgsOp(d = 33), 1e-6)
         assertEquals(5.0, mock.manyArgsOp(e = 33), 1e-6)
         assertEquals(6.0, mock.manyArgsOp(f = 33), 1e-6)
-//        assertEquals(7.0, mock.manyArgsOp(g = 33.toChar()), 1e-6)
-//        assertEquals(8.0, mock.manyArgsOp(h = 33.toChar()), 1e-6)
+        assertEquals(7.0, mock.manyArgsOp(g = 33.toChar()), 1e-6)
+        assertEquals(8.0, mock.manyArgsOp(h = 33.toChar()), 1e-6)
         assertEquals(9.0, mock.manyArgsOp(i = 33), 1e-6)
         assertEquals(10.0, mock.manyArgsOp(j = 33), 1e-6)
         assertEquals(11.0, mock.manyArgsOp(k = 33), 1e-6)
