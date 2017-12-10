@@ -6,7 +6,8 @@ apply plugin: "kotlin-platform-jvm"
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    expectedBy project(':mockk-dsl')
+    expectedBy project(':mockk-common')
+    compile project(':mockk-dsl-jvm')
     compile project(":mockk-agent")
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -27,12 +28,15 @@ dependencies {
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 
     testCompile 'io.kotlintest:kotlintest:2.0.7'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }
-
 
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
+//    filter {
+//        includeTestsMatching "io.mockk.impl.*.*"
+//    }
 }
 jacocoTestReport {
     reports {

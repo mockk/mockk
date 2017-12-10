@@ -30,6 +30,8 @@ public class MockKProxyAdvice extends MockKProxyDispatcher {
 
     @OnMethodExit
     private static void exit(@Advice.Return(readOnly = false, typing = DYNAMIC) Object returned,
+                             @This Object self,
+                             @Origin final Method method,
                              @Advice.Enter Callable<?> mocked) throws Throwable {
         if (mocked != null) {
             returned = mocked.call();

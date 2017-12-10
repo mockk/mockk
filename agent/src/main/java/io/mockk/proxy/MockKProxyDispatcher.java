@@ -25,7 +25,7 @@ public class MockKProxyDispatcher extends MockKDispatcher {
         if (handler == null) {
             return null;
         }
-        if (MockKSelfCall.SELF_CALL.get() == self) {
+        if (MockKSelfCall.isSelf(self, method)) {
             return null;
         }
 

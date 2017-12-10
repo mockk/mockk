@@ -137,7 +137,7 @@ val obj = mockk<MockedClass2>()
 
 every { obj.op2(1, eq(2)).op1(3, any()) } returns 5
 
-obj.op2(1, 2) // returns child mock
+obj.op2(1, 2) // returns child msgLambda
 obj.op2(1, 2).op1(3, 22) // returns 5
 
 verify { obj.op2(1, 2).op1(3, 22) }
@@ -208,7 +208,7 @@ verify(atLeast=3) { obj.sum(any(), any()) }
 
 `verifyAll` verifies that all calls happened without checking it's order.
 `verifySequence` verifies that the exact sequence happened and `verifyOrder` that calls happened in order.
-`wasNot Called` verifies that mock or list of mocks was not called at all.
+`wasNot Called` verifies that msgLambda or list of mocks was not called at all.
 
 ```kotlin
 class MockedClass {
@@ -284,7 +284,7 @@ verify {
 
 ### Coroutines
 
-To mock coroutines you need to add dependency to the support library.
+To msgLambda coroutines you need to add dependency to the support library.
 <table>
 <tr>
     <th>Gradle</th>
@@ -312,7 +312,7 @@ To mock coroutines you need to add dependency to the support library.
 </tr>
 </table>
 
-Then you can use `coEvery`, `coVerify`, `coMatch`, `coAssert`, `coRun`, `coAnswers` or `coInvoke` to mock suspend methods
+Then you can use `coEvery`, `coVerify`, `coMatch`, `coAssert`, `coRun`, `coAnswers` or `coInvoke` to msgLambda suspend methods
 
 ```kotlin
 val car = mockk<Car>()
@@ -331,7 +331,7 @@ There a 3 cases of extension function:
 * object wide
 * module wide
 
-In case of object and class you can mock extension function just by creating
+In case of object and class you can msgLambda extension function just by creating
 regular `mockk`:
 
 ```kotlin
@@ -354,7 +354,7 @@ with(mockk<Ext>()) {
 }
 ```
 
-To mock module wide extension function you need to
+To msgLambda module wide extension function you need to
 build staticMockk(...) with argument specifying module class name.
 For example "pkg.FileKt" for module "File.kt" in "pkg" package
 
@@ -454,15 +454,15 @@ Few special matchers available in verification mode only:
 
 |Validator|Description|
 |---------|-----------|
-|`verify { mock.call() }`|Do unordered verification that call were performed|
-|`verify(inverse=true) { mock.call() }`|Do unordered verification that call were not performed|
-|`verify(atLeast=n) { mock.call() }`|Do unordered verification that call were performed at least `n` times|
-|`verify(atMost=n) { mock.call() }`|Do unordered verification that call were performed at most `n` times|
-|`verify(exactly=n) { mock.call() }`|Do unordered verification that call were performed at exactly `n` times|
-|`verifyAll { mock.call1(); mock.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks|
-|`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
-|`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
-|`verify { mock wasNot Called }`|Do verification that mock was not called|
+|`verify { msgLambda.call() }`|Do unordered verification that call were performed|
+|`verify(inverse=true) { msgLambda.call() }`|Do unordered verification that call were not performed|
+|`verify(atLeast=n) { msgLambda.call() }`|Do unordered verification that call were performed at least `n` times|
+|`verify(atMost=n) { msgLambda.call() }`|Do unordered verification that call were performed at most `n` times|
+|`verify(exactly=n) { msgLambda.call() }`|Do unordered verification that call were performed at exactly `n` times|
+|`verifyAll { msgLambda.call1(); msgLambda.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks|
+|`verifyOrder { msgLambda.call1(); msgLambda.call2() }`|Do verification that sequence of calls went one after another|
+|`verifySequence { msgLambda.call1(); msgLambda.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
+|`verify { msgLambda wasNot Called }`|Do verification that msgLambda was not called|
 |`verify { listOf(mock1, mock2) wasNot Called }`|Do verification that list of mocks were not called|
 
 ### Answers

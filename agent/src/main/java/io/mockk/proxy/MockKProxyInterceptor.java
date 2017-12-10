@@ -14,14 +14,13 @@ public class MockKProxyInterceptor {
                                    @SuperCall final Callable<Object> originalMethod) throws Throwable {
 
         MockKInvocationHandler handler = MockKInstrumentation.INSTANCE.getHook(self);
-        if (handler == null ||
-                MockKSelfCall.SELF_CALL.get() == self) {
+        if (handler == null || MockKSelfCall.isSelf(self, method)) {
             return originalMethod.call();
         }
         return handler.invocation(
                 self,
                 method,
-                new MockKSkipInterceptingSelf(originalMethod, self),
+                new MockKSkipInterceptingSelf(originalMethod, self, method),
                 args);
     }
 

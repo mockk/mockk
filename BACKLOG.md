@@ -1,9 +1,12 @@
 
 # Backlog
+- [ ] docs: logLevel
+- [ ] docs: relaxed (note: class cast may appear in generic)
+- [ ] docs:
+- [ ] refactoring: MatchedCall
 - [ ] article on translaion Mockito to MockK
 - [ ] object mocking ruins singleton
 - [ ] **BIG** runs on Android devices
-- [ ] **BIG** Kotlin Javascript
 - [ ] JavaDoc
 - [ ] annotation mocking
 - [ ] other JVMs
@@ -23,22 +26,22 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - PowerMock : Clear static initialiser body
 - PowerMock : Add body for native methods
 - PowerMock : Set modifier to public for non-system package-private classes
-- PowerMock : Insert calling mock repository for static methods
-- PowerMock : Replace calling to fields by call to mock repository
-- PowerMock : Replace constructor call by call to mock repository
-- PowerMock : Replace call to system classes by call to mock repository
+- PowerMock : Insert calling msgLambda repository for static methods
+- PowerMock : Replace calling to fields by call to msgLambda repository
+- PowerMock : Replace constructor call by call to msgLambda repository
+- PowerMock : Replace call to system classes by call to msgLambda repository
 - PowerMock : Check size of method body after modification and replace method body by throwing exception if method body size more than allowed in java specification
 
 ### Mockito features
 - Mockito: Mockito Android support</a></br/>
-- Mockito: Configuration-free inline mock making</a></br/>
+- Mockito: Configuration-free inline msgLambda making</a></br/>
 - Mockito: Let's verify some behaviour!
 - Mockito: How about some stubbing?
 - Mockito: Argument matchers
 - Mockito: Verifying exact number of invocations / at least once / never
 - Mockito: Stubbing void methods with exceptions
 - Mockito: Verification in order
-- Mockito: Making sure interaction(s) never happened on mock
+- Mockito: Making sure interaction(s) never happened on msgLambda
 - Mockito: Finding redundant invocations
 - Mockito: Shorthand for mocks creation - `&#064;Mock` annotation
 - Mockito: Stubbing consecutive calls (iterator-style stubbing)

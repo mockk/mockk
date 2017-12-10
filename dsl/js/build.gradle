@@ -1,0 +1,57 @@
+apply plugin: 'kotlin-platform-js'
+
+dependencies {
+    expectedBy project(":mockk-dsl")
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+            }
+
+            pom.project {
+                name 'JS MockK DSL'
+                packaging 'jar'
+                description 'JS MockK DSL providing API for MockK implementation'
+                url 'http://mockk.io'
+
+                scm {
+                    connection 'scm:git:git@github.com:oleksiyp/mockk.git'
+                    developerConnection 'scm:git:git@github.com:oleksiyp/mockk.git'
+                    url 'http://www.github.com/oleksiyp/mockk/'
+                }
+
+                licenses {
+                    license {
+                        name 'Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'oleksiyp'
+                        name 'Oleksii Pylypenko'
+                        email 'oleksiy.pylypenko@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}

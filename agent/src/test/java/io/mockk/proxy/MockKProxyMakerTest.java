@@ -41,7 +41,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -52,7 +52,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertTrue(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     static final class B {
@@ -79,7 +79,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test(expected = MockKAgentException.class)
@@ -90,7 +90,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertTrue(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     interface C {
@@ -115,7 +115,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -126,7 +126,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     static abstract class D {
@@ -140,7 +140,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -151,7 +151,7 @@ public class MockKProxyMakerTest {
         proxy.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     static class E1 extends A {
@@ -169,7 +169,7 @@ public class MockKProxyMakerTest {
 
         assertFalse(executed[0]);
         assertFalse(executed[1]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -181,7 +181,7 @@ public class MockKProxyMakerTest {
 
         assertTrue(executed[0]);
         assertTrue(executed[1]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     static class E2 extends A {
@@ -198,7 +198,7 @@ public class MockKProxyMakerTest {
 
         assertFalse(executed[0]);
         assertFalse(executed[1]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -210,7 +210,7 @@ public class MockKProxyMakerTest {
 
         assertFalse(executed[0]);
         assertTrue(executed[1]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     static class E3 extends A {
@@ -233,7 +233,7 @@ public class MockKProxyMakerTest {
         assertFalse(executed[0]);
         assertFalse(executed[1]);
         assertFalse(executed[2]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -246,7 +246,7 @@ public class MockKProxyMakerTest {
         assertFalse(executed[0]);
         assertTrue(executed[1]);
         assertTrue(executed[2]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(2, proxy, "a");
     }
 
     static class F extends A {
@@ -283,7 +283,7 @@ public class MockKProxyMakerTest {
         assertFalse(executed[2]);
         assertFalse(executed[3]);
         assertFalse(executed[4]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -298,7 +298,7 @@ public class MockKProxyMakerTest {
         assertTrue(executed[2]);
         assertTrue(executed[3]);
         assertTrue(executed[4]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(2, proxy, "a");
     }
 
     static abstract class F1 extends A {
@@ -335,7 +335,7 @@ public class MockKProxyMakerTest {
         assertFalse(executed[2]);
         assertFalse(executed[3]);
         assertFalse(executed[4]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
     }
 
     @Test
@@ -350,7 +350,7 @@ public class MockKProxyMakerTest {
         assertTrue(executed[2]);
         assertTrue(executed[3]);
         assertTrue(executed[4]);
-        checkProxyHandlerCalledOnce(proxy, "a");
+        checkProxyHandlerCalled(2, proxy, "a");
     }
 
     static class H {
@@ -366,7 +366,7 @@ public class MockKProxyMakerTest {
         H.a();
 
         assertFalse(executed[0]);
-        checkProxyHandlerCalledOnce(H.class, "a");
+        checkProxyHandlerCalled(1, H.class, "a");
     }
 
     @Test
@@ -377,11 +377,11 @@ public class MockKProxyMakerTest {
         H.a();
 
         assertTrue(executed[0]);
-        checkProxyHandlerCalledOnce(H.class, "a");
+        checkProxyHandlerCalled(1, H.class, "a");
     }
 
-    private void checkProxyHandlerCalledOnce(Object proxy, String methodName) {
-        assertEquals(1, handler.calls.size());
+    private void checkProxyHandlerCalled(int nTimes, Object proxy, String methodName) {
+        assertEquals(nTimes, handler.calls.size());
         Call call = handler.calls.get(0);
         assertSame(proxy, call.self);
         assertSame(methodName, call.method.getName());

@@ -1,0 +1,58 @@
+apply plugin: 'kotlin-platform-jvm'
+
+dependencies {
+    expectedBy project(":mockk-dsl")
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+            }
+
+            pom.project {
+                name 'Java MockK DSL'
+                packaging 'jar'
+                description 'Java MockK DSL providing API for MockK implementation'
+                url 'http://mockk.io'
+
+                scm {
+                    connection 'scm:git:git@github.com:oleksiyp/mockk.git'
+                    developerConnection 'scm:git:git@github.com:oleksiyp/mockk.git'
+                    url 'http://www.github.com/oleksiyp/mockk/'
+                }
+
+                licenses {
+                    license {
+                        name 'Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'oleksiyp'
+                        name 'Oleksii Pylypenko'
+                        email 'oleksiy.pylypenko@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
