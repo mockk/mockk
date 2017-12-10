@@ -36,7 +36,9 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
 
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
         val signatureValue = recorder.signatureValueGenerator.signatureValue(cls) {
-            recorder.instantiator.instantiate(cls)
+            recorder.anyValueGenerator.anyValue(cls) {
+                recorder.instantiator.instantiate(cls)
+            } as T
         }
 
         builder().addMatcher(matcher, InternalPlatform.packRef(signatureValue)!!)

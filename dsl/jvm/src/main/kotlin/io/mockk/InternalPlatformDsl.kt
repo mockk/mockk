@@ -14,12 +14,16 @@ actual object InternalPlatformDsl {
     }
 
     actual fun Any?.toStr() =
-            when (this) {
-                null -> "null"
-                is KClass<*> -> this.java.name
-                is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
-                is Function<*> -> "lambda {}"
-                else -> toString()
+            try {
+                when (this) {
+                    null -> "null"
+                    is KClass<*> -> this.simpleName ?: "<null name class>"
+                    is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
+                    is Function<*> -> "lambda {}"
+                    else -> toString()
+                }
+            } catch (thr: Throwable) {
+                "<error \"$thr\">"
             }
 
     actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {

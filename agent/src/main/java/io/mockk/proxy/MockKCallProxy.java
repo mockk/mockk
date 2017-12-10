@@ -19,7 +19,8 @@ public class MockKCallProxy implements Callable<Object> {
     @Override
     public Object call() throws Exception {
         MockKCallMethod callOriginal = new MockKCallMethod(self, method, arguments);
-        MockKSkipInterceptingSelf skipSelf = new MockKSkipInterceptingSelf(callOriginal, self);
+        MockKSkipInterceptingSelf skipSelf = new MockKSkipInterceptingSelf(callOriginal, self, method);
+
         return handler.invocation(self, method, skipSelf, arguments);
     }
 

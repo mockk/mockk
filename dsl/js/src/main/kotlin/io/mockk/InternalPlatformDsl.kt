@@ -10,11 +10,15 @@ actual object InternalPlatformDsl {
                     "Coroutines are not supported for JS MockK version")
 
     actual fun Any?.toStr(): String =
-            when (this) {
-                null -> "null"
-                is KClass<*> -> this.simpleName ?: "<no name class>"
-                is Function<*> -> "lambda {}"
-                else -> toString()
+            try {
+                when (this) {
+                    null -> "null"
+                    is KClass<*> -> this.simpleName ?: "<null name class>"
+                    is Function<*> -> "lambda {}"
+                    else -> toString()
+                }
+            } catch (thr: Throwable) {
+                "<error \"$thr\">"
             }
 
     actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {

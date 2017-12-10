@@ -120,6 +120,8 @@ interface MockKGateway {
      */
     interface CallVerifier {
         fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult
+
+        fun captureArguments()
     }
 
     /**

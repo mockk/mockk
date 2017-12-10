@@ -29,7 +29,7 @@ open class MockKStub(override val type: KClass<*>,
         }
 
         return with(invocationAndMatcher) {
-            captureAnswer(matcher, invocation)
+            matcher.captureAnswer(invocation)
 
             val call = MatchedCall(invocation.method.returnType,
                     invocation,
@@ -39,14 +39,6 @@ open class MockKStub(override val type: KClass<*>,
         }
     }
 
-    private fun captureAnswer(invocationMatcher: InvocationMatcher, invocation: Invocation) {
-        repeat(invocationMatcher.args.size) {
-            val argMatcher = invocationMatcher.args[it]
-            if (argMatcher is CapturingMatcher) {
-                argMatcher.capture(invocation.args[it])
-            }
-        }
-    }
 
     protected inline fun stdObjectFunctions(self: Any,
                                             method: MethodDescription,

@@ -767,6 +767,15 @@ data class InvocationMatcher(val self: Any,
         return true
     }
 
+
+    fun captureAnswer(invocation: Invocation) {
+        for ((idx, argMatcher) in args.withIndex()) {
+            if (argMatcher is CapturingMatcher) {
+                argMatcher.capture(invocation.args[idx])
+            }
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is InvocationMatcher) return false

@@ -40,7 +40,7 @@ internal object JvmMockFactoryHelper {
         return try {
             originalMethod.call()
         } catch (ex: InvocationTargetException) {
-            throw MockKException("Failed to execute original call. Check cause please", ex.cause)
+            throw ex.cause ?: throw ex
         }
     }
 

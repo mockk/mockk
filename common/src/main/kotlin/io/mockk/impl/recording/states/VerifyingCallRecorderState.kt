@@ -16,8 +16,13 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
             throw MockKException("Missing calls inside verify { ... } block.")
         }
 
-        val outcome = recorder.factories.verifier(params.ordering)
-                .verify(recorder.calls, params.min, params.max)
+        val verifier = recorder.factories.verifier(params.ordering)
+
+        val outcome = verifier.verify(recorder.calls, params.min, params.max)
+
+        if (outcome.matches) {
+            verifier.captureArguments()
+        }
 
         log.trace { "Done verification. Outcome: $outcome" }
         failIfNotPassed(outcome, params.inverse)
@@ -53,9 +58,9 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
 
         if (!calledStubs.isEmpty()) {
             if (calledStubs.size == 1) {
-                throw AssertionError("Verification failed: ${calledStubs[0]} was called")
+                throw AssertionError("Verification failed: ${calledStubs[0].toStr()} was called")
             } else {
-                throw AssertionError("Verification failed: $calledStubs were called")
+                throw AssertionError("Verification failed: ${calledStubs.map { it.toStr() }.joinToString(", ")} were called")
             }
         }
     }

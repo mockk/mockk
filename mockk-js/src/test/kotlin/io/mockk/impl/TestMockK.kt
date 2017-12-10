@@ -10,6 +10,10 @@ actual inline fun <reified T : Any> testMockk(): T = useImpl {
     MockKDsl.internalMockk(relaxed = true)
 }
 
+actual inline fun <reified T : Any> testSpyk(obj: T): T = useImpl {
+    MockKDsl.internalSpyk(obj)
+}
+
 actual inline fun <T> testEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = useImpl {
     MockKDsl.internalEvery(stubBlock)
 }

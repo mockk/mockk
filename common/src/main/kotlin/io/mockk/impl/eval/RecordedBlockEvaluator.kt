@@ -8,8 +8,8 @@ import io.mockk.MockKMatcherScope
 import io.mockk.impl.recording.AutoHinter
 import io.mockk.impl.log.Logger
 
-open class RecordedBlockEvaluator(val callRecorder: () -> CallRecorder,
-                                  val autoHinterFactory: () -> AutoHinter) {
+abstract class RecordedBlockEvaluator(val callRecorder: () -> CallRecorder,
+                                      val autoHinterFactory: () -> AutoHinter) {
 
     fun <T, S : MockKMatcherScope> record(scope: S,
                                           mockBlock: (S.() -> T)?,

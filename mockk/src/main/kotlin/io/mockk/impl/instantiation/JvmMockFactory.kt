@@ -37,7 +37,9 @@ class JvmMockFactory(val proxyMaker: MockKProxyMaker,
                             "This can help if it's last call in the chain"
                 }
 
-                instantiator.instantiate(cls)
+                anyValueGenerator.anyValue(cls) {
+                    instantiator.instantiate(cls)
+                } as T
             } else if (useDefaultConstructor) {
                 throw MockKException("Can't instantiate proxy via default constructor for " + cls, ex)
             } else {
