@@ -7,7 +7,7 @@ open class AutoHinter {
                           i: Int,
                           n: Int,
                           block: () -> T) {
-        callRecorder.catchArgs(i, n)
+        callRecorder.round(i, n)
         block()
     }
 }

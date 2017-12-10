@@ -39,7 +39,7 @@ abstract class RecordedBlockEvaluator(val callRecorder: () -> CallRecorder,
                         n,
                         block)
             }
-            callRecorder().catchArgs(n, n)
+            callRecorder().round(n, n)
             callRecorder().done()
         } catch (ex: Throwable) {
             throw InternalPlatform.prettifyRecordingException(ex)

@@ -1,8 +1,8 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.MockKGateway.InstanceFactory
-import io.mockk.impl.testEvery
-import io.mockk.impl.testMockk
+import io.mockk.impl.every
+import io.mockk.impl.mockk
 import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,8 +16,8 @@ class AbstractInstantiatorTest {
 
     @BeforeTest
     fun setUp() {
-        registry = testMockk()
-        factory = testMockk()
+        registry = mockk()
+        factory = mockk()
         instantiator = object : AbstractInstantiator(registry) {
             override fun <T : Any> instantiate(cls: KClass<T>): T = throw AssertionError("instantiate called")
         }
@@ -25,9 +25,9 @@ class AbstractInstantiatorTest {
 
     @Test
     fun givenSuitableInstantiationFactoryForIntWhenInstantanceRequestedThenInstanceIsCreated() {
-        testEvery { registry.instanceFactories } returns listOf(factory)
+        every { registry.instanceFactories } returns listOf(factory)
 
-        testEvery { factory.instantiate(Int::class) } returns 5
+        every { factory.instantiate(Int::class) } returns 5
 
         val result = instantiator.instantiateViaInstanceFactoryRegistry(Int::class, { 6 })
 
@@ -36,9 +36,9 @@ class AbstractInstantiatorTest {
 
     @Test
     fun givenNoSuitableInstantiationFactoryWhenInstanceRequestedThenInstanceIsReturnedViaFallback() {
-        testEvery { registry.instanceFactories } returns listOf(factory)
+        every { registry.instanceFactories } returns listOf(factory)
 
-        testEvery { factory.instantiate(String::class) } returns null
+        every { factory.instantiate(String::class) } returns null
 
         val result = instantiator.instantiateViaInstanceFactoryRegistry(String::class, { "abc" })
 

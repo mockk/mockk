@@ -12,13 +12,14 @@ abstract class CallRecorderState(val recorder: CommonCallRecorder) {
     open fun call(invocation: Invocation): Any? = cancelAndThrowBadRecordingState()
     open fun startStubbing(): CallRecorderState = cancelAndThrowBadRecordingState()
     open fun startVerification(params: VerificationParameters): CallRecorderState = cancelAndThrowBadRecordingState()
-    open fun catchArgs(round: Int, n: Int): Unit = cancelAndThrowBadRecordingState()
+    open fun round(round: Int, total: Int): Unit = cancelAndThrowBadRecordingState()
     open fun answer(answer: Answer<*>): Unit = cancelAndThrowBadRecordingState()
     open fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T = cancelAndThrowBadRecordingState()
     open fun recordingDone(): CallRecorderState = cancelAndThrowBadRecordingState()
     open fun nCalls(): Int = cancelAndThrowBadRecordingState()
     open fun estimateCallRounds(): Int = cancelAndThrowBadRecordingState()
     open fun wasNotCalled(list: List<Any>): Unit = cancelAndThrowBadRecordingState()
+    open fun discardLastCallRound(): Unit = cancelAndThrowBadRecordingState()
 
     private fun cancelAndThrowBadRecordingState(): Nothing {
         val state = recorder.state
@@ -29,4 +30,5 @@ abstract class CallRecorderState(val recorder: CommonCallRecorder) {
             throw MockKException("Bad recording sequence. State: ${state::class.simpleName}")
         }
     }
+
 }

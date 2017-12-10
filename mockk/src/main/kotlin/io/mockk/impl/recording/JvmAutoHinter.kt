@@ -13,7 +13,7 @@ class JvmAutoHinter : AutoHinter() {
                               block: () -> T) {
         var callsPassed = -1
         while (true) {
-            callRecorder.catchArgs(i, n)
+            callRecorder.round(i, n)
             childTypes.forEach { callN, cls ->
                 callRecorder.hintNextReturnType(cls, callN)
             }
@@ -26,6 +26,9 @@ class JvmAutoHinter : AutoHinter() {
                 if (nCalls <= callsPassed) {
                     throw ex
                 }
+
+                callRecorder.discardLastCallRound()
+
                 callsPassed = nCalls
                 val cls = Class.forName(clsName).kotlin
 

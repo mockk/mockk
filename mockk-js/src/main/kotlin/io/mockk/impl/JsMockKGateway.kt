@@ -18,6 +18,7 @@ import io.mockk.impl.recording.states.StubbingAwaitingAnswerCallRecorderState
 import io.mockk.impl.recording.states.StubbingCallRecorderState
 import io.mockk.impl.recording.states.VerifyingCallRecorderState
 import io.mockk.impl.stub.CommonClearer
+import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
@@ -38,7 +39,7 @@ class JsMockKGateway : MockKGateway {
     override val mockFactory: MockFactory = JsMockFactory(
             stubRepo,
             instantiator,
-            anyValueGenerator)
+            StubGatewayAccess(callRecorder, anyValueGenerator))
 
     override val staticMockFactory: StaticMockFactory
         get() = throw UnsupportedOperationException("Static mocks are not supported in JS version")
@@ -70,7 +71,8 @@ class JsMockKGateway : MockKGateway {
             ::AnsweringCallRecorderState,
             ::StubbingCallRecorderState,
             ::VerifyingCallRecorderState,
-            ::StubbingAwaitingAnswerCallRecorderState)
+            ::StubbingAwaitingAnswerCallRecorderState,
+            ::RealChildMocker)
 
     override val callRecorder: CallRecorder = CommonCallRecorder(
             stubRepo,

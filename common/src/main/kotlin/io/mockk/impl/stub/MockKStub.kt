@@ -4,11 +4,11 @@ import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import kotlin.reflect.KClass
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
-import kotlin.math.sign
 
 open class MockKStub(override val type: KClass<*>,
                      override val name: String,
-                     val answerGenerator: AnswerGenerator?) : Stub {
+                     val relaxed: Boolean = false,
+                     val gatewayAccess: StubGatewayAccess) : Stub {
 
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
@@ -57,11 +57,12 @@ open class MockKStub(override val type: KClass<*>,
 
     protected open fun defaultAnswer(invocation: Invocation): Any? {
         return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
-            val gen = answerGenerator
-            if (gen == null) {
-                throw MockKException("no answer found for: $invocation")
+            if (relaxed) {
+                return gatewayAccess.anyValueGenerator.anyValue(invocation.method.returnType) {
+                    childMockK(invocation.allEqMatcher(), invocation.method.returnType)
+                }
             } else {
-                return gen(invocation.method.returnType)
+                throw MockKException("no answer found for: $invocation")
             }
         }
     }
@@ -78,14 +79,14 @@ open class MockKStub(override val type: KClass<*>,
 
     override fun toStr() = "mockk<${type.simpleName}>(${this.name})#$hashCodeStr"
 
-    override fun childMockK(call: MatchedCall): Any? {
+    override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any? {
         return synchronized(childs) {
-            childs.customComputeIfAbsent(call.matcher) {
-                MockKGateway.implementation().mockFactory.mockk(
-                        call.retType,
+            childs.customComputeIfAbsent(matcher) {
+                gatewayAccess.mockFactory!!.mockk(
+                        childType,
                         childName(this.name),
                         moreInterfaces = arrayOf(),
-                        relaxed = answerGenerator != null)
+                        relaxed = relaxed)
             }
         }
     }
@@ -121,7 +122,7 @@ open class MockKStub(override val type: KClass<*>,
                 InternalPlatform.time(),
                 originalPlusToString)
 
-        return MockKGateway.implementation().callRecorder.call(invocation)
+        return gatewayAccess.callRecorder().call(invocation)
     }
 
     override fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean) {
@@ -142,10 +143,16 @@ open class MockKStub(override val type: KClass<*>,
         fun MethodDescription.isToString() = name == "toString" && paramTypes.isEmpty()
         fun MethodDescription.isHashCode() = name == "hashCode" && paramTypes.isEmpty()
         fun MethodDescription.isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
-
     }
 
     private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
-}
 
-typealias AnswerGenerator = (KClass<*>) -> Any?
+    protected fun Invocation.allEqMatcher() =
+            InvocationMatcher(self, selfStr, method,
+                    args.map {
+                        if (it == null)
+                            NullCheckMatcher<Any>()
+                        else
+                            EqMatcher(it)
+                    }, false)
+}

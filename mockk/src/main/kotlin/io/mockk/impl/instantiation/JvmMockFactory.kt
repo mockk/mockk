@@ -6,18 +6,20 @@ import io.mockk.agent.MockKAgentException
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.log.Logger
+import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.proxy.MockKProxyMaker
 import kotlin.reflect.KClass
 
 class JvmMockFactory(val proxyMaker: MockKProxyMaker,
                      instantiator: JvmInstantiator,
                      stubRepository: StubRepository,
-                     anyValueGenerator : AnyValueGenerator) :
+                     gatewayAccess: StubGatewayAccess) :
         AbstractMockFactory(
                 stubRepository,
                 instantiator,
-                anyValueGenerator) {
+                gatewayAccess) {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> newProxy(cls: KClass<out T>,
                                     moreInterfaces: Array<out KClass<*>>,
                                     stub: Stub,
@@ -37,7 +39,7 @@ class JvmMockFactory(val proxyMaker: MockKProxyMaker,
                             "This can help if it's last call in the chain"
                 }
 
-                anyValueGenerator.anyValue(cls) {
+                gatewayAccess.anyValueGenerator.anyValue(cls) {
                     instantiator.instantiate(cls)
                 } as T
             } else if (useDefaultConstructor) {

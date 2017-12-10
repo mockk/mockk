@@ -23,38 +23,38 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository) : CallVerifier {
         return VerificationResult(true)
     }
 
-    private fun matchCall(templateCall: MatchedCall, min: Int, max: Int, callIdxMsg: String): VerificationResult {
-        val stub = stubRepo.stubFor(templateCall.invocation.self)
+    private fun matchCall(recordedCall: MatchedCall, min: Int, max: Int, callIdxMsg: String): VerificationResult {
+        val stub = stubRepo.stubFor(recordedCall.invocation.self)
         val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = allCallsForMock.filter {
-            templateCall.matcher.method == it.method
+            recordedCall.matcher.method == it.method
         }
         val result = when (allCallsForMockMethod.size) {
             0 -> {
                 if (min == 0 && max == 0) {
                     VerificationResult(true)
                 } else if (allCallsForMock.isEmpty()) {
-                    VerificationResult(false, "$callIdxMsg ${stub.toStr()}/${templateCall.matcher.method.toStr()} was not called")
+                    VerificationResult(false, "$callIdxMsg ${recordedCall.matcher.method.toStr()} was not called")
                 } else {
-                    VerificationResult(false, "$callIdxMsg ${stub.toStr()}/${templateCall.matcher.method.toStr()} was not called.\n" +
+                    VerificationResult(false, "$callIdxMsg ${recordedCall.matcher.method.toStr()} was not called.\n" +
                             "Calls to same mock:\n" + formatCalls(allCallsForMock))
                 }
             }
             1 -> {
                 val onlyCall = allCallsForMockMethod.get(0)
-                if (templateCall.matcher.match(onlyCall)) {
+                if (recordedCall.matcher.match(onlyCall)) {
                     if (1 in min..max) {
                         VerificationResult(true)
                     } else {
                         VerificationResult(false, "$callIdxMsg One matching call found, but needs at least $min${atMostMsg(max)} calls")
                     }
                 } else {
-                    VerificationResult(false, "$callIdxMsg Only one matching call to ${stub.toStr()}/${templateCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
-                            describeArgumentDifference(templateCall.matcher, onlyCall))
+                    VerificationResult(false, "$callIdxMsg Only one matching call to ${stub.toStr()}/${recordedCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
+                            describeArgumentDifference(recordedCall.matcher, onlyCall))
                 }
             }
             else -> {
-                val n = allCallsForMockMethod.filter { templateCall.matcher.match(it) }.count()
+                val n = allCallsForMockMethod.filter { recordedCall.matcher.match(it) }.count()
                 if (n in min..max) {
                     VerificationResult(true)
                 } else {
@@ -73,7 +73,7 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository) : CallVerifier {
 
         captureBlocks.add({
             for (call in allCallsForMockMethod) {
-                templateCall.matcher.captureAnswer(call)
+                recordedCall.matcher.captureAnswer(call)
             }
         })
 

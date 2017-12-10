@@ -695,7 +695,7 @@ data class MethodDescription(val name: String,
  * Mock invocation
  */
 data class Invocation(val self: Any,
-                      private val selfStr: String,
+                      val selfStr: String,
                       val method: MethodDescription,
                       val args: List<Any?>,
                       val timestamp: Long,
@@ -728,7 +728,7 @@ data class Invocation(val self: Any,
  * Checks if invocation is matching via number of matchers
  */
 data class InvocationMatcher(val self: Any,
-                             private val selfStr: String,
+                             val selfStr: String,
                              val method: MethodDescription,
                              val args: List<Matcher<Any>>,
                              val allAny: Boolean) {

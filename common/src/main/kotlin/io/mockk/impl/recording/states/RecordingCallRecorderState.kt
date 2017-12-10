@@ -13,7 +13,7 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
     private val callRounds = mutableListOf<CallRound>()
     val childMocks = ChildMocks()
 
-    override fun catchArgs(round: Int, n: Int) {
+    override fun round(round: Int, total: Int) {
         val builder = callRoundBuilder
         if (builder != null) {
             callRounds.add(builder.build())
@@ -22,7 +22,7 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
         callRoundBuilder = recorder.factories.callRoundBuilder()
         recorder.childHinter = recorder.factories.childHinter()
 
-        if (round == n) {
+        if (round == total) {
             signMatchers()
             mockRealChilds()
         }
@@ -55,13 +55,13 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
 
         return recorder.anyValueGenerator.anyValue(retType) {
             childMocks.childMock(retType) {
-                recorder.mockFactory.childMock(retType)
+                recorder.mockFactory.temporaryMock(retType)
             }
         }
     }
 
     fun mockRealChilds() {
-        val mocker = RealChildMocker(recorder.stubRepo, recorder.calls)
+        val mocker = recorder.factories.realChildMocker(recorder.stubRepo, recorder.calls)
         mocker.mock()
 
         recorder.calls.clear()
@@ -96,6 +96,10 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
             Float::class -> 2
             else -> 1
         }
+    }
+
+    override fun discardLastCallRound() {
+        callRoundBuilder = null
     }
 
     private fun builder(): CallRoundBuilder = callRoundBuilder

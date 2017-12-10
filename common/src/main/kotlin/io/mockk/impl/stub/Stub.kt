@@ -12,7 +12,7 @@ interface Stub {
 
     fun answer(invocation: Invocation): Any?
 
-    fun childMockK(call: MatchedCall): Any?
+    fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any?
 
     fun recordCall(invocation: Invocation)
 

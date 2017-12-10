@@ -8,15 +8,17 @@ import io.mockk.agent.MockKAgentException
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.MockKStub
+import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.proxy.MockKProxyMaker
 import kotlin.reflect.KClass
 
 class JvmStaticMockFactory(val proxyMaker: MockKProxyMaker,
-                           val stubRepository: StubRepository) : StaticMockFactory {
+                           val stubRepository: StubRepository,
+                           val gatewayAccess: StubGatewayAccess) : StaticMockFactory {
     override fun staticMockk(cls: KClass<*>) {
         log.debug { "Creating static mockk for ${cls.toStr()}" }
 
-        val stub = MockKStub(cls, "static " + cls.simpleName, null)
+        val stub = MockKStub(cls, "static " + cls.simpleName, false, gatewayAccess)
 
         log.trace { "Building static proxy for ${cls.toStr()} hashcode=${hkd(cls)}" }
         try {

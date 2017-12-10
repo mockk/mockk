@@ -2,8 +2,8 @@ package io.mockk.impl.log
 
 import io.mockk.Called
 import io.mockk.CapturingSlot
-import io.mockk.impl.testMockk
-import io.mockk.impl.testVerify
+import io.mockk.impl.mockk
+import io.mockk.impl.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,7 +16,7 @@ class FilterLoggerTest {
 
     @BeforeTest
     fun setUp() {
-        logger = testMockk()
+        logger = mockk()
         traceLogger = FilterLogger(logger, { LogLevel.TRACE })
         disabledLogger = FilterLogger(logger, { LogLevel.DISABLED })
         ex = Exception()
@@ -27,7 +27,7 @@ class FilterLoggerTest {
         traceLogger.error { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.error(capture(msgLambda))
         }
 
@@ -38,7 +38,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenErrorMessageThenItsNotLogged() {
         disabledLogger.error { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -49,7 +49,7 @@ class FilterLoggerTest {
         traceLogger.error(ex) { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.error(refEq(ex), capture(msgLambda))
         }
 
@@ -60,7 +60,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenErrorMessageWithExceptionThenItsNotLogged() {
         disabledLogger.error(ex) { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -71,7 +71,7 @@ class FilterLoggerTest {
         traceLogger.warn { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.warn(capture(msgLambda))
         }
 
@@ -82,7 +82,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenWarnMessageThenItsNotLogged() {
         disabledLogger.warn { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -93,7 +93,7 @@ class FilterLoggerTest {
         traceLogger.warn(ex) { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.warn(refEq(ex), capture(msgLambda))
         }
 
@@ -104,7 +104,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenWarnMessageWithExceptionThenItsNotLogged() {
         disabledLogger.warn(ex) { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -115,7 +115,7 @@ class FilterLoggerTest {
         traceLogger.info { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.info(capture(msgLambda))
         }
 
@@ -126,7 +126,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenInfoMessageThenItsNotLogged() {
         disabledLogger.info { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -137,7 +137,7 @@ class FilterLoggerTest {
         traceLogger.info(ex) { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.info(refEq(ex), capture(msgLambda))
         }
 
@@ -148,7 +148,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenInfoMessageWithExceptionThenItsNotLogged() {
         disabledLogger.info(ex) { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -159,7 +159,7 @@ class FilterLoggerTest {
         traceLogger.debug { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.debug(capture(msgLambda))
         }
 
@@ -170,7 +170,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenDebugMessageThenItsNotLogged() {
         disabledLogger.debug { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -180,7 +180,7 @@ class FilterLoggerTest {
         traceLogger.debug(ex) { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.debug(refEq(ex), capture(msgLambda))
         }
 
@@ -191,7 +191,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenDebugMessageWithExceptionThenItsNotLogged() {
         disabledLogger.debug(ex) { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -201,7 +201,7 @@ class FilterLoggerTest {
         traceLogger.trace { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.trace(capture(msgLambda))
         }
 
@@ -212,7 +212,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenTraceMessageThenItsNotLogged() {
         disabledLogger.trace { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }
@@ -223,7 +223,7 @@ class FilterLoggerTest {
         traceLogger.trace(ex) { "msg" }
 
         val msgLambda = CapturingSlot<() -> String>()
-        testVerify {
+        verify {
             logger.trace(refEq(ex), capture(msgLambda))
         }
 
@@ -234,7 +234,7 @@ class FilterLoggerTest {
     fun givenDisabledLevelWhenTraceMessageWithExceptionThenItsNotLogged() {
         disabledLogger.trace(ex) { "msg" }
 
-        testVerify {
+        verify {
             logger wasNot Called
         }
     }

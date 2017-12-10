@@ -3,15 +3,16 @@ package io.mockk.impl.instantiation
 import io.mockk.MethodDescription
 import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.Stub
+import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 
 class JsMockFactory(stubRepository: StubRepository,
                     instantiator: JsInstantiator,
-                    anyValueGenerator: AnyValueGenerator) :
+                    gatewayAccess: StubGatewayAccess) :
         AbstractMockFactory(stubRepository,
                 instantiator,
-                anyValueGenerator) {
+                gatewayAccess) {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> newProxy(cls: KClass<out T>,

@@ -200,7 +200,7 @@ data class NotMatcher<T : Any>(val value: T) : Matcher<T>, CompositeMatcher<T>, 
 /**
  * Checks if argument is null or non-null
  */
-data class NullCheckMatcher<in T : Any>(val inverse: Boolean) : Matcher<T> {
+data class NullCheckMatcher<in T : Any>(val inverse: Boolean = false) : Matcher<T> {
     override fun match(arg: T?): Boolean = if (inverse) arg != null else arg == null
 
     override fun toString(): String {

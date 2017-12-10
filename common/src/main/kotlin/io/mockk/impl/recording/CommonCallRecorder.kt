@@ -37,7 +37,7 @@ class CommonCallRecorder(val stubRepo: StubRepository,
         state = state.recordingDone()
     }
 
-    override fun catchArgs(round: Int, n: Int) = state.catchArgs(round, n)
+    override fun round(n: Int, total: Int) = state.round(n, total)
     override fun nCalls() = state.nCalls()
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T = state.matcher(matcher, cls)
     override fun call(invocation: Invocation) = state.call(invocation)
@@ -46,6 +46,7 @@ class CommonCallRecorder(val stubRepo: StubRepository,
     override fun wasNotCalled(list: List<Any>) = state.wasNotCalled(list)
 
     override fun hintNextReturnType(cls: KClass<*>, n: Int) = childHinter.hint(n, cls)
+    override fun discardLastCallRound() = state.discardLastCallRound()
 
     override fun reset() {
         calls.clear()

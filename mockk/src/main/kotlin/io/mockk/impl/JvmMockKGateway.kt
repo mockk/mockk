@@ -21,6 +21,7 @@ import io.mockk.impl.recording.states.VerifyingCallRecorderState
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.log.JvmLogging.adaptor
+import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
@@ -40,11 +41,12 @@ class JvmMockKGateway : MockKGateway {
             MockKProxyMaker.INSTANCE,
             instantiator,
             stubRepo,
-            anyValueGenerator)
+            StubGatewayAccess({ callRecorder }, anyValueGenerator))
 
     override val staticMockFactory = JvmStaticMockFactory(
             MockKProxyMaker.INSTANCE,
-            stubRepo)
+            stubRepo,
+            StubGatewayAccess({ callRecorder }, anyValueGenerator, mockFactory))
 
     override val clearer = CommonClearer(stubRepo)
 
@@ -73,7 +75,8 @@ class JvmMockKGateway : MockKGateway {
             ::AnsweringCallRecorderState,
             ::StubbingCallRecorderState,
             ::VerifyingCallRecorderState,
-            ::StubbingAwaitingAnswerCallRecorderState)
+            ::StubbingAwaitingAnswerCallRecorderState,
+            ::RealChildMocker)
 
     private val callRecorderTL = object : ThreadLocal<CommonCallRecorder>() {
         override fun initialValue() = CommonCallRecorder(

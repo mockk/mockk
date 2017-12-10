@@ -35,7 +35,7 @@ interface MockKGateway {
                            moreInterfaces: Array<out KClass<*>>): T
 
 
-        fun childMock(mockType: KClass<*>): Any
+        fun temporaryMock(mockType: KClass<*>): Any
     }
 
 
@@ -94,7 +94,7 @@ interface MockKGateway {
 
         fun startVerification(params: VerificationParameters)
 
-        fun catchArgs(round: Int, n: Int = 64)
+        fun round(n: Int, total: Int = 64)
 
         fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T
 
@@ -113,6 +113,8 @@ interface MockKGateway {
         fun nCalls(): Int
 
         fun wasNotCalled(list: List<Any>)
+
+        fun discardLastCallRound()
     }
 
     /**

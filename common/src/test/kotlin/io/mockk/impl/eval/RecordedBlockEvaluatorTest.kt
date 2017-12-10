@@ -6,10 +6,9 @@ import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKMatcherScope
 import io.mockk.Runs
 import io.mockk.impl.recording.AutoHinter
-import io.mockk.impl.testEvery
-import io.mockk.impl.testMockk
-import io.mockk.impl.testSpyk
-import io.mockk.impl.testVerify
+import io.mockk.impl.every
+import io.mockk.impl.mockk
+import io.mockk.impl.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,8 +22,8 @@ open class RecordedBlockEvaluatorTest {
 
     @BeforeTest
     open fun setUp() {
-        callRecorder = testMockk()
-        autoHinter = testMockk()
+        callRecorder = mockk()
+        autoHinter = mockk()
         scope = MockKMatcherScope(callRecorder, CapturingSlot())
         evaluator = object : RecordedBlockEvaluator({ callRecorder }, { autoHinter }) {}
     }
@@ -43,8 +42,8 @@ open class RecordedBlockEvaluatorTest {
         var counter = 0
         val mockBlock: MockKMatcherScope.() -> Unit = { counter++ }
 
-        testEvery { callRecorder.estimateCallRounds() } returns estimateCallRounds
-        testEvery { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
+        every { callRecorder.estimateCallRounds() } returns estimateCallRounds
+        every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
         evaluator.record(scope, mockBlock, null)
 
@@ -65,8 +64,8 @@ open class RecordedBlockEvaluatorTest {
         var counter = 0
         val coMockBlock: suspend MockKMatcherScope.() -> Unit = { counter++ }
 
-        testEvery { callRecorder.estimateCallRounds() } returns estimateCallRounds
-        testEvery { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
+        every { callRecorder.estimateCallRounds() } returns estimateCallRounds
+        every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
         evaluator.record(scope, null, coMockBlock)
 
@@ -76,7 +75,7 @@ open class RecordedBlockEvaluatorTest {
     @Test
     open fun givenNoBlocksWhenEveryEvaluatorIsCalledThenExceptionIsThrown() {
         try {
-            testEvery { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
+            every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
             evaluator.record<Unit, MockKMatcherScope>(scope,null, null)
             fail("No blocks provided. Exception should be thrown")
@@ -90,7 +89,7 @@ open class RecordedBlockEvaluatorTest {
     open fun givenLambdaBlockWhenEveryEvaluatorIsCalledThenDoneStateIsAchieved() {
         testLambdaCalls(1, 1)
 
-        testVerify {
+        verify {
             callRecorder.done()
         }
     }

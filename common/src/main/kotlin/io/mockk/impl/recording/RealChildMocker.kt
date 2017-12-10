@@ -47,7 +47,8 @@ class RealChildMocker(val stubRepo: StubRepository,
 
         log.trace { "Child search key: $invocationMatcher" }
 
-        newSelf = stubRepo.stubFor(newSelf!!).childMockK(equivalentCall)
+        newSelf = stubRepo.stubFor(newSelf!!)
+                .childMockK(equivalentCall.matcher, equivalentCall.retType)
     }
 
     companion object {

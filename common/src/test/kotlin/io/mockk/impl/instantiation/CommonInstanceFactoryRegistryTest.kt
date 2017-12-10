@@ -1,8 +1,7 @@
 package io.mockk.impl.instantiation
 
-import io.mockk.MockKGateway
 import io.mockk.MockKGateway.InstanceFactory
-import io.mockk.impl.testMockk
+import io.mockk.impl.mockk
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,7 +14,7 @@ class CommonInstanceFactoryRegistryTest {
     @BeforeTest
     fun setUp() {
         factoryRegistry = CommonInstanceFactoryRegistry()
-        factory = testMockk()
+        factory = mockk()
     }
 
     @Test
