@@ -34,9 +34,9 @@ dependencies {
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
-    filter {
-        includeTestsMatching "io.mockk.impl.*.*"
-    }
+//    filter {
+//        includeTestsMatching "io.mockk.impl.*.*"
+//    }
 }
 jacocoTestReport {
     reports {

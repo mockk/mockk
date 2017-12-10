@@ -39,7 +39,7 @@ class JsMockKGateway : MockKGateway {
     override val mockFactory: MockFactory = JsMockFactory(
             stubRepo,
             instantiator,
-            StubGatewayAccess(callRecorder, anyValueGenerator))
+            StubGatewayAccess({ callRecorder }, anyValueGenerator))
 
     override val staticMockFactory: StaticMockFactory
         get() = throw UnsupportedOperationException("Static mocks are not supported in JS version")

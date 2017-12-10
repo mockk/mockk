@@ -58,7 +58,9 @@ class OrderedCallVerifier(val stubRepo: StubRepository) : MockKGateway.CallVerif
 
                 when (path[callIdx][matcherIdx]) {
                     '=' -> {
-                        captureBlocks.add { matchedCalls[matcherIdx].matcher.captureAnswer(allCalls[callIdx]) }
+                        val matcher = matchedCalls[matcherIdx].matcher
+                        val invocation = allCalls[callIdx]
+                        captureBlocks.add { matcher.captureAnswer(invocation) }
                         backTrackMatchedCalls(callIdx - 1, matcherIdx - 1)
                     }
                     '^' -> {

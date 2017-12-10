@@ -17,10 +17,11 @@ class SequenceCallVerifier(val stubRepo: StubRepository) : MockKGateway.CallVeri
         }
 
         for ((i, call) in allCalls.withIndex()) {
-            if (!calls[i].matcher.match(call)) {
+            val matcher = calls[i].matcher
+            if (!matcher.match(call)) {
                 return MockKGateway.VerificationResult(false, "calls are not exactly matching verification sequence" + reportCalls(calls, allCalls))
             }
-            captureBlocks.add { calls[i].matcher.captureAnswer(call) }
+            captureBlocks.add { matcher.captureAnswer(call) }
         }
 
 

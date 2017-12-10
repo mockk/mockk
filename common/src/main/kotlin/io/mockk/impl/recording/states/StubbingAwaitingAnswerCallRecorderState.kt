@@ -8,6 +8,8 @@ import io.mockk.impl.recording.CommonCallRecorder
 
 class StubbingAwaitingAnswerCallRecorderState(recorder: CommonCallRecorder) : CallRecorderState(recorder) {
     override fun answer(answer: Answer<*>) {
+        checkMissingCalls()
+
         for ((idx, ic) in recorder.calls.withIndex()) {
             val lastCall = idx == recorder.calls.size - 1
 
@@ -27,12 +29,10 @@ class StubbingAwaitingAnswerCallRecorderState(recorder: CommonCallRecorder) : Ca
         recorder.state = recorder.factories.answeringCallRecorderState(recorder)
     }
 
-    override fun recordingDone(): CallRecorderState {
+    fun checkMissingCalls() {
         if (recorder.calls.isEmpty()) {
             throw MockKException("Missing calls inside every { ... } block.")
         }
-
-        return recorder.factories.stubbingAwaitingAnswerCallRecorderState(recorder)
     }
 
     companion object {
