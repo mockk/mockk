@@ -36,6 +36,7 @@ test {
     jvmArgs '-DprojectConfigScan=false'
 //    filter {
 //        includeTestsMatching "io.mockk.impl.*.*"
+//        includeTestsMatching "io.mockk.impl.recording.states.StubbingAwaitingAnswerCallRecorderStateTest"
 //    }
 }
 jacocoTestReport {

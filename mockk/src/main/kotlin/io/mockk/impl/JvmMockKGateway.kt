@@ -21,6 +21,7 @@ import io.mockk.impl.recording.states.VerifyingCallRecorderState
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.log.JvmLogging.adaptor
+import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
@@ -28,10 +29,12 @@ import io.mockk.proxy.MockKProxyMaker
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
+    val safeLog: SafeLog = SafeLog({ callRecorderTL.get() })
+
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
-    val stubRepo = StubRepository()
+    val stubRepo = StubRepository(safeLog)
     val instantiator = JvmInstantiator(MockKProxyMaker.INSTANCE, instanceFactoryRegistryIntrnl)
     val anyValueGenerator = JvmAnyValueGenerator()
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
@@ -41,19 +44,19 @@ class JvmMockKGateway : MockKGateway {
             MockKProxyMaker.INSTANCE,
             instantiator,
             stubRepo,
-            StubGatewayAccess({ callRecorder }, anyValueGenerator))
+            StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog))
 
     override val staticMockFactory = JvmStaticMockFactory(
             MockKProxyMaker.INSTANCE,
             stubRepo,
-            StubGatewayAccess({ callRecorder }, anyValueGenerator, mockFactory))
+            StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory))
 
-    override val clearer = CommonClearer(stubRepo)
+    override val clearer = CommonClearer(stubRepo, safeLog)
 
-    val unorderedVerifier = UnorderedCallVerifier(stubRepo)
-    val allVerifier = AllCallsCallVerifier(stubRepo)
-    val orderedVerifier = OrderedCallVerifier(stubRepo)
-    val sequenceVerifier = SequenceCallVerifier(stubRepo)
+    val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeLog)
+    val allVerifier = AllCallsCallVerifier(stubRepo, safeLog)
+    val orderedVerifier = OrderedCallVerifier(stubRepo, safeLog)
+    val sequenceVerifier = SequenceCallVerifier(stubRepo, safeLog)
 
     override fun verifier(ordering: Ordering): CallVerifier =
             when (ordering) {
@@ -63,12 +66,8 @@ class JvmMockKGateway : MockKGateway {
                 Ordering.SEQUENCE -> sequenceVerifier
             }
 
-    fun signatureMatcherDetectorFactory(callRounds: List<CallRound>, mocks: List<Ref>): SignatureMatcherDetector {
-        return SignatureMatcherDetector(callRounds, mocks, ::ChainedCallDetector)
-    }
-
     val callRecorderFactories = CallRecorderFactories(
-            this::signatureMatcherDetectorFactory,
+            { SignatureMatcherDetector({ ChainedCallDetector(safeLog) }) },
             ::CallRoundBuilder,
             ::ChildHinter,
             this::verifier,
@@ -76,15 +75,16 @@ class JvmMockKGateway : MockKGateway {
             ::StubbingCallRecorderState,
             ::VerifyingCallRecorderState,
             ::StubbingAwaitingAnswerCallRecorderState,
-            ::RealChildMocker)
+            { RealChildMocker(stubRepo, safeLog) })
 
     private val callRecorderTL = object : ThreadLocal<CommonCallRecorder>() {
-        override fun initialValue() = CommonCallRecorder(
+        override fun initialValue(): CommonCallRecorder = CommonCallRecorder(
                 stubRepo,
                 instantiator,
                 signatureValueGenerator,
                 mockFactory,
                 anyValueGenerator,
+                safeLog,
                 callRecorderFactories)
     }
 

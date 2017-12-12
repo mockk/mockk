@@ -16,7 +16,7 @@ interface Logger {
 
     companion object {
         var loggerFactory : (KClass<*>) -> Logger = { NoOpLogger() }
-        var logLevel = LogLevel.WARN
+        var logLevel = LogLevel.INFO
         inline operator fun <reified T> invoke() = FilterLogger(loggerFactory(T::class), { logLevel })
     }
 }

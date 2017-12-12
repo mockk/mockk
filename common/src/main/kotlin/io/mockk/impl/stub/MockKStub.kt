@@ -2,8 +2,8 @@ package io.mockk.impl.stub
 
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
-import kotlin.reflect.KClass
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
+import kotlin.reflect.KClass
 
 open class MockKStub(override val type: KClass<*>,
                      override val name: String,
@@ -55,6 +55,12 @@ open class MockKStub(override val type: KClass<*>,
         }
     }
 
+    override fun stdObjectAnswer(invocation: Invocation): Any? {
+        return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
+            throw MockKException("No other calls allowed in stdObjectAnswer than equals/hashCode/toString")
+        }
+    }
+
     protected open fun defaultAnswer(invocation: Invocation): Any? {
         return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
             if (relaxed) {
@@ -81,12 +87,14 @@ open class MockKStub(override val type: KClass<*>,
 
     override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any? {
         return synchronized(childs) {
-            childs.customComputeIfAbsent(matcher) {
-                gatewayAccess.mockFactory!!.mockk(
-                        childType,
-                        childName(this.name),
-                        moreInterfaces = arrayOf(),
-                        relaxed = relaxed)
+            gatewayAccess.safeLog.exec {
+                childs.customComputeIfAbsent(matcher) {
+                    gatewayAccess.mockFactory!!.mockk(
+                            childType,
+                            childName(this.name),
+                            moreInterfaces = arrayOf(),
+                            relaxed = relaxed)
+                }
             }
         }
     }
@@ -116,7 +124,7 @@ open class MockKStub(override val type: KClass<*>,
 
         val invocation = Invocation(
                 self,
-                toStr(),
+                this,
                 method,
                 args.toList(),
                 InternalPlatform.time(),
@@ -148,7 +156,7 @@ open class MockKStub(override val type: KClass<*>,
     private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
     protected fun Invocation.allEqMatcher() =
-            InvocationMatcher(self, selfStr, method,
+            InvocationMatcher(self, method,
                     args.map {
                         if (it == null)
                             NullCheckMatcher<Any>()

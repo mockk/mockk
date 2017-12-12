@@ -9,9 +9,11 @@ import io.mockk.impl.recording.*
 import kotlin.reflect.KClass
 
 abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRecorderState(recorder) {
+    val log = recorder.safeLog(Logger<RecordingCallRecorderState>())
+
     private var callRoundBuilder: CallRoundBuilder? = null
     private val callRounds = mutableListOf<CallRound>()
-    val childMocks = ChildMocks()
+    val childMocks = TemporaryMocks()
 
     override fun round(round: Int, total: Int) {
         val builder = callRoundBuilder
@@ -30,8 +32,9 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
 
     private fun signMatchers() {
         recorder.calls.clear()
-        val detector = recorder.factories.signatureMatcherDetector(callRounds, childMocks.mocks)
-        recorder.calls.addAll(detector.detect())
+        val detector = recorder.factories.signatureMatcherDetector()
+        val calls = detector.detect(callRounds, childMocks.mocks)
+        recorder.calls.addAll(calls)
     }
 
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
@@ -61,11 +64,12 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
     }
 
     fun mockRealChilds() {
-        val mocker = recorder.factories.realChildMocker(recorder.stubRepo, recorder.calls)
-        mocker.mock()
+        val mocker = recorder.factories.realChildMocker()
+
+        val resultCalls = mocker.mock(recorder.calls)
 
         recorder.calls.clear()
-        recorder.calls.addAll(mocker.resultCalls)
+        recorder.calls.addAll(resultCalls)
 
         log.trace { "Mocked childs" }
     }
@@ -105,7 +109,4 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
     private fun builder(): CallRoundBuilder = callRoundBuilder
             ?: throw MockKException("Call builder is not initialized. Bad state")
 
-    companion object {
-        val log = Logger<RecordingCallRecorderState>()
-    }
 }

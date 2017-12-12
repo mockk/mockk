@@ -45,10 +45,5 @@ abstract class RecordedBlockEvaluator(val callRecorder: () -> CallRecorder,
             throw InternalPlatform.prettifyRecordingException(ex)
         }
     }
-
-
-    companion object {
-        val log = Logger<RecordedBlockEvaluator>()
-    }
 }
 

@@ -3,6 +3,7 @@ package io.mockk.impl.recording.states
 import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.VerificationParameters
+import io.mockk.MockKGateway.VerificationResult
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
@@ -12,9 +13,7 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
     val wasNotCalled = mutableListOf<Any>()
 
     override fun recordingDone(): CallRecorderState {
-        if (recorder.calls.isEmpty() && wasNotCalled.isEmpty()) {
-            throw MockKException("Missing calls inside verify { ... } block.")
-        }
+        checkMissingCalls()
 
         val verifier = recorder.factories.verifier(params.ordering)
 
@@ -32,7 +31,13 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
         return recorder.factories.answeringCallRecorderState(recorder)
     }
 
-    private fun failIfNotPassed(outcome: MockKGateway.VerificationResult, inverse: Boolean) {
+    private fun checkMissingCalls() {
+        if (recorder.calls.isEmpty() && wasNotCalled.isEmpty()) {
+            throw MockKException("Missing calls inside verify { ... } block.")
+        }
+    }
+
+    private fun failIfNotPassed(outcome: VerificationResult, inverse: Boolean) {
         val explanation = if (outcome.message != null) ": ${outcome.message}" else ""
 
         if (inverse) {

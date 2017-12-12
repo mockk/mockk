@@ -13,6 +13,15 @@ actual object InternalPlatformDsl {
             try {
                 when (this) {
                     null -> "null"
+                    is BooleanArray -> this.contentToString()
+                    is ByteArray -> this.contentToString()
+                    is CharArray -> this.contentToString()
+                    is ShortArray -> this.contentToString()
+                    is IntArray -> this.contentToString()
+                    is LongArray -> this.contentToString()
+                    is FloatArray -> this.contentToString()
+                    is DoubleArray -> this.contentToString()
+                    is Array<*> -> this.contentDeepToString()
                     is KClass<*> -> this.simpleName ?: "<null name class>"
                     is Function<*> -> "lambda {}"
                     else -> toString()

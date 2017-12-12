@@ -12,6 +12,9 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
                                    val instantiator: AbstractInstantiator,
                                    gatewayAccessIn: StubGatewayAccess) : MockKGateway.MockFactory {
 
+    val safeLog = gatewayAccessIn.safeLog
+    val log = safeLog(Logger<AbstractMockFactory>())
+
     val gatewayAccess = gatewayAccessIn.copy(mockFactory = this)
 
     protected abstract fun <T : Any> newProxy(cls: KClass<out T>,
@@ -25,9 +28,10 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
                                  relaxed: Boolean,
                                  moreInterfaces: Array<out KClass<*>>): T {
         val newName = name ?: "#${newId()}"
-        log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
         val stub = MockKStub(mockType, newName, relaxed, gatewayAccess)
+
+        log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
         log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }
         val proxy = newProxy(mockType, moreInterfaces, stub)
@@ -71,7 +75,7 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
 
 
     override fun temporaryMock(mockType: KClass<*>): Any {
-        val stub = MockKStub(mockType, "temporary mock", gatewayAccess = gatewayAccess);
+        val stub = MockKStub(mockType, "temporary mock", gatewayAccess = gatewayAccess)
 
         log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }
 
@@ -86,7 +90,5 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
         val idCounter = InternalPlatform.counter()
 
         fun newId(): Long = idCounter()
-
-        val log = Logger<AbstractMockFactory>()
     }
 }

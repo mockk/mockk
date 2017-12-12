@@ -9,13 +9,13 @@ import io.mockk.impl.recording.states.CallRecorderState
 import io.mockk.impl.stub.StubRepository
 
 typealias VerifierFactory = (Ordering) -> CallVerifier
-typealias SignatureMatcherDetectorFactory = (List<CallRound>, List<Ref>) -> SignatureMatcherDetector
+typealias SignatureMatcherDetectorFactory = () -> SignatureMatcherDetector
 typealias CallRoundBuilderFactory = () -> CallRoundBuilder
 typealias ChildHinterFactory = () -> ChildHinter
 typealias CallRecorderStateFactory = (recorder: CommonCallRecorder) -> CallRecorderState
 typealias VerifyingCallRecorderStateFactory = (recorder: CommonCallRecorder, verificationParams: VerificationParameters) -> CallRecorderState
-typealias ChainedCallDetectorFactory = (List<CallRound>, List<Ref>, Int) -> ChainedCallDetector
-typealias RealChildMockerFactory = (StubRepository, List<MatchedCall>) -> RealChildMocker
+typealias ChainedCallDetectorFactory = () -> ChainedCallDetector
+typealias RealChildMockerFactory = () -> RealChildMocker
 
 data class CallRecorderFactories(val signatureMatcherDetector: SignatureMatcherDetectorFactory,
                                  val callRoundBuilder: CallRoundBuilderFactory,

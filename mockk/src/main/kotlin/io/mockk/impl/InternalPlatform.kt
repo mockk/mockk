@@ -1,10 +1,13 @@
 package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.Ref
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
+import io.mockk.impl.stub.StubRepository
+import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList

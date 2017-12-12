@@ -2,6 +2,7 @@ package io.mockk.impl.instantiation
 
 import io.mockk.MockKGateway.InstanceFactory
 import io.mockk.impl.mockk
+import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,7 +15,9 @@ class CommonInstanceFactoryRegistryTest {
     @BeforeTest
     fun setUp() {
         factoryRegistry = CommonInstanceFactoryRegistry()
-        factory = mockk()
+        factory = object : InstanceFactory {
+            override fun instantiate(cls: KClass<*>): Any? { return null }
+        }
     }
 
     @Test

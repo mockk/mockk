@@ -695,7 +695,7 @@ data class MethodDescription(val name: String,
  * Mock invocation
  */
 data class Invocation(val self: Any,
-                      val selfStr: String,
+                      val stub: Any,
                       val method: MethodDescription,
                       val args: List<Any?>,
                       val timestamp: Long,
@@ -719,8 +719,8 @@ data class Invocation(val self: Any,
         return result
     }
 
-    override fun toString(): String = "Invocation(self=$selfStr, method=$method, " +
-            "args=${args.map({ it.toStr() }).joinToString(", ")})"
+    override fun toString(): String = "Invocation(self=$self, method=$method, " +
+            "args=[${args.map({ it.toStr() }).joinToString(", ")}])"
 
 }
 
@@ -728,7 +728,6 @@ data class Invocation(val self: Any,
  * Checks if invocation is matching via number of matchers
  */
 data class InvocationMatcher(val self: Any,
-                             val selfStr: String,
                              val method: MethodDescription,
                              val args: List<Matcher<Any>>,
                              val allAny: Boolean) {
@@ -797,7 +796,7 @@ data class InvocationMatcher(val self: Any,
     }
 
     override fun toString(): String {
-        return "InvocationMatcher(selfmethod=${method.toStr()}, args=$args)"
+        return "InvocationMatcher(self=$self, method=${method.toStr()}, args=[$args])"
     }
 
 
@@ -809,7 +808,11 @@ data class InvocationMatcher(val self: Any,
 data class MatchedCall(val retType: KClass<*>,
                        val invocation: Invocation,
                        val matcher: InvocationMatcher,
-                       val chained: Boolean)
+                       val chained: Boolean) {
+    override fun toString(): String {
+        return "MatchedCall(retType=${retType.toStr()}, invocation=$invocation, matcher=$matcher, chained=$chained)"
+    }
+}
 
 /**
  * Allows to deregister something was registered before

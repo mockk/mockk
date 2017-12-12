@@ -1,6 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.Ref
+import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 
 expect object InternalPlatform {

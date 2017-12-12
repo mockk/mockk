@@ -2,6 +2,7 @@ package io.mockk
 
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
+import java.util.*
 import kotlin.reflect.KClass
 
 actual object InternalPlatformDsl {
@@ -17,6 +18,16 @@ actual object InternalPlatformDsl {
             try {
                 when (this) {
                     null -> "null"
+                    is BooleanArray -> this.contentToString()
+                    is ByteArray -> this.contentToString()
+                    is CharArray -> this.contentToString()
+                    is ShortArray -> this.contentToString()
+                    is IntArray -> this.contentToString()
+                    is LongArray -> this.contentToString()
+                    is FloatArray -> this.contentToString()
+                    is DoubleArray -> this.contentToString()
+                    is Array<*> -> this.contentDeepToString()
+                    Void.TYPE.kotlin -> "void"
                     is KClass<*> -> this.simpleName ?: "<null name class>"
                     is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
                     is Function<*> -> "lambda {}"

@@ -2,19 +2,23 @@ package io.mockk.impl.verify
 
 import io.mockk.MatchedCall
 import io.mockk.MockKGateway
+import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.allInvocations
 import io.mockk.impl.verify.VerificationHelpers.reportCalls
 
-class OrderedCallVerifier(val stubRepo: StubRepository) : MockKGateway.CallVerifier {
+class OrderedCallVerifier(val stubRepo: StubRepository,
+                          val safeLog: SafeLog) : MockKGateway.CallVerifier {
     private val captureBlocks = mutableListOf<() -> Unit>()
 
     override fun verify(matchedCalls: List<MatchedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
         val allCalls = matchedCalls.allInvocations(stubRepo)
 
         if (matchedCalls.size > allCalls.size) {
-            return MockKGateway.VerificationResult(false, "less calls happened then demanded by order verification sequence. " +
-                    reportCalls(matchedCalls, allCalls))
+            return MockKGateway.VerificationResult(false, safeLog.exec {
+                "less calls happened then demanded by order verification sequence. " +
+                        reportCalls(matchedCalls, allCalls)
+            })
         }
 
         // LCS algorithm
@@ -76,7 +80,9 @@ class OrderedCallVerifier(val stubRepo: StubRepository) : MockKGateway.CallVerif
 
             return MockKGateway.VerificationResult(true)
         } else {
-            return MockKGateway.VerificationResult(false, "calls are not in verification order" + reportCalls(matchedCalls, allCalls))
+            return MockKGateway.VerificationResult(false, safeLog.exec {
+                "calls are not in verification order" + reportCalls(matchedCalls, allCalls)
+            })
         }
     }
 

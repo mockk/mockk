@@ -26,4 +26,6 @@ interface Stub {
                          args: Array<out Any?>): Any?
 
     fun toStr(): String
+
+    fun stdObjectAnswer(invocation: Invocation): Any?
 }

@@ -109,30 +109,7 @@ public class MockKProxyMaker {
         if (!Modifier.isFinal(clazz.getModifiers())) {
             log.trace("Building subclass proxy for " + clazz +
                     " with additional interfaces " + asList(interfaces));
-            CacheKey key = new CacheKey(clazz, interfaces);
-            final ClassLoader classLoader = clazz.getClassLoader();
-            Object monitor = classLoader == null ? BOOTSTRAP_MONITOR : classLoader;
-            proxyClass = proxyClassCache.findOrInsert(classLoader, key,
-                    new Callable<Class<?>>() {
-                        @Override
-                        public Class<?> call() throws Exception {
-                            ClassLoader classLoader = new MultipleParentClassLoader.Builder()
-                                    .append(clazz)
-                                    .append(interfaces)
-                                    .append(currentThread().getContextClassLoader())
-                                    .append(MockKProxyInterceptor.class)
-                                    .build(MockKProxyInterceptor.class.getClassLoader());
-
-
-                            return byteBuddy.subclass(clazz)
-                                    .implement(interfaces)
-                                    .method(any())
-                                    .intercept(to(MockKProxyInterceptor.class))
-                                    .make()
-                                    .load(classLoader)
-                                    .getLoaded();
-                        }
-                    }, monitor);
+            proxyClass = subclass(clazz, interfaces);
 
             if (!transformed) {
                 warnOnFinalMethods(clazz);
@@ -183,6 +160,33 @@ public class MockKProxyMaker {
         }
     }
 
+    private <T> Class<?> subclass(final Class<T> clazz, final Class<?>... interfaces) {
+        CacheKey key = new CacheKey(clazz, interfaces);
+        final ClassLoader classLoader = clazz.getClassLoader();
+        Object monitor = classLoader == null ? BOOTSTRAP_MONITOR : classLoader;
+        return proxyClassCache.findOrInsert(classLoader, key,
+                new Callable<Class<?>>() {
+                    @Override
+                    public Class<?> call() throws Exception {
+                        ClassLoader classLoader = new MultipleParentClassLoader.Builder()
+                                .append(clazz)
+                                .append(interfaces)
+                                .append(currentThread().getContextClassLoader())
+                                .append(MockKProxyInterceptor.class)
+                                .build(MockKProxyInterceptor.class.getClassLoader());
+
+
+                        return byteBuddy.subclass(clazz)
+                                .implement(interfaces)
+                                .method(any())
+                                .intercept(to(MockKProxyInterceptor.class))
+                                .make()
+                                .load(classLoader)
+                                .getLoaded();
+                    }
+                }, monitor);
+    }
+
     private <T> boolean canInject(Class<T> clazz) {
         return !EXCLUDES.contains(clazz);
     }
@@ -204,7 +208,13 @@ public class MockKProxyMaker {
     }
 
 
+    @SuppressWarnings("unchecked")
     private <T> T newEmptyInstance(Class<T> clazz) {
+        log.trace("Creating new empty instance of " + clazz);
+        if (!Modifier.isFinal(clazz.getModifiers())) {
+            clazz = (Class<T>) subclass(clazz);
+        }
+
         ObjectInstantiator<?> inst = instantiators.get(clazz);
         if (inst == null) {
             inst = objenesis.getInstantiatorOf(clazz);

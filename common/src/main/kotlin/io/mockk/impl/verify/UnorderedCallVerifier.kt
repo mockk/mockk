@@ -6,15 +6,18 @@ import io.mockk.InvocationMatcher
 import io.mockk.MatchedCall
 import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.VerificationResult
+import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.formatCalls
 
-open class UnorderedCallVerifier(val stubRepo: StubRepository) : CallVerifier {
+open class UnorderedCallVerifier(val stubRepo: StubRepository,
+                                 val safeLog: SafeLog) : CallVerifier {
     private val captureBlocks = mutableListOf<() -> Unit>()
 
     override fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult {
         for ((i, call) in calls.withIndex()) {
-            val result = matchCall(call, min, max, "call ${i + 1} of ${calls.size}: ${call.invocation}.")
+            val callIdxMsg = safeLog.exec { "call ${i + 1} of ${calls.size}: ${call.invocation}" }
+            val result = matchCall(call, min, max, callIdxMsg)
 
             if (!result.matches) {
                 return result
@@ -34,10 +37,12 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository) : CallVerifier {
                 if (min == 0 && max == 0) {
                     VerificationResult(true)
                 } else if (allCallsForMock.isEmpty()) {
-                    VerificationResult(false, "$callIdxMsg ${recordedCall.matcher.method.toStr()} was not called")
+                    VerificationResult(false, "$callIdxMsg was not called")
                 } else {
-                    VerificationResult(false, "$callIdxMsg ${recordedCall.matcher.method.toStr()} was not called.\n" +
-                            "Calls to same mock:\n" + formatCalls(allCallsForMock))
+                    VerificationResult(false, safeLog.exec {
+                        "$callIdxMsg was not called.\n" +
+                                "Calls to same mock:\n" + formatCalls(allCallsForMock)
+                    })
                 }
             }
             1 -> {
@@ -46,11 +51,13 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository) : CallVerifier {
                     if (1 in min..max) {
                         VerificationResult(true)
                     } else {
-                        VerificationResult(false, "$callIdxMsg One matching call found, but needs at least $min${atMostMsg(max)} calls")
+                        VerificationResult(false, "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls")
                     }
                 } else {
-                    VerificationResult(false, "$callIdxMsg Only one matching call to ${stub.toStr()}/${recordedCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
-                            describeArgumentDifference(recordedCall.matcher, onlyCall))
+                    VerificationResult(false, safeLog.exec {
+                        "$callIdxMsg. Only one matching call to ${stub.toStr()}/${recordedCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
+                                describeArgumentDifference(recordedCall.matcher, onlyCall)
+                    })
                 }
             }
             else -> {
@@ -60,11 +67,13 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository) : CallVerifier {
                 } else {
                     if (n == 0) {
                         VerificationResult(false,
-                                "$callIdxMsg No matching calls found.\n" +
-                                        "Calls to same method:\n" + formatCalls(allCallsForMockMethod))
+                                safeLog.exec {
+                                    "$callIdxMsg. No matching calls found.\n" +
+                                            "Calls to same method:\n" + formatCalls(allCallsForMockMethod)
+                                })
                     } else {
                         VerificationResult(false,
-                                "$callIdxMsg $n matching calls found, " +
+                                "$callIdxMsg. $n matching calls found, " +
                                         "but needs at least $min${atMostMsg(max)} calls")
                     }
                 }

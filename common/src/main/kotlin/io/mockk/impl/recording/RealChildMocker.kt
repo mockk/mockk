@@ -4,21 +4,25 @@ import io.mockk.EquivalentMatcher
 import io.mockk.MatchedCall
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.log.Logger
+import io.mockk.impl.log.SafeLog
 
 class RealChildMocker(val stubRepo: StubRepository,
-                      val calls: List<MatchedCall>) {
+                      val safeLog: SafeLog) {
+
+    val log = safeLog(Logger<RealChildMocker>())
 
     private var newSelf: Any? = null
-    val resultCalls = mutableListOf<MatchedCall>()
+    private val resultCalls = mutableListOf<MatchedCall>()
 
-    fun mock() {
+    fun mock(calls: List<MatchedCall>): MutableList<MatchedCall> {
         newSelf = null
         for ((idx, call) in calls.withIndex()) {
-            mockCall(idx, call)
+            mockCall(calls, idx, call)
         }
+        return resultCalls
     }
 
-    private fun mockCall(idx: Int, call: MatchedCall) {
+    private fun mockCall(calls: List<MatchedCall>, idx: Int, call: MatchedCall) {
         val isLastCall = idx == calls.size - 1
 
         val invocation = call.invocation
@@ -49,9 +53,5 @@ class RealChildMocker(val stubRepo: StubRepository,
 
         newSelf = stubRepo.stubFor(newSelf!!)
                 .childMockK(equivalentCall.matcher, equivalentCall.retType)
-    }
-
-    companion object {
-        val log = Logger<RealChildMocker>()
     }
 }
