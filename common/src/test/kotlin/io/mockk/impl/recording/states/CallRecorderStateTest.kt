@@ -9,13 +9,13 @@ import kotlin.test.assertFailsWith
 
 class CallRecorderStateTest {
     lateinit var recorder: CommonCallRecorder
-    lateinit var state: CallRecorderState
+    lateinit var state: CallRecordingState
     lateinit var ops: List<() -> Any?>
 
     @BeforeTest
     fun setUp() {
         recorder = mockk()
-        state = object : CallRecorderState(recorder) {
+        state = object : CallRecordingState(recorder) {
         }
         ops = listOf(
                 { state.call(mockk()) },

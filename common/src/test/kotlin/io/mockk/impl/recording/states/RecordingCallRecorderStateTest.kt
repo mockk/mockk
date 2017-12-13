@@ -10,13 +10,13 @@ import kotlin.test.Test
 
 class RecordingCallRecorderStateTest {
     lateinit var recorder: CommonCallRecorder
-    lateinit var state: RecordingCallRecorderState
+    lateinit var state: RecordingState
 
 
     @BeforeTest
     fun setUp() {
         recorder = mockk()
-        state = object : RecordingCallRecorderState(recorder) {
+        state = object : RecordingState(recorder) {
         }
     }
 

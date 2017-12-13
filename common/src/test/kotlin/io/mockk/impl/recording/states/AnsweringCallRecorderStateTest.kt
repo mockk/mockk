@@ -14,16 +14,16 @@ import kotlin.test.assertSame
 
 class AnsweringCallRecorderStateTest {
     lateinit var recorder: CommonCallRecorder
-    lateinit var state: AnsweringCallRecorderState
+    lateinit var state: AnsweringState
     lateinit var invocation: Invocation
     lateinit var stub: Stub
-    lateinit var otherState: CallRecorderState
+    lateinit var otherState: CallRecordingState
 
     @BeforeTest
     fun setUp() {
         recorder = mockk()
         invocation = mockk()
-        state = AnsweringCallRecorderState(recorder)
+        state = AnsweringState(recorder)
         stub = mockk()
         otherState = mockk()
     }

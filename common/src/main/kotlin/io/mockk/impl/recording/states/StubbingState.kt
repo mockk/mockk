@@ -3,8 +3,8 @@ package io.mockk.impl.recording.states
 import io.mockk.MockKException
 import io.mockk.impl.recording.CommonCallRecorder
 
-class StubbingCallRecorderState(recorder: CommonCallRecorder) : RecordingCallRecorderState(recorder) {
-    override fun recordingDone(): CallRecorderState {
+class StubbingState(recorder: CommonCallRecorder) : RecordingState(recorder) {
+    override fun recordingDone(): CallRecordingState {
         checkMissingCalls()
         return recorder.factories.stubbingAwaitingAnswerCallRecorderState(recorder)
     }

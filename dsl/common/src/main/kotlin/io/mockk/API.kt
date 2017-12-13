@@ -808,7 +808,7 @@ data class InvocationMatcher(val self: Any,
     }
 
     override fun toString(): String {
-        return "$self.${method.name}($args))"
+        return "$self.${method.name}(${args.joinToString(", ")}))"
     }
 
 

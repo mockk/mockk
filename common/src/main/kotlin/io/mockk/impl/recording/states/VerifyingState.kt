@@ -6,17 +6,16 @@ import io.mockk.MockKGateway.VerificationResult
 import io.mockk.RecordedCall
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
-import io.mockk.impl.recording.WasNotCalled
 import io.mockk.impl.stub.Stub
 
-class VerifyingCallRecorderState(recorder: CommonCallRecorder,
-                                 val params: VerificationParameters) : RecordingCallRecorderState(recorder) {
+class VerifyingState(recorder: CommonCallRecorder,
+                     val params: VerificationParameters) : RecordingState(recorder) {
 
     override fun wasNotCalled(list: List<Any>) {
         addWasNotCalled(list)
     }
 
-    override fun recordingDone(): CallRecorderState {
+    override fun recordingDone(): CallRecordingState {
         checkMissingCalls()
 
         val verifier = recorder.factories.verifier(params.ordering)
@@ -91,6 +90,6 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
     }
 
     companion object {
-        val log = Logger<VerifyingCallRecorderState>()
+        val log = Logger<VerifyingState>()
     }
 }

@@ -5,7 +5,7 @@ import io.mockk.ConstantAnswer
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 
-class StubbingAwaitingAnswerCallRecorderState(recorder: CommonCallRecorder) : CallRecorderState(recorder) {
+class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
     override fun answer(answer: Answer<*>) {
         val calls = recorder.calls
         for ((idx, matchedCall) in calls.withIndex()) {
@@ -30,6 +30,6 @@ class StubbingAwaitingAnswerCallRecorderState(recorder: CommonCallRecorder) : Ca
     }
 
     companion object {
-        val log = Logger<StubbingAwaitingAnswerCallRecorderState>()
+        val log = Logger<StubbingAwaitingAnswerState>()
     }
 }

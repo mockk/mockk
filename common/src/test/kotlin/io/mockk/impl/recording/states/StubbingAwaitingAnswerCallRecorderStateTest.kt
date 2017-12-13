@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 class StubbingAwaitingAnswerCallRecorderStateTest {
     lateinit var recorder: CommonCallRecorder
-    lateinit var state: StubbingAwaitingAnswerCallRecorderState
+    lateinit var state: StubbingAwaitingAnswerState
     lateinit var answer: Answer<*>
     lateinit var call1: RecordedCall
     lateinit var call2: RecordedCall
@@ -25,7 +25,7 @@ class StubbingAwaitingAnswerCallRecorderStateTest {
     fun setUp() {
         Logger.logLevel = LogLevel.TRACE
         recorder = mockk()
-        state = StubbingAwaitingAnswerCallRecorderState(recorder)
+        state = StubbingAwaitingAnswerState(recorder)
         answer = mockk()
         call1 = mockk()
         call2 = mockk()

@@ -69,10 +69,10 @@ class JvmMockKGateway : MockKGateway {
             this::verifier,
             { PermanentMocker(stubRepo, safeLog) },
             ::VerificationCallSorter,
-            ::AnsweringCallRecorderState,
-            ::StubbingCallRecorderState,
-            ::VerifyingCallRecorderState,
-            ::StubbingAwaitingAnswerCallRecorderState,
+            ::AnsweringState,
+            ::StubbingState,
+            ::VerifyingState,
+            ::StubbingAwaitingAnswerState,
             ::SafeLoggingState)
 
     private val callRecorderTL = object : ThreadLocal<CommonCallRecorder>() {

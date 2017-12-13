@@ -8,8 +8,8 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.*
 import kotlin.reflect.KClass
 
-abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRecorderState(recorder) {
-    val log = recorder.safeLog(Logger<RecordingCallRecorderState>())
+abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
+    val log = recorder.safeLog(Logger<RecordingState>())
 
     private var callRoundBuilder: CallRoundBuilder? = null
     private val callRounds = mutableListOf<CallRound>()

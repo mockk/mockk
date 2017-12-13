@@ -65,10 +65,10 @@ class JsMockKGateway : MockKGateway {
             this::verifier,
             { PermanentMocker(stubRepo, safeLog) },
             ::VerificationCallSorter,
-            ::AnsweringCallRecorderState,
-            ::StubbingCallRecorderState,
-            ::VerifyingCallRecorderState,
-            ::StubbingAwaitingAnswerCallRecorderState,
+            ::AnsweringState,
+            ::StubbingState,
+            ::VerifyingState,
+            ::StubbingAwaitingAnswerState,
             ::SafeLoggingState)
 
     val commonCallRecorder: CommonCallRecorder = CommonCallRecorder(

@@ -13,12 +13,12 @@ import kotlin.test.assertFailsWith
 
 class StubbingCallRecorderStateTest {
     lateinit var recorder: CommonCallRecorder
-    lateinit var state: StubbingCallRecorderState
+    lateinit var state: StubbingState
 
     @BeforeTest
     fun setUp() {
         recorder = mockk()
-        state = StubbingCallRecorderState(recorder)
+        state = StubbingState(recorder)
     }
 
     @Test

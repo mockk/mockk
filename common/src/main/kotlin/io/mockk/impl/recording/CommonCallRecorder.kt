@@ -7,7 +7,7 @@ import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
-import io.mockk.impl.recording.states.CallRecorderState
+import io.mockk.impl.recording.states.CallRecordingState
 import kotlin.reflect.KClass
 
 class CommonCallRecorder(val stubRepo: StubRepository,
@@ -19,7 +19,7 @@ class CommonCallRecorder(val stubRepo: StubRepository,
                          val factories: CallRecorderFactories) : CallRecorder {
 
     override val calls = mutableListOf<RecordedCall>()
-    var state: CallRecorderState = factories.answeringCallRecorderState(this)
+    var state: CallRecordingState = factories.answeringCallRecorderState(this)
     var childHinter = factories.childHinter()
 
     override fun startStubbing() {
