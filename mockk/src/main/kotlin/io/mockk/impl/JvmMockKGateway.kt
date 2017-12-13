@@ -3,7 +3,6 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
-import io.mockk.Ref
 import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubRepository
@@ -14,14 +13,11 @@ import io.mockk.impl.instantiation.*
 import io.mockk.impl.log.JvmLogging
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.*
-import io.mockk.impl.recording.states.AnsweringCallRecorderState
-import io.mockk.impl.recording.states.StubbingAwaitingAnswerCallRecorderState
-import io.mockk.impl.recording.states.StubbingCallRecorderState
-import io.mockk.impl.recording.states.VerifyingCallRecorderState
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.log.JvmLogging.adaptor
 import io.mockk.impl.log.SafeLog
+import io.mockk.impl.recording.states.*
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
@@ -68,14 +64,16 @@ class JvmMockKGateway : MockKGateway {
 
     val callRecorderFactories = CallRecorderFactories(
             { SignatureMatcherDetector({ ChainedCallDetector(safeLog) }) },
-            ::CallRoundBuilder,
+            { CallRoundBuilder(safeLog) },
             ::ChildHinter,
             this::verifier,
+            { PermanentMocker(stubRepo, safeLog) },
+            ::VerificationCallSorter,
             ::AnsweringCallRecorderState,
             ::StubbingCallRecorderState,
             ::VerifyingCallRecorderState,
             ::StubbingAwaitingAnswerCallRecorderState,
-            { RealChildMocker(stubRepo, safeLog) })
+            ::SafeLoggingState)
 
     private val callRecorderTL = object : ThreadLocal<CommonCallRecorder>() {
         override fun initialValue(): CommonCallRecorder = CommonCallRecorder(

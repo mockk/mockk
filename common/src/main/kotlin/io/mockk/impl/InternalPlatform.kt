@@ -17,6 +17,8 @@ expect object InternalPlatform {
 
     fun <K, V> weakMap(): MutableMap<K, V>
 
+    fun <K, V> identityMap(): MutableMap<K, V>
+
     fun <T> synchronizedMutableList(): MutableList<T>
 
     fun <K, V> synchronizedMutableMap(): MutableMap<K, V>

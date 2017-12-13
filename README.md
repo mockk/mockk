@@ -12,7 +12,7 @@ Table of contents:
  - mocking final classes and methods (via inlining)
  - pure Kotlin mocking DSL
  - matchers partial specification
- - chained calls
+ - chained callChains
  - matcher expressions
  - mocking coroutines
  - capturing lambdas
@@ -120,9 +120,9 @@ obj.sum(1, 2) // returns 5
 verify { obj.sum(eq(1), 2) }
 ```
 
-### Chained calls
+### Chained callChains
 
-You can stub chains of calls:
+You can stub chains of callChains:
 
 ```kotlin
 class MockedClass1 {
@@ -144,9 +144,9 @@ verify { obj.op2(1, 2).op1(3, 22) }
 ```
 
 In case function return type is generic the information about actual type is erased.
-To make chained calls work additional information is required.
+To make chained callChains work additional information is required.
 Most of the times framework will catch the cast exception and do `autohinting`.
-But in the case it is explicitly needed just place `hint` before calls.
+But in the case it is explicitly needed just place `hint` before callChains.
 
 ```kotlin
 
@@ -206,8 +206,8 @@ verify(atLeast=3) { obj.sum(any(), any()) }
 
 ### Verification
 
-`verifyAll` verifies that all calls happened without checking it's order.
-`verifySequence` verifies that the exact sequence happened and `verifyOrder` that calls happened in order.
+`verifyAll` verifies that all callChains happened without checking it's order.
+`verifySequence` verifies that the exact sequence happened and `verifyOrder` that callChains happened in order.
 `wasNot Called` verifies that msgLambda or list of mocks was not called at all.
 
 ```kotlin
@@ -433,8 +433,8 @@ By default simple arguments are matched using `eq()`
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda()`|captures lambda|
 |`captureCoroutine()`|captures coroutine|
-|`invoke(...)`|calls matched argument|
-|`coInvoke(...)`|calls matched argument for coroutine|
+|`invoke(...)`|callChains matched argument|
+|`coInvoke(...)`|callChains matched argument for coroutine|
 |`hint(cls)`|hints next return type in case it's got erased|
 
 Few special matchers available in verification mode only:
@@ -459,9 +459,9 @@ Few special matchers available in verification mode only:
 |`verify(atLeast=n) { msgLambda.call() }`|Do unordered verification that call were performed at least `n` times|
 |`verify(atMost=n) { msgLambda.call() }`|Do unordered verification that call were performed at most `n` times|
 |`verify(exactly=n) { msgLambda.call() }`|Do unordered verification that call were performed at exactly `n` times|
-|`verifyAll { msgLambda.call1(); msgLambda.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks|
-|`verifyOrder { msgLambda.call1(); msgLambda.call2() }`|Do verification that sequence of calls went one after another|
-|`verifySequence { msgLambda.call1(); msgLambda.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
+|`verifyAll { msgLambda.call1(); msgLambda.call2() }`|Do unordered verification that only the specified callChains were executed for mentioned mocks|
+|`verifyOrder { msgLambda.call1(); msgLambda.call2() }`|Do verification that sequence of callChains went one after another|
+|`verifySequence { msgLambda.call1(); msgLambda.call2() }`|Do verification that only the specified sequence of callChains were executed for mentioned mocks|
 |`verify { msgLambda wasNot Called }`|Do verification that msgLambda was not called|
 |`verify { listOf(mock1, mock2) wasNot Called }`|Do verification that list of mocks were not called|
 

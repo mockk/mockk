@@ -33,16 +33,16 @@ class RecordingCallRecorderStateTest {
     }
 
     @Test
-    fun givenRecordingStateWhenLastCatchArgsHappensThenSignMatchersAndMockRealChildsHappen() {
+    fun givenRecordingStateWhenLastCatchArgsHappensThenSignMatchersAndPermanentMockHappen() {
         every { recorder.factories.callRoundBuilder()  } just Runs
         every { recorder.factories.childHinter() } just Runs
-        every { recorder.factories.signatureMatcherDetector().detect(any(), any()) } just Runs
-        every { recorder.factories.realChildMocker().mock(any()) } just Runs
+        every { recorder.factories.signatureMatcherDetector().detect(any()) } just Runs
+        every { recorder.factories.permanentMocker().mock(any()) } just Runs
 
 
         state.round(1, 1)
 
-        verify { recorder.factories.signatureMatcherDetector().detect(any(), any()) }
-        verify { recorder.factories.realChildMocker().mock(any()) }
+        verify { recorder.factories.signatureMatcherDetector().detect(any()) }
+        verify { recorder.factories.permanentMocker().mock(any()) }
     }
 }

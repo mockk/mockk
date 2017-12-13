@@ -88,7 +88,7 @@ interface MockKGateway {
      * Builds a list of calls
      */
     interface CallRecorder {
-        val calls: List<MatchedCall>
+        val calls: List<RecordedCall>
 
         fun startStubbing()
 
@@ -121,7 +121,7 @@ interface MockKGateway {
      * Verifier takes the list of calls and checks what invocations happened to the mocks
      */
     interface CallVerifier {
-        fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult
+        fun verify(verificationSequence: List<RecordedCall>, min: Int, max: Int): VerificationResult
 
         fun captureArguments()
     }

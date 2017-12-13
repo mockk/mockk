@@ -2,7 +2,7 @@ package io.mockk.impl.recording.states
 
 import io.mockk.Answer
 import io.mockk.ConstantAnswer
-import io.mockk.MatchedCall
+import io.mockk.RecordedCall
 import io.mockk.impl.every
 import io.mockk.impl.log.LogLevel
 import io.mockk.impl.log.Logger
@@ -16,8 +16,8 @@ class StubbingAwaitingAnswerCallRecorderStateTest {
     lateinit var recorder: CommonCallRecorder
     lateinit var state: StubbingAwaitingAnswerCallRecorderState
     lateinit var answer: Answer<*>
-    lateinit var call1: MatchedCall
-    lateinit var call2: MatchedCall
+    lateinit var call1: RecordedCall
+    lateinit var call2: RecordedCall
     lateinit var obj1: Any
     lateinit var obj2: Any
 
@@ -36,8 +36,8 @@ class StubbingAwaitingAnswerCallRecorderStateTest {
     @Test
     fun givenAwaitingAnswerStateWhenAnswerCalledThenAnswerIsAddedAndSwitchAnsweringState() {
         every { recorder.calls } returns mutableListOf(call1, call2)
-        every { call1.invocation.self } returns obj1
-        every { call2.invocation.self } returns obj2
+        every { call1.matcher.self } returns obj1
+        every { call2.matcher.self } returns obj2
         every { recorder.factories.answeringCallRecorderState(recorder) } returns mockk()
 
         state.answer(answer)

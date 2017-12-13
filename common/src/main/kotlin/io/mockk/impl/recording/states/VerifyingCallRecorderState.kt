@@ -1,23 +1,37 @@
 package io.mockk.impl.recording.states
 
 import io.mockk.MockKException
-import io.mockk.MockKGateway
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.VerificationResult
-import io.mockk.impl.stub.Stub
+import io.mockk.RecordedCall
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
+import io.mockk.impl.recording.WasNotCalled
+import io.mockk.impl.stub.Stub
 
 class VerifyingCallRecorderState(recorder: CommonCallRecorder,
                                  val params: VerificationParameters) : RecordingCallRecorderState(recorder) {
-    val wasNotCalled = mutableListOf<Any>()
+
+    override fun wasNotCalled(list: List<Any>) {
+        addWasNotCalled(list)
+    }
 
     override fun recordingDone(): CallRecorderState {
         checkMissingCalls()
 
         val verifier = recorder.factories.verifier(params.ordering)
 
-        val outcome = verifier.verify(recorder.calls, params.min, params.max)
+        val sorter = recorder.factories.verificationCallSorter()
+
+        sorter.sort(recorder.calls)
+
+        val outcome =
+                recorder.safeExec {
+                    verifier.verify(
+                            sorter.regularCalls,
+                            params.min,
+                            params.max)
+                }
 
         if (outcome.matches) {
             verifier.captureArguments()
@@ -26,13 +40,13 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
         log.trace { "Done verification. Outcome: $outcome" }
         failIfNotPassed(outcome, params.inverse)
 
-        checkWasNotCalled()
+        checkWasNotCalled(sorter.wasNotCalledCalls)
 
         return recorder.factories.answeringCallRecorderState(recorder)
     }
 
     private fun checkMissingCalls() {
-        if (recorder.calls.isEmpty() && wasNotCalled.isEmpty()) {
+        if (recorder.calls.isEmpty()) {
             throw MockKException("Missing calls inside verify { ... } block.")
         }
     }
@@ -51,10 +65,10 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
         }
     }
 
-    private fun checkWasNotCalled() {
+    private fun checkWasNotCalled(wasNotCalledCalls: List<RecordedCall>) {
         val calledStubs = mutableListOf<Stub>()
-        for (mock in wasNotCalled) {
-            val stub = recorder.stubRepo.stubFor(mock)
+        for (call in wasNotCalledCalls) {
+            val stub = recorder.stubRepo.stubFor(call.matcher.self)
             val calls = stub.allRecordedCalls()
             if (calls.isNotEmpty()) {
                 calledStubs += stub
@@ -63,15 +77,17 @@ class VerifyingCallRecorderState(recorder: CommonCallRecorder,
 
         if (!calledStubs.isEmpty()) {
             if (calledStubs.size == 1) {
-                throw AssertionError("Verification failed: ${calledStubs[0].toStr()} was called")
+                throw AssertionError(recorder.safeExec {
+                    "Verification failed: ${calledStubs[0].toStr()} was called:\n" +
+                            calledStubs[0].allRecordedCalls().joinToString("\n")
+                })
             } else {
-                throw AssertionError("Verification failed: ${calledStubs.map { it.toStr() }.joinToString(", ")} were called")
+                throw AssertionError(recorder.safeExec {
+                    "Verification failed: ${calledStubs.map { it.toStr() }.joinToString(", ")} were called:\n" +
+                            calledStubs.flatMap { it.allRecordedCalls() }.joinToString("\n")
+                })
             }
         }
-    }
-
-    override fun wasNotCalled(list: List<Any>) {
-        wasNotCalled.addAll(list)
     }
 
     companion object {

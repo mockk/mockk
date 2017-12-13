@@ -3,7 +3,7 @@ package io.mockk.impl.verify
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
-import io.mockk.MatchedCall
+import io.mockk.RecordedCall
 import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.VerificationResult
 import io.mockk.impl.log.SafeLog
@@ -14,9 +14,9 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository,
                                  val safeLog: SafeLog) : CallVerifier {
     private val captureBlocks = mutableListOf<() -> Unit>()
 
-    override fun verify(calls: List<MatchedCall>, min: Int, max: Int): VerificationResult {
-        for ((i, call) in calls.withIndex()) {
-            val callIdxMsg = safeLog.exec { "call ${i + 1} of ${calls.size}: ${call.invocation}" }
+    override fun verify(verificationSequence: List<RecordedCall>, min: Int, max: Int): VerificationResult {
+        for ((i, call) in verificationSequence.withIndex()) {
+            val callIdxMsg = safeLog.exec { "call ${i + 1} of ${verificationSequence.size}: ${call.matcher}" }
             val result = matchCall(call, min, max, callIdxMsg)
 
             if (!result.matches) {
@@ -26,8 +26,8 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository,
         return VerificationResult(true)
     }
 
-    private fun matchCall(recordedCall: MatchedCall, min: Int, max: Int, callIdxMsg: String): VerificationResult {
-        val stub = stubRepo.stubFor(recordedCall.invocation.self)
+    private fun matchCall(recordedCall: RecordedCall, min: Int, max: Int, callIdxMsg: String): VerificationResult {
+        val stub = stubRepo.stubFor(recordedCall.matcher.self)
         val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = allCallsForMock.filter {
             recordedCall.matcher.method == it.method

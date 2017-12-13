@@ -31,9 +31,10 @@ open class MockKStub(override val type: KClass<*>,
         return with(invocationAndMatcher) {
             matcher.captureAnswer(invocation)
 
-            val call = MatchedCall(invocation.method.returnType,
+            val call = Call(
+                    invocation.method.returnType,
                     invocation,
-                    matcher, false)
+                    matcher)
 
             answer.answer(call)
         }
@@ -83,9 +84,9 @@ open class MockKStub(override val type: KClass<*>,
         }
     }
 
-    override fun toStr() = "mockk<${type.simpleName}>(${this.name})#$hashCodeStr"
+    override fun toStr() = "mockk<${type.simpleName}>@$hashCodeStr(${this.name})"
 
-    override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any? {
+    override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any {
         return synchronized(childs) {
             gatewayAccess.safeLog.exec {
                 childs.customComputeIfAbsent(matcher) {

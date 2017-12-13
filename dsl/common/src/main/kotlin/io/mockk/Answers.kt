@@ -4,7 +4,7 @@ package io.mockk
  * Returns one constant reply
  */
 data class ConstantAnswer<T>(val constantValue: T) : Answer<T> {
-    override fun answer(call: MatchedCall) = constantValue
+    override fun answer(call: Call) = constantValue
 
     override fun toString(): String = "const($constantValue)"
 }
@@ -12,8 +12,8 @@ data class ConstantAnswer<T>(val constantValue: T) : Answer<T> {
 /**
  * Delegates reply to the lambda function
  */
-data class FunctionAnswer<T>(val answerFunc: (MatchedCall) -> T) : Answer<T> {
-    override fun answer(call: MatchedCall): T = answerFunc(call)
+data class FunctionAnswer<T>(val answerFunc: (Call) -> T) : Answer<T> {
+    override fun answer(call: Call): T = answerFunc(call)
 
     override fun toString(): String = "answer()"
 }
@@ -25,7 +25,7 @@ data class FunctionAnswer<T>(val answerFunc: (MatchedCall) -> T) : Answer<T> {
 data class ManyAnswersAnswer<T>(val answers: List<T>) : Answer<T> {
     private var n = 0
 
-    override fun answer(call: MatchedCall): T {
+    override fun answer(call: Call): T {
         val next = if (n == answers.size - 1) n else n++
         return answers[next]
     }
@@ -36,7 +36,7 @@ data class ManyAnswersAnswer<T>(val answers: List<T>) : Answer<T> {
  * Throws exception instead of function reply
  */
 data class ThrowingAnswer(val ex: Throwable) : Answer<Nothing> {
-    override fun answer(call: MatchedCall): Nothing {
+    override fun answer(call: Call): Nothing {
         throw ex
     }
 }

@@ -1,13 +1,11 @@
 package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Ref
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JsHexLongHelper
 import io.mockk.impl.platform.JsCounter
-import io.mockk.impl.platform.JsIdentityHashMapOf
-import io.mockk.impl.stub.StubRepository
+import io.mockk.impl.platform.CommonIdentityHashMapOf
 import kotlin.reflect.KClass
 
 actual object InternalPlatform {
@@ -60,7 +58,9 @@ actual object InternalPlatform {
 
     actual fun prettifyRecordingException(ex: Throwable) = ex
 
-    actual fun <K : Any, V> weakMap(): MutableMap<K, V> = JsIdentityHashMapOf()
+    actual fun <K : Any, V> weakMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
+
+    actual fun <K : Any, V> identityMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
 
     actual fun <T> synchronizedMutableList(): MutableList<T> = mutableListOf()
 

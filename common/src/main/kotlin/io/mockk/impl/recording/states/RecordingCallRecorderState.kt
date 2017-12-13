@@ -13,7 +13,6 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
 
     private var callRoundBuilder: CallRoundBuilder? = null
     private val callRounds = mutableListOf<CallRound>()
-    val childMocks = TemporaryMocks()
 
     override fun round(round: Int, total: Int) {
         val builder = callRoundBuilder
@@ -26,17 +25,19 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
 
         if (round == total) {
             signMatchers()
-            mockRealChilds()
+            mockPermanently()
         }
     }
 
     private fun signMatchers() {
-        recorder.calls.clear()
         val detector = recorder.factories.signatureMatcherDetector()
-        val calls = detector.detect(callRounds, childMocks.mocks)
-        recorder.calls.addAll(calls)
+        detector.detect(callRounds)
+
+        recorder.calls.clear()
+        recorder.calls.addAll(detector.calls)
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
         val signatureValue = recorder.signatureValueGenerator.signatureValue(cls) {
             recorder.anyValueGenerator.anyValue(cls) {
@@ -49,29 +50,41 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
         return signatureValue
     }
 
-    override fun call(invocation: Invocation): Any? {
-        childMocks.requireNoArgIsChildMock(invocation.args)
-
-        val retType = recorder.childHinter.nextChildType { invocation.method.returnType }
-
-        builder().addSignedCall(retType, invocation)
-
-        return recorder.anyValueGenerator.anyValue(retType) {
-            childMocks.childMock(retType) {
-                recorder.mockFactory.temporaryMock(retType)
-            }
-        }
+    protected fun addWasNotCalled(list: List<Any>) {
+        builder().addWasNotCalled(list)
     }
 
-    fun mockRealChilds() {
-        val mocker = recorder.factories.realChildMocker()
+    override fun call(invocation: Invocation): Any? {
+        val retType = recorder.childHinter.nextChildType { invocation.method.returnType }
+        var isTemporaryMock = false
+
+        val retValue = recorder.anyValueGenerator.anyValue(retType) {
+            isTemporaryMock = true
+            recorder.mockFactory.temporaryMock(retType)
+        }
+
+        if (retValue == null) {
+            isTemporaryMock = false
+        }
+
+        builder().addSignedCall(
+                retValue,
+                isTemporaryMock,
+                retType,
+                invocation)
+
+        return retValue
+    }
+
+    fun mockPermanently() {
+        val mocker = recorder.factories.permanentMocker()
 
         val resultCalls = mocker.mock(recorder.calls)
 
         recorder.calls.clear()
         recorder.calls.addAll(resultCalls)
 
-        log.trace { "Mocked childs" }
+        log.trace { "Mocked permanently" }
     }
 
     override fun nCalls(): Int = callRoundBuilder?.signedCalls?.size ?: 0
@@ -84,7 +97,7 @@ abstract class RecordingCallRecorderState(recorder: CommonCallRecorder) : CallRe
      */
     override fun estimateCallRounds(): Int {
         return builder().signedCalls
-                .flatMap { it.invocation.args }
+                .flatMap { it.args }
                 .filterNotNull()
                 .map(this::typeEstimation)
                 .max() ?: 1

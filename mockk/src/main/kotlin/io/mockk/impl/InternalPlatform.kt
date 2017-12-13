@@ -4,6 +4,7 @@ import io.mockk.InternalPlatformDsl
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.Ref
+import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
 import io.mockk.impl.stub.StubRepository
@@ -50,7 +51,9 @@ actual object InternalPlatform {
     }
 
 
-    actual fun <K, V> weakMap(): MutableMap<K, V> = JvmWeakConcurrentMap<K, V>()
+    actual fun <K, V> weakMap(): MutableMap<K, V> = JvmWeakConcurrentMap()
+
+    actual fun <K, V> identityMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
 
     actual fun <T> synchronizedMutableList(): MutableList<T> {
         return synchronizedList(mutableListOf<T>())

@@ -2,29 +2,48 @@ package io.mockk.impl.recording
 
 import io.mockk.Invocation
 import io.mockk.Matcher
+import io.mockk.MethodDescription
+import io.mockk.impl.log.SafeLog
 import kotlin.reflect.KClass
 
-class CallRoundBuilder {
+class CallRoundBuilder(val safeLog: SafeLog) {
+    val signedMatchers = mutableListOf<SignedMatcher>()
     val signedCalls = mutableListOf<SignedCall>()
 
-    val matchers = mutableListOf<Matcher<*>>()
-    val signatures = mutableListOf<Any>()
-
     fun addMatcher(matcher: Matcher<*>, sigValue: Any) {
-        matchers.add(matcher)
-        signatures.add(sigValue)
+        signedMatchers.add(SignedMatcher(matcher, sigValue))
     }
 
-    fun addSignedCall(retType: KClass<*>, invocation: Invocation) {
-        val signedCall = SignedCall(retType,
-                invocation,
-                matchers.toList(),
-                signatures.toList())
+    fun addSignedCall(retValue: Any?,
+                      tempMock: Boolean,
+                      retType: KClass<*>,
+                      invocation: Invocation) {
+        val signedCall = SignedCall(
+                retValue,
+                tempMock,
+                retType,
+                invocation.self,
+                invocation.method,
+                invocation.args,
+                safeLog.exec { invocation.toString() },
+                signedMatchers.toList())
 
         signedCalls.add(signedCall)
+        signedMatchers.clear()
+    }
 
-        matchers.clear()
-        signatures.clear()
+    fun addWasNotCalled(list: List<Any>) {
+        for (self in list) {
+            signedCalls.add(
+                    SignedCall(Unit,
+                            false,
+                            Unit::class,
+                            self,
+                            WasNotCalled.method,
+                            listOf(),
+                            safeLog.exec { "${self} wasNot Called" },
+                            listOf()))
+        }
     }
 
     fun build() = CallRound(signedCalls.toList())

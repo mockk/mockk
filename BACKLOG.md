@@ -1,8 +1,9 @@
 
 # Backlog
 - [ ] docs: logLevel
-- [ ] docs: relaxed (note: class cast may appear in generic)
+- [ ] docs: relaxed (note: class cast may appear in generic, show detailed example)
 - [ ] docs:
+- [ ] !double chained was not called!
 - [ ] refactoring: MatchedCall
 - [ ] article on translaion Mockito to MockK
 - [ ] object mocking ruins singleton
@@ -44,7 +45,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - Mockito: Making sure interaction(s) never happened on msgLambda
 - Mockito: Finding redundant invocations
 - Mockito: Shorthand for mocks creation - `&#064;Mock` annotation
-- Mockito: Stubbing consecutive calls (iterator-style stubbing)
+- Mockito: Stubbing consecutive callChains (iterator-style stubbing)
 - Mockito: Stubbing with callbacks
 - Mockito: `doReturn()` `doThrow()` `doAnswer()` `doNothing()` `doCallRealMethod()` family of methods
 - Mockito: Spying on real objects
@@ -61,7 +62,7 @@ Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 - Mockito: One-liner stubs (Since 1.9.0)
 - Mockito: Verification ignoring stubs (Since 1.9.0)
 - Mockito: Mocking details (Improved in 2.2.x)
-- Mockito: Delegate calls to real instance (Since 1.9.5)
+- Mockito: Delegate callChains to real instance (Since 1.9.5)
 - Mockito: `MockMaker` API (Since 1.9.5)
 - Mockito: BDD style verification (Since 1.10.0)
 - Mockito: Spying or mocking abstract classes (Since 1.10.12, further enhanced in 2.7.13 and 2.7.14)

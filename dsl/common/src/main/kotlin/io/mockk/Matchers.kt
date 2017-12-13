@@ -23,6 +23,9 @@ data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = fal
         return if (inverse) !result else result
     }
 
+    override fun substitute(map: Map<Any, Any>) =
+            EqMatcher(map.s(value), ref, inverse)
+
     override fun toString(): String {
         return if (ref)
             "${if (inverse) "refNonEq" else "refEq"}(${value.toStr()})"
@@ -128,6 +131,9 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T,
         }
     }
 
+    override fun substitute(map: Map<Any, Any>) =
+            ComparingMatcher<T>(map.s(value), cmpFunc, argumentType)
+
     override fun toString(): String =
             when (cmpFunc) {
                 -2 -> "lessAndEquals($value)"
@@ -156,6 +162,9 @@ data class AndOrMatcher<T : Any>(val and: Boolean,
             else
                 subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
 
+    override fun substitute(map: Map<Any, Any>): Matcher<T> =
+            AndOrMatcher<T>(and, map.s(first), map.s(second))
+
     override fun capture(arg: Any?) {
         captureSubMatchers(arg)
     }
@@ -183,6 +192,9 @@ data class NotMatcher<T : Any>(val value: T) : Matcher<T>, CompositeMatcher<T>, 
 
     override fun match(arg: T?): Boolean =
             !subMatchers!![0].match(arg)
+
+    override fun substitute(map: Map<Any, Any>): Matcher<T> =
+            NotMatcher<T>(map.s(value))
 
     override fun capture(arg: Any?) {
         captureSubMatchers(arg)

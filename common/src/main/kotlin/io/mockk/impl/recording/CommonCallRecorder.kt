@@ -1,9 +1,6 @@
 package io.mockk.impl.recording
 
-import io.mockk.Answer
-import io.mockk.Invocation
-import io.mockk.MatchedCall
-import io.mockk.Matcher
+import io.mockk.*
 import io.mockk.MockKGateway.*
 import io.mockk.impl.instantiation.AnyValueGenerator
 import io.mockk.impl.stub.StubRepository
@@ -11,7 +8,6 @@ import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
 import io.mockk.impl.recording.states.CallRecorderState
-import io.mockk.impl.recording.states.SafeLoggingState
 import kotlin.reflect.KClass
 
 class CommonCallRecorder(val stubRepo: StubRepository,
@@ -22,7 +18,7 @@ class CommonCallRecorder(val stubRepo: StubRepository,
                          val safeLog: SafeLog,
                          val factories: CallRecorderFactories) : CallRecorder {
 
-    override val calls = mutableListOf<MatchedCall>()
+    override val calls = mutableListOf<RecordedCall>()
     var state: CallRecorderState = factories.answeringCallRecorderState(this)
     var childHinter = factories.childHinter()
 
@@ -60,7 +56,7 @@ class CommonCallRecorder(val stubRepo: StubRepository,
     fun <T> safeExec(block: () -> T): T {
         val prevState = state
         try {
-            state = SafeLoggingState(this)
+            state = factories.safeLoggingState(this)
             return block()
         } finally {
             state = prevState

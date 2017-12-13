@@ -444,11 +444,11 @@ class MockKStubScope<T>(val callRecorder: CallRecorder,
 
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
-    infix fun answers(answer: MockKAnswerScope<T>.(MatchedCall) -> T) =
+    infix fun answers(answer: MockKAnswerScope<T>.(Call) -> T) =
             answers(FunctionAnswer({ MockKAnswerScope<T>(lambda, it).answer(it) }))
 
 
-    infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(MatchedCall) -> T) = answers {
+    infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(Call) -> T) = answers {
         InternalPlatformDsl.runCoroutine {
             answer(it)
         }
@@ -463,7 +463,7 @@ class MockKStubScope<T>(val callRecorder: CallRecorder,
  */
 class MockKAnswerScope<T>(@PublishedApi
                           internal val lambda: CapturingSlot<Function<*>>,
-                          val call: MatchedCall) {
+                          val call: Call) {
 
     val invocation = call.invocation
     val matcher = call.matcher
@@ -603,7 +603,12 @@ inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A
  */
 interface Matcher<in T> {
     fun match(arg: T?): Boolean
+
+    fun substitute(map: Map<Any, Any>): Matcher<T> = this
 }
+
+@Suppress("UNCHECKED_CAST")
+internal fun <T> Map<Any, Any>.s(value: Any) = (get(value) ?: value) as T
 
 /**
  * Checks if argument is of specific type
@@ -650,8 +655,15 @@ interface CompositeMatcher<T> {
  * Provides return value for mocked function
  */
 interface Answer<out T> {
-    fun answer(call: MatchedCall): T
+    fun answer(call: Call): T
 }
+
+/**
+ * Call happened for stubbed mock
+ */
+data class Call(val retType: KClass<*>,
+                val invocation: Invocation,
+                val matcher: InvocationMatcher)
 
 /**
  * Provides information about method
@@ -719,8 +731,8 @@ data class Invocation(val self: Any,
         return result
     }
 
-    override fun toString(): String = "Invocation(self=$self, method=$method, " +
-            "args=[${args.map({ it.toStr() }).joinToString(", ")}])"
+    override fun toString(): String =
+            "$self.${method.name}(${args.joinToString(", ", transform = { it.toStr() })})"
 
 }
 
@@ -796,21 +808,22 @@ data class InvocationMatcher(val self: Any,
     }
 
     override fun toString(): String {
-        return "InvocationMatcher(self=$self, method=${method.toStr()}, args=[$args])"
+        return "$self.${method.name}($args))"
     }
 
 
 }
 
 /**
- * Matched invocation
+ * Matched call
  */
-data class MatchedCall(val retType: KClass<*>,
-                       val invocation: Invocation,
-                       val matcher: InvocationMatcher,
-                       val chained: Boolean) {
+data class RecordedCall(val retValue: Any?,
+                        val isRetValueMock: Boolean,
+                        val retType: KClass<*>,
+                        val matcher: InvocationMatcher,
+                        val selfChain: RecordedCall?) {
     override fun toString(): String {
-        return "MatchedCall(retType=${retType.toStr()}, invocation=$invocation, matcher=$matcher, chained=$chained)"
+        return "MatchedCall(retValue=${retValue.toStr()}, retType=${retType.toStr()}, isRetValueMock=$isRetValueMock matcher=$matcher)"
     }
 }
 

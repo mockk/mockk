@@ -1,11 +1,11 @@
 package io.mockk.impl.platform
 
-import io.mockk.impl.InternalPlatform.ref
 import io.mockk.Ref
+import io.mockk.impl.InternalPlatform
 
-class JsIdentityHashMapOf<K : Any, V> : MutableMap<K, V> {
-    val map = hashMapOf<Ref, V>()
-    
+class CommonIdentityHashMapOf<K, V> : MutableMap<K, V> {
+    val map = hashMapOf<Ref?, V>()
+
     override val size: Int
         get() = map.size
 
@@ -26,10 +26,10 @@ class JsIdentityHashMapOf<K : Any, V> : MutableMap<K, V> {
     }
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-        get() = TODO("not implemented")
+        get() = throw UnsupportedOperationException("entries")
 
     override val keys: MutableSet<K>
-        get() = TODO("not implemented")
+        get() = throw UnsupportedOperationException("keys")
 
     override val values: MutableCollection<V>
         get() = map.values
@@ -43,10 +43,12 @@ class JsIdentityHashMapOf<K : Any, V> : MutableMap<K, V> {
     }
 
     override fun putAll(from: Map<out K, V>) {
-        TODO("not implemented")
+        throw UnsupportedOperationException("putAll")
     }
 
     override fun remove(key: K): V? {
         return map.remove(ref(key))
     }
+
+    private fun ref(key: K) = if (key == null) null else InternalPlatform.ref(key)
 }

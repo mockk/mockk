@@ -3,7 +3,6 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
-import io.mockk.Ref
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
 import io.mockk.impl.instantiation.AnyValueGenerator
@@ -14,10 +13,7 @@ import io.mockk.impl.log.JsConsoleLogger
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
 import io.mockk.impl.recording.*
-import io.mockk.impl.recording.states.AnsweringCallRecorderState
-import io.mockk.impl.recording.states.StubbingAwaitingAnswerCallRecorderState
-import io.mockk.impl.recording.states.StubbingCallRecorderState
-import io.mockk.impl.recording.states.VerifyingCallRecorderState
+import io.mockk.impl.recording.states.*
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
@@ -64,14 +60,16 @@ class JsMockKGateway : MockKGateway {
 
     val callRecorderFactories = CallRecorderFactories(
             { SignatureMatcherDetector({ ChainedCallDetector(safeLog) }) },
-            ::CallRoundBuilder,
+            { CallRoundBuilder(safeLog) },
             ::ChildHinter,
             this::verifier,
+            { PermanentMocker(stubRepo, safeLog) },
+            ::VerificationCallSorter,
             ::AnsweringCallRecorderState,
             ::StubbingCallRecorderState,
             ::VerifyingCallRecorderState,
             ::StubbingAwaitingAnswerCallRecorderState,
-            { RealChildMocker(stubRepo, safeLog) })
+            ::SafeLoggingState)
 
     val commonCallRecorder: CommonCallRecorder = CommonCallRecorder(
             stubRepo,
