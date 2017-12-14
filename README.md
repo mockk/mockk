@@ -12,7 +12,7 @@ Table of contents:
  - mocking final classes and methods (via inlining)
  - pure Kotlin mocking DSL
  - matchers partial specification
- - chained callChains
+ - chained calls
  - matcher expressions
  - mocking coroutines
  - capturing lambdas
@@ -120,9 +120,9 @@ obj.sum(1, 2) // returns 5
 verify { obj.sum(eq(1), 2) }
 ```
 
-### Chained callChains
+### Chained calls
 
-You can stub chains of callChains:
+You can stub chains of calls:
 
 ```kotlin
 class MockedClass1 {
@@ -137,16 +137,16 @@ val obj = mockk<MockedClass2>()
 
 every { obj.op2(1, eq(2)).op1(3, any()) } returns 5
 
-obj.op2(1, 2) // returns child msgLambda
+obj.op2(1, 2) // returns child mock
 obj.op2(1, 2).op1(3, 22) // returns 5
 
 verify { obj.op2(1, 2).op1(3, 22) }
 ```
 
 In case function return type is generic the information about actual type is erased.
-To make chained callChains work additional information is required.
+To make chained calls work additional information is required.
 Most of the times framework will catch the cast exception and do `autohinting`.
-But in the case it is explicitly needed just place `hint` before callChains.
+But in the case it is explicitly needed just place `hint` before calls.
 
 ```kotlin
 
@@ -206,9 +206,9 @@ verify(atLeast=3) { obj.sum(any(), any()) }
 
 ### Verification
 
-`verifyAll` verifies that all callChains happened without checking it's order.
-`verifySequence` verifies that the exact sequence happened and `verifyOrder` that callChains happened in order.
-`wasNot Called` verifies that msgLambda or list of mocks was not called at all.
+`verifyAll` verifies that all calls happened without checking it's order.
+`verifySequence` verifies that the exact sequence happened and `verifyOrder` that calls happened in order.
+`wasNot Called` verifies that mock or list of mocks was not called at all.
 
 ```kotlin
 class MockedClass {
@@ -284,7 +284,7 @@ verify {
 
 ### Coroutines
 
-To msgLambda coroutines you need to add dependency to the support library.
+To mock coroutines you need to add dependency to the support library.
 <table>
 <tr>
     <th>Gradle</th>
@@ -312,7 +312,7 @@ To msgLambda coroutines you need to add dependency to the support library.
 </tr>
 </table>
 
-Then you can use `coEvery`, `coVerify`, `coMatch`, `coAssert`, `coRun`, `coAnswers` or `coInvoke` to msgLambda suspend methods
+Then you can use `coEvery`, `coVerify`, `coMatch`, `coAssert`, `coRun`, `coAnswers` or `coInvoke` to mock suspend methods
 
 ```kotlin
 val car = mockk<Car>()
@@ -331,7 +331,7 @@ There a 3 cases of extension function:
 * object wide
 * module wide
 
-In case of object and class you can msgLambda extension function just by creating
+In case of object and class you can mock extension function just by creating
 regular `mockk`:
 
 ```kotlin
@@ -354,7 +354,7 @@ with(mockk<Ext>()) {
 }
 ```
 
-To msgLambda module wide extension function you need to
+To mock module wide extension function you need to
 build staticMockk(...) with argument specifying module class name.
 For example "pkg.FileKt" for module "File.kt" in "pkg" package
 
@@ -433,8 +433,8 @@ By default simple arguments are matched using `eq()`
 |`captureNullable(mutableList)`|captures a value to a list together with null values|
 |`captureLambda()`|captures lambda|
 |`captureCoroutine()`|captures coroutine|
-|`invoke(...)`|callChains matched argument|
-|`coInvoke(...)`|callChains matched argument for coroutine|
+|`invoke(...)`|calls matched argument|
+|`coInvoke(...)`|calls matched argument for coroutine|
 |`hint(cls)`|hints next return type in case it's got erased|
 
 Few special matchers available in verification mode only:
@@ -454,15 +454,15 @@ Few special matchers available in verification mode only:
 
 |Validator|Description|
 |---------|-----------|
-|`verify { msgLambda.call() }`|Do unordered verification that call were performed|
-|`verify(inverse=true) { msgLambda.call() }`|Do unordered verification that call were not performed|
-|`verify(atLeast=n) { msgLambda.call() }`|Do unordered verification that call were performed at least `n` times|
-|`verify(atMost=n) { msgLambda.call() }`|Do unordered verification that call were performed at most `n` times|
-|`verify(exactly=n) { msgLambda.call() }`|Do unordered verification that call were performed at exactly `n` times|
-|`verifyAll { msgLambda.call1(); msgLambda.call2() }`|Do unordered verification that only the specified callChains were executed for mentioned mocks|
-|`verifyOrder { msgLambda.call1(); msgLambda.call2() }`|Do verification that sequence of callChains went one after another|
-|`verifySequence { msgLambda.call1(); msgLambda.call2() }`|Do verification that only the specified sequence of callChains were executed for mentioned mocks|
-|`verify { msgLambda wasNot Called }`|Do verification that msgLambda was not called|
+|`verify { mock.call() }`|Do unordered verification that call were performed|
+|`verify(inverse=true) { mock.call() }`|Do unordered verification that call were not performed|
+|`verify(atLeast=n) { mock.call() }`|Do unordered verification that call were performed at least `n` times|
+|`verify(atMost=n) { mock.call() }`|Do unordered verification that call were performed at most `n` times|
+|`verify(exactly=n) { mock.call() }`|Do unordered verification that call were performed at exactly `n` times|
+|`verifyAll { mock.call1(); mock.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks|
+|`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
+|`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
+|`verify { mock wasNot Called }`|Do verification that mock was not called|
 |`verify { listOf(mock1, mock2) wasNot Called }`|Do verification that list of mocks were not called|
 
 ### Answers
