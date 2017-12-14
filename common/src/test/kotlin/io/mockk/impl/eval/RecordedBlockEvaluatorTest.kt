@@ -14,14 +14,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
-open class RecordedBlockEvaluatorTest {
+class RecordedBlockEvaluatorTest {
     lateinit var evaluator: RecordedBlockEvaluator
     lateinit var callRecorder: CallRecorder
     lateinit var autoHinter: AutoHinter
     lateinit var scope: MockKMatcherScope
 
     @BeforeTest
-    open fun setUp() {
+    fun setUp() {
         callRecorder = mockk()
         autoHinter = mockk()
         scope = MockKMatcherScope(callRecorder, CapturingSlot())
@@ -29,12 +29,12 @@ open class RecordedBlockEvaluatorTest {
     }
 
     @Test
-    open fun givenLambdaBlockAndEstimateCallRoundsIsOneWhenEveryEvaluatorIsCalledThenLambdaIsCalledOnce() {
+    fun givenLambdaBlockAndEstimateCallRoundsIsOneWhenEveryEvaluatorIsCalledThenLambdaIsCalledOnce() {
         testLambdaCalls(1, 1)
     }
 
     @Test
-    open fun givenLambdaBlockAndEstimateCallRoundsIsTwoWhenEveryEvaluatorIsCalledThenLambdaIsCalledTwice() {
+    fun givenLambdaBlockAndEstimateCallRoundsIsTwoWhenEveryEvaluatorIsCalledThenLambdaIsCalledTwice() {
         testLambdaCalls(2, 2)
     }
 
@@ -51,12 +51,12 @@ open class RecordedBlockEvaluatorTest {
     }
 
     @Test
-    open fun givenCoLambdaBlockAndEstimateCallRoundsIsOneWhenEveryEvaluatorIsCalledThenLambdaIsCalledOnce() {
+    fun givenCoLambdaBlockAndEstimateCallRoundsIsOneWhenEveryEvaluatorIsCalledThenLambdaIsCalledOnce() {
         testCoLambdaCalls(1, 1)
     }
 
     @Test
-    open fun givenCoLambdaBlockAndEstimateCallRoundsIsTwoWhenEveryEvaluatorIsCalledThenLambdaIsCalledTwice() {
+    fun givenCoLambdaBlockAndEstimateCallRoundsIsTwoWhenEveryEvaluatorIsCalledThenLambdaIsCalledTwice() {
         testCoLambdaCalls(2, 2)
     }
 
@@ -73,7 +73,7 @@ open class RecordedBlockEvaluatorTest {
     }
 
     @Test
-    open fun givenNoBlocksWhenEveryEvaluatorIsCalledThenExceptionIsThrown() {
+    fun givenNoBlocksWhenEveryEvaluatorIsCalledThenExceptionIsThrown() {
         try {
             every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
@@ -86,7 +86,7 @@ open class RecordedBlockEvaluatorTest {
 
 
     @Test
-    open fun givenLambdaBlockWhenEveryEvaluatorIsCalledThenDoneStateIsAchieved() {
+    fun givenLambdaBlockWhenEveryEvaluatorIsCalledThenDoneStateIsAchieved() {
         testLambdaCalls(1, 1)
 
         verify {
