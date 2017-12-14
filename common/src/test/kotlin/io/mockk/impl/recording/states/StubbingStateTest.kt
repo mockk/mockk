@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 
-class StubbingCallRecorderStateTest {
+class StubbingStateTest {
     lateinit var recorder: CommonCallRecorder
     lateinit var state: StubbingState
 

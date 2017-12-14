@@ -8,7 +8,7 @@ import io.mockk.impl.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RecordingCallRecorderStateTest {
+class RecordingStateTest {
     lateinit var recorder: CommonCallRecorder
     lateinit var state: RecordingState
 

@@ -12,7 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 
-class AnsweringCallRecorderStateTest {
+class AnsweringStateTest {
     lateinit var recorder: CommonCallRecorder
     lateinit var state: AnsweringState
     lateinit var invocation: Invocation

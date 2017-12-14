@@ -12,7 +12,7 @@ import io.mockk.impl.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class StubbingAwaitingAnswerCallRecorderStateTest {
+class StubbingAwaitingAnswerStateTest {
     lateinit var recorder: CommonCallRecorder
     lateinit var state: StubbingAwaitingAnswerState
     lateinit var answer: Answer<*>
@@ -23,7 +23,6 @@ class StubbingAwaitingAnswerCallRecorderStateTest {
 
     @BeforeTest
     fun setUp() {
-        Logger.logLevel = LogLevel.TRACE
         recorder = mockk()
         state = StubbingAwaitingAnswerState(recorder)
         answer = mockk()

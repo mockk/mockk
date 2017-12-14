@@ -30,7 +30,7 @@ class ChainedCallDetector(safeLog: SafeLog) {
 
                 if (matcher is CompositeMatcher<*>) {
                     allCompositeMatchers.add(callInAllRounds.map {
-                        it.matchers[nMatcher] as CompositeMatcher<*>
+                        it.matchers[nMatcher].matcher as CompositeMatcher<*>
                     })
                 }
 
