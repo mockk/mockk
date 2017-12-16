@@ -24,7 +24,12 @@ class PermanentMocker(val stubRepo: StubRepository,
             result.add(permanentCall)
         }
 
-        log.trace { "Mocked permanently:\n" + describeCallTree(result) }
+        val callTree = safeLog.exec { describeCallTree(result) }
+        if (callTree.size == 1) {
+            log.trace { "Mocked permanently: " + callTree[0]}
+        } else {
+            log.trace { "Mocked permanently:\n" + callTree.joinToString(", ")}
+        }
 
         return result
     }
@@ -83,7 +88,7 @@ class PermanentMocker(val stubRepo: StubRepository,
                 argChains = argChains)
     }
 
-    private fun describeCallTree(calls: MutableList<RecordedCall>): String {
+    private fun describeCallTree(calls: MutableList<RecordedCall>): List<String> {
         val callTree = linkedMapOf<RecordedCall, String>()
         val usedCalls = hashSetOf<RecordedCall>()
 
@@ -97,7 +102,7 @@ class PermanentMocker(val stubRepo: StubRepository,
             it !in usedCalls
         }.map {
             callTree[it] ?: "<bad call>"
-        }.joinToString("\n")
+        }
     }
 
     private fun formatCall(call: RecordedCall,
