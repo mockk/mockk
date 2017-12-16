@@ -37,12 +37,13 @@ class StubbingAwaitingAnswerStateTest {
         every { recorder.calls } returns mutableListOf(call1, call2)
         every { call1.matcher.self } returns obj1
         every { call2.matcher.self } returns obj2
+        every { call1.isRetValueMock } returns true
         every { recorder.factories.answeringCallRecorderState(recorder) } returns mockk()
 
         state.answer(answer)
 
         verify { recorder.factories.answeringCallRecorderState(recorder) }
-        verify { recorder.stubRepo.stubFor(obj1).addAnswer(call1.matcher, ConstantAnswer(obj2)) }
+        verify { recorder.stubRepo.stubFor(obj1).addAnswer(call1.matcher, ofType(ConstantAnswer::class)) }
         verify { recorder.stubRepo.stubFor(obj2).addAnswer(call2.matcher, answer) }
     }
 }

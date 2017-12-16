@@ -16,10 +16,11 @@ class CommonCallRecorder(val stubRepo: StubRepository,
                          val mockFactory: MockFactory,
                          val anyValueGenerator: AnyValueGenerator,
                          val safeLog: SafeLog,
-                         val factories: CallRecorderFactories) : CallRecorder {
+                         val factories: CallRecorderFactories,
+                         val initialState: (CommonCallRecorder) -> CallRecordingState) : CallRecorder {
 
     override val calls = mutableListOf<RecordedCall>()
-    var state: CallRecordingState = factories.answeringCallRecorderState(this)
+    var state: CallRecordingState = initialState(this)
     var childHinter = factories.childHinter()
 
     override fun startStubbing() {
@@ -50,7 +51,7 @@ class CommonCallRecorder(val stubRepo: StubRepository,
     override fun reset() {
         calls.clear()
         childHinter = factories.childHinter()
-        state = factories.answeringCallRecorderState(this)
+        state = initialState(this)
     }
 
     fun <T> safeExec(block: () -> T): T {

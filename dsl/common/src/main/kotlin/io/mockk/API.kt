@@ -821,9 +821,10 @@ data class RecordedCall(val retValue: Any?,
                         val isRetValueMock: Boolean,
                         val retType: KClass<*>,
                         val matcher: InvocationMatcher,
-                        val selfChain: RecordedCall?) {
+                        val selfChain: RecordedCall?,
+                        val argChains: List<Any>?) {
     override fun toString(): String {
-        return "MatchedCall(retValue=${retValue.toStr()}, retType=${retType.toStr()}, isRetValueMock=$isRetValueMock matcher=$matcher)"
+        return "RecordedCall(retValue=${retValue.toStr()}, retType=${retType.toStr()}, isRetValueMock=$isRetValueMock matcher=$matcher)"
     }
 }
 

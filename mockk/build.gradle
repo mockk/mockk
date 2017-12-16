@@ -31,12 +31,24 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    from (project(':mockk-common').sourceSets.main.allSource) {
+        exclude "io/mockk/impl/InternalPlatform.kt"
+    }
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
 //    filter {
 //        includeTestsMatching "io.mockk.impl.*.*"
-//        includeTestsMatching "io.mockk.impl.recording.states.StubbingAwaitingAnswerCallRecorderStateTest"
+//        includeTestsMatching "io.mockk.impl.recording.states.VerifyingStateTest"
 //    }
 }
 jacocoTestReport {

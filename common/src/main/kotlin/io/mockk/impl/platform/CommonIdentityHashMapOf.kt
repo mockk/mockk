@@ -4,7 +4,7 @@ import io.mockk.Ref
 import io.mockk.impl.InternalPlatform
 
 class CommonIdentityHashMapOf<K, V> : MutableMap<K, V> {
-    val map = hashMapOf<Ref?, V>()
+    val map = linkedMapOf<Ref?, V>()
 
     override val size: Int
         get() = map.size

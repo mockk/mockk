@@ -3,7 +3,6 @@ package io.mockk.impl.recording.states
 import io.mockk.MockKException
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.VerificationResult
-import io.mockk.RecordedCall
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.Stub
@@ -39,7 +38,7 @@ class VerifyingState(recorder: CommonCallRecorder,
         log.trace { "Done verification. Outcome: $outcome" }
         failIfNotPassed(outcome, params.inverse)
 
-        checkWasNotCalled(sorter.wasNotCalledCalls)
+        checkWasNotCalled(sorter.wasNotCalledCalls.map { it.matcher.self })
 
         return recorder.factories.answeringCallRecorderState(recorder)
     }
@@ -64,11 +63,12 @@ class VerifyingState(recorder: CommonCallRecorder,
         }
     }
 
-    private fun checkWasNotCalled(wasNotCalledCalls: List<RecordedCall>) {
+    private fun checkWasNotCalled(mocks: List<Any>) {
         val calledStubs = mutableListOf<Stub>()
-        for (call in wasNotCalledCalls) {
-            val stub = recorder.stubRepo.stubFor(call.matcher.self)
+        for (mock in mocks) {
+            val stub = recorder.stubRepo.stubFor(mock)
             val calls = stub.allRecordedCalls()
+            println(calls)
             if (calls.isNotEmpty()) {
                 calledStubs += stub
             }
@@ -76,9 +76,10 @@ class VerifyingState(recorder: CommonCallRecorder,
 
         if (!calledStubs.isEmpty()) {
             if (calledStubs.size == 1) {
+                val calledStub = calledStubs[0]
                 throw AssertionError(recorder.safeExec {
-                    "Verification failed: ${calledStubs[0].toStr()} was called:\n" +
-                            calledStubs[0].allRecordedCalls().joinToString("\n")
+                    "Verification failed: ${calledStub.toStr()} was called:\n" +
+                            calledStub.allRecordedCalls().joinToString("\n")
                 })
             } else {
                 throw AssertionError(recorder.safeExec {

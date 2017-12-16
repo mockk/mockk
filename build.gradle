@@ -29,13 +29,8 @@ subprojects {
         from javadoc
     }
 
-    task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-
     artifacts {
-        archives javadocJar, sourcesJar
+        archives javadocJar
     }
 
     signing {

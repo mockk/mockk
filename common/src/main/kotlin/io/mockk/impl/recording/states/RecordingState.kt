@@ -83,8 +83,6 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
 
         recorder.calls.clear()
         recorder.calls.addAll(resultCalls)
-
-        log.trace { "Mocked permanently" }
     }
 
     override fun nCalls(): Int = callRoundBuilder?.signedCalls?.size ?: 0

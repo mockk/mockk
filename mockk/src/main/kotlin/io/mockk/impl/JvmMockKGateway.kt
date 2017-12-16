@@ -1,8 +1,7 @@
 package io.mockk.impl
 
-import io.mockk.MockKGateway
+import io.mockk.*
 import io.mockk.MockKGateway.*
-import io.mockk.Ordering
 import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubRepository
@@ -83,7 +82,8 @@ class JvmMockKGateway : MockKGateway {
                 mockFactory,
                 anyValueGenerator,
                 safeLog,
-                callRecorderFactories)
+                callRecorderFactories,
+                { recorder -> callRecorderFactories.answeringCallRecorderState(recorder) })
     }
 
     override val callRecorder: CallRecorder
@@ -122,5 +122,3 @@ class JvmMockKGateway : MockKGateway {
     }
 
 }
-
-

@@ -89,7 +89,7 @@ class ChainedCallDetector(safeLog: SafeLog) {
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun buildMatchedCall(): RecordedCall {
+        fun buildRecordedCall(): RecordedCall {
             if (zeroCall.method.isSuspend()) {
                 log.trace { "Suspend function found. Replacing continuation with any() matcher" }
                 argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
@@ -111,13 +111,14 @@ class ChainedCallDetector(safeLog: SafeLog) {
                     zeroCall.isRetValueMock,
                     zeroCall.retType,
                     im,
+                    null,
                     null)
         }
 
         gatherMatchers()
         detectArgMatchers()
         processCompositeMatchers()
-        call = buildMatchedCall()
+        call = buildRecordedCall()
     }
 
     @Suppress("UNCHECKED_CAST")

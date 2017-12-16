@@ -84,7 +84,7 @@ open class MockKStub(override val type: KClass<*>,
         }
     }
 
-    override fun toStr() = "mockk<${type.simpleName}>@$hashCodeStr(${this.name})"
+    override fun toStr() = "${type.simpleName}($name)"
 
     override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any {
         return synchronized(childs) {

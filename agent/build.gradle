@@ -24,8 +24,13 @@ assemble.dependsOn(shadowJar)
 
 jar.enabled = false
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
 artifacts {
-    archives shadowJar, sourcesJar, javadocJar
+    archives shadowJar, sourcesJar
 }
 
 jar.dependsOn shadowJar

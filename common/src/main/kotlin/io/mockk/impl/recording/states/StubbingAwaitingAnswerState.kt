@@ -8,17 +8,19 @@ import io.mockk.impl.recording.CommonCallRecorder
 class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
     override fun answer(answer: Answer<*>) {
         val calls = recorder.calls
-        for ((idx, matchedCall) in calls.withIndex()) {
+        for ((idx, recordedCall) in calls.withIndex()) {
             val lastCall = idx == calls.size - 1
 
             val ans = if (lastCall) {
                 answer
+            } else if (recordedCall.isRetValueMock) {
+                ConstantAnswer(recordedCall.retValue)
             } else {
-                ConstantAnswer(calls[idx + 1].matcher.self)
+                continue
             }
 
-            recorder.stubRepo.stubFor(matchedCall.matcher.self)
-                    .addAnswer(matchedCall.matcher, ans)
+            recorder.stubRepo.stubFor(recordedCall.matcher.self)
+                    .addAnswer(recordedCall.matcher, ans)
         }
 
 

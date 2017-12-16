@@ -57,7 +57,7 @@ class OrderedCallVerifier(val stubRepo: StubRepository,
         // match only if all matchers present
         if (nEdits[allCalls.size - 1][verificationSequence.size - 1] == verificationSequence.size) {
 
-            tailrec fun backTrackMatchedCalls(callIdx: Int, matcherIdx: Int) {
+            tailrec fun backTrackCalls(callIdx: Int, matcherIdx: Int) {
                 if (callIdx < 0 || matcherIdx < 0) return
 
                 when (path[callIdx][matcherIdx]) {
@@ -65,18 +65,18 @@ class OrderedCallVerifier(val stubRepo: StubRepository,
                         val matcher = verificationSequence[matcherIdx].matcher
                         val invocation = allCalls[callIdx]
                         captureBlocks.add { matcher.captureAnswer(invocation) }
-                        backTrackMatchedCalls(callIdx - 1, matcherIdx - 1)
+                        backTrackCalls(callIdx - 1, matcherIdx - 1)
                     }
                     '^' -> {
-                        backTrackMatchedCalls(callIdx - 1, matcherIdx)
+                        backTrackCalls(callIdx - 1, matcherIdx)
                     }
                     '<' -> {
-                        backTrackMatchedCalls(callIdx, matcherIdx - 1)
+                        backTrackCalls(callIdx, matcherIdx - 1)
                     }
                 }
             }
 
-            backTrackMatchedCalls(allCalls.size - 1, verificationSequence.size - 1)
+            backTrackCalls(allCalls.size - 1, verificationSequence.size - 1)
 
             return MockKGateway.VerificationResult(true)
         } else {
