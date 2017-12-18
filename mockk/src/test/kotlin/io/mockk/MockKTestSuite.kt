@@ -471,6 +471,7 @@ class MockKTestSuite : StringSpec({
 
         every { mock.arrayOp(Array<Any>(3, { it + 1 })) } returns Array<Any>(3, { 3 - it })
         every { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })) } returns Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) })
+        every { mock.arrayOp(any<Array<IntWrapper>>()) } answers { Array(3, { IntWrapper(it + 2) }) }
 
         assertArrayEquals(BooleanArray(3, { false }), mock.arrayOp(BooleanArray(3, { true })))
         assertArrayEquals(ByteArray(3, { (3 - it).toByte() }), mock.arrayOp(ByteArray(3, { (it + 1).toByte() })))
@@ -488,10 +489,13 @@ class MockKTestSuite : StringSpec({
         assertArrayEquals(Array<Int>(3, { 3 - it }), mock.arrayOp(Array<Int>(3, { it + 1 })))
         assertArrayEquals(Array<Long>(3, { (3 - it).toLong() }), mock.arrayOp(Array<Long>(3, { (it + 1).toLong() })))
         assertArrayEquals(Array<Float>(3, { (3 - it).toFloat() }), mock.arrayOp(Array<Float>(3, { (it + 1).toFloat() })))
-        assertArrayEquals(Array<Double>(3, { (3 - it).toDouble() }), mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })))
+        assertArrayEquals(Array<Double>(3, { (3 - it).toDouble() }),
+                mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })))
 
         assertArrayEquals(Array<Any>(3, { 3 - it }), mock.arrayOp(Array<Any>(3, { it + 1 })))
         assertArrayEquals(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) }), mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })))
+        assertArrayEquals(Array(3, { IntWrapper(it + 2) }),
+                mock.arrayOp(Array(3, { IntWrapper(it + 5) })))
 
         verify { mock.arrayOp(BooleanArray(3, { true })) }
         verify { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) }
@@ -513,6 +517,8 @@ class MockKTestSuite : StringSpec({
 
         verify { mock.arrayOp(Array<Any>(3, { it + 1 })) }
         verify { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })) }
+
+        verify { mock.arrayOp(Array(3, { IntWrapper(it + 5) })) }
     }.config(enabled = true)
 
     fun expectVerificationError(vararg messages: String, block: () -> Unit) {
@@ -799,6 +805,7 @@ class MockCls {
     fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
     fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+    fun arrayOp(array: Array<IntWrapper>): Array<IntWrapper> = array.map { IntWrapper(it.data + 1) }.toTypedArray()
 
     fun opNeverCalled(): Int = 1
 }
