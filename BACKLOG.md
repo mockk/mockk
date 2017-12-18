@@ -5,6 +5,7 @@
 - [ ] docs:
 - [ ] article on translaion Mockito to MockK
 - [ ] object mocking ruins singleton
+- [ ] feature: matching inside of data classes and arrays
 - [ ] **BIG** runs on Android devices
 - [ ] JavaDoc
 - [ ] annotation mocking
