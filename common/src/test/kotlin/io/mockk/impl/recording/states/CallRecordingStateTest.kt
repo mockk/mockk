@@ -7,7 +7,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class CallRecorderStateTest {
+class CallRecordingStateTest {
     lateinit var recorder: CommonCallRecorder
     lateinit var state: CallRecordingState
     lateinit var ops: List<() -> Any?>
