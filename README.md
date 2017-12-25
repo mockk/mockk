@@ -65,7 +65,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Relaxed mock
 
-You can create `relaxed mock` in case you want mock just return zero values and child mocks by default without stubbing.
+You can create `relaxed mock` in case you want mock return some simple values by default without stubbing. Still regular stubbing is possible, but library will not complain on not stubbed methods.
 
 Note: this do not work with generic return type. In this case class cast exception is thrown. You need to specify stubbing manually for case of generic return type.
 
