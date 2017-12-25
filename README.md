@@ -49,45 +49,6 @@ All you need to get started is just to add a dependency to `MockK` library.
 </tr>
 </table>
 
-#### (Optional) Launch Java agent at startup
-
-Just in case agent can not be loaded at runtime you can launch it at JVM startup.
-
-<table>
-<thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
-<tr>
-<td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
-<td>
-Add <a href="https://github.com/Zoltu/application-agent-gradle-plugin">agent</a> gradle plugin.
-
-Use following agent:
-
-<code>agent "io.mockk:mockk-agent:1.6"</code>
-
-</td>
-</tr><tr>
-<td><img src="doc/maven.png" alt="Maven"/></td>
-<td>
-Add <code>dependency:properties</code> plugin.
-
-Configure maven surefire plugin:
-
-<code>&lt;argLine&gt;-javaagent:${io.mockk:mockk-agent:jar}&lt;/argLine&gt;</code>
-
-See example <a href="https://github.com/oleksiyp/mockk/blob/master/example/sum/pom.xml">here</a>
-</td>
-</tr><tr>
-<td><img src="doc/java.png" alt="plain JVM"/></td>
-<td>
-
-Add JVM parameter to launch agent(remove spaces):
-
-<code>-javaagent: ${HOME}/.m2/repository/ io/mockk/mockk-agent/1.6/ mockk-agent-1.6.jar</code>
-
-</td>
-</tr>
-</table>
-
 ## DSL examples
 
 Simplest example:
@@ -101,6 +62,21 @@ car.drive(Direction.NORTH) // returns OK
 
 verify { car.drive(Direction.NORTH) }
 ```
+
+### Relaxed mock
+
+You can create `relaxed mock` in case you want mock just return zero values and child mocks by default without stubbing.
+
+Note: this do not work with generic return type. In this case class cast exception is thrown. You need to specify stubbing manually for case of generic return type.
+
+```kotlin
+val car = mockk<Car>()
+
+car.drive(Direction.NORTH) // returns null
+
+verify { car.drive(Direction.NORTH) }
+```
+
 
 ### Partial argument matching
 
