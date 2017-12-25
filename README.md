@@ -78,7 +78,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Relaxed mock
 
-You can create `relaxed mock` which is the mock that returns some simple value allowing to skip stubbing. Still regular stubbing is possible.
+You can create `relaxed mock` which is the mock that returns some simple value for all methods. This allows to skip specifying behavior for each case, still stubbing is possible.
 
 ```kotlin
 val car = mockk<Car>(relaxed = true)
