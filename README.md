@@ -78,7 +78,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Relaxed mock
 
-You can create `relaxed mock` which is the mock that returns some simple value for all methods. For reference types child mocks are returned. This allows to skip specifying behavior for each case, while still allow to stub things you need.
+You can create `relaxed mock` which is the mock that returns some simple value for all methods. For reference types chained mocks are returned. This allows to skip specifying behavior for each case, while still allow to stub things you need.
 
 ```kotlin
 val car = mockk<Car>(relaxed = true)
@@ -136,7 +136,7 @@ val obj = mockk<MockedClass2>()
 
 every { obj.op2(1, eq(2)).op1(3, any()) } returns 5
 
-obj.op2(1, 2) // returns child mock
+obj.op2(1, 2) // returns chained mock
 obj.op2(1, 2).op1(3, 22) // returns 5
 
 verify { obj.op2(1, 2).op1(3, 22) }
