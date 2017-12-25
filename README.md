@@ -70,7 +70,7 @@ You can create `relaxed mock` in case you want mock just return zero values and 
 Note: this do not work with generic return type. In this case class cast exception is thrown. You need to specify stubbing manually for case of generic return type.
 
 ```kotlin
-val car = mockk<Car>()
+val car = mockk<Car>(relaxed = true)
 
 car.drive(Direction.NORTH) // returns null
 
