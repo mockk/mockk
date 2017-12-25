@@ -3,8 +3,7 @@
 - [ ] docs: logLevel
 - [ ] docs: relaxed (note: class cast may appear in generic, show detailed example)
 - [ ] docs: describe case when generic is not working as example
-- [ ] docs:
-- [ ] cold call: 10, 20, 50, 200, 500, 1000
+- [ ] docs: what relaxed mock returns on enum
 - [ ] article on translaion Mockito to MockK
 - [ ] object mocking ruins singleton
 - [ ] feature: matching inside of data classes and arrays
