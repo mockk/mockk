@@ -2,6 +2,7 @@
 # Backlog
 - [ ] docs: logLevel
 - [ ] docs: relaxed (note: class cast may appear in generic, show detailed example)
+- [ ] docs: describe case when generic is not working as example
 - [ ] docs:
 - [ ] article on translaion Mockito to MockK
 - [ ] object mocking ruins singleton

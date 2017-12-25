@@ -10,16 +10,17 @@ import kotlin.reflect.KClass
 class ChainedCallDetector(safeLog: SafeLog) {
     val log = safeLog(Logger<SignatureMatcherDetector>())
 
+    val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
+    val allCompositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
+    val argMatchers = mutableListOf<Matcher<*>>()
+
     lateinit var call: RecordedCall
 
     @Suppress("CAST_NEVER_SUCCEEDS")
     fun detect(callRounds: List<CallRound>, callN: Int) {
         val callInAllRounds = callRounds.map { it.calls[callN] }
         val zeroCall = callInAllRounds[0]
-        val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
-        val allCompositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
-        val argMatchers = mutableListOf<Matcher<*>>()
-        var allAny: Boolean = false
+        var allAny = false
 
         log.trace { "Processing call #$callN: ${zeroCall.method.toStr()}" }
 
