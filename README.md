@@ -51,7 +51,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 
 ## DSL examples
 
-Simplest example:
+Simplest example. By default mocks are strict, so you need to provide some behaviour.
 
 ```kotlin
 val car = mockk<Car>()
@@ -63,11 +63,22 @@ car.drive(Direction.NORTH) // returns OK
 verify { car.drive(Direction.NORTH) }
 ```
 
+### Spy
+
+Spies allows to mix mocking and real objects. You can either pass the object or allow framework to call default constructor. Note: the final spy object is a copy of passed object.
+
+```kotlin
+val car = spyk(Car())
+
+car.drive(Direction.NORTH) // returns whatever real method of Car returns
+
+verify { car.drive(Direction.NORTH) }
+```
+
+
 ### Relaxed mock
 
-You can create `relaxed mock` in case you want mock return some simple values by default without stubbing. Still regular stubbing is possible, but library will not complain on not stubbed methods.
-
-Note: this do not work with generic return type. In this case class cast exception is thrown. You need to specify stubbing manually for case of generic return type.
+You can create `relaxed mock` which is the mock that returns some simple value allowing to skip stubbing. Still regular stubbing is possible.
 
 ```kotlin
 val car = mockk<Car>(relaxed = true)
@@ -75,6 +86,18 @@ val car = mockk<Car>(relaxed = true)
 car.drive(Direction.NORTH) // returns null
 
 verify { car.drive(Direction.NORTH) }
+```
+
+Note: relaxed mocking is working badly with generic return type. Usually in this case class cast exception is thrown. You need to specify stubbing manually for case of generic return type.
+
+Workaround:
+```
+val func = mockk<() -> Car>(relaxed = true) // in this case invoke method has generic return type
+
+// this line is workaround, without it relaxed mock would throw class cast exception on the next line
+every { func() } returns Car() // or you can return mockk() for example 
+
+func()
 ```
 
 
