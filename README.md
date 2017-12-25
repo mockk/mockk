@@ -65,7 +65,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Spy
 
-Spies allows to mix mocking and real objects. You can either pass the object or allow framework to call default constructor. Note: the spy object is a copy of passed object.
+Spies allow to mix mocks and real objects. You can either pass the object or allow framework to call default constructor. Note: the spy object is a copy of passed object.
 
 ```kotlin
 val car = spyk(Car())
@@ -78,7 +78,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Relaxed mock
 
-You can create `relaxed mock` which is the mock that returns some simple value for all methods. This allows to skip specifying behavior for each case, still stubbing is possible.
+You can create `relaxed mock` which is the mock that returns some simple value for all methods. For reference types usually child mocks are returned. This allows to skip specifying behavior for each case, while still allow to stub things you need.
 
 ```kotlin
 val car = mockk<Car>(relaxed = true)
