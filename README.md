@@ -110,17 +110,20 @@ func()
 You can mix both regular arguments and matchers:
 
 ```kotlin
-class MockedClass {
-    fun sum(a: Int, b: Int) = a + b
-}
+val car = mockk<Car>()
 
-val obj = mockk<MockedClass>()
+every { 
+  car.recordTelemetry(
+    speed = more(50),
+    direction = Direction.NORTH, // here eq() is used
+    lat = any(),
+    long = any()
+  )
+} returns Outcome.RECORDER
 
-every { obj.sum(1, eq(2)) } returns 5
+obj.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142)
 
-obj.sum(1, 2) // returns 5
-
-verify { obj.sum(eq(1), 2) }
+verify { obj.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142) }
 ```
 
 ### Chained calls
