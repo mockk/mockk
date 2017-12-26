@@ -9,7 +9,7 @@ Table of contents:
 
 ## Nice features
 
- - mocking final classes and methods (via inlining)
+ - mocking final classes and functions (via inlining)
  - pure Kotlin mocking DSL
  - matchers partial specification
  - chained calls
@@ -70,7 +70,7 @@ Spies allow to mix mocks and real objects. You can either pass the object or all
 ```kotlin
 val car = spyk(Car())
 
-car.drive(Direction.NORTH) // returns whatever real method of Car returns
+car.drive(Direction.NORTH) // returns whatever real function of Car returns
 
 verify { car.drive(Direction.NORTH) }
 ```
@@ -78,7 +78,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Relaxed mock
 
-You can create `relaxed mock` which is the mock that returns some simple value for all methods. For reference types chained mocks are returned. This allows to skip specifying behavior for each case, while still allow to stub things you need.
+You can create `relaxed mock` which is the mock that returns some simple value for all functions. For reference types chained mocks are returned. This allows to skip specifying behavior for each case, while still allow to stub things you need.
 
 ```kotlin
 val car = mockk<Car>(relaxed = true)
@@ -92,7 +92,7 @@ Note: relaxed mocking is working badly with generic return type. Usually in this
 
 Workaround:
 ```
-val func = mockk<() -> Car>(relaxed = true) // in this case invoke method has generic return type
+val func = mockk<() -> Car>(relaxed = true) // in this case invoke function has generic return type
 
 // this line is workaround, without it relaxed mock would throw class cast exception on the next line
 every { func() } returns Car() // or you can return mockk() for example 
@@ -253,7 +253,7 @@ verify {
 
 ### Returning nothing
 
-If the method is returning Unit(i.e. no return value) you
+If the function is returning Unit(i.e. no return value) you
 still need to specify `null` return value:
 
 ```kotlin
@@ -311,7 +311,7 @@ To mock coroutines you need to add dependency to the support library.
 </tr>
 </table>
 
-Then you can use `coEvery`, `coVerify`, `coMatch`, `coAssert`, `coRun`, `coAnswers` or `coInvoke` to mock suspend methods
+Then you can use `coEvery`, `coVerify`, `coMatch`, `coAssert`, `coRun`, `coAnswers` or `coInvoke` to mock suspend functions
 
 ```kotlin
 val car = mockk<Car>()
@@ -417,13 +417,13 @@ By default simple arguments are matched using `eq()`
 |`coMatch { it.startsWith("string") }`|matches via passed coroutine predicate|
 |`matchNullable { it?.startsWith("string") }`|matches nullable value via passe predicate|
 |`coMatchNullable { it?.startsWith("string") }`|matches nullable value via passed coroutine predicate|
-|`eq(value)`|matches if value is equal to the provided via deepEquals method|
+|`eq(value)`|matches if value is equal to the provided via deepEquals function|
 |`refEq(value)`|matches if value is equal to the provided via reference comparation|
-|`cmpEq(value)`|matches if value is equal to the provided via compareTo method|
-|`less(value)`|matches if value is less to the provided via compareTo method|
-|`more(value)`|matches if value is more to the provided via compareTo method|
-|`less(value, andEquals=true)`|matches if value is less or equals to the provided via compareTo method|
-|`more(value, andEquals=true)`|matches if value is more or equals to the provided via compareTo method|
+|`cmpEq(value)`|matches if value is equal to the provided via compareTo function|
+|`less(value)`|matches if value is less to the provided via compareTo function|
+|`more(value)`|matches if value is more to the provided via compareTo function|
+|`less(value, andEquals=true)`|matches if value is less or equals to the provided via compareTo function|
+|`more(value, andEquals=true)`|matches if value is more or equals to the provided via compareTo function|
 |`and(left, right)`|combines two matchers via logical and|
 |`or(left, right)`|combines two matchers via logical or|
 |`not(matcher)`|negates the matcher|
@@ -482,10 +482,10 @@ Few special matchers available in verification mode only:
 |Parameter|Description|
 |---------|-----------|
 |`call`|a call object that consists of invocation and matcher|
-|`invocation`|contains information regarding actual method invoked|
+|`invocation`|contains information regarding actual function invoked|
 |`matcher`|contains information regarding matcher used to match invocation|
 |`self`|reference the object invocation made|
-|`method`|reference to the method invocation made|
+|`method`|reference to the function invocation made|
 |`args`|reference to arguments of invocation|
 |`nArgs`|number of invocation argument|
 |`arg(n)`|n-th argument|
