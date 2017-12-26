@@ -203,7 +203,7 @@ verify(atLeast=3) { obj.sum(any(), any()) }
 ```
 
 
-### Verification
+### Verification order
 
 `verifyAll` verifies that all calls happened without checking it's order.
 `verifySequence` verifies that the exact sequence happened and `verifyOrder` that calls happened in order.
