@@ -65,20 +65,23 @@ verify { car.drive(Direction.NORTH) }
 
 ### Spy
 
-Spies allow to mix mocks and real objects. You can either pass the object or allow framework to call the default constructor. Note: the spy object is a copy of a passed object.
+Spies allow to mix mocks and real objects.
 
 ```kotlin
-val car = spyk(Car())
+val car = spyk(Car()) // or spyk<Car>() to call default constructor
 
 car.drive(Direction.NORTH) // returns whatever real function of Car returns
 
 verify { car.drive(Direction.NORTH) }
 ```
 
+Note: the spy object is a copy of a passed object.
 
 ### Relaxed mock
 
-You can create `relaxed mock` which is the mock that returns some simple value for all functions. For reference types chained mocks are returned. This allows to skip specifying behavior for each case, while still allow to stub things you need.
+`Relaxed mock` is the mock that returns some simple value for all functions. 
+This allows to skip specifying behavior for each case, while still allow to stub things you need.
+For reference types chained mocks are returned.
 
 ```kotlin
 val car = mockk<Car>(relaxed = true)
@@ -124,32 +127,24 @@ verify { obj.sum(eq(1), 2) }
 You can stub chains of calls:
 
 ```kotlin
-class MockedClass1 {
-    fun op1(a: Int, b: Int) = a + b
-}
+val car = mockk<Car>()
 
-class MockedClass2 {
-    fun op2(c: Int, d: Int): MockedClass1 = ...
-}
+every { car.door(DoorType.FRONT_LEFT).windowState() } returns WindowState.UP
 
-val obj = mockk<MockedClass2>()
+car.door(DoorType.FRONT_LEFT) // returns chained mock for Door
+car.door(DoorType.FRONT_LEFT).windowState() // returns WindowState.UP
 
-every { obj.op2(1, eq(2)).op1(3, any()) } returns 5
-
-obj.op2(1, 2) // returns chained mock
-obj.op2(1, 2).op1(3, 22) // returns 5
-
-verify { obj.op2(1, 2).op1(3, 22) }
+verify { car.door(DoorType.FRONT_LEFT).windowState() }
 ```
 
-In case function return type is generic the information about actual type is erased.
+Note: in case function return type is generic the information about actual type is erased.
 To make chained calls work additional information is required.
 Most of the times framework will catch the cast exception and do `autohinting`.
 But in the case it is explicitly needed just place `hint` before calls.
 
 ```kotlin
 
-every { obj.op2(1, eq(2)).hint(Int::class).op1(3, any()) } returns 5
+every { obj.op2(1, 2).hint(Int::class).op1(3, 4) } returns 5
 
 ```
 
