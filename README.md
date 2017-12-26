@@ -94,7 +94,8 @@ verify { car.drive(Direction.NORTH) }
 Note: relaxed mocking is working badly with generic return type. Usually in this case class cast exception is thrown. You need to specify stubbing manually for case of generic return type.
 
 Workaround:
-```
+
+```kotlin
 val func = mockk<() -> Car>(relaxed = true) // in this case invoke function has generic return type
 
 // this line is workaround, without it relaxed mock would throw class cast exception on the next line
