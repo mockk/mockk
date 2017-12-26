@@ -119,7 +119,7 @@ every {
     lat = any(),
     long = any()
   )
-} returns Outcome.RECORDER
+} returns Outcome.RECORDED
 
 obj.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142)
 
@@ -158,22 +158,38 @@ every { obj.op2(1, 2).hint(Int::class).op1(3, 4) } returns 5
 You can capture an argument to a `CapturingSlot` or `MutableList`:
 
 ```kotlin
-class MockedClass {
-    fun sum(a: Int, b: Int) = a + b
+val car = mockk<Car>()
+
+val slot = slot<Double>()
+val list = mutableListOf<Double>()
+
+every {
+  obj.recordTelemetry(
+    speed = capture(slot),
+    direction = Direction.NORTH
+  )
+} answers {
+  println(slot.captured)
+
+  Outcome.RECORDED
 }
 
-val obj = mockk<MockedClass>()
-val slot = slot<Int>()
-val lst = mutableListOf<Int>()
 
-every { obj.sum(1, capture(slot)) } answers { 2 + slot.captured }
-every { obj.sum(2, capture(lst)) } answers { 3 + lst.captured() }
+every {
+  obj.recordTelemetry(
+    speed = capture(list),
+    direction = Direction.SOUTH
+  )
+} answers {
+  println(list.captured())
 
-obj.sum(1, 2) // returns 4
-obj.sum(2, 3) // returns 6
+  Outcome.RECORDED
+}
 
-verify { obj.sum(1, 2) }
-verify { obj.sum(2, 3) }
+obj.recordTelemetry(speed = 15, direction = Direction.NORTH) // prints 15
+obj.recordTelemetry(speed = 16, direction = Direction.SOUTH) // prints 16
+
+verify(exactly = 2) { obj.recordTelemetry(speed = or(15, 16), direction = any()) }
 ```
 
 ### Verification atLeast, atMost or exactly times
@@ -181,26 +197,19 @@ verify { obj.sum(2, 3) }
 You can check call count with `atLeast`, `atMost` or `exactly` parameters:
 
 ```kotlin
-class MockedClass {
-    fun sum(a: Int, b: Int) = a + b
-}
 
-val obj = mockk<MockedClass>()
-val lst = mutableListOf<Int>()
+val car = mockk<Car>(relaxed = true)
 
-every {
-    obj.sum(any(), capture(lst))
-} answers {
-    1 + firstArg<Int>() + lst.captured()
-}
+car.accelerate(fromSpeed = 10, toSpeed = 20)
+car.accelerate(fromSpeed = 10, toSpeed = 30)
+car.accelerate(fromSpeed = 20, toSpeed = 30)
 
-obj.sum(1, 2) // returns 4
-obj.sum(1, 3) // returns 5
-obj.sum(2, 2) // returns 5
-
-verify(atLeast=3) { obj.sum(any(), any()) }
+// all pass
+verify(atLeast = 3) { car.accelerate(allAny()) }
+verify(atMost  = 2) { car.accelerate(fromSpeed = 10, toSpeed = or(20, 30)) }
+verify(exactly = 1) { car.accelerate(fromSpeed = 10, toSpeed = 20) }
+verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) } // means no calls were performed
 ```
-
 
 ### Verification order
 
