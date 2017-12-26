@@ -65,7 +65,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Spy
 
-Spies allow to mix mocks and real objects. You can either pass the object or allow framework to call default constructor. Note: the spy object is a copy of passed object.
+Spies allow to mix mocks and real objects. You can either pass the object or allow framework to call the default constructor. Note: the spy object is a copy of passed object.
 
 ```kotlin
 val car = spyk(Car())
