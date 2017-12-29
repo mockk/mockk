@@ -18,10 +18,11 @@ Table of contents:
  - capturing lambdas
  - extension function mocking
 
-## Examples
+## Examples & articles
 
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
-
+ - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
+ - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
 ## Installation
 
 All you need to get started is just to add a dependency to `MockK` library.
