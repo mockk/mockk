@@ -2,6 +2,7 @@
 plugins {
     id "jacoco"
 }
+apply plugin: "java"
 apply plugin: "kotlin-platform-jvm"
 
 dependencies {

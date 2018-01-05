@@ -25,6 +25,9 @@ class ChainedCallDetectorTest {
         every { call1.method.name } returns "abc"
         every { call2.method.name } returns "abc"
 
+        every { call1.method.varArgsArg } returns -1
+        every { call2.method.varArgsArg } returns -1
+
         detector.detect(listOf(callRound1, callRound2), 0)
 
         assertEquals("abc", detector.call.matcher.method.name)
@@ -46,6 +49,9 @@ class ChainedCallDetectorTest {
 
         every { call1.method.name } returns "abc"
         every { call2.method.name } returns "abc"
+
+        every { call1.method.varArgsArg } returns -1
+        every { call2.method.varArgsArg } returns -1
 
         detector.detect(listOf(callRound1, callRound2), 0)
 

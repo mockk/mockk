@@ -2,6 +2,8 @@ package io.mockk
 
 import kotlin.reflect.KClass
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.InternalPlatformDsl.toArray
+import kotlin.math.min
 
 /**
  * Matcher that checks equality. By reference and by value (equals method)
@@ -307,6 +309,54 @@ class AssertMatcher<in T : Any>(val assertFunction: (T?) -> Boolean,
     }
 
     override fun toString(): String = "assert<${argumentType.simpleName}>()"
+}
+
+/**
+ * Matcher that can match arrays via provided matchers for each element.
+ */
+data class ArrayMatcher<in T : Any>(private val matchers: List<Matcher<Any>>) : Matcher<T>, CapturingMatcher {
+
+    override fun capture(arg: Any?) {
+        if (arg == null) {
+            return
+        }
+
+        val arr = arg.toArray()
+
+        repeat(min(arr.size, matchers.size)) { i ->
+            val matcher = matchers[i]
+            if (matcher is CapturingMatcher) {
+                matcher.capture(arr[i])
+            }
+        }
+    }
+
+    override fun match(arg: T?): Boolean {
+        if (arg == null) {
+            return false
+        }
+
+        val arr = arg.toArray()
+
+        if (arr.size != matchers.size) {
+            return false
+        }
+
+        repeat(arr.size) { i ->
+            if (!matchers[i].match(arr[i])) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    override fun substitute(map: Map<Any, Any>) =
+            copy(matchers = matchers.map { it.substitute(map) })
+
+    override fun toString(): String {
+        return matchers.joinToString(prefix = "[", postfix = "]")
+    }
 }
 
 

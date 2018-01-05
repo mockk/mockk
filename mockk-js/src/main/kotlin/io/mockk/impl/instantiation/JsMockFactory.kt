@@ -68,7 +68,8 @@ internal class OperationProxyHandler(val name: String,
                 MethodDescription(name,
                         Any::class,
                         cls,
-                        listOf()),
+                        listOf(),
+                        -1),
                 { originalCall(target, thisValue, args) },
                 args.map { unboxChar(it) }.toTypedArray())
     }

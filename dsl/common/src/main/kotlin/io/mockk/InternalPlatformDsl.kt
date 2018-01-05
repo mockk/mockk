@@ -10,4 +10,6 @@ expect object InternalPlatformDsl {
     fun deepEquals(obj1: Any?, obj2: Any?): Boolean
 
     fun unboxChar(value: Any): Any
+
+    fun Any.toArray(): Array<*>
 }

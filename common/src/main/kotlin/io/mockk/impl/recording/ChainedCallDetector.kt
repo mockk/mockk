@@ -2,6 +2,7 @@ package io.mockk.impl.recording
 
 import io.mockk.*
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
@@ -41,30 +42,72 @@ class ChainedCallDetector(safeLog: SafeLog) {
             log.trace { "Matcher map for ${zeroCall.method.toStr()}: $matcherMap" }
         }
 
-        fun detectArgMatchers() {
-            allAny = false
-            repeat(zeroCall.args.size) { nArgument ->
+        fun buildMatcher(isStart: Boolean, zeroCallValue: Any?, matcherBySignature: Matcher<*>?): Matcher<*> {
+            return if (matcherBySignature == null) {
+                if (allAny)
+                    ConstantMatcher(true)
+                else {
+                    eqOrNullMatcher(zeroCallValue)
+                }
+            } else {
+                if (isStart && matcherBySignature is AllAnyMatcher) {
+                    allAny = true
+                    ConstantMatcher<Any>(true)
+                } else {
+                    matcherBySignature
+                }
+            }
+        }
+
+        fun regularArgument(nArgument: Int): Matcher<*> {
+            val signature = callInAllRounds.map {
+                InternalPlatform.packRef(it.args[nArgument])
+            }.toList()
+
+            log.trace { "Signature for $nArgument argument of ${zeroCall.method.toStr()}: $signature" }
+
+            val matcherBySignature = matcherMap.remove(signature)
+
+            return buildMatcher(
+                    nArgument == 0,
+                    zeroCall.args[nArgument],
+                    matcherBySignature)
+        }
+
+        fun varArgArgument(nArgument: Int): Matcher<*> {
+            val varArgMatchers = mutableListOf<Matcher<*>>()
+
+            val zeroCallArg = zeroCall.args[nArgument]!!.toArray()
+            repeat(zeroCallArg.size) { nVarArg ->
                 val signature = callInAllRounds.map {
-                    InternalPlatform.packRef(it.args[nArgument])
+                    val arg = it.args[nArgument]!!.toArray()
+                    InternalPlatform.packRef(arg[nVarArg])
                 }.toList()
 
-                log.trace { "Signature for $nArgument argument of ${zeroCall.method.toStr()}: $signature" }
+                log.trace { "Signature for $nArgument/$nVarArg argument of ${zeroCall.method.toStr()}: $signature" }
 
                 val matcherBySignature = matcherMap.remove(signature)
+                varArgMatchers.add(
+                        buildMatcher(
+                                nArgument == 0 && nVarArg == 0,
+                                zeroCallArg[nVarArg],
+                                matcherBySignature))
+            }
 
-                val matcher = if (matcherBySignature == null) {
-                    if (allAny)
-                        ConstantMatcher(true)
-                    else {
-                        eqOrNullMatcher(zeroCall.args[nArgument])
-                    }
+            // FIXME unchecked cast
+            return ArrayMatcher<Any>(varArgMatchers.map { it as Matcher<Any> })
+        }
+
+        fun detectArgMatchers() {
+            allAny = false
+
+            val varArgsArg = zeroCall.method.varArgsArg
+
+            repeat(zeroCall.args.size) { nArgument ->
+                val matcher = if (varArgsArg == nArgument) {
+                    varArgArgument(nArgument)
                 } else {
-                    if (nArgument == 0 && matcherBySignature is AllAnyMatcher) {
-                        allAny = true
-                        ConstantMatcher<Any>(true)
-                    } else {
-                        matcherBySignature
-                    }
+                    regularArgument(nArgument)
                 }
 
                 argMatchers.add(matcher)

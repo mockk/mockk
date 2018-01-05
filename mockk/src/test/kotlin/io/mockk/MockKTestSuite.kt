@@ -739,6 +739,41 @@ class MockKTestSuite : StringSpec({
         assertTrue(executed[2])
         assertTrue(executed[3])
     }.config(enabled = true)
+    
+    "varargs" {
+        every { mock.varArgsOp(5, 6, 7, c = 8) } returns 1
+        every { mock.varArgsOp(6, eq(3), 7, c = 8) } returns 2
+        every { mock.varArgsOp(7, eq(3), any(), c = 8) } returns 3
+
+        assertEquals(1, mock.varArgsOp(5, 6, 7, c = 8))
+        assertEquals(2, mock.varArgsOp(6, 3, 7, c = 8))
+        assertEquals(3, mock.varArgsOp(7, 3, 22, c = 8))
+
+        val slot = slot<Int>()
+
+        verify { mock.varArgsOp(5, 6, more(5), c = 8) }
+        verify { mock.varArgsOp(6, any(), more(5), c = 8) }
+        verify { mock.varArgsOp(7, capture(slot), more(20), c = 8) }
+
+        assertEquals(3, slot.captured)
+
+        val jvMmock = mockk<JvmVarArgsCls>()
+        every { jvMmock.varArgsOp(5, 6, 7) } returns 1
+        every { jvMmock.varArgsOp(6, eq(3), 7) } returns 2
+        every { jvMmock.varArgsOp(7, eq(4), any()) } returns 3
+
+        assertEquals(1, jvMmock.varArgsOp(5, 6, 7))
+        assertEquals(2, jvMmock.varArgsOp(6, 3, 7))
+        assertEquals(3, jvMmock.varArgsOp(7, 4, 22))
+
+        verify { jvMmock.varArgsOp(5, 6, more(5)) }
+        verify { jvMmock.varArgsOp(6, any(), more(5)) }
+        verify { jvMmock.varArgsOp(7, capture(slot), more(20)) }
+
+        assertEquals(4, slot.captured)
+
+
+    }.config(enabled = true)
 })
 
 class ExtCls {
@@ -772,6 +807,7 @@ class MockCls {
 
     fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun lambdaOp(a: Int, b: () -> Int) = a + b()
+    fun varArgsOp(a: Int, vararg b: Int, c: Int, d: Int = 6) = b.sum() + a
     suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
     suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun otherOp(a: Wrapper? = IntWrapper(1), b: Wrapper? = IntWrapper(2)): Int {

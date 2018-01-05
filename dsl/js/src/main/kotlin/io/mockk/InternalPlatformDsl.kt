@@ -61,6 +61,19 @@ actual object InternalPlatformDsl {
             } else {
                 value
             }
+
+    actual fun Any.toArray(): Array<*> =
+            when (this) {
+                is BooleanArray -> this.toTypedArray()
+                is ByteArray -> this.toTypedArray()
+                is CharArray -> this.toTypedArray()
+                is ShortArray -> this.toTypedArray()
+                is IntArray -> this.toTypedArray()
+                is LongArray -> this.toTypedArray()
+                is FloatArray -> this.toTypedArray()
+                is DoubleArray -> this.toTypedArray()
+                else -> this as Array<*>
+            }
 }
 
 internal external object Kotlin {

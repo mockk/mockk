@@ -307,6 +307,7 @@ open class MockKMatcherScope(@PublishedApi
     inline fun <reified T : suspend (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) -> R, R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22> coInvoke(arg1: A1, arg2: A2, arg3: A3, arg4: A4, arg5: A5, arg6: A6, arg7: A7, arg8: A8, arg9: A9, arg10: A10, arg11: A11, arg12: A12, arg13: A13, arg14: A14, arg15: A15, arg16: A16, arg17: A17, arg18: A18, arg19: A19, arg20: A20, arg21: A21, arg22: A22) = match(InvokeMatcher<T> { InternalPlatformDsl.runCoroutine { it(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22) } })
 
     inline fun <reified T : Any> allAny(): T = match(AllAnyMatcher())
+    inline fun <reified T : Any> array(vararg matchers: Matcher<Any>): T = match(ArrayMatcher(matchers.toList()))
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <R, T : Any> R.hint(cls: KClass<T>, n: Int = 1): R {
@@ -671,7 +672,8 @@ data class Call(val retType: KClass<*>,
 data class MethodDescription(val name: String,
                              val returnType: KClass<*>,
                              val declaringClass: KClass<*>,
-                             val paramTypes: List<KClass<*>>) {
+                             val paramTypes: List<KClass<*>>,
+                             val varArgsArg: Int) {
     override fun toString() = "$name(${argsToStr()})"
 
     fun argsToStr() = paramTypes.map(this::argToStr).joinToString(", ")
