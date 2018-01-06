@@ -1,5 +1,4 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '2.0.1'
     id 'java'
 }
 
@@ -8,10 +7,9 @@ dependencies {
     compileOnly 'org.testng:testng:6.8'
     compileOnly 'org.junit.jupiter:junit-jupiter-api:5.0.1'
     compileOnly 'org.junit.platform:junit-platform-launcher:1.0.1'
-    compileOnly 'net.bytebuddy:byte-buddy:1.7.9'
-    runtimeOnly 'net.bytebuddy:byte-buddy:1.7.9'
+    compile 'net.bytebuddy:byte-buddy:1.7.9'
     compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
-    runtimeOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
+    runtime 'net.bytebuddy:byte-buddy-agent:1.7.9'
     testCompileOnly "junit:junit:4.12"
     testRuntimeOnly "junit:junit:4.12"
     compile 'org.objenesis:objenesis:2.6'
@@ -20,20 +18,10 @@ dependencies {
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
-assemble.dependsOn(shadowJar)
-
-jar.enabled = false
-
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
-
-artifacts {
-    archives shadowJar, sourcesJar
-}
-
-jar.dependsOn shadowJar
 
 task copyMockKDispatcher(type: Copy) {
     dependsOn compileJava
@@ -49,21 +37,9 @@ task copyMockKDispatcher(type: Copy) {
 }
 classes.dependsOn(copyMockKDispatcher)
 
-shadowJar {
-    classifier = null
-
-    exclude 'META-INF/maven/**'
-    relocate 'net.bytebuddy.', 'io.mockk.shadowed.bytebuddy.'
-    relocate 'org.objenesis.', 'io.mockk.shadowed.objenesis.'
+jar {
     exclude "io/mockk/proxy/MockKDispatcher.class"
     exclude "io/mockk/proxy/MockKWeakMap*.class"
-
-    manifest {
-        attributes(
-                "Premain-Class": "io.mockk.agent.MockKAgent",
-                "Can-Redefine-Classes": false,
-                "Can-Retransform-Classes": true)
-    }
 }
 
 uploadArchives {
