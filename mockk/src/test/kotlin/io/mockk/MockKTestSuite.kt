@@ -1,19 +1,12 @@
 package io.mockk
 
-import io.kotlintest.TestCase
 import io.kotlintest.specs.StringSpec
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
 
 interface Wrapper
 
-open class S(body: StringSpec.() -> Unit) {
-    operator fun String.invoke(test: () -> Unit): TestCase {
-        return mockk<TestCase>(relaxed = true)
-    }
-}
-
-class MockKTestSuite : S({
+class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>("mock")
     val spy = spyk(MockCls())
 

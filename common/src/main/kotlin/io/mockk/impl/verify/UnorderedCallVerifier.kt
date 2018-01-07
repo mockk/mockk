@@ -1,4 +1,4 @@
-package io.mockk.verify
+package io.mockk.impl.verify
 
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
@@ -8,7 +8,7 @@ import io.mockk.MockKGateway.VerificationResult
 import io.mockk.RecordedCall
 import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubRepository
-import io.mockk.verify.VerificationHelpers.formatCalls
+import io.mockk.impl.verify.VerificationHelpers.formatCalls
 
 open class UnorderedCallVerifier(val stubRepo: StubRepository,
                                  val safeLog: SafeLog) : CallVerifier {

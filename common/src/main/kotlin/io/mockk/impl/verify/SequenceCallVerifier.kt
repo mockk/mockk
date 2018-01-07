@@ -1,11 +1,11 @@
-package io.mockk.verify
+package io.mockk.impl.verify
 
 import io.mockk.MockKGateway
 import io.mockk.RecordedCall
 import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubRepository
-import io.mockk.verify.VerificationHelpers.allInvocations
-import io.mockk.verify.VerificationHelpers.reportCalls
+import io.mockk.impl.verify.VerificationHelpers.allInvocations
+import io.mockk.impl.verify.VerificationHelpers.reportCalls
 
 class SequenceCallVerifier(val stubRepo: StubRepository,
                            val safeLog: SafeLog) : MockKGateway.CallVerifier {

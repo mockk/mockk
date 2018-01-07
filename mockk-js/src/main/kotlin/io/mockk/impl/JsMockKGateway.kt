@@ -17,10 +17,10 @@ import io.mockk.impl.recording.states.*
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
-import io.mockk.verify.AllCallsCallVerifier
-import io.mockk.verify.OrderedCallVerifier
-import io.mockk.verify.SequenceCallVerifier
-import io.mockk.verify.UnorderedCallVerifier
+import io.mockk.impl.verify.AllCallsCallVerifier
+import io.mockk.impl.verify.OrderedCallVerifier
+import io.mockk.impl.verify.SequenceCallVerifier
+import io.mockk.impl.verify.UnorderedCallVerifier
 import kotlin.reflect.KClass
 
 class JsMockKGateway : MockKGateway {
