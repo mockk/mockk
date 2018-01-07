@@ -1,8 +1,8 @@
 package io.mockk.it
 
 import io.mockk.ConstantAnswer
-import io.mockk.impl.every
-import io.mockk.impl.mockk
+import io.mockk.every
+import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

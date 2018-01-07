@@ -74,6 +74,8 @@ actual object InternalPlatformDsl {
                 is DoubleArray -> this.toTypedArray()
                 else -> this as Array<*>
             }
+
+    actual fun classForName(name: String): Any = throw MockKException("classForName is not support on JS platform")
 }
 
 internal external object Kotlin {

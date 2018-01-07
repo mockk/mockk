@@ -2,8 +2,8 @@ package io.mockk.impl.log
 
 import io.mockk.Called
 import io.mockk.CapturingSlot
-import io.mockk.impl.mockk
-import io.mockk.impl.verify
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,7 +16,7 @@ class FilterLoggerTest {
 
     @BeforeTest
     fun setUp() {
-        logger = mockk()
+        logger = mockk(relaxed = true)
         traceLogger = FilterLogger(logger, { LogLevel.TRACE })
         disabledLogger = FilterLogger(logger, { LogLevel.DISABLED })
         ex = Exception()

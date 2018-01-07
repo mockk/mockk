@@ -1,12 +1,11 @@
 package io.mockk.impl.recording
 
-import io.mockk.MockKGateway
-import io.mockk.MockKGateway.*
+import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.Ordering
-import io.mockk.impl.every
-import io.mockk.impl.mockk
+import io.mockk.every
 import io.mockk.impl.recording.states.CallRecordingState
-import io.mockk.impl.verify
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertSame
@@ -19,19 +18,19 @@ class CommonCallRecorderTest {
 
     @BeforeTest
     fun setUp() {
-        initState = mockk()
-        hinter = mockk()
+        initState = mockk(relaxed = true)
+        hinter = mockk(relaxed = true)
 
-        val initStateFactory = mockk<(CommonCallRecorder) -> CallRecordingState>()
+        val initStateFactory = mockk<(CommonCallRecorder) -> CallRecordingState>(relaxed = true)
         every { initStateFactory(any()) } returns initState
 
-        val factories = mockk<CallRecorderFactories>()
+        val factories = mockk<CallRecorderFactories>(relaxed = true)
 
         every { factories.childHinter() } returns hinter
 
         commonCallRecorder = CommonCallRecorder(
-                mockk(), mockk(), mockk(), mockk(),
-                mockk(), mockk(), factories, initStateFactory)
+                mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
+                mockk(relaxed = true), mockk(relaxed = true), factories, initStateFactory)
     }
 
     @Test
@@ -67,19 +66,19 @@ class CommonCallRecorderTest {
 
     @Test
     fun givenCallRecorderWhenMatcherCalledThenCurrentStateMatcherCalled() {
-        commonCallRecorder.matcher<Any>(mockk(), mockk())
+        commonCallRecorder.matcher<Any>(mockk(relaxed = true), mockk(relaxed = true))
         verify { initState.matcher(any(), any()) }
     }
 
     @Test
     fun givenCallRecorderWhenCallCalledThenCurrentStateCallCalled() {
-        commonCallRecorder.call(mockk())
+        commonCallRecorder.call(mockk(relaxed = true))
         verify { initState.call(any()) }
     }
 
     @Test
     fun givenCallRecorderWhenAnswerCalledThenCurrentStateAnswerCalled() {
-        commonCallRecorder.answer(mockk())
+        commonCallRecorder.answer(mockk(relaxed = true))
         verify { initState.answer(any()) }
     }
 
@@ -91,13 +90,13 @@ class CommonCallRecorderTest {
 
     @Test
     fun givenCallRecorderWhenWasNotCalledCalledThenCurrentStateWasNotCalledCalled() {
-        commonCallRecorder.wasNotCalled(mockk())
+        commonCallRecorder.wasNotCalled(mockk(relaxed = true))
         verify { initState.wasNotCalled(any()) }
     }
 
     @Test
     fun givenCallRecorderWhenHintCalledThenCurrentStateHintCalled() {
-        commonCallRecorder.hintNextReturnType(mockk(), 1)
+        commonCallRecorder.hintNextReturnType(mockk(relaxed = true), 1)
         verify { hinter.hint(1, any()) }
     }
 
@@ -116,7 +115,7 @@ class CommonCallRecorderTest {
 
     @Test
     fun givenCallRecorderSafeExecCalledThenBlockIsEvaluatedInSafeState() {
-        val safeState = mockk<CallRecordingState>()
+        val safeState = mockk<CallRecordingState>(relaxed = true)
         every { commonCallRecorder.factories.safeLoggingState(any()) } returns safeState
         var blockCalled = false
         commonCallRecorder.safeExec {

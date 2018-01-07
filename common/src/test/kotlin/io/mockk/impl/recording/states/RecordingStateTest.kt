@@ -1,10 +1,10 @@
 package io.mockk.impl.recording.states
 
 import io.mockk.Runs
-import io.mockk.impl.every
-import io.mockk.impl.mockk
+import io.mockk.every
 import io.mockk.impl.recording.CommonCallRecorder
-import io.mockk.impl.verify
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -15,7 +15,7 @@ class RecordingStateTest {
 
     @BeforeTest
     fun setUp() {
-        recorder = mockk()
+        recorder = mockk(relaxed = true)
         state = object : RecordingState(recorder) {
         }
     }

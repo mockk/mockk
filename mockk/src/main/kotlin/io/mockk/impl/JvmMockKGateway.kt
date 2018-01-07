@@ -15,13 +15,13 @@ import io.mockk.impl.recording.states.*
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
-import io.mockk.impl.verify.AllCallsCallVerifier
-import io.mockk.impl.verify.OrderedCallVerifier
-import io.mockk.impl.verify.SequenceCallVerifier
-import io.mockk.impl.verify.UnorderedCallVerifier
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
+import io.mockk.verify.AllCallsCallVerifier
+import io.mockk.verify.OrderedCallVerifier
+import io.mockk.verify.SequenceCallVerifier
+import io.mockk.verify.UnorderedCallVerifier
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
@@ -116,11 +116,6 @@ class JvmMockKGateway : MockKGateway {
 
         val defaultImplementation = JvmMockKGateway()
         val defaultImplementationBuilder = { defaultImplementation }
-
-        inline fun <T> useImpl(block: () -> T): T {
-            MockKGateway.implementation = defaultImplementationBuilder
-            return block()
-        }
     }
 
 }

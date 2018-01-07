@@ -1,6 +1,5 @@
 package io.mockk
 
-import io.mockk.impl.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

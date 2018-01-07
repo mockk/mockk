@@ -1,8 +1,8 @@
 package io.mockk.impl.recording.states
 
 import io.mockk.MockKException
-import io.mockk.impl.mockk
 import io.mockk.impl.recording.CommonCallRecorder
+import io.mockk.mockk
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -14,19 +14,19 @@ class CallRecordingStateTest {
 
     @BeforeTest
     fun setUp() {
-        recorder = mockk()
+        recorder = mockk(relaxed = true)
         state = object : CallRecordingState(recorder) {
         }
         ops = listOf(
-                { state.call(mockk()) },
+                { state.call(mockk(relaxed = true)) },
                 { state.startStubbing() },
-                { state.startVerification(mockk()) },
+                { state.startVerification(mockk(relaxed = true)) },
                 { state.round(1, 1) },
-                { state.answer(mockk()) },
+                { state.answer(mockk(relaxed = true)) },
                 { state.recordingDone() },
                 { state.nCalls() },
                 { state.estimateCallRounds() },
-                { state.wasNotCalled(mockk()) })
+                { state.wasNotCalled(mockk(relaxed = true)) })
     }
 
     @Test

@@ -1,11 +1,11 @@
-package io.mockk.impl.verify
+package io.mockk.verify
 
 import io.mockk.Invocation
-import io.mockk.RecordedCall
 import io.mockk.MockKGateway
+import io.mockk.RecordedCall
 import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubRepository
-import io.mockk.impl.verify.VerificationHelpers.allInvocations
+import io.mockk.verify.VerificationHelpers.allInvocations
 
 class AllCallsCallVerifier(stubRepo: StubRepository,
                            safeLog: SafeLog) : UnorderedCallVerifier(stubRepo, safeLog) {

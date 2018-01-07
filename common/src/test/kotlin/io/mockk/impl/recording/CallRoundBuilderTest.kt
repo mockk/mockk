@@ -1,21 +1,17 @@
 package io.mockk.impl.recording
 
-import io.mockk.Invocation
-import io.mockk.Matcher
-import io.mockk.impl.every
+import io.mockk.*
 import io.mockk.impl.log.SafeLog
-import io.mockk.impl.mockk
-import io.mockk.invoke
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 
 class CallRoundBuilderTest {
-    val safeLog = mockk<SafeLog>()
+    val safeLog = mockk<SafeLog>(relaxed = true)
     val callRoundBuilder = CallRoundBuilder(safeLog)
-    val matcher = mockk<Matcher<*>>()
-    val invocation = mockk<Invocation>()
-    val wasNotCalled = mockk<Any>()
+    val matcher = mockk<Matcher<*>>(relaxed = true)
+    val invocation = mockk<Invocation>(relaxed = true)
+    val wasNotCalled = mockk<Any>(relaxed = true)
 
     @Test
     internal fun givenSignedCallWithOneMatcherWhenItsBuiltThenListOfCallsReturned() {

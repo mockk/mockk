@@ -2,12 +2,8 @@ package io.mockk.impl.recording.states
 
 import io.mockk.*
 import io.mockk.MockKGateway.*
-import io.mockk.impl.every
-import io.mockk.impl.mockk
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.recording.VerificationCallSorter
-import io.mockk.impl.spyk
-import io.mockk.impl.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -22,13 +18,13 @@ class VerifyingStateTest {
 
     @BeforeTest
     fun setUp() {
-        recorder = mockk()
+        recorder = mockk(relaxed = true)
         val params = VerificationParameters(Ordering.UNORDERED, 1, 2, false)
         state = spyk(VerifyingState(recorder, params))
-        verifier = mockk()
-        sorter = mockk()
-        call1 = mockk()
-        call2 = mockk()
+        verifier = mockk(relaxed = true)
+        sorter = mockk(relaxed = true)
+        call1 = mockk(relaxed = true)
+        call2 = mockk(relaxed = true)
     }
 
     @Test
@@ -89,7 +85,7 @@ class VerifyingStateTest {
         every { recorder.factories.verificationCallSorter() } returns sorter
         every { sorter.regularCalls } returns listOf(call1, call2)
         every { sorter.sort(any()) } just Runs
-        every { recorder.factories.answeringState(recorder) } returns mockk()
+        every { recorder.factories.answeringState(recorder) } returns mockk(relaxed = true)
         every { recorder.safeExec<Any>(captureLambda()) } answers { lambda<() -> Any>().invoke() }
         every { verifier.verify(listOf(call1, call2), 1, 2) } returns outcome
     }
@@ -103,12 +99,12 @@ class VerifyingStateTest {
                 every { allRecordedCalls(call2.matcher.self) } returns listOf()
             }
             1 -> {
-                every { allRecordedCalls(call1.matcher.self) } returns listOf(mockk())
+                every { allRecordedCalls(call1.matcher.self) } returns listOf(mockk(relaxed = true))
                 every { allRecordedCalls(call2.matcher.self) } returns listOf()
             }
             else -> {
-                every { allRecordedCalls(call1.matcher.self) } returns listOf(mockk())
-                every { allRecordedCalls(call2.matcher.self) } returns listOf(mockk())
+                every { allRecordedCalls(call1.matcher.self) } returns listOf(mockk(relaxed = true))
+                every { allRecordedCalls(call2.matcher.self) } returns listOf(mockk(relaxed = true))
             }
         }
     }

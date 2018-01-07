@@ -2,7 +2,6 @@ package io.mockk
 
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
-import java.util.*
 import kotlin.reflect.KClass
 
 actual object InternalPlatformDsl {
@@ -78,4 +77,5 @@ actual object InternalPlatformDsl {
                 else -> this as Array<*>
             }
 
+    actual fun classForName(name: String): Any = Class.forName(name).kotlin
 }

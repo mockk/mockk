@@ -1,14 +1,8 @@
 package io.mockk.impl.eval
 
-import io.mockk.CapturingSlot
-import io.mockk.MockKException
+import io.mockk.*
 import io.mockk.MockKGateway.CallRecorder
-import io.mockk.MockKMatcherScope
-import io.mockk.Runs
 import io.mockk.impl.recording.AutoHinter
-import io.mockk.impl.every
-import io.mockk.impl.mockk
-import io.mockk.impl.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,8 +16,8 @@ class RecordedBlockEvaluatorTest {
 
     @BeforeTest
     fun setUp() {
-        callRecorder = mockk()
-        autoHinter = mockk()
+        callRecorder = mockk(relaxed = true)
+        autoHinter = mockk(relaxed = true)
         scope = MockKMatcherScope(callRecorder, CapturingSlot())
         evaluator = object : RecordedBlockEvaluator({ callRecorder }, { autoHinter }) {}
     }

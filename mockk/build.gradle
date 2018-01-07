@@ -1,4 +1,3 @@
-
 plugins {
     id "jacoco"
 }
@@ -20,11 +19,6 @@ dependencies {
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
 
-    testCompile 'junit:junit:4.12'
-
-    testRuntime "org.junit.platform:junit-platform-launcher:1.0.1"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.0.1"
-
     testCompile 'org.slf4j:slf4j-api:1.7.25'
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 
@@ -35,7 +29,7 @@ dependencies {
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
-    from (project(':mockk-common').sourceSets.main.allSource) {
+    from(project(':mockk-common').sourceSets.main.allSource) {
         exclude "io/mockk/impl/InternalPlatform.kt"
     }
 }
@@ -47,10 +41,10 @@ artifacts {
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
-//    filter {
+    filter {
 //        includeTestsMatching "io.mockk.impl.*.*"
-//        includeTestsMatching "io.mockk.impl.recording.states.VerifyingStateTest"
-//    }
+//        includeTestsMatching "io.mockk.it.ChainedCallsMatchingTest"
+    }
 }
 jacocoTestReport {
     reports {

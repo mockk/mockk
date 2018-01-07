@@ -1,8 +1,8 @@
-package io.mockk.impl.verify
+package io.mockk.verify
 
-import io.mockk.impl.InternalPlatform
 import io.mockk.Invocation
 import io.mockk.RecordedCall
+import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.StubRepository
 
 

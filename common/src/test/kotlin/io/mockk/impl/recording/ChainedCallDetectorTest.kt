@@ -1,20 +1,20 @@
 package io.mockk.impl.recording
 
-import io.mockk.impl.every
+import io.mockk.every
 import io.mockk.impl.log.SafeLog
-import io.mockk.impl.mockk
+import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ChainedCallDetectorTest {
-    val safeLog = mockk<SafeLog>()
+    val safeLog = mockk<SafeLog>(relaxed = true)
     val detector = ChainedCallDetector(safeLog)
-    val callRound1 = mockk<CallRound>()
-    val callRound2 = mockk<CallRound>()
-    val call1 = mockk<SignedCall>()
-    val call2 = mockk<SignedCall>()
-    val signedMatcher1 = mockk<SignedMatcher>()
-    val signedMatcher2 = mockk<SignedMatcher>()
+    val callRound1 = mockk<CallRound>(relaxed = true)
+    val callRound2 = mockk<CallRound>(relaxed = true)
+    val call1 = mockk<SignedCall>(relaxed = true)
+    val call2 = mockk<SignedCall>(relaxed = true)
+    val signedMatcher1 = mockk<SignedMatcher>(relaxed = true)
+    val signedMatcher2 = mockk<SignedMatcher>(relaxed = true)
 
     @Test
     fun givenTwoCallRoundsWithOneCallNoArgsWhenDetectCallsHappenThenOneCallIsReturned() {

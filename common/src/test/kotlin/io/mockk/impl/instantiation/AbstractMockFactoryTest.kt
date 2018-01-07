@@ -1,13 +1,9 @@
 package io.mockk.impl.instantiation
 
-import io.mockk.CapturingSlot
+import io.mockk.*
 import io.mockk.impl.stub.Stub
-import io.mockk.impl.stub.StubRepository
-import io.mockk.impl.every
-import io.mockk.impl.mockk
-import io.mockk.impl.spyk
 import io.mockk.impl.stub.StubGatewayAccess
-import io.mockk.impl.verify
+import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -23,11 +19,11 @@ class AbstractMockFactoryTest {
 
     @BeforeTest
     fun setUp() {
-        stubRepo = mockk()
-        instantiator = mockk()
-        gatewayAccess = mockk()
+        stubRepo = mockk(relaxed = true)
+        instantiator = mockk(relaxed = true)
+        gatewayAccess = mockk(relaxed = true)
         mockFactory = spyk(Factory())
-        mock = mockk()
+        mock = mockk(relaxed = true)
     }
 
     @Test

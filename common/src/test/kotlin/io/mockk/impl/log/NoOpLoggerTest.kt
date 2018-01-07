@@ -1,8 +1,8 @@
 package io.mockk.impl.log
 
 import io.mockk.Called
-import io.mockk.impl.mockk
-import io.mockk.impl.verify
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -14,8 +14,8 @@ class NoOpLoggerTest {
     @BeforeTest
     fun setUp() {
         logger = NoOpLogger()
-        msgLambda = mockk()
-        ex = mockk()
+        msgLambda = mockk(relaxed = true)
+        ex = mockk(relaxed = true)
     }
 
     @Test

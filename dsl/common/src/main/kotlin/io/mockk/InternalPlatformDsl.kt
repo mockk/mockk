@@ -12,4 +12,6 @@ expect object InternalPlatformDsl {
     fun unboxChar(value: Any): Any
 
     fun Any.toArray(): Array<*>
+
+    fun classForName(name: String): Any
 }

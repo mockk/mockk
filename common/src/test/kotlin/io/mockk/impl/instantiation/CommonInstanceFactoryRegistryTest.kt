@@ -1,7 +1,6 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.MockKGateway.InstanceFactory
-import io.mockk.impl.mockk
 import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test

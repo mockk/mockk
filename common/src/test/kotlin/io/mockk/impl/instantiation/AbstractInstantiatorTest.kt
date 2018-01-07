@@ -1,8 +1,8 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.MockKGateway.InstanceFactory
-import io.mockk.impl.every
-import io.mockk.impl.mockk
+import io.mockk.every
+import io.mockk.mockk
 import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,8 +16,8 @@ class AbstractInstantiatorTest {
 
     @BeforeTest
     fun setUp() {
-        registry = mockk()
-        factory = mockk()
+        registry = mockk(relaxed = true)
+        factory = mockk(relaxed = true)
         instantiator = object : AbstractInstantiator(registry) {
             override fun <T : Any> instantiate(cls: KClass<T>): T = throw AssertionError("instantiate called")
         }

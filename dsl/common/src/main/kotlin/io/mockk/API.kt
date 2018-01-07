@@ -10,6 +10,7 @@ import kotlin.reflect.KClass
  */
 class MockKException(message: String, ex: Throwable? = null) : Throwable(message, ex)
 
+
 /**
  * DSL entry points.
  */
