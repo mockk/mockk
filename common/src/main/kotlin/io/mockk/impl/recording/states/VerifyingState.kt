@@ -68,7 +68,6 @@ class VerifyingState(recorder: CommonCallRecorder,
         for (mock in mocks) {
             val stub = recorder.stubRepo.stubFor(mock)
             val calls = stub.allRecordedCalls()
-            println(calls)
             if (calls.isNotEmpty()) {
                 calledStubs += stub
             }
