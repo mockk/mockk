@@ -30,17 +30,17 @@ class StubbingStateTest {
         }
 
         verify {
-            recorder.factories.stubbingAwaitingAnswerCallRecorderState wasNot Called
+            recorder.factories.stubbingAwaitingAnswerState wasNot Called
         }
     }
 
     @Test
     fun givenNonEmptyCallListInStubbingStateWhenRecordingDoneIsCalledThenStateSwitchedToAnswering() {
         every { recorder.calls.isEmpty() } returns false
-        every { recorder.factories.stubbingAwaitingAnswerCallRecorderState(any()) } returns mockk()
+        every { recorder.factories.stubbingAwaitingAnswerState(any()) } returns mockk()
 
         state.recordingDone()
 
-        verify { recorder.factories.stubbingAwaitingAnswerCallRecorderState(any()) }
+        verify { recorder.factories.stubbingAwaitingAnswerState(any()) }
     }
 }

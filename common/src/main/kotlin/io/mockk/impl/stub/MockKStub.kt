@@ -16,8 +16,19 @@ open class MockKStub(override val type: KClass<*>,
 
     lateinit var hashCodeStr: String
 
-    override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
-        answers.add(InvocationAnswer(matcher, answer))
+    override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>): AdditionalAnswerOpportunity {
+        val invocationAnswer = InvocationAnswer(matcher, answer)
+        answers.add(invocationAnswer)
+
+        return AdditionalAnswerOpportunity({
+            synchronized(answers) {
+                invocationAnswer.answer
+            }
+        }, {
+            synchronized(answers) {
+                invocationAnswer.answer = it
+            }
+        })
     }
 
     override fun answer(invocation: Invocation): Any? {
@@ -154,7 +165,7 @@ open class MockKStub(override val type: KClass<*>,
         fun MethodDescription.isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
     }
 
-    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
+    private data class InvocationAnswer(val matcher: InvocationMatcher, var answer: Answer<*>)
 
     protected fun Invocation.allEqMatcher() =
             InvocationMatcher(self, method,

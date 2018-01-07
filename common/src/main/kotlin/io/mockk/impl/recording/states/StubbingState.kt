@@ -6,7 +6,7 @@ import io.mockk.impl.recording.CommonCallRecorder
 class StubbingState(recorder: CommonCallRecorder) : RecordingState(recorder) {
     override fun recordingDone(): CallRecordingState {
         checkMissingCalls()
-        return recorder.factories.stubbingAwaitingAnswerCallRecorderState(recorder)
+        return recorder.factories.stubbingAwaitingAnswerState(recorder)
     }
 
     private fun checkMissingCalls() {

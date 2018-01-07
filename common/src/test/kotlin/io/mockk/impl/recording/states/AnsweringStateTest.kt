@@ -3,10 +3,10 @@ package io.mockk.impl.recording.states
 import io.mockk.Invocation
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.Ordering
-import io.mockk.impl.recording.CommonCallRecorder
-import io.mockk.impl.stub.Stub
 import io.mockk.impl.every
 import io.mockk.impl.mockk
+import io.mockk.impl.recording.CommonCallRecorder
+import io.mockk.impl.stub.Stub
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,7 +46,7 @@ class AnsweringStateTest {
     @Test
     fun givenAnsweringStateWhenStartStubbingIsCalledThenSwitchedToStubbingState() {
         every {
-            recorder.factories.stubbingCallRecorderState(any())
+            recorder.factories.stubbingState(any())
         } returns otherState
 
         val ret = state.startStubbing()
@@ -58,7 +58,7 @@ class AnsweringStateTest {
         val params = VerificationParameters(Ordering.ALL, 1, 1, false);
 
         every {
-            recorder.factories.verifyingCallRecorderState(any(), params)
+            recorder.factories.verifyingState(any(), params)
         } returns otherState
 
         val ret = state.startVerification(params)

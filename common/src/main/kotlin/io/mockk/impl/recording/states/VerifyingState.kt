@@ -40,7 +40,7 @@ class VerifyingState(recorder: CommonCallRecorder,
 
         checkWasNotCalled(sorter.wasNotCalledCalls.map { it.matcher.self })
 
-        return recorder.factories.answeringCallRecorderState(recorder)
+        return recorder.factories.answeringState(recorder)
     }
 
     private fun checkMissingCalls() {

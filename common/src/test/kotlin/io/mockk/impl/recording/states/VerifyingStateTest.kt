@@ -1,18 +1,16 @@
 package io.mockk.impl.recording.states
 
 import io.mockk.*
-import io.mockk.MockKGateway.CallVerifier
-import io.mockk.MockKGateway.VerificationParameters
+import io.mockk.MockKGateway.*
 import io.mockk.impl.every
 import io.mockk.impl.mockk
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.recording.VerificationCallSorter
+import io.mockk.impl.spyk
+import io.mockk.impl.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
-import io.mockk.MockKGateway.VerificationResult
-import io.mockk.impl.spyk
-import io.mockk.impl.verify
 
 class VerifyingStateTest {
     lateinit var state: VerifyingState
@@ -50,7 +48,7 @@ class VerifyingStateTest {
         state.recordingDone()
 
         verify {
-            recorder.factories.answeringCallRecorderState(recorder)
+            recorder.factories.answeringState(recorder)
         }
     }
 
@@ -91,7 +89,7 @@ class VerifyingStateTest {
         every { recorder.factories.verificationCallSorter() } returns sorter
         every { sorter.regularCalls } returns listOf(call1, call2)
         every { sorter.sort(any()) } just Runs
-        every { recorder.factories.answeringCallRecorderState(recorder) } returns mockk()
+        every { recorder.factories.answeringState(recorder) } returns mockk()
         every { recorder.safeExec<Any>(captureLambda()) } answers { lambda<() -> Any>().invoke() }
         every { verifier.verify(listOf(call1, call2), 1, 2) } returns outcome
     }

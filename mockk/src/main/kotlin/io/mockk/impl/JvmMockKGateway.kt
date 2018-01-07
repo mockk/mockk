@@ -1,23 +1,24 @@
 package io.mockk.impl
 
-import io.mockk.*
+import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
-import io.mockk.impl.verify.AllCallsCallVerifier
-import io.mockk.impl.stub.CommonClearer
-import io.mockk.impl.stub.StubRepository
-import io.mockk.impl.verify.UnorderedCallVerifier
+import io.mockk.Ordering
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
 import io.mockk.impl.instantiation.*
 import io.mockk.impl.log.JvmLogging
+import io.mockk.impl.log.JvmLogging.adaptor
 import io.mockk.impl.log.Logger
+import io.mockk.impl.log.SafeLog
 import io.mockk.impl.recording.*
+import io.mockk.impl.recording.states.*
+import io.mockk.impl.stub.CommonClearer
+import io.mockk.impl.stub.StubGatewayAccess
+import io.mockk.impl.stub.StubRepository
+import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
-import io.mockk.impl.log.JvmLogging.adaptor
-import io.mockk.impl.log.SafeLog
-import io.mockk.impl.recording.states.*
-import io.mockk.impl.stub.StubGatewayAccess
+import io.mockk.impl.verify.UnorderedCallVerifier
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
@@ -69,6 +70,7 @@ class JvmMockKGateway : MockKGateway {
             { PermanentMocker(stubRepo, safeLog) },
             ::VerificationCallSorter,
             ::AnsweringState,
+            ::AnsweringStillAcceptingAnswersState,
             ::StubbingState,
             ::VerifyingState,
             ::StubbingAwaitingAnswerState,
@@ -83,7 +85,7 @@ class JvmMockKGateway : MockKGateway {
                 anyValueGenerator,
                 safeLog,
                 callRecorderFactories,
-                { recorder -> callRecorderFactories.answeringCallRecorderState(recorder) })
+                { recorder -> callRecorderFactories.answeringState(recorder) })
     }
 
     override val callRecorder: CallRecorder

@@ -66,6 +66,7 @@ class JsMockKGateway : MockKGateway {
             { PermanentMocker(stubRepo, safeLog) },
             ::VerificationCallSorter,
             ::AnsweringState,
+            ::AnsweringStillAcceptingAnswersState,
             ::StubbingState,
             ::VerifyingState,
             ::StubbingAwaitingAnswerState,
@@ -79,7 +80,7 @@ class JsMockKGateway : MockKGateway {
             anyValueGenerator,
             safeLog,
             callRecorderFactories,
-            { recorder -> callRecorderFactories.answeringCallRecorderState(recorder) })
+            { recorder -> callRecorderFactories.answeringState(recorder) })
     override val callRecorder: CallRecorder = commonCallRecorder
 
     override val stubber: Stubber = EveryBlockEvaluator({ callRecorder }, ::AutoHinter)

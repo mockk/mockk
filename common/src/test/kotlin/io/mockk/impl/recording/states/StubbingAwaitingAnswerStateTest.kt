@@ -4,8 +4,6 @@ import io.mockk.Answer
 import io.mockk.ConstantAnswer
 import io.mockk.RecordedCall
 import io.mockk.impl.every
-import io.mockk.impl.log.LogLevel
-import io.mockk.impl.log.Logger
 import io.mockk.impl.mockk
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.verify
@@ -38,11 +36,11 @@ class StubbingAwaitingAnswerStateTest {
         every { call1.matcher.self } returns obj1
         every { call2.matcher.self } returns obj2
         every { call1.isRetValueMock } returns true
-        every { recorder.factories.answeringCallRecorderState(recorder) } returns mockk()
+        every { recorder.factories.answeringStillAcceptingAnswersState(recorder, any()) } returns mockk()
 
         state.answer(answer)
 
-        verify { recorder.factories.answeringCallRecorderState(recorder) }
+        verify { recorder.factories.answeringStillAcceptingAnswersState(recorder, any()) }
         verify { recorder.stubRepo.stubFor(obj1).addAnswer(call1.matcher, ofType(ConstantAnswer::class)) }
         verify { recorder.stubRepo.stubFor(obj2).addAnswer(call2.matcher, answer) }
     }

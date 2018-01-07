@@ -1,8 +1,9 @@
 package io.mockk
 
-import kotlin.reflect.KClass
 import io.mockk.InternalPlatformDsl.toStr
-import io.mockk.MockKGateway.*
+import io.mockk.MockKGateway.CallRecorder
+import io.mockk.MockKGateway.VerificationParameters
+import kotlin.reflect.KClass
 
 /**
  * Exception thrown by library
@@ -435,11 +436,14 @@ object Runs
  */
 class MockKStubScope<T>(val callRecorder: CallRecorder,
                         private val lambda: CapturingSlot<Function<*>>) {
-    infix fun answers(answer: Answer<T>) = callRecorder.answer(answer)
+    infix fun answers(answer: Answer<T>): MockKAdditionalAnswerScope<T> {
+        callRecorder.answer(answer)
+        return MockKAdditionalAnswerScope(callRecorder, lambda)
+    }
 
     infix fun returns(returnValue: T) = answers(ConstantAnswer(returnValue))
 
-    infix fun returnsMany(values: List<T>) = answers(ManyAnswersAnswer(values))
+    infix fun returnsMany(values: List<T>) = answers(ManyAnswersAnswer(values.allConst()))
 
     fun returnsMany(vararg values: T) = returnsMany(values.toList())
 
@@ -458,6 +462,39 @@ class MockKStubScope<T>(val callRecorder: CallRecorder,
     @Suppress("UNUSED_PARAMETER", "UNCHECKED_CAST")
     infix fun just(runs: Runs) = answers(ConstantAnswer<T?>(null) as ConstantAnswer<T>)
 }
+
+
+/**
+ * Scope to chain additional answers to reply. Part of DSL
+ */
+class MockKAdditionalAnswerScope<T>(val callRecorder: CallRecorder,
+                                    private val lambda: CapturingSlot<Function<*>>) {
+    infix fun andThenAnswer(answer: Answer<T>): MockKAdditionalAnswerScope<T> {
+        callRecorder.answer(answer)
+        return this
+    }
+
+    infix fun andThen(returnValue: T) = andThenAnswer(ConstantAnswer(returnValue))
+
+    infix fun andThenMany(values: List<T>) = andThenAnswer(ManyAnswersAnswer(values.allConst()))
+
+    fun andThenMany(vararg values: T) = andThenMany(values.toList())
+
+    infix fun andThenThrows(ex: Throwable) = andThenAnswer(ThrowingAnswer(ex))
+
+    infix fun andThen(answer: MockKAnswerScope<T>.(Call) -> T) =
+            andThenAnswer(FunctionAnswer({ MockKAnswerScope<T>(lambda, it).answer(it) }))
+
+    infix fun coAndThen(answer: suspend MockKAnswerScope<T>.(Call) -> T) = andThen {
+        InternalPlatformDsl.runCoroutine {
+            answer(it)
+        }
+    }
+
+}
+
+
+internal fun <T> List<T>.allConst() = this.map { ConstantAnswer(it) }
 
 /**
  * Scope for answering functions. Part of DSL
