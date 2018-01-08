@@ -1,9 +1,9 @@
 package io.mockk
 
-import kotlin.reflect.KClass
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.InternalPlatformDsl.toArray
+import io.mockk.InternalPlatformDsl.toStr
 import kotlin.math.min
+import kotlin.reflect.KClass
 
 /**
  * Matcher that checks equality. By reference and by value (equals method)
@@ -129,7 +129,7 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T,
             0 -> n == 0
             -1 -> n < 0
             -2 -> n <= 0
-            else -> throw MockKException("Bad comparision function")
+            else -> throw MockKException("Bad comparison function")
         }
     }
 
@@ -143,7 +143,7 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T,
                 0 -> "cmpEq($value)"
                 1 -> "more($value)"
                 2 -> "moreAndEquals($value)"
-                else -> throw MockKException("Bad comparision function")
+                else -> throw MockKException("Bad comparison function")
             }
 }
 

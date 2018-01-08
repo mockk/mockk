@@ -147,7 +147,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
             return unloaded.getBytes();
         } catch (Throwable e) {
-            log.trace(e, "Failed to tranform class");
+            log.trace(e, "Failed to transform class");
             return null;
         }
     }
