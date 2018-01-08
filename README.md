@@ -475,6 +475,8 @@ Few special matchers available in verification mode only:
 
 ### Answers
 
+Answer can be followed by one or more additional answers.
+
 |Answer|Description|
 |------|-----------|
 |`returns value`|specify that matched call returns one specified value|
@@ -485,6 +487,21 @@ Few special matchers available in verification mode only:
 |`answers answerObj`|specify that matched call answers with Answer object|
 |`answers { nothing }`|specify that matched call answers null|
 |`just Runs`|specify that matched call is returning Unit (returns null)|
+
+### Additional answer
+
+Next answer is returned on each consequent call and last value is persisted.
+So this has similiar to `returnsMany` semantics.
+
+|Addititonal answer|Description|
+|------------------|-----------|
+|`andThen value`|specify that matched call returns one specified value|
+|`andThenMany list`|specify that matched call returns value from the list, returning each time next element|
+|`andThenThrows ex`|specify that matched call throws an exception|
+|`andThen { code }`|specify that matched call answers with code block scoped with `answer scope`|
+|`coAndThen { code }`|specify that matched call answers with coroutine code block  with `answer scope`|
+|`andThenAnswer answerObj`|specify that matched call answers with Answer object|
+|`andThen { nothing }`|specify that matched call answers null|
 
 ### Answer scope
 
