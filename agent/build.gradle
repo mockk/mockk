@@ -42,6 +42,11 @@ jar {
     exclude "io/mockk/proxy/MockKWeakMap*.class"
 }
 
+artifacts {
+    archives sourcesJar
+}
+
+
 uploadArchives {
     repositories {
         mavenDeployer {
