@@ -17,6 +17,7 @@ Table of contents:
  - mocking coroutines
  - capturing lambdas
  - extension function mocking
+ - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
 
