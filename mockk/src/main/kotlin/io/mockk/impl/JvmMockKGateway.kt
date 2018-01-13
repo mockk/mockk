@@ -3,6 +3,7 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
+import io.mockk.impl.annotations.JvmMockInitializer
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
 import io.mockk.impl.instantiation.*
@@ -93,6 +94,7 @@ class JvmMockKGateway : MockKGateway {
 
     override val stubber: Stubber = EveryBlockEvaluator(callRecorderTL::get, ::JvmAutoHinter)
     override val verifier: Verifier = VerifyBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
+    override val mockInitializer = JvmMockInitializer(this)
 
     companion object {
         private var log: Logger

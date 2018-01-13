@@ -1,5 +1,6 @@
 package io.mockk.impl
 
+import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
@@ -85,6 +86,8 @@ class JsMockKGateway : MockKGateway {
 
     override val stubber: Stubber = EveryBlockEvaluator({ callRecorder }, ::AutoHinter)
     override val verifier: Verifier = VerifyBlockEvaluator({ callRecorder }, stubRepo, ::AutoHinter)
+    override val mockInitializer: MockInitializer
+        get() = throw MockKException("MockK annotations are not supported in JS")
 
     companion object {
         private var log: Logger

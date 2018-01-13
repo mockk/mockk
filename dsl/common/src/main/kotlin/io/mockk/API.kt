@@ -187,6 +187,11 @@ object MockKDsl {
      * Declares static mockk.
      */
     inline fun internalStaticMockk(vararg kClass: KClass<out Any>): MockKStaticScope = MockKStaticScope(*kClass)
+
+    /**
+     *
+     */
+    inline fun internalInitMocks(targets: List<Any>) = MockKGateway.implementation().mockInitializer.initAnnotatedMocks(targets)
 }
 
 /**

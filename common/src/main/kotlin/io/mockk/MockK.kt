@@ -141,6 +141,21 @@ inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
     MockKDsl.internalStaticMockk(*cls.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
 }
 
-expect object MockK {
+/**
+ * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided object.
+ */
+inline fun Any.initMocks() = MockK.useImpl {
+    MockKDsl.internalInitMocks(listOf(this))
+}
+
+/**
+ * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided objects.
+ */
+inline fun List<Any>.initMocks() = MockK.useImpl {
+    MockKDsl.internalInitMocks(this)
+}
+
+@PublishedApi
+internal expect object MockK {
     inline fun <T> useImpl(block: () -> T): T
 }

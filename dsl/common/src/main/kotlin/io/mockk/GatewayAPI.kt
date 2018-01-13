@@ -13,6 +13,7 @@ interface MockKGateway {
     val callRecorder: CallRecorder
     val instanceFactoryRegistry: InstanceFactoryRegistry
     val clearer: Clearer
+    val mockInitializer: MockInitializer
 
     fun verifier(ordering: Ordering): CallVerifier
 
@@ -143,6 +144,10 @@ interface MockKGateway {
      */
     interface InstanceFactory {
         fun instantiate(cls: KClass<*>): Any?
+    }
+
+    interface MockInitializer {
+        fun initAnnotatedMocks(targets: List<Any>)
     }
 }
 
