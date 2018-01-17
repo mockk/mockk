@@ -94,18 +94,22 @@ class AbstractMockFactoryTest {
     class Mock
 
     inner class Factory : AbstractMockFactory(stubRepo, instantiator, gatewayAccess) {
-        fun <T : Any> publicNewProxy(cls: KClass<out T>,
-                                     moreInterfaces: Array<out KClass<*>>,
-                                     stub: Stub,
-                                     useDefaultConstructor: Boolean,
-                                     instantiate: Boolean): T {
+        fun <T : Any> publicNewProxy(
+            cls: KClass<out T>,
+            moreInterfaces: Array<out KClass<*>>,
+            stub: Stub,
+            useDefaultConstructor: Boolean,
+            instantiate: Boolean
+        ): T {
             throw AssertionError("fail")
         }
 
-        override fun <T : Any> newProxy(cls: KClass<out T>,
-                                        moreInterfaces: Array<out KClass<*>>,
-                                        stub: Stub,
-                                        useDefaultConstructor: Boolean,
-                                        instantiate: Boolean): T = publicNewProxy(cls, moreInterfaces, stub, useDefaultConstructor, instantiate)
+        override fun <T : Any> newProxy(
+            cls: KClass<out T>,
+            moreInterfaces: Array<out KClass<*>>,
+            stub: Stub,
+            useDefaultConstructor: Boolean,
+            instantiate: Boolean
+        ): T = publicNewProxy(cls, moreInterfaces, stub, useDefaultConstructor, instantiate)
     }
 }

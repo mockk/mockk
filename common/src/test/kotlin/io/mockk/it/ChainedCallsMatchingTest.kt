@@ -71,11 +71,11 @@ class ChainedCallsMatchingTest {
             mock.chainOp(9, 10).chainOp(9, 10).otherOp(11, 12)
         }
     }
-    
+
     @Test
     fun checkSequence() {
         doCalls()
-        
+
         verifySequence {
             mock.chainOp(1, 2).chainOp(5, 6).otherOp(3, 4)
             mock.chainOp(1, 2).chainOp(3, 7).otherOp(2, 5)

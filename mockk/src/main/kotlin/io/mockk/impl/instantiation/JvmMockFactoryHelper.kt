@@ -20,10 +20,12 @@ internal object JvmMockFactoryHelper {
         }
     }
 
-    inline fun stdFunctions(self: Any,
-                            method: Method,
-                            args: Array<Any?>,
-                            otherwise: () -> Any?): Any? {
+    inline fun stdFunctions(
+        self: Any,
+        method: Method,
+        args: Array<Any?>,
+        otherwise: () -> Any?
+    ): Any? {
         if (self is Class<*>) {
             if (method.isHashCode()) {
                 return System.identityHashCode(self)
@@ -52,18 +54,20 @@ internal object JvmMockFactoryHelper {
 
         return if (kFunc != null)
             kFunc.parameters
-                    .filter { it.kind != KParameter.Kind.INSTANCE }
-                    .indexOfFirst { it.isVararg }
+                .filter { it.kind != KParameter.Kind.INSTANCE }
+                .indexOfFirst { it.isVararg }
         else
             parameters.indexOfFirst { it.isVarArgs }
     }
 
     fun Method.toDescription() =
-            MethodDescription(name,
-                    returnType.kotlin,
-                    declaringClass.kotlin,
-                    parameterTypes.map { it.kotlin },
-                    varArgPosition())
+        MethodDescription(
+            name,
+            returnType.kotlin,
+            declaringClass.kotlin,
+            parameterTypes.map { it.kotlin },
+            varArgPosition()
+        )
 
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java

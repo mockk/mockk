@@ -37,9 +37,10 @@ class JsMockKGateway : MockKGateway {
 
 
     override val mockFactory: MockFactory = JsMockFactory(
-            stubRepo,
-            instantiator,
-            StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog))
+        stubRepo,
+        instantiator,
+        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
+    )
 
     override val staticMockFactory: StaticMockFactory
         get() = throw UnsupportedOperationException("Static mocks are not supported in JS version")
@@ -52,36 +53,37 @@ class JsMockKGateway : MockKGateway {
     val sequenceVerifier = SequenceCallVerifier(stubRepo, safeLog)
 
     override fun verifier(ordering: Ordering): CallVerifier =
-            when (ordering) {
-                Ordering.UNORDERED -> unorderedVerifier
-                Ordering.ALL -> allVerifier
-                Ordering.ORDERED -> orderedVerifier
-                Ordering.SEQUENCE -> sequenceVerifier
-            }
+        when (ordering) {
+            Ordering.UNORDERED -> unorderedVerifier
+            Ordering.ALL -> allVerifier
+            Ordering.ORDERED -> orderedVerifier
+            Ordering.SEQUENCE -> sequenceVerifier
+        }
 
     val callRecorderFactories = CallRecorderFactories(
-            { SignatureMatcherDetector({ ChainedCallDetector(safeLog) }) },
-            { CallRoundBuilder(safeLog) },
-            ::ChildHinter,
-            this::verifier,
-            { PermanentMocker(stubRepo, safeLog) },
-            ::VerificationCallSorter,
-            ::AnsweringState,
-            ::AnsweringStillAcceptingAnswersState,
-            ::StubbingState,
-            ::VerifyingState,
-            ::StubbingAwaitingAnswerState,
-            ::SafeLoggingState)
+        { SignatureMatcherDetector({ ChainedCallDetector(safeLog) }) },
+        { CallRoundBuilder(safeLog) },
+        ::ChildHinter,
+        this::verifier,
+        { PermanentMocker(stubRepo, safeLog) },
+        ::VerificationCallSorter,
+        ::AnsweringState,
+        ::AnsweringStillAcceptingAnswersState,
+        ::StubbingState,
+        ::VerifyingState,
+        ::StubbingAwaitingAnswerState,
+        ::SafeLoggingState
+    )
 
     val commonCallRecorder: CommonCallRecorder = CommonCallRecorder(
-            stubRepo,
-            instantiator,
-            signatureValueGenerator,
-            mockFactory,
-            anyValueGenerator,
-            safeLog,
-            callRecorderFactories,
-            { recorder -> callRecorderFactories.answeringState(recorder) })
+        stubRepo,
+        instantiator,
+        signatureValueGenerator,
+        mockFactory,
+        anyValueGenerator,
+        safeLog,
+        callRecorderFactories,
+        { recorder -> callRecorderFactories.answeringState(recorder) })
     override val callRecorder: CallRecorder = commonCallRecorder
 
     override val stubber: Stubber = EveryBlockEvaluator({ callRecorder }, ::AutoHinter)

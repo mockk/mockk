@@ -20,7 +20,7 @@ kotlin {
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
-    from (project(':mockk-common').sourceSets.main.allSource) {
+    from(project(':mockk-common').sourceSets.main.allSource) {
         exclude "io/mockk/impl/InternalPlatform.kt"
     }
 }

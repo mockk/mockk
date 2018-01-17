@@ -71,7 +71,7 @@ class RecordedBlockEvaluatorTest {
         try {
             every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
-            evaluator.record<Unit, MockKMatcherScope>(scope,null, null)
+            evaluator.record<Unit, MockKMatcherScope>(scope, null, null)
             fail("No blocks provided. Exception should be thrown")
         } catch (ex: MockKException) {
 

@@ -8,7 +8,8 @@ import kotlin.reflect.KClass
 /**
  * Matcher that checks equality. By reference and by value (equals method)
  */
-data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = false, val inverse: Boolean = false) : Matcher<T> {
+data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = false, val inverse: Boolean = false) :
+    Matcher<T> {
     val value = InternalPlatformDsl.unboxChar(valueArg)
 
     override fun match(arg: T?): Boolean {
@@ -26,7 +27,7 @@ data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = fal
     }
 
     override fun substitute(map: Map<Any, Any>) =
-            copy(valueArg = map.s(value))
+        copy(valueArg = map.s(value))
 
     override fun toString(): String {
         return if (ref)
@@ -48,8 +49,10 @@ data class ConstantMatcher<in T : Any>(val constValue: Boolean) : Matcher<T> {
 /**
  * Delegates matching to lambda function
  */
-data class FunctionMatcher<in T : Any>(val matchingFunc: (T?) -> Boolean,
-                                       override val argumentType: KClass<*>) : Matcher<T>, TypedMatcher, EquivalentMatcher {
+data class FunctionMatcher<in T : Any>(
+    val matchingFunc: (T?) -> Boolean,
+    override val argumentType: KClass<*>
+) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     override fun match(arg: T?): Boolean = matchingFunc(arg)
@@ -60,8 +63,10 @@ data class FunctionMatcher<in T : Any>(val matchingFunc: (T?) -> Boolean,
 /**
  * Matcher capturing all results to the list.
  */
-data class CaptureMatcher<T : Any>(val captureList: MutableList<T>,
-                                   override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+data class CaptureMatcher<T : Any>(
+    val captureList: MutableList<T>,
+    override val argumentType: KClass<*>
+) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     @Suppress("UNCHECKED_CAST")
@@ -77,8 +82,10 @@ data class CaptureMatcher<T : Any>(val captureList: MutableList<T>,
 /**
  * Matcher capturing all results to the list. Allows nulls
  */
-data class CaptureNullableMatcher<T : Any>(val captureList: MutableList<T?>,
-                                           override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+data class CaptureNullableMatcher<T : Any>(
+    val captureList: MutableList<T?>,
+    override val argumentType: KClass<*>
+) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     @Suppress("UNCHECKED_CAST")
@@ -94,8 +101,10 @@ data class CaptureNullableMatcher<T : Any>(val captureList: MutableList<T?>,
 /**
  * Matcher capturing one last value to the CapturingSlot
  */
-data class CapturingSlotMatcher<T : Any>(val captureSlot: CapturingSlot<T>,
-                                         override val argumentType: KClass<*>) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+data class CapturingSlotMatcher<T : Any>(
+    val captureSlot: CapturingSlot<T>,
+    override val argumentType: KClass<*>
+) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     @Suppress("UNCHECKED_CAST")
@@ -117,9 +126,11 @@ data class CapturingSlotMatcher<T : Any>(val captureSlot: CapturingSlot<T>,
 /**
  * Matcher comparing values
  */
-data class ComparingMatcher<T : Comparable<T>>(val value: T,
-                                               val cmpFunc: Int,
-                                               override val argumentType: KClass<T>) : Matcher<T>, TypedMatcher {
+data class ComparingMatcher<T : Comparable<T>>(
+    val value: T,
+    val cmpFunc: Int,
+    override val argumentType: KClass<T>
+) : Matcher<T>, TypedMatcher {
     override fun match(arg: T?): Boolean {
         if (arg == null) return false
         val n = arg.compareTo(value)
@@ -134,35 +145,37 @@ data class ComparingMatcher<T : Comparable<T>>(val value: T,
     }
 
     override fun substitute(map: Map<Any, Any>) =
-            copy(value = map.s(value))
+        copy(value = map.s(value))
 
     override fun toString(): String =
-            when (cmpFunc) {
-                -2 -> "lessAndEquals($value)"
-                -1 -> "less($value)"
-                0 -> "cmpEq($value)"
-                1 -> "more($value)"
-                2 -> "moreAndEquals($value)"
-                else -> throw MockKException("Bad comparison function")
-            }
+        when (cmpFunc) {
+            -2 -> "lessAndEquals($value)"
+            -1 -> "less($value)"
+            0 -> "cmpEq($value)"
+            1 -> "more($value)"
+            2 -> "moreAndEquals($value)"
+            else -> throw MockKException("Bad comparison function")
+        }
 }
 
 /**
  * Boolean logic "AND" and "OR" matcher composed of two other matchers
  */
-data class AndOrMatcher<T : Any>(val and: Boolean,
-                                 val first: T,
-                                 val second: T) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
+data class AndOrMatcher<T : Any>(
+    val and: Boolean,
+    val first: T,
+    val second: T
+) : Matcher<T>, CompositeMatcher<T>, CapturingMatcher {
     override val operandValues: List<T>
         get() = listOf(first, second)
 
     override var subMatchers: List<Matcher<T>>? = null
 
     override fun match(arg: T?): Boolean =
-            if (and)
-                subMatchers!![0].match(arg) && subMatchers!![1].match(arg)
-            else
-                subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
+        if (and)
+            subMatchers!![0].match(arg) && subMatchers!![1].match(arg)
+        else
+            subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
 
     override fun substitute(map: Map<Any, Any>): Matcher<T> {
         val matcher = copy(first = map.s(first), second = map.s(second))
@@ -199,7 +212,7 @@ data class NotMatcher<T : Any>(val value: T) : Matcher<T>, CompositeMatcher<T>, 
     override var subMatchers: List<Matcher<T>>? = null
 
     override fun match(arg: T?): Boolean =
-            !subMatchers!![0].match(arg)
+        !subMatchers!![0].match(arg)
 
     override fun substitute(map: Map<Any, Any>): Matcher<T> {
         val matcher = copy(value = map.s(value))
@@ -278,19 +291,23 @@ class InvokeMatcher<in T : Any>(val block: (T) -> Unit) : Matcher<T>, Equivalent
 /**
  * Checks if assertion is true
  */
-class AssertMatcher<in T : Any>(val assertFunction: (T?) -> Boolean,
-                                val msg: String? = null,
-                                override val argumentType: KClass<*>,
-                                val nullable: Boolean = false) : Matcher<T>, TypedMatcher, EquivalentMatcher {
+class AssertMatcher<in T : Any>(
+    val assertFunction: (T?) -> Boolean,
+    val msg: String? = null,
+    override val argumentType: KClass<*>,
+    val nullable: Boolean = false
+) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
     override fun checkType(arg: Any?): Boolean {
         if (arg != null && !argumentType.isInstance(arg)) {
             val argType = arg::class.simpleName
             val requiredType = argumentType.simpleName
-            throw AssertionError("Verification matcher assertion failed:\n" +
-                    "    type <$argType> is not matching\n" +
-                    "    required by assertion type <$requiredType>\n")
+            throw AssertionError(
+                "Verification matcher assertion failed:\n" +
+                        "    type <$argType> is not matching\n" +
+                        "    required by assertion type <$requiredType>\n"
+            )
         }
         return true
     }
@@ -302,8 +319,10 @@ class AssertMatcher<in T : Any>(val assertFunction: (T?) -> Boolean,
             }
         }
         if (!assertFunction(arg)) {
-            throw AssertionError("Verification matcher assertion failed" +
-                    (if (msg != null) ": $msg" else ""))
+            throw AssertionError(
+                "Verification matcher assertion failed" +
+                        (if (msg != null) ": $msg" else "")
+            )
         }
         return true
     }
@@ -352,7 +371,7 @@ data class ArrayMatcher<in T : Any>(private val matchers: List<Matcher<Any>>) : 
     }
 
     override fun substitute(map: Map<Any, Any>) =
-            copy(matchers = matchers.map { it.substitute(map) })
+        copy(matchers = matchers.map { it.substitute(map) })
 
     override fun toString(): String {
         return matchers.joinToString(prefix = "[", postfix = "]")
@@ -363,7 +382,7 @@ data class ArrayMatcher<in T : Any>(private val matchers: List<Matcher<Any>>) : 
 fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
     subMatchers?.let {
         it.filterIsInstance<CapturingMatcher>()
-                .forEach { it.capture(arg) }
+            .forEach { it.capture(arg) }
     }
 }
 

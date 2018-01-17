@@ -7,10 +7,12 @@ import kotlin.reflect.KClass
 class JvmAutoHinter : AutoHinter() {
     val childTypes = mutableMapOf<Int, KClass<*>>()
 
-    override fun <T> autoHint(callRecorder: MockKGateway.CallRecorder,
-                              i: Int,
-                              n: Int,
-                              block: () -> T) {
+    override fun <T> autoHint(
+        callRecorder: MockKGateway.CallRecorder,
+        i: Int,
+        n: Int,
+        block: () -> T
+    ) {
         var callsPassed = -1
         while (true) {
             callRecorder.round(i, n)

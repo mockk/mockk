@@ -2,7 +2,8 @@ package io.mockk.impl.instantiation
 
 import kotlin.reflect.KClass
 
-class JsInstantiator(instanceFactoryRegistry: CommonInstanceFactoryRegistry) : AbstractInstantiator(instanceFactoryRegistry) {
+class JsInstantiator(instanceFactoryRegistry: CommonInstanceFactoryRegistry) :
+    AbstractInstantiator(instanceFactoryRegistry) {
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         return instantiateViaInstanceFactoryRegistry(cls) {
@@ -11,7 +12,7 @@ class JsInstantiator(instanceFactoryRegistry: CommonInstanceFactoryRegistry) : A
     }
 }
 
-internal class InstanceStubTarget  {
+internal class InstanceStubTarget {
     override fun toString() = "<instance>"
 
 }

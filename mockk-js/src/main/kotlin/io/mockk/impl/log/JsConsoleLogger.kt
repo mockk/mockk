@@ -1,6 +1,5 @@
 package io.mockk.impl.log
 
-import io.mockk.impl.log.Logger
 import kotlin.reflect.KClass
 
 class JsConsoleLogger(cls: KClass<*>) : Logger {

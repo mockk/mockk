@@ -6,29 +6,30 @@ actual object InternalPlatformDsl {
     actual fun identityHashCode(obj: Any): Int = Kotlin.identityHashCode(obj)
 
     actual fun <T> runCoroutine(block: suspend () -> T): T =
-            throw UnsupportedOperationException(
-                    "Coroutines are not supported for JS MockK version")
+        throw UnsupportedOperationException(
+            "Coroutines are not supported for JS MockK version"
+        )
 
     actual fun Any?.toStr(): String =
-            try {
-                when (this) {
-                    null -> "null"
-                    is BooleanArray -> this.contentToString()
-                    is ByteArray -> this.contentToString()
-                    is CharArray -> this.contentToString()
-                    is ShortArray -> this.contentToString()
-                    is IntArray -> this.contentToString()
-                    is LongArray -> this.contentToString()
-                    is FloatArray -> this.contentToString()
-                    is DoubleArray -> this.contentToString()
-                    is Array<*> -> this.contentDeepToString()
-                    is KClass<*> -> this.simpleName ?: "<null name class>"
-                    is Function<*> -> "lambda {}"
-                    else -> toString()
-                }
-            } catch (thr: Throwable) {
-                "<error \"$thr\">"
+        try {
+            when (this) {
+                null -> "null"
+                is BooleanArray -> this.contentToString()
+                is ByteArray -> this.contentToString()
+                is CharArray -> this.contentToString()
+                is ShortArray -> this.contentToString()
+                is IntArray -> this.contentToString()
+                is LongArray -> this.contentToString()
+                is FloatArray -> this.contentToString()
+                is DoubleArray -> this.contentToString()
+                is Array<*> -> this.contentDeepToString()
+                is KClass<*> -> this.simpleName ?: "<null name class>"
+                is Function<*> -> "lambda {}"
+                else -> toString()
             }
+        } catch (thr: Throwable) {
+            "<error \"$thr\">"
+        }
 
     actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
         return if (obj1 === obj2) {
@@ -56,24 +57,24 @@ actual object InternalPlatformDsl {
     }
 
     actual fun unboxChar(value: Any): Any =
-            if (value is Char) {
-                value.toInt()
-            } else {
-                value
-            }
+        if (value is Char) {
+            value.toInt()
+        } else {
+            value
+        }
 
     actual fun Any.toArray(): Array<*> =
-            when (this) {
-                is BooleanArray -> this.toTypedArray()
-                is ByteArray -> this.toTypedArray()
-                is CharArray -> this.toTypedArray()
-                is ShortArray -> this.toTypedArray()
-                is IntArray -> this.toTypedArray()
-                is LongArray -> this.toTypedArray()
-                is FloatArray -> this.toTypedArray()
-                is DoubleArray -> this.toTypedArray()
-                else -> this as Array<*>
-            }
+        when (this) {
+            is BooleanArray -> this.toTypedArray()
+            is ByteArray -> this.toTypedArray()
+            is CharArray -> this.toTypedArray()
+            is ShortArray -> this.toTypedArray()
+            is IntArray -> this.toTypedArray()
+            is LongArray -> this.toTypedArray()
+            is FloatArray -> this.toTypedArray()
+            is DoubleArray -> this.toTypedArray()
+            else -> this as Array<*>
+        }
 
     actual fun classForName(name: String): Any = throw MockKException("classForName is not support on JS platform")
 }

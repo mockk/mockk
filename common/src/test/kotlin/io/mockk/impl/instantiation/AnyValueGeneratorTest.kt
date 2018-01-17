@@ -1,6 +1,9 @@
 package io.mockk.impl.instantiation
 
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class AnyValueGeneratorTest {
     val generator = AnyValueGenerator()

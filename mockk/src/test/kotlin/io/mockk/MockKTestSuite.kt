@@ -141,10 +141,18 @@ class MockKTestSuite : StringSpec({
         every { mock.arrayOp(Array<Int>(3, { it + 1 })) } returns Array<Int>(3, { 3 - it })
         every { mock.arrayOp(Array<Long>(3, { (it + 1).toLong() })) } returns Array<Long>(3, { (3 - it).toLong() })
         every { mock.arrayOp(Array<Float>(3, { (it + 1).toFloat() })) } returns Array<Float>(3, { (3 - it).toFloat() })
-        every { mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })) } returns Array<Double>(3, { (3 - it).toDouble() })
+        every { mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })) } returns Array<Double>(
+            3,
+            { (3 - it).toDouble() })
 
         every { mock.arrayOp(Array<Any>(3, { it + 1 })) } returns Array<Any>(3, { 3 - it })
-        every { mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })) } returns Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) })
+        every {
+            mock.arrayOp(
+                Array<Array<Any>>(
+                    3,
+                    { i -> Array<Any>(3, { j -> i + j }) })
+            )
+        } returns Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) })
         every { mock.arrayOp(any<Array<IntWrapper>>()) } answers { Array(3, { IntWrapper(it + 2) }) }
 
         assertArrayEquals(BooleanArray(3, { false }), mock.arrayOp(BooleanArray(3, { true })))
@@ -153,23 +161,42 @@ class MockKTestSuite : StringSpec({
         assertArrayEquals(CharArray(3, { (3 - it).toChar() }), mock.arrayOp(CharArray(3, { (it + 1).toChar() })))
         assertArrayEquals(IntArray(3, { 3 - it }), mock.arrayOp(IntArray(3, { it + 1 })))
         assertArrayEquals(LongArray(3, { (3 - it).toLong() }), mock.arrayOp(LongArray(3, { (it + 1).toLong() })))
-        assertArrayEquals(FloatArray(3, { (3 - it).toFloat() }), mock.arrayOp(FloatArray(3, { (it + 1).toFloat() })), 1e-6f)
-        assertArrayEquals(DoubleArray(3, { (3 - it).toDouble() }), mock.arrayOp(DoubleArray(3, { (it + 1).toDouble() })), 1e-6)
+        assertArrayEquals(
+            FloatArray(3, { (3 - it).toFloat() }),
+            mock.arrayOp(FloatArray(3, { (it + 1).toFloat() })),
+            1e-6f
+        )
+        assertArrayEquals(
+            DoubleArray(3, { (3 - it).toDouble() }),
+            mock.arrayOp(DoubleArray(3, { (it + 1).toDouble() })),
+            1e-6
+        )
 
         assertArrayEquals(Array<Boolean>(3, { false }), mock.arrayOp(Array<Boolean>(3, { true })))
         assertArrayEquals(Array<Byte>(3, { (3 - it).toByte() }), mock.arrayOp(Array<Byte>(3, { (it + 1).toByte() })))
-        assertArrayEquals(Array<Short>(3, { (3 - it).toShort() }), mock.arrayOp(Array<Short>(3, { (it + 1).toShort() })))
+        assertArrayEquals(
+            Array<Short>(3, { (3 - it).toShort() }),
+            mock.arrayOp(Array<Short>(3, { (it + 1).toShort() }))
+        )
         assertArrayEquals(Array<Char>(3, { (3 - it).toChar() }), mock.arrayOp(Array<Char>(3, { (it + 1).toChar() })))
         assertArrayEquals(Array<Int>(3, { 3 - it }), mock.arrayOp(Array<Int>(3, { it + 1 })))
         assertArrayEquals(Array<Long>(3, { (3 - it).toLong() }), mock.arrayOp(Array<Long>(3, { (it + 1).toLong() })))
-        assertArrayEquals(Array<Float>(3, { (3 - it).toFloat() }), mock.arrayOp(Array<Float>(3, { (it + 1).toFloat() })))
+        assertArrayEquals(
+            Array<Float>(3, { (3 - it).toFloat() }),
+            mock.arrayOp(Array<Float>(3, { (it + 1).toFloat() }))
+        )
         assertArrayEquals(Array<Double>(3, { (3 - it).toDouble() }),
-                mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() })))
+            mock.arrayOp(Array<Double>(3, { (it + 1).toDouble() }))
+        )
 
         assertArrayEquals(Array<Any>(3, { 3 - it }), mock.arrayOp(Array<Any>(3, { it + 1 })))
-        assertArrayEquals(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) }), mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) })))
+        assertArrayEquals(
+            Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> j - i }) }),
+            mock.arrayOp(Array<Array<Any>>(3, { i -> Array<Any>(3, { j -> i + j }) }))
+        )
         assertArrayEquals(Array(3, { IntWrapper(it + 2) }),
-                mock.arrayOp(Array(3, { IntWrapper(it + 5) })))
+            mock.arrayOp(Array(3, { IntWrapper(it + 5) }))
+        )
 
         verify { mock.arrayOp(BooleanArray(3, { true })) }
         verify { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) }
@@ -208,8 +235,10 @@ class MockKTestSuite : StringSpec({
     }
 
     "verification outcome" {
-        expectVerificationError("Only one matching call to ",
-                "but arguments are not matching") {
+        expectVerificationError(
+            "Only one matching call to ",
+            "but arguments are not matching"
+        ) {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -413,7 +442,7 @@ class MockKTestSuite : StringSpec({
         assertTrue(executed[2])
         assertTrue(executed[3])
     }.config(enabled = true)
-    
+
     "varargs" {
         every { mock.varArgsOp(5, 6, 7, c = 8) } returns 1
         every { mock.varArgsOp(6, eq(3), 7, c = 8) } returns 2
@@ -464,16 +493,18 @@ data class IntWrapper(val data: Int) : Wrapper
 data class DoubleWrapper(val data: Double) : Wrapper
 
 class MockCls {
-    fun manyArgsOp(a: Boolean = true, b: Boolean = true,
-                   c: Byte = 1, d: Byte = 2,
-                   e: Short = 3, f: Short = 4,
-                   g: Char = 5.toChar(), h: Char = 6.toChar(),
-                   i: Int = 7, j: Int = 8,
-                   k: Long = 9, l: Long = 10,
-                   m: Float = 10.0f, n: Float = 11.0f,
-                   o: Double = 12.0, p: Double = 13.0,
-                   q: String = "14", r: String = "15",
-                   s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
+    fun manyArgsOp(
+        a: Boolean = true, b: Boolean = true,
+        c: Byte = 1, d: Byte = 2,
+        e: Short = 3, f: Short = 4,
+        g: Char = 5.toChar(), h: Char = 6.toChar(),
+        i: Int = 7, j: Int = 8,
+        k: Long = 9, l: Long = 10,
+        m: Float = 10.0f, n: Float = 11.0f,
+        o: Double = 12.0, p: Double = 13.0,
+        q: String = "14", r: String = "15",
+        s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)
+    ): Double {
 
         return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.toByte() + h.toByte() +
                 i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
@@ -514,7 +545,9 @@ class MockCls {
 
     fun chainOp(a: Int = 1, b: Int = 2) = if (a + b > 0) MockCls() else MockCls()
     fun arrayOp(array: Array<Any>): Array<Any> = array.map { (it as Int) + 1 }.toTypedArray()
-    fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> = array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+    fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> =
+        array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+
     fun arrayOp(array: Array<IntWrapper>): Array<IntWrapper> = array.map { IntWrapper(it.data + 1) }.toTypedArray()
 
     fun opNeverCalled(): Int = 1

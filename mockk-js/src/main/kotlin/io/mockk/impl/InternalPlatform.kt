@@ -2,10 +2,10 @@ package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
 import io.mockk.Ref
-import io.mockk.impl.platform.CommonRef
-import io.mockk.impl.platform.JsHexLongHelper
-import io.mockk.impl.platform.JsCounter
 import io.mockk.impl.platform.CommonIdentityHashMapOf
+import io.mockk.impl.platform.CommonRef
+import io.mockk.impl.platform.JsCounter
+import io.mockk.impl.platform.JsHexLongHelper
 import kotlin.reflect.KClass
 
 actual object InternalPlatform {

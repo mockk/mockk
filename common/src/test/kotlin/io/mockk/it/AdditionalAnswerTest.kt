@@ -110,7 +110,9 @@ class AdditionalAnswerTest {
 
     @Test
     fun andThrowsTwice() {
-        every { mock.op(any()) } returns 3 andThenThrows IllegalArgumentException("error1") andThenThrows IllegalStateException("error2")
+        every { mock.op(any()) } returns 3 andThenThrows IllegalArgumentException("error1") andThenThrows IllegalStateException(
+            "error2"
+        )
 
         assertEquals(3, mock.op(1))
         assertFailsWith(IllegalArgumentException::class) {
@@ -126,15 +128,15 @@ class AdditionalAnswerTest {
         every {
             mock.op(any())
         }.returns(3)
-                .andThen(4)
-                .andThenMany(listOf(5, 6))
-                .andThen(7)
-                .andThenAnswer(ConstantAnswer(8))
-                .andThenThrows(IllegalArgumentException())
-                .andThen { 9 }
-                .coAndThen { 10 }
-                .andThenThrows(IllegalStateException())
-                .andThen(11)
+            .andThen(4)
+            .andThenMany(listOf(5, 6))
+            .andThen(7)
+            .andThenAnswer(ConstantAnswer(8))
+            .andThenThrows(IllegalArgumentException())
+            .andThen { 9 }
+            .coAndThen { 10 }
+            .andThenThrows(IllegalStateException())
+            .andThen(11)
 
         assertEquals(3, mock.op(1))
         assertEquals(4, mock.op(2))

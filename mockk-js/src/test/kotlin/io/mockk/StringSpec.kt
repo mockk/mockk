@@ -85,36 +85,52 @@ open class StringSpec(block: StringSpec.() -> Unit) {
     }
 
     fun assertArrayEquals(expected: BooleanArray, actual: BooleanArray) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     fun assertArrayEquals(expected: ByteArray, actual: ByteArray) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     fun assertArrayEquals(expected: CharArray, actual: CharArray) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     fun assertArrayEquals(expected: ShortArray, actual: ShortArray) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     fun assertArrayEquals(expected: IntArray, actual: IntArray) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     fun assertArrayEquals(expected: LongArray, actual: LongArray) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     fun assertArrayEquals(expected: FloatArray, actual: FloatArray, precession: Float) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     fun assertArrayEquals(expected: DoubleArray, actual: DoubleArray, precession: Double) =
-            failIfFalse(expected contentEquals actual,
-                    expected.contentToString(), actual.contentToString())
+        failIfFalse(
+            expected contentEquals actual,
+            expected.contentToString(), actual.contentToString()
+        )
 
     private fun failIfFalse(cond: Boolean, expected: String, actual: String) {
         if (!cond) {

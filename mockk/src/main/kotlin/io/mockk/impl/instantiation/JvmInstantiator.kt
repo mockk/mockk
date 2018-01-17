@@ -5,8 +5,10 @@ import io.mockk.impl.log.Logger
 import io.mockk.proxy.MockKProxyMaker
 import kotlin.reflect.KClass
 
-class JvmInstantiator(val proxyMaker: MockKProxyMaker,
-                      instanceFactoryRegistry: CommonInstanceFactoryRegistry) : AbstractInstantiator(instanceFactoryRegistry) {
+class JvmInstantiator(
+    val proxyMaker: MockKProxyMaker,
+    instanceFactoryRegistry: CommonInstanceFactoryRegistry
+) : AbstractInstantiator(instanceFactoryRegistry) {
 
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }

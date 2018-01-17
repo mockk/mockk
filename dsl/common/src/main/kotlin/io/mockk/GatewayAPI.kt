@@ -25,15 +25,19 @@ interface MockKGateway {
      * Create new mocks or spies
      */
     interface MockFactory {
-        fun <T : Any> mockk(mockType: KClass<T>,
-                            name: String?,
-                            relaxed: Boolean,
-                            moreInterfaces: Array<out KClass<*>>): T
+        fun <T : Any> mockk(
+            mockType: KClass<T>,
+            name: String?,
+            relaxed: Boolean,
+            moreInterfaces: Array<out KClass<*>>
+        ): T
 
-        fun <T : Any> spyk(mockType: KClass<T>?,
-                           objToCopy: T?,
-                           name: String?,
-                           moreInterfaces: Array<out KClass<*>>): T
+        fun <T : Any> spyk(
+            mockType: KClass<T>?,
+            objToCopy: T?,
+            name: String?,
+            moreInterfaces: Array<out KClass<*>>
+        ): T
 
 
         fun temporaryMock(mockType: KClass<*>): Any
@@ -53,36 +57,44 @@ interface MockKGateway {
      * Clears mocks
      */
     interface Clearer {
-        fun clear(mocks: Array<out Any>,
-                  answers: Boolean,
-                  recordedCalls: Boolean,
-                  childMocks: Boolean)
+        fun clear(
+            mocks: Array<out Any>,
+            answers: Boolean,
+            recordedCalls: Boolean,
+            childMocks: Boolean
+        )
     }
 
     /**
      * Stub calls
      */
     interface Stubber {
-        fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
-                      coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T>
+        fun <T> every(
+            mockBlock: (MockKMatcherScope.() -> T)?,
+            coMockBlock: (suspend MockKMatcherScope.() -> T)?
+        ): MockKStubScope<T>
     }
 
     /**
      * Verify calls
      */
     interface Verifier {
-        fun verify(params: VerificationParameters,
-                   mockBlock: (MockKVerificationScope.() -> Unit)?,
-                   coMockBlock: (suspend MockKVerificationScope.() -> Unit)?)
+        fun verify(
+            params: VerificationParameters,
+            mockBlock: (MockKVerificationScope.() -> Unit)?,
+            coMockBlock: (suspend MockKVerificationScope.() -> Unit)?
+        )
     }
 
     /**
      * Parameters of verification
      */
-    data class VerificationParameters(val ordering: Ordering,
-                                      val min: Int,
-                                      val max: Int,
-                                      val inverse: Boolean)
+    data class VerificationParameters(
+        val ordering: Ordering,
+        val min: Int,
+        val max: Int,
+        val inverse: Boolean
+    )
 
 
     /**

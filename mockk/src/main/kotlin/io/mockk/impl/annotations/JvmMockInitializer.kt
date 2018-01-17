@@ -23,10 +23,12 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
             property.annotated<MockK>(target) { annotation ->
                 val type = property.returnType.classifier as? KClass<*> ?: return@annotated null
 
-                gateway.mockFactory.mockk(type,
-                        overrideName(annotation.name, property.name),
-                        false,
-                        arrayOf())
+                gateway.mockFactory.mockk(
+                    type,
+                    overrideName(annotation.name, property.name),
+                    false,
+                    arrayOf()
+                )
 
             }
 
@@ -34,10 +36,12 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
             property.annotated<RelaxedMockK>(target) { annotation ->
                 val type = property.returnType.classifier as? KClass<*> ?: return@annotated null
 
-                gateway.mockFactory.mockk(type,
-                        overrideName(annotation.name, property.name),
-                        true,
-                        arrayOf())
+                gateway.mockFactory.mockk(
+                    type,
+                    overrideName(annotation.name, property.name),
+                    true,
+                    arrayOf()
+                )
 
             }
 
@@ -45,10 +49,11 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 val obj = (property as KProperty1<Any, Any>).get(target)
 
                 gateway.mockFactory.spyk(
-                        null,
-                        obj,
-                        overrideName(annotation.name, property.name),
-                        arrayOf())
+                    null,
+                    obj,
+                    overrideName(annotation.name, property.name),
+                    arrayOf()
+                )
             }
         }
     }
@@ -62,8 +67,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     }
 
     private inline fun <reified T : Annotation> KProperty<*>.annotated(
-            target: Any,
-            block: (T) -> Any?
+        target: Any,
+        block: (T) -> Any?
     ) {
         val annotation = findAnnotation<T>()
         if (annotation != null) {

@@ -35,7 +35,7 @@ class NoOpLoggerTest {
             listOf(ex, msgLambda) wasNot Called
         }
     }
-    
+
     @Test
     fun givenMessageLambdaWhenItIsPassedToWarnNoOpLoggerThenItsNotEvaluated() {
         logger.warn(msgLambda)
@@ -71,7 +71,7 @@ class NoOpLoggerTest {
             listOf(ex, msgLambda) wasNot Called
         }
     }
-    
+
     @Test
     fun givenMessageLambdaWhenItIsPassedToDebugNoOpLoggerThenItsNotEvaluated() {
         logger.debug(msgLambda)
@@ -89,7 +89,7 @@ class NoOpLoggerTest {
             listOf(ex, msgLambda) wasNot Called
         }
     }
-    
+
     @Test
     fun givenMessageLambdaWhenItIsPassedToTraceNoOpLoggerThenItsNotEvaluated() {
         logger.trace(msgLambda)

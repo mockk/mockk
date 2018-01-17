@@ -7,16 +7,18 @@ import kotlin.test.assertEquals
 
 class PartialArgumentMatchingTest {
     class ManyArgsOpClass {
-        fun op(a: Boolean = true, b: Boolean = true,
-               c: Byte = 1, d: Byte = 2,
-               e: Short = 3, f: Short = 4,
-               g: Char = 5.toChar(), h: Char = 6.toChar(),
-               i: Int = 7, j: Int = 8,
-               k: Long = 9, l: Long = 10,
-               m: Float = 10.0f, n: Float = 11.0f,
-               o: Double = 12.0, p: Double = 13.0,
-               q: String = "14", r: String = "15",
-               s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)): Double {
+        fun op(
+            a: Boolean = true, b: Boolean = true,
+            c: Byte = 1, d: Byte = 2,
+            e: Short = 3, f: Short = 4,
+            g: Char = 5.toChar(), h: Char = 6.toChar(),
+            i: Int = 7, j: Int = 8,
+            k: Long = 9, l: Long = 10,
+            m: Float = 10.0f, n: Float = 11.0f,
+            o: Double = 12.0, p: Double = 13.0,
+            q: String = "14", r: String = "15",
+            s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)
+        ): Double {
 
             return a.toInt() * -1 + b.toInt() * -2 + c + d + e + f + g.toByte() + h.toByte() +
                     i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data

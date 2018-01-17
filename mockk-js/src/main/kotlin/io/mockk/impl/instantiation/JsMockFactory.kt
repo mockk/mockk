@@ -7,22 +7,29 @@ import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 
-class JsMockFactory(stubRepository: StubRepository,
-                    instantiator: JsInstantiator,
-                    gatewayAccess: StubGatewayAccess) :
-        AbstractMockFactory(stubRepository,
-                instantiator,
-                gatewayAccess) {
+class JsMockFactory(
+    stubRepository: StubRepository,
+    instantiator: JsInstantiator,
+    gatewayAccess: StubGatewayAccess
+) :
+    AbstractMockFactory(
+        stubRepository,
+        instantiator,
+        gatewayAccess
+    ) {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> newProxy(cls: KClass<out T>,
-                                    moreInterfaces: Array<out KClass<*>>,
-                                    stub: Stub,
-                                    useDefaultConstructor: Boolean,
-                                    instantiate: Boolean): T {
+    override fun <T : Any> newProxy(
+        cls: KClass<out T>,
+        moreInterfaces: Array<out KClass<*>>,
+        stub: Stub,
+        useDefaultConstructor: Boolean,
+        instantiate: Boolean
+    ): T {
         return Proxy(
-                StubProxyTarget(stub),
-                StubProxyHandler(cls, stub)) as T
+            StubProxyTarget(stub),
+            StubProxyHandler(cls, stub)
+        ) as T
 
     }
 
@@ -38,19 +45,22 @@ internal external interface ProxyHandler {
 
 internal abstract class EmptyProxyHandler : ProxyHandler {
     protected fun isJsNativeMethods(name: String) =
-            name in listOf("kotlinHashCodeValue\$", "\$metadata\$", "prototype", "constructor", "toString")
+        name in listOf("kotlinHashCodeValue\$", "\$metadata\$", "prototype", "constructor", "toString")
 
     override fun get(target: dynamic, name: String, receiver: dynamic): Any = throw UnsupportedOperationException("get")
-    override fun apply(target: dynamic, thisValue: dynamic, args: Array<*>): Any? = throw UnsupportedOperationException("apply")
+    override fun apply(target: dynamic, thisValue: dynamic, args: Array<*>): Any? =
+        throw UnsupportedOperationException("apply")
 }
 
 internal external class Proxy(target: dynamic, handler: ProxyHandler)
 
 
-internal class OperationProxyHandler(val name: String,
-                                     val stub: Stub,
-                                     val cls: KClass<*>,
-                                     val receiver: dynamic) : EmptyProxyHandler() {
+internal class OperationProxyHandler(
+    val name: String,
+    val stub: Stub,
+    val cls: KClass<*>,
+    val receiver: dynamic
+) : EmptyProxyHandler() {
 
     override fun get(target: dynamic, name: String, receiver: dynamic): Any {
         if (isJsNativeMethods(name)) {
@@ -65,13 +75,16 @@ internal class OperationProxyHandler(val name: String,
 
     override fun apply(target: dynamic, thisValue: dynamic, args: Array<*>): Any? {
         return stub.handleInvocation(receiver,
-                MethodDescription(name,
-                        Any::class,
-                        cls,
-                        listOf(),
-                        -1),
-                { originalCall(target, thisValue, args) },
-                args.map { unboxChar(it) }.toTypedArray())
+            MethodDescription(
+                name,
+                Any::class,
+                cls,
+                listOf(),
+                -1
+            ),
+            { originalCall(target, thisValue, args) },
+            args.map { unboxChar(it) }.toTypedArray()
+        )
     }
 
     private fun unboxChar(value: Any?): Any? {
@@ -102,8 +115,10 @@ internal class StubProxyHandler(val cls: KClass<*>, val stub: Stub) : EmptyProxy
         } else {
             js("function (){}")
         }
-        return Proxy(targetMember,
-                OperationProxyHandler(name, stub, cls, receiver))
+        return Proxy(
+            targetMember,
+            OperationProxyHandler(name, stub, cls, receiver)
+        )
     }
 
     private fun checkKeyExists(name: String, target: dynamic): Boolean = js("name in target")

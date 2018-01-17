@@ -15,11 +15,17 @@ object JvmLogging {
 
     fun Logger.adaptor(): MockKAgentLogger {
         return object : MockKAgentLogger {
-            override fun debug(msg: String) {  this@adaptor.debug { msg } }
+            override fun debug(msg: String) {
+                this@adaptor.debug { msg }
+            }
 
-            override fun trace(msg: String) {  this@adaptor.trace { msg } }
+            override fun trace(msg: String) {
+                this@adaptor.trace { msg }
+            }
 
-            override fun trace(ex: Throwable, msg: String) {  this@adaptor.trace(ex) { msg } }
+            override fun trace(ex: Throwable, msg: String) {
+                this@adaptor.trace(ex) { msg }
+            }
 
         }
     }

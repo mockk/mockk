@@ -10,8 +10,10 @@ import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.formatCalls
 
-open class UnorderedCallVerifier(val stubRepo: StubRepository,
-                                 val safeLog: SafeLog) : CallVerifier {
+open class UnorderedCallVerifier(
+    val stubRepo: StubRepository,
+    val safeLog: SafeLog
+) : CallVerifier {
     private val captureBlocks = mutableListOf<() -> Unit>()
 
     override fun verify(verificationSequence: List<RecordedCall>, min: Int, max: Int): VerificationResult {
@@ -51,7 +53,10 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository,
                     if (1 in min..max) {
                         VerificationResult(true)
                     } else {
-                        VerificationResult(false, "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls")
+                        VerificationResult(
+                            false,
+                            "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls"
+                        )
                     }
                 } else {
                     VerificationResult(false, safeLog.exec {
@@ -67,14 +72,16 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository,
                 } else {
                     if (n == 0) {
                         VerificationResult(false,
-                                safeLog.exec {
-                                    "$callIdxMsg. No matching calls found.\n" +
-                                            "Calls to same method:\n" + formatCalls(allCallsForMockMethod)
-                                })
+                            safeLog.exec {
+                                "$callIdxMsg. No matching calls found.\n" +
+                                        "Calls to same method:\n" + formatCalls(allCallsForMockMethod)
+                            })
                     } else {
-                        VerificationResult(false,
-                                "$callIdxMsg. $n matching calls found, " +
-                                        "but needs at least $min${atMostMsg(max)} calls")
+                        VerificationResult(
+                            false,
+                            "$callIdxMsg. $n matching calls found, " +
+                                    "but needs at least $min${atMostMsg(max)} calls"
+                        )
                     }
                 }
             }
@@ -95,8 +102,10 @@ open class UnorderedCallVerifier(val stubRepo: StubRepository,
 
     private fun atMostMsg(max: Int) = if (max == Int.MAX_VALUE) "" else " and at most $max"
 
-    private fun describeArgumentDifference(matcher: InvocationMatcher,
-                                           invocation: Invocation): String {
+    private fun describeArgumentDifference(
+        matcher: InvocationMatcher,
+        invocation: Invocation
+    ): String {
         val str = StringBuilder()
         for ((i, arg) in invocation.args.withIndex()) {
             val argMatcher = matcher.args[i]

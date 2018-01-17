@@ -14,27 +14,27 @@ actual object InternalPlatformDsl {
     }
 
     actual fun Any?.toStr() =
-            try {
-                when (this) {
-                    null -> "null"
-                    is BooleanArray -> this.contentToString()
-                    is ByteArray -> this.contentToString()
-                    is CharArray -> this.contentToString()
-                    is ShortArray -> this.contentToString()
-                    is IntArray -> this.contentToString()
-                    is LongArray -> this.contentToString()
-                    is FloatArray -> this.contentToString()
-                    is DoubleArray -> this.contentToString()
-                    is Array<*> -> this.contentDeepToString()
-                    Void.TYPE.kotlin -> "void"
-                    is KClass<*> -> this.simpleName ?: "<null name class>"
-                    is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
-                    is Function<*> -> "lambda {}"
-                    else -> toString()
-                }
-            } catch (thr: Throwable) {
-                "<error \"$thr\">"
+        try {
+            when (this) {
+                null -> "null"
+                is BooleanArray -> this.contentToString()
+                is ByteArray -> this.contentToString()
+                is CharArray -> this.contentToString()
+                is ShortArray -> this.contentToString()
+                is IntArray -> this.contentToString()
+                is LongArray -> this.contentToString()
+                is FloatArray -> this.contentToString()
+                is DoubleArray -> this.contentToString()
+                is Array<*> -> this.contentDeepToString()
+                Void.TYPE.kotlin -> "void"
+                is KClass<*> -> this.simpleName ?: "<null name class>"
+                is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
+                is Function<*> -> "lambda {}"
+                else -> toString()
             }
+        } catch (thr: Throwable) {
+            "<error \"$thr\">"
+        }
 
     actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
         return if (obj1 === obj2) {
@@ -65,17 +65,17 @@ actual object InternalPlatformDsl {
     actual fun unboxChar(value: Any): Any = value
 
     actual fun Any.toArray(): Array<*> =
-            when (this) {
-                is BooleanArray -> this.toTypedArray()
-                is ByteArray -> this.toTypedArray()
-                is CharArray -> this.toTypedArray()
-                is ShortArray -> this.toTypedArray()
-                is IntArray -> this.toTypedArray()
-                is LongArray -> this.toTypedArray()
-                is FloatArray -> this.toTypedArray()
-                is DoubleArray -> this.toTypedArray()
-                else -> this as Array<*>
-            }
+        when (this) {
+            is BooleanArray -> this.toTypedArray()
+            is ByteArray -> this.toTypedArray()
+            is CharArray -> this.toTypedArray()
+            is ShortArray -> this.toTypedArray()
+            is IntArray -> this.toTypedArray()
+            is LongArray -> this.toTypedArray()
+            is FloatArray -> this.toTypedArray()
+            is DoubleArray -> this.toTypedArray()
+            else -> this as Array<*>
+        }
 
     actual fun classForName(name: String): Any = Class.forName(name).kotlin
 }

@@ -22,7 +22,7 @@ class RecordingStateTest {
 
     @Test
     fun givenRecordingStateWhenFirstCatchArgsHappensThenBuilderAndChildHinterInitialized() {
-        every { recorder.factories.callRoundBuilder()  } just Runs
+        every { recorder.factories.callRoundBuilder() } just Runs
         every { recorder.factories.childHinter() } just Runs
 
         state.round(0, 1)
@@ -34,7 +34,7 @@ class RecordingStateTest {
 
     @Test
     fun givenRecordingStateWhenLastCatchArgsHappensThenSignMatchersAndPermanentMockHappen() {
-        every { recorder.factories.callRoundBuilder()  } just Runs
+        every { recorder.factories.callRoundBuilder() } just Runs
         every { recorder.factories.childHinter() } just Runs
         every { recorder.factories.signatureMatcherDetector().detect(any()) } just Runs
         every { recorder.factories.permanentMocker().mock(any()) } just Runs

@@ -20,11 +20,13 @@ class ManyAnswersAnswerTest {
 
     @Test
     fun mixedList() {
-        val many = many(const(0),
-                many(1, 2, 3),
-                const(4),
-                many(5, 6, 7),
-                const(8))
+        val many = many(
+            const(0),
+            many(1, 2, 3),
+            const(4),
+            many(5, 6, 7),
+            const(8)
+        )
 
         assertEquals(listOf(0, 1, 2, 3, 4, 5, 6, 7, 8), many.toList())
     }

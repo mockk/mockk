@@ -1,6 +1,6 @@
 package io.mockk.impl
 
-import kotlin.test.*
+import kotlin.test.Test
 
 class JvmMockKGatewayTest {
     @Test

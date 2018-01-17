@@ -17,16 +17,16 @@ class AnswersTests {
     fun answerFirstArg() {
         every { spy.op(any(), 5) } answers { if (firstArg<Int>() == 1) 1 else 2 }
 
-        assertEquals(1, spy.op(1,5))
-        assertEquals(2, spy.op(2,5))
+        assertEquals(1, spy.op(1, 5))
+        assertEquals(2, spy.op(2, 5))
     }
 
     @Test
     fun answerSecondArg() {
         every { spy.op(6, any()) } answers { if (secondArg<Int>() == 2) 3 else 4 }
 
-        assertEquals(3, spy.op(6,2))
-        assertEquals(4, spy.op(6,3))
+        assertEquals(3, spy.op(6, 2))
+        assertEquals(4, spy.op(6, 3))
     }
 
     @Test

@@ -29,8 +29,9 @@ class CommonCallRecorderTest {
         every { factories.childHinter() } returns hinter
 
         commonCallRecorder = CommonCallRecorder(
-                mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-                mockk(relaxed = true), mockk(relaxed = true), factories, initStateFactory)
+            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
+            mockk(relaxed = true), mockk(relaxed = true), factories, initStateFactory
+        )
     }
 
     @Test

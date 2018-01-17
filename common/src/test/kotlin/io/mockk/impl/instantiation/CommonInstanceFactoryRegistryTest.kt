@@ -15,7 +15,9 @@ class CommonInstanceFactoryRegistryTest {
     fun setUp() {
         factoryRegistry = CommonInstanceFactoryRegistry()
         factory = object : InstanceFactory {
-            override fun instantiate(cls: KClass<*>): Any? { return null }
+            override fun instantiate(cls: KClass<*>): Any? {
+                return null
+            }
         }
     }
 

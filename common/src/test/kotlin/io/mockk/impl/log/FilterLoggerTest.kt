@@ -174,7 +174,7 @@ class FilterLoggerTest {
             logger wasNot Called
         }
     }
-    
+
     @Test
     fun givenTraceLevelWhenDebugMessageWithExceptionThenItsLogged() {
         traceLogger.debug(ex) { "msg" }

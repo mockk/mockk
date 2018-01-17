@@ -46,7 +46,7 @@ data class ManyAnswersAnswer<T>(val answers: List<Answer<T>>) : ManyAnswerable<T
         }
     }
 
-    private fun nextAnswerable() : ManyAnswerable<T>? {
+    private fun nextAnswerable(): ManyAnswerable<T>? {
         while (n < answers.size) {
             if (manyAnswers[n].hasMore) {
                 return manyAnswers[n]
