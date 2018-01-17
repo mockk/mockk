@@ -1,23 +1,28 @@
 package io.mockk.impl.recording
 
-import io.mockk.*
+import io.mockk.Answer
+import io.mockk.Invocation
+import io.mockk.Matcher
 import io.mockk.MockKGateway.*
-import io.mockk.impl.instantiation.AnyValueGenerator
-import io.mockk.impl.stub.StubRepository
+import io.mockk.RecordedCall
 import io.mockk.impl.instantiation.AbstractInstantiator
+import io.mockk.impl.instantiation.AnyValueGenerator
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
 import io.mockk.impl.recording.states.CallRecordingState
+import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 
-class CommonCallRecorder(val stubRepo: StubRepository,
-                         val instantiator: AbstractInstantiator,
-                         val signatureValueGenerator: SignatureValueGenerator,
-                         val mockFactory: MockFactory,
-                         val anyValueGenerator: AnyValueGenerator,
-                         val safeLog: SafeLog,
-                         val factories: CallRecorderFactories,
-                         val initialState: (CommonCallRecorder) -> CallRecordingState) : CallRecorder {
+class CommonCallRecorder(
+    val stubRepo: StubRepository,
+    val instantiator: AbstractInstantiator,
+    val signatureValueGenerator: SignatureValueGenerator,
+    val mockFactory: MockFactory,
+    val anyValueGenerator: AnyValueGenerator,
+    val safeLog: SafeLog,
+    val factories: CallRecorderFactories,
+    val initialState: (CommonCallRecorder) -> CallRecordingState
+) : CallRecorder {
 
     override val calls = mutableListOf<RecordedCall>()
     var state: CallRecordingState = initialState(this)

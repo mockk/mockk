@@ -8,7 +8,7 @@ import java.lang.reflect.Constructor;
  * Deprecated because inlining is implemented and
  * final classes and methods possible to mock through this technique.
  * So class loading transformation is not needed anymore.
- *
+ * <p>
  * Inlining is complex feature, so
  * please report any issues to:
  * https://github.com/oleksiyp/mockk/issues

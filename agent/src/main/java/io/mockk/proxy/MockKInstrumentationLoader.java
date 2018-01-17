@@ -38,7 +38,7 @@ public class MockKInstrumentationLoader {
         try {
             instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(bootJar));
         } catch (IOException e) {
-            log.trace(e,"Can't add to bootstrap classpath");
+            log.trace(e, "Can't add to bootstrap classpath");
             return false;
         }
 
@@ -53,7 +53,7 @@ public class MockKInstrumentationLoader {
                 log.trace("Bootstrap class loaded " + cls.getName());
             }
         } catch (ClassNotFoundException cnfe) {
-            log.trace(cnfe,"Can't load class");
+            log.trace(cnfe, "Can't load class");
             return false;
         }
         return true;
@@ -84,7 +84,7 @@ public class MockKInstrumentationLoader {
             }
             return boot;
         } catch (IOException ex) {
-            log.trace(ex,"Error creating boot jar");
+            log.trace(ex, "Error creating boot jar");
             return null;
         }
     }

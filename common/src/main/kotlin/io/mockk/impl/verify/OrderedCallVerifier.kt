@@ -7,8 +7,10 @@ import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.allInvocations
 import io.mockk.impl.verify.VerificationHelpers.reportCalls
 
-class OrderedCallVerifier(val stubRepo: StubRepository,
-                          val safeLog: SafeLog) : MockKGateway.CallVerifier {
+class OrderedCallVerifier(
+    val stubRepo: StubRepository,
+    val safeLog: SafeLog
+) : MockKGateway.CallVerifier {
     private val captureBlocks = mutableListOf<() -> Unit>()
 
     override fun verify(verificationSequence: List<RecordedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
@@ -26,7 +28,7 @@ class OrderedCallVerifier(val stubRepo: StubRepository,
         val path = Array(allCalls.size, { Array(verificationSequence.size, { '?' }) })
 
         fun maxOf(a: Pair<Int, Char>, b: Pair<Int, Char>) =
-                if (a.first > b.first) a else b
+            if (a.first > b.first) a else b
 
         for ((callIdx, call) in allCalls.withIndex()) {
             for ((matcherIdx, matcher) in verificationSequence.map { it.matcher }.withIndex()) {
@@ -38,15 +40,16 @@ class OrderedCallVerifier(val stubRepo: StubRepository,
                         Pair(nEdits[callIdx - 1][matcherIdx - 1] + 1, '=')
                 } else {
                     maxOf(
-                            if (callIdx == 0)
-                                Pair(0, '^')
-                            else
-                                Pair(nEdits[callIdx - 1][matcherIdx], '='),
+                        if (callIdx == 0)
+                            Pair(0, '^')
+                        else
+                            Pair(nEdits[callIdx - 1][matcherIdx], '='),
 
-                            if (matcherIdx == 0)
-                                Pair(0, '<')
-                            else
-                                Pair(nEdits[callIdx][matcherIdx - 1], '<'))
+                        if (matcherIdx == 0)
+                            Pair(0, '<')
+                        else
+                            Pair(nEdits[callIdx][matcherIdx - 1], '<')
+                    )
                 }
 
                 nEdits[callIdx][matcherIdx] = result.first

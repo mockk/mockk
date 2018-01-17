@@ -7,11 +7,15 @@ import io.mockk.MockKMatcherScope
 import io.mockk.MockKStubScope
 import io.mockk.impl.recording.AutoHinter
 
-class EveryBlockEvaluator(callRecorder: () -> CallRecorder,
-                          autoHinterFactory: () -> AutoHinter) : RecordedBlockEvaluator(callRecorder, autoHinterFactory), Stubber {
+class EveryBlockEvaluator(
+    callRecorder: () -> CallRecorder,
+    autoHinterFactory: () -> AutoHinter
+) : RecordedBlockEvaluator(callRecorder, autoHinterFactory), Stubber {
 
-    override fun <T> every(mockBlock: (MockKMatcherScope.() -> T)?,
-                           coMockBlock: (suspend MockKMatcherScope.() -> T)?): MockKStubScope<T> {
+    override fun <T> every(
+        mockBlock: (MockKMatcherScope.() -> T)?,
+        coMockBlock: (suspend MockKMatcherScope.() -> T)?
+    ): MockKStubScope<T> {
 
         callRecorder().startStubbing()
 

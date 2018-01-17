@@ -15,7 +15,7 @@ interface Logger {
     fun trace(ex: Throwable, msg: () -> String)
 
     companion object {
-        var loggerFactory : (KClass<*>) -> Logger = { NoOpLogger() }
+        var loggerFactory: (KClass<*>) -> Logger = { NoOpLogger() }
         inline operator fun <reified T> invoke() = loggerFactory(T::class)
     }
 }

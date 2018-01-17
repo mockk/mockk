@@ -53,8 +53,8 @@ public class MockKWeakMap<K, V> implements Map<K, V> {
                 if (key != null) {
                     if (o instanceof WeakKey<?>) {
                         return key == ((WeakKey<?>) o).get();
-                    } else if (o instanceof StrongKey<?>){
-                        return key == ((StrongKey<?>)o).get();
+                    } else if (o instanceof StrongKey<?>) {
+                        return key == ((StrongKey<?>) o).get();
                     }
                 }
             }
@@ -102,7 +102,6 @@ public class MockKWeakMap<K, V> implements Map<K, V> {
             return key;
         }
     }
-
 
 
     @Override

@@ -1,11 +1,13 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.impl.InternalPlatform
 import io.mockk.Invocation
 import io.mockk.Matcher
 import io.mockk.MockKException
+import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
-import io.mockk.impl.recording.*
+import io.mockk.impl.recording.CallRound
+import io.mockk.impl.recording.CallRoundBuilder
+import io.mockk.impl.recording.CommonCallRecorder
 import kotlin.reflect.KClass
 
 abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
@@ -68,10 +70,11 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
         }
 
         builder().addSignedCall(
-                retValue,
-                isTemporaryMock,
-                retType,
-                invocation)
+            retValue,
+            isTemporaryMock,
+            retType,
+            invocation
+        )
 
         return retValue
     }
@@ -95,10 +98,10 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
      */
     override fun estimateCallRounds(): Int {
         return builder().signedCalls
-                .flatMap { it.args }
-                .filterNotNull()
-                .map(this::typeEstimation)
-                .max() ?: 1
+            .flatMap { it.args }
+            .filterNotNull()
+            .map(this::typeEstimation)
+            .max() ?: 1
     }
 
     private fun typeEstimation(it: Any): Int {

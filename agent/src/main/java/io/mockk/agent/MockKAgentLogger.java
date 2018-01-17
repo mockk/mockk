@@ -1,7 +1,5 @@
 package io.mockk.agent;
 
-import net.bytebuddy.implementation.bytecode.Throw;
-
 public interface MockKAgentLogger {
     MockKAgentLogger NO_OP = new MockKAgentLogger() {
         @Override

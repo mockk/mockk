@@ -7,7 +7,11 @@ import kotlin.reflect.KClass
 /**
  * Builds a new mock for specified class
  */
-inline fun <reified T : Any> mockk(name: String? = null, relaxed: Boolean = false, vararg moreInterfaces: KClass<*>): T = MockK.useImpl {
+inline fun <reified T : Any> mockk(
+    name: String? = null,
+    relaxed: Boolean = false,
+    vararg moreInterfaces: KClass<*>
+): T = MockK.useImpl {
     MockKDsl.internalMockk(name, relaxed, *moreInterfaces)
 }
 
@@ -21,9 +25,10 @@ inline fun <reified T : Any> spyk(name: String? = null, vararg moreInterfaces: K
 /**
  * Builds a new spy for specified class. Copies fields from provided object
  */
-inline fun <reified T : Any> spyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>): T = MockK.useImpl {
-    MockKDsl.internalSpyk(objToCopy, name, *moreInterfaces)
-}
+inline fun <reified T : Any> spyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>): T =
+    MockK.useImpl {
+        MockKDsl.internalSpyk(objToCopy, name, *moreInterfaces)
+    }
 
 /**
  * Creates new capturing slot
@@ -49,81 +54,97 @@ inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): M
 /**
  * Verifies calls happened in the past. Part of DSL
  */
-inline fun verify(ordering: Ordering = Ordering.UNORDERED,
-                  inverse: Boolean = false,
-                  atLeast: Int = 1,
-                  atMost: Int = Int.MAX_VALUE,
-                  exactly: Int = -1,
-                  noinline verifyBlock: MockKVerificationScope.() -> Unit) = MockK.useImpl {
+inline fun verify(
+    ordering: Ordering = Ordering.UNORDERED,
+    inverse: Boolean = false,
+    atLeast: Int = 1,
+    atMost: Int = Int.MAX_VALUE,
+    exactly: Int = -1,
+    noinline verifyBlock: MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
     MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, verifyBlock)
 }
 
 /**
  * Verify for coroutines
  */
-inline fun coVerify(ordering: Ordering = Ordering.UNORDERED,
-                    inverse: Boolean = false,
-                    atLeast: Int = 1,
-                    atMost: Int = Int.MAX_VALUE,
-                    exactly: Int = -1,
-                    noinline verifyBlock: suspend MockKVerificationScope.() -> Unit) = MockK.useImpl {
+inline fun coVerify(
+    ordering: Ordering = Ordering.UNORDERED,
+    inverse: Boolean = false,
+    atLeast: Int = 1,
+    atMost: Int = Int.MAX_VALUE,
+    exactly: Int = -1,
+    noinline verifyBlock: suspend MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
     MockKDsl.internalCoVerify(
-            ordering,
-            inverse,
-            atLeast,
-            atMost,
-            exactly,
-            verifyBlock)
+        ordering,
+        inverse,
+        atLeast,
+        atMost,
+        exactly,
+        verifyBlock
+    )
 }
 
 /**
  * Shortcut for ordered calls verification
  */
-inline fun verifyAll(inverse: Boolean = false,
-                     noinline verifyBlock: MockKVerificationScope.() -> Unit) = MockK.useImpl {
+inline fun verifyAll(
+    inverse: Boolean = false,
+    noinline verifyBlock: MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
     MockKDsl.internalVerifyAll(inverse, verifyBlock)
 }
 
 /**
  * Shortcut for ordered calls verification
  */
-inline fun verifyOrder(inverse: Boolean = false,
-                       noinline verifyBlock: MockKVerificationScope.() -> Unit) = MockK.useImpl {
+inline fun verifyOrder(
+    inverse: Boolean = false,
+    noinline verifyBlock: MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
     MockKDsl.internalVerifyOrder(inverse, verifyBlock)
 }
 
 /**
  * Shortcut for sequence calls verification
  */
-inline fun verifySequence(inverse: Boolean = false,
-                          noinline verifyBlock: MockKVerificationScope.() -> Unit) = MockK.useImpl {
+inline fun verifySequence(
+    inverse: Boolean = false,
+    noinline verifyBlock: MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
     MockKDsl.internalVerifySequence(inverse, verifyBlock)
 }
 
 /**
  * Resets information associated with mock
  */
-fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) = MockK.useImpl {
-    MockKDsl.internalClearMocks(mocks = *mocks,
+fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) =
+    MockK.useImpl {
+        MockKDsl.internalClearMocks(
+            mocks = *mocks,
             answers = answers,
             recordedCalls = recordedCalls,
-            childMocks = childMocks)
-}
+            childMocks = childMocks
+        )
+    }
 
 /**
  * Registers instance factory and returns object able to do deregistration.
  */
-inline fun <reified T : Any> registerInstanceFactory(noinline instanceFactory: () -> T): Deregisterable = MockK.useImpl {
-    MockKDsl.internalRegisterInstanceFactory(instanceFactory)
-}
+inline fun <reified T : Any> registerInstanceFactory(noinline instanceFactory: () -> T): Deregisterable =
+    MockK.useImpl {
+        MockKDsl.internalRegisterInstanceFactory(instanceFactory)
+    }
 
 
 /**
  * Executes block of code with registering and unregistering instance factory.
  */
-inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> R): R = MockK.useImpl {
-    MockKDsl.internalWithInstanceFactory(instanceFactory, block)
-}
+inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: () -> T, block: () -> R): R =
+    MockK.useImpl {
+        MockKDsl.internalWithInstanceFactory(instanceFactory, block)
+    }
 
 /**
  * Builds a static mock via static mock scope.

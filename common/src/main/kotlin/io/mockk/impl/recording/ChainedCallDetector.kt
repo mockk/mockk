@@ -1,8 +1,8 @@
 package io.mockk.impl.recording
 
 import io.mockk.*
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.InternalPlatformDsl.toArray
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
@@ -69,9 +69,10 @@ class ChainedCallDetector(safeLog: SafeLog) {
             val matcherBySignature = matcherMap.remove(signature)
 
             return buildMatcher(
-                    nArgument == 0,
-                    zeroCall.args[nArgument],
-                    matcherBySignature)
+                nArgument == 0,
+                zeroCall.args[nArgument],
+                matcherBySignature
+            )
         }
 
         fun varArgArgument(nArgument: Int): Matcher<*> {
@@ -88,10 +89,12 @@ class ChainedCallDetector(safeLog: SafeLog) {
 
                 val matcherBySignature = matcherMap.remove(signature)
                 varArgMatchers.add(
-                        buildMatcher(
-                                nArgument == 0 && nVarArg == 0,
-                                zeroCallArg[nVarArg],
-                                matcherBySignature))
+                    buildMatcher(
+                        nArgument == 0 && nVarArg == 0,
+                        zeroCallArg[nVarArg],
+                        matcherBySignature
+                    )
+                )
             }
 
             // FIXME unchecked cast
@@ -144,19 +147,21 @@ class ChainedCallDetector(safeLog: SafeLog) {
             }
 
             val im = InvocationMatcher(
-                    zeroCall.self,
-                    zeroCall.method,
-                    argMatchers.toList() as List<Matcher<Any>>,
-                    allAny)
+                zeroCall.self,
+                zeroCall.method,
+                argMatchers.toList() as List<Matcher<Any>>,
+                allAny
+            )
             log.trace { "Built matcher: $im" }
 
             return RecordedCall(
-                    zeroCall.retValue,
-                    zeroCall.isRetValueMock,
-                    zeroCall.retType,
-                    im,
-                    null,
-                    null)
+                zeroCall.retValue,
+                zeroCall.isRetValueMock,
+                zeroCall.retType,
+                im,
+                null,
+                null
+            )
         }
 
         gatherMatchers()

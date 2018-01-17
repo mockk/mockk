@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class MockKProxyMakerTest {
     MockKProxyMaker maker;
 
-    static boolean []executed = new boolean[10];
+    static boolean[] executed = new boolean[10];
 
     ListAppendingHandler handler;
 

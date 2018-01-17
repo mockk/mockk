@@ -13,11 +13,11 @@ object VerificationHelpers {
     }
 
     fun List<RecordedCall>.allInvocations(stubRepo: StubRepository) =
-            this.map { InternalPlatform.ref(it.matcher.self) }
-                    .distinct()
-                    .map { it.value }
-                    .flatMap { stubRepo.stubFor(it).allRecordedCalls() }
-                    .sortedBy { it.timestamp }
+        this.map { InternalPlatform.ref(it.matcher.self) }
+            .distinct()
+            .map { it.value }
+            .flatMap { stubRepo.stubFor(it).allRecordedCalls() }
+            .sortedBy { it.timestamp }
 
     fun reportCalls(calls: List<RecordedCall>, allCalls: List<Invocation>): String {
         return "\nMatchers: \n" + calls.map { it.matcher.toString() }.joinToString("\n") +

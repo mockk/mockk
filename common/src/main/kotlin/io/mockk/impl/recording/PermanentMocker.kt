@@ -2,15 +2,16 @@ package io.mockk.impl.recording
 
 import io.mockk.EqMatcher
 import io.mockk.EquivalentMatcher
-import io.mockk.Matcher
 import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
-import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
+import io.mockk.impl.stub.StubRepository
 
-class PermanentMocker(val stubRepo: StubRepository,
-                      val safeLog: SafeLog) {
+class PermanentMocker(
+    val stubRepo: StubRepository,
+    val safeLog: SafeLog
+) {
 
     val log = safeLog(Logger<PermanentMocker>())
 
@@ -26,9 +27,9 @@ class PermanentMocker(val stubRepo: StubRepository,
 
         val callTree = safeLog.exec { describeCallTree(result) }
         if (callTree.size == 1) {
-            log.trace { "Mocked permanently: " + callTree[0]}
+            log.trace { "Mocked permanently: " + callTree[0] }
         } else {
-            log.trace { "Mocked permanently:\n" + callTree.joinToString(", ")}
+            log.trace { "Mocked permanently:\n" + callTree.joinToString(", ") }
         }
 
         return result
@@ -44,7 +45,7 @@ class PermanentMocker(val stubRepo: StubRepository,
             log.trace { "Child search key: ${equivalentCall.matcher}" }
 
             val childMock = stubRepo.stubFor(newCall.matcher.self)
-                    .childMockK(equivalentCall.matcher, equivalentCall.retType)
+                .childMockK(equivalentCall.matcher, equivalentCall.retType)
 
             val newNewCall = newCall.copy(retValue = childMock)
 
@@ -72,20 +73,21 @@ class PermanentMocker(val stubRepo: StubRepository,
     private fun makeCallPermanent(call: RecordedCall): RecordedCall {
         val selfChain = callRef[call.matcher.self]
         val argChains = call.matcher.args
-                .map {
-                    when (it) {
-                        is EqMatcher -> callRef[it.value] ?: it
-                        else -> it
-                    }
+            .map {
+                when (it) {
+                    is EqMatcher -> callRef[it.value] ?: it
+                    else -> it
                 }
+            }
 
         val newSelf = permanentMocks[call.matcher.self] ?: call.matcher.self
         val newArgs = call.matcher.args.map { it.substitute(permanentMocks) }
         val newMatcher = call.matcher.copy(self = newSelf, args = newArgs)
         return call.copy(
-                matcher = newMatcher,
-                selfChain = selfChain,
-                argChains = argChains)
+            matcher = newMatcher,
+            selfChain = selfChain,
+            argChains = argChains
+        )
     }
 
     private fun describeCallTree(calls: MutableList<RecordedCall>): List<String> {
@@ -93,21 +95,25 @@ class PermanentMocker(val stubRepo: StubRepository,
         val usedCalls = hashSetOf<RecordedCall>()
 
         for (call in calls) {
-            callTree[call] = formatCall(call,
-                    callTree,
-                    usedCalls)
+            callTree[call] = formatCall(
+                call,
+                callTree,
+                usedCalls
+            )
         }
 
         return calls.filter {
             it !in usedCalls
         }.map {
-            callTree[it] ?: "<bad call>"
-        }
+                callTree[it] ?: "<bad call>"
+            }
     }
 
-    private fun formatCall(call: RecordedCall,
-                           tree: Map<RecordedCall, String>,
-                           usedCalls: MutableSet<RecordedCall>): String {
+    private fun formatCall(
+        call: RecordedCall,
+        tree: Map<RecordedCall, String>,
+        usedCalls: MutableSet<RecordedCall>
+    ): String {
         val methodName = call.matcher.method.name
         val args = call.argChains!!.map {
             when (it) {
@@ -128,8 +134,9 @@ class PermanentMocker(val stubRepo: StubRepository,
         }
 
         if (methodName.startsWith("get") &&
-                methodName.length > 3 &&
-                args.isEmpty()) {
+            methodName.length > 3 &&
+            args.isEmpty()
+        ) {
             return prefix +
                     methodName[3].toLowerCase() +
                     methodName.substring(4)

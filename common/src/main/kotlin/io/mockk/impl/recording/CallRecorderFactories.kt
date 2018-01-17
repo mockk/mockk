@@ -18,15 +18,17 @@ typealias AnsweringStillAcceptingAnswersStateFactory = (recorder: CommonCallReco
 typealias ChainedCallDetectorFactory = () -> ChainedCallDetector
 typealias VerificationCallSorterFactory = () -> VerificationCallSorter
 
-data class CallRecorderFactories(val signatureMatcherDetector: SignatureMatcherDetectorFactory,
-                                 val callRoundBuilder: CallRoundBuilderFactory,
-                                 val childHinter: ChildHinterFactory,
-                                 val verifier: VerifierFactory,
-                                 val permanentMocker: PermanentMockerFactory,
-                                 val verificationCallSorter: VerificationCallSorterFactory,
-                                 val answeringState: StateFactory,
-                                 val answeringStillAcceptingAnswersState: AnsweringStillAcceptingAnswersStateFactory,
-                                 val stubbingState: StateFactory,
-                                 val verifyingState: VerifyingStateFactory,
-                                 val stubbingAwaitingAnswerState: StateFactory,
-                                 val safeLoggingState: StateFactory)
+data class CallRecorderFactories(
+    val signatureMatcherDetector: SignatureMatcherDetectorFactory,
+    val callRoundBuilder: CallRoundBuilderFactory,
+    val childHinter: ChildHinterFactory,
+    val verifier: VerifierFactory,
+    val permanentMocker: PermanentMockerFactory,
+    val verificationCallSorter: VerificationCallSorterFactory,
+    val answeringState: StateFactory,
+    val answeringStillAcceptingAnswersState: AnsweringStillAcceptingAnswersStateFactory,
+    val stubbingState: StateFactory,
+    val verifyingState: VerifyingStateFactory,
+    val stubbingAwaitingAnswerState: StateFactory,
+    val safeLoggingState: StateFactory
+)

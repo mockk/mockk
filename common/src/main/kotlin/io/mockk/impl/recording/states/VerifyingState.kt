@@ -7,8 +7,10 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.Stub
 
-class VerifyingState(recorder: CommonCallRecorder,
-                     val params: VerificationParameters) : RecordingState(recorder) {
+class VerifyingState(
+    recorder: CommonCallRecorder,
+    val params: VerificationParameters
+) : RecordingState(recorder) {
 
     override fun wasNotCalled(list: List<Any>) {
         addWasNotCalled(list)
@@ -24,12 +26,13 @@ class VerifyingState(recorder: CommonCallRecorder,
         sorter.sort(recorder.calls)
 
         val outcome =
-                recorder.safeExec {
-                    verifier.verify(
-                            sorter.regularCalls,
-                            params.min,
-                            params.max)
-                }
+            recorder.safeExec {
+                verifier.verify(
+                    sorter.regularCalls,
+                    params.min,
+                    params.max
+                )
+            }
 
         if (outcome.matches) {
             verifier.captureArguments()

@@ -6,7 +6,10 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.AdditionalAnswerOpportunity
 
-class AnsweringStillAcceptingAnswersState(recorder: CommonCallRecorder, val answerOpportunity: AdditionalAnswerOpportunity) : AnsweringState(recorder) {
+class AnsweringStillAcceptingAnswersState(
+    recorder: CommonCallRecorder,
+    val answerOpportunity: AdditionalAnswerOpportunity
+) : AnsweringState(recorder) {
     override val log = recorder.safeLog(Logger<AnsweringStillAcceptingAnswersState>())
 
     override fun call(invocation: Invocation): Any? {

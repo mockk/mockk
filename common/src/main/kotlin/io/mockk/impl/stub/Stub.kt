@@ -23,10 +23,12 @@ interface Stub {
 
     fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
 
-    fun handleInvocation(self: Any,
-                         method: MethodDescription,
-                         originalCall: () -> Any?,
-                         args: Array<out Any?>): Any?
+    fun handleInvocation(
+        self: Any,
+        method: MethodDescription,
+        originalCall: () -> Any?,
+        args: Array<out Any?>
+    ): Any?
 
     fun toStr(): String
 

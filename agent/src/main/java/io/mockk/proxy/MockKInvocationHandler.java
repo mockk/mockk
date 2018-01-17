@@ -7,5 +7,5 @@ public interface MockKInvocationHandler {
     Object invocation(Object self,
                       Method method,
                       Callable<?> originalCall,
-                      Object []args) throws Exception;
+                      Object[] args) throws Exception;
 }

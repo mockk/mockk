@@ -4,8 +4,10 @@ import io.mockk.MockKGateway.Clearer
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeLog
 
-class CommonClearer(val stubRepository: StubRepository,
-                    val safeLog: SafeLog) : Clearer {
+class CommonClearer(
+    val stubRepository: StubRepository,
+    val safeLog: SafeLog
+) : Clearer {
     val log = safeLog(Logger<CommonClearer>())
 
     override fun clear(mocks: Array<out Any>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {

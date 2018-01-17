@@ -8,25 +8,31 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.*
 import kotlin.reflect.KClass
 
-abstract class AbstractMockFactory(val stubRepository: StubRepository,
-                                   val instantiator: AbstractInstantiator,
-                                   gatewayAccessIn: StubGatewayAccess) : MockKGateway.MockFactory {
+abstract class AbstractMockFactory(
+    val stubRepository: StubRepository,
+    val instantiator: AbstractInstantiator,
+    gatewayAccessIn: StubGatewayAccess
+) : MockKGateway.MockFactory {
 
     val safeLog = gatewayAccessIn.safeLog
     val log = safeLog(Logger<AbstractMockFactory>())
 
     val gatewayAccess = gatewayAccessIn.copy(mockFactory = this)
 
-    protected abstract fun <T : Any> newProxy(cls: KClass<out T>,
-                                              moreInterfaces: Array<out KClass<*>>,
-                                              stub: Stub,
-                                              useDefaultConstructor: Boolean = false,
-                                              instantiate: Boolean = false): T
+    protected abstract fun <T : Any> newProxy(
+        cls: KClass<out T>,
+        moreInterfaces: Array<out KClass<*>>,
+        stub: Stub,
+        useDefaultConstructor: Boolean = false,
+        instantiate: Boolean = false
+    ): T
 
-    override fun <T : Any> mockk(mockType: KClass<T>,
-                                 name: String?,
-                                 relaxed: Boolean,
-                                 moreInterfaces: Array<out KClass<*>>): T {
+    override fun <T : Any> mockk(
+        mockType: KClass<T>,
+        name: String?,
+        relaxed: Boolean,
+        moreInterfaces: Array<out KClass<*>>
+    ): T {
         val newName = name ?: "#${newId()}"
 
         val stub = MockKStub(mockType, newName, relaxed, gatewayAccess)
@@ -43,7 +49,12 @@ abstract class AbstractMockFactory(val stubRepository: StubRepository,
         return proxy
     }
 
-    override fun <T : Any> spyk(mockType: KClass<T>?, objToCopy: T?, name: String?, moreInterfaces: Array<out KClass<*>>): T {
+    override fun <T : Any> spyk(
+        mockType: KClass<T>?,
+        objToCopy: T?,
+        name: String?,
+        moreInterfaces: Array<out KClass<*>>
+    ): T {
         val newName = name ?: "#${newId()}"
 
         val actualCls = when {

@@ -24,7 +24,7 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
             }
 
             answerOpportunity = recorder.stubRepo.stubFor(recordedCall.matcher.self)
-                    .addAnswer(recordedCall.matcher, ans)
+                .addAnswer(recordedCall.matcher, ans)
         }
 
         calls.clear()

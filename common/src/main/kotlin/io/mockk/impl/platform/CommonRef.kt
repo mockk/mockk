@@ -18,5 +18,6 @@ class CommonRef(override val value: Any) : Ref {
             return InternalPlatformDsl.identityHashCode(value)
         }
     }
+
     override fun toString(): String = "Ref(${value::class.simpleName}@${InternalPlatform.hkd(value)})"
 }

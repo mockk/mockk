@@ -1,6 +1,6 @@
 package io.mockk.impl.log
 
-class FilterLogger(val logger: Logger, val logLevel : () -> LogLevel) : Logger {
+class FilterLogger(val logger: Logger, val logLevel: () -> LogLevel) : Logger {
 
     override fun error(msg: () -> String) {
         if (logLevel() >= LogLevel.ERROR) {
