@@ -1,6 +1,5 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.mockk
@@ -22,8 +21,8 @@ class RecordingStateTest {
 
     @Test
     fun givenRecordingStateWhenFirstCatchArgsHappensThenBuilderAndChildHinterInitialized() {
-        every { recorder.factories.callRoundBuilder() } just Runs
-        every { recorder.factories.childHinter() } just Runs
+        every { recorder.factories.callRoundBuilder() } returns mockk()
+        every { recorder.factories.childHinter() } returns mockk()
 
         state.round(0, 1)
 
@@ -34,10 +33,10 @@ class RecordingStateTest {
 
     @Test
     fun givenRecordingStateWhenLastCatchArgsHappensThenSignMatchersAndPermanentMockHappen() {
-        every { recorder.factories.callRoundBuilder() } just Runs
-        every { recorder.factories.childHinter() } just Runs
-        every { recorder.factories.signatureMatcherDetector().detect(any()) } just Runs
-        every { recorder.factories.permanentMocker().mock(any()) } just Runs
+        every { recorder.factories.callRoundBuilder() } returns mockk()
+        every { recorder.factories.childHinter() } returns mockk()
+        every { recorder.factories.signatureMatcherDetector().detect(any()) } returns mockk()
+        every { recorder.factories.permanentMocker().mock(any()) } returns mockk()
 
 
         state.round(1, 1)

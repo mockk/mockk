@@ -1468,15 +1468,21 @@ class MockKVerificationScope(
     inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T =
         match(AssertMatcher(assertion, msg, T::class, nullable = true))
 
+    @Deprecated("'run' seems to be too wide name, so replaced with 'withArg'", ReplaceWith("withArg(captureBlock)"))
     inline fun <reified T : Any> run(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
         MockKAssertScope(it).captureBlock(it)
         true
     }
 
+    @Deprecated("'runNullable' seems to be too wide name, so replaced with 'withNullableArg'", ReplaceWith("withNullableArg(captureBlock)"))
     inline fun <reified T : Any> runNullable(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = matchNullable {
         MockKAssertScope(it).captureBlock(it)
         true
     }
+
+    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = run(captureBlock)
+
+    inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = runNullable(captureBlock)
 
     inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T =
         assert(msg) {
@@ -1492,18 +1498,24 @@ class MockKVerificationScope(
             }
         }
 
+    @Deprecated("'coRun' seems to be too wide name, so replaced with 'coWithArg'", ReplaceWith("withNullableArg(captureBlock)"))
     inline fun <reified T : Any> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
         InternalPlatformDsl.runCoroutine {
             captureBlock(it)
         }
     }
 
+    @Deprecated("'coRunNullable' seems to be too wide name, so replaced with 'coWithNullableArg'", ReplaceWith("withNullableArg(captureBlock)"))
     inline fun <reified T : Any> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
         runNullable {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
         }
+
+    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = coRun(captureBlock)
+
+    inline fun <reified T : Any> coWithNullableArg(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T = coRunNullable(captureBlock)
 
     infix fun Any.wasNot(called: Called) {
         listOf(this) wasNot called
@@ -1519,32 +1531,37 @@ class MockKVerificationScope(
  * Part of DSL. Object to represent phrase "wasNot Called"
  */
 object Called
+typealias called = Called
 
-class MockKAssertScope(val actual: Any?) {
-    fun assertEquals(expected: Any?) {
-        if (!InternalPlatformDsl.deepEquals(expected, actual)) {
-            throw AssertionError(format(actual, expected))
-        }
+/**
+ * Part of DSL. Scope for assertions on arguments during verifications.
+ */
+class MockKAssertScope(val actual: Any?)
+
+fun MockKAssertScope.checkEquals(expected: Any?) {
+    if (!InternalPlatformDsl.deepEquals(expected, actual)) {
+        throw AssertionError(formatAssertMessage(actual, expected))
     }
-
-    fun assertEquals(msg: String, expected: Any?) {
-        if (!InternalPlatformDsl.deepEquals(expected, actual)) {
-            throw AssertionError(format(actual, expected, msg))
-        }
-    }
-
-    private fun format(actual: Any?, expected: Any?, message: String? = null): String {
-        val msgFormatted = if (message != null) "$message " else ""
-
-        return "${msgFormatted}expected [$expected] but found [$actual]"
-    }
-
 }
+
+fun MockKAssertScope.checkEquals(msg: String, expected: Any?) {
+    if (!InternalPlatformDsl.deepEquals(expected, actual)) {
+        throw AssertionError(formatAssertMessage(actual, expected, msg))
+    }
+}
+
+private fun formatAssertMessage(actual: Any?, expected: Any?, message: String? = null): String {
+    val msgFormatted = if (message != null) "$message " else ""
+
+    return "${msgFormatted}expected [$expected] but found [$actual]"
+}
+
 
 /**
  * Part of DSL. Object to represent phrase "just Runs"
  */
 object Runs
+typealias runs = Runs
 
 /**
  * Stub scope. Part of DSL
@@ -1577,11 +1594,12 @@ class MockKStubScope<T>(
             answer(it)
         }
     }
-
-    @Suppress("UNUSED_PARAMETER", "UNCHECKED_CAST")
-    infix fun just(runs: Runs) = answers(ConstantAnswer<T?>(null) as ConstantAnswer<T>)
 }
 
+/**
+ * Part of DSL. Answer placeholder for Unit returning functions.
+ */
+infix fun MockKStubScope<Unit>.just(runs: Runs) = answers(ConstantAnswer(Unit))
 
 /**
  * Scope to chain additional answers to reply. Part of DSL

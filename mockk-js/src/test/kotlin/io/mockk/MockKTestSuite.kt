@@ -437,7 +437,7 @@ class MockKTestSuite : StringSpec({
 
     "nulls" {
         every { mock.otherOp(null, isNull()) } returns 4
-        every { mock.nullableOp(1, 2) } just Runs
+        every { mock.nullableOp(1, 2) } returns null
 
         assertEquals(4, mock.otherOp(null, null))
         assertEquals(null, mock.nullableOp(1, 2))
