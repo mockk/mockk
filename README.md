@@ -263,7 +263,7 @@ verify {
 
 ### Returning Unit
 
-If the function is returning Unit you can use `just Runs` construct:
+If the function is returning `Unit` you can use `just Runs` construct:
 
 ```kotlin
 class MockedClass {
