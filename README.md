@@ -261,10 +261,9 @@ verify {
 }
 ```
 
-### Returning nothing
+### Returning Unit
 
-If the function is returning Unit(i.e. no return value) you
-still need to specify `null` return value:
+If the function is returning `Unit` you can use `just Runs` construct:
 
 ```kotlin
 class MockedClass {
@@ -275,9 +274,6 @@ class MockedClass {
 
 val obj = mockk<MockedClass>()
 
-// all 3 are actually acceptable and doing the same
-every { obj.sum(any(), 1) } answers { nothing }
-every { obj.sum(any(), 2) } returns null
 every { obj.sum(any(), 3) } just Runs
 
 obj.sum(1, 1)
