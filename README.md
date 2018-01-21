@@ -157,7 +157,7 @@ objectMockk(MockObj).use {
 }
 ```
 
-Despite Kotlin language limits you can just create new instances of objects:
+Despite Kotlin language limits you can create new instances of objects if testing logic needs that:
 ```
 val newObjectMock = mockk<MockObj>()
 ```
