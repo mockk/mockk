@@ -7,8 +7,15 @@ Table of contents:
 * auto-gen TOC:
 {:toc}
 
+```
+Note: version 1.7 have breaking changes
+ * now "just Runs" is an extension function applicable to Unit type
+ * function "assertEquals" were renamed
+```
+
 ## Nice features
 
+ - annotations
  - mocking final classes and functions (via inlining)
  - pure Kotlin mocking DSL
  - matchers partial specification
@@ -16,7 +23,8 @@ Table of contents:
  - matcher expressions
  - mocking coroutines
  - capturing lambdas
- - extension function mocking
+ - object mocks
+ - extension function mocking (static mocks)
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
@@ -35,7 +43,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.6.3"</pre>
+    <pre>testCompile "io.mockk:mockk:1.7"</pre>
     </td>
 </tr>
 <tr>
@@ -44,7 +52,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.6.3&lt;/version&gt;
+    &lt;version&gt;1.7&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -63,6 +71,31 @@ every { car.drive(Direction.NORTH) } returns Outcome.OK
 car.drive(Direction.NORTH) // returns OK
 
 verify { car.drive(Direction.NORTH) }
+```
+
+### Annotations
+
+Use can use annotations to simplify creation of mock objects:
+
+```
+class Test {
+  @MockK
+  lateinit var car1: Car
+
+  @RelaxedMockK
+  lateinit var car2: Car
+
+  @SpyK
+  val car3 = Car()
+
+  @Before
+  fun setUp() = MockKAnnotations.init(this)
+
+  @Test
+  fun calculateAddsValues1() {
+      // ... use car1, car2 and car3
+  }
+}
 ```
 
 ### Spy
@@ -106,6 +139,28 @@ every { func() } returns Car() // or you can return mockk() for example
 func()
 ```
 
+### Object mocks
+
+Objects can be transformed to mocks following way:
+
+```
+object MockObj {
+  fun add(a: Int, b: Int) = a + b
+}
+
+objectMockk(MockObj).use {
+  assertEquals(3, MockObj.add(1, 2))
+
+  every { MockObj.add(1, 2) } returns 55
+
+  assertEquals(55, MockObj.add(1, 2))
+}
+```
+
+Despite Kotlin language limits you can just create new instances of objects:
+```
+val newObjectMock = mockk<MockObj>()
+```
 
 ### Partial argument matching
 
