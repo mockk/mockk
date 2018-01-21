@@ -50,6 +50,12 @@ class JvmMockKGateway : MockKGateway {
         StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
     )
 
+    override val objectMockFactory = JvmObjectMockFactory(
+        MockKProxyMaker.INSTANCE,
+        stubRepo,
+        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
+    )
+
     override val clearer = CommonClearer(stubRepo, safeLog)
 
     val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeLog)

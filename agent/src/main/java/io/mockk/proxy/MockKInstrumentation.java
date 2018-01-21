@@ -160,6 +160,10 @@ public class MockKInstrumentation implements ClassFileTransformer {
         handlers.put(instance, handler);
     }
 
+    public <T> void unhook(T instance) {
+        handlers.remove(instance);
+    }
+
     public void hookStatic(Class<?> clazz, MockKInvocationHandler handler) {
         staticHandlers.put(clazz, handler);
     }

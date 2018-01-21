@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 interface MockKGateway {
     val mockFactory: MockFactory
     val staticMockFactory: StaticMockFactory
+    val objectMockFactory: ObjectMockFactory
     val stubber: Stubber
     val verifier: Verifier
     val callRecorder: CallRecorder
@@ -45,12 +46,21 @@ interface MockKGateway {
 
 
     /**
-     * Binds new static mocks
+     * Binds static mocks
      */
     interface StaticMockFactory {
         fun staticMockk(cls: KClass<*>)
 
         fun staticUnMockk(cls: KClass<*>)
+    }
+
+    /**
+     * Binds object mocks
+     */
+    interface ObjectMockFactory {
+        fun objectMockk(obj: Any)
+
+        fun objectUnMockk(obj: Any)
     }
 
     /**

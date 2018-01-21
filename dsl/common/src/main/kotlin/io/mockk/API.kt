@@ -207,18 +207,24 @@ object MockKDsl {
     /**
      * Declares static mockk.
      */
-    inline fun <reified T : Any> internalStaticMockk(): MockKStaticScope = MockKStaticScope(T::class)
+    inline fun <reified T : Any> internalStaticMockk() = MockKStaticScope(T::class)
 
     /**
      * Declares static mockk.
      */
-    inline fun internalStaticMockk(vararg kClass: KClass<out Any>): MockKStaticScope = MockKStaticScope(*kClass)
+    inline fun internalStaticMockk(vararg kClass: KClass<out Any>) = MockKStaticScope(*kClass)
 
     /**
-     *
+     * Declares object mockk.
      */
-    inline fun internalInitMocks(targets: List<Any>) =
+    fun internalObjectMockk(objs: Array<out Any>) = MockKObjectScope(*objs)
+
+    /**
+     * Initializes
+     */
+    inline fun internalInitAnnotatedMocks(targets: List<Any>) =
         MockKGateway.implementation().mockInitializer.initAnnotatedMocks(targets)
+
 }
 
 /**
@@ -1681,16 +1687,25 @@ class MockKAnswerScope<T>(
 }
 
 /**
+ * Cancelable mocking scope
+ */
+interface MockKUnmockKScope {
+    fun mock()
+
+    fun unmock()
+}
+
+/**
  * Scope for static mockks. Part of DSL
  */
-class MockKStaticScope(vararg val staticTypes: KClass<*>) {
-    fun mock() {
+class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope {
+    override fun mock() {
         for (type in staticTypes) {
             MockKGateway.implementation().staticMockFactory.staticMockk(type)
         }
     }
 
-    fun unmock() {
+    override fun unmock() {
         for (type in staticTypes) {
             MockKGateway.implementation().staticMockFactory.staticUnMockk(type)
         }
@@ -1698,13 +1713,33 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) {
 
     inline fun <reified T : Any> and() = MockKStaticScope(T::class, *staticTypes)
 
-    inline fun <T> use(block: () -> T): T {
-        mock()
-        return try {
-            block()
-        } finally {
-            unmock()
+}
+
+/**
+ * Scope for object mockks. Part of DSL
+ */
+class MockKObjectScope(vararg val objects: Any) : MockKUnmockKScope {
+    override fun mock() {
+        for (obj in objects) {
+            MockKGateway.implementation().objectMockFactory.objectMockk(obj)
         }
+    }
+
+    override fun unmock() {
+        for (obj in objects) {
+            MockKGateway.implementation().objectMockFactory.objectUnMockk(obj)
+        }
+    }
+
+    inline fun and(obj: Any) = MockKObjectScope(obj, *objects)
+}
+
+inline fun <T> MockKUnmockKScope.use(block: () -> T): T {
+    mock()
+    return try {
+        block()
+    } finally {
+        unmock()
     }
 }
 

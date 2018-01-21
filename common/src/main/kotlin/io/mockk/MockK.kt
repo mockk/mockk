@@ -148,7 +148,7 @@ inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: ()
 
 /**
  * Builds a static mock via static mock scope.
- * To actually use it you need to call use or mock/unmock.
+ * To actually use it you need to call use or mock/unmock/use.
  */
 inline fun <reified T : Any> staticMockk(): MockKStaticScope = MockK.useImpl {
     MockKDsl.internalStaticMockk<T>()
@@ -156,24 +156,28 @@ inline fun <reified T : Any> staticMockk(): MockKStaticScope = MockK.useImpl {
 
 /**
  * Builds a static mock via static mock scope.
- * To actually use it you need to call use or mock/unmock.
+ * To actually use it you need to call use or mock/unmock/use.
  */
 inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
     MockKDsl.internalStaticMockk(*cls.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
 }
 
 /**
- * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided object.
+ * Builds a mock for object.
+ * To actually use it you need to call use or mock/unmock/use.
  */
-inline fun Any.initMocks() = MockK.useImpl {
-    MockKDsl.internalInitMocks(listOf(this))
+inline fun objectMockk(vararg objs: Any): MockKObjectScope = MockK.useImpl {
+    MockKDsl.internalObjectMockk(objs)
 }
 
-/**
- * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided objects.
- */
-inline fun List<Any>.initMocks() = MockK.useImpl {
-    MockKDsl.internalInitMocks(this)
+
+object MockKAnnotations {
+    /**
+     * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided object.
+     */
+    inline fun init(vararg obj: Any) = MockK.useImpl {
+        MockKDsl.internalInitAnnotatedMocks(obj.toList())
+    }
 }
 
 @PublishedApi

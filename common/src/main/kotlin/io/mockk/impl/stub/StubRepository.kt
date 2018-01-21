@@ -14,6 +14,10 @@ class StubRepository(val safeLog: SafeLog) {
         stubs.put(mock, stub)
     }
 
+    fun remove(mock: Any) {
+        stubs.remove(mock)
+    }
+
     operator fun get(mock: Any): Stub? = stubs.get(mock)
 
 }

@@ -101,7 +101,8 @@ public class MockKProxyMaker {
             final Class<T> clazz,
             final Class<?>[] interfaces,
             MockKInvocationHandler handler,
-            boolean useDefaultConstructor) {
+            boolean useDefaultConstructor,
+            Object instance) {
 
         boolean transformed = canInject(clazz) && MockKInstrumentation.INSTANCE.inject(getAllSuperclasses(clazz));
 
@@ -143,21 +144,27 @@ public class MockKProxyMaker {
         }
 
         try {
-            if (useDefaultConstructor) {
-                log.trace("Instantiating proxy for " + clazz + " via default constructor.");
-            } else {
-                log.trace("Instantiating proxy for " + clazz + " via objenesis.");
+            if (instance == null) {
+                if (useDefaultConstructor) {
+                    log.trace("Instantiating proxy for " + clazz + " via default constructor.");
+                } else {
+                    log.trace("Instantiating proxy for " + clazz + " via objenesis.");
+                }
+                instance = clazz.cast(useDefaultConstructor
+                        ? proxyClass.newInstance()
+                        : newEmptyInstance(proxyClass));
             }
-            T instance = clazz.cast(useDefaultConstructor
-                    ? proxyClass.newInstance()
-                    : newEmptyInstance(proxyClass));
 
             MockKInstrumentation.INSTANCE.hook(instance, handler);
 
-            return instance;
+            return clazz.cast(instance);
         } catch (Exception e) {
             throw new MockKAgentException("Instantiation exception", e);
         }
+    }
+
+    public void unproxy(Object instance) {
+        MockKInstrumentation.INSTANCE.unhook(instance);
     }
 
     private <T> Class<?> subclass(final Class<T> clazz, final Class<?>... interfaces) {

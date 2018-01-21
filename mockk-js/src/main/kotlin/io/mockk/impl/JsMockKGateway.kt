@@ -45,6 +45,9 @@ class JsMockKGateway : MockKGateway {
     override val staticMockFactory: StaticMockFactory
         get() = throw UnsupportedOperationException("Static mocks are not supported in JS version")
 
+    override val objectMockFactory: ObjectMockFactory
+        get() = throw UnsupportedOperationException("Object mocks are not supported in JS version")
+
     override val clearer = CommonClearer(stubRepo, safeLog)
 
     val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeLog)

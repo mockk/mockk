@@ -36,6 +36,8 @@ class JvmStaticMockFactory(
 
     override fun staticUnMockk(cls: KClass<*>) {
         proxyMaker.staticUnProxy(cls.java)
+
+        stubRepository.remove(cls.java)
     }
 
 

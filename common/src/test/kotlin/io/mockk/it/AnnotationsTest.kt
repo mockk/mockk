@@ -1,11 +1,11 @@
 package io.mockk.it
 
+import io.mockk.MockKAnnotations
 import io.mockk.MockKException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
-import io.mockk.initMocks
 import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,7 +30,8 @@ class AnnotationsTest {
     @Test
     fun mock() {
         val obj = AnnotatedCls()
-        obj.initMocks()
+
+        MockKAnnotations.init(obj)
 
         assertFailsWith(MockKException::class) {
             obj.mock.op(1)
@@ -46,7 +47,8 @@ class AnnotationsTest {
     @Test
     fun relaxedMock() {
         val obj = AnnotatedCls()
-        obj.initMocks()
+
+        MockKAnnotations.init(obj)
 
         assertEquals(0, obj.relaxedMock.op(5))
 
@@ -56,7 +58,8 @@ class AnnotationsTest {
     @Test
     fun spy() {
         val obj = AnnotatedCls()
-        obj.initMocks()
+
+        MockKAnnotations.init(obj)
 
         assertEquals(6, obj.spy.op(5))
 

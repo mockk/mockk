@@ -35,7 +35,8 @@ class JvmMockFactory(
                 cls.java,
                 moreInterfaces.map { it.java }.toTypedArray(),
                 JvmMockFactoryHelper.mockHandler(stub),
-                useDefaultConstructor
+                useDefaultConstructor,
+                null
             )
         } catch (ex: MockKAgentException) {
             if (instantiate) {
