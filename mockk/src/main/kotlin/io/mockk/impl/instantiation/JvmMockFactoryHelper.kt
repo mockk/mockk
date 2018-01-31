@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.Callable
 import kotlin.reflect.KParameter
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.kotlinFunction
 
 internal object JvmMockFactoryHelper {
@@ -50,7 +51,13 @@ internal object JvmMockFactoryHelper {
 
 
     fun Method.varArgPosition(): Int {
-        val kFunc = kotlinFunction
+        val kFunc =
+            try {
+                // workaround for https://github.com/oleksiyp/mockk/issues/18
+                kotlinFunction
+            } catch (ex: KotlinReflectionInternalError) {
+                null
+            }
 
         return if (kFunc != null)
             kFunc.parameters
