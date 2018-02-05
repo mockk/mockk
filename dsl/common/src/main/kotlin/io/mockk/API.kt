@@ -22,20 +22,31 @@ object MockKDsl {
     inline fun <reified T : Any> internalMockk(
         name: String? = null,
         relaxed: Boolean = false,
-        vararg moreInterfaces: KClass<*>
-    ): T = MockKGateway.implementation().mockFactory.mockk(T::class, name, relaxed, moreInterfaces)
+        vararg moreInterfaces: KClass<*>,
+        block: T.() -> Unit = {}
+    ): T {
+        val mock = MockKGateway.implementation().mockFactory.mockk(T::class, name, relaxed, moreInterfaces)
+        block(mock)
+        return mock
+    }
 
     /**
      * Builds a new spy for specified class. Initializes object via default constructor.
      */
-    inline fun <T : Any> internalSpyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>): T =
-        MockKGateway.implementation().mockFactory.spyk(null, objToCopy, name, moreInterfaces)
+    inline fun <T : Any> internalSpyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T {
+        val spy = MockKGateway.implementation().mockFactory.spyk(null, objToCopy, name, moreInterfaces)
+        block(spy)
+        return spy
+    }
 
     /**
      * Builds a new spy for specified class. Copies fields from provided object
      */
-    inline fun <reified T : Any> internalSpyk(name: String? = null, vararg moreInterfaces: KClass<*>): T =
-        MockKGateway.implementation().mockFactory.spyk(T::class, null, name, moreInterfaces)
+    inline fun <reified T : Any> internalSpyk(name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T {
+        val spy = MockKGateway.implementation().mockFactory.spyk(T::class, null, name, moreInterfaces)
+        block(spy)
+        return spy
+    }
 
     /**
      * Creates new capturing slot

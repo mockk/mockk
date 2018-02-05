@@ -10,24 +10,25 @@ import kotlin.reflect.KClass
 inline fun <reified T : Any> mockk(
     name: String? = null,
     relaxed: Boolean = false,
-    vararg moreInterfaces: KClass<*>
+    vararg moreInterfaces: KClass<*>,
+    block: T.() -> Unit = {}
 ): T = MockK.useImpl {
-    MockKDsl.internalMockk(name, relaxed, *moreInterfaces)
+    MockKDsl.internalMockk(name, relaxed, *moreInterfaces, block = block)
 }
 
 /**
  * Builds a new spy for specified class. Initializes object via default constructor.
  */
-inline fun <reified T : Any> spyk(name: String? = null, vararg moreInterfaces: KClass<*>): T = MockK.useImpl {
-    MockKDsl.internalSpyk(name, *moreInterfaces)
+inline fun <reified T : Any> spyk(name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T = MockK.useImpl {
+    MockKDsl.internalSpyk(name, *moreInterfaces, block = block)
 }
 
 /**
  * Builds a new spy for specified class. Copies fields from provided object
  */
-inline fun <reified T : Any> spyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>): T =
+inline fun <reified T : Any> spyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T =
     MockK.useImpl {
-        MockKDsl.internalSpyk(objToCopy, name, *moreInterfaces)
+        MockKDsl.internalSpyk(objToCopy, name, *moreInterfaces, block = block)
     }
 
 /**
