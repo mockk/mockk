@@ -2,6 +2,7 @@ package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
 import io.mockk.Ref
+import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JsCounter
@@ -72,5 +73,7 @@ actual object InternalPlatform {
         val from = from.asDynamic()
         js("for (var key in from) { to[key] = from[key]; }")
     }
+
+    actual fun captureStackTrace() = listOf<StackElement>()
 }
 

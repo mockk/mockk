@@ -33,7 +33,12 @@ object MockKDsl {
     /**
      * Builds a new spy for specified class. Initializes object via default constructor.
      */
-    inline fun <T : Any> internalSpyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T {
+    inline fun <T : Any> internalSpyk(
+        objToCopy: T,
+        name: String? = null,
+        vararg moreInterfaces: KClass<*>,
+        block: T.() -> Unit = {}
+    ): T {
         val spy = MockKGateway.implementation().mockFactory.spyk(null, objToCopy, name, moreInterfaces)
         block(spy)
         return spy
@@ -42,7 +47,11 @@ object MockKDsl {
     /**
      * Builds a new spy for specified class. Copies fields from provided object
      */
-    inline fun <reified T : Any> internalSpyk(name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T {
+    inline fun <reified T : Any> internalSpyk(
+        name: String? = null,
+        vararg moreInterfaces: KClass<*>,
+        block: T.() -> Unit = {}
+    ): T {
         val spy = MockKGateway.implementation().mockFactory.spyk(T::class, null, name, moreInterfaces)
         block(spy)
         return spy
@@ -1491,7 +1500,10 @@ class MockKVerificationScope(
         true
     }
 
-    @Deprecated("'runNullable' seems to be too wide name, so replaced with 'withNullableArg'", ReplaceWith("withNullableArg(captureBlock)"))
+    @Deprecated(
+        "'runNullable' seems to be too wide name, so replaced with 'withNullableArg'",
+        ReplaceWith("withNullableArg(captureBlock)")
+    )
     inline fun <reified T : Any> runNullable(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = matchNullable {
         MockKAssertScope(it).captureBlock(it)
         true
@@ -1499,7 +1511,8 @@ class MockKVerificationScope(
 
     inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = run(captureBlock)
 
-    inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = runNullable(captureBlock)
+    inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
+        runNullable(captureBlock)
 
     inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T =
         assert(msg) {
@@ -1515,14 +1528,20 @@ class MockKVerificationScope(
             }
         }
 
-    @Deprecated("'coRun' seems to be too wide name, so replaced with 'coWithArg'", ReplaceWith("withNullableArg(captureBlock)"))
+    @Deprecated(
+        "'coRun' seems to be too wide name, so replaced with 'coWithArg'",
+        ReplaceWith("withNullableArg(captureBlock)")
+    )
     inline fun <reified T : Any> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
         InternalPlatformDsl.runCoroutine {
             captureBlock(it)
         }
     }
 
-    @Deprecated("'coRunNullable' seems to be too wide name, so replaced with 'coWithNullableArg'", ReplaceWith("withNullableArg(captureBlock)"))
+    @Deprecated(
+        "'coRunNullable' seems to be too wide name, so replaced with 'coWithNullableArg'",
+        ReplaceWith("withNullableArg(captureBlock)")
+    )
     inline fun <reified T : Any> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
         runNullable {
             InternalPlatformDsl.runCoroutine {
@@ -1530,9 +1549,11 @@ class MockKVerificationScope(
             }
         }
 
-    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = coRun(captureBlock)
+    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
+        coRun(captureBlock)
 
-    inline fun <reified T : Any> coWithNullableArg(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T = coRunNullable(captureBlock)
+    inline fun <reified T : Any> coWithNullableArg(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
+        coRunNullable(captureBlock)
 
     infix fun Any.wasNot(called: Called) {
         listOf(this) wasNot called
@@ -2900,6 +2921,7 @@ data class Invocation(
     val method: MethodDescription,
     val args: List<Any?>,
     val timestamp: Long,
+    val callStack: List<StackElement>,
     val originalCall: () -> Any?
 ) {
     override fun equals(other: Any?): Boolean {
@@ -2925,6 +2947,17 @@ data class Invocation(
         "$self.${method.name}(${args.joinToString(", ", transform = { it.toStr() })})"
 
 }
+
+/**
+ * Element of stack trace.
+ */
+data class StackElement(
+    val className: String,
+    val fileName: String,
+    val methodName: String,
+    val line: Int,
+    val nativeMethod: Boolean
+)
 
 /**
  * Checks if invocation is matching via number of matchers

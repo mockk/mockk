@@ -3,12 +3,14 @@ package io.mockk
 import io.kotlintest.specs.StringSpec
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
+import org.slf4j.LoggerFactory
 
 interface Wrapper
 
 class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>("mock")
     val spy = spyk(MockCls())
+    val log = LoggerFactory.getLogger(MockKTestSuite::class.java)
 
     "matchers" {
         val a = IntWrapper(3)
@@ -228,6 +230,7 @@ class MockKTestSuite : StringSpec({
             block()
             fail("Block should throw verification failure")
         } catch (ex: AssertionError) {
+            log.info("Exception: {}", ex.message)
             if (messages.any { !ex.message!!.contains(it) }) {
                 fail("Bad message: " + ex.message)
             }
@@ -237,7 +240,8 @@ class MockKTestSuite : StringSpec({
     "verification outcome" {
         expectVerificationError(
             "Only one matching call to ",
-            "but arguments are not matching"
+            "but arguments are not matching",
+            "MockCls.otherOp"
         ) {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
@@ -246,7 +250,7 @@ class MockKTestSuite : StringSpec({
             verify { mock.otherOp(1, 3) }
         }
 
-        expectVerificationError("No matching calls found.", "Calls to same method") {
+        expectVerificationError("No matching calls found.", "Calls to same method", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -255,7 +259,7 @@ class MockKTestSuite : StringSpec({
             verify { mock.otherOp(1, 3) }
         }
 
-        expectVerificationError("was not called", "Calls to same mock") {
+        expectVerificationError("was not called", "Calls to same mock", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -267,7 +271,7 @@ class MockKTestSuite : StringSpec({
             verify { mock.otherOp(1, 2) }
         }
 
-        expectVerificationError("2 matching calls found, but needs at least 3 calls") {
+        expectVerificationError("2 matching calls found, but needs at least 3 calls", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -276,14 +280,14 @@ class MockKTestSuite : StringSpec({
             verify(atLeast = 3) { mock.otherOp(1, 2) }
         }
 
-        expectVerificationError("One matching call found, but needs at least 3 calls") {
+        expectVerificationError("One matching call found, but needs at least 3 calls", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
 
             verify(atLeast = 3) { mock.otherOp(1, 2) }
         }
-        expectVerificationError("calls are not in verification order") {
+        expectVerificationError("calls are not in verification order", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -294,7 +298,7 @@ class MockKTestSuite : StringSpec({
                 mock.otherOp(1, 2)
             }
         }
-        expectVerificationError("less calls happened then demanded by order verification sequence") {
+        expectVerificationError("less calls happened then demanded by order verification sequence", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 3)
@@ -304,7 +308,7 @@ class MockKTestSuite : StringSpec({
                 mock.otherOp(1, 2)
             }
         }
-        expectVerificationError("number of calls happened not matching exact number of verification sequence") {
+        expectVerificationError("number of calls happened not matching exact number of verification sequence", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 3)
@@ -314,7 +318,7 @@ class MockKTestSuite : StringSpec({
                 mock.otherOp(1, 2)
             }
         }
-        expectVerificationError("calls are not exactly matching verification sequence") {
+        expectVerificationError("calls are not exactly matching verification sequence", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)
@@ -325,7 +329,7 @@ class MockKTestSuite : StringSpec({
                 mock.otherOp(1, 2)
             }
         }
-        expectVerificationError("some calls were not matched") {
+        expectVerificationError("some calls were not matched", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 2)

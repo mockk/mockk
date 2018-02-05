@@ -9,6 +9,8 @@ import io.mockk.RecordedCall
 import io.mockk.impl.log.SafeLog
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.formatCalls
+import io.mockk.impl.verify.VerificationHelpers.stackTrace
+import io.mockk.impl.verify.VerificationHelpers.stackTraces
 
 open class UnorderedCallVerifier(
     val stubRepo: StubRepository,
@@ -42,8 +44,11 @@ open class UnorderedCallVerifier(
                     VerificationResult(false, "$callIdxMsg was not called")
                 } else {
                     VerificationResult(false, safeLog.exec {
-                        "$callIdxMsg was not called.\n" +
-                                "Calls to same mock:\n" + formatCalls(allCallsForMock)
+                        "$callIdxMsg was not called." +
+                                "\n\nCalls to same mock:\n" +
+                                formatCalls(allCallsForMock) +
+                                "\n\nStack traces:\n" +
+                                stackTraces(allCallsForMock)
                     })
                 }
             }
@@ -55,13 +60,19 @@ open class UnorderedCallVerifier(
                     } else {
                         VerificationResult(
                             false,
-                            "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls"
+                            "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls" +
+                                    "\nCall: " + allCallsForMock.first() +
+                                    "\nStack trace:\n" +
+                                    stackTrace(0, allCallsForMock.first().callStack)
+
                         )
                     }
                 } else {
                     VerificationResult(false, safeLog.exec {
                         "$callIdxMsg. Only one matching call to ${stub.toStr()}/${recordedCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
-                                describeArgumentDifference(recordedCall.matcher, onlyCall)
+                                describeArgumentDifference(recordedCall.matcher, onlyCall) +
+                                "\nStack trace:\n" +
+                                stackTrace(0, allCallsForMock.first().callStack)
                     })
                 }
             }
@@ -73,14 +84,21 @@ open class UnorderedCallVerifier(
                     if (n == 0) {
                         VerificationResult(false,
                             safeLog.exec {
-                                "$callIdxMsg. No matching calls found.\n" +
-                                        "Calls to same method:\n" + formatCalls(allCallsForMockMethod)
+                                "$callIdxMsg. No matching calls found." +
+                                        "\n\nCalls to same method:\n" +
+                                        formatCalls(allCallsForMockMethod) +
+                                        "\n\nStack traces:\n" +
+                                        stackTraces(allCallsForMockMethod)
                             })
                     } else {
                         VerificationResult(
                             false,
                             "$callIdxMsg. $n matching calls found, " +
-                                    "but needs at least $min${atMostMsg(max)} calls"
+                                    "but needs at least $min${atMostMsg(max)} calls" +
+                                    "\nCalls:\n" +
+                                    formatCalls(allCallsForMock) +
+                                    "\n\nStack traces:\n" +
+                                    stackTraces(allCallsForMock)
                         )
                     }
                 }

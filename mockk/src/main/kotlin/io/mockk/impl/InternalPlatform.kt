@@ -3,6 +3,7 @@ package io.mockk.impl
 import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
 import io.mockk.Ref
+import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
@@ -109,5 +110,18 @@ actual object InternalPlatform {
             }
         }
         copy(to, from, from::class.java)
+    }
+
+    actual fun captureStackTrace(): List<StackElement> {
+        val stack = Exception("Stack trace").stackTrace ?: return listOf()
+        return stack.map {
+            StackElement(
+                it.className ?: "-",
+                it.fileName ?: "-",
+                it.methodName ?: "-",
+                it.lineNumber,
+                it.isNativeMethod
+            )
+        }
     }
 }

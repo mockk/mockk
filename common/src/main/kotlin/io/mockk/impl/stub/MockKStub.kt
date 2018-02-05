@@ -142,12 +142,22 @@ open class MockKStub(
             }
         }
 
+        fun List<StackElement>.cutMockKCallProxyCall(): List<StackElement> {
+            val idx = indexOfFirst { it.className == "io.mockk.proxy.MockKCallProxy" && it.methodName == "call" }
+            if (idx == -1) {
+                return this
+            } else {
+                return this.drop(idx + 1)
+            }
+        }
+
         val invocation = Invocation(
             self,
             this,
             method,
             args.toList(),
             InternalPlatform.time(),
+            InternalPlatform.captureStackTrace().cutMockKCallProxyCall(),
             originalPlusToString
         )
 
