@@ -10,6 +10,7 @@ interface Wrapper
 class MockKTestSuite : StringSpec({
     val mock = mockk<MockCls>("mock")
     val spy = spyk(MockCls())
+    val openMock = mockk<OpenMockCls>("mock")
     val log = LoggerFactory.getLogger(MockKTestSuite::class.java)
 
     "matchers" {
@@ -226,7 +227,7 @@ class MockKTestSuite : StringSpec({
 
     fun expectVerificationError(vararg messages: String, block: () -> Unit) {
         try {
-            clearMocks(mock)
+            clearMocks(mock, openMock)
             block()
             fail("Block should throw verification failure")
         } catch (ex: AssertionError) {
@@ -337,6 +338,16 @@ class MockKTestSuite : StringSpec({
 
             verifyAll {
                 mock.otherOp(1, 2)
+            }
+        }
+        expectVerificationError("MockCls(BB).op") {
+            every { openMock.op(1, any()) } returns 3
+
+            openMock.op(1, 2)
+            openMock.op(1, 3)
+
+            verifyAll {
+                openMock.op(1, 2)
             }
         }
     }.config(enabled = true)
@@ -557,6 +568,9 @@ class MockCls {
     fun opNeverCalled(): Int = 1
 }
 
+abstract class OpenMockCls {
+    abstract fun op(a: Int = 1, b: Int = 2): Int
+}
 
 open class BaseTest(val someReference: String, val executed: Array<Boolean>) {
     open fun doSomething() {

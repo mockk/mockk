@@ -142,12 +142,29 @@ open class MockKStub(
             }
         }
 
+
         fun List<StackElement>.cutMockKCallProxyCall(): List<StackElement> {
-            val idx = indexOfFirst { it.className == "io.mockk.proxy.MockKCallProxy" && it.methodName == "call" }
-            if (idx == -1) {
-                return this
-            } else {
-                return this.drop(idx + 1)
+            fun List<StackElement>.search(cls: String, mtd: String): Int? {
+                return indexOfFirst {
+                    it.className == cls && it.methodName == mtd
+                }.let { if (it == -1) null else it }
+            }
+
+            val idx = search("io.mockk.proxy.MockKCallProxy", "call") ?: search(
+                "io.mockk.proxy.MockKProxyInterceptor",
+                "intercept"
+            ) ?: search("io.mockk.proxy.MockKProxyInterceptor", "interceptNoSuper") ?: return this
+
+            return this.drop(idx + 1)
+        }
+
+        fun List<StackElement>.unmangleByteBuddy(): List<StackElement> {
+            return map {
+                val idx = it.className.indexOf("\$ByteBuddy\$")
+                if (idx == -1)
+                    it
+                else
+                it.copy(className = it.className.substring(0, idx) + "(BB)")
             }
         }
 
@@ -157,7 +174,9 @@ open class MockKStub(
             method,
             args.toList(),
             InternalPlatform.time(),
-            InternalPlatform.captureStackTrace().cutMockKCallProxyCall(),
+            InternalPlatform.captureStackTrace()
+                .cutMockKCallProxyCall()
+                .unmangleByteBuddy(),
             originalPlusToString
         )
 
@@ -187,7 +206,9 @@ open class MockKStub(
     private data class InvocationAnswer(val matcher: InvocationMatcher, var answer: Answer<*>)
 
     protected fun Invocation.allEqMatcher() =
-        InvocationMatcher(self, method,
+        InvocationMatcher(
+            self,
+            method,
             args.map {
                 if (it == null)
                     NullCheckMatcher<Any>()
