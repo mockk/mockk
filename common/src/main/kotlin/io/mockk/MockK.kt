@@ -12,8 +12,19 @@ inline fun <reified T : Any> mockk(
     relaxed: Boolean = false,
     vararg moreInterfaces: KClass<*>,
     block: T.() -> Unit = {}
+): T = mockk(T::class, name, relaxed, *moreInterfaces, block = block)
+
+/**
+ * Builds a new mock for specified class
+ */
+inline fun <T : Any> mockk(
+        klazz: KClass<T>,
+        name: String? = null,
+        relaxed: Boolean = false,
+        vararg moreInterfaces: KClass<*>,
+        block: T.() -> Unit = {}
 ): T = MockK.useImpl {
-    MockKDsl.internalMockk(name, relaxed, *moreInterfaces, block = block)
+    MockKDsl.internalMockk(klazz, name, relaxed, *moreInterfaces, block = block)
 }
 
 /**
