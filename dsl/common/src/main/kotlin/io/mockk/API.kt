@@ -24,8 +24,19 @@ object MockKDsl {
         relaxed: Boolean = false,
         vararg moreInterfaces: KClass<*>,
         block: T.() -> Unit = {}
+    ): T = internalMockk(T::class, name, relaxed, *moreInterfaces, block = block)
+
+    /**
+     * Builds a new mock for specified class
+     */
+    inline fun <T : Any> internalMockk(
+            klazz: KClass<T>,
+            name: String? = null,
+            relaxed: Boolean = false,
+            vararg moreInterfaces: KClass<*>,
+            block: T.() -> Unit = {}
     ): T {
-        val mock = MockKGateway.implementation().mockFactory.mockk(T::class, name, relaxed, moreInterfaces)
+        val mock = MockKGateway.implementation().mockFactory.mockk(klazz, name, relaxed, moreInterfaces)
         block(mock)
         return mock
     }
