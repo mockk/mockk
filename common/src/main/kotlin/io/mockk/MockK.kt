@@ -181,7 +181,6 @@ object MockKAnnotations {
     }
 }
 
-@PublishedApi
-internal expect object MockK {
+expect object MockK {
     inline fun <T> useImpl(block: () -> T): T
 }
