@@ -57,7 +57,7 @@ internal object JvmMockFactoryHelper {
                 //  https://github.com/oleksiyp/mockk/issues/18
                 //  https://github.com/oleksiyp/mockk/issues/22
                 kotlinFunction
-            } catch (ex: Exception) {
+            } catch (ex: Throwable) {
                 null
             }
 
