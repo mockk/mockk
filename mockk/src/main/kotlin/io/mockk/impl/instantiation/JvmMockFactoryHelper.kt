@@ -53,9 +53,11 @@ internal object JvmMockFactoryHelper {
     fun Method.varArgPosition(): Int {
         val kFunc =
             try {
-                // workaround for https://github.com/oleksiyp/mockk/issues/18
+                // workaround for
+                //  https://github.com/oleksiyp/mockk/issues/18
+                //  https://github.com/oleksiyp/mockk/issues/22
                 kotlinFunction
-            } catch (ex: KotlinReflectionInternalError) {
+            } catch (ex: Exception) {
                 null
             }
 
