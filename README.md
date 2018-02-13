@@ -169,6 +169,23 @@ Despite Kotlin language limits you can create new instances of objects if testin
 val newObjectMock = mockk<MockObj>()
 ```
 
+### Enumeration mocks
+
+Enums can be mocked using objectMockk:
+
+```
+enum class Enoom(val goodInt: Int) {
+    CONSTANT(35),
+    OTHER_CONSTANT(45);
+}
+
+objectMockk(Enoom.CONSTANT).use {
+    every { Enoom.CONSTANT.goodInt } returns 42
+    assertEquals(42, Enoom.CONSTANT.goodInt
+}
+
+```
+
 ### Partial argument matching
 
 You can mix both regular arguments and matchers:
