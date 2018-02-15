@@ -4,7 +4,6 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKGateway.VerificationParameters
 import kotlin.reflect.KClass
-import kotlin.reflect.KType
 
 /**
  * Exception thrown by library
@@ -1489,7 +1488,6 @@ open class MockKMatcherScope(
     }
 
 }
-
 
 /**
  * Part of DSL. Additional operations for verification scope.
