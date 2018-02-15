@@ -78,4 +78,16 @@ actual object InternalPlatformDsl {
         }
 
     actual fun classForName(name: String): Any = Class.forName(name).kotlin
+
+    actual fun dynamicCall(self: Any, methodName: String, args: Array<out Any?>): Any? {
+        val method = self::class.java.declaredMethods.firstOrNull {
+            it.name == methodName &&
+                    it.parameters.size == args.size &&
+                    it.parameters.zip(args).all { it.first.type.isInstance(it.second) }
+        } ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) for dynamic call")
+
+        method.isAccessible = true
+        return method.invoke(self, *args)
+
+    }
 }

@@ -4,6 +4,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKGateway.VerificationParameters
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Exception thrown by library
@@ -1479,7 +1480,16 @@ open class MockKMatcherScope(
             matcher(it)
         }
     }
+
+    operator fun Any.get(name: String) = DynamicCall(this, name)
+
+    class DynamicCall(val self: Any, val methodName: String) {
+        operator fun invoke(vararg args: Any?) =
+            InternalPlatformDsl.dynamicCall(self, methodName, args)
+    }
+
 }
+
 
 /**
  * Part of DSL. Additional operations for verification scope.
