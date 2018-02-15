@@ -36,7 +36,22 @@ open class UnorderedCallVerifier(
         val allCallsForMockMethod = allCallsForMock.filter {
             recordedCall.matcher.method == it.method
         }
-        val result = when (allCallsForMockMethod.size) {
+
+
+        val result = if (min == 0 && max == 0) {
+            val n = allCallsForMockMethod.filter { recordedCall.matcher.match(it) }.count()
+            if (n == 0) {
+                VerificationResult(true)
+            } else {
+                VerificationResult(
+                    false, "$callIdxMsg was called" +
+                            "\n\nCalls to same method:\n" +
+                            formatCalls(allCallsForMockMethod) +
+                            "\n\nStack traces:\n" +
+                            stackTraces(allCallsForMockMethod)
+                )
+            }
+        } else when (allCallsForMockMethod.size) {
             0 -> {
                 if (min == 0 && max == 0) {
                     VerificationResult(true)
