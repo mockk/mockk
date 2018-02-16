@@ -12,5 +12,4 @@ fun main(args: Array<String>) {
     val mock = spyk<Abc>()
     every { mock["x"]() } returns "def"
     println(mock.y())
-
 }

@@ -13,6 +13,11 @@ public interface MockKAgentLogger {
         @Override
         public void trace(Throwable ex, String msg) {
         }
+
+        @Override
+        public void warn(Throwable ex, String msg) {
+
+        }
     };
 
     void debug(String msg);
@@ -20,4 +25,6 @@ public interface MockKAgentLogger {
     void trace(String msg);
 
     void trace(Throwable ex, String msg);
+
+    void warn(Throwable ex, String msg);
 }
