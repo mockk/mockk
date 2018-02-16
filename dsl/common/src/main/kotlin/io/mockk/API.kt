@@ -1479,6 +1479,14 @@ open class MockKMatcherScope(
             matcher(it)
         }
     }
+
+    operator fun Any.get(name: String) = DynamicCall(this, name)
+
+    class DynamicCall(val self: Any, val methodName: String) {
+        operator fun invoke(vararg args: Any?) =
+            InternalPlatformDsl.dynamicCall(self, methodName, args)
+    }
+
 }
 
 /**
