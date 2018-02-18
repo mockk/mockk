@@ -3,6 +3,7 @@ package io.mockk.it
 import io.mockk.MockKAnnotations
 import io.mockk.MockKException
 import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
@@ -16,6 +17,14 @@ class AnnotationsTest {
         fun op(a: Int): Int = a + 1
     }
 
+    class SpyMockCls {
+        fun op(a: Int): Int = a + 1
+    }
+
+    class RelaxedMockCls {
+        fun op(a: Int): Int = a + 1
+    }
+
     class AnnotatedCls {
         @MockK
         lateinit var mock: MockCls
@@ -25,6 +34,28 @@ class AnnotationsTest {
 
         @SpyK
         var spy = MockCls()
+    }
+
+    class AnnotatedClsInjectMock {
+        @InjectMockKs
+        var a: A = A()
+
+        @MockK
+        lateinit var mock: MockCls
+
+        @RelaxedMockK
+        lateinit var relaxedMock: RelaxedMockCls
+
+        @SpyK
+        var spy = SpyMockCls()
+    }
+
+    class A {
+        lateinit var mock: MockCls
+
+        lateinit var relaxedMock: RelaxedMockCls
+
+        var spy = SpyMockCls()
     }
 
     @Test
@@ -64,5 +95,18 @@ class AnnotationsTest {
         assertEquals(6, obj.spy.op(5))
 
         verify { obj.spy.op(5) }
+    }
+
+    @Test
+    fun injectMockKs() {
+        val obj = AnnotatedClsInjectMock()
+
+        MockKAnnotations.init(obj)
+
+        assertEquals(obj.mock, obj.a.mock)
+
+        assertEquals(obj.relaxedMock, obj.a.relaxedMock)
+
+        assertEquals(obj.spy, obj.a.spy)
     }
 }

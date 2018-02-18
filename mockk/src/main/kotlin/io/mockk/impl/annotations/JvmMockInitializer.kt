@@ -1,5 +1,6 @@
 package io.mockk.impl.annotations
 
+import io.mockk.MockKException
 import io.mockk.MockKGateway
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -19,6 +20,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     @MockK
     fun initMock(target: Any) {
         val cls = target::class
+        val injectMockProperties: MutableList<KProperty1<Any, Any>> = mutableListOf()
+
         for (property in cls.memberProperties) {
             property.annotated<MockK>(target) { annotation ->
                 val type = property.returnType.classifier as? KClass<*> ?: return@annotated null
@@ -55,6 +58,17 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                     arrayOf()
                 )
             }
+
+            if (property.findAnnotation<InjectMockKs>() != null) {
+                val injectMockProperty = property as KProperty1<Any, Any>
+                injectMockProperties.add(injectMockProperty)
+            }
+        }
+
+        if (!injectMockProperties.isEmpty()) {
+            for (injectMockProperty in injectMockProperties) {
+                matchInjectMockMembers(target, injectMockProperty)
+            }
         }
     }
 
@@ -63,6 +77,38 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
             propertyName
         } else {
             annotationName
+        }
+    }
+
+    private fun matchInjectMockMembers(target: Any, property: KProperty1<Any, Any>) {
+        tryMakeAccessible(property)
+        val obj = property.get(target)
+        val targetCls = target::class
+
+        // probably optimize this for large tests
+        for (objProperty in obj::class.memberProperties) {
+
+            val matchingProperties = targetCls.memberProperties.filter { targetProperty ->
+                val targetPropertyType = targetProperty.returnType.classifier as? KClass<*> ?: return@filter false
+                val objectPropertyType  = objProperty.returnType.classifier as? KClass<*> ?: return@filter false
+
+                targetPropertyType == objectPropertyType
+            }
+
+            if (!matchingProperties.isEmpty()) {
+                when (matchingProperties.size) {
+                    1 -> {
+                        val matchingProperty = (matchingProperties.first() as KProperty1<Any, Any>).get(target)
+                        (objProperty as KMutableProperty1<Any,Any>).set(obj, matchingProperty)
+                    }
+                    else -> {
+                        // todo: match by name like mockito for inject mock classes with same multiple types
+                    }
+                }
+            } else {
+                throw MockKException("No matching attributes found in class $target \n " +
+                        "for @InjectMock field ${property.name}")
+            }
         }
     }
 
