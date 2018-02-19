@@ -1,6 +1,6 @@
 
 # Backlog
-- [ ] [#29](https://github.com/oleksiyp/mockk/issue/29) bug: any() matcher for java Class parameter fails with IllegalAccessError
+- [ ] [#29](https://github.com/oleksiyp/mockk/issues/29) bug: any() matcher for java Class parameter fails with IllegalAccessError
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] feature: dynamic calls (private calls)
 - [ ] feature: Android Espresso integration
