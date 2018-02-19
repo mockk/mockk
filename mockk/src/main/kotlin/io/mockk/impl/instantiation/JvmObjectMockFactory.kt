@@ -15,12 +15,12 @@ class JvmObjectMockFactory(val proxyMaker: MockKProxyMaker,
                            val gatewayAccess: StubGatewayAccess
 ) : ObjectMockFactory {
 
-    override fun objectMockk(obj: Any) {
+    override fun objectMockk(obj: Any, recordPrivateCalls: Boolean) {
         val cls = obj::class
 
         JvmStaticMockFactory.log.debug { "Creating object mockk for ${cls.toStr()}" }
 
-        val stub = SpyKStub(cls, "object " + cls.simpleName, gatewayAccess)
+        val stub = SpyKStub(cls, "object " + cls.simpleName, gatewayAccess, recordPrivateCalls)
 
         JvmStaticMockFactory.log.trace { "Building object proxy for ${cls.toStr()} hashcode=${InternalPlatform.hkd(cls)}" }
         try {

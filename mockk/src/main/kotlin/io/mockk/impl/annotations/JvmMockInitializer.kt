@@ -52,7 +52,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                     null,
                     obj,
                     overrideName(annotation.name, property.name),
-                    arrayOf()
+                    arrayOf(),
+                    annotation.recordPrivateCalls
                 )
             }
         }

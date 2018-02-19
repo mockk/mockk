@@ -4,7 +4,7 @@ import io.mockk.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PrivateMethodsTest {
+class PrivateFunctionsTest {
     class Abc {
         fun y() = x()
 
@@ -22,9 +22,9 @@ class PrivateMethodsTest {
         val mock = spyk<Abc>()
         every { mock["x"]() } returns "def"
         assertEquals("def", mock.y())
-        verify {
-            mock["x"]()
+        verifySequence {
             mock.y()
+            mock["x"]()
         }
     }
 
@@ -34,7 +34,28 @@ class PrivateMethodsTest {
             every { Def["x"]() } returns "ghi"
             assertEquals("ghi", Def.y())
             verify {
+                Def.y()
                 Def["x"]()
+            }
+        }
+    }
+
+    @Test
+    fun spyNoRecordingPrivateMethod() {
+        val mock = spyk<Abc>(recordPrivateCalls = false)
+        every { mock["x"]() } returns "def"
+        assertEquals("def", mock.y())
+        verifySequence {
+            mock.y()
+        }
+    }
+
+    @Test
+    fun objectNoRecordingPrivateMethod() {
+        objectMockk(Def, recordPrivateCalls = false).use {
+            every { Def["x"]() } returns "ghi"
+            assertEquals("ghi", Def.y())
+            verifySequence {
                 Def.y()
             }
         }

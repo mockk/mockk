@@ -59,7 +59,7 @@ class AbstractMockFactoryTest {
             mockFactory.publicNewProxy<Mock>(any(), any(), any(), any(), any())
         } returns mock
 
-        val spyk = mockFactory.spyk(Mock::class, null, "name", arrayOf())
+        val spyk = mockFactory.spyk(Mock::class, null, "name", arrayOf(), false)
 
         assertSame(mock, spyk)
     }
@@ -70,7 +70,7 @@ class AbstractMockFactoryTest {
             mockFactory.publicNewProxy<Mock>(any(), any(), any(), any(), any())
         } returns mock
 
-        mockFactory.spyk(Mock::class, null, "name", arrayOf())
+        mockFactory.spyk(Mock::class, null, "name", arrayOf(), false)
 
         val stubSlot = CapturingSlot<Stub>()
         verify {

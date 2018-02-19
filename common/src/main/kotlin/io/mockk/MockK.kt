@@ -19,17 +19,38 @@ inline fun <reified T : Any> mockk(
 /**
  * Builds a new spy for specified class. Initializes object via default constructor.
  */
-inline fun <reified T : Any> spyk(name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T = MockK.useImpl {
-    MockKDsl.internalSpyk(name, *moreInterfaces, block = block)
+inline fun <reified T : Any> spyk(
+    name: String? = null,
+    vararg moreInterfaces: KClass<*>,
+    recordPrivateCalls: Boolean = true,
+    block: T.() -> Unit = {}
+): T = MockK.useImpl {
+    MockKDsl.internalSpyk(
+        name,
+        *moreInterfaces,
+        recordPrivateCalls = recordPrivateCalls,
+        block = block
+    )
 }
 
 /**
  * Builds a new spy for specified class. Copies fields from provided object
  */
-inline fun <reified T : Any> spyk(objToCopy: T, name: String? = null, vararg moreInterfaces: KClass<*>, block: T.() -> Unit = {}): T =
-    MockK.useImpl {
-        MockKDsl.internalSpyk(objToCopy, name, *moreInterfaces, block = block)
-    }
+inline fun <reified T : Any> spyk(
+    objToCopy: T,
+    name: String? = null,
+    vararg moreInterfaces: KClass<*>,
+    recordPrivateCalls: Boolean = true,
+    block: T.() -> Unit = {}
+): T = MockK.useImpl {
+    MockKDsl.internalSpyk(
+        objToCopy,
+        name,
+        *moreInterfaces,
+        recordPrivateCalls = recordPrivateCalls,
+        block = block
+    )
+}
 
 /**
  * Creates new capturing slot
@@ -167,8 +188,8 @@ inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
  * Builds a mock for object.
  * To actually use it you need to call use or mock/unmock/use.
  */
-inline fun objectMockk(vararg objs: Any): MockKObjectScope = MockK.useImpl {
-    MockKDsl.internalObjectMockk(objs)
+inline fun objectMockk(vararg objs: Any, recordPrivateCalls: Boolean = true): MockKObjectScope = MockK.useImpl {
+    MockKDsl.internalObjectMockk(objs, recordPrivateCalls = recordPrivateCalls)
 }
 
 

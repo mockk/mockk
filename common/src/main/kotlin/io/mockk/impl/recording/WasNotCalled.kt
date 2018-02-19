@@ -8,6 +8,7 @@ object WasNotCalled {
         Unit::class,
         Unit::class,
         listOf(),
-        -1
+        -1,
+        false
     )
 }
