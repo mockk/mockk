@@ -15,7 +15,7 @@ class JvmAnyValueGenerator : AnyValueGenerator() {
             java.lang.Long::class -> 0L
             java.lang.Float::class -> 0.0F
             java.lang.Double::class -> 0.0
-
+            java.lang.Class::class -> Object::class.java
 
             else -> super.anyValue(cls) {
                 if (cls.java.isArray) {
