@@ -6,7 +6,8 @@
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
 - [ ] feature: JUnit5 extension (https://github.com/oleksiyp/mockk/pull/23)
-- [ ] article: translaion Mockito to MockK
+- [ ] ***RELEASE MockK 1.7.6***
+- [ ] article: translation Mockito <--> MockK
 - [ ] article: next few articles in series "Mocking is not Rocket Science"
 - [ ] feature: matching inside of data classes and arrays
 - [ ] **BIG** feature: runs on Android devices
