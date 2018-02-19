@@ -24,6 +24,7 @@ Table of contents:
  - mocking coroutines
  - capturing lambdas
  - object mocks
+ - private function mocking
  - extension function mocking (static mocks)
  - multiplatform support (JS support is highly experimental)
 
