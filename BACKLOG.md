@@ -2,6 +2,7 @@
 # Backlog
 - [ ] #29 bug: any() matcher for java Class parameter fails with IllegalAccessError
 - [ ] #28 feature: inject mockk
+- [ ] feature: dynamic calls (private calls)
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
 - [ ] feature: JUnit5 extension (https://github.com/oleksiyp/mockk/pull/23)
