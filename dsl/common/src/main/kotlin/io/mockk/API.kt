@@ -37,7 +37,7 @@ object MockKDsl {
         objToCopy: T,
         name: String? = null,
         vararg moreInterfaces: KClass<*>,
-        recordPrivateCalls: Boolean = true,
+        recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
         val spy = MockKGateway.implementation().mockFactory.spyk(
@@ -57,7 +57,7 @@ object MockKDsl {
     inline fun <reified T : Any> internalSpyk(
         name: String? = null,
         vararg moreInterfaces: KClass<*>,
-        recordPrivateCalls: Boolean,
+        recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
         val spy = MockKGateway.implementation().mockFactory.spyk(

@@ -22,7 +22,7 @@ inline fun <reified T : Any> mockk(
 inline fun <reified T : Any> spyk(
     name: String? = null,
     vararg moreInterfaces: KClass<*>,
-    recordPrivateCalls: Boolean = true,
+    recordPrivateCalls: Boolean = false,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
     MockKDsl.internalSpyk(
@@ -40,7 +40,7 @@ inline fun <reified T : Any> spyk(
     objToCopy: T,
     name: String? = null,
     vararg moreInterfaces: KClass<*>,
-    recordPrivateCalls: Boolean = true,
+    recordPrivateCalls: Boolean = false,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
     MockKDsl.internalSpyk(
