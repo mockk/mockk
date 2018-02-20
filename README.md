@@ -2,10 +2,9 @@
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/oleksiyp/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG) [![codecov](https://codecov.io/gh/oleksiyp/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/oleksiyp/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
 
-***Note: version 1.7 has breaking changes:***
+***Note: version 1.7.6 introduce important change:***
 ```
- - now "just Runs" is an extension function applicable to Unit type
- - function "assertEquals" were renamed
+ - spyk now records private calls, so if you need to fallback use `recordPrivateCalls = false` on creation
 ```
 
 Table of contents:
@@ -24,6 +23,7 @@ Table of contents:
  - mocking coroutines
  - capturing lambdas
  - object mocks
+ - private function mocking
  - extension function mocking (static mocks)
  - multiplatform support (JS support is highly experimental)
 
@@ -460,6 +460,28 @@ staticMockk("pkg.FileKt").use {
     }
 }
 ```
+### Private functions mocking / dynamic calls
+
+In case you have a need to mock private function, you can do it via dynamic call.
+```
+class Car {
+    fun drive() = accelerate()
+
+    private fun accelerate() = "going faster"
+}
+
+val mock = spyk<Car>()
+
+every { mock["accelerate"]() } returns "going not so fast"
+
+assertEquals("going not so fast", mock.drive())
+
+verifySequence {
+    mock.drive()
+    mock["accelerate"]()
+}
+```
+In case you don not need private calls to be verified, you can create spyk with `recordPrivateCalls = false`
 
 ### More interfaces
 

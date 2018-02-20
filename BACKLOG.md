@@ -11,6 +11,7 @@
 - [ ] article: translation Mockito <--> MockK
 - [ ] article: next few articles in series "Mocking is not Rocket Science"
 - [ ] feature: matching inside of data classes and arrays
+- [ ] fix: get rid of implicit dependency on coroutine library
 - [ ] **BIG** feature: runs on Android devices
 - [ ] docs: more JavaDocs
 
