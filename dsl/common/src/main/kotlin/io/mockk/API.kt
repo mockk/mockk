@@ -251,7 +251,7 @@ object MockKDsl {
     /**
      * Declares object mockk.
      */
-    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean) = MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
+    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) = MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
 
     /**
      * Initializes
@@ -1772,7 +1772,7 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope {
 /**
  * Scope for object mockks. Part of DSL
  */
-class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean = true) : MockKUnmockKScope {
+class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean = false) : MockKUnmockKScope {
     override fun mock() {
         for (obj in objects) {
             MockKGateway.implementation().objectMockFactory.objectMockk(obj, recordPrivateCalls)

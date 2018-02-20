@@ -19,7 +19,7 @@ class PrivateFunctionsTest {
 
     @Test
     fun spyPrivateMethod() {
-        val mock = spyk<Abc>()
+        val mock = spyk<Abc>(recordPrivateCalls = true)
         every { mock["x"]() } returns "def"
         assertEquals("def", mock.y())
         verifySequence {
@@ -30,7 +30,7 @@ class PrivateFunctionsTest {
 
     @Test
     fun objectPrivateMethod() {
-        objectMockk(Def).use {
+        objectMockk(Def, recordPrivateCalls = true).use {
             every { Def["x"]() } returns "ghi"
             assertEquals("ghi", Def.y())
             verify {
@@ -42,7 +42,7 @@ class PrivateFunctionsTest {
 
     @Test
     fun spyNoRecordingPrivateMethod() {
-        val mock = spyk<Abc>(recordPrivateCalls = false)
+        val mock = spyk<Abc>()
         every { mock["x"]() } returns "def"
         assertEquals("def", mock.y())
         verifySequence {
@@ -52,7 +52,7 @@ class PrivateFunctionsTest {
 
     @Test
     fun objectNoRecordingPrivateMethod() {
-        objectMockk(Def, recordPrivateCalls = false).use {
+        objectMockk(Def).use {
             every { Def["x"]() } returns "ghi"
             assertEquals("ghi", Def.y())
             verifySequence {

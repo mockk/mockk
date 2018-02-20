@@ -188,7 +188,7 @@ inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
  * Builds a mock for object.
  * To actually use it you need to call use or mock/unmock/use.
  */
-inline fun objectMockk(vararg objs: Any, recordPrivateCalls: Boolean = true): MockKObjectScope = MockK.useImpl {
+inline fun objectMockk(vararg objs: Any, recordPrivateCalls: Boolean = false): MockKObjectScope = MockK.useImpl {
     MockKDsl.internalObjectMockk(objs, recordPrivateCalls = recordPrivateCalls)
 }
 
