@@ -2,12 +2,12 @@
 # Backlog
 - [x] [#29](https://github.com/oleksiyp/mockk/issues/29) bug: any() matcher for java Class parameter fails with IllegalAccessError
 - [x] feature: dynamic calls (private calls)
-- [x] ***RELEASE MockK 1.7.6***
+- [x] ***RELEASE MockK 1.7.6, 1.7.7***
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
 - [ ] feature: JUnit5 extension (alike here https://github.com/oleksiyp/mockk/pull/23)
-- [ ] ***RELEASE MockK 1.7.7***
+- [ ] ***RELEASE MockK 1.7.8***
 - [ ] article: translation Mockito <--> MockK
 - [ ] article: next few articles in series "Mocking is not Rocket Science"
 - [ ] feature: matching inside of data classes and arrays
