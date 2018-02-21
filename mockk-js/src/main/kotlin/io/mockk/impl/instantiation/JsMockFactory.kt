@@ -80,7 +80,8 @@ internal class OperationProxyHandler(
                 Any::class,
                 cls,
                 listOf(),
-                -1
+                -1,
+                false
             ),
             { originalCall(target, thisValue, args) },
             args.map { unboxChar(it) }.toTypedArray()

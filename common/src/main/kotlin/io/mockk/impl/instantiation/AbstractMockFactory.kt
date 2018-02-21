@@ -35,7 +35,7 @@ abstract class AbstractMockFactory(
     ): T {
         val newName = name ?: "#${newId()}"
 
-        val stub = MockKStub(mockType, newName, relaxed, gatewayAccess)
+        val stub = MockKStub(mockType, newName, relaxed, gatewayAccess, true)
 
         log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
@@ -53,7 +53,8 @@ abstract class AbstractMockFactory(
         mockType: KClass<T>?,
         objToCopy: T?,
         name: String?,
-        moreInterfaces: Array<out KClass<*>>
+        moreInterfaces: Array<out KClass<*>>,
+        recordPrivateCalls: Boolean
     ): T {
         val newName = name ?: "#${newId()}"
 
@@ -65,7 +66,7 @@ abstract class AbstractMockFactory(
 
         log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
-        val stub = SpyKStub(actualCls, newName, gatewayAccess)
+        val stub = SpyKStub(actualCls, newName, gatewayAccess, recordPrivateCalls)
 
         val useDefaultConstructor = objToCopy == null
 
@@ -86,7 +87,12 @@ abstract class AbstractMockFactory(
 
 
     override fun temporaryMock(mockType: KClass<*>): Any {
-        val stub = MockKStub(mockType, "temporary mock", gatewayAccess = gatewayAccess)
+        val stub = MockKStub(
+            mockType,
+            "temporary mock",
+            gatewayAccess = gatewayAccess,
+            recordPrivateCalls = true
+        )
 
         log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }
 

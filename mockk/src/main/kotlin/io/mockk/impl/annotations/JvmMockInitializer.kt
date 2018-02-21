@@ -50,10 +50,11 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 val obj = (property as KProperty1<Any, Any>).get(target)
 
                 gateway.mockFactory.spyk(
-                        null,
-                        obj,
-                        overrideName(annotation.name, property.name),
-                        arrayOf()
+                    null,
+                    obj,
+                    overrideName(annotation.name, property.name),
+                    arrayOf(),
+                    annotation.recordPrivateCalls
                 )
             }
 
