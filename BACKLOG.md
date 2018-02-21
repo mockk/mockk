@@ -8,6 +8,8 @@
 - [ ] feature: Dagger component
 - [ ] feature: JUnit5 extension (alike here https://github.com/oleksiyp/mockk/pull/23)
 - [ ] ***RELEASE MockK 1.7.8***
+- [ ] feature: dynamic calls for properties
+- [ ] feature: simpler access to private fields for mocking
 - [ ] article: translation Mockito <--> MockK
 - [ ] article: next few articles in series "Mocking is not Rocket Science"
 - [ ] feature: matching inside of data classes and arrays
