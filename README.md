@@ -157,6 +157,29 @@ objectMockk(MockObj).use {
 
   assertEquals(55, MockObj.add(1, 2))
 }
+
+```
+
+The use function is an utility for `mock` and `unmock` methods. If you need to mock an object outside of the `use` scope, you can do it with them:
+
+```
+@Before
+fun beforeTests() {
+objectMockk(MockObj).mock()
+    every { MockObj.add(1,2) } returns 55
+}
+
+@Test
+fun willUseMockBehaviour() {
+    assertEquals(55, MockObj.add(1,2))
+}
+
+@After
+fun afterTests() {
+objectMockk(MockObj).unmock()
+}
+
+
 ```
 
 Despite Kotlin language limits you can create new instances of objects if testing logic needs that:
