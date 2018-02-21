@@ -165,7 +165,7 @@ The use function is an utility for `mock` and `unmock` methods. If you need to m
 ```
 @Before
 fun beforeTests() {
-objectMockk(MockObj).mock()
+    objectMockk(MockObj).mock()
     every { MockObj.add(1,2) } returns 55
 }
 
@@ -176,7 +176,7 @@ fun willUseMockBehaviour() {
 
 @After
 fun afterTests() {
-objectMockk(MockObj).unmock()
+    objectMockk(MockObj).unmock()
 }
 
 
