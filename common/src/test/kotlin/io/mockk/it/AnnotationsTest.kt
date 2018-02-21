@@ -36,9 +36,34 @@ class AnnotationsTest {
         var spy = MockCls()
     }
 
+
+    class A  {
+        lateinit var mock: MockCls
+
+        lateinit var relaxedMock: RelaxedMockCls
+
+        var spy = SpyMockCls()
+    }
+
+    class AConstructor {
+        lateinit var mock: MockCls
+
+        lateinit var relaxedMock: RelaxedMockCls
+
+        var spy = SpyMockCls()
+
+        constructor(mock: MockCls,
+                    relaxedMock: RelaxedMockCls,
+                    spy: SpyMockCls = SpyMockCls()) {
+            this.mock = mock
+            this.relaxedMock = relaxedMock
+            this.spy = spy
+        }
+    }
+
     class AnnotatedClsInjectMock {
         @InjectMockKs
-        var a: A = A()
+        lateinit var a: A
 
         @MockK
         lateinit var mock: MockCls
@@ -50,11 +75,17 @@ class AnnotationsTest {
         var spy = SpyMockCls()
     }
 
-    class A {
+    class AnnotatedClsInjectMockConstructor {
+        @InjectMockKs
+        lateinit var a: AConstructor
+
+        @MockK
         lateinit var mock: MockCls
 
+        @RelaxedMockK
         lateinit var relaxedMock: RelaxedMockCls
 
+        @SpyK
         var spy = SpyMockCls()
     }
 
@@ -100,6 +131,19 @@ class AnnotationsTest {
     @Test
     fun injectMockKs() {
         val obj = AnnotatedClsInjectMock()
+
+        MockKAnnotations.init(obj)
+
+        assertEquals(obj.mock, obj.a.mock)
+
+        assertEquals(obj.relaxedMock, obj.a.relaxedMock)
+
+        assertEquals(obj.spy, obj.a.spy)
+    }
+
+    @Test
+    fun injectMockKsConstructorTest() {
+        val obj = AnnotatedClsInjectMockConstructor()
 
         MockKAnnotations.init(obj)
 
