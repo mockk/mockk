@@ -9,7 +9,8 @@ open class MockKStub(
     override val type: KClass<*>,
     override val name: String,
     val relaxed: Boolean = false,
-    val gatewayAccess: StubGatewayAccess
+    val gatewayAccess: StubGatewayAccess,
+    val recordPrivateCalls: Boolean
 ) : Stub {
 
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
@@ -91,7 +92,14 @@ open class MockKStub(
     }
 
     override fun recordCall(invocation: Invocation) {
-        recordedCalls.add(invocation)
+        val record = if (recordPrivateCalls)
+            true
+        else
+            !invocation.method.privateCall
+
+        if (record) {
+            recordedCalls.add(invocation)
+        }
     }
 
     override fun allRecordedCalls(): List<Invocation> {

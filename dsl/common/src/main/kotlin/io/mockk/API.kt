@@ -37,9 +37,16 @@ object MockKDsl {
         objToCopy: T,
         name: String? = null,
         vararg moreInterfaces: KClass<*>,
+        recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
-        val spy = MockKGateway.implementation().mockFactory.spyk(null, objToCopy, name, moreInterfaces)
+        val spy = MockKGateway.implementation().mockFactory.spyk(
+            null,
+            objToCopy,
+            name,
+            moreInterfaces,
+            recordPrivateCalls
+        )
         block(spy)
         return spy
     }
@@ -50,9 +57,16 @@ object MockKDsl {
     inline fun <reified T : Any> internalSpyk(
         name: String? = null,
         vararg moreInterfaces: KClass<*>,
+        recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
-        val spy = MockKGateway.implementation().mockFactory.spyk(T::class, null, name, moreInterfaces)
+        val spy = MockKGateway.implementation().mockFactory.spyk(
+            T::class,
+            null,
+            name,
+            moreInterfaces,
+            recordPrivateCalls
+        )
         block(spy)
         return spy
     }
@@ -237,7 +251,7 @@ object MockKDsl {
     /**
      * Declares object mockk.
      */
-    fun internalObjectMockk(objs: Array<out Any>) = MockKObjectScope(*objs)
+    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) = MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
 
     /**
      * Initializes
@@ -1479,6 +1493,14 @@ open class MockKMatcherScope(
             matcher(it)
         }
     }
+
+    operator fun Any.get(name: String) = DynamicCall(this, name)
+
+    class DynamicCall(val self: Any, val methodName: String) {
+        operator fun invoke(vararg args: Any?) =
+            InternalPlatformDsl.dynamicCall(self, methodName, args)
+    }
+
 }
 
 /**
@@ -1750,10 +1772,10 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope {
 /**
  * Scope for object mockks. Part of DSL
  */
-class MockKObjectScope(vararg val objects: Any) : MockKUnmockKScope {
+class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean = false) : MockKUnmockKScope {
     override fun mock() {
         for (obj in objects) {
-            MockKGateway.implementation().objectMockFactory.objectMockk(obj)
+            MockKGateway.implementation().objectMockFactory.objectMockk(obj, recordPrivateCalls)
         }
     }
 
@@ -2879,7 +2901,8 @@ data class MethodDescription(
     val returnType: KClass<*>,
     val declaringClass: KClass<*>,
     val paramTypes: List<KClass<*>>,
-    val varArgsArg: Int
+    val varArgsArg: Int,
+    val privateCall: Boolean
 ) {
     override fun toString() = "$name(${argsToStr()})"
 

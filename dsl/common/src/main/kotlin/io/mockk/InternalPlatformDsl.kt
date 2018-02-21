@@ -14,4 +14,6 @@ expect object InternalPlatformDsl {
     fun Any.toArray(): Array<*>
 
     fun classForName(name: String): Any
+
+    fun dynamicCall(self: Any, methodName: String, args: Array<out Any?>): Any?
 }

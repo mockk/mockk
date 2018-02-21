@@ -37,9 +37,9 @@ interface MockKGateway {
             mockType: KClass<T>?,
             objToCopy: T?,
             name: String?,
-            moreInterfaces: Array<out KClass<*>>
+            moreInterfaces: Array<out KClass<*>>,
+            recordPrivateCalls: Boolean
         ): T
-
 
         fun temporaryMock(mockType: KClass<*>): Any
     }
@@ -58,7 +58,7 @@ interface MockKGateway {
      * Binds object mocks
      */
     interface ObjectMockFactory {
-        fun objectMockk(obj: Any)
+        fun objectMockk(obj: Any, recordPrivateCalls: Boolean)
 
         fun objectUnMockk(obj: Any)
     }

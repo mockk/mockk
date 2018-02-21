@@ -11,6 +11,7 @@ import net.bytebuddy.implementation.Implementation.Context.Disabled.Factory;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
 
+import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -135,19 +136,21 @@ public class MockKInstrumentation implements ClassFileTransformer {
                     .visit(Advice.withCustomMapping()
                             .bind(MockKProxyAdviceId.class, advice.getId())
                             .to(MockKProxyAdvice.class).on(
-                                    isVirtual()
-                                            .and(not(isDefaultFinalizer()))
-                                            .and(not(isPackagePrivateJavaMethods()))))
+                                    isMethod()
+                                            .and(not(isStatic()))
+                                            .and(not(isDefaultFinalizer()))))
                     .visit(Advice.withCustomMapping()
                             .bind(MockKProxyAdviceId.class, staticAdvice.getId())
                             .to(MockKStaticProxyAdvice.class).on(
-                                    ElementMatchers.<MethodDescription>isStatic().and(not(isTypeInitializer())).and(not(isConstructor()))
-                                            .and(not(isPackagePrivateJavaMethods()))))
+                                    isStatic()
+                                            .and(not(isTypeInitializer()))
+                                            .and(not(isConstructor()))
+                            ))
                     .make();
 
             return unloaded.getBytes();
         } catch (Throwable e) {
-            log.trace(e, "Failed to transform class");
+            log.warn(e, "Failed to transform class");
             return null;
         }
     }

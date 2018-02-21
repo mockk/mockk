@@ -3,6 +3,8 @@ package io.mockk
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
+import kotlin.reflect.full.functions
+import kotlin.reflect.jvm.javaMethod
 
 actual object InternalPlatformDsl {
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
@@ -78,4 +80,23 @@ actual object InternalPlatformDsl {
         }
 
     actual fun classForName(name: String): Any = Class.forName(name).kotlin
+
+    actual fun dynamicCall(self: Any, methodName: String, args: Array<out Any?>): Any? {
+        val params = arrayOf(self, *args)
+        val func = self::class.functions.firstOrNull {
+            it.name == methodName &&
+                    it.parameters.size == params.size &&
+                    it.parameters.zip(params).all {
+                        val classifier = it.first.type.classifier
+                        if (classifier is KClass<*>) {
+                            classifier.isInstance(it.second)
+                        } else {
+                            false
+                        }
+                    }
+        } ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) for dynamic call")
+
+        func.javaMethod?.isAccessible = true
+        return func.call(*params)
+    }
 }

@@ -5,6 +5,7 @@ import io.mockk.MockKException
 import io.mockk.impl.stub.Stub
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
@@ -21,7 +22,7 @@ internal object JvmMockFactoryHelper {
         }
     }
 
-    inline fun stdFunctions(
+    private inline fun stdFunctions(
         self: Any,
         method: Method,
         args: Array<Any?>,
@@ -37,7 +38,7 @@ internal object JvmMockFactoryHelper {
         return otherwise()
     }
 
-    fun handleOriginalCall(originalMethod: Callable<*>?, method: Method): Any? {
+    private fun handleOriginalCall(originalMethod: Callable<*>?, method: Method): Any? {
         if (originalMethod == null) {
             throw MockKException("No way to call original method ${method.toDescription()}")
         }
@@ -69,13 +70,15 @@ internal object JvmMockFactoryHelper {
             parameters.indexOfFirst { it.isVarArgs }
     }
 
-    fun Method.toDescription() =
+    private fun Method.toDescription() =
         MethodDescription(
             name,
             returnType.kotlin,
             declaringClass.kotlin,
             parameterTypes.map { it.kotlin },
-            varArgPosition()
+            varArgPosition(),
+            Modifier.isPrivate(modifiers) ||
+                    Modifier.isProtected(modifiers)
         )
 
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
