@@ -3,6 +3,7 @@
 - [x] [#29](https://github.com/oleksiyp/mockk/issues/29) bug: any() matcher for java Class parameter fails with IllegalAccessError
 - [x] feature: dynamic calls (private calls)
 - [x] ***RELEASE MockK 1.7.6, 1.7.7***
+- [ ] SO bug: verify failing from time to time
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
