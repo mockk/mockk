@@ -199,7 +199,7 @@ enum class Enoom(val goodInt: Int) {
 
 objectMockk(Enoom.CONSTANT).use {
     every { Enoom.CONSTANT.goodInt } returns 42
-    assertEquals(42, Enoom.CONSTANT.goodInt
+    assertEquals(42, Enoom.CONSTANT.goodInt)
 }
 
 ```
