@@ -1,49 +1,53 @@
-plugins {
-    id 'java'
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.3"
+    }
 }
+plugins {
+    id "jacoco"
+}
+apply plugin: "java"
+apply plugin: "kotlin-platform-jvm"
+apply plugin: "org.junit.platform.gradle.plugin"
+
+ext.junitJupiterVersion  = '5.0.3'
 
 dependencies {
-    compileOnly "junit:junit:4.12"
-    compileOnly 'org.testng:testng:6.8'
-    compile 'net.bytebuddy:byte-buddy:1.7.9'
-    compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
-    runtime 'net.bytebuddy:byte-buddy-agent:1.7.9'
-    testCompileOnly "junit:junit:4.12"
-    testRuntimeOnly "junit:junit:4.12"
-    compile 'org.objenesis:objenesis:2.6'
-}
+    compileOnly project(":mockk")
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+    compileOnly "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    testCompile project(":mockk")
+
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+}
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task copyMockKDispatcher(type: Copy) {
-    dependsOn compileJava
-    from "${sourceSets.main.output.classesDir}/io/mockk/proxy"
-    into "${sourceSets.main.output.classesDir}/io/mockk/proxy"
-    include "MockKDispatcher.class"
-    include "MockKWeakMap.class"
-    include "MockKWeakMap\$StrongKey.class"
-    include "MockKWeakMap\$WeakKey.class"
-    rename { String fileName ->
-        fileName.replace('.class', '.clazz')
-    }
-}
-classes.dependsOn(copyMockKDispatcher)
-
-jar {
-    exclude "io/mockk/proxy/MockKDispatcher.class"
-    exclude "io/mockk/proxy/MockKWeakMap*.class"
-}
-
 artifacts {
     archives sourcesJar
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+check.dependsOn jacocoTestReport
 
 uploadArchives {
     repositories {
@@ -59,9 +63,9 @@ uploadArchives {
             }
 
             pom.project {
-                name 'MockK Java Agent'
+                name 'MockK'
                 packaging 'jar'
-                description 'MockK agent to remove finals'
+                description 'mocking library for Kotlin'
                 url 'http://mockk.io'
 
                 scm {
@@ -88,3 +92,4 @@ uploadArchives {
         }
     }
 }
+
