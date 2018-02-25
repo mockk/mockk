@@ -16,7 +16,7 @@ import java.lang.reflect.Parameter
  * Allows using the [MockK] and [RelaxedMockK] on class properties and test function parameters,
  * as well as [SpyK] on class properties.
  */
-class MockKJUnit5Extension : TestInstancePostProcessor, ParameterResolver {
+class MockKExtension : TestInstancePostProcessor, ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         val parameter = parameterContext.parameter
         return parameter.isAnnotationPresent(MockK::class.java)

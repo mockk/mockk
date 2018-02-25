@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package io.mockk.junit5
 
 import io.mockk.every
@@ -24,7 +26,6 @@ enum class Outcome {
 class RelaxedOutcome
 
 class Car {
-    @Suppress("UNUSED_PARAMETER")
     fun recordTelemetry(speed: Int, direction: Direction, lat: Double, long: Double): Outcome {
         println("REAL METHOD CALLED")
         return Outcome.FAILURE
@@ -35,8 +36,8 @@ class Car {
     }
 }
 
-@ExtendWith(MockKJUnit5Extension::class)
-class MockKJUnit5ExtensionTest {
+@ExtendWith(MockKExtension::class)
+class MockKExtensionTest {
     @MockK
     private lateinit var car2: Car
 

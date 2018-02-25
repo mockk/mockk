@@ -7,7 +7,6 @@ include 'mockk-agent'
 include 'mockk-dsl'
 include 'mockk-dsl-jvm'
 include 'mockk-dsl-js'
-include 'mockk-junit5'
 
 project(":mockk-agent").projectDir = file("agent")
 project(":mockk-common").projectDir = file("common")
