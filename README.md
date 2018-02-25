@@ -77,7 +77,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Annotations
 
-Use can use annotations to simplify creation of mock objects:
+You can use annotations to simplify creation of mock objects:
 
 ```kotlin
 class Test {
@@ -102,10 +102,10 @@ class Test {
 
 #### JUnit5
 
-By adding the `mockk-junit5` module to your project, you can rewrite the previous example as:
+In JUnit5 you can use MockKExtension to initialize mock. 
 
 ```kotlin
-@ExtendWith(MockKJUnit5Extension::class)
+@ExtendWith(MockKExtension::class)
 class Test {
   @MockK
   lateinit var car1: Car
@@ -123,7 +123,7 @@ class Test {
 }
 ```
 
-You can also use `@MockK` and `@RelaxedMockK` on test function parameters:
+Additionally it adds possibility to use`@MockK` and `@RelaxedMockK` on test function parameters:
 
 ```kotlin
 @Test
