@@ -102,10 +102,10 @@ class Test {
 
 #### JUnit5
 
-By adding the `mockk-junit5` module to your project, you can rewrite the previous example as:
+You can use MockKExtension to initialize mock. 
 
 ```kotlin
-@ExtendWith(MockKJUnit5Extension::class)
+@ExtendWith(MockKExtension::class)
 class Test {
   @MockK
   lateinit var car1: Car
