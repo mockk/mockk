@@ -45,7 +45,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.7.7"</pre>
+    <pre>testCompile "io.mockk:mockk:1.7.8"</pre>
     </td>
 </tr>
 <tr>
@@ -54,7 +54,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.7.7&lt;/version&gt;
+    &lt;version&gt;1.7.8&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -217,6 +217,20 @@ fun afterTests() {
 Despite Kotlin language limits you can create new instances of objects if testing logic needs that:
 ```
 val newObjectMock = mockk<MockObj>()
+```
+
+### Class mock
+
+Sometimes you need mock of arbitary class. Use `classMockk` in this case.
+
+```kotlin
+val car = classMockk(Car::class)
+
+every { car.drive(Direction.NORTH) } returns Outcome.OK
+
+car.drive(Direction.NORTH) // returns OK
+
+verify { car.drive(Direction.NORTH) }
 ```
 
 ### Enumeration mocks
