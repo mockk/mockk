@@ -186,10 +186,23 @@ inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
 
 /**
  * Builds a mock for object.
- * To actually use it you need to call use or mock/unmock/use.
+ * To actually use it you need to call use or mock/unmock.
  */
 inline fun objectMockk(vararg objs: Any, recordPrivateCalls: Boolean = false): MockKObjectScope = MockK.useImpl {
     MockKDsl.internalObjectMockk(objs, recordPrivateCalls = recordPrivateCalls)
+}
+
+/**
+ * Builds a mock for a class.
+ */
+inline fun <T : Any> classMockk(
+    type: KClass<T>,
+    name: String? = null,
+    relaxed: Boolean = false,
+    vararg moreInterfaces: KClass<*>,
+    block: T.() -> Unit = {}
+): T = MockK.useImpl {
+    MockKDsl.internalClassMockk(type, name, relaxed, *moreInterfaces, block = block)
 }
 
 

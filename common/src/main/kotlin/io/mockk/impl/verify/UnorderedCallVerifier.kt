@@ -44,8 +44,8 @@ open class UnorderedCallVerifier(
                 VerificationResult(true)
             } else {
                 VerificationResult(
-                    false, "$callIdxMsg was called" +
-                            "\n\nCalls to same method:\n" +
+                    false, "$callIdxMsg should not be called" +
+                            "\n\nCalls:\n" +
                             formatCalls(allCallsForMockMethod) +
                             "\n\nStack traces:\n" +
                             stackTraces(allCallsForMockMethod)

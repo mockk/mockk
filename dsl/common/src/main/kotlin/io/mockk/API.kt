@@ -254,6 +254,21 @@ object MockKDsl {
     fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) = MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
 
     /**
+     * Builds a mock for a class.
+     */
+    inline fun <T : Any> internalClassMockk(
+        type: KClass<T>,
+        name: String?,
+        relaxed: Boolean,
+        vararg moreInterfaces: KClass<*>,
+        block: T.() -> Unit
+    ): T {
+        val mock = MockKGateway.implementation().mockFactory.mockk(type, name, relaxed, moreInterfaces)
+        block(mock)
+        return mock
+    }
+
+    /**
      * Initializes
      */
     inline fun internalInitAnnotatedMocks(targets: List<Any>) =
