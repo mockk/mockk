@@ -1,5 +1,4 @@
 @file:Suppress("UNUSED_PARAMETER")
-
 package io.mockk.junit5
 
 import io.mockk.every
@@ -27,7 +26,6 @@ class RelaxedOutcome
 
 class Car {
     fun recordTelemetry(speed: Int, direction: Direction, lat: Double, long: Double): Outcome {
-        println("REAL METHOD CALLED")
         return Outcome.FAILURE
     }
 
@@ -36,7 +34,6 @@ class Car {
     }
 }
 
-@ExtendWith(MockKExtension::class)
 class MockKExtensionTest {
     @MockK
     private lateinit var car2: Car

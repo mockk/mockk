@@ -1,7 +1,7 @@
 package io.mockk.junit5
 
 import io.mockk.MockKAnnotations
-import io.mockk.MockKGateway
+import io.mockk.classMockk
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
@@ -12,47 +12,40 @@ import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import java.lang.reflect.Parameter
 
 /**
- * JUnit5 extension based on the Mockito extension found in JUnit5's samples.
- * Allows using the [MockK] and [RelaxedMockK] on class properties and test function parameters,
- * as well as [SpyK] on class properties.
+ * JUnit5 extension.
+ *
+ * Parameters can use [MockK] and [RelaxedMockK].
+ * Class properties can use [MockK], [RelaxedMockK] and [SpyK]
  */
 class MockKExtension : TestInstancePostProcessor, ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
-        val parameter = parameterContext.parameter
-        return parameter.isAnnotationPresent(MockK::class.java)
-                || parameter.isAnnotationPresent(RelaxedMockK::class.java)
+        return getMockKAnnotation(parameterContext.parameter) != null
     }
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any? {
-        return getMock(parameterContext.parameter, extensionContext)
-    }
+        val parameter = parameterContext.parameter
+        val type = parameter.type.kotlin
+        val annotation = getMockKAnnotation(parameter) ?: return null
+        val name = getMockName(parameterContext.parameter, annotation)
 
-    private fun getMock(parameter: Parameter, extensionContext: ExtensionContext): Any? {
-        val mockType = parameter.type
-
-        return getMockKAnnotation(parameter)?.let { annotation ->
-            val mockName = getMockName(parameter, mockType, annotation)
-            io.mockk.MockK.useImpl {
-                MockKGateway.implementation().mockFactory.mockk(mockType.kotlin, mockName, annotation is RelaxedMockK, arrayOf())
-            }
-        }
+        return classMockk(
+            type,
+            name,
+            annotation is RelaxedMockK
+        )
     }
 
     private fun getMockKAnnotation(parameter: Parameter): Any? {
-        return parameter.getAnnotation(MockK::class.java) ?: parameter.getAnnotation(RelaxedMockK::class.java)
+        return parameter.getAnnotation(MockK::class.java)
+                ?: parameter.getAnnotation(RelaxedMockK::class.java)
     }
 
-    private fun getMockName(parameter: Parameter, mockType: Class<*>, annotation: Any): String {
-        val fromAnnotation = when (annotation) {
-            is MockK -> annotation.name.trim()
-            is RelaxedMockK -> annotation.name.trim()
-            else -> ""
-        }
-
+    private fun getMockName(parameter: Parameter, annotation: Any): String? {
         return when {
-            fromAnnotation.isNotEmpty() -> fromAnnotation
+            annotation is MockK -> annotation.name
+            annotation is RelaxedMockK -> annotation.name
             parameter.isNamePresent -> parameter.name
-            else -> mockType.canonicalName
+            else -> null
         }
     }
 

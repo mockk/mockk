@@ -1,10 +1,20 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.junit.platform:junit-platform-gradle-plugin:1.0.3"
+    }
+}
 plugins {
     id "jacoco"
 }
 apply plugin: "java"
 apply plugin: "kotlin-platform-jvm"
+apply plugin: "org.junit.platform.gradle.plugin"
 
-ext.junitJupiterVersion  = '5.0.3'
+ext.junitJupiterVersion = '5.0.3'
+ext.junitVintageVersion = '4.12.0'
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -24,12 +34,17 @@ dependencies {
     testCompile 'org.slf4j:slf4j-api:1.7.25'
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 
-    testCompile 'io.kotlintest:kotlintest:2.0.7'
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testCompile('io.kotlintest:kotlintest:2.0.7') {
+        exclude group: "junit", module: "junit"
+    }
+    testCompile("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
+        exclude group: "junit", module: "junit"
+    }
 
     compileOnly "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
     testCompile "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
     testCompile "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    testCompile "org.junit.vintage:junit-vintage-engine:$junitVintageVersion"
 }
 
 task sourcesJar(type: Jar) {
@@ -38,6 +53,10 @@ task sourcesJar(type: Jar) {
     from(project(':mockk-common').sourceSets.main.allSource) {
         exclude "io/mockk/impl/InternalPlatform.kt"
     }
+}
+
+junitPlatform {
+    configurationParameter 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
 artifacts {
