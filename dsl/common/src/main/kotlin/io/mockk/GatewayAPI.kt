@@ -42,6 +42,8 @@ interface MockKGateway {
         ): T
 
         fun temporaryMock(mockType: KClass<*>): Any
+
+        fun isMock(value: Any): Boolean
     }
 
 

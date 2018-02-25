@@ -13,6 +13,4 @@ class SpyKStub<T : Any>(
     override fun defaultAnswer(invocation: Invocation): Any? {
         return invocation.originalCall()
     }
-
-    override fun toStr(): String = "spyk<" + type.simpleName + ">($name)#$hashCodeStr"
 }

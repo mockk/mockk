@@ -21,7 +21,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         val cls = target::class
         for (property in cls.memberProperties) {
             property.annotated<MockK>(target) { annotation ->
-                val type = property.returnType.classifier as? KClass<*> ?: return@annotated null
+                val type = property.returnType.classifier as? KClass<*>
+                        ?: return@annotated null
 
                 gateway.mockFactory.mockk(
                     type,
@@ -34,7 +35,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
 
 
             property.annotated<RelaxedMockK>(target) { annotation ->
-                val type = property.returnType.classifier as? KClass<*> ?: return@annotated null
+                val type = property.returnType.classifier as? KClass<*>
+                        ?: return@annotated null
 
                 gateway.mockFactory.mockk(
                     type,
@@ -67,17 +69,30 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         }
     }
 
-    private inline fun <reified T : Annotation> KProperty<*>.annotated(
+    private inline fun <reified T : Annotation> KProperty1<out Any, Any?>.annotated(
         target: Any,
         block: (T) -> Any?
     ) {
         val annotation = findAnnotation<T>()
-        if (annotation != null) {
-            tryMakeAccessible(this)
-            val ret = block(annotation)
-            if (ret != null) {
-                (this as KMutableProperty1<Any, Any>).set(target, ret)
-            }
+                ?: return
+
+        tryMakeAccessible(this)
+        if (isAlreadyInitialized(this as KProperty1<Any, Any>, target)) return
+
+        val ret = block(annotation)
+                ?: return
+
+        (this as KMutableProperty1<Any, Any>).set(target, ret)
+    }
+
+    private fun isAlreadyInitialized(property: KProperty1<Any, Any?>, target: Any): Boolean {
+        try {
+            val value = property.get(target)
+                    ?: return false
+
+            return gateway.mockFactory.isMock(value)
+        } catch (ex: Exception) {
+            return false
         }
     }
 

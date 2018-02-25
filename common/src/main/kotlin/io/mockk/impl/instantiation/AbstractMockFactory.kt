@@ -103,6 +103,8 @@ abstract class AbstractMockFactory(
         return proxy
     }
 
+    override fun isMock(value: Any) = gatewayAccess.stubRepository.stubs.containsKey(value)
+
     companion object {
         val idCounter = InternalPlatform.counter()
 
