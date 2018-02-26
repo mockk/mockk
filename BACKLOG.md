@@ -9,6 +9,7 @@
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
+- [ ] forbid `verify { foo.service() wasNot Called }`
 - [ ] ***RELEASE MockK 1.7.9***
 - [ ] think: how to fix `verify { spyHelper.handleMultipleSensors() wasNot Called }`
 - [ ] feature: dynamic calls for properties
