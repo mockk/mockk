@@ -407,9 +407,11 @@ class MockKTestSuite : StringSpec({
             } returns 11
 
             assertEquals(11, IntWrapper(5).f())
+            assertEquals(25, IntWrapper(20).f())
 
             verify {
                 IntWrapper(5).f()
+                IntWrapper(20).f()
             }
         }
 
