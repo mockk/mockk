@@ -3,12 +3,16 @@
 - [x] [#29](https://github.com/oleksiyp/mockk/issues/29) bug: any() matcher for java Class parameter fails with IllegalAccessError
 - [x] feature: dynamic calls (private calls)
 - [x] ***RELEASE MockK 1.7.6, 1.7.7***
-- [ ] [#32](https://github.com/oleksiyp/mockk/issues/32) bug: verify failing from time to time
+- [x] [#34](https://github.com/oleksiyp/mockk/pull/34) feature: JUnit5 extension (alike here https://github.com/oleksiyp/mockk/pull/23)
+- [x] [#31](https://github.com/oleksiyp/mockk/issues/31) feture: arbitry class mocks
+- [x] ***RELEASE MockK 1.7.8***
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
-- [ ] feature: JUnit5 extension (alike here https://github.com/oleksiyp/mockk/pull/23)
-- [ ] ***RELEASE MockK 1.7.8***
+- [ ] bug: forbid `verify { foo.service() wasNot Called }`
+- [ ] bug: check `verify { service.foo(assert {it.id == "wrongid"}) }` error message
+- [ ] ***RELEASE MockK 1.7.9***
+- [ ] think: how to fix `verify { spyHelper.handleMultipleSensors() wasNot Called }`
 - [ ] feature: dynamic calls for properties
 - [ ] feature: simpler access to private fields for mocking
 - [ ] article: translation Mockito <--> MockK
