@@ -6,12 +6,14 @@
 - [x] [#34](https://github.com/oleksiyp/mockk/pull/34) feature: JUnit5 extension (alike here https://github.com/oleksiyp/mockk/pull/23)
 - [x] [#31](https://github.com/oleksiyp/mockk/issues/31) feture: arbitry class mocks
 - [x] ***RELEASE MockK 1.7.8***
+- [x] feature: switch staticMockk from MocKKStub to SpyKStub
+- [x] ***RELEASE MockK 1.7.9***
+- [ ] [#35](https://github.com/oleksiyp/mockk/issues/35) bug: StackOverflowException with HashMap
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
 - [ ] bug: forbid `verify { foo.service() wasNot Called }`
 - [ ] bug: check `verify { service.foo(assert {it.id == "wrongid"}) }` error message
-- [ ] ***RELEASE MockK 1.7.9***
 - [ ] think: how to fix `verify { spyHelper.handleMultipleSensors() wasNot Called }`
 - [ ] feature: dynamic calls for properties
 - [ ] feature: simpler access to private fields for mocking
