@@ -32,13 +32,13 @@ public class MockKProxyMaker {
 
     private final ObjenesisStd objenesis;
 
-    private TypeCache<CacheKey> proxyClassCache;
+    private final TypeCache<CacheKey> proxyClassCache;
 
-    private TypeCache<CacheKey> instanceProxyClassCache;
+    private final TypeCache<CacheKey> instanceProxyClassCache;
 
-    private Map<Class<?>, ObjectInstantiator<?>> instantiators = Collections.synchronizedMap(new WeakHashMap<Class<?>, ObjectInstantiator<?>>());
+    private final Map<Class<?>, ObjectInstantiator<?>> instantiators = Collections.synchronizedMap(new WeakHashMap<Class<?>, ObjectInstantiator<?>>());
 
-    private static final Set<Class<?>> EXCLUDES = new HashSet<Class<?>>(Arrays.asList(Class.class,
+    private static final Set<Class<?>> EXCLUDES = new HashSet<Class<?>>(Arrays.<Class<?>>asList(Class.class,
             Boolean.class,
             Byte.class,
             Short.class,
@@ -85,7 +85,7 @@ public class MockKProxyMaker {
                         new CacheKey(cls, new Class[0]),
                         new Callable<Class<?>>() {
                             @Override
-                            public Class<?> call() throws Exception {
+                            public Class<?> call() {
                                 return byteBuddy.subclass(cls)
                                         .make()
                                         .load(classLoader)
@@ -167,14 +167,14 @@ public class MockKProxyMaker {
         MockKInstrumentation.INSTANCE.unhook(instance);
     }
 
-    private <T> Class<?> subclass(final Class<T> clazz, final Class<?>... interfaces) {
+    private <T> Class<?> subclass(final Class<T> clazz, final Class<?>[] interfaces) {
         CacheKey key = new CacheKey(clazz, interfaces);
         final ClassLoader classLoader = clazz.getClassLoader();
         Object monitor = classLoader == null ? BOOTSTRAP_MONITOR : classLoader;
         return proxyClassCache.findOrInsert(classLoader, key,
                 new Callable<Class<?>>() {
                     @Override
-                    public Class<?> call() throws Exception {
+                    public Class<?> call() {
                         ClassLoader classLoader = new MultipleParentClassLoader.Builder()
                                 .append(clazz)
                                 .append(interfaces)
@@ -219,7 +219,7 @@ public class MockKProxyMaker {
     private <T> T newEmptyInstance(Class<T> clazz) {
         log.trace("Creating new empty instance of " + clazz);
         if (!Modifier.isFinal(clazz.getModifiers())) {
-            clazz = (Class<T>) subclass(clazz);
+            clazz = (Class<T>) subclass(clazz, new Class<?>[0]);
         }
 
         ObjectInstantiator<?> inst = instantiators.get(clazz);
@@ -280,7 +280,7 @@ public class MockKProxyMaker {
         private final Class<?> clazz;
         private final Set<Class<?>> interfaces;
 
-        public CacheKey(Class<?> clazz, Class<?>[] interfaces) {
+        CacheKey(Class<?> clazz, Class<?>[] interfaces) {
             this.clazz = clazz;
             this.interfaces = new HashSet<Class<?>>(asList(interfaces));
         }
