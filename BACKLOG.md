@@ -10,6 +10,7 @@
 - [x] ***RELEASE MockK 1.7.9***
 - [ ] [#35](https://github.com/oleksiyp/mockk/issues/35) bug: StackOverflowException with HashMap
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
+- [ ] doc: describe captureLambda/captureCoroutine
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
 - [ ] bug: forbid `verify { foo.service() wasNot Called }`
