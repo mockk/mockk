@@ -9,7 +9,6 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation.Context.Disabled.Factory;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
-import net.bytebuddy.matcher.ElementMatchers;
 
 import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
@@ -35,6 +34,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
     private volatile Instrumentation instrumentation;
     private MockKProxyAdvice advice;
     private MockKStaticProxyAdvice staticAdvice;
+    private MockKHashMapStaticProxyAdvice staticHashMapAdvice; // workaround #35
 
     private final Set<Class<?>> classesToTransform = synchronizedSet(new HashSet<Class<?>>());
 
@@ -74,9 +74,11 @@ public class MockKInstrumentation implements ClassFileTransformer {
                     advice = new MockKProxyAdvice(handlers);
                     staticHandlers = new MockKWeakMap<Object, MockKInvocationHandler>();
                     staticAdvice = new MockKStaticProxyAdvice(staticHandlers);
+                    staticHashMapAdvice = new MockKHashMapStaticProxyAdvice(staticHandlers);
 
                     MockKDispatcher.set(advice.getId(), advice);
                     MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
+                    MockKDispatcher.set(staticHashMapAdvice.getId(), staticHashMapAdvice);
                 }
             }
             new AdviceBuilder().build();
@@ -140,8 +142,8 @@ public class MockKInstrumentation implements ClassFileTransformer {
                                             .and(not(isStatic()))
                                             .and(not(isDefaultFinalizer()))))
                     .visit(Advice.withCustomMapping()
-                            .bind(MockKProxyAdviceId.class, staticAdvice.getId())
-                            .to(MockKStaticProxyAdvice.class).on(
+                            .bind(MockKProxyAdviceId.class, staticProxyAdviceId(className))
+                            .to(staticProxyAdvice(className)).on(
                                     isStatic()
                                             .and(not(isTypeInitializer()))
                                             .and(not(isConstructor()))
@@ -153,6 +155,16 @@ public class MockKInstrumentation implements ClassFileTransformer {
             log.warn(e, "Failed to transform class");
             return null;
         }
+    }
+
+    private long staticProxyAdviceId(String className) {
+        // workaround #35
+        return className.equals("java/util/HashMap") ? staticHashMapAdvice.getId() : staticAdvice.getId();
+    }
+
+    private Class<? extends MockKProxyDispatcher> staticProxyAdvice(String className) {
+        // workaround #35
+        return className.equals("java/util/HashMap") ? MockKHashMapStaticProxyAdvice.class : MockKStaticProxyAdvice.class;
     }
 
     private static Junction<MethodDescription> isPackagePrivateJavaMethods() {
