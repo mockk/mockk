@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.0'
+    ext.kotlin_version = '1.2.21'
     repositories {
         mavenCentral()
         jcenter()
@@ -9,6 +9,11 @@ buildscript {
     }
 }
 
+if (project.hasProperty('JDK6_HOME')) {
+    tasks.withType(JavaCompile) {
+        options.bootClasspath = "$JDK6_HOME/jre/lib/rt.jar"
+    }
+}
 
 subprojects {
     group = 'io.mockk'
@@ -39,4 +44,9 @@ subprojects {
 
     signArchives.onlyIf { project.hasProperty('signing.keyId') }
 
+    if (project.hasProperty('JDK6_HOME')) {
+        tasks.withType(JavaCompile) {
+            options.bootClasspath = "$JDK6_HOME/jre/lib/rt.jar"
+        }
+    }
 }
