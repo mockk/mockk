@@ -4,9 +4,7 @@ matrix:
   include:
     - os: linux
       sudo: false
-      jdk:
-        - oraclejdk7
-        - oraclejdk8
+      jdk: oraclejdk8
 
 script: gradle check --debug --stacktrace
 
