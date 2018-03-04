@@ -23,8 +23,8 @@ task sourcesJar(type: Jar) {
 
 task copyMockKDispatcher(type: Copy) {
     dependsOn compileJava
-    from "${sourceSets.main.output.classesDir}/io/mockk/proxy"
-    into "${sourceSets.main.output.classesDir}/io/mockk/proxy"
+    from "${sourceSets.main.java.outputDir}/io/mockk/proxy"
+    into "${sourceSets.main.java.outputDir}/io/mockk/proxy"
     include "MockKDispatcher.class"
     include "MockKWeakMap.class"
     include "MockKWeakMap\$StrongKey.class"

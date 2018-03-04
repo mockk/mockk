@@ -8,9 +8,10 @@
 - [x] ***RELEASE MockK 1.7.8***
 - [x] feature: switch staticMockk from MocKKStub to SpyKStub
 - [x] ***RELEASE MockK 1.7.9***
-- [ ] [#35](https://github.com/oleksiyp/mockk/issues/35) bug: StackOverflowException with HashMap
+- [x] [#35](https://github.com/oleksiyp/mockk/issues/35) bug: StackOverflowException with HashMap
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] doc: describe captureLambda/captureCoroutine
+- [ ] bug: fix recording calls before validation, which is wrong in case it is failed
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
 - [ ] bug: forbid `verify { foo.service() wasNot Called }`

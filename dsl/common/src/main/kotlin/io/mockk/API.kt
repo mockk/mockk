@@ -1802,6 +1802,7 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
         }
     }
 
+    @Suppress("NOTHING_TO_INLINE")
     inline fun and(obj: Any) = MockKObjectScope(obj, *objects)
 }
 
