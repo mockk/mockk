@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION")
 package io.mockk
 
 import io.mockk.InternalPlatformDsl.toStr
@@ -1674,6 +1675,7 @@ class MockKStubScope<T>(
 /**
  * Part of DSL. Answer placeholder for Unit returning functions.
  */
+@Suppress("UNUSED_PARAMETER")
 infix fun MockKStubScope<Unit>.just(runs: Runs) = answers(ConstantAnswer(Unit))
 
 /**
