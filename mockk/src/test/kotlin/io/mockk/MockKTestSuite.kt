@@ -13,17 +13,6 @@ class MockKTestSuite : StringSpec({
     val openMock = mockk<OpenMockCls>("mock")
     val log = LoggerFactory.getLogger(MockKTestSuite::class.java)
 
-    "nulls" {
-        every { mock.otherOp(null, isNull()) } returns 4
-        every { mock.nullableOp(1, 2) } returns null
-
-        assertEquals(4, mock.otherOp(null, null))
-        assertEquals(null, mock.nullableOp(1, 2))
-
-        verify { mock.otherOp(isNull(), null) }
-        verify { mock.nullableOp(1, 2) }
-    }.config(enabled = true)
-
     "arrays" {
         every { mock.arrayOp(BooleanArray(3, { true })) } returns BooleanArray(3, { false })
         every { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) } returns ByteArray(3, { (3 - it).toByte() })
