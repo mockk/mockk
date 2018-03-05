@@ -8,8 +8,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class KotlinClassWithEnumMemberTest {
-    class KotlinClassWithEnumMember {
+class EnumTests {
+    class ClsWithEnum {
         var type: EnumType? = null
 
         enum class EnumType {
@@ -20,22 +20,22 @@ class KotlinClassWithEnumMemberTest {
     }
 
     @MockK
-    lateinit var testObj: KotlinClassWithEnumMember
+    lateinit var testObj: ClsWithEnum
 
     @BeforeTest
     fun setUp() = MockKAnnotations.init(this)
 
     @Test
     fun testMockingEnumMemberInClass() {
-        val mockedClass = mockk<KotlinClassWithEnumMember>()
-        every { mockedClass.type } returns KotlinClassWithEnumMember.EnumType.ONE
-        assertEquals(KotlinClassWithEnumMember.EnumType.ONE, mockedClass.type, "Enum returned does not match mocked response")
+        val mockedClass = mockk<ClsWithEnum>()
+        every { mockedClass.type } returns ClsWithEnum.EnumType.ONE
+        assertEquals(ClsWithEnum.EnumType.ONE, mockedClass.type, "Enum returned does not match mocked response")
     }
 
     @Test
     fun testMockingEnumMemberInLateinitClass() {
-        every { testObj.type } returns KotlinClassWithEnumMember.EnumType.ONE
-        assertEquals(KotlinClassWithEnumMember.EnumType.ONE, testObj.type, "Enum returned does not match mocked response")
+        every { testObj.type } returns ClsWithEnum.EnumType.ONE
+        assertEquals(ClsWithEnum.EnumType.ONE, testObj.type, "Enum returned does not match mocked response")
     }
 
     @Test
