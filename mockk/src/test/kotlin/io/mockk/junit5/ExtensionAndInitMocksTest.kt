@@ -2,7 +2,6 @@
 package io.mockk.junit5
 
 import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
 import org.junit.jupiter.api.Test

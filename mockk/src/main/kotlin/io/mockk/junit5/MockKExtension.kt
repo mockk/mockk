@@ -2,6 +2,7 @@ package io.mockk.junit5
 
 import io.mockk.MockKAnnotations
 import io.mockk.classMockk
+import io.mockk.impl.annotations.AdditionalInterface
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
@@ -31,7 +32,8 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver {
         return classMockk(
             type,
             name,
-            annotation is RelaxedMockK
+            annotation is RelaxedMockK,
+            *moreInterfaces(parameter)
         )
     }
 
@@ -48,6 +50,13 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver {
             else -> null
         }
     }
+
+    private fun moreInterfaces(parameter: Parameter) =
+        parameter.annotations
+            .filter { it is AdditionalInterface }
+            .map { it as AdditionalInterface }
+            .map { it.type }
+            .toTypedArray()
 
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         MockKAnnotations.init(testInstance)

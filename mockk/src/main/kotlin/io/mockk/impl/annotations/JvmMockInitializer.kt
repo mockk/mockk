@@ -28,7 +28,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                     type,
                     overrideName(annotation.name, property.name),
                     false,
-                    arrayOf()
+                    moreInterfaces(property)
                 )
 
             }
@@ -42,7 +42,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                     type,
                     overrideName(annotation.name, property.name),
                     true,
-                    arrayOf()
+                    moreInterfaces(property)
                 )
 
             }
@@ -54,7 +54,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                     null,
                     obj,
                     overrideName(annotation.name, property.name),
-                    arrayOf(),
+                    moreInterfaces(property),
                     annotation.recordPrivateCalls
                 )
             }
@@ -102,5 +102,15 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         } catch (ex: Exception) {
             // skip
         }
+    }
+
+    companion object {
+        private fun moreInterfaces(property: KProperty1<out Any, Any?>) =
+            property.annotations
+                .filter { it is AdditionalInterface }
+                .map { it as AdditionalInterface }
+                .map { it.type }
+                .toTypedArray()
+
     }
 }
