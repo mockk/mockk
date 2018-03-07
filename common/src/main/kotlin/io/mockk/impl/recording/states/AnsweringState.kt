@@ -13,7 +13,7 @@ open class AnsweringState(recorder: CommonCallRecorder) : CallRecordingState(rec
         val stub = recorder.stubRepo.stubFor(invocation.self)
         stub.recordCall(invocation.copy(originalCall = { null }))
         val answer = stub.answer(invocation)
-        log.info { "Answering ${answer.toStr()} on $invocation" }
+        log.debug { "Answering ${answer.toStr()} on $invocation" }
         return answer
     }
 
