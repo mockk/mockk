@@ -170,7 +170,7 @@ inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: ()
 
 /**
  * Builds a static mock via static mock scope.
- * To actually use it you need to call use or mock/unmock/use.
+ * To actually use it you need to call use or mock/unmock.
  */
 inline fun <reified T : Any> staticMockk(): MockKStaticScope = MockK.useImpl {
     MockKDsl.internalStaticMockk<T>()
@@ -190,6 +190,22 @@ inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
  */
 inline fun objectMockk(vararg objs: Any, recordPrivateCalls: Boolean = false): MockKObjectScope = MockK.useImpl {
     MockKDsl.internalObjectMockk(objs, recordPrivateCalls = recordPrivateCalls)
+}
+
+/**
+ * Builds a mock using particular constructor.
+ * To actually use it you need to call use or mock/unmock.
+ */
+inline fun <reified T : Any> constructorMockk(noinline block: () -> T): MockKConstructorScope<T> = MockK.useImpl {
+    MockKDsl.internalConstructorMockk(block)
+}
+
+/**
+ * Builds a mock for using all possible constructors of a class.
+ * To actually use it you need to call use or mock/unmock.
+ */
+inline fun <reified T : Any> constructorMockk(): MockKConstructorScope<T> = MockK.useImpl {
+    MockKDsl.internalConstructorMockk()
 }
 
 /**

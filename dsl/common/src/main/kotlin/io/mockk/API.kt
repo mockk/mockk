@@ -252,7 +252,17 @@ object MockKDsl {
     /**
      * Declares object mockk.
      */
-    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) = MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
+    inline fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) =
+        MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
+
+    /**
+     * Declares constructor mockk.
+     */
+    inline fun <reified T : Any> internalConstructorMockk(noinline block: () -> T) =
+        MockKConstructorScope(T::class, block)
+
+    inline fun <reified T : Any> internalConstructorMockk() =
+        MockKConstructorScope(T::class, null)
 
     /**
      * Builds a mock for a class.
@@ -1764,6 +1774,27 @@ interface MockKUnmockKScope {
     fun mock()
 
     fun unmock()
+
+    operator fun plus(scope: MockKUnmockKScope): MockKUnmockKScope = MockKUnmockKCompositeScope(this, scope)
+}
+
+/**
+ * Composite of two scopes. Part of DSL
+ */
+class MockKUnmockKCompositeScope(
+    val first: MockKUnmockKScope,
+    val second: MockKUnmockKScope
+) : MockKUnmockKScope {
+    override fun mock() {
+        first.mock()
+        second.mock()
+    }
+
+    override fun unmock() {
+        first.unmock()
+        second.unmock()
+    }
+
 }
 
 /**
@@ -1806,6 +1837,24 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
     inline fun and(obj: Any) = MockKObjectScope(obj, *objects)
 }
 
+/**
+ * Scope for constructor calls. Part of DSL.
+ */
+class MockKConstructorScope<T : Any>(
+    val type: KClass<T>,
+    val block: (() -> T)?
+) : MockKUnmockKScope {
+    override fun mock() {
+
+    }
+
+    override fun unmock() {
+    }
+}
+
+/**
+ * Wraps block of code for safe resource allocation and deallocation. Part of DSL
+ */
 inline fun <T> MockKUnmockKScope.use(block: () -> T): T {
     mock()
     return try {
