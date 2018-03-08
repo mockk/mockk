@@ -19,13 +19,23 @@ class Issue36Test {
     }
 
     @Test
-    fun intReturnTypeFromGeneric() {
+    fun intReturnTypeThrowsErrorFromGeneric() {
         val mock: Cls1<Int> = mockk()
         every { mock.op() } throws RuntimeException("error")
 
         val wrapper = Cls3(mock)
         assertFailsWith<RuntimeException> { wrapper.op2() }
         assertEquals(null, wrapper.res)
+    }
+
+    @Test
+    fun intReturnTypeFromGeneric() {
+        val mock: Cls1<Int> = mockk()
+        every { mock.op() } returns 22
+
+        val wrapper = Cls3(mock)
+        wrapper.op2()
+        assertEquals(22, wrapper.res)
     }
 
     @Test
