@@ -3,6 +3,7 @@ package io.mockk.impl.recording.states
 import io.mockk.Invocation
 import io.mockk.Matcher
 import io.mockk.MockKException
+import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CallRound
@@ -27,6 +28,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
 
         if (round == total) {
             signMatchers()
+            workaroundBoxedNumbers()
             mockPermanently()
         }
     }
@@ -77,6 +79,34 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
         )
 
         return retValue
+    }
+
+    private fun callIsNumberUnboxing(call: RecordedCall): Boolean {
+        val matcher = call.matcher
+        return matcher.self is Number &&
+                matcher.method.name.endsWith("Value") &&
+                matcher.method.paramTypes.isEmpty()
+    }
+
+    private fun workaroundBoxedNumbers() {
+        // issue #36
+        if (recorder.calls.size == 1) {
+            return
+        }
+
+        val callsWithoutCasts = recorder.calls.filterNot {
+            callIsNumberUnboxing(it)
+        }
+
+        if (callsWithoutCasts.size != recorder.calls.size) {
+            val callsWithCasts = recorder.calls.filter {
+                callIsNumberUnboxing(it)
+            }
+            log.debug { "Removed ${callsWithCasts.size} unboxing calls:\n${callsWithCasts.joinToString("\n")}" }
+        }
+
+        recorder.calls.clear()
+        recorder.calls.addAll(callsWithoutCasts)
     }
 
     fun mockPermanently() {
