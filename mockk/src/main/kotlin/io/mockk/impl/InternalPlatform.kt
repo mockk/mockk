@@ -20,7 +20,7 @@ actual object InternalPlatform {
 
     actual fun ref(obj: Any): Ref = CommonRef(obj)
 
-    actual fun hkd(obj: Any): String = Integer.toUnsignedString(InternalPlatformDsl.identityHashCode(obj), 16)
+    actual fun hkd(obj: Any): String = Integer.toHexString(InternalPlatformDsl.identityHashCode(obj))
 
     actual fun isPassedByValue(cls: KClass<*>): Boolean {
         return when (cls) {
