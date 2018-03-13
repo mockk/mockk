@@ -25,6 +25,29 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
             assignRelaxedMockK(property, target)
             assignSpyK(property, target)
         }
+
+        val mockInjector = MockInjector(target)
+
+        for (property in cls.memberProperties) {
+            property as KProperty1<Any, Any>
+
+            property.annotated<InjectMockKs>(target) { annotation ->
+                if (property is KMutableProperty1) {
+                    val instance = (property as KMutableProperty1<Any, Any?>).get(target)
+                            ?: mockInjector.constructorInjection(property.returnType.classifier as KClass<*>)
+
+                    mockInjector.propertiesInjection(instance)
+
+                    instance
+                } else {
+                    val instance = mockInjector.constructorInjection(property.returnType.classifier as KClass<*>)
+
+                    mockInjector.propertiesInjection(instance)
+
+                    instance
+                }
+            }
+        }
     }
 
     private fun assignSpyK(property: KProperty1<Any, Any>, target: Any) {
