@@ -16,7 +16,7 @@ class JvmAutoHinter : AutoHinter() {
         var callsPassed = -1
         while (true) {
             callRecorder.round(i, n)
-            childTypes.forEach { callN, cls ->
+            childTypes.forEach { (callN, cls) ->
                 callRecorder.hintNextReturnType(cls, callN)
             }
             try {
