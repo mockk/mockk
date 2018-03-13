@@ -8,7 +8,6 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
 import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.kotlinFunction
 
 internal object JvmMockFactoryHelper {
@@ -63,10 +62,10 @@ internal object JvmMockFactoryHelper {
 
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
-}
 
-fun Method.varArgPosition(): Int {
-    val kFunc =
+
+    fun Method.varArgPosition(): Int {
+        val kFunc =
             try {
                 // workaround for
                 //  https://github.com/oleksiyp/mockk/issues/18
@@ -76,10 +75,11 @@ fun Method.varArgPosition(): Int {
                 null
             }
 
-    return if (kFunc != null)
-        kFunc.parameters
+        return if (kFunc != null)
+            kFunc.parameters
                 .filter { it.kind != KParameter.Kind.INSTANCE }
                 .indexOfFirst { it.isVararg }
-    else
-        if (isVarArgs) parameterTypes.size - 1 else -1
+        else
+            if (isVarArgs) parameterTypes.size - 1 else -1
+    }
 }

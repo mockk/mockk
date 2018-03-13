@@ -1,6 +1,7 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.JvmVarArgsCls
+import io.mockk.impl.instantiation.JvmMockFactoryHelper.varArgPosition
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
