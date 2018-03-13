@@ -67,7 +67,7 @@ internal object JvmMockFactoryHelper {
                 .filter { it.kind != KParameter.Kind.INSTANCE }
                 .indexOfFirst { it.isVararg }
         else
-            parameters.indexOfFirst { it.isVarArgs }
+            if (isVarArgs) parameterTypes.size - 1 else -1
     }
 
     private fun Method.toDescription() =
