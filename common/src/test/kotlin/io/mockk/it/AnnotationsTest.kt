@@ -27,6 +27,11 @@ class AnnotationsTest {
         var spy = MockCls()
     }
 
+    class ReadonlyAnnotatedCls {
+        @MockK
+        val mock: MockCls? = null
+    }
+
     @Test
     fun mock() {
         val obj = AnnotatedCls()
@@ -64,5 +69,15 @@ class AnnotationsTest {
         assertEquals(6, obj.spy.op(5))
 
         verify { obj.spy.op(5) }
+    }
+
+    @Test
+    fun readonlyError() {
+        val obj = ReadonlyAnnotatedCls()
+
+
+        assertFailsWith(MockKException::class) {
+            MockKAnnotations.init(obj)
+        }
     }
 }
