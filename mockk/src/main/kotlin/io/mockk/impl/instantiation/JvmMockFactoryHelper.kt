@@ -50,26 +50,6 @@ internal object JvmMockFactoryHelper {
         }
     }
 
-
-    fun Method.varArgPosition(): Int {
-        val kFunc =
-            try {
-                // workaround for
-                //  https://github.com/oleksiyp/mockk/issues/18
-                //  https://github.com/oleksiyp/mockk/issues/22
-                kotlinFunction
-            } catch (ex: Throwable) {
-                null
-            }
-
-        return if (kFunc != null)
-            kFunc.parameters
-                .filter { it.kind != KParameter.Kind.INSTANCE }
-                .indexOfFirst { it.isVararg }
-        else
-            if (isVarArgs) parameterTypes.size - 1 else -1
-    }
-
     private fun Method.toDescription() =
         MethodDescription(
             name,
@@ -83,4 +63,23 @@ internal object JvmMockFactoryHelper {
 
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
+}
+
+fun Method.varArgPosition(): Int {
+    val kFunc =
+            try {
+                // workaround for
+                //  https://github.com/oleksiyp/mockk/issues/18
+                //  https://github.com/oleksiyp/mockk/issues/22
+                kotlinFunction
+            } catch (ex: Throwable) {
+                null
+            }
+
+    return if (kFunc != null)
+        kFunc.parameters
+                .filter { it.kind != KParameter.Kind.INSTANCE }
+                .indexOfFirst { it.isVararg }
+    else
+        if (isVarArgs) parameterTypes.size - 1 else -1
 }
