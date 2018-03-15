@@ -26,7 +26,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
             assignSpyK(property, target)
         }
 
-        val mockInjector = MockInjector(target)
+        val mockInjector = MockInjector(target, InjectType.BOTH)
 
         for (property in cls.memberProperties) {
             property as KProperty1<Any, Any>
