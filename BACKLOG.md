@@ -14,6 +14,7 @@
 - [x] ***RELEASE MockK 1.7.11***
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] doc: describe captureLambda/captureCoroutine
+- [ ] doc: describe extension *properties*
 - [ ] bug: fix recording calls before validation, which is wrong in case it is failed
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
