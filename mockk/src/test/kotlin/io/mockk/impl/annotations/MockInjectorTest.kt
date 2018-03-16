@@ -1,34 +1,118 @@
 package io.mockk.impl.annotations
 
+import io.mockk.MockKException
 import io.mockk.mockk
+import kotlin.reflect.KClass
+import kotlin.reflect.full.cast
 import kotlin.test.Test
+import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class MockInjectorTest {
-    class MockCls {
-
-    }
-
-    class InjectTarget(val param: MockCls)
+    interface MockIf
+    class MockCls : MockIf
 
 
-    class InjectDeclaration {
-        val mockCls = mockk<MockCls>()
+    @Test
+    fun primaryConstructorInjectionByType() {
+        class InjectTarget(val param: MockCls)
 
-        @InjectMockKs
-        lateinit var target: InjectTarget
+        class InjectDeclaration {
+            val mockCls = mockk<MockCls>()
+        }
+
+        val declaration = InjectDeclaration()
+
+        val instance = constructorInjection(
+            InjectTarget::class,
+            InjectType.BY_TYPE,
+            declaration)
+
+        assertSame(declaration.mockCls, instance.param)
     }
 
     @Test
-    fun primaryConstructorInjection() {
+    fun primaryConstructorInjectionByName() {
+        class InjectTarget(val mockCls: MockCls)
+
+        class InjectDeclaration {
+            val mockCls = mockk<MockCls>()
+        }
+
         val declaration = InjectDeclaration()
 
-        val injector = MockInjector(declaration, InjectType.BY_TYPE)
+        val instance = constructorInjection(
+            InjectTarget::class,
+            InjectType.BY_NAME,
+            declaration)
 
-        val instance = injector.constructorInjection(InjectTarget::class)
+        assertSame(declaration.mockCls, instance.mockCls)
+    }
 
-        assertTrue(instance is InjectTarget)
-        assertSame(declaration.mockCls, (instance as InjectTarget).param)
+    @Test
+    fun primaryConstructorInjectionBoth() {
+        class InjectTarget(val mockCls: MockCls)
+
+        class InjectDeclaration {
+            val mockCls = mockk<MockCls>()
+        }
+
+        val declaration = InjectDeclaration()
+
+        val instance = constructorInjection(
+            InjectTarget::class,
+            InjectType.BY_NAME,
+            declaration)
+
+        assertSame(declaration.mockCls, instance.mockCls)
+    }
+
+    @Test
+    fun primaryConstructorInjectionByNameNonMatchingType() {
+        class InjectTarget(val mockCls: Int)
+
+        class InjectDeclaration {
+            val mockCls = mockk<MockCls>()
+        }
+
+        val declaration = InjectDeclaration()
+
+        assertFailsWith<MockKException> {
+            constructorInjection(
+                InjectTarget::class,
+                InjectType.BY_NAME,
+                declaration
+            )
+        }
+    }
+
+    @Test
+    fun primaryConstructorInjectionByTypeSubclass() {
+        class InjectTarget(val param: MockIf)
+
+        class InjectDeclaration {
+            val mockCls = mockk<MockCls>()
+        }
+
+        val declaration = InjectDeclaration()
+
+        val instance = constructorInjection(
+            InjectTarget::class,
+            InjectType.BY_TYPE,
+            declaration)
+
+        assertSame(declaration.mockCls, instance.param)
+    }
+
+    private fun <T : Any>constructorInjection(
+        typeToCreate: KClass<T>,
+        injectType: InjectType,
+        declaration: Any
+    ): T {
+        val injector = MockInjector(declaration, injectType)
+        val instance = injector.constructorInjection(typeToCreate)
+        assertTrue(typeToCreate.isInstance(instance))
+        return typeToCreate.cast(instance)
     }
 }
