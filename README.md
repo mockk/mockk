@@ -2,7 +2,7 @@
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/oleksiyp/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG) [![codecov](https://codecov.io/gh/oleksiyp/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/oleksiyp/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
 
-***From version 1.7.9 staticMocks don't need to be stubbed, but just call original methods***
+***version 1.7.12 introduces @InjectMockKs and @OverrideMockKs annotations***
 
 Table of contents:
 
@@ -47,7 +47,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.7.11"</pre>
+    <pre>testCompile "io.mockk:mockk:1.7.12"</pre>
     </td>
 </tr>
 <tr>
@@ -56,7 +56,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.7.11&lt;/version&gt;
+    &lt;version&gt;1.7.12&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -82,6 +82,15 @@ verify { car.drive(Direction.NORTH) }
 You can use annotations to simplify creation of mock objects:
 
 ```kotlin
+
+class TrafficSystem {
+  lateinit var car1: Car
+  
+  lateinit var car2: Car
+  
+  lateinit var car3: Car
+}
+
 class Test {
   @MockK
   lateinit var car1: Car
@@ -91,6 +100,9 @@ class Test {
 
   @SpyK
   val car3 = Car()
+  
+  @InjectMockKs
+  val trafficSystem = TrafficSystem()
 
   @Before
   fun setUp() = MockKAnnotations.init(this)
@@ -101,6 +113,17 @@ class Test {
   }
 }
 ```
+
+Injection first tries to match properties by name, then by class or superclass. 
+Check `lookupType` parameter for customization. 
+
+Properties are injected even if `private` is applied. Constructors for injection are selected from the biggest 
+number of arguments to lowest.
+
+`@InjectMockKs` by default is injecting only `lateinit var`s or `var`s that are not assigned. 
+To change this use `overrideValues = true`. This would assign value even if it is already somehow initialized.
+To inject `val`s use `injectImmutable = true`. For shorter notation use `@OverrideMockKs` which do the same as 
+`@InjectMockKs` by default, but turns this two flags on.
 
 #### JUnit5
 
