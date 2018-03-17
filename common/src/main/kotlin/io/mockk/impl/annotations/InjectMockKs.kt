@@ -1,10 +1,17 @@
 package io.mockk.impl.annotations
 
 annotation class InjectMockKs(
-    val type: InjectType = InjectType.BOTH
+    val lookupType: InjectionLookupType = InjectionLookupType.BOTH,
+    val injectImmutable: Boolean = false,
+    val overrideValues: Boolean = false
 )
 
-enum class InjectType {
+annotation class OverrideMockKs(
+    val lookupType: InjectionLookupType = InjectionLookupType.BOTH,
+    val injectImmutable: Boolean = true
+)
+
+enum class InjectionLookupType {
     BY_NAME, BY_TYPE, BOTH;
 
     val byName
