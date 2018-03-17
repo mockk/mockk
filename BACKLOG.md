@@ -9,11 +9,16 @@
 - [x] feature: switch staticMockk from MocKKStub to SpyKStub
 - [x] ***RELEASE MockK 1.7.9***
 - [x] [#35](https://github.com/oleksiyp/mockk/issues/35) bug: StackOverflowException with HashMap
+- [x] ***RELEASE MockK 1.7.10***
+- [x] bug: broken JDK7 support
+- [x] ***RELEASE MockK 1.7.11***
 - [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
 - [ ] doc: describe captureLambda/captureCoroutine
+- [ ] doc: describe extension *properties*
 - [ ] bug: fix recording calls before validation, which is wrong in case it is failed
 - [ ] feature: Android Espresso integration
 - [ ] feature: Dagger component
+- [ ] feature: get rid of coroutine dependency
 - [ ] bug: forbid `verify { foo.service() wasNot Called }`
 - [ ] bug: check `verify { service.foo(assert {it.id == "wrongid"}) }` error message
 - [ ] think: how to fix `verify { spyHelper.handleMultipleSensors() wasNot Called }`

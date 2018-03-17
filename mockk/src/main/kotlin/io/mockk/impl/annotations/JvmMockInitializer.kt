@@ -9,6 +9,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
+import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
 
 class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializer {
     override fun initAnnotatedMocks(targets: List<Any>) {
@@ -17,13 +18,58 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         }
     }
 
-    @MockK
     fun initMock(target: Any) {
         val cls = target::class
         for (property in cls.memberProperties) {
             assignMockK(property as KProperty1<Any, Any>, target)
             assignRelaxedMockK(property, target)
             assignSpyK(property, target)
+        }
+
+        for (property in cls.memberProperties) {
+            property as KProperty1<Any, Any>
+
+            property.annotated<InjectMockKs>(target) { annotation ->
+                val mockInjector = MockInjector(
+                    target,
+                    annotation.lookupType,
+                    annotation.injectImmutable,
+                    annotation.overrideValues
+                )
+
+                doInjection(property, target, mockInjector)
+            }
+            property.annotated<OverrideMockKs>(target) { annotation ->
+                val mockInjector = MockInjector(
+                    target,
+                    annotation.lookupType,
+                    annotation.injectImmutable,
+                    true
+                )
+
+                doInjection(property, target, mockInjector)
+            }
+        }
+    }
+
+    private fun doInjection(
+        property: KProperty1<out Any, Any?>,
+        target: Any,
+        mockInjector: MockInjector
+    ): Any {
+        return if (property is KMutableProperty1) {
+            val instance = (property as KMutableProperty1<Any, Any?>).getAnyIfLateNull(target)
+                    ?: mockInjector.constructorInjection(property.returnType.classifier as KClass<*>)
+
+            mockInjector.propertiesInjection(instance)
+
+            instance
+        } else {
+            val instance = mockInjector.constructorInjection(property.returnType.classifier as KClass<*>)
+
+            mockInjector.propertiesInjection(instance)
+
+            instance
         }
     }
 
