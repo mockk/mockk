@@ -1,0 +1,44 @@
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+apply plugin: 'com.android.library'
+
+
+android {
+    compileSdkVersion 'android-P'
+    buildToolsVersion '27.0.3'
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        minSdkVersion 27
+        targetSdkVersion 27
+        versionName version
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'com.linkedin.dexmaker:dexmaker:2.12.1'
+    implementation project(':mockk-dsl-jvm')
+//    implementation project(':dexmaker')
+}
+

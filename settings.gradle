@@ -13,3 +13,15 @@ project(":mockk-common").projectDir = file("common")
 project(":mockk-dsl").projectDir = file("dsl/common")
 project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
+
+def Properties properties = new Properties()
+def localPropertiesFile = file("local.properties")
+properties.load(
+        localPropertiesFile.newDataInputStream()
+)
+
+def sdkDir = properties['sdk.dir']
+if (sdkDir != null && new File((String) sdkDir).exists()) {
+    include 'mockk-android-agent'
+    project(":mockk-android-agent").projectDir = file("android-agent")
+}

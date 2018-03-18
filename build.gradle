@@ -18,24 +18,12 @@ if (project.hasProperty('JDK6_HOME')) {
 subprojects {
     group = 'io.mockk'
 
-    apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'signing'
 
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
 
     repositories {
         mavenCentral()
-    }
-
-    task javadocJar(type: Jar) {
-        classifier = 'javadoc'
-        from javadoc
-    }
-
-    artifacts {
-        archives javadocJar
     }
 
     signing {
@@ -44,9 +32,26 @@ subprojects {
 
     signArchives.onlyIf { project.hasProperty('signing.keyId') }
 
-    if (project.hasProperty('JDK6_HOME')) {
-        tasks.withType(JavaCompile) {
-            options.bootClasspath = "$JDK6_HOME/jre/lib/rt.jar"
+    if (!it.name.equals('mockk-android-agent')) {
+        apply plugin: 'java'
+
+        sourceCompatibility = 1.6
+        targetCompatibility = 1.6
+
+        task javadocJar(type: Jar) {
+            classifier = 'javadoc'
+            from javadoc
+        }
+
+        artifacts {
+            archives javadocJar
+        }
+
+        if (project.hasProperty('JDK6_HOME')) {
+            tasks.withType(JavaCompile) {
+                options.bootClasspath = "$JDK6_HOME/jre/lib/rt.jar"
+            }
         }
     }
+
 }

@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 /**
  * Exception thrown by library
  */
-class MockKException(message: String, ex: Throwable? = null) : Throwable(message, ex)
+class MockKException(message: String, ex: Throwable? = null) : RuntimeException(message, ex)
 
 
 /**
