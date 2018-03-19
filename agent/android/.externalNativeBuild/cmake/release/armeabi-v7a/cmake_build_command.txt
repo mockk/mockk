@@ -1,0 +1,14 @@
+Executable : /home/oleksiyp/Android/Sdk/cmake/3.6.4111459/bin/cmake
+arguments : 
+-H/home/oleksiyp/workspace/mockk/agent/android
+-B/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/release/armeabi-v7a
+-DANDROID_ABI=armeabi-v7a
+-DANDROID_PLATFORM=android-27
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/home/oleksiyp/workspace/mockk/agent/android/build/intermediates/cmake/release/obj/armeabi-v7a
+-DCMAKE_BUILD_TYPE=Release
+-DANDROID_NDK=/home/oleksiyp/Android/Sdk/ndk-bundle
+-DCMAKE_TOOLCHAIN_FILE=/home/oleksiyp/Android/Sdk/ndk-bundle/build/cmake/android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=/home/oleksiyp/Android/Sdk/cmake/3.6.4111459/bin/ninja
+-GAndroid Gradle - Ninja
+jvmArgs : 
+

@@ -1,0 +1,134 @@
+
+{
+	"buildFiles" : [ "/home/oleksiyp/workspace/mockk/agent/android/CMakeLists.txt" ],
+	"cleanCommands" : 
+	[
+		"/home/oleksiyp/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a --target clean"
+	],
+	"cppFileExtensions" : [ "cc" ],
+	"libraries" : 
+	{
+		"dexmakerjvmtiagent-Debug-arm64-v8a" : 
+		{
+			"abi" : "arm64-v8a",
+			"artifactName" : "dexmakerjvmtiagent",
+			"buildCommand" : "/home/oleksiyp/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a --target dexmakerjvmtiagent",
+			"buildType" : "debug",
+			"files" : 
+			[
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot  -Ddexmakerjvmtiagent_EXPORTS -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/src/main/jni/dexmakerjvmtiagent/agent.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				}
+			],
+			"output" : "/home/oleksiyp/workspace/mockk/agent/android/build/intermediates/cmake/debug/obj/arm64-v8a/libdexmakerjvmtiagent.so",
+			"toolchain" : "3443354966728764971"
+		},
+		"slicer-Debug-arm64-v8a" : 
+		{
+			"abi" : "arm64-v8a",
+			"artifactName" : "slicer",
+			"buildCommand" : "/home/oleksiyp/Android/Sdk/cmake/3.6.4111459/bin/cmake --build /home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a --target slicer",
+			"buildType" : "debug",
+			"files" : 
+			[
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/bytecode_encoder.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/code_ir.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/common.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/control_flow_graph.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/debuginfo_encoder.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/dex_bytecode.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/dex_format.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/dex_ir_builder.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/dex_ir.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/dex_utf8.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/instrumentation.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/reader.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/tryblocks_encoder.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				},
+				
+				{
+					"flags" : "  --target=aarch64-none-linux-android --gcc-toolchain=/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64 --sysroot=/home/oleksiyp/Android/Sdk/ndk-bundle/sysroot   -I../../../../external/jdk -I../../../../external/slicer/export -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/arm64-v8a/include -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /home/oleksiyp/Android/Sdk/ndk-bundle/sysroot/usr/include/aarch64-linux-android -D__ANDROID_API__=27 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -Wa,--noexecstack -Wformat -Werror=format-security   -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "/home/oleksiyp/workspace/mockk/agent/android/external/slicer/writer.cc",
+					"workingDirectory" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a"
+				}
+			],
+			"output" : "/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/debug/arm64-v8a/libslicer.a",
+			"toolchain" : "3443354966728764971"
+		}
+	},
+	"toolchains" : 
+	{
+		"3443354966728764971" : 
+		{
+			"cCompilerExecutable" : "/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/clang",
+			"cppCompilerExecutable" : "/home/oleksiyp/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++"
+		}
+	}
+}

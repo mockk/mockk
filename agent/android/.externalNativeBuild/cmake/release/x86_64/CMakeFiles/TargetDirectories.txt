@@ -1,0 +1,4 @@
+/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/release/x86_64/CMakeFiles/edit_cache.dir
+/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/release/x86_64/CMakeFiles/rebuild_cache.dir
+/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/release/x86_64/CMakeFiles/dexmakerjvmtiagent.dir
+/home/oleksiyp/workspace/mockk/agent/android/.externalNativeBuild/cmake/release/x86_64/CMakeFiles/slicer.dir
