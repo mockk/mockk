@@ -22,7 +22,7 @@ import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.verify.UnorderedCallVerifier
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
-import io.mockk.proxy.MockKProxyMaker
+import io.mockk.proxy.JvmMockKProxyMaker
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
@@ -32,26 +32,26 @@ class JvmMockKGateway : MockKGateway {
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
     val stubRepo = StubRepository(safeLog)
-    val instantiator = JvmInstantiator(MockKProxyMaker.INSTANCE, instanceFactoryRegistryIntrnl)
+    val instantiator = JvmInstantiator(JvmMockKProxyMaker.INSTANCE, instanceFactoryRegistryIntrnl)
     val anyValueGenerator = JvmAnyValueGenerator()
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
     override val mockFactory: MockFactory = JvmMockFactory(
-        MockKProxyMaker.INSTANCE,
+        JvmMockKProxyMaker.INSTANCE,
         instantiator,
         stubRepo,
         StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
     )
 
     override val staticMockFactory = JvmStaticMockFactory(
-        MockKProxyMaker.INSTANCE,
+        JvmMockKProxyMaker.INSTANCE,
         stubRepo,
         StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
     )
 
     override val objectMockFactory = JvmObjectMockFactory(
-        MockKProxyMaker.INSTANCE,
+        JvmMockKProxyMaker.INSTANCE,
         stubRepo,
         StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
     )
@@ -118,7 +118,7 @@ class JvmMockKGateway : MockKGateway {
                         "Java version = ${System.getProperty("java.version")}. "
             }
 
-            MockKProxyMaker.log = Logger<MockKProxyMaker>().adaptor()
+            JvmMockKProxyMaker.log = Logger<JvmMockKProxyMaker>().adaptor()
             MockKInstrumentationLoader.log = Logger<MockKInstrumentationLoader>().adaptor()
             MockKInstrumentation.log = Logger<MockKInstrumentation>().adaptor()
 

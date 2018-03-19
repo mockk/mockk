@@ -1,6 +1,7 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.MockKAgentLogger;
+import io.mockk.agent.*;
+
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.asm.Advice;
@@ -10,7 +11,6 @@ import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation.Context.Disabled.Factory;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 
-import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;

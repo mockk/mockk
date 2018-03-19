@@ -1,7 +1,9 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.MockKAgentException;
-import io.mockk.agent.MockKAgentLogger;
+import io.mockk.agent.*;
+import io.mockk.agent.MockKInvocationHandler;
+import io.mockk.agent.MockKProxyMaker;
+
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.TypeCache;
 import net.bytebuddy.description.method.MethodDescription;
@@ -21,8 +23,8 @@ import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static net.bytebuddy.implementation.MethodDelegation.to;
 
-public class MockKProxyMaker {
-    public static final MockKProxyMaker INSTANCE = new MockKProxyMaker();
+public class JvmMockKProxyMaker implements MockKProxyMaker {
+    public static final JvmMockKProxyMaker INSTANCE = new JvmMockKProxyMaker();
 
     private static final Object BOOTSTRAP_MONITOR = new Object();
 
@@ -50,7 +52,7 @@ public class MockKProxyMaker {
             String.class));
 
 
-    public MockKProxyMaker() {
+    public JvmMockKProxyMaker() {
         byteBuddy = new ByteBuddy()
                 .with(TypeValidation.DISABLED);
         objenesis = new ObjenesisStd(true);
@@ -58,6 +60,7 @@ public class MockKProxyMaker {
         instanceProxyClassCache = new TypeCache<CacheKey>(TypeCache.Sort.SOFT);
     }
 
+    @Override
     public <T> T instance(Class<T> cls) {
         if (Modifier.isFinal(cls.getModifiers())) {
             return newEmptyInstance(cls);
@@ -97,6 +100,7 @@ public class MockKProxyMaker {
     }
 
 
+    @Override
     public <T> T proxy(
             final Class<T> clazz,
             final Class<?>[] interfaces,
@@ -163,6 +167,7 @@ public class MockKProxyMaker {
         }
     }
 
+    @Override
     public void unproxy(Object instance) {
         MockKInstrumentation.INSTANCE.unhook(instance);
     }
@@ -230,6 +235,7 @@ public class MockKProxyMaker {
         return clazz.cast(inst.newInstance());
     }
 
+    @Override
     public void staticProxy(Class<?> clazz,
                             MockKInvocationHandler handler) {
         log.debug("Injecting handler to " + clazz + " for static methods");
@@ -246,6 +252,7 @@ public class MockKProxyMaker {
         MockKInstrumentation.INSTANCE.hookStatic(clazz, handler);
     }
 
+    @Override
     public void staticUnProxy(Class<?> clazz) {
         MockKInstrumentation.INSTANCE.unhookStatic(clazz);
     }

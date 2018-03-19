@@ -7,14 +7,14 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
-import io.mockk.proxy.MockKProxyMaker
+import io.mockk.proxy.JvmMockKProxyMaker
 import kotlin.reflect.KClass
 
 class JvmMockFactory(
-    val proxyMaker: MockKProxyMaker,
-    instantiator: JvmInstantiator,
-    stubRepository: StubRepository,
-    gatewayAccess: StubGatewayAccess
+        val proxyMaker: JvmMockKProxyMaker,
+        instantiator: JvmInstantiator,
+        stubRepository: StubRepository,
+        gatewayAccess: StubGatewayAccess
 ) :
     AbstractMockFactory(
         stubRepository,

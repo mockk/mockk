@@ -9,13 +9,13 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
-import io.mockk.proxy.MockKProxyMaker
+import io.mockk.proxy.JvmMockKProxyMaker
 import kotlin.reflect.KClass
 
 class JvmStaticMockFactory(
-    val proxyMaker: MockKProxyMaker,
-    val stubRepository: StubRepository,
-    val gatewayAccess: StubGatewayAccess
+        val proxyMaker: JvmMockKProxyMaker,
+        val stubRepository: StubRepository,
+        val gatewayAccess: StubGatewayAccess
 ) : StaticMockFactory {
     override fun staticMockk(cls: KClass<*>) {
         log.debug { "Creating static mockk for ${cls.toStr()}" }

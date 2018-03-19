@@ -1,6 +1,7 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.MockKAgentException;
+import io.mockk.agent.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,8 +13,8 @@ import java.util.concurrent.Callable;
 
 import static org.junit.Assert.*;
 
-public class MockKProxyMakerTest {
-    MockKProxyMaker maker;
+public class JvmMockKProxyMakerTest {
+    JvmMockKProxyMaker maker;
 
     static boolean[] executed = new boolean[10];
 
@@ -23,7 +24,7 @@ public class MockKProxyMakerTest {
     public void setUp() throws Exception {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
-        maker = new MockKProxyMaker();
+        maker = new JvmMockKProxyMaker();
         MockKInstrumentation.init();
         MockKInstrumentation.INSTANCE.enable();
     }

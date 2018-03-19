@@ -1,4 +1,4 @@
-package io.mockk.proxy;
+package io.mockk.agent;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;

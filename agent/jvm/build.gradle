@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    compile project(':mockk-agent-api')
     compile 'net.bytebuddy:byte-buddy:1.7.9'
     compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
     runtime 'net.bytebuddy:byte-buddy-agent:1.7.9'

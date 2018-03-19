@@ -4,6 +4,7 @@ import net.bytebuddy.implementation.bind.annotation.*;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
+import io.mockk.agent.MockKInvocationHandler;
 
 public class MockKProxyInterceptor {
     @RuntimeType

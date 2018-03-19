@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import io.mockk.agent.MockKInvocationHandler;
+
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
