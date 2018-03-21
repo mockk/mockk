@@ -4,6 +4,7 @@ package io.mockk
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKGateway.VerificationParameters
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 
 /**
@@ -1510,11 +1511,16 @@ open class MockKMatcherScope(
         }
     }
 
-    operator fun Any.get(name: String) = DynamicCall(this, name)
+    operator fun Any.get(name: String) =
+        DynamicCall(this, name, { any() })
 
-    class DynamicCall(val self: Any, val methodName: String) {
+    class DynamicCall(
+        val self: Any,
+        val methodName: String,
+        val anyContinuationGen: () -> Continuation<*>
+    ) {
         operator fun invoke(vararg args: Any?) =
-            InternalPlatformDsl.dynamicCall(self, methodName, args)
+            InternalPlatformDsl.dynamicCall(self, methodName, args, anyContinuationGen)
     }
 
 }

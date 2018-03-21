@@ -2,6 +2,7 @@ package io.mockk
 
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.full.functions
 import kotlin.reflect.jvm.javaMethod
@@ -81,7 +82,12 @@ actual object InternalPlatformDsl {
 
     actual fun classForName(name: String): Any = Class.forName(name).kotlin
 
-    actual fun dynamicCall(self: Any, methodName: String, args: Array<out Any?>): Any? {
+    actual fun dynamicCall(
+        self: Any,
+        methodName: String,
+        args: Array<out Any?>,
+        anyContinuationGen: () -> Continuation<*>
+    ): Any? {
         val params = arrayOf(self, *args)
         val func = self::class.functions.firstOrNull {
             it.name == methodName &&
@@ -97,6 +103,10 @@ actual object InternalPlatformDsl {
         } ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) for dynamic call")
 
         func.javaMethod?.isAccessible = true
-        return func.call(*params)
+        if (func.isSuspend) {
+            return func.call(*params, anyContinuationGen())
+        } else {
+            return func.call(*params)
+        }
     }
 }

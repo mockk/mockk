@@ -1,5 +1,6 @@
 package io.mockk
 
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 
 actual object InternalPlatformDsl {
@@ -78,7 +79,12 @@ actual object InternalPlatformDsl {
 
     actual fun classForName(name: String): Any = throw MockKException("classForName is not support on JS platform")
 
-    actual fun dynamicCall(self: Any, methodName: String, args: Array<out Any?>): Any? = throw MockKException("DynamicCall is not supported on JS platform")
+    actual fun dynamicCall(
+        self: Any,
+        methodName: String,
+        args: Array<out Any?>,
+        anyContinuationGen: () -> Continuation<*>
+    ): Any? = throw MockKException("DynamicCall is not supported on JS platform")
 }
 
 internal external object Kotlin {
