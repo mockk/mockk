@@ -84,7 +84,15 @@ actual object InternalPlatformDsl {
         methodName: String,
         args: Array<out Any?>,
         anyContinuationGen: () -> Continuation<*>
-    ): Any? = throw MockKException("DynamicCall is not supported on JS platform")
+    ): Any? = throw MockKException("dynamic call is not supported on JS platform")
+
+    actual fun dynamicGet(self: Any, name: String): Any? =
+        throw MockKException("dynamic get is not supported on JS platform")
+
+    actual fun dynamicSet(self: Any, name: String, value: Any?) {
+        throw MockKException("dynamic set is not supported on JS platform")
+    }
+
 }
 
 internal external object Kotlin {

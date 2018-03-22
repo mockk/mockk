@@ -575,6 +575,21 @@ verifySequence {
 
 In case you want private calls to be verified, you should create spyk with `recordPrivateCalls = true`
 
+Additionally more verbose syntax allows to get and set properties, do same dynamic calls:
+
+```kotlin
+val mock = spyk(Team(), recordPrivateCalls = true)
+
+every { mock getProperty "speed" } returns 33
+every { mock setProperty "acceleration" value less(5) } just Runs
+every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
+
+verify { mock getProperty "speed" }
+verify { mock setProperty "acceleration" value less(5) }
+verify { mock invoke "openDoor" withArguments listOf("left", "rear") }
+
+```
+
 ### More interfaces
 
 Adding additional behaviours via interfaces and stubbing them:

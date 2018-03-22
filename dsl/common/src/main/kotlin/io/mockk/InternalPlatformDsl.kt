@@ -23,4 +23,8 @@ expect object InternalPlatformDsl {
         args: Array<out Any?>,
         anyContinuationGen: () -> Continuation<*>
     ): Any?
+
+    fun dynamicGet(self: Any, name: String): Any?
+
+    fun dynamicSet(self: Any, name: String, value: Any?)
 }

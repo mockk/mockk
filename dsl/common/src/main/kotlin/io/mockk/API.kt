@@ -1514,6 +1514,20 @@ open class MockKMatcherScope(
     operator fun Any.get(name: String) =
         DynamicCall(this, name, { any() })
 
+    infix fun Any.invoke(name: String) =
+        DynamicCallLong(this, name, { any() })
+
+    infix fun Any.getProperty(name: String) =
+        InternalPlatformDsl.dynamicGet(this, name)
+
+    infix fun Any.setProperty(name: String) = DynamicSetProperty(this, name)
+
+    class DynamicSetProperty(val self: Any, val name: String) {
+        infix fun value(value: Any?) {
+            InternalPlatformDsl.dynamicSet(self, name, value)
+        }
+    }
+
     class DynamicCall(
         val self: Any,
         val methodName: String,
@@ -1521,6 +1535,15 @@ open class MockKMatcherScope(
     ) {
         operator fun invoke(vararg args: Any?) =
             InternalPlatformDsl.dynamicCall(self, methodName, args, anyContinuationGen)
+    }
+
+    class DynamicCallLong(
+        val self: Any,
+        val methodName: String,
+        val anyContinuationGen: () -> Continuation<*>
+    ) {
+        infix fun withArguments(args: List<Any?>) =
+            InternalPlatformDsl.dynamicCall(self, methodName, args.toTypedArray(), anyContinuationGen)
     }
 
 }
