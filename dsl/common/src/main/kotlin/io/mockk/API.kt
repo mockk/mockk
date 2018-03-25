@@ -1,4 +1,5 @@
 @file:Suppress("DEPRECATION")
+
 package io.mockk
 
 import io.mockk.InternalPlatformDsl.toStr
@@ -253,7 +254,8 @@ object MockKDsl {
     /**
      * Declares object mockk.
      */
-    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) = MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
+    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) =
+        MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
 
     /**
      * Builds a mock for a class.
@@ -352,6 +354,13 @@ open class MockKMatcherScope(
 
     inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) -2 else -1, T::class))
+
+    inline fun <reified T : Comparable<T>> range(
+        from: T,
+        to: T,
+        fromInclusive: Boolean = true,
+        toInclusive: Boolean = true
+    ): T = and(more(from, fromInclusive), less(to, toInclusive))
 
     inline fun <reified T : Any> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
     inline fun <reified T : Any> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
