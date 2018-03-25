@@ -95,8 +95,8 @@ class MatcherTest {
 
         assertFailsWith<MockKException> { mock.op(3, 0) }
         assertFailsWith<MockKException> { mock.op(3, 1) }
-        assertEquals(1, mock.op(3, 2))
-        assertEquals(1, mock.op(3, 3))
+        assertEquals(3, mock.op(3, 2))
+        assertEquals(3, mock.op(3, 3))
         assertFailsWith<MockKException> { mock.op(3, 4) }
         assertFailsWith<MockKException> { mock.op(3, 5) }
         assertFailsWith<MockKException> { mock.op(3, 6) }
