@@ -7,7 +7,14 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
-import kotlin.reflect.KParameter
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter.Kind.*
+import kotlin.reflect.full.allSuperclasses
+import kotlin.reflect.full.functions
+import kotlin.reflect.full.superclasses
+import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.jvmName
 import kotlin.reflect.jvm.kotlinFunction
 
 internal object JvmMockFactoryHelper {
@@ -60,26 +67,74 @@ internal object JvmMockFactoryHelper {
                     Modifier.isProtected(modifiers)
         )
 
-    fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
-    fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
+    private fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
+    private fun Method.isEquals() =
+        name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
 
+    private fun KClass<*>.hasMetadata() = java.declaredAnnotations.any {
+        it.annotationClass.jvmName == "kotlin.Metadata"
+    }
+
+
+    private fun KFunction<*>.findMetadataAwareFunction(): KFunction<*> {
+        val cls = javaMethod?.declaringClass?.kotlin ?: return this
+
+        if (cls.hasMetadata()) {
+            return this
+        }
+
+        fun sameFunc(it: KClass<*>) = it.functions.firstOrNull { that ->
+            val thisParams = parameters
+                .filter { it.kind != INSTANCE }
+                .map { it.type.classifier }
+
+            val thatParams = that.parameters
+                .filter { it.kind != INSTANCE }
+                .map { it.type.classifier }
+
+            name == that.name && thisParams == thatParams
+        }
+
+        cls.superclasses
+            .filterNot { it.java.isInterface }
+            .filter { it.hasMetadata() }
+            .mapNotNull { sameFunc(it) }
+            .firstOrNull()
+            ?.let { return it }
+
+        cls.superclasses
+            .filter { it.hasMetadata() }
+            .mapNotNull { sameFunc(it) }
+            .firstOrNull()
+            ?.let { return it }
+
+        cls.allSuperclasses
+            .filter { it.hasMetadata() }
+            .mapNotNull { sameFunc(it) }
+            .firstOrNull()
+            ?.let { return it }
+
+        return this
+    }
 
     fun Method.varArgPosition(): Int {
         val kFunc =
             try {
+                kotlinFunction?.findMetadataAwareFunction()
+            } catch (ex: Throwable) {
                 // workaround for
                 //  https://github.com/oleksiyp/mockk/issues/18
                 //  https://github.com/oleksiyp/mockk/issues/22
-                kotlinFunction
-            } catch (ex: Throwable) {
+                // issue usually happens when calling `kotlinFunction`
                 null
             }
 
-        return if (kFunc != null)
-            kFunc.parameters
-                .filter { it.kind != KParameter.Kind.INSTANCE }
+        return if (kFunc != null) {
+            kFunc
+                .parameters
+                .filter { it.kind != INSTANCE }
                 .indexOfFirst { it.isVararg }
-        else
+        } else
             if (isVarArgs) parameterTypes.size - 1 else -1
     }
 }
