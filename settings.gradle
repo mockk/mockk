@@ -7,9 +7,11 @@ include 'mockk-agent'
 include 'mockk-dsl'
 include 'mockk-dsl-jvm'
 include 'mockk-dsl-js'
+include 'mockk-dsl-native'
 
 project(":mockk-agent").projectDir = file("agent")
 project(":mockk-common").projectDir = file("common")
 project(":mockk-dsl").projectDir = file("dsl/common")
 project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
+project(":mockk-dsl-native").projectDir = file("dsl/native")
