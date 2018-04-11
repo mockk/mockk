@@ -1,0 +1,1 @@
+set(CMAKE_Kotlin_COMPILER_WORKS 1 CACHE INTERNAL "") #TODO do we really need to test something?
