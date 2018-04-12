@@ -37,10 +37,9 @@ open class MockKStub(
     override fun answer(invocation: Invocation): Any? {
         val invocationAndMatcher = synchronized(answers) {
             answers
-                .reversed()
-                .firstOrNull { it.matcher.match(invocation) }
-                    ?: return defaultAnswer(invocation)
-        }
+                    .reversed()
+                    .firstOrNull { it.matcher.match(invocation) }
+        } ?: return defaultAnswer(invocation)
 
         return with(invocationAndMatcher) {
             matcher.captureAnswer(invocation)
@@ -103,8 +102,8 @@ open class MockKStub(
     }
 
     override fun allRecordedCalls(): List<Invocation> {
-        synchronized(recordedCalls) {
-            return recordedCalls.toList()
+        return synchronized(recordedCalls) {
+            recordedCalls.toList()
         }
     }
 

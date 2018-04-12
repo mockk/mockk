@@ -5,15 +5,15 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
 
-/*actual*/ object InternalPlatformDsl {
-    /*actual*/ fun identityHashCode(obj: Any): Int = Kotlin.identityHashCode(obj)
+actual object InternalPlatformDsl {
+    actual fun identityHashCode(obj: Any): Int = TODO("identity hash code")
 
-    /*actual*/ fun <T> runCoroutine(block: suspend () -> T): T =
+    actual fun <T> runCoroutine(block: suspend () -> T): T =
             throw UnsupportedOperationException(
                     "Coroutines are not supported for JS MockK version"
             )
 
-    /*actual*/ fun Any?.toStr(): String =
+    actual fun Any?.toStr(): String =
             try {
                 when (this) {
                     null -> "null"
@@ -34,7 +34,7 @@ import kotlin.reflect.KProperty1
                 "<error \"$thr\">"
             }
 
-    /*actual*/ fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
+    actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
         return if (obj1 === obj2) {
             true
         } else if (obj1 == null || obj2 == null) {
@@ -59,14 +59,14 @@ import kotlin.reflect.KProperty1
         }
     }
 
-    /*actual*/ fun unboxChar(value: Any): Any =
+    actual fun unboxChar(value: Any): Any =
             if (value is Char) {
                 value.toInt()
             } else {
                 value
             }
 
-    /*actual*/ fun Any.toArray(): Array<*> =
+    actual fun Any.toArray(): Array<*> =
             when (this) {
                 is BooleanArray -> this.toTypedArray()
                 is ByteArray -> this.toTypedArray()
@@ -79,24 +79,20 @@ import kotlin.reflect.KProperty1
                 else -> this as Array<*>
             }
 
-    /*actual*/ fun classForName(name: String): Any = throw MockKException("classForName is not support on JS platform")
+    actual fun classForName(name: String): Any = throw MockKException("classForName is not support on JS platform")
 
-    /*actual*/ fun dynamicCall(
+    actual fun dynamicCall(
             self: Any,
             methodName: String,
             args: Array<out Any?>,
             anyContinuationGen: () -> Continuation<*>
     ): Any? = throw MockKException("dynamic call is not supported on JS platform")
 
-    /*actual*/ fun dynamicGet(self: Any, name: String): Any? =
+    actual fun dynamicGet(self: Any, name: String): Any? =
             throw MockKException("dynamic get is not supported on JS platform")
 
-    /*actual*/ fun dynamicSet(self: Any, name: String, value: Any?) {
+    actual fun dynamicSet(self: Any, name: String, value: Any?) {
         throw MockKException("dynamic set is not supported on JS platform")
     }
 
-}
-
-internal external object Kotlin {
-    fun identityHashCode(obj: Any): Int
 }

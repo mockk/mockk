@@ -1,11 +1,11 @@
 buildscript {
     ext.kotlin_version = '1.2.20'
     repositories {
-        mavenCentral()
-        jcenter()
         maven {
             url  "https://dl.bintray.com/jetbrains/kotlin-native-dependencies"
         }
+        mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
