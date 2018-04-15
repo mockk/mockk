@@ -4,14 +4,13 @@ import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
+import kotlin.coroutines.experimental.startCoroutine
 
 actual object InternalPlatformDsl {
-    actual fun identityHashCode(obj: Any): Int = TODO("identity hash code")
+    actual fun identityHashCode(obj: Any): Int = 1
 
     actual fun <T> runCoroutine(block: suspend () -> T): T =
-            throw UnsupportedOperationException(
-                    "Coroutines are not supported for JS MockK version"
-            )
+            TODO("coroutines")
 
     actual fun Any?.toStr(): String =
             try {
@@ -86,13 +85,13 @@ actual object InternalPlatformDsl {
             methodName: String,
             args: Array<out Any?>,
             anyContinuationGen: () -> Continuation<*>
-    ): Any? = throw MockKException("dynamic call is not supported on JS platform")
+    ): Any? = TODO("dynamic call")
 
     actual fun dynamicGet(self: Any, name: String): Any? =
-            throw MockKException("dynamic get is not supported on JS platform")
+            TODO("dynamic get")
 
     actual fun dynamicSet(self: Any, name: String, value: Any?) {
-        throw MockKException("dynamic set is not supported on JS platform")
+        TODO("dynamic set")
     }
 
 }

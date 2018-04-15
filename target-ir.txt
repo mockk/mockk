@@ -1,0 +1,355 @@
+/home/oleksiyp/.local/share/JetBrains/Toolbox/apps/CLion/ch-0/181.4445.84/bin/cmake/bin/cmake --build /home/oleksiyp/workspace/mockk/cmake-build-debug --target mockk-native-test.kexe -- -j 2
+[ 33%] Generating CMakeFiles/mockk-native-test_TEMP.kexe
+CLASS INTERFACE name:Interceptor modality:ABSTRACT visibility:public flags:
+  $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:Interceptor flags:
+  superClasses:
+    CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+  CLASS INTERFACE name:ArgProvider modality:ABSTRACT visibility:public flags:
+    $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:Interceptor.ArgProvider flags:
+    superClasses:
+      CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+    FUN name:arg visibility:public modality:ABSTRACT <> ($this:Interceptor.ArgProvider, n:kotlin.Int, value:kotlin.Any?) returnType:Unit flags:
+      $this: VALUE_PARAMETER name:<this> type:Interceptor.ArgProvider flags:
+      VALUE_PARAMETER name:n index:0 type:kotlin.Int flags:
+      VALUE_PARAMETER name:value index:1 type:kotlin.Any? flags:
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+      overridden:
+        FUN IR_EXTERNAL_DECLARATION_STUB name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+      $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+      VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+      overridden:
+        FUN IR_EXTERNAL_DECLARATION_STUB name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+      $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+      overridden:
+        FUN IR_EXTERNAL_DECLARATION_STUB name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+      $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN name:intercept visibility:public modality:ABSTRACT <T> ($this:Interceptor, args:Interceptor.ArgProvider.() -> kotlin.Unit, block:() -> T) returnType:T flags:
+    TYPE_PARAMETER name:T index:0 variance: upperBounds:[kotlin.Any?]
+      superClassifiers:
+        CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+    $this: VALUE_PARAMETER name:<this> type:Interceptor flags:
+    VALUE_PARAMETER name:args index:0 type:Interceptor.ArgProvider.() -> kotlin.Unit flags:
+    VALUE_PARAMETER name:block index:1 type:() -> T flags:
+  FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+  FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+
+CLASS INTERFACE name:InterceptorMap modality:ABSTRACT visibility:public flags:
+  $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:InterceptorMap flags:
+  superClasses:
+    CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+  FUN name:execute visibility:public modality:ABSTRACT <> ($this:InterceptorMap, interceptor:Interceptor, name:kotlin.String, types:kotlin.Array<out kotlin.reflect.KClass<*>>) returnType:Interceptor flags:
+    $this: VALUE_PARAMETER name:<this> type:InterceptorMap flags:
+    VALUE_PARAMETER name:interceptor index:0 type:Interceptor flags:
+    VALUE_PARAMETER name:name index:1 type:kotlin.String flags:
+    VALUE_PARAMETER name:types index:2 type:kotlin.Array<out kotlin.reflect.KClass<*>> varargElementType:kotlin.reflect.KClass<*> flags:vararg
+  FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+  FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+
+TYPEALIAS typealias InterceptorMappingBlock = InterceptorMap.() -> Unit type=InterceptorMap.() -> kotlin.Unit
+
+CLASS OBJECT name:Interceptors modality:FINAL visibility:public flags:
+  $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:Interceptors flags:
+  superClasses:
+    CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+  CONSTRUCTOR visibility:private <> () returnType:Interceptors flags:
+    BLOCK_BODY
+      DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+      INSTANCE_INITIALIZER_CALL classDescriptor='Interceptors'
+  PROPERTY name:interceptors type:kotlin.collections.MutableMap<kotlin.reflect.KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */> visibility:internal modality:FINAL flags:val
+    FIELD PROPERTY_BACKING_FIELD name:interceptors type:kotlin.collections.MutableMap<kotlin.reflect.KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */> visibility:internal
+      EXPRESSION_BODY
+        CALL 'mutableMapOf(vararg Pair<KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */>): MutableMap<KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */>' type=kotlin.collections.MutableMap<kotlin.reflect.KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */> origin=null
+          <K>: KClass<*>
+          <V>: InterceptorMappingBlock /* = InterceptorMap.() -> Unit */
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-interceptors> visibility:internal modality:FINAL <> ($this:Interceptors) returnType:MutableMap<KClass<*>, [@kotlin.ExtensionFunctionType] Function1<InterceptorMap, Unit>> flags:
+      $this: VALUE_PARAMETER name:<this> type:Interceptors flags:
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='<get-interceptors>(): MutableMap<KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */>'
+          GET_FIELD 'interceptors: MutableMap<KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */>' type=kotlin.collections.MutableMap<kotlin.reflect.KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */> origin=null
+            receiver: GET_VAR 'this@Interceptors: Interceptors' type=Interceptors origin=null
+  FUN name:register visibility:public modality:FINAL <> ($this:Interceptors, cls:kotlin.reflect.KClass<*>, mappingBlock:InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */) returnType:Unit flags:
+    $this: VALUE_PARAMETER name:<this> type:Interceptors flags:
+    VALUE_PARAMETER name:cls index:0 type:kotlin.reflect.KClass<*> flags:
+    VALUE_PARAMETER name:mappingBlock index:1 type:InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */ flags:
+    BLOCK_BODY
+      TYPE_OP type=kotlin.Unit origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+        typeOperand: CLASS IR_EXTERNAL_DECLARATION_STUB OBJECT name:Unit modality:FINAL visibility:public flags:
+        CALL 'put(KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */): InterceptorMappingBlock? /* = (InterceptorMap.() -> Unit)? */' type=InterceptorMappingBlock? /* = (InterceptorMap.() -> kotlin.Unit)? */ origin=null
+          $this: CALL '<get-interceptors>(): MutableMap<KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */>' type=kotlin.collections.MutableMap<kotlin.reflect.KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */> origin=GET_PROPERTY
+            $this: GET_VAR 'this@Interceptors: Interceptors' type=Interceptors origin=null
+          key: GET_VAR 'value-parameter cls: KClass<*>' type=kotlin.reflect.KClass<*> origin=null
+          value: GET_VAR 'value-parameter mappingBlock: InterceptorMappingBlock /* = InterceptorMap.() -> Unit */' type=InterceptorMappingBlock /* = InterceptorMap.() -> kotlin.Unit */ origin=null
+  FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+  FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+
+CLASS OBJECT name:PassThroughInterceptor modality:FINAL visibility:public flags:
+  $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:PassThroughInterceptor flags:
+  superClasses:
+    CLASS INTERFACE name:Interceptor modality:ABSTRACT visibility:public flags:
+  CONSTRUCTOR visibility:private <> () returnType:PassThroughInterceptor flags:
+    BLOCK_BODY
+      DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+      INSTANCE_INITIALIZER_CALL classDescriptor='PassThroughInterceptor'
+  FUN name:intercept visibility:public modality:OPEN <T> ($this:PassThroughInterceptor, args:Interceptor.ArgProvider.() -> kotlin.Unit, block:() -> T) returnType:T flags:
+    overridden:
+      FUN name:intercept visibility:public modality:ABSTRACT <T> ($this:Interceptor, args:Interceptor.ArgProvider.() -> kotlin.Unit, block:() -> T) returnType:T flags:
+    TYPE_PARAMETER name:T index:0 variance: upperBounds:[kotlin.Any?]
+      superClassifiers:
+        CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+    $this: VALUE_PARAMETER name:<this> type:PassThroughInterceptor flags:
+    VALUE_PARAMETER name:args index:0 type:Interceptor.ArgProvider.() -> kotlin.Unit flags:
+    VALUE_PARAMETER name:block index:1 type:() -> T flags:
+    BLOCK_BODY
+      RETURN type=kotlin.Nothing from='intercept(Interceptor.ArgProvider.() -> Unit, () -> T): T'
+        CALL 'invoke(): T' type=T origin=INVOKE
+          $this: GET_VAR 'value-parameter block: () -> T' type=() -> T origin=VARIABLE_AS_FUNCTION
+  FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    overridden:
+      FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+  FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    overridden:
+      FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    overridden:
+      FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+
+FUN name:main visibility:public modality:FINAL <> (args:kotlin.Array<kotlin.String>) returnType:Unit flags:
+  VALUE_PARAMETER name:args index:0 type:kotlin.Array<kotlin.String> flags:
+  BLOCK_BODY
+    CALL 'intercept(Interceptor.ArgProvider.() -> Unit, () -> Unit): Unit' type=kotlin.Unit origin=null
+      <T>: Unit
+      $this: CALL '<get-main>(): Interceptor' type=Interceptor origin=GET_PROPERTY
+        $this: GET_OBJECT 'IM' type=IM
+      args: BLOCK type=Interceptor.ArgProvider.() -> kotlin.Unit origin=LAMBDA
+        FUN LOCAL_FUNCTION_FOR_LAMBDA name:<anonymous> visibility:local modality:FINAL <> ($receiver:Interceptor.ArgProvider) returnType:Unit flags:
+          $receiver: VALUE_PARAMETER name:<this> type:Interceptor.ArgProvider flags:
+          BLOCK_BODY
+            RETURN type=kotlin.Nothing from='<anonymous>() on Interceptor.ArgProvider: Unit'
+              CALL 'arg(Int, Any?): Unit' type=kotlin.Unit origin=null
+                $this: GET_VAR 'this@<anonymous>: ArgProvider' type=Interceptor.ArgProvider origin=null
+                n: CONST Int type=kotlin.Int value=0
+                value: GET_VAR 'value-parameter args: Array<String>' type=kotlin.Array<kotlin.String> origin=null
+        FUNCTION_REFERENCE '<anonymous>() on Interceptor.ArgProvider: Unit' type=Interceptor.ArgProvider.() -> kotlin.Unit origin=LAMBDA
+      block: BLOCK type=() -> kotlin.Unit origin=LAMBDA
+        FUN LOCAL_FUNCTION_FOR_LAMBDA name:<anonymous> visibility:local modality:FINAL <> () returnType:Unit flags:
+          BLOCK_BODY
+            RETURN type=kotlin.Nothing from='<anonymous>(): Unit'
+              CALL 'println(String): Unit' type=kotlin.Unit origin=null
+                message: CONST String type=kotlin.String value=Hello world!
+        FUNCTION_REFERENCE '<anonymous>(): Unit' type=() -> kotlin.Unit origin=LAMBDA
+
+CLASS OBJECT name:IM modality:FINAL visibility:public flags:
+  $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:IM flags:
+  superClasses:
+    CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+  CONSTRUCTOR visibility:private <> () returnType:IM flags:
+    BLOCK_BODY
+      DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+      INSTANCE_INITIALIZER_CALL classDescriptor='IM'
+  PROPERTY name:main type:Interceptor visibility:public modality:FINAL flags:var
+    FIELD PROPERTY_BACKING_FIELD name:main type:Interceptor visibility:public
+      EXPRESSION_BODY
+        GET_OBJECT 'PassThroughInterceptor' type=PassThroughInterceptor
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<get-main> visibility:public modality:FINAL <> ($this:IM) returnType:Interceptor flags:
+      $this: VALUE_PARAMETER name:<this> type:IM flags:
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='<get-main>(): Interceptor'
+          GET_FIELD 'main: Interceptor' type=Interceptor origin=null
+            receiver: GET_VAR 'this@IM: IM' type=IM origin=null
+    FUN DEFAULT_PROPERTY_ACCESSOR name:<set-main> visibility:public modality:FINAL <> ($this:IM, <set-?>:Interceptor) returnType:Unit flags:
+      $this: VALUE_PARAMETER name:<this> type:IM flags:
+      VALUE_PARAMETER name:<set-?> index:0 type:Interceptor flags:
+      BLOCK_BODY
+        SET_FIELD 'main: Interceptor' type=kotlin.Unit origin=null
+          receiver: GET_VAR 'this@IM: IM' type=IM origin=null
+          value: GET_VAR 'value-parameter <set-?>: Interceptor' type=Interceptor origin=null
+  ANONYMOUS_INITIALIZER IM
+    BLOCK_BODY
+      CALL 'register(KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */): Unit' type=kotlin.Unit origin=null
+        $this: GET_OBJECT 'Interceptors' type=Interceptors
+        cls: CLASS_REFERENCE 'PassThroughInterceptor' type=kotlin.reflect.KClass<PassThroughInterceptor>
+        mappingBlock: BLOCK type=InterceptorMap.() -> kotlin.Unit origin=LAMBDA
+          FUN LOCAL_FUNCTION_FOR_LAMBDA name:<anonymous> visibility:local modality:FINAL <> ($receiver:InterceptorMap) returnType:Unit flags:
+            $receiver: VALUE_PARAMETER name:<this> type:InterceptorMap flags:
+            BLOCK_BODY
+              RETURN type=kotlin.Nothing from='<anonymous>() on InterceptorMap: Unit'
+                CALL '<set-main>(Interceptor): Unit' type=kotlin.Unit origin=EQ
+                  $this: GET_OBJECT 'IM' type=IM
+                  <set-?>: CALL 'execute(Interceptor, String, vararg KClass<*>): Interceptor' type=Interceptor origin=null
+                    $this: GET_VAR 'this@<anonymous>: InterceptorMap' type=InterceptorMap origin=null
+                    interceptor: CALL '<get-main>(): Interceptor' type=Interceptor origin=GET_PROPERTY
+                      $this: GET_OBJECT 'IM' type=IM
+                    name: CONST String type=kotlin.String value=main
+                    types: VARARG type=Array<out KClass<*>> varargElementType=KClass<*>
+                      CLASS_REFERENCE 'Array' type=kotlin.reflect.KClass<kotlin.Array<kotlin.String>>
+          FUNCTION_REFERENCE '<anonymous>() on InterceptorMap: Unit' type=InterceptorMap.() -> kotlin.Unit origin=LAMBDA
+  FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+  FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+
+CLASS CLASS name:Test modality:FINAL visibility:public flags:
+  $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:Test flags:
+  superClasses:
+    CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+  CONSTRUCTOR visibility:public <> () returnType:Test flags:
+    BLOCK_BODY
+      DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+      INSTANCE_INITIALIZER_CALL classDescriptor='Test'
+  FUN name:abc visibility:public modality:FINAL <> ($this:Test, a:kotlin.Int, b:kotlin.Int) returnType:Int flags:
+    $this: VALUE_PARAMETER name:<this> type:Test flags:
+    VALUE_PARAMETER name:a index:0 type:kotlin.Int flags:
+    VALUE_PARAMETER name:b index:1 type:kotlin.Int flags:
+    BLOCK_BODY
+      RETURN type=kotlin.Nothing from='abc(Int, Int): Int'
+        CALL 'intercept(Interceptor.ArgProvider.() -> Unit, () -> Int): Int' type=kotlin.Int origin=null
+          <T>: Int
+          $this: CALL '<get-abc>(): Interceptor' type=Interceptor origin=GET_PROPERTY
+            $this: GET_OBJECT 'IM' type=Test.IM
+          args: BLOCK type=Interceptor.ArgProvider.() -> kotlin.Unit origin=LAMBDA
+            FUN LOCAL_FUNCTION_FOR_LAMBDA name:<anonymous> visibility:local modality:FINAL <> ($receiver:Interceptor.ArgProvider) returnType:Unit flags:
+              $receiver: VALUE_PARAMETER name:<this> type:Interceptor.ArgProvider flags:
+              BLOCK_BODY
+                CALL 'arg(Int, Any?): Unit' type=kotlin.Unit origin=null
+                  $this: GET_VAR 'this@<anonymous>: ArgProvider' type=Interceptor.ArgProvider origin=null
+                  n: CONST Int type=kotlin.Int value=0
+                  value: GET_VAR 'value-parameter a: Int' type=kotlin.Int origin=null
+                RETURN type=kotlin.Nothing from='<anonymous>() on Interceptor.ArgProvider: Unit'
+                  CALL 'arg(Int, Any?): Unit' type=kotlin.Unit origin=null
+                    $this: GET_VAR 'this@<anonymous>: ArgProvider' type=Interceptor.ArgProvider origin=null
+                    n: CONST Int type=kotlin.Int value=1
+                    value: GET_VAR 'value-parameter b: Int' type=kotlin.Int origin=null
+            FUNCTION_REFERENCE '<anonymous>() on Interceptor.ArgProvider: Unit' type=Interceptor.ArgProvider.() -> kotlin.Unit origin=LAMBDA
+          block: BLOCK type=() -> kotlin.Int origin=LAMBDA
+            FUN LOCAL_FUNCTION_FOR_LAMBDA name:<anonymous> visibility:local modality:FINAL <> () returnType:Int flags:
+              BLOCK_BODY
+                RETURN type=kotlin.Nothing from='<anonymous>(): Int'
+                  CALL 'plus(Int): Int' type=kotlin.Int origin=PLUS
+                    $this: GET_VAR 'value-parameter a: Int' type=kotlin.Int origin=null
+                    other: GET_VAR 'value-parameter b: Int' type=kotlin.Int origin=null
+            FUNCTION_REFERENCE '<anonymous>(): Int' type=() -> kotlin.Int origin=LAMBDA
+  CLASS OBJECT name:IM modality:FINAL visibility:public flags:
+    $this: VALUE_PARAMETER INSTANCE_RECEIVER name:<this> type:Test.IM flags:
+    superClasses:
+      CLASS IR_EXTERNAL_DECLARATION_STUB CLASS name:Any modality:OPEN visibility:public flags:
+    CONSTRUCTOR visibility:private <> () returnType:Test.IM flags:
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+        INSTANCE_INITIALIZER_CALL classDescriptor='IM'
+    PROPERTY name:abc type:Interceptor visibility:public modality:FINAL flags:var
+      FIELD PROPERTY_BACKING_FIELD name:abc type:Interceptor visibility:public
+        EXPRESSION_BODY
+          GET_OBJECT 'PassThroughInterceptor' type=PassThroughInterceptor
+      FUN DEFAULT_PROPERTY_ACCESSOR name:<get-abc> visibility:public modality:FINAL <> ($this:Test.IM) returnType:Interceptor flags:
+        $this: VALUE_PARAMETER name:<this> type:Test.IM flags:
+        BLOCK_BODY
+          RETURN type=kotlin.Nothing from='<get-abc>(): Interceptor'
+            GET_FIELD 'abc: Interceptor' type=Interceptor origin=null
+              receiver: GET_VAR 'this@IM: IM' type=Test.IM origin=null
+      FUN DEFAULT_PROPERTY_ACCESSOR name:<set-abc> visibility:public modality:FINAL <> ($this:Test.IM, <set-?>:Interceptor) returnType:Unit flags:
+        $this: VALUE_PARAMETER name:<this> type:Test.IM flags:
+        VALUE_PARAMETER name:<set-?> index:0 type:Interceptor flags:
+        BLOCK_BODY
+          SET_FIELD 'abc: Interceptor' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@IM: IM' type=Test.IM origin=null
+            value: GET_VAR 'value-parameter <set-?>: Interceptor' type=Interceptor origin=null
+    ANONYMOUS_INITIALIZER IM
+      BLOCK_BODY
+        CALL 'register(KClass<*>, InterceptorMappingBlock /* = InterceptorMap.() -> Unit */): Unit' type=kotlin.Unit origin=null
+          $this: GET_OBJECT 'Interceptors' type=Interceptors
+          cls: CLASS_REFERENCE 'Test' type=kotlin.reflect.KClass<Test>
+          mappingBlock: BLOCK type=InterceptorMap.() -> kotlin.Unit origin=LAMBDA
+            FUN LOCAL_FUNCTION_FOR_LAMBDA name:<anonymous> visibility:local modality:FINAL <> ($receiver:InterceptorMap) returnType:Unit flags:
+              $receiver: VALUE_PARAMETER name:<this> type:InterceptorMap flags:
+              BLOCK_BODY
+                RETURN type=kotlin.Nothing from='<anonymous>() on InterceptorMap: Unit'
+                  CALL '<set-abc>(Interceptor): Unit' type=kotlin.Unit origin=EQ
+                    $this: GET_OBJECT 'IM' type=Test.IM
+                    <set-?>: CALL 'execute(Interceptor, String, vararg KClass<*>): Interceptor' type=Interceptor origin=null
+                      $this: GET_VAR 'this@<anonymous>: InterceptorMap' type=InterceptorMap origin=null
+                      interceptor: CALL '<get-abc>(): Interceptor' type=Interceptor origin=GET_PROPERTY
+                        $this: GET_OBJECT 'IM' type=Test.IM
+                      name: CONST String type=kotlin.String value=abc
+                      types: VARARG type=Array<out KClass<*>> varargElementType=KClass<*>
+                        CLASS_REFERENCE 'Int' type=kotlin.reflect.KClass<kotlin.Int>
+                        CLASS_REFERENCE 'Int' type=kotlin.reflect.KClass<kotlin.Int>
+            FUNCTION_REFERENCE '<anonymous>() on InterceptorMap: Unit' type=InterceptorMap.() -> kotlin.Unit origin=LAMBDA
+    FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+      overridden:
+        FUN IR_EXTERNAL_DECLARATION_STUB name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+      $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+      VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+    FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+      overridden:
+        FUN IR_EXTERNAL_DECLARATION_STUB name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+      $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+      overridden:
+        FUN IR_EXTERNAL_DECLARATION_STUB name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+      $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:equals visibility:public modality:OPEN <> ($this:kotlin.Any, other:kotlin.Any?) returnType:Boolean flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+    VALUE_PARAMETER name:other index:0 type:kotlin.Any? flags:
+  FUN FAKE_OVERRIDE name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:hashCode visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:Int flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+  FUN FAKE_OVERRIDE name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    overridden:
+      FUN IR_EXTERNAL_DECLARATION_STUB name:toString visibility:public modality:OPEN <> ($this:kotlin.Any) returnType:String flags:
+    $this: VALUE_PARAMETER name:<this> type:kotlin.Any flags:
+
+[ 33%] Built target mockk-native-test.compile
+[ 66%] Building Kotlin object CMakeFiles/mockk-native-test.kexe.dir/mockk-native/src/test/kotlin/io/mockk/Run.kt
+[100%] Linking Kotlin executable mockk-native-test.kexe
+[100%] Built target mockk-native-test.kexe
