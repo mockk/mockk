@@ -5,9 +5,9 @@ plugins {
 dependencies {
     compileOnly "junit:junit:4.12"
     compileOnly 'org.testng:testng:6.8'
-    compile 'net.bytebuddy:byte-buddy:1.7.9'
-    compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
-    runtime 'net.bytebuddy:byte-buddy-agent:1.7.9'
+    compile 'net.bytebuddy:byte-buddy:1.8.8'
+    compileOnly 'net.bytebuddy:byte-buddy-agent:1.8.8'
+    runtime 'net.bytebuddy:byte-buddy-agent:1.8.8'
     testCompileOnly "junit:junit:4.12"
     testRuntimeOnly "junit:junit:4.12"
     compile 'org.objenesis:objenesis:2.6'
