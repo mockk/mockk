@@ -10,7 +10,7 @@ import java.util.concurrent.Callable
 import kotlin.reflect.KParameter
 import kotlin.reflect.jvm.kotlinFunction
 
-internal object JvmMockFactoryHelper {
+object JvmMockFactoryHelper {
     fun mockHandler(stub: Stub): (Any, Method, Callable<*>?, Array<Any?>) -> Any? {
         return { self, method, originalMethod, args ->
             stdFunctions(self, method, args) {
