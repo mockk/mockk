@@ -18,7 +18,7 @@ dependencies {
     compile(project(":mockk")) {
         exclude group:"net.bytebuddy", module: "byte-buddy"
     }
-    compile("net.bytebuddy:byte-buddy-android:1.8.8")
+    compile("net.bytebuddy:byte-buddy-android:1.7.9")
 
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
