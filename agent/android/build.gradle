@@ -38,7 +38,7 @@ repositories {
 
 dependencies {
     implementation 'com.linkedin.dexmaker:dexmaker:2.12.1'
-    implementation project(':mockk-dsl-jvm')
+    implementation project(':mockk-agent-api')
 //    implementation project(':dexmaker')
 }
 

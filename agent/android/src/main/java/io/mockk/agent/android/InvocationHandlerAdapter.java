@@ -17,25 +17,20 @@
 package io.mockk.agent.android;
 
 import com.android.dx.stock.ProxyBuilder;
-
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationFactory.RealMethodBehavior;
-import org.mockito.invocation.MockHandler;
-import org.mockito.mock.MockCreationSettings;
+import io.mockk.agent.MockKInvocationHandler;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-
-import static org.mockito.Mockito.withSettings;
+import java.util.concurrent.Callable;
 
 /**
  * Handles proxy and entry hook method invocations added by
- * {@link InlineDexmakerMockMaker#createMock(MockCreationSettings, MockHandler)}
+ * {@link AndroidMockKProxyMaker#proxy(Class, Class[], MockKInvocationHandler, boolean, Object)}
  */
 final class InvocationHandlerAdapter implements InvocationHandler {
-    private MockHandler handler;
+    private MockKInvocationHandler handler;
 
-    InvocationHandlerAdapter(MockHandler handler) {
+    InvocationHandlerAdapter(MockKInvocationHandler handler) {
         this.handler = handler;
     }
 
@@ -56,29 +51,27 @@ final class InvocationHandlerAdapter implements InvocationHandler {
      * <p>This does the same as {@link #invoke(Object, Method, Object[])} but this handles methods
      * that got and entry hook.
      *
-     * @param mock mocked object
-     * @param method method that was called
-     * @param rawArgs arguments to the method
+     * @param mock        mocked object
+     * @param method      method that was called
+     * @param rawArgs     arguments to the method
      * @param superMethod The super method
-     *
      * @return mocked result
      * @throws Throwable An exception if thrown
      */
     Object interceptEntryHook(final Object mock, final Method method, final Object[] rawArgs,
                               final SuperMethod superMethod) throws Throwable {
-        // args can be null if the method invoked has no arguments, but Mockito expects a non-null
+        // args can be null if the method invoked has no arguments, but MockK expects a non-null
         Object[] args = rawArgs;
         if (rawArgs == null) {
             args = new Object[0];
         }
 
-        return handler.handle(Mockito.framework().getInvocationFactory().createInvocation(mock,
-                withSettings().build(mock.getClass()), method, new RealMethodBehavior() {
-                    @Override
-                    public Object call() throws Throwable {
-                        return superMethod.invoke();
-                    }
-                }, args));
+        return handler.invocation(
+                mock,
+                method,
+                new InvokeMethod(superMethod),
+                args
+        );
     }
 
     /**
@@ -87,17 +80,16 @@ final class InvocationHandlerAdapter implements InvocationHandler {
      * <p>This does the same as {@link #interceptEntryHook(Object, Method, Object[], SuperMethod)}
      * but this handles proxied methods. We only proxy abstract methods.
      *
-     * @param proxy proxies object
-     * @param method method that was called
+     * @param proxy   proxies object
+     * @param method  method that was called
      * @param rawArgs arguments to the method
-     *
      * @return mocked result
      * @throws Throwable An exception if thrown
      */
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] rawArgs) throws
             Throwable {
-        // args can be null if the method invoked has no arguments, but Mockito expects a non-null
+        // args can be null if the method invoked has no arguments, but MockK expects a non-null
         Object[] args = rawArgs;
         if (rawArgs == null) {
             args = new Object[0];
@@ -109,30 +101,12 @@ final class InvocationHandlerAdapter implements InvocationHandler {
             return System.identityHashCode(proxy);
         }
 
-        return handler.handle(Mockito.framework().getInvocationFactory().createInvocation(proxy,
-                withSettings().build(proxy.getClass().getSuperclass()), method,
-                new RealMethodBehavior() {
-                    @Override
-                    public Object call() throws Throwable {
-                        return ProxyBuilder.callSuper(proxy, method, rawArgs);
-                    }
-                }, args));
-    }
-
-    /**
-     * Get the handler registered with this adapter.
-     *
-     * @return handler
-     */
-    MockHandler getHandler() {
-        return handler;
-    }
-
-    /**
-     * Set a new handler for this adapter.
-     */
-    void setHandler(MockHandler handler) {
-        this.handler = handler;
+        return handler.invocation(
+                proxy,
+                method,
+                new CallProxySuper(proxy, method, rawArgs),
+                args
+        );
     }
 
     /**
@@ -140,5 +114,47 @@ final class InvocationHandlerAdapter implements InvocationHandler {
      */
     interface SuperMethod {
         Object invoke() throws Throwable;
+    }
+
+    private static class InvokeMethod implements Callable<Object> {
+        private final SuperMethod superMethod;
+
+        public InvokeMethod(SuperMethod superMethod) {
+            this.superMethod = superMethod;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            try {
+                return superMethod.invoke();
+            } catch (Exception | Error ex) {
+                throw ex;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
+    }
+
+    private static class CallProxySuper implements Callable<Object> {
+        private final Object proxy;
+        private final Method method;
+        private final Object[] rawArgs;
+
+        public CallProxySuper(Object proxy, Method method, Object[] rawArgs) {
+            this.proxy = proxy;
+            this.method = method;
+            this.rawArgs = rawArgs;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            try {
+                return ProxyBuilder.callSuper(proxy, method, rawArgs);
+            } catch (Exception | Error ex) {
+                throw ex;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
     }
 }

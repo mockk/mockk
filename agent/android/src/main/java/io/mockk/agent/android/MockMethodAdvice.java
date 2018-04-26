@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Mockito contributors
+ * Copyright (c) 2016 MockK contributors
  * This program is made available under the terms of the MIT License.
  */
 
@@ -24,6 +24,7 @@ class MockMethodAdvice {
     /** Pattern to decompose a instrumentedMethodWithTypeAndSignature */
     private final Pattern methodPattern = Pattern.compile("(.*)#(.*)\\((.*)\\)");
 
+    @SuppressWarnings("ThreadLocalUsage")
     private final SelfCallInfo selfCallInfo = new SelfCallInfo();
 
     MockMethodAdvice(Map<Object, InvocationHandlerAdapter> interceptors) {

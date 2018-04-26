@@ -60,7 +60,7 @@ uploadArchives {
             pom.project {
                 name 'MockK Java Agent'
                 packaging 'jar'
-                description 'MockK agent to remove finals'
+                description 'MockK inline mocking agent'
                 url 'http://mockk.io'
 
                 scm {

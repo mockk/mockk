@@ -18,16 +18,11 @@ package io.mockk.agent.android;
 
 import android.os.Build;
 import android.os.Debug;
+import dalvik.system.BaseDexClassLoader;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-
-import dalvik.system.BaseDexClassLoader;
 
 /**
  * Interface to the native jvmti agent in agent.cc
@@ -83,7 +78,7 @@ class JvmtiAgent {
      * @param jarStream stream of jar to be added
      */
     void appendToBootstrapClassLoaderSearch(InputStream jarStream) throws IOException {
-        File jarFile = File.createTempFile("mockito-boot", ".jar");
+        File jarFile = File.createTempFile("mockk-boot", ".jar");
         jarFile.deleteOnExit();
 
         byte[] buffer = new byte[64 * 1024];

@@ -19,17 +19,11 @@ package io.mockk.agent.android;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.ArraySet;
-
 import com.android.dx.stock.ProxyBuilder;
 import com.android.dx.stock.ProxyBuilder.MethodSetEntry;
-
-import org.mockito.Mockito;
-import org.mockito.exceptions.base.MockitoException;
-import org.mockito.internal.creation.instance.Instantiator;
-import org.mockito.invocation.MockHandler;
-import org.mockito.mock.MockCreationSettings;
-import org.mockito.plugins.InstantiatorProvider;
-import org.mockito.plugins.MockMaker;
+import io.mockk.agent.MockKAgentException;
+import io.mockk.agent.MockKInvocationHandler;
+import io.mockk.agent.MockKProxyMaker;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,24 +33,20 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Generates mock instances on Android's runtime that can mock final methods.
  *
  * <p>This is done by transforming the byte code of the classes to add method entry hooks.
  */
-public final class InlineDexmakerMockMaker implements MockMaker {
+
+public final class AndroidMockKProxyMaker implements MockKProxyMaker {
     private static final String DISPATCHER_CLASS_NAME =
             "io.mockk.agent.android.MockMethodDispatcher";
     private static final String DISPATCHER_JAR = "dispatcher.jar";
 
-    /** {@link JvmtiAgent} set up during one time init */
+    /** {@link io.mockk.agent.android.JvmtiAgent} set up during one time init */
     private static final JvmtiAgent AGENT;
 
     /** Error  during one time init or {@code null} if init was successful*/
@@ -66,7 +56,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
      * Class injected into the bootstrap classloader. All entry hooks added to methods will call
      * this class.
      */
-    private static final Class DISPATCHER_CLASS;
+    public static final Class DISPATCHER_CLASS;
 
     /*
      * One time setup to allow the system to mocking via this mock maker.
@@ -79,7 +69,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
             try {
                 agent = new JvmtiAgent();
 
-                try (InputStream is = InlineDexmakerMockMaker.class.getClassLoader()
+                try (InputStream is = AndroidMockKProxyMaker.class.getClassLoader()
                         .getResource(DISPATCHER_JAR).openStream()) {
                     agent.appendToBootstrapClassLoaderSearch(is);
                 }
@@ -94,13 +84,13 @@ public final class InlineDexmakerMockMaker implements MockMaker {
                     }
                 } catch (ClassNotFoundException cnfe) {
                     throw new IllegalStateException(
-                            "Mockito failed to inject the MockMethodDispatcher class into the "
+                            "MockK failed to inject the MockMethodDispatcher class into the "
                             + "bootstrap class loader\n\nIt seems like your current VM does not "
                             + "support the jvmti API correctly.", cnfe);
                 }
             } catch (IOException ioe) {
                 throw new IllegalStateException(
-                        "Mockito could not self-attach a jvmti agent to the current VM. This "
+                        "MockK could not self-attach a jvmti agent to the current VM. This "
                         + "feature is required for inline mocking.\nThis error occured due to an "
                         + "I/O error during the creation of this agent: " + ioe + "\n\n"
                         + "Potentially, the current VM does not support the jvmti API correctly",
@@ -131,7 +121,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
     /**
      * Create a new mock maker.
      */
-    public InlineDexmakerMockMaker() {
+    public AndroidMockKProxyMaker() {
         if (INITIALIZATION_ERROR != null) {
             throw new RuntimeException(
                     "Could not initialize inline mock maker.\n"
@@ -150,15 +140,14 @@ public final class InlineDexmakerMockMaker implements MockMaker {
      * <p>Only abstract methods will need to get proxied as all other methods will get an entry
      * hook.
      *
-     * @param settings description of the current mocking process.
      *
      * @return methods to proxy.
      */
-    private <T> Method[] getMethodsToProxy(MockCreationSettings<T> settings) {
+    private <T> Method[] getMethodsToProxy(Class<T> clazz, Class<?>[] interfaces) {
         Set<MethodSetEntry> abstractMethods = new HashSet<>();
         Set<MethodSetEntry> nonAbstractMethods = new HashSet<>();
 
-        Class<?> superClass = settings.getTypeToMock();
+        Class<?> superClass = clazz;
         while (superClass != null) {
             for (Method method : superClass.getDeclaredMethods()) {
                 if (Modifier.isAbstract(method.getModifiers())
@@ -172,7 +161,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
             superClass = superClass.getSuperclass();
         }
 
-        for (Class<?> i : settings.getTypeToMock().getInterfaces()) {
+        for (Class<?> i : clazz.getInterfaces()) {
             for (Method method : i.getMethods()) {
                 if (!nonAbstractMethods.contains(new MethodSetEntry(method))) {
                     abstractMethods.add(new MethodSetEntry(method));
@@ -180,7 +169,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
             }
         }
 
-        for (Class<?> i : settings.getExtraInterfaces()) {
+        for (Class<?> i : interfaces) {
             for (Method method : i.getMethods()) {
                 if (!nonAbstractMethods.contains(new MethodSetEntry(method))) {
                     abstractMethods.add(new MethodSetEntry(method));
@@ -198,61 +187,60 @@ public final class InlineDexmakerMockMaker implements MockMaker {
     }
 
     @Override
-    public <T> T createMock(MockCreationSettings<T> settings, MockHandler handler) {
-        Class<T> typeToMock = settings.getTypeToMock();
-        Set<Class<?>> interfacesSet = settings.getExtraInterfaces();
-        Class<?>[] extraInterfaces = interfacesSet.toArray(new Class[interfacesSet.size()]);
+    public <T> T instance(Class<T> cls) {
+        return null;
+    }
+
+    @Override
+    public <T> T proxy(
+            Class<T> clazz,
+            Class<?>[] interfaces,
+            MockKInvocationHandler handler,
+            boolean useDefaultConstructor,
+            Object instance) {
         InvocationHandlerAdapter handlerAdapter = new InvocationHandlerAdapter(handler);
 
+        if (instance != null) {
+            classTransformer.mockClass(clazz, interfaces);
+            mocks.put(instance, handlerAdapter);
+            return clazz.cast(instance);
+        }
+
         T mock;
-        if (typeToMock.isInterface()) {
+        if (clazz.isInterface()) {
             // support interfaces via java.lang.reflect.Proxy
-            Class[] classesToMock = new Class[extraInterfaces.length + 1];
-            classesToMock[0] = typeToMock;
-            System.arraycopy(extraInterfaces, 0, classesToMock, 1, extraInterfaces.length);
+            Class[] classesToMock = new Class[interfaces.length + 1];
+            classesToMock[0] = clazz;
+            System.arraycopy(interfaces, 0, classesToMock, 1, interfaces.length);
 
             // newProxyInstance returns the type of typeToMock
-            mock = (T) Proxy.newProxyInstance(typeToMock.getClassLoader(), classesToMock,
-                    handlerAdapter);
+            mock = clazz.cast(Proxy.newProxyInstance(clazz.getClassLoader(), classesToMock,
+                    handlerAdapter));
         } else {
-            boolean subclassingRequired = !interfacesSet.isEmpty()
-                    || Modifier.isAbstract(typeToMock.getModifiers());
+            boolean subclassingRequired = interfaces.length > 0
+                    || Modifier.isAbstract(clazz.getModifiers());
 
             // Add entry hooks to non-abstract methods.
-            classTransformer.mockClass(MockFeatures.withMockFeatures(typeToMock, interfacesSet));
+            classTransformer.mockClass(clazz, interfaces);
 
             Class<? extends T> proxyClass;
-
-            Instantiator instantiator = Mockito.framework().getPlugins()
-                    .getDefaultPlugin(InstantiatorProvider.class).getInstantiator(settings);
 
             if (subclassingRequired) {
                 try {
                     // support abstract methods via dexmaker's ProxyBuilder
-                    proxyClass = ProxyBuilder.forClass(typeToMock).implementing(extraInterfaces)
-                            .onlyMethods(getMethodsToProxy(settings)).withSharedClassLoader()
+                    proxyClass = ProxyBuilder.forClass(clazz).implementing(interfaces)
+                            .onlyMethods(getMethodsToProxy(clazz, interfaces)).withSharedClassLoader()
                             .buildProxyClass();
-                } catch (RuntimeException e) {
-                    throw e;
+
                 } catch (Exception e) {
-                    throw new MockitoException("Failed to mock " + typeToMock, e);
+                    throw new MockKAgentException("Failed to mock " + clazz, e);
                 }
 
-                try {
-                    mock = instantiator.newInstance(proxyClass);
-                } catch (org.mockito.internal.creation.instance.InstantiationException e) {
-                    throw new MockitoException("Unable to create mock instance of type '"
-                            + proxyClass.getSuperclass().getSimpleName() + "'", e);
-                }
+                mock = instance(proxyClass);
 
                 ProxyBuilder.setInvocationHandler(mock, handlerAdapter);
             } else {
-                try {
-                    mock = instantiator.newInstance(typeToMock);
-                } catch (org.mockito.internal.creation.instance.InstantiationException e) {
-                    throw new MockitoException("Unable to create mock instance of type '"
-                            + typeToMock.getSimpleName() + "'", e);
-                }
+                mock = instance(clazz);
             }
         }
 
@@ -261,56 +249,20 @@ public final class InlineDexmakerMockMaker implements MockMaker {
     }
 
     @Override
-    public void resetMock(Object mock, MockHandler newHandler, MockCreationSettings settings) {
-        InvocationHandlerAdapter adapter = getInvocationHandlerAdapter(mock);
-        if (adapter != null) {
-            adapter.setHandler(newHandler);
-        }
+    public void unproxy(Object instance) {
+        mocks.remove(instance);
     }
 
     @Override
-    public TypeMockability isTypeMockable(final Class<?> type) {
-        return new TypeMockability() {
-            @Override
-            public boolean mockable() {
-                return !type.isPrimitive() && type != String.class;
-            }
-
-            @Override
-            public String nonMockableReason() {
-                if (type.isPrimitive()) {
-                    return "primitive type";
-                }
-
-                if (type == String.class) {
-                    return "string";
-                }
-
-                return "not handled type";
-            }
-        };
+    public void staticProxy(Class<?> clazz, MockKInvocationHandler handler) {
+        throw new MockKAgentException("static proxy is not supported yet");
     }
 
     @Override
-    public MockHandler getHandler(Object mock) {
-        InvocationHandlerAdapter adapter = getInvocationHandlerAdapter(mock);
-        return adapter != null ? adapter.getHandler() : null;
+    public void staticUnProxy(Class<?> clazz) {
+        throw new MockKAgentException("static proxy is not supported yet");
     }
 
-    /**
-     * Get the {@link InvocationHandlerAdapter} registered for a mock.
-     *
-     * @param instance instance that might be mocked
-     *
-     * @return adapter for this mock, or {@code null} if instance is not mocked
-     */
-    private InvocationHandlerAdapter getInvocationHandlerAdapter(Object instance) {
-        if (instance == null) {
-            return null;
-        }
-
-        return mocks.get(instance);
-    }
 
     /**
      * A map mock -> adapter that holds weak references to the mocks and cleans them up when a
@@ -388,6 +340,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
             return adapters.isEmpty();
         }
 
+        @SuppressWarnings("CollectionIncompatibleType")
         @Override
         public boolean containsKey(Object mock) {
             synchronized (lock) {
@@ -406,6 +359,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
             }
         }
 
+        @SuppressWarnings("CollectionIncompatibleType")
         @Override
         public InvocationHandlerAdapter get(Object mock) {
             synchronized (lock) {
@@ -468,6 +422,7 @@ public final class InlineDexmakerMockMaker implements MockMaker {
             }
         }
 
+        @SuppressWarnings("CollectionIncompatibleType")
         @Override
         public InvocationHandlerAdapter remove(Object mock) {
             synchronized (lock) {
