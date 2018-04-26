@@ -1,9 +1,11 @@
 @file:Suppress("DEPRECATION")
+
 package io.mockk
 
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKGateway.VerificationParameters
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 
 /**
@@ -252,7 +254,8 @@ object MockKDsl {
     /**
      * Declares object mockk.
      */
-    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) = MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
+    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) =
+        MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
 
     /**
      * Builds a mock for a class.
@@ -351,6 +354,13 @@ open class MockKMatcherScope(
 
     inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) -2 else -1, T::class))
+
+    inline fun <reified T : Comparable<T>> range(
+        from: T,
+        to: T,
+        fromInclusive: Boolean = true,
+        toInclusive: Boolean = true
+    ): T = and(more(from, fromInclusive), less(to, toInclusive))
 
     inline fun <reified T : Any> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
     inline fun <reified T : Any> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
@@ -1510,11 +1520,39 @@ open class MockKMatcherScope(
         }
     }
 
-    operator fun Any.get(name: String) = DynamicCall(this, name)
+    operator fun Any.get(name: String) =
+        DynamicCall(this, name, { any() })
 
-    class DynamicCall(val self: Any, val methodName: String) {
+    infix fun Any.invoke(name: String) =
+        DynamicCallLong(this, name, { any() })
+
+    infix fun Any.getProperty(name: String) =
+        InternalPlatformDsl.dynamicGet(this, name)
+
+    infix fun Any.setProperty(name: String) = DynamicSetProperty(this, name)
+
+    class DynamicSetProperty(val self: Any, val name: String) {
+        infix fun value(value: Any?) {
+            InternalPlatformDsl.dynamicSet(self, name, value)
+        }
+    }
+
+    class DynamicCall(
+        val self: Any,
+        val methodName: String,
+        val anyContinuationGen: () -> Continuation<*>
+    ) {
         operator fun invoke(vararg args: Any?) =
-            InternalPlatformDsl.dynamicCall(self, methodName, args)
+            InternalPlatformDsl.dynamicCall(self, methodName, args, anyContinuationGen)
+    }
+
+    class DynamicCallLong(
+        val self: Any,
+        val methodName: String,
+        val anyContinuationGen: () -> Continuation<*>
+    ) {
+        infix fun withArguments(args: List<Any?>) =
+            InternalPlatformDsl.dynamicCall(self, methodName, args.toTypedArray(), anyContinuationGen)
     }
 
 }

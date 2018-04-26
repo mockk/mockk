@@ -2,7 +2,7 @@ package io.mockk.impl.annotations
 
 import io.mockk.MockKException
 import kotlin.reflect.*
-import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.valueParameters
 import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
@@ -23,7 +23,7 @@ class MockInjector(
     }
 
     fun propertiesInjection(instance: Any) {
-        instance::class.declaredMemberProperties.forEach { property ->
+        instance::class.memberProperties.forEach { property ->
             val isMutable = property is KMutableProperty1
 
             if (!injectImmutable && !isMutable) return@forEach
@@ -81,7 +81,7 @@ class MockInjector(
         if (type !is KClass<*>) return null
         if (!lookupType.byName) return null
 
-        return mockHolder::class.declaredMemberProperties
+        return mockHolder::class.memberProperties
             .firstOrNull { it.name == name && isMatchingType(it, type) }
             ?.getAnyIfLateNull(mockHolder)
     }
@@ -91,7 +91,7 @@ class MockInjector(
         if (type !is KClass<*>) return null
         if (!lookupType.byType) return null
 
-        return mockHolder::class.declaredMemberProperties
+        return mockHolder::class.memberProperties
             .firstOrNull {
                 isMatchingType(it, type)
             }

@@ -2,9 +2,16 @@ package io.mockk
 
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.Method
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty1
 import kotlin.reflect.full.functions
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaGetter
 import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.javaSetter
 
 actual object InternalPlatformDsl {
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
@@ -81,7 +88,12 @@ actual object InternalPlatformDsl {
 
     actual fun classForName(name: String): Any = Class.forName(name).kotlin
 
-    actual fun dynamicCall(self: Any, methodName: String, args: Array<out Any?>): Any? {
+    actual fun dynamicCall(
+        self: Any,
+        methodName: String,
+        args: Array<out Any?>,
+        anyContinuationGen: () -> Continuation<*>
+    ): Any? {
         val params = arrayOf(self, *args)
         val func = self::class.functions.firstOrNull {
             it.name == methodName &&
@@ -97,6 +109,33 @@ actual object InternalPlatformDsl {
         } ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) for dynamic call")
 
         func.javaMethod?.isAccessible = true
-        return func.call(*params)
+        if (func.isSuspend) {
+            return func.call(*params, anyContinuationGen())
+        } else {
+            return func.call(*params)
+        }
     }
+
+    actual fun dynamicGet(self: Any, name: String): Any? {
+        val property = self::class.memberProperties
+            .filterIsInstance<KProperty1<Any, Any?>>()
+            .firstOrNull {
+                it.name == name
+            } ?: throw MockKException("can't find property $name for dynamic property get")
+
+        property.javaGetter?.isAccessible = true
+        return property.get(self)
+    }
+
+    actual fun dynamicSet(self: Any, name: String, value: Any?) {
+        val property = self::class.memberProperties
+            .filterIsInstance<KMutableProperty1<Any, Any?>>()
+            .firstOrNull {
+                it.name == name
+            } ?: throw MockKException("can't find property $name for dynamic property set")
+
+        property.javaSetter?.isAccessible = true
+        return property.set(self, value)
+    }
+
 }

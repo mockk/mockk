@@ -2,7 +2,9 @@
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/oleksiyp/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG) [![codecov](https://codecov.io/gh/oleksiyp/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/oleksiyp/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
 
-***version 1.7.12 introduces @InjectMockKs and @OverrideMockKs annotations***
+***thank you for using MockK!!!***
+
+![mockk usage](doc/stats-mockk.png)
 
 Table of contents:
 
@@ -47,7 +49,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.7.12"</pre>
+    <pre>testCompile "io.mockk:mockk:1.7.15"</pre>
     </td>
 </tr>
 <tr>
@@ -56,7 +58,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.7.12&lt;/version&gt;
+    &lt;version&gt;1.7.15&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -573,6 +575,21 @@ verifySequence {
 
 In case you want private calls to be verified, you should create spyk with `recordPrivateCalls = true`
 
+Additionally more verbose syntax allows to get and set properties, do same dynamic calls:
+
+```kotlin
+val mock = spyk(Team(), recordPrivateCalls = true)
+
+every { mock getProperty "speed" } returns 33
+every { mock setProperty "acceleration" value less(5) } just Runs
+every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
+
+verify { mock getProperty "speed" }
+verify { mock setProperty "acceleration" value less(5) }
+verify { mock invoke "openDoor" withArguments listOf("left", "rear") }
+
+```
+
 ### More interfaces
 
 Adding additional behaviours via interfaces and stubbing them:
@@ -619,8 +636,9 @@ By default simple arguments are matched using `eq()`
 |`cmpEq(value)`|matches if value is equal to the provided via compareTo function|
 |`less(value)`|matches if value is less to the provided via compareTo function|
 |`more(value)`|matches if value is more to the provided via compareTo function|
-|`less(value, andEquals=true)`|matches if value is less or equals to the provided via compareTo function|
-|`more(value, andEquals=true)`|matches if value is more or equals to the provided via compareTo function|
+|`less(value, andEquals=false)`|matches if value is less or equals to the provided via compareTo function|
+|`more(value, andEquals=false)`|matches if value is more or equals to the provided via compareTo function|
+|`range(from, to, fromInclusive=true, toInclusive=true)`|matches if value is in range via compareTo function|
 |`and(left, right)`|combines two matchers via logical and|
 |`or(left, right)`|combines two matchers via logical or|
 |`not(matcher)`|negates the matcher|
