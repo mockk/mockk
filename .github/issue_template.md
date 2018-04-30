@@ -1,7 +1,7 @@
 # Please remove below sections wisely
 
 Below information needed actually to make all the process faster.
-Choose main points, don't blindly follow this a set of rules. 
+Choose main points, don't blindly follow this as a set of rules. 
 So don't waste much time, usually main thing is to have good reproducible minimal code.
 
 # Prerequisites
