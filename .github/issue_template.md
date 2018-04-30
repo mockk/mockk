@@ -1,4 +1,4 @@
-# Please remove below sections wisely
+# Please remove sections wisely
 
 Below information is actually needed to make all the process of fixing faster.
 Choose main points. Don't blindly follow this as a set of rules. 
