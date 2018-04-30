@@ -1,6 +1,6 @@
 # Please remove below sections wisely
 
-Below information needed actually to make all the process faster.
+Below information is actually needed to make all the process of fixing faster.
 Choose main points, don't blindly follow this as a set of rules. 
 So don't waste much time, usually main thing is to have good reproducible minimal code.
 
