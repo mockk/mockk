@@ -36,7 +36,9 @@ Please provide detailed steps for reproducing the issue.
 
 Please provide any relevant information about your setup. This is important in case the issue is not reproducible except for under certain conditions.
 
+* MockK version:
 * OS:
+* Kotlin version:
 * JDK version:
 * Type of test: unit test OR android instrumentation test
 
