@@ -13,6 +13,7 @@ import java.util.Collections.synchronizedList
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
+import kotlin.reflect.full.cast
 import kotlin.reflect.full.isSubclassOf
 
 actual object InternalPlatform {
@@ -124,4 +125,11 @@ actual object InternalPlatform {
             )
         }
     }
+
+    inline fun <reified T : Any> loadPlugin(className: String) =
+        try {
+            T::class.cast(Class.forName(className).newInstance())
+        } catch (ex: Exception) {
+            throw MockKException("Failed to load plugin $className", ex)
+        }
 }

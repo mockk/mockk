@@ -36,7 +36,7 @@
 using namespace dex;
 using namespace lir;
 
-namespace io_mockk_agent_android {
+namespace io_mockk_proxy_android {
 static jvmtiEnv* localJvmtiEnv;
 
 static jobject sTransformer;
@@ -286,10 +286,10 @@ isEquals(ir::EncodedMethod *method) {
                       "java.lang.Object") == 0;
 }
 
-// Transforms the classes to add the mockito hooks
+// Transforms the classes to add the mockk hooks
 // - equals and hashcode are handled in a special way
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_io_mockk_agent_android_ClassTransformer_nativeRedefine(JNIEnv* env,
+Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
                                                                    jobject generator,
                                                                    jstring idStr,
                                                                    jbyteArray originalArr) {
@@ -308,7 +308,7 @@ Java_io_mockk_agent_android_ClassTransformer_nativeRedefine(JNIEnv* env,
     ir::Type* methodT = b.GetType("Ljava/lang/reflect/Method;");
     ir::Type* systemT = b.GetType("Ljava/lang/System;");
     ir::Type* callableT = b.GetType("Ljava/util/concurrent/Callable;");
-    ir::Type* dispatcherT = b.GetType("Lcom/android/dx/mockito/inline/MockMethodDispatcher;");
+    ir::Type* dispatcherT = b.GetType("Lio/mockk/proxy/android/MockMethodDispatcher;");
 
     // Add id to dex file
     const char* idNative = env->GetStringUTFChars(idStr, 0);
@@ -842,14 +842,14 @@ static void throwRuntimeExpection(JNIEnv* env, const char* fmt, ...) {
 
 // Register transformer hook
 extern "C" JNIEXPORT void JNICALL
-Java_io_mockk_agent_android_JvmtiAgent_nativeRegisterTransformerHook(JNIEnv* env,
+Java_io_mockk_proxy_android_JvmtiAgent_nativeRegisterTransformerHook(JNIEnv* env,
                                                                             jobject thiz) {
     sTransformer = env->NewGlobalRef(thiz);
 }
 
 // Unregister transformer hook
 extern "C" JNIEXPORT void JNICALL
-Java_io_mockk_agent_android_JvmtiAgent_nativeUnregisterTransformerHook(JNIEnv* env,
+Java_io_mockk_proxy_android_JvmtiAgent_nativeUnregisterTransformerHook(JNIEnv* env,
                                                                               jobject thiz) {
     env->DeleteGlobalRef(sTransformer);
     sTransformer = NULL;
@@ -857,7 +857,7 @@ Java_io_mockk_agent_android_JvmtiAgent_nativeUnregisterTransformerHook(JNIEnv* e
 
 // Triggers retransformation of classes via this file's Transform method
 extern "C" JNIEXPORT void JNICALL
-Java_io_mockk_agent_android_JvmtiAgent_nativeRetransformClasses(JNIEnv* env,
+Java_io_mockk_proxy_android_JvmtiAgent_nativeRetransformClasses(JNIEnv* env,
                                                                        jobject thiz,
                                                                        jobjectArray classes) {
     jsize numTransformedClasses = env->GetArrayLength(classes);
@@ -881,7 +881,7 @@ Java_io_mockk_agent_android_JvmtiAgent_nativeRetransformClasses(JNIEnv* env,
 
 // Adds a jar file to the bootstrap class loader
 extern "C" JNIEXPORT void JNICALL
-Java_io_mockk_agent_android_JvmtiAgent_nativeAppendToBootstrapClassLoaderSearch(JNIEnv* env,
+Java_io_mockk_proxy_android_JvmtiAgent_nativeAppendToBootstrapClassLoaderSearch(JNIEnv* env,
                                                                                   jclass klass,
                                                                                   jstring jarFile) {
     const char *jarFileNative = env->GetStringUTFChars(jarFile, 0);
@@ -894,5 +894,5 @@ Java_io_mockk_agent_android_JvmtiAgent_nativeAppendToBootstrapClassLoaderSearch(
 
     env->ReleaseStringUTFChars(jarFile, jarFileNative);
 }
-}  // namespace io_mockk_agent_android
+}  // namespace io_mockk_proxy_android
 

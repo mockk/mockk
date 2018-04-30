@@ -1,19 +1,21 @@
 rootProject.name = 'mockk-top'
 
 include 'mockk'
-include 'mockk-js'
+//include 'mockk-js'
+include 'mockk-android'
 include 'mockk-common'
-include 'mockk-agent'
+include 'mockk-agent-jvm'
 include 'mockk-agent-api'
 include 'mockk-dsl'
 include 'mockk-dsl-jvm'
 include 'mockk-dsl-js'
 
-project(":mockk-agent").projectDir = file("agent/jvm")
+project(":mockk-agent-jvm").projectDir = file("agent/jvm")
 project(":mockk-agent-api").projectDir = file("agent/api")
 project(":mockk-common").projectDir = file("common")
 project(":mockk-dsl").projectDir = file("dsl/common")
 project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
+project(":mockk-dsl-js").projectDir = file("dsl/js")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
 
 Properties properties = new Properties()
@@ -22,5 +24,8 @@ properties.load(file("local.properties").newDataInputStream())
 def sdkDir = (String) properties['sdk.dir']
 if (sdkDir != null && new File(sdkDir).exists()) {
     include 'mockk-agent-android'
+    include 'mockk-agent-android-dispatcher'
+
     project(":mockk-agent-android").projectDir = file("agent/android")
+    project(":mockk-agent-android-dispatcher").projectDir = file("agent/android/dispatcher")
 }

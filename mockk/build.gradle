@@ -16,7 +16,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     expectedBy project(':mockk-common')
     compile project(':mockk-dsl-jvm')
-    compile project(":mockk-agent")
+    compile project(":mockk-agent-jvm")
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'

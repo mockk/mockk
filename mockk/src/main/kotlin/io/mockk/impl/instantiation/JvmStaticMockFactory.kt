@@ -4,16 +4,16 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.MockKGateway.StaticMockFactory
 import io.mockk.agent.MockKAgentException
+import io.mockk.agent.MockKStaticProxyMaker
 import io.mockk.impl.InternalPlatform.hkd
 import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
-import io.mockk.proxy.JvmMockKProxyMaker
 import kotlin.reflect.KClass
 
 class JvmStaticMockFactory(
-        val proxyMaker: JvmMockKProxyMaker,
+        val proxyMaker: MockKStaticProxyMaker,
         val stubRepository: StubRepository,
         val gatewayAccess: StubGatewayAccess
 ) : StaticMockFactory {

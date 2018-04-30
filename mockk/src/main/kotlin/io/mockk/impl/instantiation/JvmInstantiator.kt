@@ -1,19 +1,19 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.agent.MockKInstantiatior
 import io.mockk.impl.log.Logger
-import io.mockk.proxy.JvmMockKProxyMaker
 import kotlin.reflect.KClass
 
 class JvmInstantiator(
-        val proxyMaker: JvmMockKProxyMaker,
-        instanceFactoryRegistry: CommonInstanceFactoryRegistry
+    val instantiator: MockKInstantiatior,
+    instanceFactoryRegistry: CommonInstanceFactoryRegistry
 ) : AbstractInstantiator(instanceFactoryRegistry) {
 
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }
         return instantiateViaInstanceFactoryRegistry(cls) {
-            proxyMaker.instance(cls.java)
+            instantiator.instance(cls.java)
         }
     }
 

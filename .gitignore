@@ -8,4 +8,4 @@ gradlew
 gradlew.bat
 hs_err_*
 replay_*
-android-agent/.externalNativeBuild/
+agent/android/.externalNativeBuild/

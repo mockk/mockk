@@ -22,8 +22,8 @@ task sourcesJar(type: Jar) {
 
 task copyMockKDispatcher(type: Copy) {
     dependsOn compileJava
-    from "${sourceSets.main.java.outputDir}/io/mockk/proxy"
-    into "${sourceSets.main.java.outputDir}/io/mockk/proxy"
+    from "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm"
+    into "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm"
     include "MockKDispatcher.class"
     include "MockKWeakMap.class"
     include "MockKWeakMap\$StrongKey.class"
@@ -35,8 +35,8 @@ task copyMockKDispatcher(type: Copy) {
 classes.dependsOn(copyMockKDispatcher)
 
 jar {
-    exclude "io/mockk/proxy/MockKDispatcher.class"
-    exclude "io/mockk/proxy/MockKWeakMap*.class"
+    exclude "io/mockk/proxy/jvm/MockKDispatcher.class"
+    exclude "io/mockk/proxy/jvm/MockKWeakMap*.class"
 }
 
 artifacts {

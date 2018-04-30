@@ -1,0 +1,51 @@
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 'android-P'
+    buildToolsVersion '27.0.3'
+
+    android {
+        lintOptions {
+            disable 'InvalidPackage'
+            warning 'NewApi'
+        }
+        packagingOptions {
+            exclude 'META-INF/main.kotlin_module'
+        }
+        sourceSets {
+            main.java.srcDirs += 'src/main/kotlin'
+            androidTest.java.srcDirs += 'src/androidTest/kotlin'
+            test.java.srcDirs += 'src/android/kotlin'
+        }
+
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 27
+        versionName project['version']
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+}
+
+repositories {
+    jcenter()
+    google()
+}
+
+
+dependencies {
+    implementation project(":mockk-agent-android")
+    implementation project(':mockk')
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+}
+

@@ -1,11 +1,15 @@
 buildscript {
-    ext.kotlin_version = '1.2.21'
+    ext.kotlin_version = '1.2.41'
+    ext.kotlin_gradle_version = '1.2.41'
+    ext.android_gradle_version = '3.0.1'
     repositories {
         mavenCentral()
         jcenter()
+        google()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
+        classpath "com.android.tools.build:gradle:$android_gradle_version"
     }
 }
 
@@ -24,6 +28,9 @@ subprojects {
 
     repositories {
         mavenCentral()
+        maven {
+            url 'https://dl.bintray.com/linkedin/maven/'
+        }
     }
 
     signing {
@@ -32,7 +39,7 @@ subprojects {
 
     signArchives.onlyIf { project.hasProperty('signing.keyId') }
 
-    if (!it.name.equals('mockk-agent-android')) {
+    if (!it.name.contains('android')) {
         apply plugin: 'java'
 
         sourceCompatibility = 1.6

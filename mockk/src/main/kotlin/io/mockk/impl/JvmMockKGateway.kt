@@ -3,6 +3,8 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
+import io.mockk.agent.MockKAgentFactory
+import io.mockk.agent.MockKAgentLogFactory
 import io.mockk.impl.annotations.JvmMockInitializer
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
@@ -20,15 +22,8 @@ import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.verify.UnorderedCallVerifier
-import io.mockk.mockk
-import io.mockk.proxy.MockKInstrumentation
-import io.mockk.proxy.MockKInstrumentationLoader
-import io.mockk.proxy.JvmMockKProxyMaker
+import io.mockk.proxy.jvm.JvmMockKAgentFactory
 import java.util.*
-import kotlin.reflect.KParameter
-import kotlin.reflect.full.functions
-import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.kotlinFunction
 
 class JvmMockKGateway : MockKGateway {
     val safeLog: SafeLog = SafeLog({ callRecorderTL.get() })
@@ -36,27 +31,43 @@ class JvmMockKGateway : MockKGateway {
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
+    val agentFactory = if (detectAndroid())
+        InternalPlatform.loadPlugin<MockKAgentFactory>("io.mockk.proxy.android.AndroidMockKAgentFactory")
+    else
+        JvmMockKAgentFactory()
+
+    init {
+        agentFactory.init(MockKAgentLogFactory {
+            Logger.loggerFactory(it.kotlin).adaptor()
+        })
+    }
+
     val stubRepo = StubRepository(safeLog)
-    val instantiator = JvmInstantiator(JvmMockKProxyMaker.INSTANCE, instanceFactoryRegistryIntrnl)
+
+    val instantiator = JvmInstantiator(
+        agentFactory.instantiator,
+        instanceFactoryRegistryIntrnl
+    )
+
     val anyValueGenerator = JvmAnyValueGenerator()
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
     override val mockFactory: MockFactory = JvmMockFactory(
-        JvmMockKProxyMaker.INSTANCE,
+        agentFactory.proxyMaker,
         instantiator,
         stubRepo,
         StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
     )
 
     override val staticMockFactory = JvmStaticMockFactory(
-        JvmMockKProxyMaker.INSTANCE,
+        agentFactory.staticProxyMaker,
         stubRepo,
         StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
     )
 
     override val objectMockFactory = JvmObjectMockFactory(
-        JvmMockKProxyMaker.INSTANCE,
+        agentFactory.proxyMaker,
         stubRepo,
         StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
     )
@@ -119,19 +130,20 @@ class JvmMockKGateway : MockKGateway {
             log = Logger<JvmMockKGateway>()
 
             log.trace {
-                "Starting Java MockK implementation. " +
+                "Starting JVM MockK implementation. " +
+                        (if (detectAndroid()) "Android instrumentation test detected. " else "") +
                         "Java version = ${System.getProperty("java.version")}. "
             }
-
-            JvmMockKProxyMaker.log = Logger<JvmMockKProxyMaker>().adaptor()
-            MockKInstrumentationLoader.log = Logger<MockKInstrumentationLoader>().adaptor()
-            MockKInstrumentation.log = Logger<MockKInstrumentation>().adaptor()
-
-            MockKInstrumentation.init()
         }
 
         val defaultImplementation = JvmMockKGateway()
         val defaultImplementationBuilder = { defaultImplementation }
+
+        private fun detectAndroid(): Boolean {
+            return System.getProperty("java.vendor", "")
+                .toLowerCase(Locale.US)
+                .contains("android")
+        }
     }
 
 }
