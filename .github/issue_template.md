@@ -2,7 +2,7 @@
 
 Below information is actually needed to make all the process of fixing faster.
 Choose main points. Don't blindly follow this as a set of rules. 
-Don't waste much time. Usually main thing is to have good reproducible minimal code.
+Don't waste much time. Usually, the main thing is to have a good reproducible minimal code.
 
 # Prerequisites
 
