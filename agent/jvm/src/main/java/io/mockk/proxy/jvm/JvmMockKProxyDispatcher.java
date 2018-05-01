@@ -6,13 +6,13 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import io.mockk.agent.MockKInvocationHandler;
 
-public class MockKProxyDispatcher extends MockKDispatcher {
+public class JvmMockKProxyDispatcher extends JvmMockKDispatcher {
     private static final Random RNG = new Random();
     private final long id = RNG.nextLong();
 
     private final Map<Object, MockKInvocationHandler> handlers;
 
-    public MockKProxyDispatcher(Map<Object, MockKInvocationHandler> handlers) {
+    public JvmMockKProxyDispatcher(Map<Object, MockKInvocationHandler> handlers) {
         this.handlers = handlers;
     }
 

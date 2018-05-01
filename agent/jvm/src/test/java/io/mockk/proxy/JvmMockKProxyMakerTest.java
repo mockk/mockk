@@ -30,7 +30,7 @@ public class JvmMockKProxyMakerTest {
     public void setUp() throws Exception {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
-        maker = new JvmMockKProxyMaker(new JvmMockKInstantiatior());
+        maker = new JvmMockKProxyMaker(new JvmMockKInstantiatior(), instrumentation);
         staticMaker = new JvmMockKStaticProxyMaker();
         io.mockk.proxy.jvm.MockKInstrumentation.init();
         io.mockk.proxy.jvm.MockKInstrumentation.INSTANCE.enable();

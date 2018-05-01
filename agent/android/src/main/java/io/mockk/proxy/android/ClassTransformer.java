@@ -64,7 +64,7 @@ class ClassTransformer {
     /**
      * A unique identifier that is baked into the transformed classes. The entry hooks will then
      * pass this identifier to
-     * {@code io.mockk.proxy.android.MockMethodDispatcher#get(String, Object)} to
+     * {@code io.mockk.proxy.android.AndroidMockKDispatcher#get(String, Object)} to
      * find the advice responsible for handling the method call interceptions.
      */
     private final String identifier;
@@ -83,7 +83,7 @@ class ClassTransformer {
      * Creating more than one generator might cause transformations to overwrite each other.
      *
      * @param agent agent used to trigger transformations
-     * @param dispatcherClass {@code io.mockk.proxy.android.MockMethodDispatcher}
+     * @param dispatcherClass {@code io.mockk.proxy.android.AndroidMockKDispatcher}
      *                        that will dispatch method calls that might need to get intercepted.
      * @param mocks list of mocked objects. As all objects of a class use the same transformed
      *              bytecode the {@link MockMethodAdvice} needs to check this list if a object is

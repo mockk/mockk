@@ -13,7 +13,7 @@ import io.mockk.agent.MockKInvocationHandler;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
-public class MockKProxyAdvice extends MockKProxyDispatcher {
+public class MockKProxyAdvice extends JvmMockKProxyDispatcher {
     public MockKProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
         super(handlers);
     }
@@ -35,7 +35,7 @@ public class MockKProxyAdvice extends MockKProxyDispatcher {
             }
         }
 
-        MockKDispatcher dispatcher = MockKDispatcher.get(id, self);
+        JvmMockKDispatcher dispatcher = JvmMockKDispatcher.get(id, self);
         if (dispatcher == null) {
             return null;
         }

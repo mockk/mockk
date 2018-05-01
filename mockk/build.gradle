@@ -58,10 +58,6 @@ artifacts {
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
-    filter {
-//        includeTestsMatching "io.mockk.impl.*.*"
-//        includeTestsMatching "io.mockk.it.ChainedCallsMatchingTest"
-    }
 }
 jacocoTestReport {
     reports {

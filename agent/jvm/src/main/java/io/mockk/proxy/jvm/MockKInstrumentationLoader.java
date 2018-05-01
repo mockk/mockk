@@ -14,13 +14,13 @@ import java.util.jar.JarOutputStream;
 public class MockKInstrumentationLoader {
     public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
 
-    private static final String PKG = "io.mockk.proxy.";
+    private static final String PKG = "io.mockk.proxy.jvm.";
 
     private static final String[] BOOTSTRAP_CLASS_NAMES = {
-            PKG + "MockKDispatcher",
-            PKG + "MockKWeakMap",
-            PKG + "MockKWeakMap$StrongKey",
-            PKG + "MockKWeakMap$WeakKey",
+            PKG + "JvmMockKDispatcher",
+            PKG + "JvmMockKWeakMap",
+            PKG + "JvmMockKWeakMap$StrongKey",
+            PKG + "JvmMockKWeakMap$WeakKey",
     };
 
     public static final MockKInstrumentationLoader LOADER = new MockKInstrumentationLoader();

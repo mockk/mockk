@@ -24,10 +24,10 @@ task copyMockKDispatcher(type: Copy) {
     dependsOn compileJava
     from "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm"
     into "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm"
-    include "MockKDispatcher.class"
-    include "MockKWeakMap.class"
-    include "MockKWeakMap\$StrongKey.class"
-    include "MockKWeakMap\$WeakKey.class"
+    include "JvmMockKDispatcher.class"
+    include "JvmMockKWeakMap.class"
+    include "JvmMockKWeakMap\$StrongKey.class"
+    include "JvmMockKWeakMap\$WeakKey.class"
     rename { String fileName ->
         fileName.replace('.class', '.clazz')
     }
@@ -35,8 +35,8 @@ task copyMockKDispatcher(type: Copy) {
 classes.dependsOn(copyMockKDispatcher)
 
 jar {
-    exclude "io/mockk/proxy/jvm/MockKDispatcher.class"
-    exclude "io/mockk/proxy/jvm/MockKWeakMap*.class"
+    exclude "io/mockk/proxy/jvm/JvmMockKDispatcher.class"
+    exclude "io/mockk/proxy/jvm/JvmMockKWeakMap*.class"
 }
 
 artifacts {

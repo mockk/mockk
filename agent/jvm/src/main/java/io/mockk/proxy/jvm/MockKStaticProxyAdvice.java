@@ -11,7 +11,7 @@ import io.mockk.agent.MockKInvocationHandler;
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
-public class MockKStaticProxyAdvice extends MockKProxyDispatcher {
+public class MockKStaticProxyAdvice extends JvmMockKProxyDispatcher {
     public MockKStaticProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
         super(handlers);
     }
@@ -21,7 +21,7 @@ public class MockKStaticProxyAdvice extends MockKProxyDispatcher {
                                            @Origin final Method method,
                                            @AllArguments final Object[] arguments) throws Throwable {
         Object self = method.getDeclaringClass();
-        MockKDispatcher dispatcher = MockKDispatcher.get(id, self);
+        JvmMockKDispatcher dispatcher = JvmMockKDispatcher.get(id, self);
         if (dispatcher == null) {
             return null;
         }

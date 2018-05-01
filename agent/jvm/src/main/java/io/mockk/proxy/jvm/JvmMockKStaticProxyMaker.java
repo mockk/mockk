@@ -7,6 +7,12 @@ import io.mockk.agent.MockKStaticProxyMaker;
 import java.util.ArrayList;
 
 public class JvmMockKStaticProxyMaker implements MockKStaticProxyMaker {
+    private MockKInstrumentation instrumentation;
+
+    public JvmMockKStaticProxyMaker(MockKInstrumentation instrumentation) {
+        this.instrumentation = instrumentation;
+    }
+
     @Override
     public void staticProxy(Class<?> clazz,
                             MockKInvocationHandler handler) {
@@ -14,18 +20,18 @@ public class JvmMockKStaticProxyMaker implements MockKStaticProxyMaker {
 
         ArrayList<Class<?>> lst = new ArrayList<Class<?>>();
         lst.add(clazz);
-        boolean transformed = MockKInstrumentation.INSTANCE.inject(lst);
+        boolean transformed = instrumentation.inject(lst);
         if (!transformed) {
             throw new MockKAgentException("Failed to create static proxy for " + clazz + ".\n" +
                     "Try running VM with MockK Java Agent\n" +
                     "i.e. with -javaagent:mockk-agent.jar option.");
         }
 
-        MockKInstrumentation.INSTANCE.hookStatic(clazz, handler);
+        instrumentation.hookStatic(clazz, handler);
     }
 
     @Override
     public void staticUnProxy(Class<?> clazz) {
-        MockKInstrumentation.INSTANCE.unhookStatic(clazz);
+        instrumentation.unhookStatic(clazz);
     }
 }

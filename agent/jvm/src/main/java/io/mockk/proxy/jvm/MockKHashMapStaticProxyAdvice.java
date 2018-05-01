@@ -14,7 +14,7 @@ import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAM
 /*
  * Workaround #35
  */
-public class MockKHashMapStaticProxyAdvice extends MockKProxyDispatcher {
+public class MockKHashMapStaticProxyAdvice extends JvmMockKProxyDispatcher {
     public MockKHashMapStaticProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
         super(handlers);
     }
@@ -27,7 +27,7 @@ public class MockKHashMapStaticProxyAdvice extends MockKProxyDispatcher {
             return null;
         }
         Object self = method.getDeclaringClass();
-        MockKDispatcher dispatcher = MockKDispatcher.get(id, self);
+        JvmMockKDispatcher dispatcher = JvmMockKDispatcher.get(id, self);
         if (dispatcher == null) {
             return null;
         }

@@ -27,7 +27,6 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
 public class MockKInstrumentation implements ClassFileTransformer {
     public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
 
-    public static MockKInstrumentation INSTANCE;
     private Map<Object, MockKInvocationHandler> handlers;
     private Map<Object, MockKInvocationHandler> staticHandlers;
 
@@ -40,11 +39,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
     private ByteBuddy byteBuddy;
 
-    public static void init() {
-        INSTANCE = new MockKInstrumentation();
-    }
-
-    MockKInstrumentation() {
+    public MockKInstrumentation() {
         instrumentation = ByteBuddyAgent.install();
 
         if (instrumentation != null) {
@@ -57,7 +52,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
                 instrumentation = null;
             }
         } else {
-            log.trace("Can't install ByteBuddy agent.\n" +
+            log.debug("Can't install ByteBuddy agent.\n" +
                     "Try running VM with MockK Java Agent\n" +
                     "i.e. with -javaagent:mockk-agent.jar option.");
         }
@@ -70,15 +65,15 @@ public class MockKInstrumentation implements ClassFileTransformer {
         if (instrumentation != null) {
             class AdviceBuilder {
                 void build() {
-                    handlers = new MockKWeakMap<Object, MockKInvocationHandler>();
+                    handlers = new JvmMockKWeakMap<Object, MockKInvocationHandler>();
                     advice = new MockKProxyAdvice(handlers);
-                    staticHandlers = new MockKWeakMap<Object, MockKInvocationHandler>();
+                    staticHandlers = new JvmMockKWeakMap<Object, MockKInvocationHandler>();
                     staticAdvice = new MockKStaticProxyAdvice(staticHandlers);
                     staticHashMapAdvice = new MockKHashMapStaticProxyAdvice(staticHandlers);
 
-                    MockKDispatcher.set(advice.getId(), advice);
-                    MockKDispatcher.set(staticAdvice.getId(), staticAdvice);
-                    MockKDispatcher.set(staticHashMapAdvice.getId(), staticHashMapAdvice);
+                    JvmMockKDispatcher.set(advice.getId(), advice);
+                    JvmMockKDispatcher.set(staticAdvice.getId(), staticAdvice);
+                    JvmMockKDispatcher.set(staticHashMapAdvice.getId(), staticHashMapAdvice);
                 }
             }
             new AdviceBuilder().build();
@@ -162,7 +157,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
         return className.equals("java/util/HashMap") ? staticHashMapAdvice.getId() : staticAdvice.getId();
     }
 
-    private Class<? extends MockKProxyDispatcher> staticProxyAdvice(String className) {
+    private Class<? extends JvmMockKProxyDispatcher> staticProxyAdvice(String className) {
         // workaround #35
         return className.equals("java/util/HashMap") ? MockKHashMapStaticProxyAdvice.class : MockKStaticProxyAdvice.class;
     }

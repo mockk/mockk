@@ -42,9 +42,12 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
     private final TypeCache<CacheKey> proxyClassCache;
 
     private final MockKInstantiatior instantiatior;
+    private MockKInstrumentation instrumentation;
 
-    public JvmMockKProxyMaker(MockKInstantiatior instantiatior) {
+    public JvmMockKProxyMaker(MockKInstantiatior instantiatior,
+                              MockKInstrumentation instrumentation) {
         this.instantiatior = instantiatior;
+        this.instrumentation = instrumentation;
 
         byteBuddy = new ByteBuddy()
                 .with(TypeValidation.DISABLED);
@@ -60,7 +63,7 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
             boolean useDefaultConstructor,
             Object instance) {
 
-        boolean transformed = canInject(clazz) && MockKInstrumentation.INSTANCE.inject(getAllSuperclasses(clazz));
+        boolean transformed = canInject(clazz) && instrumentation.inject(getAllSuperclasses(clazz));
 
         Class<?> proxyClass;
         if (!Modifier.isFinal(clazz.getModifiers())) {
@@ -111,7 +114,7 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
                         : instantiatior.instance(proxyClass));
             }
 
-            MockKInstrumentation.INSTANCE.hook(instance, handler);
+            instrumentation.hook(instance, handler);
 
             return clazz.cast(instance);
         } catch (Exception e) {
@@ -121,7 +124,7 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
 
     @Override
     public void unproxy(Object instance) {
-        MockKInstrumentation.INSTANCE.unhook(instance);
+        instrumentation.unhook(instance);
     }
 
     private <T> Class<?> subclass(final Class<T> clazz, final Class<?>[] interfaces) {

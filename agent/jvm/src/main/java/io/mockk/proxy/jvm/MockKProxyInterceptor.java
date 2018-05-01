@@ -7,6 +7,8 @@ import java.util.concurrent.Callable;
 import io.mockk.agent.MockKInvocationHandler;
 
 public class MockKProxyInterceptor {
+    public static MockKInstrumentation INSTRUMENTATION;
+
     @RuntimeType
     @BindingPriority(BindingPriority.DEFAULT * 2)
     public static Object intercept(@This Object self,
@@ -14,7 +16,7 @@ public class MockKProxyInterceptor {
                                    @AllArguments Object[] args,
                                    @SuperCall final Callable<Object> originalMethod) throws Throwable {
 
-        MockKInvocationHandler handler = MockKInstrumentation.INSTANCE.getHook(self);
+        MockKInvocationHandler handler = INSTRUMENTATION.getHook(self);
         if (handler == null || MockKSelfCall.isSelf(self, method)) {
             return originalMethod.call();
         }
@@ -29,7 +31,7 @@ public class MockKProxyInterceptor {
     public static Object interceptNoSuper(@This Object self,
                                           @Origin Method method,
                                           @AllArguments Object[] args) throws Throwable {
-        MockKInvocationHandler handler = MockKInstrumentation.INSTANCE.getHook(self);
+        MockKInvocationHandler handler = INSTRUMENTATION.getHook(self);
 
         if (handler == null) {
             return null;

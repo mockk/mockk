@@ -26,12 +26,12 @@ import java.util.concurrent.ConcurrentMap;
  * Called by method entry hooks. Dispatches these hooks to the {@code MockMethodAdvice}.
  */
 @SuppressWarnings("unused")
-public class MockMethodDispatcher {
+public class AndroidMockKDispatcher {
     // An instance of {@code MockMethodAdvice}
     private Object mAdvice;
 
     // All dispatchers for various identifiers
-    private static final ConcurrentMap<String, MockMethodDispatcher> INSTANCE =
+    private static final ConcurrentMap<String, AndroidMockKDispatcher> INSTANCE =
             new ConcurrentHashMap<>();
 
     /**
@@ -42,7 +42,7 @@ public class MockMethodDispatcher {
      *
      * @return dispatcher for the identifier
      */
-    public static MockMethodDispatcher get(String identifier, Object instance) {
+    public static AndroidMockKDispatcher get(String identifier, Object instance) {
         if (instance == INSTANCE) {
             // Avoid endless loop if ConcurrentHashMap was redefined to check for being a mock.
             return null;
@@ -56,7 +56,7 @@ public class MockMethodDispatcher {
      *
      * @param advice Advice the dispatcher should call
      */
-    private MockMethodDispatcher(Object advice) {
+    private AndroidMockKDispatcher(Object advice) {
         mAdvice = advice;
     }
 
@@ -67,7 +67,7 @@ public class MockMethodDispatcher {
      * @param advice advice the dispatcher should call
      */
     public static void set(String identifier, Object advice) {
-        INSTANCE.putIfAbsent(identifier, new MockMethodDispatcher(advice));
+        INSTANCE.putIfAbsent(identifier, new AndroidMockKDispatcher(advice));
     }
 
     /**

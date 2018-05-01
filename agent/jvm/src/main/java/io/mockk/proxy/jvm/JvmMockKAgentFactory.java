@@ -8,9 +8,11 @@ public class JvmMockKAgentFactory implements MockKAgentFactory {
     private final JvmMockKStaticProxyMaker staticProxyMaker;
 
     public JvmMockKAgentFactory() {
+        MockKInstrumentation instrumentation = new MockKInstrumentation();
         instantiatior = new JvmMockKInstantiatior();
-        proxyMaker = new JvmMockKProxyMaker(instantiatior);
-        staticProxyMaker = new JvmMockKStaticProxyMaker();
+        proxyMaker = new JvmMockKProxyMaker(instantiatior, instrumentation);
+        staticProxyMaker = new JvmMockKStaticProxyMaker(instrumentation);
+        MockKProxyInterceptor.INSTRUMENTATION = instrumentation;
     }
 
     @Override
@@ -18,8 +20,6 @@ public class JvmMockKAgentFactory implements MockKAgentFactory {
         JvmMockKProxyMaker.log = logFactory.logger(JvmMockKProxyMaker.class);
         MockKInstrumentationLoader.log = logFactory.logger(MockKInstrumentationLoader.class);
         MockKInstrumentation.log = logFactory.logger(MockKInstrumentation.class);
-
-        MockKInstrumentation.init();
     }
 
     @Override

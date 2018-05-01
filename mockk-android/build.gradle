@@ -19,8 +19,9 @@ android {
             androidTest.java.srcDirs += 'src/androidTest/kotlin'
             test.java.srcDirs += 'src/android/kotlin'
             androidTest.kotlin.srcDirs += '../common/src/test/kotlin'
+            androidTest.kotlin.srcDirs += '../mockk/src/test/kotlin'
+            androidTest.kotlin.srcDirs += '../mockk/src/test/java'
         }
-
     }
 
     lintOptions {
@@ -28,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 27
         targetSdkVersion 27
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

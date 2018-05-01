@@ -45,7 +45,7 @@ import java.util.*;
 
 public final class AndroidMockKProxyMaker implements MockKProxyMaker {
     private static final String DISPATCHER_CLASS_NAME =
-            "io.mockk.proxy.android.MockMethodDispatcher";
+            "io.mockk.proxy.android.AndroidMockKDispatcher";
     private static final String DISPATCHER_JAR = "dispatcher.jar";
 
     /** {@link io.mockk.proxy.android.JvmtiAgent} set up during one time init */
@@ -91,7 +91,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
                     }
                 } catch (ClassNotFoundException cnfe) {
                     throw new IllegalStateException(
-                            "MockK failed to inject the MockMethodDispatcher class into the "
+                            "MockK failed to inject the AndroidMockKDispatcher class into the "
                             + "bootstrap class loader\n\nIt seems like your current VM does not "
                             + "support the jvmti API correctly.", cnfe);
                 }

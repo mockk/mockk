@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MockKWeakMap<K, V> implements Map<K, V> {
+public class JvmMockKWeakMap<K, V> implements Map<K, V> {
     private final Map<Object, V> map = new ConcurrentHashMap<Object, V>();
     private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
 

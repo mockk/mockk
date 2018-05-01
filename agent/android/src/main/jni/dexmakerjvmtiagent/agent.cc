@@ -308,7 +308,7 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
     ir::Type* methodT = b.GetType("Ljava/lang/reflect/Method;");
     ir::Type* systemT = b.GetType("Ljava/lang/System;");
     ir::Type* callableT = b.GetType("Ljava/util/concurrent/Callable;");
-    ir::Type* dispatcherT = b.GetType("Lio/mockk/proxy/android/MockMethodDispatcher;");
+    ir::Type* dispatcherT = b.GetType("Lio/mockk/proxy/android/AndroidMockKDispatcher;");
 
     // Add id to dex file
     const char* idNative = env->GetStringUTFChars(idStr, 0);
@@ -328,10 +328,10 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
             }
 
             equals_transformed(params) {
-                // MockMethodDispatcher dispatcher = MockMethodDispatcher.get(idStr, this);
+                // AndroidMockKDispatcher dispatcher = AndroidMockKDispatcher.get(idStr, this);
                 const-string v0, "65463hg34t"
                 move-objectfrom16 v1, THIS
-                invoke-static {v0, v1}, MockMethodDispatcher.get(String, Object):MockMethodDispatcher
+                invoke-static {v0, v1}, AndroidMockKDispatcher.get(String, Object):AndroidMockKDispatcher
                 move-result-object v2
 
                 // if (dispatcher == null || ) {
@@ -342,7 +342,7 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
                 // if (!dispatcher.isMock(this)) {
                 //     goto original_method;
                 // }
-                invoke-virtual {v2, v1}, MockMethodDispatcher.isMock(Object):Method
+                invoke-virtual {v2, v1}, AndroidMockKDispatcher.isMock(Object):Method
                 move-result v2
                 if-eqz v2, original_method
 
@@ -420,10 +420,10 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
             }
 
             hashCode_transformed(params) {
-                // MockMethodDispatcher dispatcher = MockMethodDispatcher.get(idStr, this);
+                // AndroidMockKDispatcher dispatcher = AndroidMockKDispatcher.get(idStr, this);
                 const-string v0, "65463hg34t"
                 move-objectfrom16 v1, THIS
-                invoke-static {v0, v1}, MockMethodDispatcher.get(String, Object):MockMethodDispatcher
+                invoke-static {v0, v1}, AndroidMockKDispatcher.get(String, Object):AndroidMockKDispatcher
                 move-result-object v2
 
                 // if (dispatcher == null || ) {
@@ -434,7 +434,7 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
                 // if (!dispatcher.isMock(this)) {
                 //     goto original_method;
                 // }
-                invoke-interface {v2, v1}, MockMethodDispatcher.isMock(Object):Method
+                invoke-interface {v2, v1}, AndroidMockKDispatcher.isMock(Object):Method
                 move-result v2
                 if-eqz v2, original_method
 
@@ -498,12 +498,12 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
             }
 
             long method_transformed(int param1, long param2, String param3) {
-                // MockMethodDispatcher dispatcher = MockMethodDispatcher.get(idStr, this);
+                // AndroidMockKDispatcher dispatcher = AndroidMockKDispatcher.get(idStr, this);
                 const-string v0, "65463hg34t"
                 move-objectfrom16 v1, THIS       # this is necessary as invoke-static cannot deal
                                                  # with medium or high registers and THIS might not
                                                  # be low
-                invoke-static {v0, v1}, MockMethodDispatcher.get(String, Object):MockMethodDispatcher
+                invoke-static {v0, v1}, AndroidMockKDispatcher.get(String, Object):AndroidMockKDispatcher
                 move-result-object v0
 
                 // if (dispatcher == null) {
@@ -516,7 +516,7 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
                 move-objectfrom16 v2, THIS       # this is necessary as invoke-static cannot deal
                                                  # with medium or high registers and THIS might not
                                                  # be low
-                invoke-virtual {v0, v2, v1}, MockMethodDispatcher.getOrigin(Object, String):Method
+                invoke-virtual {v0, v2, v1}, AndroidMockKDispatcher.getOrigin(Object, String):Method
                 move-result-object v1
 
                 // if (origin == null) {
@@ -561,7 +561,7 @@ Java_io_mockk_proxy_android_ClassTransformer_nativeRedefine(JNIEnv* env,
                 move-objectfrom16 v3, THIS       # this is necessary as invoke-virtual cannot deal
                                                  # with medium or high registers and THIS might not
                                                  # be low
-                invoke-virtual {v0,v3,v1,v2}, MockMethodDispatcher.handle(Object, Method,
+                invoke-virtual {v0,v3,v1,v2}, AndroidMockKDispatcher.handle(Object, Method,
                                                                           Object[]):Callable
                 move-result-object v0
 
