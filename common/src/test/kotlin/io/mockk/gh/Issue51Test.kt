@@ -29,6 +29,8 @@ class Issue51Test {
     fun testPrivateProperty() {
         val mock = spyk(Team(), recordPrivateCalls = true)
 
+        println(mock.memberName)
+
         every { mock getProperty "person" } returns Person("Big Ben")
         every { mock setProperty "person" value Person("test") } just Runs
         every { mock invoke "fn" withArguments listOf(5) } returns 3

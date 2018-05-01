@@ -4,6 +4,7 @@ import io.mockk.InternalPlatformDsl
 import io.mockk.every
 import io.mockk.spyk
 import io.mockk.verify
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 class Issue48Test {

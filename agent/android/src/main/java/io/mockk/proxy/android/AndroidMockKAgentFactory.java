@@ -16,7 +16,7 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
 
     @Override
     public void init(MockKAgentLogFactory logFactory) {
-
+        AndroidMockKInstantiator.log = logFactory.logger(AndroidMockKInstantiator.class);
     }
 
     @Override

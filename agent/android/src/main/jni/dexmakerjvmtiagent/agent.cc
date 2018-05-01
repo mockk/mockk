@@ -259,7 +259,7 @@ canBeTransformed(ir::EncodedMethod *method) {
     std::string type = method->decl->parent->Decl();
     ir::String* methodName = method->decl->name;
 
-    return !(((method->access_flags & (kAccAbstract | kAccPrivate | kAccBridge | kAccNative
+    return !(((method->access_flags & (kAccAbstract | kAccBridge | kAccNative
                                        | kAccStatic)) != 0)
              || (Utf8Cmp(methodName->c_str(), "<init>") == 0)
              || (Utf8Cmp(methodName->c_str(), "<clinit>") == 0)

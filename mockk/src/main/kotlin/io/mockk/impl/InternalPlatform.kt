@@ -102,6 +102,9 @@ actual object InternalPlatform {
                 if (Modifier.isStatic(field.modifiers)) {
                     continue
                 }
+                if (isRunningAndroidInstrumentationTest() && field.name.startsWith("shadow$")) {
+                    continue
+                }
                 field.isAccessible = true
                 val value = field.get(from)
                 field.set(to, value)
@@ -132,4 +135,12 @@ actual object InternalPlatform {
         } catch (ex: Exception) {
             throw MockKException("Failed to load plugin $className", ex)
         }
+
+
+    fun isRunningAndroidInstrumentationTest(): Boolean {
+        return System.getProperty("java.vendor", "")
+            .toLowerCase(Locale.US)
+            .contains("android")
+    }
+
 }

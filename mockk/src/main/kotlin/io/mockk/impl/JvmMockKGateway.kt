@@ -4,7 +4,6 @@ import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
 import io.mockk.agent.MockKAgentFactory
-import io.mockk.agent.MockKAgentLogFactory
 import io.mockk.impl.annotations.JvmMockInitializer
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
@@ -22,7 +21,6 @@ import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.verify.UnorderedCallVerifier
-import io.mockk.proxy.jvm.JvmMockKAgentFactory
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
@@ -31,13 +29,13 @@ class JvmMockKGateway : MockKGateway {
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
-    val agentFactory = if (detectAndroid())
-        InternalPlatform.loadPlugin<MockKAgentFactory>("io.mockk.proxy.android.AndroidMockKAgentFactory")
+    val agentFactory : MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
+        InternalPlatform.loadPlugin("io.mockk.proxy.android.AndroidMockKAgentFactory")
     else
-        JvmMockKAgentFactory()
+        InternalPlatform.loadPlugin("io.mockk.proxy.jvm.JvmMockKAgentFactory")
 
     init {
-        agentFactory.init(MockKAgentLogFactory {
+        agentFactory.init({
             Logger.loggerFactory(it.kotlin).adaptor()
         })
     }
@@ -130,20 +128,15 @@ class JvmMockKGateway : MockKGateway {
             log = Logger<JvmMockKGateway>()
 
             log.trace {
+                val runningAndroid = InternalPlatform.isRunningAndroidInstrumentationTest()
                 "Starting JVM MockK implementation. " +
-                        (if (detectAndroid()) "Android instrumentation test detected. " else "") +
+                        (if (runningAndroid) "Android instrumentation test detected. " else "") +
                         "Java version = ${System.getProperty("java.version")}. "
             }
         }
 
         val defaultImplementation = JvmMockKGateway()
         val defaultImplementationBuilder = { defaultImplementation }
-
-        private fun detectAndroid(): Boolean {
-            return System.getProperty("java.vendor", "")
-                .toLowerCase(Locale.US)
-                .contains("android")
-        }
     }
 
 }
