@@ -27,117 +27,6 @@ class MockKTestSuite : StringSpec({
     }
 
     "verification outcome" {
-        expectVerificationError(
-            "Only one matching call to ",
-            "but arguments are not matching",
-            "MockCls.otherOp"
-        ) {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-
-            verify { mock.otherOp(1, 3) }
-        }
-
-        expectVerificationError("No matching calls found.", "Calls to same method", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-            mock.otherOp(1, 4)
-
-            verify { mock.otherOp(1, 3) }
-        }
-
-        expectVerificationError("was not called", "Calls to same mock", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-
-            verify { mock.manyArgsOp(true, false) }
-        }
-
-        expectVerificationError("was not called") {
-            verify { mock.otherOp(1, 2) }
-        }
-
-        expectVerificationError("2 matching calls found, but needs at least 3 calls", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-            mock.otherOp(1, 2)
-
-            verify(atLeast = 3) { mock.otherOp(1, 2) }
-        }
-
-        expectVerificationError("One matching call found, but needs at least 3 calls", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-
-            verify(atLeast = 3) { mock.otherOp(1, 2) }
-        }
-        expectVerificationError("calls are not in verification order", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-            mock.otherOp(1, 3)
-
-            verifyOrder {
-                mock.otherOp(1, 3)
-                mock.otherOp(1, 2)
-            }
-        }
-        expectVerificationError("less calls happened then demanded by order verification sequence", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 3)
-
-            verifyOrder {
-                mock.otherOp(1, 3)
-                mock.otherOp(1, 2)
-            }
-        }
-        expectVerificationError("number of calls happened not matching exact number of verification sequence", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 3)
-
-            verifySequence {
-                mock.otherOp(1, 3)
-                mock.otherOp(1, 2)
-            }
-        }
-        expectVerificationError("calls are not exactly matching verification sequence", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-            mock.otherOp(1, 3)
-
-            verifySequence {
-                mock.otherOp(1, 3)
-                mock.otherOp(1, 2)
-            }
-        }
-        expectVerificationError("some calls were not matched", "MockCls.otherOp") {
-            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
-
-            mock.otherOp(1, 2)
-            mock.otherOp(1, 3)
-
-            verifyAll {
-                mock.otherOp(1, 2)
-            }
-        }
-        expectVerificationError("MockCls(BB).op") {
-            every { openMock.op(1, any()) } returns 3
-
-            openMock.op(1, 2)
-            openMock.op(1, 3)
-
-            verifyAll {
-                openMock.op(1, 2)
-            }
-        }
     }.config(enabled = true)
 
     "coroutines" {
@@ -315,7 +204,6 @@ class MockCls {
                 i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
     }
 
-    fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
     fun lambdaOp(a: Int, b: () -> Int) = a + b()
     fun varArgsOp(a: Int, vararg b: Int, c: Int, d: Int = 6) = b.sum() + a
     suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
