@@ -4,7 +4,7 @@ import io.mockk.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class AnswersTests {
+class AnswersTest {
     class MockCls {
         fun op(a: Int, b: Int, c: Int = 10, d: Int = 25) = a + b + c + d
 
