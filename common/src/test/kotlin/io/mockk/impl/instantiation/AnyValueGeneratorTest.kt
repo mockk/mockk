@@ -1,5 +1,6 @@
 package io.mockk.impl.instantiation
 
+import io.mockk.util.assertArrayEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -88,37 +89,5 @@ class AnyValueGeneratorTest {
     @Test
     fun givenDoubleArrayClassWhenRequestedForAnyValueThenEmptyDoubleArrayIsReturned() {
         assertArrayEquals(DoubleArray(0), generator.anyValue(DoubleArray::class, failOnPassThrough) as DoubleArray)
-    }
-
-    fun assertArrayEquals(actual: BooleanArray, expected: BooleanArray) {
-        assertTrue(actual contentEquals expected)
-    }
-
-    fun assertArrayEquals(actual: ByteArray, expected: ByteArray) {
-        assertTrue(actual contentEquals expected)
-    }
-
-    fun assertArrayEquals(actual: ShortArray, expected: ShortArray) {
-        assertTrue(actual contentEquals expected)
-    }
-
-    fun assertArrayEquals(actual: CharArray, expected: CharArray) {
-        assertTrue(actual contentEquals expected)
-    }
-
-    fun assertArrayEquals(actual: IntArray, expected: IntArray) {
-        assertTrue(actual contentEquals expected)
-    }
-
-    fun assertArrayEquals(actual: LongArray, expected: LongArray) {
-        assertTrue(actual contentEquals expected)
-    }
-
-    fun assertArrayEquals(actual: FloatArray, expected: FloatArray) {
-        assertTrue(actual contentEquals expected)
-    }
-
-    fun assertArrayEquals(actual: DoubleArray, expected: DoubleArray) {
-        assertTrue(actual contentEquals expected)
     }
 }
