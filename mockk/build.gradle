@@ -19,13 +19,13 @@ dependencies {
     compile project(":mockk-agent-jvm")
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
     compileOnly 'org.slf4j:slf4j-api:1.7.25'
 
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    testCompile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
     testCompile 'org.slf4j:slf4j-api:1.7.25'
     testCompile 'ch.qos.logback:logback-classic:1.2.3'

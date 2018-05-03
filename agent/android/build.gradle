@@ -83,6 +83,5 @@ dependencies {
     implementation 'com.linkedin.dexmaker:dexmaker:2.12.1'
     implementation 'org.objenesis:objenesis:2.6'
     implementation project(':mockk-agent-api')
-//    implementation project(':dexmaker')
 }
 
