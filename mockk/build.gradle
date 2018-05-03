@@ -9,9 +9,6 @@ plugins {
 apply plugin: "java"
 apply plugin: "kotlin-platform-jvm"
 
-ext.junitJupiterVersion = '5.0.3'
-ext.junitVintageVersion = '4.12.0'
-
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     expectedBy project(':mockk-common')
@@ -34,10 +31,10 @@ dependencies {
         exclude group: "junit", module: "junit"
     }
 
-    compileOnly "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
-    testCompile "org.junit.vintage:junit-vintage-engine:$junitVintageVersion"
+    compileOnly "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+    testCompile "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
 }
 
 task sourcesJar(type: Jar) {

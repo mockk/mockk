@@ -58,7 +58,7 @@ android {
 
     externalNativeBuild {
         cmake {
-            path 'CMakeLists.txt'
+            path = 'CMakeLists.txt'
         }
     }
 
@@ -80,8 +80,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 dependencies {
-    implementation 'com.linkedin.dexmaker:dexmaker:2.12.1'
-    implementation 'org.objenesis:objenesis:2.6'
+    implementation "com.linkedin.dexmaker:dexmaker:$dexmaker_version"
+    implementation "org.objenesis:objenesis:$objenesis_version"
     implementation project(':mockk-agent-api')
 }
 

@@ -7,9 +7,9 @@ dependencies {
     compile "net.bytebuddy:byte-buddy:$byte_buddy_version"
     compileOnly "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
     runtime "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
-    testCompileOnly "junit:junit:4.12"
-    testRuntimeOnly "junit:junit:4.12"
-    compile 'org.objenesis:objenesis:2.6'
+    testCompileOnly "junit:junit:$junit_version"
+    testRuntimeOnly "junit:junit:$junit_version"
+    compile "org.objenesis:objenesis:$objenesis_version"
 }
 
 sourceCompatibility = 1.6

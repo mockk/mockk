@@ -52,9 +52,13 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     androidTestImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
-    androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
+        exclude group: "junit", module: "junit"
+    }
 
-
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+    androidTestImplementation "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
 }
 
