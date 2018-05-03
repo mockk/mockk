@@ -48,10 +48,14 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
             "io.mockk.proxy.android.AndroidMockKDispatcher";
     private static final String DISPATCHER_JAR = "dispatcher.jar";
 
-    /** {@link io.mockk.proxy.android.JvmtiAgent} set up during one time init */
+    /**
+     * {@link io.mockk.proxy.android.JvmtiAgent} set up during one time init
+     */
     private static final JvmtiAgent AGENT;
 
-    /** Error  during one time init or {@code null} if init was successful*/
+    /**
+     * Error  during one time init or {@code null} if init was successful
+     */
     private static final Throwable INITIALIZATION_ERROR;
 
     /**
@@ -92,15 +96,15 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
                 } catch (ClassNotFoundException cnfe) {
                     throw new IllegalStateException(
                             "MockK failed to inject the AndroidMockKDispatcher class into the "
-                            + "bootstrap class loader\n\nIt seems like your current VM does not "
-                            + "support the jvmti API correctly.", cnfe);
+                                    + "bootstrap class loader\n\nIt seems like your current VM does not "
+                                    + "support the jvmti API correctly.", cnfe);
                 }
             } catch (IOException ioe) {
                 throw new IllegalStateException(
                         "MockK could not self-attach a jvmti agent to the current VM. This "
-                        + "feature is required for inline mocking.\nThis error occured due to an "
-                        + "I/O error during the creation of this agent: " + ioe + "\n\n"
-                        + "Potentially, the current VM does not support the jvmti API correctly",
+                                + "feature is required for inline mocking.\nThis error occured due to an "
+                                + "I/O error during the creation of this agent: " + ioe + "\n\n"
+                                + "Potentially, the current VM does not support the jvmti API correctly",
                         ioe);
             }
         } catch (Throwable throwable) {
@@ -134,9 +138,9 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
         if (INITIALIZATION_ERROR != null) {
             throw new RuntimeException(
                     "Could not initialize inline mock maker.\n"
-                    + "\n"
-                    + "Release: Android " + Build.VERSION.RELEASE + " " + Build.VERSION.INCREMENTAL
-                    + "Device: " + Build.BRAND + " " + Build.MODEL, INITIALIZATION_ERROR);
+                            + "\n"
+                            + "Release: Android " + Build.VERSION.RELEASE + " " + Build.VERSION.INCREMENTAL
+                            + "Device: " + Build.BRAND + " " + Build.MODEL, INITIALIZATION_ERROR);
         }
 
         mocks = new MockMap();
@@ -148,7 +152,6 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
      *
      * <p>Only abstract methods will need to get proxied as all other methods will get an entry
      * hook.
-     *
      *
      * @return methods to proxy.
      */
@@ -192,6 +195,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
             methodsToProxy[i++] = entry.originalMethod;
         }
 
+        System.out.println(methodsToProxy);
         return methodsToProxy;
     }
 
@@ -218,8 +222,13 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
             System.arraycopy(interfaces, 0, classesToMock, 1, interfaces.length);
 
             // newProxyInstance returns the type of typeToMock
-            mock = clazz.cast(Proxy.newProxyInstance(clazz.getClassLoader(), classesToMock,
-                    handlerAdapter));
+            Object proxyInstance = Proxy.newProxyInstance(
+                    clazz.getClassLoader(),
+                    classesToMock,
+                    handlerAdapter
+            );
+
+            mock = clazz.cast(proxyInstance);
         } else {
             boolean subclassingRequired = interfaces.length > 0
                     || Modifier.isAbstract(clazz.getModifiers());
@@ -232,8 +241,10 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
             if (subclassingRequired) {
                 try {
                     // support abstract methods via dexmaker's ProxyBuilder
-                    proxyClass = ProxyBuilder.forClass(clazz).implementing(interfaces)
-                            .onlyMethods(getMethodsToProxy(clazz, interfaces)).withSharedClassLoader()
+                    proxyClass = ProxyBuilder.forClass(clazz)
+                            .implementing(interfaces)
+                            .onlyMethods(getMethodsToProxy(clazz, interfaces))
+                            .withSharedClassLoader()
                             .buildProxyClass();
 
                 } catch (Exception e) {
@@ -286,7 +297,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
         /**
          * The number of time {@link #get} was called without cleaning up stale references.
          * {@link #get} is a method that is called often.
-         *
+         * <p>
          * We need to do periodic cleanups as we might never look at mocks at higher indexes and
          * hence never realize that their references are stale.
          */
@@ -296,7 +307,6 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
          * Try to get a recycled cached key.
          *
          * @param obj the reference the key wraps
-         *
          * @return The recycled cached key or a new one
          */
         private StrongKey createStrongKey(Object obj) {
@@ -502,7 +512,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
 
         /**
          * A weakly referencing wrapper to a mock.
-         *
+         * <p>
          * Only equals other weak or strong keys where the mock is the same.
          */
         private class WeakKey extends WeakReference<Object> {
@@ -562,7 +572,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
 
         /**
          * A strongly referencing wrapper to a mock.
-         *
+         * <p>
          * Only equals other weak or strong keys where the mock is the same.
          */
         private class StrongKey {
@@ -580,7 +590,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
 
                     return obj == otherObj;
                 } else if (other instanceof StrongKey) {
-                    return this.obj == ((StrongKey)other).obj;
+                    return this.obj == ((StrongKey) other).obj;
                 } else {
                     return false;
                 }

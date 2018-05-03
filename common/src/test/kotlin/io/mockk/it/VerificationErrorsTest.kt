@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
+import io.mockk.test.SkipInstrumentedAndroidTest
 import kotlin.test.Test
 import kotlin.test.fail
 
@@ -164,6 +165,7 @@ class VerificationErrorsTest {
     }
 
     @Test
+    @SkipInstrumentedAndroidTest
     fun byteBuddyContraction() {
         expectVerificationError("MockCls(BB).op") {
             every { openMock.op(1, any()) } returns 3

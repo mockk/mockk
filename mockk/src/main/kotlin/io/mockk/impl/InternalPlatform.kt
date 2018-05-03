@@ -90,7 +90,7 @@ actual object InternalPlatform {
 
             ex is NoClassDefFoundError &&
                     ex.message?.contains("kotlinx/coroutines/") ?: false ->
-                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
+                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ", ex)
 
             else -> ex
         }

@@ -21,7 +21,9 @@ import java.util.regex.Pattern;
 class MockMethodAdvice {
     private final Map<Object, InvocationHandlerAdapter> interceptors;
 
-    /** Pattern to decompose a instrumentedMethodWithTypeAndSignature */
+    /**
+     * Pattern to decompose a instrumentedMethodWithTypeAndSignature
+     */
     private final Pattern methodPattern = Pattern.compile("(.*)#(.*)\\((.*)\\)");
 
     @SuppressWarnings("ThreadLocalUsage")
@@ -34,12 +36,10 @@ class MockMethodAdvice {
     /**
      * Try to invoke the method {@code origin} on {@code instance}.
      *
-     * @param origin method to invoke
-     * @param instance instance to invoke the method on.
+     * @param origin    method to invoke
+     * @param instance  instance to invoke the method on.
      * @param arguments arguments to the method
-     *
      * @return result of the method
-     *
      * @throws Throwable Exception if thrown by the method
      */
     private static Object tryInvoke(Method origin, Object instance, Object[] arguments)
@@ -54,10 +54,9 @@ class MockMethodAdvice {
     /**
      * Remove calls to a class from a throwable's stack.
      *
-     * @param throwable throwable to clean
-     * @param current stack frame number to start cleaning from (upwards)
+     * @param throwable  throwable to clean
+     * @param current    stack frame number to start cleaning from (upwards)
      * @param targetType class to remove from the stack
-     *
      * @return throwable with the cleaned stack
      */
     private static Throwable hideRecursiveCall(Throwable throwable, int current,
@@ -88,9 +87,8 @@ class MockMethodAdvice {
     /**
      * Get the method of {@code instance} specified by {@code methodWithTypeAndSignature}.
      *
-     * @param instance instance the method belongs to
+     * @param instance                   instance the method belongs to
      * @param methodWithTypeAndSignature the description of the method
-     *
      * @return method {@code methodWithTypeAndSignature} refer to
      */
     @SuppressWarnings("unused")
@@ -159,9 +157,13 @@ class MockMethodAdvice {
                         argTypes.add(boolean[].class);
                         break;
                     default:
-                        if (argTypeName.endsWith("[]")) {
-                            argTypes.add(Class.forName("[L" + argTypeName.substring(0,
-                                    argTypeName.length() - 2) + ";"));
+                        int nArrays = 0;
+                        while (argTypeName.endsWith("[]")) {
+                            argTypeName = argTypeName.substring(0, argTypeName.length() - 2);
+                            nArrays++;
+                        }
+                        if (nArrays > 0) {
+                            argTypes.add(Class.forName(repeat(nArrays, "[") + "L" + argTypeName + ";"));
                         } else {
                             argTypes.add(Class.forName(argTypeName));
                         }
@@ -180,15 +182,22 @@ class MockMethodAdvice {
         }
     }
 
+    private String repeat(int n, String str) {
+        StringBuilder sb = new StringBuilder(n * str.length());
+        while (n-- > 0) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+
     /**
      * Handle a method entry hook.
      *
-     * @param instance instance that is mocked
-     * @param origin method that contains the hook
+     * @param instance  instance that is mocked
+     * @param origin    method that contains the hook
      * @param arguments arguments to the method
-     *
      * @return A callable that can be called to get the mocked result or null if the method is not
-     *         mocked.
+     * mocked.
      */
     @SuppressWarnings("unused")
     public Callable<?> handle(Object instance, Method origin, Object[] arguments) throws Throwable {
@@ -205,7 +214,6 @@ class MockMethodAdvice {
      * Checks if an {@code instance} is a mock.
      *
      * @param instance instance that might be a mock
-     *
      * @return {@code true} iff the instance is a mock
      */
     public boolean isMock(Object instance) {
@@ -218,9 +226,7 @@ class MockMethodAdvice {
      * mocking for a single method call.
      *
      * @param instance instance that might be mocked
-     *
      * @return {@code true} iff the a method call should be mocked
-     *
      * @see SelfCallInfo
      */
     public boolean isMocked(Object instance) {
@@ -231,8 +237,7 @@ class MockMethodAdvice {
      * Check if a method is overridden.
      *
      * @param instance mocked instance
-     * @param origin method that might be overridden
-     *
+     * @param origin   method that might be overridden
      * @return {@code true} iff the method is overridden
      */
     public boolean isOverridden(Object instance, Method origin) {

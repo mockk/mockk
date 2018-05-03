@@ -89,7 +89,7 @@ public class AndroidMockKDispatcher {
         try {
             return (Boolean) mAdvice.getClass().getMethod("isMock", Object.class).invoke(mAdvice,
                     instance);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
@@ -101,7 +101,7 @@ public class AndroidMockKDispatcher {
         try {
             return (Boolean) mAdvice.getClass().getMethod("isMocked", Object.class).invoke(mAdvice,
                     instance);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }
@@ -113,7 +113,7 @@ public class AndroidMockKDispatcher {
         try {
             return (Boolean) mAdvice.getClass().getMethod("isOverridden", Object.class,
                     Method.class).invoke(mAdvice, instance, origin);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }

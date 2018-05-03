@@ -13,14 +13,18 @@ android {
         }
         packagingOptions {
             exclude 'META-INF/main.kotlin_module'
+            exclude 'META-INF/LICENSE.md'
+            exclude 'META-INF/LICENSE-notice.md'
         }
         sourceSets {
             main.java.srcDirs += 'src/main/kotlin'
-            androidTest.java.srcDirs += 'src/androidTest/kotlin'
             test.java.srcDirs += 'src/android/kotlin'
+            androidTest.java.srcDirs += 'src/androidTest/kotlin'
             androidTest.kotlin.srcDirs += '../common/src/test/kotlin'
-            androidTest.kotlin.srcDirs += '../mockk/src/test/kotlin'
-            androidTest.kotlin.srcDirs += '../mockk/src/test/java'
+        }
+        compileOptions {
+            sourceCompatibility = 1.8
+            targetCompatibility = 1.8
         }
     }
 
@@ -33,6 +37,7 @@ android {
         targetSdkVersion 27
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
     }
 }
 
