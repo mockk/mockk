@@ -2,10 +2,7 @@ package io.mockk.proxy;
 
 import io.mockk.agent.*;
 
-import io.mockk.proxy.jvm.JvmMockKInstantiatior;
-import io.mockk.proxy.jvm.JvmMockKProxyMaker;
-import io.mockk.proxy.jvm.JvmMockKStaticProxyMaker;
-import io.mockk.proxy.jvm.MockKInstrumentation;
+import io.mockk.proxy.jvm.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,16 +21,16 @@ public class JvmMockKProxyMakerTest {
     static boolean[] executed = new boolean[10];
 
     ListAppendingHandler handler;
+    private MockKInstrumentation instrumentation;
 
 
     @Before
     public void setUp() throws Exception {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
+        instrumentation = new MockKInstrumentation();
         maker = new JvmMockKProxyMaker(new JvmMockKInstantiatior(), instrumentation);
-        staticMaker = new JvmMockKStaticProxyMaker();
-        io.mockk.proxy.jvm.MockKInstrumentation.init();
-        io.mockk.proxy.jvm.MockKInstrumentation.INSTANCE.enable();
+        staticMaker = new JvmMockKStaticProxyMaker(instrumentation);
     }
 
     static class A {
@@ -54,7 +51,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void openClassDisabledInstrumentationProxy() throws Exception {
-        io.mockk.proxy.jvm.MockKInstrumentation.INSTANCE.disable();
+        instrumentation.disable();
         A proxy = maker.proxy(A.class, new Class[0], handler, true, null);
 
         proxy.a();
@@ -92,7 +89,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test(expected = MockKAgentException.class)
     public void finalClassDisabledInstrumentationProxy() throws Exception {
-        io.mockk.proxy.jvm.MockKInstrumentation.INSTANCE.disable();
+        instrumentation.disable();
         B proxy = maker.proxy(B.class, new Class[0], handler, true, null);
 
         proxy.a();
@@ -128,7 +125,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void interfaceDisabledInstrumentationProxy() throws Exception {
-        io.mockk.proxy.jvm.MockKInstrumentation.INSTANCE.disable();
+        instrumentation.disable();
         C proxy = maker.proxy(C.class, new Class[0], handler, true, null);
 
         proxy.a();
@@ -153,7 +150,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void abstractClassDisabledInstrumentationProxy() throws Exception {
-        MockKInstrumentation.INSTANCE.disable();
+        instrumentation.disable();
         D proxy = maker.proxy(D.class, new Class[0], handler, true, null);
 
         proxy.a();
@@ -389,7 +386,18 @@ public class JvmMockKProxyMakerTest {
     }
 
     private void checkProxyHandlerCalled(int nTimes, Object proxy, String methodName) {
-        assertEquals(nTimes, handler.calls.size());
+
+        StringBuilder sb = new StringBuilder();
+        for (Call call : handler.calls) {
+            sb.append(call.method);
+            sb.append('\n');
+        }
+
+        assertEquals(
+                "Amount of calls differ. Calls:\n" + sb.toString(),
+                nTimes,
+                handler.calls.size()
+        );
         Call call = handler.calls.get(0);
         assertSame(proxy, call.self);
         assertSame(methodName, call.method.getName());

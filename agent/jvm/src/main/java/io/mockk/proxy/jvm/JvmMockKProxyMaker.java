@@ -1,28 +1,18 @@
 package io.mockk.proxy.jvm;
 
 import io.mockk.agent.*;
-import io.mockk.agent.MockKInvocationHandler;
-import io.mockk.agent.MockKProxyMaker;
-
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.TypeCache;
 import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.dynamic.loading.MultipleParentClassLoader;
-import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.concurrent.Callable;
 
-import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
-import static net.bytebuddy.implementation.MethodDelegation.to;
 
 public class JvmMockKProxyMaker implements MockKProxyMaker {
-    private static final Object BOOTSTRAP_MONITOR = new Object();
 
     private static final Set<Class<?>> EXCLUDES = new HashSet<Class<?>>(Arrays.<Class<?>>asList(Class.class,
             Boolean.class,
@@ -35,11 +25,7 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
             Double.class,
             String.class));
 
-    private final ByteBuddy byteBuddy;
-
     public static MockKAgentLogger log = MockKAgentLogger.NO_OP;
-
-    private final TypeCache<CacheKey> proxyClassCache;
 
     private final MockKInstantiatior instantiatior;
     private MockKInstrumentation instrumentation;
@@ -48,11 +34,6 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
                               MockKInstrumentation instrumentation) {
         this.instantiatior = instantiatior;
         this.instrumentation = instrumentation;
-
-        byteBuddy = new ByteBuddy()
-                .with(TypeValidation.DISABLED);
-
-        proxyClassCache = new TypeCache<CacheKey>(TypeCache.Sort.WEAK);
     }
 
     @Override
@@ -69,7 +50,7 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
         if (!Modifier.isFinal(clazz.getModifiers())) {
             log.trace("Building subclass proxy for " + clazz +
                     " with additional interfaces " + asList(interfaces));
-            proxyClass = subclass(clazz, interfaces);
+            proxyClass = instrumentation.subclass(clazz, interfaces);
 
             if (!transformed) {
                 warnOnFinalMethods(clazz);
@@ -110,7 +91,7 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
                     log.trace("Instantiating proxy for " + clazz + " via objenesis.");
                 }
                 instance = clazz.cast(useDefaultConstructor
-                        ? proxyClass.newInstance()
+                        ? newInstanceViaDefaultConstructor(proxyClass)
                         : instantiatior.instance(proxyClass));
             }
 
@@ -122,37 +103,25 @@ public class JvmMockKProxyMaker implements MockKProxyMaker {
         }
     }
 
+    private Object newInstanceViaDefaultConstructor(Class<?> cls) {
+        try {
+            Constructor<?> defaultConstructor = cls.getDeclaredConstructor();
+            try {
+                defaultConstructor.setAccessible(true);
+            } catch (Exception ex) {
+                // skip
+            }
+            return defaultConstructor.newInstance();
+        } catch (Exception e) {
+            throw new MockKAgentException("Default constructor instantiation exception", e);
+        }
+    }
+
     @Override
     public void unproxy(Object instance) {
         instrumentation.unhook(instance);
     }
 
-    private <T> Class<?> subclass(final Class<T> clazz, final Class<?>[] interfaces) {
-        CacheKey key = new CacheKey(clazz, interfaces);
-        final ClassLoader classLoader = clazz.getClassLoader();
-        Object monitor = classLoader == null ? BOOTSTRAP_MONITOR : classLoader;
-        return proxyClassCache.findOrInsert(classLoader, key,
-                new Callable<Class<?>>() {
-                    @Override
-                    public Class<?> call() {
-                        ClassLoader classLoader = new MultipleParentClassLoader.Builder()
-                                .append(clazz)
-                                .append(interfaces)
-                                .append(currentThread().getContextClassLoader())
-                                .append(MockKProxyInterceptor.class)
-                                .build(MockKProxyInterceptor.class.getClassLoader());
-
-
-                        return byteBuddy.subclass(clazz)
-                                .implement(interfaces)
-                                .method(any())
-                                .intercept(to(MockKProxyInterceptor.class))
-                                .make()
-                                .load(classLoader)
-                                .getLoaded();
-                    }
-                }, monitor);
-    }
 
     private <T> boolean canInject(Class<T> clazz) {
         return !EXCLUDES.contains(clazz);

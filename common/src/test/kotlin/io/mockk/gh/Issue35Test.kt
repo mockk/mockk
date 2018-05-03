@@ -9,7 +9,6 @@ class Issue35Test {
     }
 
     @Test
-    @Ignore // TODO android
     fun stackOverflowInHashMap() {
         val blob: CloudBlockBlob = mockk()
         val metadata: HashMap<String?, String?> = hashMapOf()
@@ -17,7 +16,6 @@ class Issue35Test {
     }
 
     @Test
-    @Ignore // TODO android
     fun hashmapMock() {
         val map: HashMap<String, String> = mockk()
         every { map["abc"] } returns "def"

@@ -3,7 +3,6 @@ package io.mockk.impl.instantiation
 import io.mockk.util.assertArrayEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class AnyValueGeneratorTest {
@@ -83,11 +82,11 @@ class AnyValueGeneratorTest {
 
     @Test
     fun givenFloatArrayClassWhenRequestedForAnyValueThenEmptyFloatArrayIsReturned() {
-        assertArrayEquals(FloatArray(0), generator.anyValue(FloatArray::class, failOnPassThrough) as FloatArray)
+        assertArrayEquals(FloatArray(0), generator.anyValue(FloatArray::class, failOnPassThrough) as FloatArray, 1e-6f)
     }
 
     @Test
     fun givenDoubleArrayClassWhenRequestedForAnyValueThenEmptyDoubleArrayIsReturned() {
-        assertArrayEquals(DoubleArray(0), generator.anyValue(DoubleArray::class, failOnPassThrough) as DoubleArray)
+        assertArrayEquals(DoubleArray(0), generator.anyValue(DoubleArray::class, failOnPassThrough) as DoubleArray, 1e-6)
     }
 }

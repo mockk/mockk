@@ -40,7 +40,7 @@ public class MockKProxyAdvice extends JvmMockKProxyDispatcher {
             return null;
         }
 
-        return dispatcher.handle(self, method, arguments);
+        return dispatcher.handler(self, method, arguments);
     }
 
     @OnMethodExit

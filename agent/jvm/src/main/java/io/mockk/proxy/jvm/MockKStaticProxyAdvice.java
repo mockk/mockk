@@ -25,7 +25,7 @@ public class MockKStaticProxyAdvice extends JvmMockKProxyDispatcher {
         if (dispatcher == null) {
             return null;
         }
-        return dispatcher.handle(self, method, arguments);
+        return dispatcher.handler(self, method, arguments);
     }
 
     @OnMethodExit

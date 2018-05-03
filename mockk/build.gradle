@@ -30,9 +30,6 @@ dependencies {
     testCompile 'org.slf4j:slf4j-api:1.7.25'
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 
-    testCompile('io.kotlintest:kotlintest:2.0.7') {
-        exclude group: "junit", module: "junit"
-    }
     testCompile("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
         exclude group: "junit", module: "junit"
     }

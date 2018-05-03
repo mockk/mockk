@@ -40,7 +40,5 @@ fun assertArrayEquals(actual: DoubleArray, expected: DoubleArray, prec: Double) 
 }
 
 fun assertArrayEquals(actual: Array<*>, expected: Array<*>) {
-    assertTrue(actual.size == expected.size &&
-            !actual.zip(expected)
-                .any { (a, b) -> a != b })
+    assertTrue(actual contentDeepEquals expected)
 }

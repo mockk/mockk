@@ -20,7 +20,12 @@ public abstract class JvmMockKDispatcher {
         DISPATCHER_MAP.put(id, dispatcher);
     }
 
-    public abstract Callable<?> handle(Object self,
-                                       Method method,
-                                       Object[] arguments) throws Exception;
+    public abstract Callable<?> handler(Object self,
+                                 Method method,
+                                 Object[] arguments) throws Exception;
+
+    public abstract Object handle(Object self,
+                           Method method,
+                           Object[] arguments,
+                           Callable<Object> originalMethod) throws Exception;
 }

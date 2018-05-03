@@ -3,12 +3,19 @@ package io.mockk.proxy.jvm;
 import io.mockk.agent.*;
 
 import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.TypeCache;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.dynamic.loading.MultipleParentClassLoader;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.implementation.Implementation.Context.Disabled.Factory;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder;
+import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder.ParameterBinder.ForFixedValue.OfConstant;
+import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -17,8 +24,10 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.security.ProtectionDomain;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 import static io.mockk.proxy.jvm.MockKInstrumentationLoader.LOADER;
+import static java.lang.Thread.currentThread;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Collections.synchronizedSet;
 import static net.bytebuddy.dynamic.ClassFileLocator.Simple.of;
@@ -31,11 +40,16 @@ public class MockKInstrumentation implements ClassFileTransformer {
     private Map<Object, MockKInvocationHandler> staticHandlers;
 
     private volatile Instrumentation instrumentation;
+    private MockKProxyInterceptor interceptor;
     private MockKProxyAdvice advice;
     private MockKStaticProxyAdvice staticAdvice;
     private MockKHashMapStaticProxyAdvice staticHashMapAdvice; // workaround #35
 
     private final Set<Class<?>> classesToTransform = synchronizedSet(new HashSet<Class<?>>());
+
+    private static final Object BOOTSTRAP_MONITOR = new Object();
+
+    private final TypeCache<CacheKey> proxyClassCache;
 
     private ByteBuddy byteBuddy;
 
@@ -59,14 +73,14 @@ public class MockKInstrumentation implements ClassFileTransformer {
 
 
         byteBuddy = new ByteBuddy()
-                .with(TypeValidation.DISABLED)
-                .with(Factory.INSTANCE);
+                .with(TypeValidation.DISABLED);
 
         if (instrumentation != null) {
             class AdviceBuilder {
                 void build() {
                     handlers = new JvmMockKWeakMap<Object, MockKInvocationHandler>();
                     advice = new MockKProxyAdvice(handlers);
+                    interceptor = new MockKProxyInterceptor(handlers);
                     staticHandlers = new JvmMockKWeakMap<Object, MockKInvocationHandler>();
                     staticAdvice = new MockKStaticProxyAdvice(staticHandlers);
                     staticHashMapAdvice = new MockKHashMapStaticProxyAdvice(staticHandlers);
@@ -74,6 +88,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
                     JvmMockKDispatcher.set(advice.getId(), advice);
                     JvmMockKDispatcher.set(staticAdvice.getId(), staticAdvice);
                     JvmMockKDispatcher.set(staticHashMapAdvice.getId(), staticHashMapAdvice);
+                    JvmMockKDispatcher.set(interceptor.getId(), interceptor);
                 }
             }
             new AdviceBuilder().build();
@@ -81,6 +96,8 @@ public class MockKInstrumentation implements ClassFileTransformer {
             handlers = synchronizedMap(new IdentityHashMap<Object, MockKInvocationHandler>());
             staticHandlers = synchronizedMap(new IdentityHashMap<Object, MockKInvocationHandler>());
         }
+
+        proxyClassCache = new TypeCache<CacheKey>(TypeCache.Sort.WEAK);
     }
 
     public boolean inject(List<Class<?>> classes) {
@@ -94,7 +111,7 @@ public class MockKInstrumentation implements ClassFileTransformer {
                 return true;
             }
 
-            log.trace("Injecting handler to " + classes);
+            log.trace("Injecting handle to " + classes);
 
             classesToTransform.addAll(classes);
         }
@@ -151,6 +168,37 @@ public class MockKInstrumentation implements ClassFileTransformer {
             return null;
         }
     }
+
+
+    public <T> Class<?> subclass(final Class<T> clazz, final Class<?>[] interfaces) {
+        CacheKey key = new CacheKey(clazz, interfaces);
+        final ClassLoader classLoader = clazz.getClassLoader();
+        Object monitor = classLoader == null ? BOOTSTRAP_MONITOR : classLoader;
+        return proxyClassCache.findOrInsert(classLoader, key,
+                new Callable<Class<?>>() {
+                    @Override
+                    public Class<?> call() {
+                        ClassLoader classLoader = new MultipleParentClassLoader.Builder()
+                                .append(clazz)
+                                .append(interfaces)
+                                .append(currentThread().getContextClassLoader())
+                                .append(MockKProxyInterceptor.class)
+                                .build(MockKProxyInterceptor.class.getClassLoader());
+
+
+                        return byteBuddy.subclass(clazz)
+                                .implement(interfaces)
+                                .method(any())
+                                .intercept(MethodDelegation.withDefaultConfiguration()
+                                        .withBinders(OfConstant.of(MockKProxyAdviceId.class, interceptor.getId()))
+                                        .to(MockKProxyInterceptor.class))
+                                .make()
+                                .load(classLoader, ClassLoadingStrategy.Default.INJECTION)
+                                .getLoaded();
+                    }
+                }, monitor);
+    }
+
 
     private long staticProxyAdviceId(String className) {
         // workaround #35

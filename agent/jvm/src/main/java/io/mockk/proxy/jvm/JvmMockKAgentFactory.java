@@ -12,7 +12,6 @@ public class JvmMockKAgentFactory implements MockKAgentFactory {
         instantiatior = new JvmMockKInstantiatior();
         proxyMaker = new JvmMockKProxyMaker(instantiatior, instrumentation);
         staticProxyMaker = new JvmMockKStaticProxyMaker(instrumentation);
-        MockKProxyInterceptor.INSTRUMENTATION = instrumentation;
     }
 
     @Override

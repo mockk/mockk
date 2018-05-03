@@ -4,9 +4,9 @@ plugins {
 
 dependencies {
     compile project(':mockk-agent-api')
-    compile 'net.bytebuddy:byte-buddy:1.7.9'
-    compileOnly 'net.bytebuddy:byte-buddy-agent:1.7.9'
-    runtime 'net.bytebuddy:byte-buddy-agent:1.7.9'
+    compile "net.bytebuddy:byte-buddy:$byte_buddy_version"
+    compileOnly "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+    runtime "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
     testCompileOnly "junit:junit:4.12"
     testRuntimeOnly "junit:junit:4.12"
     compile 'org.objenesis:objenesis:2.6'

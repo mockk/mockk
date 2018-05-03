@@ -1,47 +1,45 @@
 package io.mockk.proxy.jvm;
 
+import io.mockk.agent.MockKInvocationHandler;
 import net.bytebuddy.implementation.bind.annotation.*;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.Callable;
-import io.mockk.agent.MockKInvocationHandler;
 
-public class MockKProxyInterceptor {
-    public static MockKInstrumentation INSTRUMENTATION;
-
-    @RuntimeType
-    @BindingPriority(BindingPriority.DEFAULT * 2)
-    public static Object intercept(@This Object self,
-                                   @Origin Method method,
-                                   @AllArguments Object[] args,
-                                   @SuperCall final Callable<Object> originalMethod) throws Throwable {
-
-        MockKInvocationHandler handler = INSTRUMENTATION.getHook(self);
-        if (handler == null || MockKSelfCall.isSelf(self, method)) {
-            return originalMethod.call();
-        }
-        return handler.invocation(
-                self,
-                method,
-                new MockKSkipInterceptingSelf(originalMethod, self, method),
-                args);
+public class MockKProxyInterceptor extends JvmMockKProxyDispatcher {
+    public MockKProxyInterceptor(Map<Object, MockKInvocationHandler> handlers) {
+        super(handlers);
     }
 
     @RuntimeType
-    public static Object interceptNoSuper(@This Object self,
+    @BindingPriority(BindingPriority.DEFAULT * 2)
+    public static Object intercept(@MockKProxyAdviceId long id,
+                                   @This Object self,
+                                   @Origin Method method,
+                                   @AllArguments Object[] args,
+                                   @SuperCall final Callable<Object> originalMethod) throws Throwable {
+        JvmMockKDispatcher dispatcher = get(id, self);
+
+        if (dispatcher == null) {
+            return originalMethod.call();
+        }
+
+        return dispatcher.handle(self, method, args, originalMethod);
+    }
+
+    @RuntimeType
+    public static Object interceptNoSuper(@MockKProxyAdviceId long id,
+                                          @This Object self,
                                           @Origin Method method,
                                           @AllArguments Object[] args) throws Throwable {
-        MockKInvocationHandler handler = INSTRUMENTATION.getHook(self);
+        JvmMockKDispatcher dispatcher = get(id, self);
 
-        if (handler == null) {
+        if (dispatcher == null) {
             return null;
         }
 
-        return handler.invocation(
-                self,
-                method,
-                null,
-                args);
+        return dispatcher.handle(self, method, args, null);
     }
 
 }

@@ -27,6 +27,6 @@ class JvmVarargsTest {
         assertEquals(3, mock.varArgsOp(7, 4, 22))
         val slot = slot<Int>()
         verify { mock.varArgsOp(7, capture(slot), more(20)) }
-        assertEquals(3, slot.captured)
+        assertEquals(4, slot.captured)
     }
 }

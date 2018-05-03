@@ -27,7 +27,7 @@ public class JvmMockKInstantiatior implements MockKInstantiatior {
 
     private final ByteBuddy byteBuddy;
 
-    public  JvmMockKInstantiatior() {
+    public JvmMockKInstantiatior() {
         objenesis = new ObjenesisStd(true);
         instanceProxyClassCache = new TypeCache<CacheKey>(TypeCache.Sort.SOFT);
         byteBuddy = new ByteBuddy()

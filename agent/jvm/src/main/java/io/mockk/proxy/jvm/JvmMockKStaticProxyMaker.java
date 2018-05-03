@@ -16,7 +16,7 @@ public class JvmMockKStaticProxyMaker implements MockKStaticProxyMaker {
     @Override
     public void staticProxy(Class<?> clazz,
                             MockKInvocationHandler handler) {
-        JvmMockKProxyMaker.log.debug("Injecting handler to " + clazz + " for static methods");
+        JvmMockKProxyMaker.log.debug("Injecting handle to " + clazz + " for static methods");
 
         ArrayList<Class<?>> lst = new ArrayList<Class<?>>();
         lst.add(clazz);
