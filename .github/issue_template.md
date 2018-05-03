@@ -1,10 +1,10 @@
-# Please remove sections wisely
+## Please remove sections wisely
 
 Below information is actually needed to make all the process of fixing faster.
 Choose main points. Don't blindly follow this as a set of rules. 
 Don't waste much time. Usually, the main thing is to have a good reproducible minimal code.
 
-# Prerequisites
+### Prerequisites
 
 Please answer the following questions for yourself before submitting an issue.
 
@@ -12,19 +12,19 @@ Please answer the following questions for yourself before submitting an issue.
 - [ ] I checked the documentation and found no answer
 - [ ] I checked to make sure that this issue has not already been filed
 
-# Expected Behavior
+### Expected Behavior
 
 Please describe the behavior you are expecting
 
-# Current Behavior
+### Current Behavior
 
 What is the current behavior?
 
-# Failure Information (for bugs)
+### Failure Information (for bugs)
 
 Please help provide information about the failure if this is a bug. If it is not a bug, please remove the rest of this template.
 
-## Steps to Reproduce
+#### Steps to Reproduce
 
 Please provide detailed steps for reproducing the issue.
 
@@ -32,7 +32,7 @@ Please provide detailed steps for reproducing the issue.
 2. step 2
 3. you get it...
 
-## Context
+#### Context
 
 Please provide any relevant information about your setup. This is important in case the issue is not reproducible except for under certain conditions.
 
@@ -43,11 +43,11 @@ Please provide any relevant information about your setup. This is important in c
 * Type of test: unit test OR android instrumentation test
 
 
-## Failure Logs
+#### Failure Logs
 
 Please include any relevant log snippets or files here.
 
-## Stack trace
+#### Stack trace
 
 ```
 // -----------------------[ YOUR STACK STARTS HERE ] -----------------------
@@ -91,7 +91,7 @@ Caused by: java.lang.ClassCastException: kotlin.Unit cannot be cast to java.lang
 // -----------------------[ YOUR STACK TRACE ENDS HERE ] -----------------------
 ```
 
-## Minimal reproducible code (gist of this issue)
+#### Minimal reproducible code (the gist of this issue)
 
 ```kotlin
 // -----------------------[ GRADLE DEFINITIONS ] -----------------------
