@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,88 +18,67 @@ package io.mockk.proxy.android;
 
 import io.mockk.agent.MockKAgentException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.*;
 
 /**
  * Adds entry hooks (that eventually call into
- * {@link MockMethodAdvice#handle(Object, Method, Object[])} to all non-abstract methods of the
+ * {@link StaticMockMethodAdvice#handle(Object, Method, Object[])} to all static methods of the
  * supplied classes.
- *
- * <p></p>Transforming a class to adding entry hooks follow the following simple steps:
+ * <p></p>Transforming a class to add entry hooks follow the following simple steps:
  * <ol>
- * <li>{@link #mockClass(Class, Class[]))}</li>
- * <li>{@link JvmtiAgent#requestTransformClasses(Class[])}</li>
- * <li>{@link JvmtiAgent#nativeRetransformClasses(Class[])}</li>
+ * <li>{@link StaticJvmtiAgent#requestTransformClasses(Class[])}</li>
+ * <li>{@link StaticJvmtiAgent#nativeRetransformClasses(Class[])}</li>
  * <li>agent.cc::Transform</li>
- * <li>{@link JvmtiAgent#runTransformers(ClassLoader, String, Class, ProtectionDomain, byte[])}</li>
+ * <li>{@link StaticJvmtiAgent#runTransformers(ClassLoader, String, Class, ProtectionDomain,
+ * byte[])}</li>
  * <li>{@link #transform(Class, byte[])}</li>
  * <li>{@link #nativeRedefine(String, byte[])}</li>
  * </ol>
- *
  */
-class ClassTransformer {
-    // Some classes are so deeply optimized inside the runtime that they cannot be transformed
-    private static final Set<Class<? extends java.io.Serializable>> EXCLUDES = new HashSet<>(
-            Arrays.asList(Class.class,
-                    Boolean.class,
-                    Byte.class,
-                    Short.class,
-                    Character.class,
-                    Integer.class,
-                    Long.class,
-                    Float.class,
-                    Double.class,
-                    String.class));
+class StaticClassTransformer {
+    /**
+     * We can only have a single transformation going on at a time, hence synchronize the
+     * transformation process via this lock.
+     */
+    private final static Object lock = new Object();
 
-    /** Jvmti agent responsible for triggering transformation s*/
-    private final JvmtiAgent agent;
+    /**
+     * Jvmti agent responsible for triggering transformations
+     */
+    private final StaticJvmtiAgent agent;
 
-    /** Types that have already be transformed */
+    /**
+     * Types that have already be transformed
+     */
     private final Set<Class<?>> mockedTypes;
 
     /**
      * A unique identifier that is baked into the transformed classes. The entry hooks will then
      * pass this identifier to
-     * {@code io.mockk.proxy.android.AndroidMockKDispatcher#get(String, Object)} to
+     * {@code com.android.dx.mockito.inline.MockMethodDispatcher#get(String, Object)} to
      * find the advice responsible for handling the method call interceptions.
      */
     private final String identifier;
 
     /**
-     * We can only have a single transformation going on at a time, hence synchronize the
-     * transformation process via this lock.
-     *
-     * @see #mockClass(Class, Class[])
+     * Create a new transformer.
      */
-    private final static Object lock = new Object();
-
-    /**
-     * Create a new generator.
-     *
-     * Creating more than one generator might cause transformations to overwrite each other.
-     *
-     * @param agent agent used to trigger transformations
-     * @param dispatcherClass {@code io.mockk.proxy.android.AndroidMockKDispatcher}
-     *                        that will dispatch method calls that might need to get intercepted.
-     * @param mocks list of mocked objects. As all objects of a class use the same transformed
-     *              bytecode the {@link MockMethodAdvice} needs to check this list if a object is
-     *              mocked or not.
-     */
-    ClassTransformer(JvmtiAgent agent, Class dispatcherClass,
-                     Map<Object, InvocationHandlerAdapter> mocks) {
+    StaticClassTransformer(
+            StaticJvmtiAgent agent,
+            Class dispatcherClass,
+            Map<Class, InvocationHandlerAdapter> classToHandler
+    ) {
         this.agent = agent;
         mockedTypes = Collections.synchronizedSet(new HashSet<Class<?>>());
         identifier = String.valueOf(System.identityHashCode(this));
-        MockMethodAdvice advice = new MockMethodAdvice(mocks);
+        StaticMockMethodAdvice advice = new StaticMockMethodAdvice(classToHandler);
 
         try {
-            dispatcherClass.getMethod("set", String.class, Object.class).invoke(null, identifier,
-                    advice);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            dispatcherClass.getMethod("set", String.class, Object.class)
+                    .invoke(null, identifier, advice);
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
 
@@ -108,19 +87,12 @@ class ClassTransformer {
 
     /**
      * Trigger the process to add entry hooks to a class (and all its parents).
-     *
      */
     @SuppressWarnings("Duplicates")
-    public <T> void mockClass(Class<T> clazz, Class<?>[] interfaces) {
-        boolean subclassingRequired = interfaces.length > 0
-                || Modifier.isAbstract(clazz.getModifiers());
+    <T> void mockClass(Class<T> clazz) {
 
-        if (subclassingRequired
-                && !clazz.isArray()
-                && !clazz.isPrimitive()
-                && Modifier.isFinal(clazz.getModifiers())) {
-            throw new MockKAgentException("Unsupported settings with this type '"
-                    + clazz.getName() + "'");
+        if (clazz.isArray() && clazz.isPrimitive()) {
+            throw new MockKAgentException("Unsupported type '" + clazz.getName() + "'");
         }
 
         synchronized (lock) {
@@ -144,13 +116,10 @@ class ClassTransformer {
 
     /**
      * Add entry hooks to all methods of a class.
-     *
      * <p>Called by the agent after triggering the transformation via
-     * {@link #mockClass(Class, Class[])} )}.
      *
      * @param classBeingRedefined class the hooks should be added to
-     * @param classfileBuffer original byte code of the class
-     *
+     * @param classfileBuffer     original byte code of the class
      * @return transformed class
      */
     byte[] transform(Class<?> classBeingRedefined, byte[] classfileBuffer) throws
@@ -171,7 +140,6 @@ class ClassTransformer {
      * Check if the class should be transformed.
      *
      * @param classBeingRedefined The class that might need to transformed
-     *
      * @return {@code true} iff the class needs to be transformed
      */
     boolean shouldTransform(Class<?> classBeingRedefined) {

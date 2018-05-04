@@ -106,70 +106,11 @@ class MockMethodAdvice {
 
         ArrayList<Class<?>> argTypes = new ArrayList<>(argTypeNames.length);
         for (String argTypeName : argTypeNames) {
-            if (!argTypeName.equals("")) {
-                switch (argTypeName) {
-                    case "byte":
-                        argTypes.add(Byte.TYPE);
-                        break;
-                    case "short":
-                        argTypes.add(Short.TYPE);
-                        break;
-                    case "int":
-                        argTypes.add(Integer.TYPE);
-                        break;
-                    case "long":
-                        argTypes.add(Long.TYPE);
-                        break;
-                    case "char":
-                        argTypes.add(Character.TYPE);
-                        break;
-                    case "float":
-                        argTypes.add(Float.TYPE);
-                        break;
-                    case "double":
-                        argTypes.add(Double.TYPE);
-                        break;
-                    case "boolean":
-                        argTypes.add(Boolean.TYPE);
-                        break;
-                    case "byte[]":
-                        argTypes.add(byte[].class);
-                        break;
-                    case "short[]":
-                        argTypes.add(short[].class);
-                        break;
-                    case "int[]":
-                        argTypes.add(int[].class);
-                        break;
-                    case "long[]":
-                        argTypes.add(long[].class);
-                        break;
-                    case "char[]":
-                        argTypes.add(char[].class);
-                        break;
-                    case "float[]":
-                        argTypes.add(float[].class);
-                        break;
-                    case "double[]":
-                        argTypes.add(double[].class);
-                        break;
-                    case "boolean[]":
-                        argTypes.add(boolean[].class);
-                        break;
-                    default:
-                        int nArrays = 0;
-                        while (argTypeName.endsWith("[]")) {
-                            argTypeName = argTypeName.substring(0, argTypeName.length() - 2);
-                            nArrays++;
-                        }
-                        if (nArrays > 0) {
-                            argTypes.add(Class.forName(repeat(nArrays, "[") + "L" + argTypeName + ";"));
-                        } else {
-                            argTypes.add(Class.forName(argTypeName));
-                        }
-                        break;
-                }
+            if (argTypeName.equals("")) {
+                continue;
             }
+
+            argTypes.add(Util.nameToType(argTypeName));
         }
 
         Method origin = Class.forName(methodComponents.group(1)).getDeclaredMethod(
@@ -182,13 +123,6 @@ class MockMethodAdvice {
         }
     }
 
-    private String repeat(int n, String str) {
-        StringBuilder sb = new StringBuilder(n * str.length());
-        while (n-- > 0) {
-            sb.append(str);
-        }
-        return sb.toString();
-    }
 
     /**
      * Handle a method entry hook.
