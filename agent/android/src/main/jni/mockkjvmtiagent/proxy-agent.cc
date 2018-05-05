@@ -334,6 +334,10 @@ namespace io_mockk_proxy_android {
             return false;
         }
 
+        if (Utf8Cmp(type.c_str(), "java.lang.Object") == 0) {
+            return false;
+        }
+
         if (strncmp(type.c_str(), "java.", 5) != 0) {
             return true;
         }
