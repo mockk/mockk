@@ -18,7 +18,7 @@ package io.mockk.proxy.android;
 
 /**
  * Exception thrown if a class cannot be transformed by
- * {@link ClassTransformer#transform(Class, byte[])}
+ * {@link AndroidMockKClassTransformer#transform(Class, byte[])}
  */
 class IllegalClassFormatException extends Exception {
 }

@@ -8,10 +8,7 @@ package io.mockk.proxy.android;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,35 +17,74 @@ import java.util.regex.Pattern;
  * Backend for the method entry hooks. Checks if the hooks should cause an interception or should
  * be ignored.
  */
-class StaticMockMethodAdvice {
+class AndroidMockKMethodAdvice {
+    private final Map<Object, InvocationHandlerAdapter> interceptors;
+
     /**
      * Pattern to decompose a instrumentedMethodWithTypeAndSignature
      */
     private final static Pattern methodPattern = Pattern.compile("(.*)#(.*)\\((.*)\\)");
-    private final Map<Class, InvocationHandlerAdapter> classToHandler;
+
     @SuppressWarnings("ThreadLocalUsage")
     private final SelfCallInfo selfCallInfo = new SelfCallInfo();
 
-    StaticMockMethodAdvice(Map<Class, InvocationHandlerAdapter> classToHandler) {
-        this.classToHandler = classToHandler;
+    AndroidMockKMethodAdvice(Map<Object, InvocationHandlerAdapter> interceptors) {
+        this.interceptors = interceptors;
     }
 
     /**
-     * Try to invoke the method {@code origin}.
+     * Try to invoke the method {@code origin} on {@code instance}.
      *
      * @param origin    method to invoke
+     * @param instance  instance to invoke the method on.
      * @param arguments arguments to the method
      * @return result of the method
      * @throws Throwable Exception if thrown by the method
      */
-    private static Object tryInvoke(Method origin, Object[] arguments)
-            throws Throwable {
+    private static Object tryInvoke(
+            Method origin,
+            Object instance,
+            Object[] arguments
+    ) throws Throwable {
         try {
-            return origin.invoke(null, arguments);
+            return origin.invoke(instance, arguments);
         } catch (InvocationTargetException exception) {
             throw exception.getCause();
         }
     }
+
+//    /**
+//     * Remove calls to a class from a throwable's stack.
+//     *
+//     * @param throwable  throwable to clean
+//     * @param current    stack frame number to start cleaning from (upwards)
+//     * @param targetType class to remove from the stack
+//     * @return throwable with the cleaned stack
+//     */
+//    private static Throwable hideRecursiveCall(Throwable throwable, int current,
+//                                               Class<?> targetType) {
+//        try {
+//            StackTraceElement[] stack = throwable.getStackTrace();
+//            int skip = 0;
+//            StackTraceElement next;
+//
+//            do {
+//                next = stack[stack.length - current - ++skip];
+//            } while (!next.getClassName().equals(targetType.getName()));
+//
+//            int top = stack.length - current - skip;
+//            StackTraceElement[] cleared = new StackTraceElement[stack.length - skip];
+//            System.arraycopy(stack, 0, cleared, 0, top);
+//            System.arraycopy(stack, top + skip, cleared, top, current);
+//            throwable.setStackTrace(cleared);
+//
+//            return throwable;
+//        } catch (RuntimeException ignored) {
+//            // This should not happen unless someone instrumented or manipulated exception stack
+//            // traces.
+//            return throwable;
+//        }
+//    }
 
     /**
      * Would a call to SubClass.method handled by SuperClass.method ?
@@ -108,15 +144,19 @@ class StaticMockMethodAdvice {
          * this and the class actually called might be different we need to find the class that
          * was actually called.
          */
-        if (Modifier.isFinal(classDeclaringMethod.getModifiers())
-                || Modifier.isFinal(classDeclaringMethod.getDeclaredMethod(methodDesc.methodName,
-                methodDesc.methodParamTypes).getModifiers())) {
+        if (Modifier.isFinal(classDeclaringMethod.getModifiers())) {
+            return classDeclaringMethod;
+        } else if (Modifier.isFinal(
+                classDeclaringMethod.getDeclaredMethod(
+                        methodDesc.methodName,
+                        methodDesc.methodParamTypes
+                ).getModifiers())) {
             return classDeclaringMethod;
         } else {
             boolean mightBeMocked = false;
             // if neither the defining class nor any subclass of it is mocked, no point of
             // trying to figure out the called class as isMocked will soon be checked.
-            for (Class<?> subClass : getAllSubclasses(classDeclaringMethod, classToHandler.keySet())) {
+            for (Class<?> subClass : getAllSubclasses(classDeclaringMethod, getClassMocks())) {
                 if (isMethodDefinedBySuperClass(subClass, classDeclaringMethod,
                         methodDesc.methodName, methodDesc.methodParamTypes)) {
                     mightBeMocked = true;
@@ -133,62 +173,102 @@ class StaticMockMethodAdvice {
         }
     }
 
+    private Collection<Class> getClassMocks() {
+        Collection<Class> classes = new HashSet<>();
+        for (Object mock : interceptors.keySet()) {
+            if (mock instanceof Class<?>) {
+                classes.add((Class) mock);
+            }
+        }
+        return classes;
+    }
+
     /**
-     * Get the method specified by {@code methodWithTypeAndSignature}.
+     * Get the method of {@code instance} specified by {@code methodWithTypeAndSignature}.
      *
-     * @param ignored
+     * @param instance                   instance the method belongs to
      * @param methodWithTypeAndSignature the description of the method
      * @return method {@code methodWithTypeAndSignature} refer to
      */
     @SuppressWarnings("unused")
-    public Method getOrigin(Object ignored, String methodWithTypeAndSignature) throws Throwable {
+    public Method getOrigin(Object instance, String methodWithTypeAndSignature) throws Throwable {
         MethodDesc methodDesc = new MethodDesc(methodWithTypeAndSignature);
+        if (instance == null) {
+            Class clazz = getClassMethodWasCalledOn(methodDesc);
+            if (clazz == null) {
+                return null;
+            }
 
-        Class clazz = getClassMethodWasCalledOn(methodDesc);
-        if (clazz == null) {
-            return null;
+            if (!isMocked(clazz)) {
+                return null;
+            }
+
+            return Class.forName(methodDesc.className)
+                    .getDeclaredMethod(
+                            methodDesc.methodName,
+                            methodDesc.methodParamTypes
+                    );
+        } else {
+            if (!isMocked(instance)) {
+                return null;
+            }
+
+            Method origin = Class.forName(methodDesc.className)
+                    .getDeclaredMethod(
+                            methodDesc.methodName,
+                            methodDesc.methodParamTypes
+                    );
+
+            if (isOverridden(instance, origin)) {
+                return null;
+            } else {
+                return origin;
+            }
         }
-
-        if (!isMocked(clazz)) {
-            return null;
-        }
-
-        return Class.forName(methodDesc.className)
-                .getDeclaredMethod(
-                        methodDesc.methodName,
-                        methodDesc.methodParamTypes
-                );
     }
+
 
     /**
      * Handle a method entry hook.
      *
+     * @param instance  instance that is mocked
      * @param origin    method that contains the hook
      * @param arguments arguments to the method
      * @return A callable that can be called to get the mocked result or null if the method is not
      * mocked.
      */
     @SuppressWarnings("unused")
-    public Callable<?> handle(Object methodDescStr, Method origin, Object[] arguments) throws
-            Throwable {
-        MethodDesc methodDesc = new MethodDesc((String) methodDescStr);
-        Class clazz = getClassMethodWasCalledOn(methodDesc);
+    public Callable<?> handle(Object instance, Method origin, Object[] arguments) throws Throwable {
 
-        InvocationHandlerAdapter interceptor = classToHandler.get(clazz);
+        if (Modifier.isStatic(origin.getModifiers())) {
+            MethodDesc methodDesc = new MethodDesc((String) instance);
+            instance = getClassMethodWasCalledOn(methodDesc);
+        }
+
+        InvocationHandlerAdapter interceptor = interceptors.get(instance);
         if (interceptor == null) {
             return null;
         }
 
-        return new ReturnValueWrapper(
-                interceptor.interceptEntryHook(clazz, origin, arguments,
-                        new SuperMethodCall(selfCallInfo, origin, clazz, arguments)));
+        return new ReturnValueWrapper(interceptor.interceptEntryHook(instance, origin, arguments,
+                        new SuperMethodCall(selfCallInfo, origin, instance, arguments)));
+    }
+
+    /**
+     * Checks if an {@code instance} is a mock.
+     *
+     * @param instance instance that might be a mock
+     * @return {@code true} iff the instance is a mock
+     */
+    public boolean isMock(Object instance) {
+        return interceptors.containsKey(instance);
     }
 
     /**
      * Check if this method call should be mocked.
      */
-    public boolean isMocked(Class<?> clazz) {
-        return selfCallInfo.shouldMockMethod(clazz);
+    public boolean isMocked(Object instance) {
+        return selfCallInfo.shouldMockMethod(instance);
     }
 
     private static class MethodDesc {
@@ -223,19 +303,47 @@ class StaticMockMethodAdvice {
     }
 
     /**
+     * Check if a method is overridden.
+     *
+     * @param instance mocked instance
+     * @param origin   method that might be overridden
+     * @return {@code true} iff the method is overridden
+     */
+    private boolean isOverridden(Object instance, Method origin) {
+        Class<?> currentType = instance.getClass();
+
+        do {
+            try {
+
+                Method method = currentType.getDeclaredMethod(
+                        origin.getName(),
+                        origin.getParameterTypes()
+                );
+
+                return !origin.equals(method);
+
+            } catch (NoSuchMethodException ignored) {
+                currentType = currentType.getSuperclass();
+            }
+        } while (currentType != null);
+
+        return true;
+    }
+
+    /**
      * Used to call the real (non mocked) method.
      */
     private static class SuperMethodCall implements InvocationHandlerAdapter.SuperMethod {
         private final SelfCallInfo selfCallInfo;
         private final Method origin;
-        private final Class<?> self;
+        private final Object instance;
         private final Object[] arguments;
 
-        private SuperMethodCall(SelfCallInfo selfCallInfo, Method origin, Class<?> self,
+        private SuperMethodCall(SelfCallInfo selfCallInfo, Method origin, Object instance,
                                 Object[] arguments) {
             this.selfCallInfo = selfCallInfo;
             this.origin = origin;
-            this.self = self;
+            this.instance = instance;
             this.arguments = arguments;
         }
 
@@ -255,8 +363,8 @@ class StaticMockMethodAdvice {
 
             // By setting instance in the the selfCallInfo, once single method call on this instance
             // and thread will call the read method as isMocked will return false.
-            selfCallInfo.set(self);
-            return tryInvoke(origin, arguments);
+            selfCallInfo.set(instance);
+            return tryInvoke(origin, instance, arguments);
         }
 
     }
@@ -281,6 +389,7 @@ class StaticMockMethodAdvice {
     /**
      * Used to call the original method. If a instance is {@link #set(Object)}
      * {@link #shouldMockMethod(Object)} returns false for this instance once.
+     *
      * <p>This is {@link ThreadLocal}, so a thread can {@link #set(Object)} and instance and then
      * call {@link #shouldMockMethod(Object)} without interference.
      *

@@ -21,7 +21,7 @@ class Issue70Test {
             mock["updateItemInDb"](any<Long>(), any<String>(), any()) as Unit
         } just Runs
 
-        println(mock.pubCall())
+        mock.pubCall()
     }
 
 }

@@ -17,7 +17,7 @@
 package io.mockk.proxy.android;
 
 /**
- * Exception thrown by {@link JvmtiAgent#requestTransformClasses(Class[])} if any of the supplied
+ * Exception thrown by {@link AndroidMockKJvmtiAgent#requestTransformClasses(Class[])} if any of the supplied
  * classed cannot be modified.
  */
 class UnmodifiableClassException extends Exception {

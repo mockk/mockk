@@ -18,7 +18,6 @@ package io.mockk.proxy.android;
 
 import io.mockk.agent.MockKAgentException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
@@ -26,22 +25,20 @@ import java.util.*;
 
 /**
  * Adds entry hooks (that eventually call into
- * {@link MockMethodAdvice#handle(Object, Method, Object[])} to all non-abstract methods of the
+ * {@link AndroidMockKMethodAdvice#handle(Object, Method, Object[])} to all non-abstract methods of the
  * supplied classes.
  *
  * <p></p>Transforming a class to adding entry hooks follow the following simple steps:
  * <ol>
- * <li>{@link #mockClass(Class, Class[]))}</li>
- * <li>{@link JvmtiAgent#requestTransformClasses(Class[])}</li>
- * <li>{@link JvmtiAgent#nativeRetransformClasses(Class[])}</li>
+ * <li>{@link AndroidMockKJvmtiAgent#requestTransformClasses(Class[])}</li>
+ * <li>{@link AndroidMockKJvmtiAgent#nativeRetransformClasses(Class[])}</li>
  * <li>agent.cc::Transform</li>
- * <li>{@link JvmtiAgent#runTransformers(ClassLoader, String, Class, ProtectionDomain, byte[])}</li>
+ * <li>{@link AndroidMockKJvmtiAgent#runTransformers(ClassLoader, String, Class, ProtectionDomain, byte[])}</li>
  * <li>{@link #transform(Class, byte[])}</li>
  * <li>{@link #nativeRedefine(String, byte[])}</li>
  * </ol>
- *
  */
-class ClassTransformer {
+class AndroidMockKClassTransformer {
     // Some classes are so deeply optimized inside the runtime that they cannot be transformed
     private static final Set<Class<? extends java.io.Serializable>> EXCLUDES = new HashSet<>(
             Arrays.asList(Class.class,
@@ -55,10 +52,20 @@ class ClassTransformer {
                     Double.class,
                     String.class));
 
-    /** Jvmti agent responsible for triggering transformation s*/
-    private final JvmtiAgent agent;
+    /**
+     * We can only have a single transformation going on at a time, hence synchronize the
+     * transformation process via this lock.
+     */
+    private final static Object lock = new Object();
 
-    /** Types that have already be transformed */
+    /**
+     * Jvmti agent responsible for triggering transformation s
+     */
+    private final AndroidMockKJvmtiAgent agent;
+
+    /**
+     * Types that have already be transformed
+     */
     private final Set<Class<?>> mockedTypes;
 
     /**
@@ -70,36 +77,21 @@ class ClassTransformer {
     private final String identifier;
 
     /**
-     * We can only have a single transformation going on at a time, hence synchronize the
-     * transformation process via this lock.
-     *
-     * @see #mockClass(Class, Class[])
+     * Create a new transformer.
      */
-    private final static Object lock = new Object();
-
-    /**
-     * Create a new generator.
-     *
-     * Creating more than one generator might cause transformations to overwrite each other.
-     *
-     * @param agent agent used to trigger transformations
-     * @param dispatcherClass {@code io.mockk.proxy.android.AndroidMockKDispatcher}
-     *                        that will dispatch method calls that might need to get intercepted.
-     * @param mocks list of mocked objects. As all objects of a class use the same transformed
-     *              bytecode the {@link MockMethodAdvice} needs to check this list if a object is
-     *              mocked or not.
-     */
-    ClassTransformer(JvmtiAgent agent, Class dispatcherClass,
-                     Map<Object, InvocationHandlerAdapter> mocks) {
+    AndroidMockKClassTransformer(
+            AndroidMockKJvmtiAgent agent,
+            Class dispatcherClass,
+            AndroidMockKMethodAdvice advice
+    ) {
         this.agent = agent;
         mockedTypes = Collections.synchronizedSet(new HashSet<Class<?>>());
         identifier = String.valueOf(System.identityHashCode(this));
-        MockMethodAdvice advice = new MockMethodAdvice(mocks);
 
         try {
-            dispatcherClass.getMethod("set", String.class, Object.class).invoke(null, identifier,
-                    advice);
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            dispatcherClass.getMethod("set", String.class, Object.class)
+                    .invoke(null, identifier, advice);
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
 
@@ -108,10 +100,9 @@ class ClassTransformer {
 
     /**
      * Trigger the process to add entry hooks to a class (and all its parents).
-     *
      */
     @SuppressWarnings("Duplicates")
-    public <T> void mockClass(Class<T> clazz, Class<?>[] interfaces) {
+    <T> void mockClass(Class<T> clazz, Class<?>[] interfaces) {
         boolean subclassingRequired = interfaces.length > 0
                 || Modifier.isAbstract(clazz.getModifiers());
 
@@ -124,54 +115,78 @@ class ClassTransformer {
         }
 
         synchronized (lock) {
-            Set<Class<?>> types = Util.addClass(clazz, mockedTypes);
-
-            if (types.isEmpty()) {
-                return;
-            }
-
-            try {
-                agent.requestTransformClasses(types.toArray(new Class<?>[0]));
-            } catch (UnmodifiableClassException exception) {
-                for (Class<?> failed : types) {
-                    mockedTypes.remove(failed);
-                }
-
-                throw new MockKAgentException("Could not modify all classes " + types, exception);
-            }
+            transformClassAndSuperclasses(clazz);
         }
     }
+
+    private Set<Class<?>> addClass(Class<?> cls) {
+        Set<Class<?>> types = new HashSet<>();
+        Class<?> type = cls;
+
+        do {
+            boolean wasAdded = mockedTypes.add(type);
+
+            if (wasAdded) {
+                if (!EXCLUDES.contains(type)) {
+                    types.add(type);
+                }
+
+                type = type.getSuperclass();
+            } else {
+                break;
+            }
+        } while (type != null && !type.isInterface());
+
+        return types;
+    }
+
+    private void transformClassAndSuperclasses(Class<?> clazz) {
+        Set<Class<?>> types = addClass(clazz);
+
+        if (types.isEmpty()) {
+            return;
+        }
+
+        try {
+            agent.requestTransformClasses(types.toArray(new Class<?>[0]));
+        } catch (UnmodifiableClassException exception) {
+            for (Class<?> failed : types) {
+                mockedTypes.remove(failed);
+            }
+
+            throw new MockKAgentException("Could not modify all classes " + types, exception);
+        }
+    }
+
 
     /**
      * Add entry hooks to all methods of a class.
      *
      * <p>Called by the agent after triggering the transformation via
-     * {@link #mockClass(Class, Class[])} )}.
      *
      * @param classBeingRedefined class the hooks should be added to
-     * @param classfileBuffer original byte code of the class
-     *
+     * @param classfileBuffer     original byte code of the class
      * @return transformed class
      */
     byte[] transform(Class<?> classBeingRedefined, byte[] classfileBuffer) throws
             IllegalClassFormatException {
-        if (classBeingRedefined == null
-                || !mockedTypes.contains(classBeingRedefined)) {
+
+        if (classBeingRedefined == null || !mockedTypes.contains(classBeingRedefined)) {
             return null;
-        } else {
-            try {
-                return nativeRedefine(identifier, classfileBuffer);
-            } catch (Throwable throwable) {
-                throw new IllegalClassFormatException();
-            }
         }
+
+        try {
+            return nativeRedefine(identifier, classfileBuffer);
+        } catch (Throwable throwable) {
+            throw new IllegalClassFormatException();
+        }
+
     }
 
     /**
      * Check if the class should be transformed.
      *
      * @param classBeingRedefined The class that might need to transformed
-     *
      * @return {@code true} iff the class needs to be transformed
      */
     boolean shouldTransform(Class<?> classBeingRedefined) {

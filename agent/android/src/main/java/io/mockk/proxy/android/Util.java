@@ -1,5 +1,7 @@
 package io.mockk.proxy.android;
 
+import io.mockk.agent.MockKAgentException;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

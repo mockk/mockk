@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,33 +27,38 @@ import java.util.ArrayList;
 /**
  * Interface to the native jvmti agent in agent.cc
  */
-class JvmtiAgent {
+class AndroidMockKJvmtiAgent {
     private static final String AGENT_LIB_NAME = "libmockkjvmtiagent.so";
 
     private static final Object lock = new Object();
 
     /** Registered byte code transformers */
-    private final ArrayList<ClassTransformer> transformers = new ArrayList<>();
+    private final ArrayList<AndroidMockKClassTransformer> transformers = new ArrayList<>();
 
     private native void nativeRegisterTransformerHook();
 
+    private native void nativeUnregisterTransformerHook();
+
+    private native static void nativeAppendToBootstrapClassLoaderSearch(String absolutePath);
+
+    private native void nativeRetransformClasses(Class<?>[] classes);
+
     /**
      * Enable jvmti and load agent.
-     *
      * <p><b>If there are more than agent transforming classes the other agent might remove
      * transformations added by this agent.</b>
      *
      * @throws IOException If jvmti could not be enabled or agent could not be loaded
      */
-    JvmtiAgent() throws IOException {
+    AndroidMockKJvmtiAgent() throws IOException {
         // TODO (moltmann@google.com): Replace with proper check for >= P
         if (!Build.VERSION.CODENAME.equals("P")) {
             throw new IOException("Requires Android P. Build is " + Build.VERSION.CODENAME);
         }
 
-        ClassLoader cl = JvmtiAgent.class.getClassLoader();
+        ClassLoader cl = AndroidMockKJvmtiAgent.class.getClassLoader();
         if (!(cl instanceof BaseDexClassLoader)) {
-            throw new IOException("Could not load jvmti plugin as JvmtiAgent class was not loaded "
+            throw new IOException("Could not load jvmti plugin as AndroidMockKJvmtiAgent class was not loaded "
                     + "by a BaseDexClassLoader");
         }
 
@@ -61,14 +66,11 @@ class JvmtiAgent {
         nativeRegisterTransformerHook();
     }
 
-    private native void nativeUnregisterTransformerHook();
-
     @Override
     protected void finalize() throws Throwable {
         nativeUnregisterTransformerHook();
     }
 
-    private native static void nativeAppendToBootstrapClassLoaderSearch(String absolutePath);
 
     /**
      * Append the jar to be bootstrap class load. This makes the classes in the jar behave as if
@@ -98,7 +100,7 @@ class JvmtiAgent {
 
     /**
      * Ask the agent to trigger transformation of some classes. This will extract the byte code of
-     * the classes and the call back the {@link #addTransformer(ClassTransformer) transformers} for
+     * the classes and the call back the {@link #addTransformer(AndroidMockKClassTransformer) transformers} for
      * each individual class.
      *
      * @param classes The classes to transform
@@ -118,7 +120,7 @@ class JvmtiAgent {
     // called by JNI
     @SuppressWarnings("unused")
     public boolean shouldTransform(Class<?> classBeingRedefined) {
-        for (ClassTransformer transformer : transformers) {
+        for (AndroidMockKClassTransformer transformer : transformers) {
             if (transformer.shouldTransform(classBeingRedefined)) {
                 return true;
             }
@@ -133,22 +135,27 @@ class JvmtiAgent {
      *
      * @param transformer the transformer to add.
      */
-    void addTransformer(ClassTransformer transformer) {
+    void addTransformer(AndroidMockKClassTransformer transformer) {
         transformers.add(transformer);
     }
 
     // called by JNI
     @SuppressWarnings("unused")
-    public byte[] runTransformers(ClassLoader loader, String className,
-                                  Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                  byte[] classfileBuffer) throws IllegalClassFormatException {
-        byte[] transformedByteCode = classfileBuffer;
-        for (ClassTransformer transformer : transformers) {
-            transformedByteCode = transformer.transform(classBeingRedefined, transformedByteCode);
+    public byte[] runTransformers(
+            ClassLoader loader,
+            String className,
+            Class<?> classBeingRedefined,
+            ProtectionDomain protectionDomain,
+            byte[] classfileBuffer
+    ) throws IllegalClassFormatException {
+
+        byte[] code = classfileBuffer;
+
+        for (AndroidMockKClassTransformer transformer : transformers) {
+            code = transformer.transform(classBeingRedefined, code);
         }
 
-        return transformedByteCode;
+        return code;
     }
 
-    private native void nativeRetransformClasses(Class<?>[] classes);
 }
