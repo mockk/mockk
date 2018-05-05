@@ -175,6 +175,8 @@ class AndroidMockKClassTransformer {
             return null;
         }
 
+        System.out.println(classBeingRedefined);
+
         try {
             return nativeRedefine(identifier, classfileBuffer);
         } catch (Throwable throwable) {

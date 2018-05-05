@@ -4,7 +4,6 @@ import io.mockk.Called
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 class NoOpLoggerTest {

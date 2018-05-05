@@ -290,6 +290,14 @@ namespace io_mockk_proxy_android {
             return false;
         }
 
+        if (Utf8Cmp(type.c_str(), "java.lang.Throwable") == 0) {
+            return false;
+        }
+
+        if (Utf8Cmp(type.c_str(), "java.lang.Exception") == 0) {
+            return false;
+        }
+
         if (strncmp(type.c_str(), "java.", 5) != 0) {
             return true;
         }
@@ -315,6 +323,14 @@ namespace io_mockk_proxy_android {
         }
 
         if (Utf8Cmp(methodName->c_str(), "<clinit>") == 0) {
+            return false;
+        }
+
+        if (Utf8Cmp(type.c_str(), "java.lang.Throwable") == 0) {
+            return false;
+        }
+
+        if (Utf8Cmp(type.c_str(), "java.lang.Exception") == 0) {
             return false;
         }
 
