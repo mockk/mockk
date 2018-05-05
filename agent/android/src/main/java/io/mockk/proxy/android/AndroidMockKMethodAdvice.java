@@ -10,25 +10,18 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Backend for the method entry hooks. Checks if the hooks should cause an interception or should
  * be ignored.
  */
 class AndroidMockKMethodAdvice {
-    private final Map<Object, InvocationHandlerAdapter> interceptors;
-
-    /**
-     * Pattern to decompose a instrumentedMethodWithTypeAndSignature
-     */
-    private final static Pattern methodPattern = Pattern.compile("(.*)#(.*)\\((.*)\\)");
+    private final Map<Object, MockKInvocationHandlerAdapter> interceptors;
 
     @SuppressWarnings("ThreadLocalUsage")
     private final SelfCallInfo selfCallInfo = new SelfCallInfo();
 
-    AndroidMockKMethodAdvice(Map<Object, InvocationHandlerAdapter> interceptors) {
+    AndroidMockKMethodAdvice(Map<Object, MockKInvocationHandlerAdapter> interceptors) {
         this.interceptors = interceptors;
     }
 
@@ -135,7 +128,7 @@ class AndroidMockKMethodAdvice {
 
     private synchronized static native String nativeGetCalledClassName();
 
-    private Class<?> getClassMethodWasCalledOn(MethodDesc methodDesc) throws ClassNotFoundException,
+    private Class<?> getClassMethodWasCalledOn(MethodDescriptor methodDesc) throws ClassNotFoundException,
             NoSuchMethodException {
         Class<?> classDeclaringMethod = Util.classForTypeName(methodDesc.className);
 
@@ -192,7 +185,7 @@ class AndroidMockKMethodAdvice {
      */
     @SuppressWarnings("unused")
     public Method getOrigin(Object instance, String methodWithTypeAndSignature) throws Throwable {
-        MethodDesc methodDesc = new MethodDesc(methodWithTypeAndSignature);
+        MethodDescriptor methodDesc = new MethodDescriptor(methodWithTypeAndSignature);
         if (instance == null) {
             Class clazz = getClassMethodWasCalledOn(methodDesc);
             if (clazz == null) {
@@ -219,6 +212,7 @@ class AndroidMockKMethodAdvice {
                             methodDesc.methodParamTypes
                     );
 
+
             if (isOverridden(instance, origin)) {
                 return null;
             } else {
@@ -241,17 +235,18 @@ class AndroidMockKMethodAdvice {
     public Callable<?> handle(Object instance, Method origin, Object[] arguments) throws Throwable {
 
         if (Modifier.isStatic(origin.getModifiers())) {
-            MethodDesc methodDesc = new MethodDesc((String) instance);
+            MethodDescriptor methodDesc = new MethodDescriptor((String) instance);
             instance = getClassMethodWasCalledOn(methodDesc);
         }
 
-        InvocationHandlerAdapter interceptor = interceptors.get(instance);
+        MockKInvocationHandlerAdapter interceptor = interceptors.get(instance);
         if (interceptor == null) {
             return null;
         }
 
-        return new ReturnValueWrapper(interceptor.interceptEntryHook(instance, origin, arguments,
-                        new SuperMethodCall(selfCallInfo, origin, instance, arguments)));
+        SuperMethodCall superMethodCall = new SuperMethodCall(selfCallInfo, origin, instance, arguments);
+        Object result = interceptor.interceptEntryHook(instance, origin, arguments, superMethodCall);
+        return new ReturnValueWrapper(result);
     }
 
     /**
@@ -260,7 +255,11 @@ class AndroidMockKMethodAdvice {
      * @param instance instance that might be a mock
      * @return {@code true} iff the instance is a mock
      */
+    @SuppressWarnings("unused") // called from JNI
     public boolean isMock(Object instance) {
+        if (instance == interceptors) {
+            return false;
+        }
         return interceptors.containsKey(instance);
     }
 
@@ -269,37 +268,6 @@ class AndroidMockKMethodAdvice {
      */
     public boolean isMocked(Object instance) {
         return selfCallInfo.shouldMockMethod(instance);
-    }
-
-    private static class MethodDesc {
-        final String className;
-        final String methodName;
-        final Class<?>[] methodParamTypes;
-
-        private MethodDesc(String methodWithTypeAndSignature) throws ClassNotFoundException {
-            Matcher methodComponents = methodPattern.matcher(methodWithTypeAndSignature);
-            boolean wasFound = methodComponents.find();
-            if (!wasFound) {
-                throw new IllegalArgumentException();
-            }
-
-            className = methodComponents.group(1);
-            methodName = methodComponents.group(2);
-            String methodParamTypeNames[] = methodComponents.group(3).split(",");
-
-            ArrayList<Class<?>> methodParamTypesList = new ArrayList<>(methodParamTypeNames.length);
-            for (String methodParamName : methodParamTypeNames) {
-                if (!methodParamName.equals("")) {
-                    methodParamTypesList.add(Util.nameToType(methodParamName));
-                }
-            }
-            methodParamTypes = methodParamTypesList.toArray(new Class<?>[]{});
-        }
-
-        @Override
-        public String toString() {
-            return className + "#" + methodName;
-        }
     }
 
     /**
@@ -320,7 +288,7 @@ class AndroidMockKMethodAdvice {
                         origin.getParameterTypes()
                 );
 
-                return !origin.equals(method);
+                return !methodEquals(origin, method);
 
             } catch (NoSuchMethodException ignored) {
                 currentType = currentType.getSuperclass();
@@ -330,17 +298,49 @@ class AndroidMockKMethodAdvice {
         return true;
     }
 
+    @SuppressWarnings("StringEquality")
+    public static boolean methodEquals(Method method1, Method method2) {
+        if (method1.getDeclaringClass() != method2.getDeclaringClass()) {
+            return false;
+        }
+        if (method1.getName() != method2.getName()) {
+            return false;
+        }
+        if (method1.getReturnType() != method2.getReturnType()) {
+            return false;
+        }
+
+        Class<?>[] params1 = method1.getParameterTypes();
+        Class<?>[] params2 = method2.getParameterTypes();
+
+        if (params1.length != params2.length) {
+            return false;
+        }
+
+        for (int i = 0; i < params1.length; i++) {
+            if (params1[i] != params2[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Used to call the real (non mocked) method.
      */
-    private static class SuperMethodCall implements InvocationHandlerAdapter.SuperMethod {
+    private static class SuperMethodCall implements MockKInvocationHandlerAdapter.SuperMethod {
         private final SelfCallInfo selfCallInfo;
         private final Method origin;
         private final Object instance;
         private final Object[] arguments;
 
-        private SuperMethodCall(SelfCallInfo selfCallInfo, Method origin, Object instance,
-                                Object[] arguments) {
+        private SuperMethodCall(
+                SelfCallInfo selfCallInfo,
+                Method origin,
+                Object instance,
+                Object[] arguments
+        ) {
             this.selfCallInfo = selfCallInfo;
             this.origin = origin;
             this.instance = instance;

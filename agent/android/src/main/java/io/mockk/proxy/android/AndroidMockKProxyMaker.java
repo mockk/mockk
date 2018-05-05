@@ -44,7 +44,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
      * modified, some are not. This list helps the {@link AndroidMockKMethodAdvice} help figure out if a
      * object's method calls should be intercepted.
      */
-    private final Map<Object, InvocationHandlerAdapter> mocks;
+    private final Map<Object, MockKInvocationHandlerAdapter> mocks;
 
     /**
      * Class doing the actual byte code transformation.
@@ -57,7 +57,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
     public AndroidMockKProxyMaker(
             MockKInstantiatior instantiatior,
             AndroidMockKClassTransformer classTransformer,
-            Map<Object, InvocationHandlerAdapter> mocks
+            Map<Object, MockKInvocationHandlerAdapter> mocks
     ) {
         this.instantiatior = instantiatior;
         this.classTransformer = classTransformer;
@@ -122,7 +122,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
             MockKInvocationHandler handler,
             boolean useDefaultConstructor,
             Object instance) {
-        InvocationHandlerAdapter handlerAdapter = new InvocationHandlerAdapter(handler);
+        MockKInvocationHandlerAdapter handlerAdapter = new MockKInvocationHandlerAdapter(handler);
 
         if (instance != null) {
             classTransformer.mockClass(clazz, interfaces);

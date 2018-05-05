@@ -13,14 +13,14 @@ import java.util.*;
  * stale reference is found.
  */
 class AndroidMockKMap extends ReferenceQueue<Object>
-        implements Map<Object, InvocationHandlerAdapter> {
+        implements Map<Object, MockKInvocationHandlerAdapter> {
     private static final int MIN_CLEAN_INTERVAL_MILLIS = 16000;
     private static final int MAX_GET_WITHOUT_CLEAN = 16384;
 
     private final Object lock = new Object();
     private StrongKey cachedKey;
 
-    private HashMap<WeakKey, InvocationHandlerAdapter> adapters = new HashMap<>();
+    private HashMap<WeakKey, MockKInvocationHandlerAdapter> adapters = new HashMap<>();
 
     /**
      * The time we issues the last cleanup
@@ -104,7 +104,11 @@ class AndroidMockKMap extends ReferenceQueue<Object>
 
     @SuppressWarnings("CollectionIncompatibleType")
     @Override
-    public InvocationHandlerAdapter get(Object mock) {
+    public MockKInvocationHandlerAdapter get(Object mock) {
+        if (mock == adapters) {
+            return null;
+        }
+
         synchronized (lock) {
             if (getCount > MAX_GET_WITHOUT_CLEAN) {
                 cleanStaleReferences();
@@ -114,7 +118,7 @@ class AndroidMockKMap extends ReferenceQueue<Object>
             }
 
             StrongKey key = createStrongKey(mock);
-            InvocationHandlerAdapter adapter = adapters.get(key);
+            MockKInvocationHandlerAdapter adapter = adapters.get(key);
             recycleStrongKey(key);
 
             return adapter;
@@ -156,9 +160,9 @@ class AndroidMockKMap extends ReferenceQueue<Object>
     }
 
     @Override
-    public InvocationHandlerAdapter put(Object mock, InvocationHandlerAdapter adapter) {
+    public MockKInvocationHandlerAdapter put(Object mock, MockKInvocationHandlerAdapter adapter) {
         synchronized (lock) {
-            InvocationHandlerAdapter oldValue = remove(mock);
+            MockKInvocationHandlerAdapter oldValue = remove(mock);
             adapters.put(new WeakKey(mock), adapter);
 
             return oldValue;
@@ -167,10 +171,10 @@ class AndroidMockKMap extends ReferenceQueue<Object>
 
     @SuppressWarnings("CollectionIncompatibleType")
     @Override
-    public InvocationHandlerAdapter remove(Object mock) {
+    public MockKInvocationHandlerAdapter remove(Object mock) {
         synchronized (lock) {
             StrongKey key = createStrongKey(mock);
-            InvocationHandlerAdapter adapter = adapters.remove(key);
+            MockKInvocationHandlerAdapter adapter = adapters.remove(key);
             recycleStrongKey(key);
 
             return adapter;
@@ -178,9 +182,9 @@ class AndroidMockKMap extends ReferenceQueue<Object>
     }
 
     @Override
-    public void putAll(Map<?, ? extends InvocationHandlerAdapter> map) {
+    public void putAll(Map<?, ? extends MockKInvocationHandlerAdapter> map) {
         synchronized (lock) {
-            for (Entry<?, ? extends InvocationHandlerAdapter> entry : map.entrySet()) {
+            for (Entry<?, ? extends MockKInvocationHandlerAdapter> entry : map.entrySet()) {
                 put(entry.getKey(), entry.getValue());
             }
         }
@@ -218,20 +222,20 @@ class AndroidMockKMap extends ReferenceQueue<Object>
     }
 
     @Override
-    public Collection<InvocationHandlerAdapter> values() {
+    public Collection<MockKInvocationHandlerAdapter> values() {
         synchronized (lock) {
             return adapters.values();
         }
     }
 
     @Override
-    public Set<Entry<Object, InvocationHandlerAdapter>> entrySet() {
+    public Set<Entry<Object, MockKInvocationHandlerAdapter>> entrySet() {
         synchronized (lock) {
-            Set<Entry<Object, InvocationHandlerAdapter>> entries = new ArraySet<>(
+            Set<Entry<Object, MockKInvocationHandlerAdapter>> entries = new ArraySet<>(
                     adapters.size());
 
             boolean hasStaleReferences = false;
-            for (Entry<WeakKey, InvocationHandlerAdapter> entry : adapters.entrySet()) {
+            for (Entry<WeakKey, MockKInvocationHandlerAdapter> entry : adapters.entrySet()) {
                 Object mock = entry.getKey().get();
 
                 if (mock == null) {

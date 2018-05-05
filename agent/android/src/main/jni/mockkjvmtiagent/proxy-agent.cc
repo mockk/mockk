@@ -259,17 +259,46 @@ namespace io_mockk_proxy_android {
         std::string type = method->decl->parent->Decl();
         ir::String* methodName = method->decl->name;
 
-        return !(((method->access_flags & (kAccAbstract | kAccBridge | kAccNative
-                                           | kAccStatic)) != 0)
-                 || (Utf8Cmp(methodName->c_str(), "<init>") == 0)
-                 || (Utf8Cmp(methodName->c_str(), "<clinit>") == 0)
-                 || (Utf8Cmp(type.c_str(), "java.lang.Object") == 0
-                     && Utf8Cmp(methodName->c_str(), "finalize") == 0
-                     && getNumParams(method) == 0)
-                 || (strncmp(type.c_str(), "java.", 5) == 0
-                     && (method->access_flags & (kAccPrivate | kAccPublic | kAccProtected)) == 0)
-                 // getClass is used by MockKMethodAdvice.isOverridden
-                 || (Utf8Cmp(methodName->c_str(), "getClass") == 0));
+
+        if ((method->access_flags & (kAccAbstract | kAccBridge | kAccNative | kAccStatic)) != 0) {
+            return false;
+        }
+
+        if (Utf8Cmp(methodName->c_str(), "<init>") == 0) {
+            return false;
+        }
+
+        if (Utf8Cmp(methodName->c_str(), "<clinit>") == 0) {
+            return false;
+        }
+
+        if (Utf8Cmp(type.c_str(), "java.lang.Object") == 0) {
+            if (Utf8Cmp(methodName->c_str(), "finalize") == 0 && getNumParams(method) == 0) {
+                return false;
+            } else if (Utf8Cmp(methodName->c_str(), "wait") == 0) {
+                return false;
+            } else if (Utf8Cmp(methodName->c_str(), "notify") == 0) {
+                return false;
+            } else if (Utf8Cmp(methodName->c_str(), "notifyAll") == 0) {
+                return false;
+            } else if (Utf8Cmp(methodName->c_str(), "clone") == 0) {
+                return false;
+            }
+        }
+
+        if (Utf8Cmp(methodName->c_str(), "getClass") == 0) {
+            return false;
+        }
+
+        if (strncmp(type.c_str(), "java.", 5) != 0) {
+            return true;
+        }
+
+        if ((method->access_flags & (kAccPrivate | kAccPublic | kAccProtected)) != 0) {
+            return true;
+        }
+
+        return false;
     }
 
     static bool
@@ -277,27 +306,60 @@ namespace io_mockk_proxy_android {
         std::string type = method->decl->parent->Decl();
         ir::String* methodName = method->decl->name;
 
-        return ((method->access_flags & kAccStatic) != 0)
-               && !(((method->access_flags & (kAccPrivate | kAccBridge | kAccNative)) != 0)
-                    || (Utf8Cmp(methodName->c_str(), "<clinit>") == 0)
-                    || (strncmp(type.c_str(), "java.", 5) == 0
-                        && (method->access_flags & (kAccPrivate | kAccPublic | kAccProtected))
-                           == 0));
+        if ((method->access_flags & kAccStatic) == 0) {
+            return false;
+        }
+
+        if ((method->access_flags & (kAccBridge | kAccNative)) != 0) {
+            return false;
+        }
+
+        if (Utf8Cmp(methodName->c_str(), "<clinit>") == 0) {
+            return false;
+        }
+
+        if (strncmp(type.c_str(), "java.", 5) != 0) {
+            return true;
+        }
+
+        if ((method->access_flags & (kAccPrivate | kAccPublic | kAccProtected)) != 0) {
+            return true;
+        }
+
+        return false;
     }
 
 
     static bool
     isHashCode(ir::EncodedMethod *method) {
-        return Utf8Cmp(method->decl->name->c_str(), "hashCode") == 0
-               && getNumParams(method) == 0;
+        if (Utf8Cmp(method->decl->name->c_str(), "hashCode") != 0) {
+            return false;
+        }
+
+        if (getNumParams(method) != 0) {
+            return false;
+        }
+
+        return true;
     }
 
     static bool
     isEquals(ir::EncodedMethod *method) {
-        return Utf8Cmp(method->decl->name->c_str(), "equals") == 0
-               && getNumParams(method) == 1
-               && Utf8Cmp(method->decl->prototype->param_types->types[0]->Decl().c_str(),
-                          "java.lang.Object") == 0;
+        if (Utf8Cmp(method->decl->name->c_str(), "equals") != 0) {
+            return false;
+        }
+        if (getNumParams(method) != 1) {
+            return false;
+        }
+
+        if (Utf8Cmp(
+            method->decl->prototype->param_types->types[0]->Decl().c_str(),
+            "java.lang.Object"
+            ) != 0) {
+            return false;
+        }
+
+        return true;
     }
 
     // Transforms the classes to add the mockk hooks

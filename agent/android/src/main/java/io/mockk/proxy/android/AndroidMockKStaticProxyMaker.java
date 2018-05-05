@@ -28,14 +28,14 @@ import java.util.Map;
  */
 public final class AndroidMockKStaticProxyMaker implements MockKStaticProxyMaker {
     private final AndroidMockKClassTransformer classTransformer;
-    private final Map<Object, InvocationHandlerAdapter> mocks;
+    private final Map<Object, MockKInvocationHandlerAdapter> mocks;
 
     /**
      * Create a new mock maker.
      */
     public AndroidMockKStaticProxyMaker(
             AndroidMockKClassTransformer classTransformer,
-            Map<Object, InvocationHandlerAdapter> mocks
+            Map<Object, MockKInvocationHandlerAdapter> mocks
     ) {
         this.classTransformer = classTransformer;
         this.mocks = mocks;
@@ -43,7 +43,7 @@ public final class AndroidMockKStaticProxyMaker implements MockKStaticProxyMaker
 
     @Override
     public void staticProxy(Class<?> clazz, MockKInvocationHandler handler) {
-        InvocationHandlerAdapter handlerAdapter = new InvocationHandlerAdapter(handler);
+        MockKInvocationHandlerAdapter handlerAdapter = new MockKInvocationHandlerAdapter(handler);
         classTransformer.mockClass(clazz, new Class[0]);
         mocks.put(clazz, handlerAdapter);
     }

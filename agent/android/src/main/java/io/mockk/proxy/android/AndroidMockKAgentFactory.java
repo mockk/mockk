@@ -92,7 +92,7 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
         }
 
 
-        Map<Object, InvocationHandlerAdapter> mocks = new AndroidMockKMap();
+        Map<Object, MockKInvocationHandlerAdapter> mocks = new AndroidMockKMap();
 
         AndroidMockKMethodAdvice advice = new AndroidMockKMethodAdvice(mocks);
         AndroidMockKClassTransformer classTransformer = new AndroidMockKClassTransformer(

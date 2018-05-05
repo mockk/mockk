@@ -27,22 +27,44 @@ import java.util.concurrent.Callable;
  * Handles proxy and entry hook method invocations added by
  * {@link AndroidMockKProxyMaker#proxy(Class, Class[], MockKInvocationHandler, boolean, Object)}
  */
-final class InvocationHandlerAdapter implements InvocationHandler {
+final class MockKInvocationHandlerAdapter implements InvocationHandler {
+    private static final String EQUALS_INTERNED = "equals".intern();
+    private static final String HASHCODE_INTERNED = "hashCode".intern();
+
     private MockKInvocationHandler handler;
 
-    InvocationHandlerAdapter(MockKInvocationHandler handler) {
+    MockKInvocationHandlerAdapter(MockKInvocationHandler handler) {
         this.handler = handler;
     }
 
+    @SuppressWarnings("StringEquality")
     private static boolean isEqualsMethod(Method method) {
-        return method.getName().equals("equals")
-                && method.getParameterTypes().length == 1
-                && method.getParameterTypes()[0] == Object.class;
+        if (method.getName() != EQUALS_INTERNED) {
+            return false;
+        }
+
+        if (method.getParameterTypes().length != 1) {
+            return false;
+        }
+
+        if (method.getParameterTypes()[0] != Object.class) {
+            return false;
+        }
+
+        return true;
     }
 
+    @SuppressWarnings("StringEquality")
     private static boolean isHashCodeMethod(Method method) {
-        return method.getName().equals("hashCode")
-                && method.getParameterTypes().length == 0;
+        if (method.getName() != HASHCODE_INTERNED) {
+            return false;
+        }
+
+        if (method.getParameterTypes().length != 0) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

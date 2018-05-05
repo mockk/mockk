@@ -20,28 +20,6 @@ class Util {
                     Double.class,
                     String.class));
 
-    static <T> Set<Class<?>> addClass(Class<T> cls, Set<Class<?>> mockedTypes) {
-        Set<Class<?>> types = new HashSet<>();
-        Class<?> type = cls;
-
-        do {
-            boolean wasAdded = mockedTypes.add(type);
-
-            if (wasAdded) {
-                if (!EXCLUDES.contains(type)) {
-                    types.add(type);
-                }
-
-                type = type.getSuperclass();
-            } else {
-                break;
-            }
-        } while (type != null && !type.isInterface());
-
-        return types;
-    }
-
-
     static Class nameToType(String name) throws ClassNotFoundException {
         switch (name) {
             case "byte":
