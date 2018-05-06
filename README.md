@@ -49,7 +49,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.7.15"</pre>
+    <pre>testCompile "io.mockk:mockk:1.7.16"</pre>
     </td>
 </tr>
 <tr>
@@ -58,7 +58,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.7.15&lt;/version&gt;
+    &lt;version&gt;1.7.16&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
