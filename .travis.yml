@@ -1,4 +1,4 @@
-language: java
+language: android
 
 android:
   components:
@@ -8,11 +8,10 @@ android:
     - addon
     - sys-img-x86-android-27
 
-matrix:
-  include:
-    - os: linux
-      sudo: false
-      jdk: oraclejdk8
+jdk:
+  - oraclejdk8
+
+sudo: required
 
 before_script:
   - echo no | android create avd --force -n test -t android-27 --abi x86
