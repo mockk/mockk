@@ -3,13 +3,9 @@ language: android
 android:
   components:
     - android-27
-
     - build-tools-27.1.12
-
-    - sys-img-armeabi-v7a-android-27
-
+    - sys-img-armeabi-v7a-addon-google_apis-google-27
     - tools
-
     - extra-android-support
     - extra-android-m2repository
 
