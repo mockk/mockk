@@ -33,7 +33,8 @@ jobs:
       - run:
           name: Starting Android emulator
           command: |
-            echo no | android create avd --force -n test -t android-P --abi armeabi-v7a
+            sdkmanager --list
+            echo no | avdmanager create avd --package "system-images;android-P;google_apis;arm"--name "test"
             emulator -avd test -no-skin -no-audio -no-window &
             android-wait-for-emulator
             adb shell input keyevent 82 &
