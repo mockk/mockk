@@ -22,19 +22,16 @@ jobs:
           command: |
             sdkmanager --install 'ndk-bundle'
             sdkmanager --install 'platforms;android-25'
-#            sdkmanager --install 'platforms;android-P'
             sdkmanager --install 'system-images;android-25;google_apis;armeabi-v7a'
       - save_cache:
           paths:
             - ~/.gradle
             - ~/.m2
             - /opt/android/sdk/platforms/android-25
-#            - /opt/android/sdk/platforms/android-P
           key: cache-{{ checksum ".cache-hash" }}
       - run:
           name: Starting Android emulator
           command: |
-#            sdkmanager --list
             echo no | avdmanager create avd --package "system-images;android-25;google_apis;armeabi-v7a"--name "test"
             emulator -avd test -no-skin -no-audio -no-window &
             android-wait-for-emulator
