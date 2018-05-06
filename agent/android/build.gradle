@@ -51,9 +51,11 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 1
+        minSdkVersion 9
         targetSdkVersion 27
         versionName project['version']
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
     }
 
     externalNativeBuild {
@@ -83,5 +85,9 @@ dependencies {
     implementation "com.linkedin.dexmaker:dexmaker:$dexmaker_version"
     implementation "org.objenesis:objenesis:$objenesis_version"
     implementation project(':mockk-agent-api')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestImplementation 'junit:junit:4.12'
 }
 

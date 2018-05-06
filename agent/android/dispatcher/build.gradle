@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId 'com.android.dexmaker.mockito.inline.dispatcher'
-        minSdkVersion 1
+        minSdkVersion 9
         targetSdkVersion 27
         versionName = project['version']
     }
