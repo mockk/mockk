@@ -23,7 +23,7 @@ jobs:
             sdkmanager --install 'ndk-bundle'
             sdkmanager --install 'platforms;android-25'
 #            sdkmanager --install 'platforms;android-P'
-            sdkmanager --isntall 'system-images;android-25;google_apis;armeabi-v7a '
+            sdkmanager --isntall 'system-images;android-25;google_apis;armeabi-v7a'
       - save_cache:
           paths:
             - ~/.gradle
