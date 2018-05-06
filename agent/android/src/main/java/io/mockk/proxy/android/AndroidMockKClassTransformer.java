@@ -126,15 +126,15 @@ class AndroidMockKClassTransformer {
         do {
             boolean wasAdded = mockedTypes.add(type);
 
-            if (wasAdded) {
-                if (!EXCLUDES.contains(type)) {
-                    types.add(type);
-                }
-
-                type = type.getSuperclass();
-            } else {
+            if (!wasAdded) {
                 break;
             }
+
+            if (!EXCLUDES.contains(type)) {
+                types.add(type);
+            }
+
+            type = type.getSuperclass();
         } while (type != null && !type.isInterface());
 
         return types;

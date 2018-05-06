@@ -46,12 +46,19 @@ repositories {
     google()
 }
 
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
 
 dependencies {
-    implementation project(":mockk-agent-android")
     implementation(project(':mockk'), {
         exclude group: 'io.mockk', module: 'mockk-agent-jvm'
     })
+    implementation project(":mockk-agent-android")
+    implementation project(":mockk-agent-api")
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
