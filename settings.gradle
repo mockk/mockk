@@ -18,9 +18,6 @@ project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
 
-Properties properties = new Properties()
-properties.load(file("local.properties").newDataInputStream())
-
 def sdkDir = (String) properties['sdk.dir']
 if (sdkDir != null && new File(sdkDir).exists()) {
     include 'mockk-agent-android'
