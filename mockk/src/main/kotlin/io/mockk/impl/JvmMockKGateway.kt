@@ -20,15 +20,10 @@ import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.verify.UnorderedCallVerifier
-import io.mockk.mockk
 import io.mockk.proxy.MockKInstrumentation
 import io.mockk.proxy.MockKInstrumentationLoader
 import io.mockk.proxy.MockKProxyMaker
 import java.util.*
-import kotlin.reflect.KParameter
-import kotlin.reflect.full.functions
-import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.kotlinFunction
 
 class JvmMockKGateway : MockKGateway {
     val safeLog: SafeLog = SafeLog({ callRecorderTL.get() })
@@ -38,7 +33,7 @@ class JvmMockKGateway : MockKGateway {
 
     val stubRepo = StubRepository(safeLog)
     val instantiator = JvmInstantiator(MockKProxyMaker.INSTANCE, instanceFactoryRegistryIntrnl)
-    val anyValueGenerator = JvmAnyValueGenerator()
+    val anyValueGenerator = JvmAnyValueGenerator(instantiator)
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
