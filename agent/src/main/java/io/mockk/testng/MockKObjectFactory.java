@@ -11,7 +11,7 @@ import java.lang.reflect.Constructor;
  * <p>
  * Inlining is complex feature, so
  * please report any issues to:
- * https://github.com/oleksiyp/mockk/issues
+ * https://github.com/mockk/mockk/issues
  */
 @Deprecated
 public class MockKObjectFactory implements IObjectFactory {

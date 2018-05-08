@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * <p>
  * Inlining is complex feature, so
  * please report any issues to:
- * https://github.com/oleksiyp/mockk/issues
+ * https://github.com/mockk/mockk/issues
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

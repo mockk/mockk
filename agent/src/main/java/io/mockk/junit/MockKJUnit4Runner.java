@@ -11,7 +11,7 @@ import org.junit.runner.notification.RunNotifier;
  * <p>
  * Inlining is complex feature, so
  * please report any issues to:
- * https://github.com/oleksiyp/mockk/issues
+ * https://github.com/mockk/mockk/issues
  */
 public class MockKJUnit4Runner extends Runner {
     private void deprecated() {
