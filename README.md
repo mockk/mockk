@@ -2,9 +2,7 @@
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG) [![codecov](https://codecov.io/gh/oleksiyp/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/oleksiyp/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
 
-***thank you for using MockK!!!***
-
-![mockk usage](doc/stats-mockk.png)
+***MockK now has it's own organization on GH and new logo***
 
 Table of contents:
 
