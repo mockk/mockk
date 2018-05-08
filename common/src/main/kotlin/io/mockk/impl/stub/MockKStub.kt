@@ -48,7 +48,8 @@ open class MockKStub(
             val call = Call(
                 invocation.method.returnType,
                 invocation,
-                matcher
+                matcher,
+                invocation.fieldValueProvider
             )
 
             answer.answer(call)
@@ -140,7 +141,8 @@ open class MockKStub(
         self: Any,
         method: MethodDescription,
         originalCall: () -> Any?,
-        args: Array<out Any?>
+        args: Array<out Any?>,
+        fieldValueProvider: BackingFieldValueProvider
     ): Any? {
         val originalPlusToString = {
             if (method.isToString()) {
@@ -158,10 +160,10 @@ open class MockKStub(
                 }.let { if (it == -1) null else it }
             }
 
-            val idx = search("io.mockk.proxy.MockKCallProxy", "call") ?: search(
-                "io.mockk.proxy.MockKProxyInterceptor",
-                "intercept"
-            ) ?: search("io.mockk.proxy.MockKProxyInterceptor", "interceptNoSuper") ?: return this
+            val idx = search("io.mockk.proxy.MockKCallProxy", "call")
+                    ?: search("io.mockk.proxy.MockKProxyInterceptor", "intercept")
+                    ?: search("io.mockk.proxy.MockKProxyInterceptor", "interceptNoSuper")
+                    ?: return this
 
             return this.drop(idx + 1)
         }
@@ -172,7 +174,7 @@ open class MockKStub(
                 if (idx == -1)
                     it
                 else
-                it.copy(className = it.className.substring(0, idx) + "(BB)")
+                    it.copy(className = it.className.substring(0, idx) + "(BB)")
             }
         }
 
@@ -185,7 +187,8 @@ open class MockKStub(
             InternalPlatform.captureStackTrace()
                 .cutMockKCallProxyCall()
                 .unmangleByteBuddy(),
-            originalPlusToString
+            originalPlusToString,
+            fieldValueProvider
         )
 
         return gatewayAccess.callRecorder().call(invocation)

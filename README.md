@@ -23,6 +23,7 @@ Table of contents:
  - capturing lambdas
  - object mocks
  - private function mocking
+ - property backing field access
  - extension function mocking (static mocks)
  - multiplatform support (JS support is highly experimental)
 
@@ -49,7 +50,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.7.15"</pre>
+    <pre>testCompile "io.mockk:mockk:1.7.17"</pre>
     </td>
 </tr>
 <tr>
@@ -58,7 +59,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.7.15&lt;/version&gt;
+    &lt;version&gt;1.7.17&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
@@ -590,6 +591,31 @@ verify { mock invoke "openDoor" withArguments listOf("left", "rear") }
 
 ```
 
+### Property backing fields
+
+You can access fields backing properties via `fieldValue` and use `value` for value being set.
+
+Note in examples below usage of `propertyType` to specify type of `fieldValue`.
+This is needed because it is possible to capture type automatically only for getter.
+Use `nullablePropertyType` to specify nullable type.
+
+```kotlin
+val mock = spyk(MockCls(), recordPrivateCalls = true)
+
+every { mock.property } answers { fieldValue + 6 }
+every { mock.property = any() } propertyType Int::class answers { fieldValue += value }
+every { mock getProperty "property" } propertyType Int::class answers { fieldValue + 6 }
+every { mock setProperty "property" value any<Int>() } propertyType Int::class answers  { fieldValue += value }
+every {
+    mock.property = any()
+} propertyType Int::class answers {
+    fieldValue = value + 1
+} andThen {
+    fieldValue = value - 1
+}
+
+```
+
 ### More interfaces
 
 Adding additional behaviours via interfaces and stubbing them:
@@ -693,6 +719,9 @@ Answer can be followed by one or more additional answers.
 |`answers answerObj`|specify that matched call answers with Answer object|
 |`answers { nothing }`|specify that matched call answers null|
 |`just Runs`|specify that matched call is returning Unit (returns null)|
+|`propertyType Class`|specify type of backing field accessor|
+|`nullablePropertyType Class`|specify type of backing field accessor as nullable type|
+
 
 ### Additional answer
 
@@ -729,6 +758,10 @@ So this has similiar to `returnsMany` semantics.
 |`lambda<...>().invoke()`|call captured lambda|
 |`coroutine<...>().coInvoke()`|call captured coroutine|
 |`nothing`|null value for returning nothing as an answer|
+|`fieldValue`|accessor to property backing field|
+|`fieldValueAny`|accessor to property backing field with `Any?` type|
+|`value`|value being set casted to same type as property backing field|
+|`valueAny`|value being set with `Any?` type|
 
 ## Getting Help
 

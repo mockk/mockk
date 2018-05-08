@@ -47,7 +47,7 @@ class JvmMockKGateway : MockKGateway {
         instanceFactoryRegistryIntrnl
     )
 
-    val anyValueGenerator = JvmAnyValueGenerator()
+    val anyValueGenerator = JvmAnyValueGenerator(instantiator)
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 

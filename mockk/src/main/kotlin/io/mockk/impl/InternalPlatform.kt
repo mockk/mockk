@@ -7,6 +7,8 @@ import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
+import java.lang.reflect.AccessibleObject
+import java.lang.reflect.Member
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
@@ -105,7 +107,7 @@ actual object InternalPlatform {
                 if (isRunningAndroidInstrumentationTest() && field.name.startsWith("shadow$")) {
                     continue
                 }
-                field.isAccessible = true
+                InternalPlatformDsl.makeAccessible(field)
                 val value = field.get(from)
                 field.set(to, value)
             }
