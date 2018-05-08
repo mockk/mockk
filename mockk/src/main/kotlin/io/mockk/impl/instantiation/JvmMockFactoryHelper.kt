@@ -1,22 +1,56 @@
 package io.mockk.impl.instantiation
 
-import io.mockk.MethodDescription
-import io.mockk.MockKException
+import io.mockk.*
+import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
+import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
 
 internal object JvmMockFactoryHelper {
     fun mockHandler(stub: Stub): (Any, Method, Callable<*>?, Array<Any?>) -> Any? {
         return { self, method, originalMethod, args ->
             stdFunctions(self, method, args) {
-                stub.handleInvocation(self, method.toDescription(), {
-                    handleOriginalCall(originalMethod, method)
-                }, args)
+
+                stub.handleInvocation(
+                    self,
+                    method.toDescription(), {
+                        handleOriginalCall(originalMethod, method)
+                    },
+                    args,
+                    findBackingField(self, method)
+                )
+            }
+        }
+    }
+
+    private fun findBackingField(self: Any, method: Method): BackingFieldValueProvider {
+        return {
+            val property = self::class.memberProperties.firstOrNull {
+                it.getter.javaMethod == method ||
+                        (it is KMutableProperty<*> && it.setter.javaMethod == method)
+            }
+
+
+            property?.javaField?.let { field ->
+                BackingFieldValue(
+                    property.name,
+                    {
+                        InternalPlatformDsl.makeAccessible(field);
+                        field.get(self)
+                    },
+                    {
+                        InternalPlatformDsl.makeAccessible(field);
+                        field.set(self, it)
+                    }
+                )
             }
         }
     }

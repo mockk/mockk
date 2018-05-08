@@ -1,14 +1,14 @@
 package io.mockk
 
 import kotlinx.coroutines.experimental.runBlocking
+import java.lang.reflect.AccessibleObject
 import java.lang.reflect.Method
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.*
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.javaGetter
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.javaSetter
 
 actual object InternalPlatformDsl {
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
@@ -117,7 +117,7 @@ actual object InternalPlatformDsl {
 
         } ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) for dynamic call")
 
-        func.javaMethod?.isAccessible = true
+        func.javaMethod?.let { makeAccessible(it) }
         if (func.isSuspend) {
             return func.call(*params, anyContinuationGen())
         } else {
@@ -143,7 +143,7 @@ actual object InternalPlatformDsl {
                 it.name == name
             } ?: throw MockKException("can't find property $name for dynamic property get")
 
-        property.javaGetter?.isAccessible = true
+        property.isAccessible = true
         return property.get(self)
     }
 
@@ -154,8 +154,15 @@ actual object InternalPlatformDsl {
                 it.name == name
             } ?: throw MockKException("can't find property $name for dynamic property set")
 
-        property.javaSetter?.isAccessible = true
+        property.isAccessible = true
         return property.set(self, value)
     }
 
+    fun makeAccessible(obj: AccessibleObject) {
+        try {
+            obj.isAccessible = true
+        } catch (ex: Throwable) {
+            // skip
+        }
+    }
 }

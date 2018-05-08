@@ -9,7 +9,11 @@ import kotlin.reflect.jvm.javaField
 internal object InjectionHelpers {
     @Suppress("UNCHECKED_CAST")
     fun KProperty1<*, *>.getAny(obj: Any): Any? {
-        isAccessible = true
+        try {
+            isAccessible = true
+        } catch (ex: Throwable) {
+            // skip
+        }
         return (this.getter as KProperty1.Getter<Any, Any?>)(obj)
     }
 
@@ -30,7 +34,11 @@ internal object InjectionHelpers {
 
     @Suppress("UNCHECKED_CAST")
     fun KMutableProperty1<*, *>.setAny(obj: Any, value: Any?) {
-        isAccessible = true
+        try {
+            isAccessible = true
+        } catch (ex: Throwable) {
+            // skip
+        }
         return (this.setter as KMutableProperty1.Setter<Any, Any?>).invoke(obj, value)
     }
 
@@ -38,7 +46,11 @@ internal object InjectionHelpers {
     @Suppress("UNCHECKED_CAST")
     fun KProperty1<*, *>.setImmutableAny(obj: Any, value: Any?) {
         val javaField = this.javaField ?: return
-        javaField.isAccessible = true
+        try {
+            javaField.isAccessible = true
+        } catch (ex: Throwable) {
+            // skip
+        }
         javaField.set(obj, value)
     }
 

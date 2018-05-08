@@ -82,13 +82,13 @@ object MockKDsl {
     /**
      * Starts a block of stubbing. Part of DSL.
      */
-    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> =
+    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
         MockKGateway.implementation().stubber.every(stubBlock, null)
 
     /**
      * Starts a block of stubbing for coroutines. Part of DSL.
      */
-    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> =
+    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> =
         MockKGateway.implementation().stubber.every(null, stubBlock)
 
     /**
@@ -1682,11 +1682,11 @@ typealias runs = Runs
  *
  * Allows to specify function result
  */
-class MockKStubScope<T>(
+class MockKStubScope<T, B>(
     val callRecorder: CallRecorder,
     private val lambda: CapturingSlot<Function<*>>
 ) {
-    infix fun answers(answer: Answer<T>): MockKAdditionalAnswerScope<T> {
+    infix fun answers(answer: Answer<T>): MockKAdditionalAnswerScope<T, B> {
         callRecorder.answer(answer)
         return MockKAdditionalAnswerScope(callRecorder, lambda)
     }
@@ -1699,11 +1699,14 @@ class MockKStubScope<T>(
 
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
-    infix fun answers(answer: MockKAnswerScope<T>.(Call) -> T) =
-        answers(FunctionAnswer({ MockKAnswerScope<T>(lambda, it).answer(it) }))
+    infix fun answers(answer: MockKAnswerScope<T, B>.(Call) -> T) =
+        answers(FunctionAnswer({ MockKAnswerScope<T, B>(lambda, it).answer(it) }))
 
+    infix fun <K : Any> propertyType(cls: KClass<K>) = MockKStubScope<T, K>(callRecorder, lambda)
 
-    infix fun coAnswers(answer: suspend MockKAnswerScope<T>.(Call) -> T) = answers {
+    infix fun <K : Any> nullablePropertyType(cls: KClass<K>) = MockKStubScope<T, K?>(callRecorder, lambda)
+
+    infix fun coAnswers(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) = answers {
         InternalPlatformDsl.runCoroutine {
             answer(it)
         }
@@ -1714,16 +1717,16 @@ class MockKStubScope<T>(
  * Part of DSL. Answer placeholder for Unit returning functions.
  */
 @Suppress("UNUSED_PARAMETER")
-infix fun MockKStubScope<Unit>.just(runs: Runs) = answers(ConstantAnswer(Unit))
+infix fun MockKStubScope<Unit, Unit>.just(runs: Runs) = answers(ConstantAnswer(Unit))
 
 /**
  * Scope to chain additional answers to reply. Part of DSL
  */
-class MockKAdditionalAnswerScope<T>(
+class MockKAdditionalAnswerScope<T, B>(
     val callRecorder: CallRecorder,
     private val lambda: CapturingSlot<Function<*>>
 ) {
-    infix fun andThenAnswer(answer: Answer<T>): MockKAdditionalAnswerScope<T> {
+    infix fun andThenAnswer(answer: Answer<T>): MockKAdditionalAnswerScope<T, B> {
         callRecorder.answer(answer)
         return this
     }
@@ -1736,10 +1739,10 @@ class MockKAdditionalAnswerScope<T>(
 
     infix fun andThenThrows(ex: Throwable) = andThenAnswer(ThrowingAnswer(ex))
 
-    infix fun andThen(answer: MockKAnswerScope<T>.(Call) -> T) =
-        andThenAnswer(FunctionAnswer({ MockKAnswerScope<T>(lambda, it).answer(it) }))
+    infix fun andThen(answer: MockKAnswerScope<T, B>.(Call) -> T) =
+        andThenAnswer(FunctionAnswer({ MockKAnswerScope<T, B>(lambda, it).answer(it) }))
 
-    infix fun coAndThen(answer: suspend MockKAnswerScope<T>.(Call) -> T) = andThen {
+    infix fun coAndThen(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) = andThen {
         InternalPlatformDsl.runCoroutine {
             answer(it)
         }
@@ -1753,7 +1756,7 @@ internal fun <T> List<T>.allConst() = this.map { ConstantAnswer(it) }
 /**
  * Scope for answering functions. Part of DSL
  */
-class MockKAnswerScope<T>(
+class MockKAnswerScope<T, B>(
     @PublishedApi
     internal val lambda: CapturingSlot<Function<*>>,
     val call: Call
@@ -1793,6 +1796,35 @@ class MockKAnswerScope<T>(
 
     @Suppress("UNCHECKED_CAST")
     fun callOriginal(): T = call.invocation.originalCall.invoke() as T
+
+    @Suppress("UNCHECKED_CAST")
+    val value: B
+        get() = valueAny as B
+
+    val valueAny: Any?
+        get() = firstArg()
+
+    private val backingFieldValue: BackingFieldValue? by lazy { call.fieldValueProvider() }
+
+    @Suppress("UNCHECKED_CAST")
+    var fieldValue: B
+        set(value) {
+            fieldValueAny = value
+        }
+        get() = fieldValueAny as B
+
+    var fieldValueAny: Any?
+        set(value) {
+            val fv = backingFieldValue
+                    ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
+
+            fv.setter(value)
+        }
+        get() {
+            val fv = backingFieldValue
+                    ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
+            return fv.getter()
+        }
 }
 
 /**
@@ -2941,12 +2973,24 @@ interface Answer<out T> {
 }
 
 /**
+ * Manipulable field value
+ */
+class BackingFieldValue(
+    val name: String,
+    val getter: () -> Any?,
+    val setter: (Any?) -> Unit
+)
+
+typealias BackingFieldValueProvider = () -> BackingFieldValue?
+
+/**
  * Call happened for stubbed mock
  */
 data class Call(
     val retType: KClass<*>,
     val invocation: Invocation,
-    val matcher: InvocationMatcher
+    val matcher: InvocationMatcher,
+    val fieldValueProvider: BackingFieldValueProvider
 )
 
 /**
@@ -3001,7 +3045,8 @@ data class Invocation(
     val args: List<Any?>,
     val timestamp: Long,
     val callStack: List<StackElement>,
-    val originalCall: () -> Any?
+    val originalCall: () -> Any?,
+    val fieldValueProvider: BackingFieldValueProvider
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
