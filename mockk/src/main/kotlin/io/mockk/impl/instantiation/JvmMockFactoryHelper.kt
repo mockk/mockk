@@ -14,7 +14,7 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
 
-internal object JvmMockFactoryHelper {
+object JvmMockFactoryHelper {
     fun mockHandler(stub: Stub): (Any, Method, Callable<*>?, Array<Any?>) -> Any? {
         return { self, method, originalMethod, args ->
             stdFunctions(self, method, args) {

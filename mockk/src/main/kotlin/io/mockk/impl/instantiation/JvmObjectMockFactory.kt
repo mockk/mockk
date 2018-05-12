@@ -4,11 +4,11 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.MockKGateway.ObjectMockFactory
 import io.mockk.agent.MockKAgentException
+import io.mockk.agent.MockKProxyMaker
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
-import io.mockk.proxy.MockKProxyMaker
 
 class JvmObjectMockFactory(val proxyMaker: MockKProxyMaker,
                            val stubRepository: StubRepository,

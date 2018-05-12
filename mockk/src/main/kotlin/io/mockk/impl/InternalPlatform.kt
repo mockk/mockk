@@ -15,6 +15,7 @@ import java.util.Collections.synchronizedList
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
+import kotlin.reflect.full.cast
 import kotlin.reflect.full.isSubclassOf
 
 actual object InternalPlatform {
@@ -91,7 +92,7 @@ actual object InternalPlatform {
 
             ex is NoClassDefFoundError &&
                     ex.message?.contains("kotlinx/coroutines/") ?: false ->
-                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
+                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ", ex)
 
             else -> ex
         }
@@ -101,6 +102,9 @@ actual object InternalPlatform {
         fun copy(to: Any, from: Any, cls: Class<*>) {
             for (field in cls.declaredFields) {
                 if (Modifier.isStatic(field.modifiers)) {
+                    continue
+                }
+                if (isRunningAndroidInstrumentationTest() && field.name.startsWith("shadow$")) {
                     continue
                 }
                 InternalPlatformDsl.makeAccessible(field)
@@ -126,4 +130,19 @@ actual object InternalPlatform {
             )
         }
     }
+
+    inline fun <reified T : Any> loadPlugin(className: String) =
+        try {
+            T::class.cast(Class.forName(className).newInstance())
+        } catch (ex: Exception) {
+            throw MockKException("Failed to load plugin $className", ex)
+        }
+
+
+    fun isRunningAndroidInstrumentationTest(): Boolean {
+        return System.getProperty("java.vendor", "")
+            .toLowerCase(Locale.US)
+            .contains("android")
+    }
+
 }

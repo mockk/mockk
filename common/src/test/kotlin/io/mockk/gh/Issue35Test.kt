@@ -1,10 +1,7 @@
 package io.mockk.gh
 
 import io.mockk.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.fail
+import kotlin.test.*
 
 class Issue35Test {
     class CloudBlockBlob {

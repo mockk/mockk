@@ -3,8 +3,6 @@ out
 *.iml
 .gradle
 build
-gradle
-gradlew
-gradlew.bat
 hs_err_*
 replay_*
+agent/android/.externalNativeBuild/

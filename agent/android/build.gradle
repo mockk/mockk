@@ -1,0 +1,93 @@
+apply plugin: 'com.android.library'
+
+def dispatcherApkResPath = file("$buildDir/generated/dispatcher-apk")
+def dispatcherDexResPath = file("$buildDir/generated/dispatcher-dex")
+def dispatcherJarResPath = file("$buildDir/generated/dispatcher-jar")
+def apkReleaseDispatcherPath = new File(project(':mockk-agent-android-dispatcher').buildDir, "outputs/apk/release")
+
+task copyDispatcherApk(type: Copy) {
+    dependsOn ':mockk-agent-android-dispatcher:assembleRelease'
+    from apkReleaseDispatcherPath
+    into dispatcherApkResPath
+    include '*.apk'
+    rename { "dispatcher.apk" }
+}
+
+task unzipDispatcherApk(type: Copy) {
+    dependsOn copyDispatcherApk
+    from zipTree(new File(dispatcherApkResPath, 'dispatcher.apk'))
+    into dispatcherDexResPath
+    include '*.dex'
+    rename { "classes.dex" }
+}
+
+task packageDispatcherJar(type: Jar) {
+    dependsOn unzipDispatcherApk
+    archiveName = "dispatcher.jar"
+    destinationDir = dispatcherJarResPath
+
+    from dispatcherDexResPath
+}
+preBuild.dependsOn(packageDispatcherJar)
+
+android {
+    compileSdkVersion 'android-P'
+    buildToolsVersion '27.0.3'
+
+    android {
+        lintOptions {
+            disable 'InvalidPackage'
+            warning 'NewApi'
+        }
+
+        sourceSets {
+            main.resources.srcDirs += dispatcherJarResPath
+            main.resources.includes += "**/*.jar"
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 27
+        versionName project['version']
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = 'CMakeLists.txt'
+        }
+    }
+
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+dependencies {
+    implementation "com.linkedin.dexmaker:dexmaker:$dexmaker_version"
+    implementation "org.objenesis:objenesis:$objenesis_version"
+    implementation project(':mockk-agent-api')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestImplementation 'junit:junit:4.12'
+}
+

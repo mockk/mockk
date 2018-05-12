@@ -1,0 +1,56 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-26-alpha
+    resource_class: xlarge
+    environment:
+      JVM_OPTS: -Xmx4096m
+      GRADLE_MAX_PARALLEL_FORKS: 2
+    steps:
+      - checkout
+      - run:
+          name: Calculate Cache Hash
+          command: |
+            find . \( -name \*.gradle -or -name \*.groovy -or -name \*.sh -or -name \*.rb -or -name circle.yml \) -exec shasum {} \; | sort > .cache-hash
+            cat .cache-hash
+      - restore_cache:
+          key: cache-{{ checksum ".cache-hash" }}
+      - run:
+          name: Download Dependencies
+          command: |
+            sdkmanager --install 'ndk-bundle'
+            sdkmanager --install 'platforms;android-25'
+            sdkmanager --install 'system-images;android-25;google_apis;armeabi-v7a'
+      - save_cache:
+          paths:
+            - ~/.gradle
+            - ~/.m2
+            - /opt/android/sdk/platforms/android-25
+          key: cache-{{ checksum ".cache-hash" }}
+      - run:
+          name: Starting Android emulator
+          command: |
+            echo no | avdmanager create avd --package "system-images;android-25;google_apis;armeabi-v7a" --name "test"
+            emulator -avd test -no-skin -no-audio -no-window &
+            android-wait-for-emulator
+            adb shell input keyevent 82 &
+      - run:
+          name: Build and Test
+          command: ./gradlew clean assemble test connectedCheck --stacktrace --continue
+      - run:
+          name: Collect Test Results
+          command: |
+            mkdir -p ~/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+          when: always
+      - store_test_results:
+          path: ~/junit
+      - store_artifacts:
+          path: build/reports
+          destination: reports
+      - run:
+          name: Upload to codecov.io
+          command: |
+            bash <(curl -s https://codecov.io/bash)

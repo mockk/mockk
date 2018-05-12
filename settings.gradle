@@ -1,15 +1,23 @@
 rootProject.name = 'mockk-top'
 
 include 'mockk'
-include 'mockk-js'
+//include 'mockk-js'
 include 'mockk-common'
-include 'mockk-agent'
+include 'mockk-agent-jvm'
+include 'mockk-agent-api'
 include 'mockk-dsl'
 include 'mockk-dsl-jvm'
 include 'mockk-dsl-js'
+include 'mockk-android'
+include 'mockk-agent-android'
+include 'mockk-agent-android-dispatcher'
 
-project(":mockk-agent").projectDir = file("agent")
+project(":mockk-agent-jvm").projectDir = file("agent/jvm")
+project(":mockk-agent-api").projectDir = file("agent/api")
 project(":mockk-common").projectDir = file("common")
 project(":mockk-dsl").projectDir = file("dsl/common")
 project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
+project(":mockk-dsl-js").projectDir = file("dsl/js")
+project(":mockk-agent-android").projectDir = file("agent/android")
+project(":mockk-agent-android-dispatcher").projectDir = file("agent/android/dispatcher")

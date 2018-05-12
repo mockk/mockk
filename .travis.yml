@@ -1,12 +1,22 @@
-language: java
+language: android
 
-matrix:
-  include:
-    - os: linux
-      sudo: false
-      jdk: oraclejdk8
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-27.0.3
+    - android-P
 
-script: gradle check
+jdk:
+  - oraclejdk8
+
+install:
+  - yes | sdkmanager "ndk-bundle"
+  - yes | sdkmanager "cmake;3.6.4111459"
+  - yes | sdkmanager "lldb;3.1"
+
+script:
+  - ./gradlew check
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
