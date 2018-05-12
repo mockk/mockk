@@ -14,8 +14,9 @@ jdk:
 
 sudo: required
 
-script:
- - ./gradlew check
+before_script: yes | sudo sdkmanager --licenses
+
+script: ./gradlew check
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
