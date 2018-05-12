@@ -1,28 +1,12 @@
-language: android
-
-android:
-  components:
-    - android-27
-    - build-tools-27.1.12
-    - sys-img-armeabi-v7a-addon-google_apis-google-27
-    - tools
-    - extra-android-support
-    - extra-android-m2repository
+language: java
 
 jdk:
   - oraclejdk8
 
 sudo: required
 
-before_script:
-  - echo no | android create avd --force -n test -t android-27 --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
-
 script:
  - ./gradlew check
- - ./gradlew connectedCheck
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
