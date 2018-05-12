@@ -14,8 +14,6 @@ jdk:
 
 sudo: required
 
-before_script: yes | sudo $ANDROID_HOME/tools/bin/sdkmanager --licenses
-
 script: ./gradlew check
 
 after_success:
