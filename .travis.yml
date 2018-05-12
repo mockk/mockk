@@ -6,6 +6,8 @@ android:
     - platform-tools
     - build-tools-27.0.3
     - android-P
+    - ndk-bundle
+    - cmake
 
 jdk:
   - oraclejdk8
