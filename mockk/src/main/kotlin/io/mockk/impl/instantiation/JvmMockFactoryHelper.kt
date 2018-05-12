@@ -102,8 +102,8 @@ object JvmMockFactoryHelper {
         val kFunc =
             try {
                 // workaround for
-                //  https://github.com/oleksiyp/mockk/issues/18
-                //  https://github.com/oleksiyp/mockk/issues/22
+                //  https://github.com/mockk/mockk/issues/18
+                //  https://github.com/mockk/mockk/issues/22
                 kotlinFunction
             } catch (ex: Throwable) {
                 null
