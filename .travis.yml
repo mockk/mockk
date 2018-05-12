@@ -14,7 +14,9 @@ jdk:
 
 sudo: required
 
-script: ./gradlew check
+script:
+  - export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+  - ./gradlew check
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
