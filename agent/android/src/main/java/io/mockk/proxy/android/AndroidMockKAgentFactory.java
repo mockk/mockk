@@ -8,14 +8,16 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 public class AndroidMockKAgentFactory implements MockKAgentFactory {
     private static final String DISPATCHER_CLASS_NAME =
             "io.mockk.proxy.android.AndroidMockKDispatcher";
     private static final String DISPATCHER_JAR = "dispatcher.jar";
 
-    private final AndroidMockKInstantiator instantiator;
-    private final AndroidMockKProxyMaker proxyMaker;
-    private final AndroidMockKStaticProxyMaker staticProxyMaker;
+    private AndroidMockKInstantiator instantiator;
+    private AndroidMockKProxyMaker proxyMaker;
+    private AndroidMockKStaticProxyMaker staticProxyMaker;
 
     /**
      * {@link AndroidMockKJvmtiAgent} set up during one time init
@@ -81,8 +83,11 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
         DISPATCHER_CLASS = dispatcherClass;
     }
 
+    @Override
+    public void init(MockKAgentLogFactory logFactory) {
+        AndroidMockKInstantiator.log = logFactory.logger(AndroidMockKInstantiator.class);
+        log = logFactory.logger(AndroidMockKAgentFactory.class)
 
-    public AndroidMockKAgentFactory() {
         if (INITIALIZATION_ERROR != null) {
             throw new RuntimeException(
                     "Could not initialize inline mock maker.\n"
@@ -94,21 +99,22 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
 
         Map<Object, MockKInvocationHandlerAdapter> mocks = new AndroidMockKMap();
 
-        AndroidMockKMethodAdvice advice = new AndroidMockKMethodAdvice(mocks);
-        AndroidMockKClassTransformer classTransformer = new AndroidMockKClassTransformer(
-                AGENT,
-                DISPATCHER_CLASS,
-                advice
-        );
+        AndroidMockKClassTransformer classTransformer = null;
+        if (SDK_INT >= Build.VERSION_CODES.P) {
+            log.debug("Android P or higher detected. Using class transformer");
+            AndroidMockKMethodAdvice advice = new AndroidMockKMethodAdvice(mocks);
+            classTransformer = new AndroidMockKClassTransformer(
+                    AGENT,
+                    DISPATCHER_CLASS,
+                    advice
+            );
+        } else {
+            log.debug("Detected version prior to Android P. Not using class transformer. Only proxy subclassing is available");
+        }
 
         instantiator = new AndroidMockKInstantiator();
         proxyMaker = new AndroidMockKProxyMaker(instantiator, classTransformer, mocks);
         staticProxyMaker = new AndroidMockKStaticProxyMaker(classTransformer, mocks);
-    }
-
-    @Override
-    public void init(MockKAgentLogFactory logFactory) {
-        AndroidMockKInstantiator.log = logFactory.logger(AndroidMockKInstantiator.class);
     }
 
     @Override
@@ -125,4 +131,6 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
     public MockKStaticProxyMaker getStaticProxyMaker() {
         return staticProxyMaker;
     }
+
+    private static MockKAgentLogger log;
 }

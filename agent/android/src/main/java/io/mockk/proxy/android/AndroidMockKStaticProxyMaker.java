@@ -16,6 +16,7 @@
 
 package io.mockk.proxy.android;
 
+import io.mockk.agent.MockKAgentException;
 import io.mockk.agent.MockKInvocationHandler;
 import io.mockk.agent.MockKStaticProxyMaker;
 
@@ -43,6 +44,9 @@ public final class AndroidMockKStaticProxyMaker implements MockKStaticProxyMaker
 
     @Override
     public void staticProxy(Class<?> clazz, MockKInvocationHandler handler) {
+        if (classTransformer == null) {
+            throw new MockKAgentException("Mocking static is supported starting from Android P");
+        }
         MockKInvocationHandlerAdapter handlerAdapter = new MockKInvocationHandlerAdapter(handler);
         classTransformer.mockClass(clazz, new Class[0]);
         mocks.put(clazz, handlerAdapter);

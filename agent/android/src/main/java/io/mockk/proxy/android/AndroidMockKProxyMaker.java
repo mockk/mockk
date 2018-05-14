@@ -125,6 +125,9 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
         MockKInvocationHandlerAdapter handlerAdapter = new MockKInvocationHandlerAdapter(handler);
 
         if (instance != null) {
+            if (classTransformer == null) {
+                throw new MockKAgentException("Mocking objects is supported starting from Android P");
+            }
             classTransformer.mockClass(clazz, interfaces);
             mocks.put(instance, handlerAdapter);
             return clazz.cast(instance);
@@ -145,7 +148,7 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
             );
 
             mock = clazz.cast(proxyInstance);
-        } else {
+        } else if (classTransformer != null) {
             boolean subclassingRequired = interfaces.length > 0
                     || Modifier.isAbstract(clazz.getModifiers());
 
@@ -172,6 +175,21 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
                 ProxyBuilder.setInvocationHandler(mock, handlerAdapter);
             } else {
                 mock = instantiatior.instance(clazz);
+            }
+        } else {
+            if (Modifier.isFinal(clazz.getModifiers())) {
+                throw new MockKAgentException("Mocking final classes is supported starting from Android P");
+            }
+            try {
+                Class<? extends T> proxyClass = ProxyBuilder.forClass(clazz)
+                        .implementing(interfaces)
+                        .buildProxyClass();
+
+                mock = instantiatior.instance(proxyClass);
+
+                ProxyBuilder.setInvocationHandler(mock, handlerAdapter);
+            } catch (Exception e) {
+                throw new MockKAgentException("Failed to mock " + clazz, e);
             }
         }
 
