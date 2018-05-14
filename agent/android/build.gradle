@@ -44,6 +44,10 @@ android {
             main.resources.srcDirs += dispatcherJarResPath
             main.resources.includes += "**/*.jar"
         }
+
+        packagingOptions {
+            exclude 'META-INF/main.kotlin_module'
+        }
     }
 
     lintOptions {

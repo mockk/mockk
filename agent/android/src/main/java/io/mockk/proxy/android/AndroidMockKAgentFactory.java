@@ -22,20 +22,20 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
     /**
      * {@link AndroidMockKJvmtiAgent} set up during one time init
      */
-    private static final AndroidMockKJvmtiAgent AGENT;
+    private static AndroidMockKJvmtiAgent AGENT;
 
     /**
      * Error  during one time init or {@code null} if init was successful
      */
-    private static final Throwable INITIALIZATION_ERROR;
+    private static Throwable INITIALIZATION_ERROR;
 
     /**
      * Class injected into the bootstrap classloader. All entry hooks added to methods will call
      * this class.
      */
-    public static final Class DISPATCHER_CLASS;
+    public static Class DISPATCHER_CLASS;
 
-    static {
+    private static void initAgent() {
         AndroidMockKJvmtiAgent agent;
         Throwable initializationError = null;
         Class dispatcherClass = null;
@@ -86,21 +86,23 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
     @Override
     public void init(MockKAgentLogFactory logFactory) {
         AndroidMockKInstantiator.log = logFactory.logger(AndroidMockKInstantiator.class);
-        log = logFactory.logger(AndroidMockKAgentFactory.class)
-
-        if (INITIALIZATION_ERROR != null) {
-            throw new RuntimeException(
-                    "Could not initialize inline mock maker.\n"
-                            + "\n"
-                            + "Release: Android " + Build.VERSION.RELEASE + " " + Build.VERSION.INCREMENTAL
-                            + "Device: " + Build.BRAND + " " + Build.MODEL, INITIALIZATION_ERROR);
-        }
-
+        log = logFactory.logger(AndroidMockKAgentFactory.class);
 
         Map<Object, MockKInvocationHandlerAdapter> mocks = new AndroidMockKMap();
 
         AndroidMockKClassTransformer classTransformer = null;
-        if (SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.CODENAME.equals("P")) { // FIXME >= 'P'
+            initAgent();
+
+            if (INITIALIZATION_ERROR != null) {
+                throw new RuntimeException(
+                        "Could not initialize inline mock maker.\n"
+                                + "\n"
+                                + "Release: Android " + Build.VERSION.RELEASE + " " + Build.VERSION.INCREMENTAL
+                                + "Device: " + Build.BRAND + " " + Build.MODEL, INITIALIZATION_ERROR);
+            }
+
+
             log.debug("Android P or higher detected. Using class transformer");
             AndroidMockKMethodAdvice advice = new AndroidMockKMethodAdvice(mocks);
             classTransformer = new AndroidMockKClassTransformer(

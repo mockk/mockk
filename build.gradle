@@ -18,6 +18,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
         classpath "com.android.tools.build:gradle:$android_gradle_version"
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
 
@@ -30,9 +31,7 @@ if (project.hasProperty('JDK6_HOME')) {
 subprojects {
     group = 'io.mockk'
 
-    apply plugin: 'maven'
     apply plugin: 'signing'
-
 
     repositories {
         mavenCentral()
@@ -49,7 +48,10 @@ subprojects {
 
     signArchives.onlyIf { project.hasProperty('signing.keyId') }
 
-    if (!it.name.contains('android')) {
+    if (it.name.contains('android')) {
+        apply plugin: 'com.github.dcendents.android-maven'
+    } else {
+        apply plugin: 'maven'
         apply plugin: 'java'
 
         sourceCompatibility = 1.6

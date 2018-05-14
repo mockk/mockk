@@ -9,6 +9,10 @@ android {
             disable 'InvalidPackage'
             warning 'NewApi'
         }
+
+        packagingOptions {
+            exclude 'META-INF/main.kotlin_module'
+        }
     }
 
     lintOptions {
