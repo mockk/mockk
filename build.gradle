@@ -50,6 +50,35 @@ subprojects {
 
     if (it.name.contains('android')) {
         apply plugin: 'com.github.dcendents.android-maven'
+
+        afterEvaluate { project ->
+            task sourceJar(type: Jar) {
+                from android.sourceSets.main.java.srcDirs
+                classifier "source"
+            }
+
+            task javadoc(type: Javadoc) {
+                source = android.sourceSets.main.java.srcDirs
+                classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+                destinationDir = file("../javadoc/")
+                failOnError false
+            }
+
+            task javadocJar(type: Jar, dependsOn: javadoc) {
+                classifier = 'javadoc'
+                from tasks.javadoc.destinationDir
+            }
+
+            task androidSourcesJar(type: Jar) {
+                classifier = 'sources'
+                from android.sourceSets.main.java.srcDirs
+            }
+
+            artifacts {
+                archives javadocJar
+                archives androidSourcesJar
+            }
+        }
     } else {
         apply plugin: 'maven'
         apply plugin: 'java'
