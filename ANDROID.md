@@ -9,21 +9,95 @@ Table of contents:
 
 ## Supported features
 
-|Feature|Unit tests <td colspan=2>Instrumetation test</td>|
-| ---  --- | --- | --- |
-|       |           |before Android P|Android P and later|
-|annotations| ✓ | ✓ | ✓ |
-|mocking final classes| ✓ | | ✓ |
-|pure Kotlin mocking DSL| ✓ | ✓ | ✓ |
-|matchers partial specification| ✓ | ✓ | ✓ |
-|chained calls| ✓ | ✓ | ✓ |
-|matcher expressions| ✓ | ✓ | ✓ |
-|mocking coroutines| ✓ | ✓ | ✓ |
-|capturing lambdas| ✓ | ✓ | ✓ |
-|object mocks| ✓ | | ✓ |
-|private function mocking| ✓ | ✓ | ✓ |
-|property backing field access| ✓ | ✓ | ✓ |
-|extension function mocking (static mocks)| ✓ | | ✓ |
+<table>
+    <thead>
+    <tr>
+        <th>Feature</th>
+        <th>Unit tests</th>
+        <th colspan="2">Instrumetation test</th>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td>&lt; Android P</td>
+        <td>≥ Android P</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>annotations</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>mocking final classes</td>
+        <td>✓</td>
+        <td></td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>pure Kotlin mocking DSL</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>matchers partial specification</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>chained calls</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>matcher expressions</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>mocking coroutines</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>capturing lambdas</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>object mocks</td>
+        <td>✓</td>
+        <td></td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>private function mocking</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>property backing field access</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+    </tr>
+    <tr>
+        <td>extension function mocking (static mocks)</td>
+        <td>✓</td>
+        <td></td>
+        <td>✓</td>
+    </tr>
+    </tbody>
+</table>
 
 ## Installation
 
