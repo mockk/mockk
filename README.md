@@ -62,6 +62,10 @@ All you need to get started is just to add a dependency to `MockK` library.
 &lt;/dependency&gt;</pre>
     </td>
 </tr>
+<tr>
+ <td></td>
+ <td><img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" /></td>
+</tr> 
 </table>
 
 ## DSL examples
