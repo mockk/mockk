@@ -116,3 +116,7 @@ androidTestImplementation "io.mockk:mockk-android:{version}"
 ```
 
 <img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" />
+
+### Docs
+
+Check full [docs](http://mockk.io) here
