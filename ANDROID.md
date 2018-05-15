@@ -4,7 +4,9 @@
 
 ## Implementation
 
-Implementation is based on [dexmaker](https://github.com/linkedin/dexmaker) project. From Anroid P devices instrumentation tests may use full power of inline instrumentation, so object mocks, static mocks and mocking of final classes is supported. Before Android P only subclassing can be employed and that means you need 'all-open' plugin
+Implementation is based on [dexmaker](https://github.com/linkedin/dexmaker) project. With Anroid P instrumentation tests may use full power of inline instrumentation, so object mocks, static mocks and mocking of final classes is supported. Before Android P only subclassing can be employed and that means you need 'all-open' plugin.
+
+Unfortunatelly public CIs alike Travis and Circle are not supporting emulation of Android P because of absense of ARM Anroid P images. Hope this will change soon
  
 ## Supported features
 
