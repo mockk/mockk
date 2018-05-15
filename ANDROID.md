@@ -11,19 +11,18 @@ Table of contents:
 
 |Feature|Unit tests|Instrumetation test<br/> `before Android P`|Instrumetation test<br/> `Android P and later`|
 | --- | --- | --- | --- |
-|annotations| | | |
-|mocking final classes and functions (via inlining)| | | |
-|pure Kotlin mocking DSL| | | |
-|matchers partial specification| | | |
-|chained calls| | | |
-|matcher expressions| | | |
-|mocking coroutines| | | |
-|capturing lambdas| | | |
-|object mocks| | | |
-|private function mocking| | | |
-|property backing field access| | | |
-|extension function mocking (static mocks)| | | |
-|multiplatform support (JS support is highly experimental)| | | |
+|annotations| ✓ | ✓ | ✓ |
+|mocking final classes| ✓ | | ✓ |
+|pure Kotlin mocking DSL| ✓ | ✓ | ✓ |
+|matchers partial specification| ✓ | ✓ | ✓ |
+|chained calls| ✓ | ✓ | ✓ |
+|matcher expressions| ✓ | ✓ | ✓ |
+|mocking coroutines| ✓ | ✓ | ✓ |
+|capturing lambdas| ✓ | ✓ | ✓ |
+|object mocks| ✓ | | ✓ |
+|private function mocking| ✓ | ✓ | ✓ |
+|property backing field access| ✓ | ✓ | ✓ |
+|extension function mocking (static mocks)| ✓ | | ✓ |
 
 ## Installation
 
