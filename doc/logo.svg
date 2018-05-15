@@ -15,10 +15,10 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="logo3-icon.svg"
-   inkscape:export-filename="/home/oleksiyp/workspace/mockk-master/doc/logo3-300icon.png"
-   inkscape:export-xdpi="268.88"
-   inkscape:export-ydpi="268.88">
+   sodipodi:docname="logo3.svg"
+   inkscape:export-filename="/home/oleksiyp/workspace/mockk-master-dex/doc/logo3-300.png"
+   inkscape:export-xdpi="99.209999"
+   inkscape:export-ydpi="99.209999">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -29,8 +29,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.8131579"
-     inkscape:cx="376.51029"
-     inkscape:cy="793.36375"
+     inkscape:cx="109.03456"
+     inkscape:cy="789.05954"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -47,7 +47,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -67,21 +67,45 @@
            x="114.98382"
            y="251.22519" /></flowRegion><flowPara
          id="flowPara24" /></flowRoot>    <circle
+       style="fill:#fdb100;fill-opacity:0.50375941;stroke:none;stroke-width:1.29999995;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path32"
+       cx="60.893562"
+       cy="83.552322"
+       r="14.169809" />
+    <circle
+       style="fill:#ff6600;fill-opacity:0.50375941;stroke:none;stroke-width:1.29999995;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path32-8"
+       cx="73.010033"
+       cy="83.552322"
+       r="14.16981" />
+    <circle
        style="fill:#ff00ff;fill-opacity:0.50375941;stroke:none;stroke-width:1.29999995;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path32-8-3"
-       cx="85.65564"
+       cx="85.126488"
+       cy="83.552322"
+       r="14.16981" />
+    <circle
+       style="fill:#0000ff;fill-opacity:0.50375941;stroke:none;stroke-width:1.29999995;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path32-8-7"
+       cx="97.24295"
+       cy="83.552322"
+       r="14.16981" />
+    <circle
+       style="fill:#00ff00;fill-opacity:0.50375941;stroke:none;stroke-width:1.29999995;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path32-8-7-9"
+       cx="109.35942"
        cy="83.552322"
        r="14.16981" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="79.717506"
-       y="87.782227"
+       x="58.893345"
+       y="89.08374"
        id="text892"><tspan
          sodipodi:role="line"
          id="tspan890"
-         x="79.717506"
-         y="87.782227"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.11111069px;font-family:Axis;-inkscape-font-specification:Axis;fill:#ffffff;stroke-width:0.26458332">K</tspan></text>
+         x="58.893345"
+         y="89.08374"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.11111069px;font-family:Axis;-inkscape-font-specification:Axis;fill:#ffffff;stroke-width:0.26458332">MockK</tspan></text>
   </g>
 </svg>
