@@ -9,7 +9,7 @@ Table of contents:
 
 ## Supported features
 
-|Feature|Unit tests <td colspan=2>Instrumetation test</td>
+|Feature|Unit tests <td colspan=2>Instrumetation test</td>|
 | ---  --- | --- | --- |
 |       |           |before Android P|Android P and later|
 |annotations| ✓ | ✓ | ✓ |
