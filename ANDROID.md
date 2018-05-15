@@ -9,7 +9,7 @@ Table of contents:
 
 ## Supported features
 
-|Feature|Unit tests|Instrumetation test `before Android P`|Instrumetation test `Android P and later`|
+|Feature|Unit tests|Instrumetation test<br/> `before Android P`|Instrumetation test<br/> `Android P and later`|
 | --- | --- | --- | --- |
 |annotations| | | |
 |mocking final classes and functions (via inlining)| | | |
