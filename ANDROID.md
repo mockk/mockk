@@ -31,10 +31,14 @@ All you need to get started is just to add a dependency to `MockK` library.
 
 #### Unit tests
 
-`testImplementation "io.mockk:mockk:{current version}"`
+```
+testImplementation "io.mockk:mockk:{version}"
+```
 
 #### Android instrumentation tests
 
-`androidTestImplementation "io.mockk:mockk-android:{current version}"`
+```
+androidTestImplementation "io.mockk:mockk-android:{version}"
+```
 
- <img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" />
+<img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" />
