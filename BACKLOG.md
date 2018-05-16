@@ -35,6 +35,7 @@
 
 <img align="left" src="doc/logo-site.png" height="50"/>
 Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
+<div style="clear: left" />
 
 ## Just for reference
 
