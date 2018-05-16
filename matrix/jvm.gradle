@@ -29,7 +29,8 @@ repositories {
 apply plugin: "kotlin"
 
 test {
-    executable = "/usr/java/jdk-9.0.1/bin/java"
+    executable = jdk_path + "/bin/java"
+    reports.junitXml.destination = file(result_path)
 }
 
 sourceSets {

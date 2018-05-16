@@ -1,0 +1,157 @@
+
+
+task('summarize') {
+    def envs = ['jdk8', 'jdk9', 'jdk10']
+
+    def resultsPath = file("results")
+
+    def results = new HashMap<String, Map<String, Object>>()
+    resultsPath.eachFile { env ->
+        def perTestResult = new HashMap<String, Double>()
+        env.eachFile { test ->
+            def junitXml = new XmlSlurper().parse(test)
+
+            def time = Double.parseDouble(junitXml.@time.toString())
+            def errors = Integer.parseInt(junitXml.@errors.toString())
+            def failures = Integer.parseInt(junitXml.@failures.toString())
+
+            if (errors == 0 && failures == 0) {
+                perTestResult.put(test.name, time)
+            } else {
+                perTestResult.put(test.name, Double.NaN)
+            }
+        }
+        results.put(env.name, perTestResult)
+    }
+
+    def pw = new PrintWriter("../MATRIX.md")
+
+    pw.println(
+'''                           
+
+### Results of matrix tests
+
+<table>
+    <thead>
+    <tr>
+        <th>Feature</th>
+        <th colspan="3">JDK</th>
+    </tr>
+    <tr>
+        <td></td>
+        <td>8</td>
+        <td>9</td>
+        <td>10</td>
+    </tr>
+    </thead>
+    <tbody>''')
+
+    def summaryTime = new HashMap<String, Double>()
+
+    def outResult = { Double res ->
+        if (Double.isNaN(res)) {
+            return "<span style=\"color: red\">✗</span>"
+        } else {
+            return "<span style=\"color: green\">✓</span> <sup>" + String.format("%.1f s", res) + "</sup>"
+        }
+    }
+
+    def testCase = { name, description ->
+        pw.println("        <tr>")
+        pw.println("            <td>$description</td>")
+        envs.forEach { env ->
+            pw.print("            <td>")
+            def perTestResult = results.get(env)
+
+            def keys = perTestResult.keySet().findAll { it.contains(name) }
+            if (keys.size() == 0) {
+                throw new RuntimeException("Test '$name' not found, env=$env")
+            } else if (keys.size() > 1) {
+                throw new RuntimeException("More than one test with name '$name' found, env=$env, keys=$keys")
+            }
+
+            def testName = keys[0]
+
+            def result = perTestResult.remove(testName)
+            summaryTime.compute(env, { k, v -> (v ?: 0) + result })
+            pw.print(outResult(result))
+            pw.println("</td>")
+
+        }
+        pw.println("        </tr>")
+    }
+
+    def rest = {
+        pw.println("        <tr>")
+        pw.println("            <td>Rest</td>")
+        envs.forEach { env ->
+            pw.print("            <td>")
+
+            def perTestResult = results.get(env)
+            def result = perTestResult.keySet().sum { testName -> perTestResult[testName] }
+            summaryTime.compute(env, { k, v -> (v ?: 0) + result })
+            pw.print(outResult(result))
+            pw.println("</td>")
+
+        }
+        pw.println("        </tr>")
+    }
+
+    def summary = {
+        pw.println("        <tr>")
+        pw.println("            <td>All tests</td>")
+        envs.forEach { env ->
+            pw.print("            <td>")
+
+            def result = summaryTime.get(env)
+            pw.print(outResult(result))
+            pw.println("</td>")
+
+        }
+        pw.println("        </tr>")
+    }
+
+
+    testCase("AdditionalAnswerTest", "Additional answers")
+    testCase("AnnotationsTest", "Annotations")
+    testCase("AnswersTest", "Answers")
+    testCase("ArraysTest", "Arrays")
+    testCase("BackingFieldTest", "Backing field")
+    testCase("ChainedCallsMatchingTest", "Chainied calls")
+    testCase("ClearMocksTest", "Clearing mocks")
+    testCase("CoroutinesTest", "Coroutines")
+    testCase("EnumTest", "Enums")
+    testCase("ExtensionFunctionsTest", "Extension functions")
+    testCase("InitializationBlockTest", "Initialization block")
+    testCase("MatcherTest", "Matchers")
+    testCase("NullsTest", "Nulls")
+    testCase("ObjectMockTest", "Object mocks")
+    testCase("PartialArgumentMatchingTest", "Partial argument matching")
+    testCase("PrivateFunctionsTest", "Private functions")
+    testCase("SpyTest", "Spies")
+    testCase("VarargsTest", "Varargs")
+    testCase("VerificationErrorsTest", "Verification errors")
+    testCase("VerifyAtLeastAtMostExactlyTest", "Verification counts")
+    testCase("VerifyTest", "Verify test")
+    testCase("ManyAnswersAnswerTest", "Many answers")
+
+    def issue = { id ->
+        testCase("Issue${id}Test", "[#${id}](https://github.com/mockk/mockk/issues/${id})")
+    }
+    issue(25)
+    issue(31)
+    issue(35)
+    issue(36)
+    issue(47)
+    issue(48)
+    issue(51)
+    issue(70)
+    rest()
+    summary()
+
+    pw.println(
+'''    </tbody>
+</table>
+''')
+
+}
