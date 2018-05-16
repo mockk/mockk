@@ -33,7 +33,7 @@
 
 ## Geo
 
-<img align="left" src="doc/logo-site.png" width="50" height="50"/>
+<img align="left" src="doc/logo-site.png" height="50"/>
 Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 ## Just for reference
