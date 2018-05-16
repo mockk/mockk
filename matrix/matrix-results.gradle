@@ -1,7 +1,7 @@
 
 
 task('summarize') {
-    def envs = ['jdk8', 'jdk9', 'jdk10']
+    def envs = ['jdk6', 'jdk8', 'jdk9', 'jdk10', 'android']
 
     def resultsPath = file("results")
 
@@ -35,13 +35,16 @@ task('summarize') {
     <thead>
     <tr>
         <th>Feature</th>
-        <th colspan="3">JDK</th>
+        <th colspan="4">JDK</th>
+        <th colspan="1">Android</th>
     </tr>
     <tr>
         <td></td>
+        <td>6</td>
         <td>8</td>
         <td>9</td>
         <td>10</td>
+        <td>Unit</td>
     </tr>
     </thead>
     <tbody>''')
