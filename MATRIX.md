@@ -15,7 +15,6 @@
     </tr>
     </thead>
     <tbody>
-
         <tr>
             <td>Additional answers</td>
             <td><font color="green">✓</font> 0.06 s</td>
@@ -208,6 +207,5 @@
             <td><font color="red">✗</font></td>
             <td><font color="red">✗</font></td>
         </tr>
-
     </tbody>
 </table>
