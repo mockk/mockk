@@ -11,6 +11,7 @@
     <tr>
         <td></td>
         <td>6</td>
+        <td>8</td>
         <td>9</td>
         <td>10</td>
     </tr>
