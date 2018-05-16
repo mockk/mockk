@@ -9,6 +9,7 @@ buildscript {
     ext.junit_version = '4.12'
     ext.junit_jupiter_version = '5.0.3'
     ext.junit_vintage_version = '4.12.0'
+    ext.android_maven_version = '2.1'
 
     repositories {
         mavenCentral()
@@ -18,7 +19,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
         classpath "com.android.tools.build:gradle:$android_gradle_version"
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$android_maven_version"
     }
 }
 

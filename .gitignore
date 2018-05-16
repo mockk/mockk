@@ -6,3 +6,4 @@ build
 hs_err_*
 replay_*
 agent/android/.externalNativeBuild/
+matrix/results

@@ -52,7 +52,7 @@ task('summarize') {
         if (Double.isNaN(res)) {
             return "<span style=\"color: red\">✗</span>"
         } else {
-            return "<span style=\"color: green\">✓</span> <sup>" + String.format("%.1f s", res) + "</sup>"
+            return "<span style=\"color: green\">✓</span> <sup>" + String.format("%.2f", res) + "</sup>"
         }
     }
 
@@ -111,6 +111,9 @@ task('summarize') {
         pw.println("        </tr>")
     }
 
+    def issue = { id ->
+        testCase("Issue${id}Test", "<a href=\"https://github.com/mockk/mockk/issues/${id}\">\">#${id}</a>")
+    }
 
     testCase("AdditionalAnswerTest", "Additional answers")
     testCase("AnnotationsTest", "Annotations")
@@ -134,10 +137,6 @@ task('summarize') {
     testCase("VerifyAtLeastAtMostExactlyTest", "Verification counts")
     testCase("VerifyTest", "Verify test")
     testCase("ManyAnswersAnswerTest", "Many answers")
-
-    def issue = { id ->
-        testCase("Issue${id}Test", "[#${id}](https://github.com/mockk/mockk/issues/${id})")
-    }
     issue(25)
     issue(31)
     issue(35)
