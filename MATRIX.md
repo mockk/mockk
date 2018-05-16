@@ -1,3 +1,4 @@
+                           
 
 ### Results of matrix tests
 
@@ -148,64 +149,49 @@
             <td><span style="color: red">✗</span></td>
         </tr>
         <tr>
-            <td>#25</td>
+            <td>[#25](https://github.com/mockk/mockk/issues/25)</td>
             <td><span style="color: green">✓</span> 0.0 s</td>
             <td><span style="color: green">✓</span> 0.0 s</td>
             <td><span style="color: green">✓</span> 0.0 s</td>
         </tr>
         <tr>
-            <td>#31</td>
+            <td>[#31](https://github.com/mockk/mockk/issues/31)</td>
             <td><span style="color: green">✓</span> 0.0 s</td>
             <td><span style="color: green">✓</span> 0.0 s</td>
             <td><span style="color: green">✓</span> 0.0 s</td>
         </tr>
         <tr>
-            <td>#35</td>
+            <td>[#35](https://github.com/mockk/mockk/issues/35)</td>
             <td><span style="color: green">✓</span> 2.3 s</td>
             <td><span style="color: green">✓</span> 1.6 s</td>
             <td><span style="color: green">✓</span> 1.7 s</td>
         </tr>
         <tr>
-            <td>#36</td>
+            <td>[#36](https://github.com/mockk/mockk/issues/36)</td>
             <td><span style="color: green">✓</span> 3.3 s</td>
             <td><span style="color: green">✓</span> 2.7 s</td>
             <td><span style="color: green">✓</span> 2.5 s</td>
         </tr>
         <tr>
-            <td>#47</td>
+            <td>[#47](https://github.com/mockk/mockk/issues/47)</td>
             <td><span style="color: green">✓</span> 0.2 s</td>
             <td><span style="color: green">✓</span> 0.2 s</td>
             <td><span style="color: green">✓</span> 0.2 s</td>
         </tr>
         <tr>
-            <td>#48</td>
+            <td>[#48](https://github.com/mockk/mockk/issues/48)</td>
             <td><span style="color: green">✓</span> 0.3 s</td>
             <td><span style="color: green">✓</span> 0.1 s</td>
             <td><span style="color: green">✓</span> 0.1 s</td>
         </tr>
         <tr>
-            <td>#51</td>
+            <td>[#51](https://github.com/mockk/mockk/issues/51)</td>
             <td><span style="color: green">✓</span> 0.3 s</td>
             <td><span style="color: green">✓</span> 0.2 s</td>
             <td><span style="color: green">✓</span> 0.2 s</td>
         </tr>
         <tr>
-            <td>#70</td>
+            <td>[#70](https://github.com/mockk/mockk/issues/70)</td>
             <td><span style="color: green">✓</span> 0.1 s</td>
             <td><span style="color: green">✓</span> 0.1 s</td>
-            <td><span style="color: green">✓</span> 0.1 s</td>
-        </tr>
-        <tr>
-            <td>Rest</td>
-            <td><span style="color: green">✓</span> 8.7 s</td>
-            <td><span style="color: green">✓</span> 7.5 s</td>
-            <td><span style="color: green">✓</span> 7.9 s</td>
-        </tr>
-        <tr>
-            <td>Test suites</td>
-            <td><span style="color: red">✗</span></td>
-            <td><span style="color: red">✗</span></td>
-            <td><span style="color: red">✗</span></td>
-        </tr>
-    </tbody>
-</table>
+            <td><span style="color: green">✓<
