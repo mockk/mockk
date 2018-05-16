@@ -112,7 +112,7 @@ task('summarize') {
     }
 
     def issue = { id ->
-        testCase("Issue${id}Test", "<a href=\"https://github.com/mockk/mockk/issues/${id}\">\">#${id}</a>")
+        testCase("Issue${id}Test", "<a href=\"https://github.com/mockk/mockk/issues/${id}\">#${id}</a>")
     }
 
     testCase("AdditionalAnswerTest", "Additional answers")
@@ -152,5 +152,7 @@ task('summarize') {
 '''    </tbody>
 </table>
 ''')
+
+    pw.close()
 
 }

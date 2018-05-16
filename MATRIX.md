@@ -149,31 +149,65 @@
             <td><span style="color: green">✓</span> <sup>0.10</sup></td>
         </tr>
         <tr>
-            <td><a href="https://github.com/mockk/mockk/issues/25">">#25</a></td>
+            <td><a href="https://github.com/mockk/mockk/issues/25">#25</a></td>
             <td><span style="color: green">✓</span> <sup>0.04</sup></td>
             <td><span style="color: green">✓</span> <sup>0.04</sup></td>
             <td><span style="color: green">✓</span> <sup>0.04</sup></td>
         </tr>
         <tr>
-            <td><a href="https://github.com/mockk/mockk/issues/31">">#31</a></td>
+            <td><a href="https://github.com/mockk/mockk/issues/31">#31</a></td>
             <td><span style="color: green">✓</span> <sup>0.02</sup></td>
             <td><span style="color: green">✓</span> <sup>0.02</sup></td>
             <td><span style="color: green">✓</span> <sup>0.02</sup></td>
         </tr>
         <tr>
-            <td><a href="https://github.com/mockk/mockk/issues/35">">#35</a></td>
+            <td><a href="https://github.com/mockk/mockk/issues/35">#35</a></td>
             <td><span style="color: green">✓</span> <sup>1.73</sup></td>
             <td><span style="color: green">✓</span> <sup>1.71</sup></td>
             <td><span style="color: green">✓</span> <sup>1.63</sup></td>
         </tr>
         <tr>
-            <td><a href="https://github.com/mockk/mockk/issues/36">">#36</a></td>
+            <td><a href="https://github.com/mockk/mockk/issues/36">#36</a></td>
             <td><span style="color: green">✓</span> <sup>2.51</sup></td>
             <td><span style="color: green">✓</span> <sup>2.81</sup></td>
             <td><span style="color: green">✓</span> <sup>3.47</sup></td>
         </tr>
         <tr>
-            <td><a href="https://github.com/mockk/mockk/issues/47">">#47</a></td>
+            <td><a href="https://github.com/mockk/mockk/issues/47">#47</a></td>
             <td><span style="color: green">✓</span> <sup>0.19</sup></td>
             <td><span style="color: green">✓</span> <sup>0.16</sup></td>
-            <td><span style="co
+            <td><span style="color: green">✓</span> <sup>0.14</sup></td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mockk/mockk/issues/48">#48</a></td>
+            <td><span style="color: green">✓</span> <sup>0.24</sup></td>
+            <td><span style="color: green">✓</span> <sup>0.15</sup></td>
+            <td><span style="color: green">✓</span> <sup>0.13</sup></td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mockk/mockk/issues/51">#51</a></td>
+            <td><span style="color: green">✓</span> <sup>0.19</sup></td>
+            <td><span style="color: green">✓</span> <sup>0.24</sup></td>
+            <td><span style="color: green">✓</span> <sup>0.21</sup></td>
+        </tr>
+        <tr>
+            <td><a href="https://github.com/mockk/mockk/issues/70">#70</a></td>
+            <td><span style="color: green">✓</span> <sup>0.10</sup></td>
+            <td><span style="color: green">✓</span> <sup>0.11</sup></td>
+            <td><span style="color: green">✓</span> <sup>0.09</sup></td>
+        </tr>
+        <tr>
+            <td>Rest</td>
+            <td><span style="color: green">✓</span> <sup>8.55</sup></td>
+            <td><span style="color: green">✓</span> <sup>7.57</sup></td>
+            <td><span style="color: green">✓</span> <sup>8.01</sup></td>
+        </tr>
+        <tr>
+            <td>All tests</td>
+            <td><span style="color: green">✓</span> <sup>17.54</sup></td>
+            <td><span style="color: green">✓</span> <sup>18.97</sup></td>
+            <td><span style="color: green">✓</span> <sup>18.14</sup></td>
+        </tr>
+    </tbody>
+</table>
+
