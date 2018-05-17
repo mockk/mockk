@@ -9,38 +9,32 @@ plugins {
 apply plugin: "java"
 apply plugin: "kotlin-platform-jvm"
 
-ext.junitJupiterVersion = '5.0.3'
-ext.junitVintageVersion = '4.12.0'
-
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     expectedBy project(':mockk-common')
     compile project(':mockk-dsl-jvm')
-    compile project(":mockk-agent")
+    compile project(":mockk-agent-jvm")
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
     compileOnly 'org.slf4j:slf4j-api:1.7.25'
 
     testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    testCompile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19'
+    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
     testCompile 'org.slf4j:slf4j-api:1.7.25'
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 
-    testCompile('io.kotlintest:kotlintest:2.0.7') {
-        exclude group: "junit", module: "junit"
-    }
     testCompile("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
         exclude group: "junit", module: "junit"
     }
 
-    compileOnly "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-    testCompile "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
-    testCompile "org.junit.vintage:junit-vintage-engine:$junitVintageVersion"
+    compileOnly "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+    testCompile "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
 }
 
 task sourcesJar(type: Jar) {
@@ -58,10 +52,6 @@ artifacts {
 test {
     testLogging.showStandardStreams = true
     jvmArgs '-DprojectConfigScan=false'
-    filter {
-//        includeTestsMatching "io.mockk.impl.*.*"
-//        includeTestsMatching "io.mockk.it.ChainedCallsMatchingTest"
-    }
 }
 jacocoTestReport {
     reports {
@@ -93,12 +83,16 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-            }
+            if (project.hasProperty('localrepo')) {
+                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
+            } else {
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
             }
 
             pom.project {
@@ -108,9 +102,9 @@ uploadArchives {
                 url 'http://mockk.io'
 
                 scm {
-                    connection 'scm:git:git@github.com:oleksiyp/mockk.git'
-                    developerConnection 'scm:git:git@github.com:oleksiyp/mockk.git'
-                    url 'http://www.github.com/oleksiyp/mockk/'
+                    connection 'scm:git:git@github.com:mockk/mockk.git'
+                    developerConnection 'scm:git:git@github.com:mockk/mockk.git'
+                    url 'http://www.github.com/mockk/mockk/'
                 }
 
                 licenses {

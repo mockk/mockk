@@ -84,7 +84,7 @@ interface MockKGateway {
         fun <T> every(
             mockBlock: (MockKMatcherScope.() -> T)?,
             coMockBlock: (suspend MockKMatcherScope.() -> T)?
-        ): MockKStubScope<T>
+        ): MockKStubScope<T, T>
     }
 
     /**

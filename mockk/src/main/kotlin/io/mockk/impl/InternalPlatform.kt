@@ -7,12 +7,15 @@ import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
+import java.lang.reflect.AccessibleObject
+import java.lang.reflect.Member
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
+import kotlin.reflect.full.cast
 import kotlin.reflect.full.isSubclassOf
 
 actual object InternalPlatform {
@@ -20,7 +23,7 @@ actual object InternalPlatform {
 
     actual fun ref(obj: Any): Ref = CommonRef(obj)
 
-    actual fun hkd(obj: Any): String = Integer.toUnsignedString(InternalPlatformDsl.identityHashCode(obj), 16)
+    actual fun hkd(obj: Any): String = Integer.toHexString(InternalPlatformDsl.identityHashCode(obj))
 
     actual fun isPassedByValue(cls: KClass<*>): Boolean {
         return when (cls) {
@@ -89,7 +92,7 @@ actual object InternalPlatform {
 
             ex is NoClassDefFoundError &&
                     ex.message?.contains("kotlinx/coroutines/") ?: false ->
-                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
+                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ", ex)
 
             else -> ex
         }
@@ -101,7 +104,10 @@ actual object InternalPlatform {
                 if (Modifier.isStatic(field.modifiers)) {
                     continue
                 }
-                field.isAccessible = true
+                if (isRunningAndroidInstrumentationTest() && field.name.startsWith("shadow$")) {
+                    continue
+                }
+                InternalPlatformDsl.makeAccessible(field)
                 val value = field.get(from)
                 field.set(to, value)
             }
@@ -124,4 +130,19 @@ actual object InternalPlatform {
             )
         }
     }
+
+    inline fun <reified T : Any> loadPlugin(className: String) =
+        try {
+            T::class.cast(Class.forName(className).newInstance())
+        } catch (ex: Exception) {
+            throw MockKException("Failed to load plugin $className", ex)
+        }
+
+
+    fun isRunningAndroidInstrumentationTest(): Boolean {
+        return System.getProperty("java.vendor", "")
+            .toLowerCase(Locale.US)
+            .contains("android")
+    }
+
 }

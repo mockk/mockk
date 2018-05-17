@@ -72,6 +72,49 @@ class MatcherTest {
     }
 
     @Test
+    fun range() {
+        every { mock.op(1, range(2, 4)) } returns 1
+        every { mock.op(2, range(2, 4, fromInclusive = false)) } returns 2
+        every { mock.op(3, range(2, 4, toInclusive = false)) } returns 3
+
+        assertFailsWith<MockKException> { mock.op(1, 0) }
+        assertFailsWith<MockKException> { mock.op(1, 1) }
+        assertEquals(1, mock.op(1, 2))
+        assertEquals(1, mock.op(1, 3))
+        assertEquals(1, mock.op(1, 4))
+        assertFailsWith<MockKException> { mock.op(1, 5) }
+        assertFailsWith<MockKException> { mock.op(1, 6) }
+
+        assertFailsWith<MockKException> { mock.op(2, 0) }
+        assertFailsWith<MockKException> { mock.op(2, 1) }
+        assertFailsWith<MockKException> { mock.op(2, 2) }
+        assertEquals(2, mock.op(2, 3))
+        assertEquals(2, mock.op(2, 4))
+        assertFailsWith<MockKException> { mock.op(2, 5) }
+        assertFailsWith<MockKException> { mock.op(2, 6) }
+
+        assertFailsWith<MockKException> { mock.op(3, 0) }
+        assertFailsWith<MockKException> { mock.op(3, 1) }
+        assertEquals(3, mock.op(3, 2))
+        assertEquals(3, mock.op(3, 3))
+        assertFailsWith<MockKException> { mock.op(3, 4) }
+        assertFailsWith<MockKException> { mock.op(3, 5) }
+        assertFailsWith<MockKException> { mock.op(3, 6) }
+
+        verify {
+            mock.op(1, 2)
+            mock.op(1, 3)
+            mock.op(1, 4)
+
+            mock.op(1, 3)
+            mock.op(1, 4)
+
+            mock.op(1, 2)
+            mock.op(1, 3)
+        }
+    }
+
+    @Test
     fun cmpEq() {
         every { mock.op(1, cmpEq(2)) } returns 1
 

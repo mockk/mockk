@@ -1,11 +1,25 @@
 buildscript {
-    ext.kotlin_version = '1.2.21'
+    ext.kotlin_version = '1.2.41'
+    ext.kotlin_gradle_version = '1.2.41'
+    ext.android_gradle_version = '3.1.2'
+    ext.byte_buddy_version = '1.8.8'
+    ext.coroutines_version = '0.22'
+    ext.dexmaker_version = '2.12.1'
+    ext.objenesis_version = '2.6'
+    ext.junit_version = '4.12'
+    ext.junit_jupiter_version = '5.0.3'
+    ext.junit_vintage_version = '4.12.0'
+    ext.android_maven_version = '2.1'
+
     repositories {
         mavenCentral()
+        google()
         jcenter()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
+        classpath "com.android.tools.build:gradle:$android_gradle_version"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$android_maven_version"
     }
 }
 
@@ -18,24 +32,15 @@ if (project.hasProperty('JDK6_HOME')) {
 subprojects {
     group = 'io.mockk'
 
-    apply plugin: 'java'
-    apply plugin: 'maven'
     apply plugin: 'signing'
-
-    sourceCompatibility = 1.6
-    targetCompatibility = 1.6
 
     repositories {
         mavenCentral()
-    }
-
-    task javadocJar(type: Jar) {
-        classifier = 'javadoc'
-        from javadoc
-    }
-
-    artifacts {
-        archives javadocJar
+        maven {
+            url = "https://dl.bintray.com/linkedin/maven/"
+        }
+        google()
+        jcenter()
     }
 
     signing {
@@ -44,9 +49,58 @@ subprojects {
 
     signArchives.onlyIf { project.hasProperty('signing.keyId') }
 
-    if (project.hasProperty('JDK6_HOME')) {
-        tasks.withType(JavaCompile) {
-            options.bootClasspath = "$JDK6_HOME/jre/lib/rt.jar"
+    if (it.name.contains('android')) {
+        apply plugin: 'com.github.dcendents.android-maven'
+
+        afterEvaluate { project ->
+            task sourceJar(type: Jar) {
+                from android.sourceSets.main.java.srcDirs
+                classifier "source"
+            }
+
+            task javadoc(type: Javadoc) {
+                source = android.sourceSets.main.java.srcDirs
+                classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+                destinationDir = file("../javadoc/")
+                failOnError false
+            }
+
+            task javadocJar(type: Jar, dependsOn: javadoc) {
+                classifier = 'javadoc'
+                from tasks.javadoc.destinationDir
+            }
+
+            task androidSourcesJar(type: Jar) {
+                classifier = 'sources'
+                from android.sourceSets.main.java.srcDirs
+            }
+
+            artifacts {
+                archives javadocJar
+                archives androidSourcesJar
+            }
+        }
+    } else {
+        apply plugin: 'maven'
+        apply plugin: 'java'
+
+        sourceCompatibility = 1.6
+        targetCompatibility = 1.6
+
+        task javadocJar(type: Jar) {
+            classifier = 'javadoc'
+            from javadoc
+        }
+
+        artifacts {
+            archives javadocJar
+        }
+
+        if (project.hasProperty('JDK6_HOME')) {
+            tasks.withType(JavaCompile) {
+                options.bootClasspath = "$JDK6_HOME/jre/lib/rt.jar"
+            }
         }
     }
+
 }

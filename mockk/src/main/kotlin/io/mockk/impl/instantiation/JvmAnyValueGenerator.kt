@@ -2,10 +2,13 @@ package io.mockk.impl.instantiation
 
 import kotlin.reflect.KClass
 
-class JvmAnyValueGenerator : AnyValueGenerator() {
+class JvmAnyValueGenerator(instantiator: JvmInstantiator) : AnyValueGenerator() {
+    val voidInstance = instantiator.instantiate(Void::class)
+
     override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
         return when (cls) {
-            Void.TYPE.kotlin -> Unit
+            Void.TYPE.kotlin -> voidInstance
+            Void::class -> voidInstance
 
             java.lang.Boolean::class -> false
             java.lang.Byte::class -> 0.toByte()

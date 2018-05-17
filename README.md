@@ -1,8 +1,9 @@
-![mockk](doc/logo-s-alt2.png) ![kotlin](doc/kotlin-logo.png)
+![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
-[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/oleksiyp/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG) [![codecov](https://codecov.io/gh/oleksiyp/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/oleksiyp/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
+[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/mockk/mockk.svg?branch=master)](https://travis-ci.org/mockk/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](http://mockk.io/BACKLOG) [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX) [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features) 
+[![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
 
-***From version 1.7.9 staticMocks don't need to be stubbed, but just call original methods***
+ <img src="doc/robot-small.png" align="left" height="50" alt="Android"/> ***[Android instrumentation tests](ANDROID.md) are supported from version 1.8. It's quite big amount of changes, so please report any issues***
 
 Table of contents:
 
@@ -21,7 +22,9 @@ Table of contents:
  - capturing lambdas
  - object mocks
  - private function mocking
+ - property backing field access
  - extension function mocking (static mocks)
+ - [Android instrumentation tests](ANDROID.md)
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
@@ -47,7 +50,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.7.9"</pre>
+    <pre>testCompile "io.mockk:mockk:{version}"</pre>
     </td>
 </tr>
 <tr>
@@ -56,11 +59,15 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.7.9&lt;/version&gt;
+    &lt;version&gt;{version}&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
 </tr>
+<tr>
+ <td></td>
+ <td><img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" /></td>
+</tr> 
 </table>
 
 ## DSL examples
@@ -82,6 +89,15 @@ verify { car.drive(Direction.NORTH) }
 You can use annotations to simplify creation of mock objects:
 
 ```kotlin
+
+class TrafficSystem {
+  lateinit var car1: Car
+  
+  lateinit var car2: Car
+  
+  lateinit var car3: Car
+}
+
 class Test {
   @MockK
   lateinit var car1: Car
@@ -91,6 +107,9 @@ class Test {
 
   @SpyK
   val car3 = Car()
+  
+  @InjectMockKs
+  val trafficSystem = TrafficSystem()
 
   @Before
   fun setUp() = MockKAnnotations.init(this)
@@ -101,6 +120,17 @@ class Test {
   }
 }
 ```
+
+Injection first tries to match properties by name, then by class or superclass. 
+Check `lookupType` parameter for customization. 
+
+Properties are injected even if `private` is applied. Constructors for injection are selected from the biggest 
+number of arguments to lowest.
+
+`@InjectMockKs` by default is injecting only `lateinit var`s or `var`s that are not assigned. 
+To change this use `overrideValues = true`. This would assign value even if it is already somehow initialized.
+To inject `val`s use `injectImmutable = true`. For shorter notation use `@OverrideMockKs` which do the same as 
+`@InjectMockKs` by default, but turns this two flags on.
 
 #### JUnit5
 
@@ -240,14 +270,14 @@ verify { car.drive(Direction.NORTH) }
 Enums can be mocked using objectMockk:
 
 ```
-enum class Enoom(val goodInt: Int) {
+enum class Enumeration(val goodInt: Int) {
     CONSTANT(35),
     OTHER_CONSTANT(45);
 }
 
-objectMockk(Enoom.CONSTANT).use {
-    every { Enoom.CONSTANT.goodInt } returns 42
-    assertEquals(42, Enoom.CONSTANT.goodInt)
+objectMockk(Enumeration.CONSTANT).use {
+    every { Enumeration.CONSTANT.goodInt } returns 42
+    assertEquals(42, Enumeration.CONSTANT.goodInt)
 }
 
 ```
@@ -550,6 +580,46 @@ verifySequence {
 
 In case you want private calls to be verified, you should create spyk with `recordPrivateCalls = true`
 
+Additionally more verbose syntax allows to get and set properties, do same dynamic calls:
+
+```kotlin
+val mock = spyk(Team(), recordPrivateCalls = true)
+
+every { mock getProperty "speed" } returns 33
+every { mock setProperty "acceleration" value less(5) } just Runs
+every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
+
+verify { mock getProperty "speed" }
+verify { mock setProperty "acceleration" value less(5) }
+verify { mock invoke "openDoor" withArguments listOf("left", "rear") }
+
+```
+
+### Property backing fields
+
+You can access fields backing properties via `fieldValue` and use `value` for value being set.
+
+Note in examples below usage of `propertyType` to specify type of `fieldValue`.
+This is needed because it is possible to capture type automatically only for getter.
+Use `nullablePropertyType` to specify nullable type.
+
+```kotlin
+val mock = spyk(MockCls(), recordPrivateCalls = true)
+
+every { mock.property } answers { fieldValue + 6 }
+every { mock.property = any() } propertyType Int::class answers { fieldValue += value }
+every { mock getProperty "property" } propertyType Int::class answers { fieldValue + 6 }
+every { mock setProperty "property" value any<Int>() } propertyType Int::class answers  { fieldValue += value }
+every {
+    mock.property = any()
+} propertyType Int::class answers {
+    fieldValue = value + 1
+} andThen {
+    fieldValue = value - 1
+}
+
+```
+
 ### More interfaces
 
 Adding additional behaviours via interfaces and stubbing them:
@@ -596,8 +666,9 @@ By default simple arguments are matched using `eq()`
 |`cmpEq(value)`|matches if value is equal to the provided via compareTo function|
 |`less(value)`|matches if value is less to the provided via compareTo function|
 |`more(value)`|matches if value is more to the provided via compareTo function|
-|`less(value, andEquals=true)`|matches if value is less or equals to the provided via compareTo function|
-|`more(value, andEquals=true)`|matches if value is more or equals to the provided via compareTo function|
+|`less(value, andEquals=false)`|matches if value is less or equals to the provided via compareTo function|
+|`more(value, andEquals=false)`|matches if value is more or equals to the provided via compareTo function|
+|`range(from, to, fromInclusive=true, toInclusive=true)`|matches if value is in range via compareTo function|
 |`and(left, right)`|combines two matchers via logical and|
 |`or(left, right)`|combines two matchers via logical or|
 |`not(matcher)`|negates the matcher|
@@ -652,6 +723,9 @@ Answer can be followed by one or more additional answers.
 |`answers answerObj`|specify that matched call answers with Answer object|
 |`answers { nothing }`|specify that matched call answers null|
 |`just Runs`|specify that matched call is returning Unit (returns null)|
+|`propertyType Class`|specify type of backing field accessor|
+|`nullablePropertyType Class`|specify type of backing field accessor as nullable type|
+
 
 ### Additional answer
 
@@ -688,6 +762,10 @@ So this has similiar to `returnsMany` semantics.
 |`lambda<...>().invoke()`|call captured lambda|
 |`coroutine<...>().coInvoke()`|call captured coroutine|
 |`nothing`|null value for returning nothing as an answer|
+|`fieldValue`|accessor to property backing field|
+|`fieldValueAny`|accessor to property backing field with `Any?` type|
+|`value`|value being set casted to same type as property backing field|
+|`valueAny`|value being set with `Any?` type|
 
 ## Getting Help
 
@@ -698,5 +776,5 @@ To ask questions, please use stackoverflow or gitter.
 
 To report bugs, please use the GitHub project.
 
-* Project Page: [https://github.com/oleksiyp/mockk](https://github.com/oleksiyp/mockk)
-* Reporting Bugs: [https://github.com/oleksiyp/mockk/issues](https://github.com/oleksiyp/mockk/issues)
+* Project Page: [https://github.com/mockk/mockk](https://github.com/mockk/mockk)
+* Reporting Bugs: [https://github.com/mockk/mockk/issues](https://github.com/mockk/mockk/issues)

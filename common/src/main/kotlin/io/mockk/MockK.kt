@@ -62,14 +62,14 @@ inline fun <reified T : Any> slot() = MockK.useImpl {
 /**
  * Starts a block of stubbing. Part of DSL.
  */
-inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockK.useImpl {
+inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalEvery(stubBlock)
 }
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
  */
-inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockK.useImpl {
+inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalCoEvery(stubBlock)
 }
 

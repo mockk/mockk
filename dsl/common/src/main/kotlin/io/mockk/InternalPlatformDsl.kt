@@ -1,5 +1,7 @@
 package io.mockk
 
+import kotlin.coroutines.experimental.Continuation
+
 expect object InternalPlatformDsl {
     fun identityHashCode(obj: Any): Int
 
@@ -15,5 +17,14 @@ expect object InternalPlatformDsl {
 
     fun classForName(name: String): Any
 
-    fun dynamicCall(self: Any, methodName: String, args: Array<out Any?>): Any?
+    fun dynamicCall(
+        self: Any,
+        methodName: String,
+        args: Array<out Any?>,
+        anyContinuationGen: () -> Continuation<*>
+    ): Any?
+
+    fun dynamicGet(self: Any, name: String): Any?
+
+    fun dynamicSet(self: Any, name: String, value: Any?)
 }
