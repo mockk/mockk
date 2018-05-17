@@ -270,14 +270,14 @@ verify { car.drive(Direction.NORTH) }
 Enums can be mocked using objectMockk:
 
 ```
-enum class Enoom(val goodInt: Int) {
+enum class Enumeration(val goodInt: Int) {
     CONSTANT(35),
     OTHER_CONSTANT(45);
 }
 
-objectMockk(Enoom.CONSTANT).use {
-    every { Enoom.CONSTANT.goodInt } returns 42
-    assertEquals(42, Enoom.CONSTANT.goodInt)
+objectMockk(Enumeration.CONSTANT).use {
+    every { Enumeration.CONSTANT.goodInt } returns 42
+    assertEquals(42, Enumeration.CONSTANT.goodInt)
 }
 
 ```
