@@ -1,3 +1,5 @@
+apply from: 'detect-android-sdk.gradle'
+
 rootProject.name = 'mockk-top'
 
 include 'mockk'
