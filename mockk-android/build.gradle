@@ -5,30 +5,16 @@ android {
     compileSdkVersion 'android-P'
     buildToolsVersion '27.0.3'
 
-    android {
-        lintOptions {
-            disable 'InvalidPackage'
-            warning 'NewApi'
-        }
-        packagingOptions {
-            exclude 'META-INF/main.kotlin_module'
-            exclude 'META-INF/LICENSE.md'
-            exclude 'META-INF/LICENSE-notice.md'
-        }
-        sourceSets {
-            main.java.srcDirs += 'src/main/kotlin'
-            test.java.srcDirs += 'src/android/kotlin'
-            androidTest.java.srcDirs += 'src/androidTest/kotlin'
-            androidTest.kotlin.srcDirs += '../common/src/test/kotlin'
-        }
-        compileOptions {
-            sourceCompatibility = 1.8
-            targetCompatibility = 1.8
-        }
-    }
-
     lintOptions {
         abortOnError false
+        disable 'InvalidPackage'
+        warning 'NewApi'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
     }
 
     defaultConfig {
@@ -38,6 +24,19 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
     }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/android/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+        androidTest.kotlin.srcDirs += '../common/src/test/kotlin'
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.6
+        targetCompatibility = 1.6
+    }
+
 }
 
 repositories {
