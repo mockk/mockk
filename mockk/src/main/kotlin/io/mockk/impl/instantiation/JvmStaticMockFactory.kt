@@ -40,6 +40,9 @@ class JvmStaticMockFactory(
         stubRepository.remove(cls.java)
     }
 
+    override fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        TODO("clear")
+    }
 
     companion object {
         val log = Logger<JvmStaticMockFactory>()

@@ -9,6 +9,7 @@ interface MockKGateway {
     val mockFactory: MockFactory
     val staticMockFactory: StaticMockFactory
     val objectMockFactory: ObjectMockFactory
+    val constructorMockFactory: ConstructorMockFactory
     val stubber: Stubber
     val verifier: Verifier
     val callRecorder: CallRecorder
@@ -54,6 +55,8 @@ interface MockKGateway {
         fun staticMockk(cls: KClass<*>)
 
         fun staticUnMockk(cls: KClass<*>)
+
+        fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
     }
 
     /**
@@ -63,6 +66,21 @@ interface MockKGateway {
         fun objectMockk(obj: Any, recordPrivateCalls: Boolean)
 
         fun objectUnMockk(obj: Any)
+
+        fun clear(obj: Any, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
+    }
+
+    /**
+     * Controls constructor mocking
+     */
+    interface ConstructorMockFactory {
+        fun constructorMockk(cls: KClass<*>, recordPrivateCalls: Boolean)
+
+        fun constructorUnMockk(cls: KClass<*>)
+
+        fun <T : Any> mockPlaceholder(cls: KClass<T>): T
+
+        fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
     }
 
     /**

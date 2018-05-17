@@ -260,11 +260,8 @@ object MockKDsl {
     /**
      * Declares constructor mockk.
      */
-    inline fun <reified T : Any> internalConstructorMockk(noinline block: () -> T) =
-        MockKConstructorScope(T::class, block)
-
-    inline fun <reified T : Any> internalConstructorMockk() =
-        MockKConstructorScope(T::class, null)
+    inline fun <reified T : Any> internalConstructorMockk(recordPrivateCalls: Boolean = false) =
+        MockKConstructorScope(T::class, recordPrivateCalls)
 
     /**
      * Builds a mock for a class.
@@ -1495,7 +1492,7 @@ open class MockKMatcherScope(
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <R, T : Any> R.hint(cls: KClass<T>, n: Int = 1): R {
-        MockKGateway.implementation().callRecorder.hintNextReturnType(cls, n)
+        callRecorder.hintNextReturnType(cls, n)
         return this
     }
 
@@ -1564,6 +1561,7 @@ open class MockKMatcherScope(
             InternalPlatformDsl.dynamicCall(self, methodName, args.toTypedArray(), anyContinuationGen)
     }
 
+    inline fun <reified T : Any> anyConstructed(): T = MockKGateway.implementation().constructorMockFactory.mockPlaceholder(T::class)
 }
 
 /**
@@ -1844,6 +1842,8 @@ interface MockKUnmockKScope {
 
     fun unmock()
 
+    fun clear(answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true)
+
     operator fun plus(scope: MockKUnmockKScope): MockKUnmockKScope = MockKUnmockKCompositeScope(this, scope)
 }
 
@@ -1864,6 +1864,11 @@ class MockKUnmockKCompositeScope(
         second.unmock()
     }
 
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        first.clear(answers, recordedCalls, childMocks)
+        second.clear(answers, recordedCalls, childMocks)
+    }
+
 }
 
 /**
@@ -1879,6 +1884,12 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope {
     override fun unmock() {
         for (type in staticTypes) {
             MockKGateway.implementation().staticMockFactory.staticUnMockk(type)
+        }
+    }
+
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        for (type in staticTypes) {
+            MockKGateway.implementation().staticMockFactory.clear(type, answers, recordedCalls, childMocks)
         }
     }
 
@@ -1902,6 +1913,12 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
         }
     }
 
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        for (obj in objects) {
+            MockKGateway.implementation().objectMockFactory.clear(obj, answers, recordedCalls, childMocks)
+        }
+    }
+
     @Suppress("NOTHING_TO_INLINE")
     inline fun and(obj: Any) = MockKObjectScope(obj, *objects)
 }
@@ -1911,13 +1928,18 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
  */
 class MockKConstructorScope<T : Any>(
     val type: KClass<T>,
-    val block: (() -> T)?
+    val recordPrivateCalls: Boolean
 ) : MockKUnmockKScope {
     override fun mock() {
-
+        MockKGateway.implementation().constructorMockFactory.constructorMockk(type, recordPrivateCalls)
     }
 
     override fun unmock() {
+        MockKGateway.implementation().constructorMockFactory.constructorUnMockk(type)
+    }
+
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        MockKGateway.implementation().constructorMockFactory.clear(type, answers, recordedCalls, childMocks)
     }
 }
 

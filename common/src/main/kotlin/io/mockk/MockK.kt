@@ -196,16 +196,8 @@ inline fun objectMockk(vararg objs: Any, recordPrivateCalls: Boolean = false): M
  * Builds a mock using particular constructor.
  * To actually use it you need to call use or mock/unmock.
  */
-inline fun <reified T : Any> constructorMockk(noinline block: () -> T): MockKConstructorScope<T> = MockK.useImpl {
-    MockKDsl.internalConstructorMockk(block)
-}
-
-/**
- * Builds a mock for using all possible constructors of a class.
- * To actually use it you need to call use or mock/unmock.
- */
-inline fun <reified T : Any> constructorMockk(): MockKConstructorScope<T> = MockK.useImpl {
-    MockKDsl.internalConstructorMockk()
+inline fun <reified T : Any> constructorMockk(recordPrivateCalls: Boolean = false): MockKConstructorScope<T> = MockK.useImpl {
+    MockKDsl.internalConstructorMockk(recordPrivateCalls)
 }
 
 /**

@@ -45,4 +45,8 @@ class JvmObjectMockFactory(val proxyMaker: MockKProxyMaker,
 
         stubRepository.remove(obj)
     }
+
+    override fun clear(obj: Any, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        TODO("clear")
+    }
 }
