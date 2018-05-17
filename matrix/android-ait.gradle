@@ -1,0 +1,83 @@
+buildscript {
+    ext.kotlin_version = '1.2.41'
+    ext.kotlin_gradle_version = '1.2.41'
+    ext.android_gradle_version = '3.1.2'
+    ext.coroutines_version = '0.22'
+    ext.junit_jupiter_version = '5.0.3'
+    ext.junit_vintage_version = '4.12.0'
+    ext.mockk_version = '1.8.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
+        classpath "com.android.tools.build:gradle:$android_gradle_version"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    google()
+    jcenter()
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 'android-P'
+    buildToolsVersion '27.0.3'
+
+    lintOptions {
+        disable 'InvalidPackage'
+        warning 'NewApi'
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
+    }
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionName "1"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
+    }
+
+    sourceSets {
+        androidTest.kotlin.srcDirs += '../common/src/test/kotlin'
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+}
+
+
+dependencies {
+    androidTestImplementation "io.mockk:mockk-android:${mockk_version}"
+
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    androidTestImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
+        exclude group: "junit", module: "junit"
+    }
+
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+    androidTestImplementation "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
+}

@@ -1,7 +1,7 @@
 
 
 task('summarize') {
-    def envs = ['jdk6', 'jdk8', 'jdk9', 'jdk10', 'android']
+    def envs = ['jdk6', 'jdk8', 'jdk9', 'jdk10', 'android', 'android-ait']
 
     def resultsPath = file("results")
 
@@ -11,14 +11,14 @@ task('summarize') {
         env.eachFile { test ->
             def junitXml = new XmlSlurper().parse(test)
 
-            def time = Double.parseDouble(junitXml.@time.toString())
-            def errors = Integer.parseInt(junitXml.@errors.toString())
-            def failures = Integer.parseInt(junitXml.@failures.toString())
-
-            if (errors == 0 && failures == 0) {
-                perTestResult.put(test.name, time)
-            } else {
-                perTestResult.put(test.name, Double.NaN)
+            junitXml.testcase.forEach {
+                def classname = it.@classname.toString()
+                if (it.failure.isEmpty() && it.error.isEmpty()) {
+                    def time = Double.parseDouble(it.@time.toString())
+                    perTestResult.compute(classname, { k, v -> (v ?: 0) + time })
+                } else {
+                    perTestResult.put(classname, Double.NaN)
+                }
             }
         }
         results.put(env.name, perTestResult)
@@ -36,7 +36,7 @@ task('summarize') {
     <tr>
         <th>Feature</th>
         <th colspan="4">JDK</th>
-        <th colspan="1">Android</th>
+        <th colspan="2">Android</th>
     </tr>
     <tr>
         <td></td>
@@ -45,6 +45,7 @@ task('summarize') {
         <td>9</td>
         <td>10</td>
         <td>Unit</td>
+        <td>AIT ≥P</td>
     </tr>
     </thead>
     <tbody>''')
@@ -86,7 +87,7 @@ task('summarize') {
 
     def rest = {
         pw.println("        <tr>")
-        pw.println("            <td>Rest</td>")
+        pw.println("            <td>(other tests)</td>")
         envs.forEach { env ->
             pw.print("            <td>")
 
