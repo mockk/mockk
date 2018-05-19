@@ -52,9 +52,7 @@ interface MockKGateway {
      * Binds static mocks
      */
     interface StaticMockFactory {
-        fun staticMockk(cls: KClass<*>)
-
-        fun staticUnMockk(cls: KClass<*>)
+        fun staticMockk(cls: KClass<*>): () -> Unit
 
         fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
     }
@@ -63,9 +61,7 @@ interface MockKGateway {
      * Binds object mocks
      */
     interface ObjectMockFactory {
-        fun objectMockk(obj: Any, recordPrivateCalls: Boolean)
-
-        fun objectUnMockk(obj: Any)
+        fun objectMockk(obj: Any, recordPrivateCalls: Boolean): () -> Unit
 
         fun clear(obj: Any, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
     }
@@ -74,9 +70,11 @@ interface MockKGateway {
      * Controls constructor mocking
      */
     interface ConstructorMockFactory {
-        fun constructorMockk(cls: KClass<*>, recordPrivateCalls: Boolean)
-
-        fun constructorUnMockk(cls: KClass<*>)
+        fun constructorMockk(
+            cls: KClass<*>,
+            recordPrivateCalls: Boolean,
+            localToThread: Boolean
+        ): () -> Unit
 
         fun <T : Any> mockPlaceholder(cls: KClass<T>): T
 
@@ -191,9 +189,4 @@ interface MockKGateway {
     interface MockInitializer {
         fun initAnnotatedMocks(targets: List<Any>)
     }
-}
-
-
-interface Ref {
-    val value: Any
 }

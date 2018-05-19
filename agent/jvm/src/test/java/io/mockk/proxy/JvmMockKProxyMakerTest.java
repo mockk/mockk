@@ -1,8 +1,8 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.*;
-
-import io.mockk.proxy.jvm.*;
+import io.mockk.agent.MockKAgentException;
+import io.mockk.agent.MockKInvocationHandler;
+import io.mockk.proxy.jvm.ObjenesisInstantiator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class JvmMockKProxyMakerTest {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
         instrumentation = new MockKInstrumentation();
-        maker = new JvmMockKProxyMaker(new JvmMockKInstantiatior(), instrumentation);
+        maker = new JvmMockKProxyMaker(new ObjenesisInstantiator(), instrumentation);
         staticMaker = new JvmMockKStaticProxyMaker(instrumentation);
     }
 
@@ -39,9 +39,13 @@ public class JvmMockKProxyMakerTest {
         }
     }
 
+    private <T> T makeProxy(Class<T> cls) {
+        return maker.proxy(cls, new Class[0], handler, false, null).get();
+    }
+
     @Test
     public void openClassProxy() throws Exception {
-        A proxy = maker.proxy(A.class, new Class[0], handler, true, null);
+        A proxy = makeProxy(A.class);
 
         proxy.a();
 
@@ -52,7 +56,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void openClassDisabledInstrumentationProxy() throws Exception {
         instrumentation.disable();
-        A proxy = maker.proxy(A.class, new Class[0], handler, true, null);
+        A proxy = makeProxy(A.class);
 
         proxy.a();
 
@@ -63,7 +67,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void openClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
-        A proxy = maker.proxy(A.class, new Class[0], handler, true, null);
+        A proxy = makeProxy(A.class);
 
         proxy.a();
 
@@ -79,7 +83,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void finalClassProxy() throws Exception {
-        B proxy = maker.proxy(B.class, new Class[0], handler, true, null);
+        B proxy = makeProxy(B.class);
 
         proxy.a();
 
@@ -90,7 +94,7 @@ public class JvmMockKProxyMakerTest {
     @Test(expected = MockKAgentException.class)
     public void finalClassDisabledInstrumentationProxy() throws Exception {
         instrumentation.disable();
-        B proxy = maker.proxy(B.class, new Class[0], handler, true, null);
+        B proxy = makeProxy(B.class);
 
         proxy.a();
 
@@ -101,7 +105,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void finalClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
-        B proxy = maker.proxy(B.class, new Class[0], handler, true, null);
+        B proxy = makeProxy(B.class);
 
         proxy.a();
 
@@ -115,7 +119,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void interfaceProxy() throws Exception {
-        C proxy = maker.proxy(C.class, new Class[0], handler, true, null);
+        C proxy = makeProxy(C.class);
 
         proxy.a();
 
@@ -126,7 +130,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void interfaceDisabledInstrumentationProxy() throws Exception {
         instrumentation.disable();
-        C proxy = maker.proxy(C.class, new Class[0], handler, true, null);
+        C proxy = makeProxy(C.class);
 
         proxy.a();
 
@@ -140,7 +144,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void abstractClassProxy() throws Exception {
-        D proxy = maker.proxy(D.class, new Class[0], handler, true, null);
+        D proxy = makeProxy(D.class);
 
         proxy.a();
 
@@ -151,7 +155,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void abstractClassDisabledInstrumentationProxy() throws Exception {
         instrumentation.disable();
-        D proxy = maker.proxy(D.class, new Class[0], handler, true, null);
+        D proxy = makeProxy(D.class);
 
         proxy.a();
 
@@ -168,7 +172,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void openSubClassProxy1() throws Exception {
-        E1 proxy = maker.proxy(E1.class, new Class[0], handler, true, null);
+        E1 proxy = makeProxy(E1.class);
 
         proxy.a();
 
@@ -180,7 +184,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void openSubClassCallOriginalProxy1() throws Exception {
         handler.callOriginal = true;
-        E1 proxy = maker.proxy(E1.class, new Class[0], handler, true, null);
+        E1 proxy = makeProxy(E1.class);
 
         proxy.a();
 
@@ -197,7 +201,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void openSubClassProxy2() throws Exception {
-        E2 proxy = maker.proxy(E2.class, new Class[0], handler, true, null);
+        E2 proxy = makeProxy(E2.class);
 
         proxy.a();
 
@@ -209,7 +213,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void openSubClassCallOriginalProxy2() throws Exception {
         handler.callOriginal = true;
-        E2 proxy = maker.proxy(E2.class, new Class[0], handler, true, null);
+        E2 proxy = makeProxy(E2.class);
 
         proxy.a();
 
@@ -231,7 +235,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void openSubClassProxy3() throws Exception {
-        E3 proxy = maker.proxy(E3.class, new Class[0], handler, true, null);
+        E3 proxy = makeProxy(E3.class);
 
         proxy.a();
 
@@ -244,7 +248,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void openSubClassCallOriginalProxy3() throws Exception {
         handler.callOriginal = true;
-        E3 proxy = maker.proxy(E3.class, new Class[0], handler, true, null);
+        E3 proxy = makeProxy(E3.class);
 
         proxy.a();
 
@@ -279,7 +283,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void openComplexSubClassProxy() throws Exception {
-        G proxy = maker.proxy(G.class, new Class[0], handler, true, null);
+        G proxy = makeProxy(G.class);
 
         proxy.a();
 
@@ -294,7 +298,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void openComplexSubClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
-        G proxy = maker.proxy(G.class, new Class[0], handler, true, null);
+        G proxy = makeProxy(G.class);
 
         proxy.a();
 
@@ -331,7 +335,7 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void finalComplexSubClassProxy() throws Exception {
-        G1 proxy = maker.proxy(G1.class, new Class[0], handler, true, null);
+        G1 proxy = makeProxy(G1.class);
 
         proxy.a();
 
@@ -346,7 +350,7 @@ public class JvmMockKProxyMakerTest {
     @Test
     public void finalComplexSubClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
-        G1 proxy = maker.proxy(G1.class, new Class[0], handler, true, null);
+        G1 proxy = makeProxy(G1.class);
 
         proxy.a();
 

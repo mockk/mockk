@@ -1,4 +1,4 @@
-package io.mockk.proxy.jvm;
+package io.mockk.proxy.jvm.dispatcher;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -20,12 +20,22 @@ public abstract class JvmMockKDispatcher {
         DISPATCHER_MAP.put(id, dispatcher);
     }
 
-    public abstract Callable<?> handler(Object self,
-                                 Method method,
-                                 Object[] arguments) throws Exception;
+    public abstract Callable<?> handler(
+            Object self,
+            Method method,
+            Object[] arguments
+    ) throws Exception;
 
-    public abstract Object handle(Object self,
-                           Method method,
-                           Object[] arguments,
-                           Callable<Object> originalMethod) throws Exception;
+    public abstract void constructorDone(
+            Object self,
+            Object[] arguments
+    );
+
+    public abstract Object handle(
+            Object self,
+            Method method,
+            Object[] arguments,
+            Callable<Object> originalMethod
+    ) throws Exception;
+
 }

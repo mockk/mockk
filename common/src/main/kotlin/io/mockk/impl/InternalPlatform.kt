@@ -1,6 +1,5 @@
 package io.mockk.impl
 
-import io.mockk.Ref
 import io.mockk.StackElement
 import kotlin.reflect.KClass
 
@@ -34,4 +33,14 @@ expect object InternalPlatform {
     fun <T : Any> copyFields(to: T, from: T)
 
     fun captureStackTrace(): List<StackElement>
+
+    fun weakRef(value: Any): WeakRef
+}
+
+interface Ref {
+    val value: Any
+}
+
+interface WeakRef {
+    val value: Any?
 }

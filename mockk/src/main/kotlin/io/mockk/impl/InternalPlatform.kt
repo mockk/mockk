@@ -2,13 +2,11 @@ package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
-import io.mockk.Ref
 import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
-import java.lang.reflect.AccessibleObject
-import java.lang.reflect.Member
+import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
@@ -128,6 +126,14 @@ actual object InternalPlatform {
                 it.lineNumber,
                 it.isNativeMethod
             )
+        }
+    }
+
+    actual fun weakRef(value: Any): WeakRef {
+        val weakRef = WeakReference<Any>(value)
+        return object : WeakRef {
+            override val value: Any?
+                get() = weakRef.get()
         }
     }
 

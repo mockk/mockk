@@ -12,12 +12,13 @@ open class MockKStub(
     val gatewayAccess: StubGatewayAccess,
     val recordPrivateCalls: Boolean
 ) : Stub {
-
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
     private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
 
     lateinit var hashCodeStr: String
+
+    var disposeRoutine: () -> Unit = {}
 
     override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>): AdditionalAnswerOpportunity {
         val invocationAnswer = InvocationAnswer(matcher, answer)
@@ -227,4 +228,9 @@ open class MockKStub(
                     EqMatcher(it)
             }, false
         )
+
+    override fun dispose() {
+        clear(true, true, true)
+        disposeRoutine.invoke()
+    }
 }

@@ -8,4 +8,6 @@ public interface MockKAgentFactory {
     MockKProxyMaker getProxyMaker();
 
     MockKStaticProxyMaker getStaticProxyMaker();
+
+    MockKConstructorProxyMaker getConstructorProxyMaker();
 }

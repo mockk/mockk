@@ -29,7 +29,7 @@ class JvmMockKGateway : MockKGateway {
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
-    val agentFactory : MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
+    val agentFactory: MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
         InternalPlatform.loadPlugin("io.mockk.proxy.android.AndroidMockKAgentFactory")
     else
         InternalPlatform.loadPlugin("io.mockk.proxy.jvm.JvmMockKAgentFactory")
@@ -51,30 +51,37 @@ class JvmMockKGateway : MockKGateway {
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
-    override val mockFactory: MockFactory = JvmMockFactory(
+    val gatewayAccess = StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
+
+    override val mockFactory: AbstractMockFactory = JvmMockFactory(
         agentFactory.proxyMaker,
         instantiator,
         stubRepo,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
+        gatewayAccess
     )
+
+    override val clearer = CommonClearer(stubRepo, safeLog)
 
     override val staticMockFactory = JvmStaticMockFactory(
         agentFactory.staticProxyMaker,
         stubRepo,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
+        gatewayAccess
     )
 
     override val objectMockFactory = JvmObjectMockFactory(
         agentFactory.proxyMaker,
         stubRepo,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
+        gatewayAccess
     )
 
-    override val constructorMockFactory: ConstructorMockFactory = JvmConstructorMockFactory(
-            stubRepo
-        )
+    override val constructorMockFactory = JvmConstructorMockFactory(
+        agentFactory.constructorProxyMaker,
+        clearer,
+        mockFactory,
+        agentFactory.proxyMaker,
+        gatewayAccess
+    )
 
-    override val clearer = CommonClearer(stubRepo, safeLog)
 
     val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeLog)
     val allVerifier = AllCallsCallVerifier(stubRepo, safeLog)

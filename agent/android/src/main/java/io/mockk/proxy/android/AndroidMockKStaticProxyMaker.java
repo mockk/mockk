@@ -16,9 +16,12 @@
 
 package io.mockk.proxy.android;
 
+import io.mockk.agent.Cancelable;
 import io.mockk.agent.MockKAgentException;
 import io.mockk.agent.MockKInvocationHandler;
 import io.mockk.agent.MockKStaticProxyMaker;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 import java.util.Map;
 
@@ -43,17 +46,19 @@ public final class AndroidMockKStaticProxyMaker implements MockKStaticProxyMaker
     }
 
     @Override
-    public void staticProxy(Class<?> clazz, MockKInvocationHandler handler) {
+    public Cancelable<Class<?>> staticProxy(final Class<?> clazz, MockKInvocationHandler handler) {
         if (classTransformer == null) {
             throw new MockKAgentException("Mocking static is supported starting from Android P");
         }
         MockKInvocationHandlerAdapter handlerAdapter = new MockKInvocationHandlerAdapter(handler);
         classTransformer.mockClass(clazz, new Class[0]);
         mocks.put(clazz, handlerAdapter);
-    }
-
-    @Override
-    public void staticUnProxy(Class<?> clazz) {
-        mocks.remove(clazz);
+        return new CancelableResult<Class<?>>(clazz, new Function0<Unit>() {
+            @Override
+            public Unit invoke() {
+                mocks.remove(clazz);
+                return Unit.INSTANCE;
+            }
+        });
     }
 }

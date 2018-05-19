@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
-import static android.os.Build.VERSION.SDK_INT;
-
 public class AndroidMockKAgentFactory implements MockKAgentFactory {
     private static final String DISPATCHER_CLASS_NAME =
             "io.mockk.proxy.android.AndroidMockKDispatcher";
@@ -132,6 +130,16 @@ public class AndroidMockKAgentFactory implements MockKAgentFactory {
     @Override
     public MockKStaticProxyMaker getStaticProxyMaker() {
         return staticProxyMaker;
+    }
+
+    @Override
+    public MockKConstructorProxyMaker getConstructorProxyMaker() {
+        return new MockKConstructorProxyMaker() {
+            @Override
+            public Cancelable<Class<?>> constructorProxy(Class<?> clazz, MockKInvocationHandler handler) {
+                throw new MockKAgentException("constructor proxy is not supported");
+            }
+        };
     }
 
     private static MockKAgentLogger log;

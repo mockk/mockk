@@ -1,4 +1,4 @@
-package io.mockk.proxy.jvm;
+package io.mockk.proxy.jvm.dispatcher;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;

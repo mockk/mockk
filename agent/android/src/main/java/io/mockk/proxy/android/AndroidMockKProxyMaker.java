@@ -18,10 +18,9 @@ package io.mockk.proxy.android;
 
 import com.android.dx.stock.ProxyBuilder;
 import com.android.dx.stock.ProxyBuilder.MethodSetEntry;
-import io.mockk.agent.MockKAgentException;
-import io.mockk.agent.MockKInstantiatior;
-import io.mockk.agent.MockKInvocationHandler;
-import io.mockk.agent.MockKProxyMaker;
+import io.mockk.agent.*;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -116,12 +115,12 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
     }
 
     @Override
-    public <T> T proxy(
+    public <T> Cancelable<T> proxy(
             Class<T> clazz,
             Class<?>[] interfaces,
             MockKInvocationHandler handler,
             boolean useDefaultConstructor,
-            Object instance) {
+            final Object instance) {
         MockKInvocationHandlerAdapter handlerAdapter = new MockKInvocationHandlerAdapter(handler);
 
         if (instance != null) {
@@ -130,10 +129,16 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
             }
             classTransformer.mockClass(clazz, interfaces);
             mocks.put(instance, handlerAdapter);
-            return clazz.cast(instance);
+            return new CancelableResult<T>((T) instance, new Function0<Unit>() {
+                @Override
+                public Unit invoke() {
+                    mocks.remove(instance);
+                    return Unit.INSTANCE;
+                }
+            });
         }
 
-        T mock;
+        final T mock;
         if (clazz.isInterface()) {
             // support interfaces via java.lang.reflect.Proxy
             Class[] classesToMock = new Class[interfaces.length + 1];
@@ -194,13 +199,12 @@ public final class AndroidMockKProxyMaker implements MockKProxyMaker {
         }
 
         mocks.put(mock, handlerAdapter);
-        return mock;
+        return new CancelableResult<T>(mock, new Function0<Unit>() {
+            @Override
+            public Unit invoke() {
+                mocks.remove(mock);
+                return Unit.INSTANCE;
+            }
+        });
     }
-
-    @Override
-    public void unproxy(Object instance) {
-        mocks.remove(instance);
-    }
-
-
 }
