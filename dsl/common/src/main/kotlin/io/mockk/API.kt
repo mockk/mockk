@@ -3008,9 +3008,6 @@ interface Matcher<in T> {
     fun substitute(map: Map<Any, Any>): Matcher<T> = this
 }
 
-@Suppress("UNCHECKED_CAST")
-internal fun <T> Map<Any, Any>.s(value: Any) = (get(value) ?: value) as T
-
 /**
  * Checks if argument is of specific type
  */
@@ -3131,7 +3128,7 @@ data class Invocation(
     val method: MethodDescription,
     val args: List<Any?>,
     val timestamp: Long,
-    val callStack: List<StackElement>,
+    val callStack: () -> List<StackElement>,
     val originalCall: () -> Any?,
     val fieldValueProvider: BackingFieldValueProvider
 ) {

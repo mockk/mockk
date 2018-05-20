@@ -116,16 +116,19 @@ actual object InternalPlatform {
         copy(to, from, from::class.java)
     }
 
-    actual fun captureStackTrace(): List<StackElement> {
-        val stack = Exception("Stack trace").stackTrace ?: return listOf()
-        return stack.map {
-            StackElement(
-                it.className ?: "-",
-                it.fileName ?: "-",
-                it.methodName ?: "-",
-                it.lineNumber,
-                it.isNativeMethod
-            )
+    actual fun captureStackTrace(): () -> List<StackElement> {
+        val ex = Exception("Stack trace")
+        return {
+            val stack = ex.stackTrace ?: arrayOf<StackTraceElement>()
+            stack.map {
+                StackElement(
+                    it.className ?: "-",
+                    it.fileName ?: "-",
+                    it.methodName ?: "-",
+                    it.lineNumber,
+                    it.isNativeMethod
+                )
+            }
         }
     }
 

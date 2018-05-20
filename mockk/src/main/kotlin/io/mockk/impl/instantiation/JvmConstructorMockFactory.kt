@@ -38,7 +38,7 @@ class JvmConstructorMockFactory(
         val name = "constructorMockk<${cls.simpleName}>()"
 
         init {
-            log.trace { "Creating representation mock for constructor mock ${cls.toStr()}" }
+            log.trace { "Creating constructor representation mock for ${cls.toStr()}" }
         }
 
         val representativeStub = SpyKStub(cls, name, gatewayAccess, true)
@@ -79,6 +79,8 @@ class JvmConstructorMockFactory(
             val mock = constructorMock
                     ?: throw MockKException("Bad constructor mock handler for ${self::class}")
 
+            log.trace { "Connecting just created object to constructor representation mock for ${cls.toStr()}" }
+
             val stub = ConstructorStub(
                 self,
                 mock.representativeMock,
@@ -99,9 +101,6 @@ class JvmConstructorMockFactory(
             gatewayAccess.stubRepository.add(self, stub)
 
             mock.cancellations.add(cancellation::cancel)
-
-
-
 
             return Unit
         }

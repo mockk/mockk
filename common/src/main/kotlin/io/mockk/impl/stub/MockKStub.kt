@@ -179,15 +179,19 @@ open class MockKStub(
             }
         }
 
+        val stackTraceHolder = InternalPlatform.captureStackTrace()
+
         val invocation = Invocation(
             self,
             this,
             method,
             args.toList(),
             InternalPlatform.time(),
-            InternalPlatform.captureStackTrace()
-                .cutMockKCallProxyCall()
-                .unmangleByteBuddy(),
+            {
+                stackTraceHolder()
+                    .cutMockKCallProxyCall()
+                    .unmangleByteBuddy()
+            },
             originalPlusToString,
             fieldValueProvider
         )

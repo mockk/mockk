@@ -1,6 +1,7 @@
 package io.mockk.impl.stub
 
 import io.mockk.*
+import io.mockk.impl.InternalPlatform
 import kotlin.reflect.KClass
 
 class ConstructorStub(
@@ -9,8 +10,12 @@ class ConstructorStub(
     val stub: Stub,
     val recordPrivateCalls: Boolean
 ) : Stub {
-    private val represent = mapOf(mock to representativeMock)
-    private val revertRepresentatition = mapOf(representativeMock to mock)
+    private val represent = identityMapOf(mock to representativeMock)
+    private val revertRepresentation = identityMapOf(representativeMock to mock)
+
+    private fun <K, V> identityMapOf(vararg pairs: Pair<K, V>): Map<K, V> =
+        InternalPlatform.identityMap<K, V>()
+            .also { map -> map.putAll(pairs) }
 
     override val name: String
         get() = stub.name
@@ -23,7 +28,7 @@ class ConstructorStub(
 
     override fun answer(invocation: Invocation) = stub.answer(
         invocation.substitute(represent)
-    ).internalSubstitute(revertRepresentatition)
+    ).internalSubstitute(revertRepresentation)
 
     override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>) =
         stub.childMockK(
@@ -44,7 +49,7 @@ class ConstructorStub(
 
     override fun allRecordedCalls() = stub.allRecordedCalls()
         .map {
-            it.substitute(revertRepresentatition)
+            it.substitute(revertRepresentation)
         }
 
     override fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean) =

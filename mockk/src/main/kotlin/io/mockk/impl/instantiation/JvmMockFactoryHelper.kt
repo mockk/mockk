@@ -97,8 +97,12 @@ object JvmMockFactoryHelper {
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
 
+    val cache = InternalPlatform.weakMap<Method, Int>()
 
     fun Method.varArgPosition(): Int {
+        val cached = cache[this]
+        if (cached != null) return cached
+
         val kFunc =
             try {
                 // workaround for
@@ -109,11 +113,15 @@ object JvmMockFactoryHelper {
                 null
             }
 
-        return if (kFunc != null)
+        val result = if (kFunc != null)
             kFunc.parameters
                 .filter { it.kind != KParameter.Kind.INSTANCE }
                 .indexOfFirst { it.isVararg }
         else
             if (isVarArgs) parameterTypes.size - 1 else -1
+
+        cache[this] = result
+
+        return result
     }
 }

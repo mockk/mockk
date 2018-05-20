@@ -27,7 +27,7 @@ data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = fal
     }
 
     override fun substitute(map: Map<Any, Any>) =
-        copy(valueArg = map.s(value))
+        copy(valueArg = valueArg.internalSubstitute(map))
 
     override fun toString(): String {
         return if (ref)
@@ -145,7 +145,7 @@ data class ComparingMatcher<T : Comparable<T>>(
     }
 
     override fun substitute(map: Map<Any, Any>) =
-        copy(value = map.s(value))
+        copy(value = value.internalSubstitute(map))
 
     override fun toString(): String =
         when (cmpFunc) {
@@ -178,7 +178,10 @@ data class AndOrMatcher<T : Any>(
             subMatchers!![0].match(arg) || subMatchers!![1].match(arg)
 
     override fun substitute(map: Map<Any, Any>): Matcher<T> {
-        val matcher = copy(first = map.s(first), second = map.s(second))
+        val matcher = copy(
+            first = first.internalSubstitute(map),
+            second = second.internalSubstitute(map)
+        )
         val sm = subMatchers
         if (sm != null) {
             matcher.subMatchers = sm.map { it.substitute(map) }
@@ -215,7 +218,7 @@ data class NotMatcher<T : Any>(val value: T) : Matcher<T>, CompositeMatcher<T>, 
         !subMatchers!![0].match(arg)
 
     override fun substitute(map: Map<Any, Any>): Matcher<T> {
-        val matcher = copy(value = map.s(value))
+        val matcher = copy(value = value.internalSubstitute(map))
         val sm = subMatchers
         if (sm != null) {
             matcher.subMatchers = sm.map { it.substitute(map) }

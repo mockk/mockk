@@ -32,7 +32,7 @@ expect object InternalPlatform {
 
     fun <T : Any> copyFields(to: T, from: T)
 
-    fun captureStackTrace(): List<StackElement>
+    fun captureStackTrace(): () -> List<StackElement>
 
     fun weakRef(value: Any): WeakRef
 }
