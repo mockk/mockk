@@ -8,6 +8,7 @@ dependencies {
     compile "net.bytebuddy:byte-buddy:$byte_buddy_version"
     compileOnly "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
     runtime "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompileOnly "junit:junit:$junit_version"
     testRuntimeOnly "junit:junit:$junit_version"
     compile "org.objenesis:objenesis:$objenesis_version"

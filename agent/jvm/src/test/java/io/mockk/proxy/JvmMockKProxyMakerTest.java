@@ -1,8 +1,7 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.MockKAgentException;
-import io.mockk.agent.MockKInvocationHandler;
-import io.mockk.proxy.jvm.ObjenesisInstantiator;
+import io.mockk.agent.*;
+import io.mockk.proxy.jvm.JvmMockKAgentFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,22 +14,31 @@ import java.util.concurrent.Callable;
 import static org.junit.Assert.*;
 
 public class JvmMockKProxyMakerTest {
-    io.mockk.proxy.jvm.JvmMockKProxyMaker maker;
-    io.mockk.proxy.jvm.JvmMockKStaticProxyMaker staticMaker;
+    MockKProxyMaker maker;
+    MockKStaticProxyMaker staticMaker;
 
     static boolean[] executed = new boolean[10];
 
     ListAppendingHandler handler;
-    private MockKInstrumentation instrumentation;
 
 
     @Before
     public void setUp() throws Exception {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
-        instrumentation = new MockKInstrumentation();
-        maker = new JvmMockKProxyMaker(new ObjenesisInstantiator(), instrumentation);
-        staticMaker = new JvmMockKStaticProxyMaker(instrumentation);
+
+        JvmMockKAgentFactory agentFactory = new JvmMockKAgentFactory();
+
+        agentFactory.init(new MockKAgentLogFactory(){
+
+            @Override
+            public MockKAgentLogger logger(Class<?> cls) {
+                return MockKAgentLogger.NO_OP;
+            }
+        });
+
+        maker = agentFactory.getProxyMaker();
+        staticMaker = agentFactory.getStaticProxyMaker();
     }
 
     static class A {
@@ -45,17 +53,6 @@ public class JvmMockKProxyMakerTest {
 
     @Test
     public void openClassProxy() throws Exception {
-        A proxy = makeProxy(A.class);
-
-        proxy.a();
-
-        assertFalse(executed[0]);
-        checkProxyHandlerCalled(1, proxy, "a");
-    }
-
-    @Test
-    public void openClassDisabledInstrumentationProxy() throws Exception {
-        instrumentation.disable();
         A proxy = makeProxy(A.class);
 
         proxy.a();
@@ -91,17 +88,6 @@ public class JvmMockKProxyMakerTest {
         checkProxyHandlerCalled(1, proxy, "a");
     }
 
-    @Test(expected = MockKAgentException.class)
-    public void finalClassDisabledInstrumentationProxy() throws Exception {
-        instrumentation.disable();
-        B proxy = makeProxy(B.class);
-
-        proxy.a();
-
-        assertFalse(executed[0]);
-        checkProxyHandlerCalled(1, proxy, "a");
-    }
-
     @Test
     public void finalClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
@@ -127,34 +113,12 @@ public class JvmMockKProxyMakerTest {
         checkProxyHandlerCalled(1, proxy, "a");
     }
 
-    @Test
-    public void interfaceDisabledInstrumentationProxy() throws Exception {
-        instrumentation.disable();
-        C proxy = makeProxy(C.class);
-
-        proxy.a();
-
-        assertFalse(executed[0]);
-        checkProxyHandlerCalled(1, proxy, "a");
-    }
-
     static abstract class D {
         abstract void a();
     }
 
     @Test
     public void abstractClassProxy() throws Exception {
-        D proxy = makeProxy(D.class);
-
-        proxy.a();
-
-        assertFalse(executed[0]);
-        checkProxyHandlerCalled(1, proxy, "a");
-    }
-
-    @Test
-    public void abstractClassDisabledInstrumentationProxy() throws Exception {
-        instrumentation.disable();
         D proxy = makeProxy(D.class);
 
         proxy.a();
