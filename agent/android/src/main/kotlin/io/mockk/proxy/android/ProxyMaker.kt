@@ -1,10 +1,26 @@
-package io.mockk.proxy.jvm
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.mockk.proxy.android
 
 import io.mockk.agent.*
-import io.mockk.proxy.jvm.transformation.InlineInstrumentation
-import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
-import io.mockk.proxy.jvm.transformation.TransformationRequest
-import io.mockk.proxy.jvm.transformation.TransformationType.SIMPLE
+import io.mockk.proxy.android.transformation.InlineInstrumentation
+import io.mockk.proxy.android.transformation.SubclassInstrumentation
+import io.mockk.proxy.android.transformation.TransformationRequest
+import io.mockk.proxy.android.transformation.TransformationType
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
@@ -15,7 +31,6 @@ internal class ProxyMaker(
     private val instantiator: MockKInstantiatior,
     private val handlers: MutableMap<Any, MockKInvocationHandler>
 ) : MockKProxyMaker {
-
     override fun <T : Any> proxy(
         clazz: Class<T>,
         interfaces: Array<Class<*>>,
@@ -40,6 +55,7 @@ internal class ProxyMaker(
         try {
             val proxy = instantiate(clazz, proxyClass, useDefaultConstructor, instance)
 
+            subclasser.setProxyHandler(proxy, handler)
             handlers[proxy] = handler
 
             return result
@@ -82,7 +98,7 @@ internal class ProxyMaker(
         val superclasses = getAllSuperclasses(clazz)
 
         return if (inliner != null) {
-            val transformRequest = TransformationRequest(superclasses, SIMPLE)
+            val transformRequest = TransformationRequest(superclasses, TransformationType.SIMPLE)
 
             inliner.execute(transformRequest)
         } else {
@@ -164,7 +180,6 @@ internal class ProxyMaker(
 
 
     companion object {
-
         private val notMockableClasses = setOf(
             Class::class.java,
             Boolean::class.java,
