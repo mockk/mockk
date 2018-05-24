@@ -698,12 +698,13 @@ Few special matchers available in verification mode only:
 
 |Validator|Description|
 |---------|-----------|
-|`verify { mock.call() }`|Do unordered verification that call were performed|
+|`verify { mock.call() }`|Do unordered verification that calls were performed|
+|`verify { `<br />&nbsp;&nbsp;`mock.call1()`<br />&nbsp;&nbsp;`mock.call2()`<br />`}`|Do unordered verification on multiple calls that were performed|
 |`verify(inverse=true) { mock.call() }`|Do unordered verification that call were not performed|
 |`verify(atLeast=n) { mock.call() }`|Do unordered verification that call were performed at least `n` times|
 |`verify(atMost=n) { mock.call() }`|Do unordered verification that call were performed at most `n` times|
 |`verify(exactly=n) { mock.call() }`|Do unordered verification that call were performed at exactly `n` times|
-|`verifyAll { mock.call1(); mock.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks|
+|`verifyAll { mock.call1(); mock.call2() }`|Do unordered verification that only the specified calls were executed for mentioned mocks. Note that if your test touches mocked methods that aren't checked here, it will fail.|
 |`verifyOrder { mock.call1(); mock.call2() }`|Do verification that sequence of calls went one after another|
 |`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for mentioned mocks|
 |`verify { mock wasNot Called }`|Do verification that mock was not called|
