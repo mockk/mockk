@@ -383,11 +383,15 @@ public class JvmMockKProxyMakerTest {
         public Object invocation(Object self,
                                  Method method,
                                  Callable<?> originalCall,
-                                 Object[] args) throws Exception {
+                                 Object[] args) {
 
             calls.add(new Call(self, method, args));
             if (callOriginal) {
-                return originalCall.call();
+                try {
+                    return originalCall.call();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             } else {
                 return returnValue;
             }

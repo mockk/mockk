@@ -148,13 +148,11 @@ internal class Advice(
                 else -> method
             }
 
-        private tailrec fun Class<*>.isOverridden(origin: Method): Boolean =
-            findMethod(origin.name, origin.parameterTypes)
-                .let {
-                    it ?: return superclass.isOverridden(origin)
-                }.let {
-                    origin.declaringClass != it.declaringClass
-                }
+        private tailrec fun Class<*>.isOverridden(origin: Method): Boolean {
+            val method = findMethod(origin.name, origin.parameterTypes)
+                    ?: return superclass.isOverridden(origin)
+            return origin.declaringClass != method.declaringClass
+        }
 
         private tailrec fun isMethodDefinedBySuperClass(
             subclass: Class<*>,
