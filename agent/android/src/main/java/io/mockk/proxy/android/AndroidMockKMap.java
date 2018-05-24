@@ -2,7 +2,7 @@ package io.mockk.proxy.android;
 
 import android.os.AsyncTask;
 import android.util.ArraySet;
-import io.mockk.agent.MockKInvocationHandler;
+import io.mockk.proxy.MockKInvocationHandler;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;

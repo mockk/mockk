@@ -1,9 +1,9 @@
-package io.mockk.proxy.jvm.transformation
+package io.mockk.proxy.common.transformation
 
-import io.mockk.proxy.jvm.transformation.TransformationType.*
+import io.mockk.proxy.common.transformation.TransformationType.*
 import java.util.*
 
-internal class ClassTransformationSpecMap {
+class ClassTransformationSpecMap {
     private val classSpecs = WeakHashMap<Class<*>, ClassTransformationSpec>()
 
     fun applyTransformationRequest(request: TransformationRequest) =
@@ -23,7 +23,7 @@ internal class ClassTransformationSpecMap {
                         CONSTRUCTOR -> spec.copy(constructorIntercept = spec.constructorIntercept + diff)
                     }
 
-                if (newSpec.isEmpty()) {
+                if (!newSpec.shouldDoSomething) {
                     classSpecs.remove(cls)
                 } else {
                     classSpecs[cls] = newSpec
@@ -40,6 +40,11 @@ internal class ClassTransformationSpecMap {
     operator fun get(clazz: Class<*>?) =
         synchronized(classSpecs) {
             classSpecs[clazz]
+        }
+
+    fun transformationMap(request: TransformationRequest): Map<String, String> =
+        synchronized(classSpecs) {
+            request.classes.map { it.simpleName to classSpecs[it].toString() }.toMap()
         }
 
 }

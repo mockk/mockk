@@ -1,7 +1,7 @@
 package io.mockk.proxy.android
 
-import io.mockk.agent.MockKAgentLogger
-import io.mockk.agent.MockKInstantiatior
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.MockKInstantiatior
 import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.Proxy
@@ -11,16 +11,16 @@ internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantia
     private val objenesis = ObjenesisStd(true)
     private val instantiators = Collections.synchronizedMap(WeakHashMap<Class<*>, ObjectInstantiator<*>>())
 
-    override fun <T> instance(clazz: Class<T>): T {
-        val cls = proxyInterface(clazz)
+    override fun <T> instance(cls: Class<T>): T {
+        val clazz = proxyInterface(cls)
 
-        log.trace("Creating new empty instance of $cls")
+        log.trace("Creating new empty instance of $clazz")
 
-        val inst = instantiators.getOrPut(cls, {
-            objenesis.getInstantiatorOf(cls)
+        val inst = instantiators.getOrPut(clazz, {
+            objenesis.getInstantiatorOf(clazz)
         })
 
-        return cls.cast(inst.newInstance())
+        return clazz.cast(inst.newInstance())
     }
 
     @Suppress("UNCHECKED_CAST")

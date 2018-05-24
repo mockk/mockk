@@ -1,9 +1,9 @@
 package io.mockk.proxy.android;
 
-import io.mockk.agent.MockKAgentFactory;
-import io.mockk.agent.MockKInvocationHandler;
-import io.mockk.agent.MockKProxyMaker;
-import io.mockk.agent.MockKStaticProxyMaker;
+import io.mockk.proxy.MockKAgentFactory;
+import io.mockk.proxy.MockKInvocationHandler;
+import io.mockk.proxy.MockKProxyMaker;
+import io.mockk.proxy.MockKStaticProxyMaker;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

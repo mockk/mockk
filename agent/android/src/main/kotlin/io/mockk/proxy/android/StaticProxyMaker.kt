@@ -16,13 +16,17 @@
 
 package io.mockk.proxy.android
 
-import io.mockk.agent.*
-import io.mockk.proxy.android.transformation.InlineInstrumentation
-import io.mockk.proxy.android.transformation.TransformationRequest
-import io.mockk.proxy.android.transformation.TransformationType
+import io.mockk.proxy.Cancelable
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKInvocationHandler
+import io.mockk.proxy.MockKStaticProxyMaker
+import io.mockk.proxy.android.transformation.AndroidInlineInstrumentation
+import io.mockk.proxy.common.CancelableResult
+import io.mockk.proxy.common.transformation.TransformationRequest
+import io.mockk.proxy.common.transformation.TransformationType
 
 internal class StaticProxyMaker(
-    private val inliner: InlineInstrumentation?,
+    private val inliner: AndroidInlineInstrumentation?,
     private val mocks: MutableMap<Any, MockKInvocationHandler>
 ) : MockKStaticProxyMaker {
 

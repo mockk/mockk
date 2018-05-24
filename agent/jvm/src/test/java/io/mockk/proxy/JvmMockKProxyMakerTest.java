@@ -1,6 +1,5 @@
 package io.mockk.proxy;
 
-import io.mockk.agent.*;
 import io.mockk.proxy.jvm.JvmMockKAgentFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,7 @@ public class JvmMockKProxyMakerTest {
 
             @Override
             public MockKAgentLogger logger(Class<?> cls) {
-                return MockKAgentLogger.NO_OP;
+                return MockKAgentLogger.Companion.getNO_OP();
             }
         });
 

@@ -1,6 +1,6 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
-import io.mockk.agent.MockKInvocationHandler;
+import io.mockk.proxy.MockKInvocationHandler;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher;

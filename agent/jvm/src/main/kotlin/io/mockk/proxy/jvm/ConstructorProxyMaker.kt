@@ -1,9 +1,10 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.agent.*
+import io.mockk.proxy.*
+import io.mockk.proxy.common.CancelableResult
+import io.mockk.proxy.common.transformation.TransformationRequest
+import io.mockk.proxy.common.transformation.TransformationType
 import io.mockk.proxy.jvm.transformation.InlineInstrumentation
-import io.mockk.proxy.jvm.transformation.TransformationRequest
-import io.mockk.proxy.jvm.transformation.TransformationType
 
 internal class ConstructorProxyMaker(
     private val log: MockKAgentLogger,
@@ -32,7 +33,7 @@ internal class ConstructorProxyMaker(
             )
         )
 
-        return CancelableResult(clazz, cancellation)
+        return CancelableResult<Class<*>>(clazz, cancellation)
             .alsoOnCancel {
                 constructorHandlers.remove(clazz)
             }

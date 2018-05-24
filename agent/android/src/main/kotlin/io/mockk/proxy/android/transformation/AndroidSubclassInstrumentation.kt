@@ -2,16 +2,17 @@ package io.mockk.proxy.android.transformation
 
 import com.android.dx.stock.ProxyBuilder
 import com.android.dx.stock.ProxyBuilder.MethodSetEntry
-import io.mockk.agent.MockKAgentException
-import io.mockk.agent.MockKInvocationHandler
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.android.ProxyInvocationHandler
+import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
-internal class SubclassInstrumentation {
+internal class AndroidSubclassInstrumentation : SubclassInstrumentation {
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> subclass(clazz: Class<T>, interfaces: Array<Class<*>>): Class<T> =
+    override fun <T> subclass(clazz: Class<T>, interfaces: Array<Class<*>>): Class<T> =
         try {
             ProxyBuilder.forClass(clazz)
                 .implementing(*interfaces)
@@ -58,7 +59,7 @@ internal class SubclassInstrumentation {
         return abstractMethods.map { it.originalMethod }.toTypedArray()
     }
 
-    fun setProxyHandler(proxy: Any, handler: MockKInvocationHandler) {
+    override fun setProxyHandler(proxy: Any, handler: MockKInvocationHandler) {
         if (ProxyBuilder.isProxyClass(proxy::class.java)) {
             ProxyBuilder.setInvocationHandler(proxy, ProxyInvocationHandler(handler))
         }

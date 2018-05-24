@@ -1,10 +1,11 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.agent.*
+import io.mockk.proxy.*
+import io.mockk.proxy.common.CancelableResult
+import io.mockk.proxy.common.transformation.TransformationRequest
+import io.mockk.proxy.common.transformation.TransformationType.SIMPLE
 import io.mockk.proxy.jvm.transformation.InlineInstrumentation
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
-import io.mockk.proxy.jvm.transformation.TransformationRequest
-import io.mockk.proxy.jvm.transformation.TransformationType.SIMPLE
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 

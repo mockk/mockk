@@ -16,12 +16,11 @@
 
 package io.mockk.proxy.android.transformation
 
-import io.mockk.agent.MockKAgentException
-import io.mockk.proxy.android.JvmtiAgent
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import java.util.*
 
 internal class InliningClassTransformer(
-    private val agent: JvmtiAgent,
     private val specMap: ClassTransformationSpecMap
 ) {
     val identifier = newId()

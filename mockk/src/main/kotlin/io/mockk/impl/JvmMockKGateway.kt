@@ -3,7 +3,6 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
-import io.mockk.agent.MockKAgentFactory
 import io.mockk.impl.annotations.JvmMockInitializer
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
@@ -21,6 +20,8 @@ import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.verify.UnorderedCallVerifier
+import io.mockk.proxy.MockKAgentFactory
+import io.mockk.proxy.MockKAgentLogFactory
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
@@ -35,8 +36,8 @@ class JvmMockKGateway : MockKGateway {
         InternalPlatform.loadPlugin("io.mockk.proxy.jvm.JvmMockKAgentFactory")
 
     init {
-        agentFactory.init({
-            Logger.loggerFactory(it.kotlin).adaptor()
+        agentFactory.init(object : MockKAgentLogFactory {
+            override fun logger(cls: Class<*>) = Logger.loggerFactory(cls.kotlin).adaptor()
         })
     }
 

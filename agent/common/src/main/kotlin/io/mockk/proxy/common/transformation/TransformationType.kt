@@ -1,4 +1,4 @@
-package io.mockk.proxy.jvm.transformation
+package io.mockk.proxy.common.transformation
 
 enum class TransformationType {
     SIMPLE, STATIC, CONSTRUCTOR

@@ -1,7 +1,7 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.agent.MockKAgentLogger
-import io.mockk.agent.MockKInstantiatior
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.MockKInstantiatior
 import io.mockk.proxy.jvm.transformation.CacheKey
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.TypeCache

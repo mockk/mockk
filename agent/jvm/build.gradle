@@ -5,6 +5,7 @@ dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     compile project(':mockk-agent-api')
+    compile project(':mockk-agent-common')
     compile "net.bytebuddy:byte-buddy:$byte_buddy_version"
     compileOnly "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
     runtime "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"

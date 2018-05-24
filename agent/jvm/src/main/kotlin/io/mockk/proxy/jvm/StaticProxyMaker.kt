@@ -1,9 +1,10 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.agent.*
+import io.mockk.proxy.*
+import io.mockk.proxy.common.CancelableResult
+import io.mockk.proxy.common.transformation.TransformationRequest
+import io.mockk.proxy.common.transformation.TransformationType
 import io.mockk.proxy.jvm.transformation.InlineInstrumentation
-import io.mockk.proxy.jvm.transformation.TransformationRequest
-import io.mockk.proxy.jvm.transformation.TransformationType
 
 internal class StaticProxyMaker(
     private val log: MockKAgentLogger,
@@ -24,13 +25,16 @@ internal class StaticProxyMaker(
         }
 
         log.debug("Transforming $clazz for static method interception")
-        val request = TransformationRequest(setOf(clazz), TransformationType.STATIC)
+        val request = TransformationRequest(
+            setOf(clazz),
+            TransformationType.STATIC
+        )
 
         val cancellation = inliner.execute(request)
 
         staticHandlers[clazz] = handler
 
-        return CancelableResult(clazz, cancellation)
+        return CancelableResult<Class<*>>(clazz, cancellation)
             .alsoOnCancel {
                 staticHandlers.remove(clazz)
             }

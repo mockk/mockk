@@ -1,6 +1,6 @@
 package io.mockk.proxy.jvm.advice
 
-import io.mockk.agent.MockKInvocationHandler
+import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import java.lang.reflect.Method
 import java.util.*
@@ -11,7 +11,7 @@ internal open class BaseAdvice(
 ) : JvmMockKDispatcher() {
     val id = randomGen.nextLong()
 
-    override fun handler(self: Any, method: Method, arguments: Array<Any>): Callable<*>? {
+    override fun handler(self: Any, method: Method, arguments: Array<Any?>): Callable<*>? {
         val handler = handlers[self]
                 ?: return null
 
@@ -25,7 +25,7 @@ internal open class BaseAdvice(
 
     override fun constructorDone(
         self: Any,
-        arguments: Array<Any>
+        arguments: Array<Any?>
     ) {
         val handler = handlers[self::class.java]
                 ?: return
@@ -34,7 +34,7 @@ internal open class BaseAdvice(
     }
 
 
-    override fun handle(self: Any, method: Method, arguments: Array<Any>, originalMethod: Callable<Any>?): Any? {
+    override fun handle(self: Any, method: Method, arguments: Array<Any?>, originalMethod: Callable<Any>?): Any? {
         val handler =
             handler(self, method, arguments)
                     ?: originalMethod

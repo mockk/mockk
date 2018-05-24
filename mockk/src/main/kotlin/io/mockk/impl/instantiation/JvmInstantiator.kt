@@ -1,8 +1,8 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.InternalPlatformDsl.toStr
-import io.mockk.agent.MockKInstantiatior
 import io.mockk.impl.log.Logger
+import io.mockk.proxy.MockKInstantiatior
 import kotlin.reflect.KClass
 
 class JvmInstantiator(

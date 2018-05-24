@@ -1,6 +1,8 @@
 package io.mockk.proxy.jvm.transformation
 
-import io.mockk.agent.MockKAgentLogger
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
+import io.mockk.proxy.common.transformation.TransformationRequest
 import java.lang.instrument.Instrumentation
 import java.lang.instrument.UnmodifiableClassException
 

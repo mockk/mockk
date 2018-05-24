@@ -1,5 +1,7 @@
-package io.mockk.agent
+package io.mockk.proxy.common
 
+import io.mockk.proxy.Cancelable
+import io.mockk.proxy.MockKAgentException
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class CancelableResult<T : Any>(
@@ -22,7 +24,7 @@ open class CancelableResult<T : Any>(
 
     fun alsoOnCancel(block: () -> Unit) =
         CancelableResult(value) {
-            cancelBlock()
+            cancel()
             block()
         }
 }

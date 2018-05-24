@@ -2,19 +2,19 @@ package io.mockk.impl.instantiation
 
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
-import io.mockk.agent.MockKAgentException
-import io.mockk.agent.MockKProxyMaker
 import io.mockk.impl.stub.MockKStub
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKProxyMaker
 import kotlin.reflect.KClass
 
 class JvmMockFactory(
-        val proxyMaker: MockKProxyMaker,
-        instantiator: JvmInstantiator,
-        stubRepository: StubRepository,
-        gatewayAccess: StubGatewayAccess
+    val proxyMaker: MockKProxyMaker,
+    instantiator: JvmInstantiator,
+    stubRepository: StubRepository,
+    gatewayAccess: StubGatewayAccess
 ) :
     AbstractMockFactory(
         stubRepository,

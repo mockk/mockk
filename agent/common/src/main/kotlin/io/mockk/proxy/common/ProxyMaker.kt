@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package io.mockk.proxy.android
+package io.mockk.proxy.common
 
-import io.mockk.agent.*
-import io.mockk.proxy.android.transformation.InlineInstrumentation
-import io.mockk.proxy.android.transformation.SubclassInstrumentation
-import io.mockk.proxy.android.transformation.TransformationRequest
-import io.mockk.proxy.android.transformation.TransformationType
+import io.mockk.proxy.*
+import io.mockk.proxy.common.transformation.InlineInstrumentation
+import io.mockk.proxy.common.transformation.SubclassInstrumentation
+import io.mockk.proxy.common.transformation.TransformationRequest
+import io.mockk.proxy.common.transformation.TransformationType
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
-internal class ProxyMaker(
+class ProxyMaker(
     private val log: MockKAgentLogger,
     private val inliner: InlineInstrumentation?,
     private val subclasser: SubclassInstrumentation,
@@ -98,7 +98,11 @@ internal class ProxyMaker(
         val superclasses = getAllSuperclasses(clazz)
 
         return if (inliner != null) {
-            val transformRequest = TransformationRequest(superclasses, TransformationType.SIMPLE)
+            val transformRequest =
+                TransformationRequest(
+                    superclasses,
+                    TransformationType.SIMPLE
+                )
 
             inliner.execute(transformRequest)
         } else {
@@ -122,7 +126,7 @@ internal class ProxyMaker(
                 "Building subclass proxy for $clazz with " +
                         "additional interfaces ${interfaces.toList()}"
             )
-            subclasser.subclass<T>(clazz, interfaces)
+            subclasser.subclass(clazz, interfaces)
         }
     }
 

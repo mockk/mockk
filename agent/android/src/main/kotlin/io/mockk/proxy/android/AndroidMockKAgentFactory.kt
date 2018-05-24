@@ -1,12 +1,13 @@
 package io.mockk.proxy.android
 
 import android.os.Build
-import io.mockk.agent.*
+import io.mockk.proxy.*
 import io.mockk.proxy.android.advice.Advice
-import io.mockk.proxy.android.transformation.ClassTransformationSpecMap
-import io.mockk.proxy.android.transformation.InlineInstrumentation
+import io.mockk.proxy.android.transformation.AndroidInlineInstrumentation
+import io.mockk.proxy.android.transformation.AndroidSubclassInstrumentation
 import io.mockk.proxy.android.transformation.InliningClassTransformer
-import io.mockk.proxy.android.transformation.SubclassInstrumentation
+import io.mockk.proxy.common.ProxyMaker
+import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import java.io.IOException
 
 @Suppress("unused") // dynamically loaded
@@ -17,15 +18,15 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
 
     lateinit var log: MockKAgentLogger
 
-    private lateinit var instantiator: MockKInstantiatior
-    private lateinit var proxyMaker: MockKProxyMaker
-    private lateinit var staticProxyMaker: MockKStaticProxyMaker
-    private lateinit var constructorProxyMaker: MockKConstructorProxyMaker
+    override lateinit var instantiator: MockKInstantiatior
+    override lateinit var proxyMaker: MockKProxyMaker
+    override lateinit var staticProxyMaker: MockKStaticProxyMaker
+    override lateinit var constructorProxyMaker: MockKConstructorProxyMaker
 
     override fun init(logFactory: MockKAgentLogFactory) {
         log = logFactory.logger(AndroidMockKAgentFactory::class.java)
 
-        var inliner: InlineInstrumentation? = null
+        var inliner: AndroidInlineInstrumentation? = null
         if (Build.VERSION.CODENAME == "P") { // FIXME >= 'P'
             val agent: JvmtiAgent
             val dispatcherClass: Class<*>
@@ -76,7 +77,7 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
 
 
             log.debug("Android P or higher detected. Using inlining class transformer")
-            val classTransformer = InliningClassTransformer(agent, specMap)
+            val classTransformer = InliningClassTransformer(specMap)
 
             try {
                 dispatcherClass.getMethod("set", String::class.java, Any::class.java)
@@ -91,8 +92,8 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
 
             agent.transformer = classTransformer
 
-            inliner = InlineInstrumentation(
-                logFactory.logger(InlineInstrumentation::class.java),
+            inliner = AndroidInlineInstrumentation(
+                logFactory.logger(AndroidInlineInstrumentation::class.java),
                 specMap,
                 agent
             )
@@ -106,7 +107,7 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
             logFactory.logger(OnjenesisInstantiator::class.java)
         )
 
-        val subclasser = SubclassInstrumentation()
+        val subclasser = AndroidSubclassInstrumentation()
 
         proxyMaker = ProxyMaker(
             logFactory.logger(
@@ -123,12 +124,6 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
             handlers
         )
     }
-
-    override fun getInstantiator() = instantiator
-    override fun getProxyMaker() = proxyMaker
-    override fun getStaticProxyMaker() = staticProxyMaker
-
-    override fun getConstructorProxyMaker() = constructorProxyMaker
 
     companion object {
         private val dispatcherClassName = "io.mockk.proxy.android.AndroidMockKDispatcher"

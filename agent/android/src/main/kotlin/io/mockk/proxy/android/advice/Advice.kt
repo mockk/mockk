@@ -5,10 +5,9 @@
 
 package io.mockk.proxy.android.advice
 
-import io.mockk.agent.MockKAgentException
-import io.mockk.agent.MockKInvocationHandler
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.android.MethodDescriptor
-import io.mockk.proxy.android.Util
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -25,7 +24,7 @@ internal class Advice(
         get() = handlers.keys.filterIsInstance<Class<*>>()
 
     private fun getClassMethodWasCalledOn(methodDesc: MethodDescriptor): Class<*>? {
-        val cls = Util.classForTypeName(methodDesc.className)
+        val cls = MethodDescriptor.classForTypeName(methodDesc.className)
 
         return when {
             cls.final -> cls
@@ -78,7 +77,7 @@ internal class Advice(
     fun handle(
         instance: Any,
         origin: Method,
-        arguments: Array<Any>
+        arguments: Array<Any?>
     ): Callable<*>? {
         val instanceOrClass = if (Modifier.isStatic(origin.modifiers)) {
             val methodDesc = MethodDescriptor(instance as String)
@@ -118,7 +117,7 @@ internal class Advice(
         private val selfCallInfo: SelfCallInfo,
         private val origin: Method,
         private val instance: Any,
-        private val arguments: Array<Any>
+        private val arguments: Array<Any?>
     ) : Callable<Any?> {
         override fun call(): Any? = try {
             origin.makeAccessible()

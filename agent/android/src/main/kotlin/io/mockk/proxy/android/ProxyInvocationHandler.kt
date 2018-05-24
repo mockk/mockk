@@ -17,7 +17,7 @@
 package io.mockk.proxy.android
 
 import com.android.dx.stock.ProxyBuilder
-import io.mockk.agent.MockKInvocationHandler
+import io.mockk.proxy.MockKInvocationHandler
 
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -25,7 +25,7 @@ import java.util.concurrent.Callable
 
 internal class ProxyInvocationHandler(private val handler: MockKInvocationHandler) : InvocationHandler {
 
-    override fun invoke(proxy: Any, method: Method, args: Array<Any>?) = when {
+    override fun invoke(proxy: Any, method: Method, args: Array<Any?>?) = when {
         isEqualsMethod(method) ->
             proxy === args?.get(0)
 
@@ -44,7 +44,7 @@ internal class ProxyInvocationHandler(private val handler: MockKInvocationHandle
     private class CallProxySuper(
         private val proxy: Any,
         private val method: Method,
-        private val args: Array<Any>
+        private val args: Array<Any?>
     ) : Callable<Any> {
 
         override fun call() = try {

@@ -19,7 +19,7 @@ package io.mockk.proxy.android
 import android.os.Build
 import android.os.Debug
 import dalvik.system.BaseDexClassLoader
-import io.mockk.agent.MockKAgentException
+import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.android.transformation.InliningClassTransformer
 import java.io.File
 import java.io.FileOutputStream

@@ -1,6 +1,6 @@
 package io.mockk.proxy.jvm.transformation
 
-import io.mockk.agent.MockKInvocationHandler
+import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
@@ -33,6 +33,7 @@ internal class SubclassInstrumentation(
 
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T> subclass(
         clazz: Class<T>,
         interfaces: Array<Class<*>>

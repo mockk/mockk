@@ -1,9 +1,9 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.agent.*
+import io.mockk.proxy.*
+import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.dispatcher.BootJarLoader
 import io.mockk.proxy.jvm.dispatcher.JvmMockKWeakMap
-import io.mockk.proxy.jvm.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.transformation.InlineInstrumentation
 import io.mockk.proxy.jvm.transformation.InliningClassTransformer
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
@@ -123,9 +123,9 @@ class JvmMockKAgentFactory : MockKAgentFactory {
         return instrumentation
     }
 
-    override fun getInstantiator() = jvmInstantiator
-    override fun getProxyMaker() = jvmProxyMaker
-    override fun getStaticProxyMaker() = jvmStaticProxyMaker
-    override fun getConstructorProxyMaker() = jvmConstructorProxyMaker
+    override val instantiator get() = jvmInstantiator
+    override val proxyMaker get() = jvmProxyMaker
+    override val staticProxyMaker get() = jvmStaticProxyMaker
+    override val constructorProxyMaker get() = jvmConstructorProxyMaker
 
 }

@@ -1,4 +1,4 @@
-package io.mockk.proxy.jvm.transformation
+package io.mockk.proxy.common.transformation
 
 data class TransformationRequest(
     val classes: Set<Class<*>>,
@@ -10,4 +10,6 @@ data class TransformationRequest(
         type,
         !untransform
     )
+
+
 }

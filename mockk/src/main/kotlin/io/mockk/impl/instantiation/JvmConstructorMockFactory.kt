@@ -3,16 +3,16 @@ package io.mockk.impl.instantiation
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.MockKGateway.ConstructorMockFactory
-import io.mockk.agent.Cancelable
-import io.mockk.agent.MockKConstructorProxyMaker
-import io.mockk.agent.MockKInvocationHandler
-import io.mockk.agent.MockKProxyMaker
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.ConstructorStub
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
+import io.mockk.proxy.Cancelable
+import io.mockk.proxy.MockKConstructorProxyMaker
+import io.mockk.proxy.MockKInvocationHandler
+import io.mockk.proxy.MockKProxyMaker
 import java.lang.reflect.Method
 import java.util.*
 import java.util.concurrent.Callable
@@ -74,7 +74,7 @@ class JvmConstructorMockFactory(
             self: Any,
             method: Method?,
             originalCall: Callable<*>?,
-            args: Array<out Any>
+            args: Array<Any?>
         ): Any? {
             val mock = constructorMock
                     ?: throw MockKException("Bad constructor mock handler for ${self::class}")

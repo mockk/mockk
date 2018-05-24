@@ -1,6 +1,6 @@
 package io.mockk.proxy.jvm.dispatcher
 
-import io.mockk.agent.MockKAgentLogger
+import io.mockk.proxy.MockKAgentLogger
 
 import java.io.File
 import java.io.FileOutputStream
