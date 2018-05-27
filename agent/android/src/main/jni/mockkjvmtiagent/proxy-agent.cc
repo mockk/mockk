@@ -134,6 +134,9 @@ namespace io_mockk_proxy_android {
                 std::memcpy(*newClassData, transformed, *newClassDataLen);
 
                 env->ReleaseByteArrayElements(transformedArr, transformed, 0);
+            } else if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
             }
         }
     }
@@ -385,10 +388,13 @@ namespace io_mockk_proxy_android {
     // Transforms the classes to add the mockk hooks
     // - equals and hashcode are handled in a special way
     extern "C" JNIEXPORT jbyteArray JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKClassTransformer_nativeRedefine(JNIEnv* env,
+    Java_io_mockk_proxy_android_transformation_InliningClassTransformer_nativeRedefine(JNIEnv* env,
                                                                        jobject generator,
                                                                        jstring idStr,
-                                                                       jbyteArray originalArr) {
+                                                                       jbyteArray originalArr,
+                                                                       jboolean mockk,
+                                                                       jboolean staticMockk,
+                                                                       jboolean constructorMockk) {
         unsigned char* original = (unsigned char*)env->GetByteArrayElements(originalArr, 0);
 
         Reader reader(original, env->GetArrayLength(originalArr));
@@ -412,7 +418,7 @@ namespace io_mockk_proxy_android {
         env->ReleaseStringUTFChars(idStr, idNative);
 
         for (auto& method : dex_ir->encoded_methods) {
-            if (canBeTransformedInstance(method.get())) {
+            if (mockk == JNI_TRUE && canBeTransformedInstance(method.get())) {
                 if (isEquals(method.get())) {
                     /*
                     equals_original(Object other) {
@@ -866,7 +872,7 @@ namespace io_mockk_proxy_android {
 
                     c.Assemble();
                 }
-            } else if (canBeTransformedStatic(method.get())) {
+            } else if (staticMockk == JNI_TRUE && canBeTransformedStatic(method.get())) {
                 /*
                 static long method_original(int param1, long param2, String param3) {
                     foo();
@@ -1212,14 +1218,14 @@ namespace io_mockk_proxy_android {
 
     // Register transformer hook
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeRegisterTransformerHook(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeRegisterTransformerHook(JNIEnv* env,
                                                                                 jobject thiz) {
         sTransformer = env->NewGlobalRef(thiz);
     }
 
     // Unregister transformer hook
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeUnregisterTransformerHook(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeUnregisterTransformerHook(JNIEnv* env,
                                                                                   jobject thiz) {
         env->DeleteGlobalRef(sTransformer);
         sTransformer = NULL;
@@ -1227,7 +1233,7 @@ namespace io_mockk_proxy_android {
 
     // Triggers retransformation of classes via this file's Transform method
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeRetransformClasses(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeRetransformClasses(JNIEnv* env,
                                                                            jobject thiz,
                                                                            jobjectArray classes) {
         jsize numTransformedClasses = env->GetArrayLength(classes);
@@ -1251,7 +1257,7 @@ namespace io_mockk_proxy_android {
 
     // Adds a jar file to the bootstrap class loader
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeAppendToBootstrapClassLoaderSearch(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeAppendToBootstrapClassLoaderSearch(JNIEnv* env,
                                                                                       jclass klass,
                                                                                       jstring jarFile) {
         const char *jarFileNative = env->GetStringUTFChars(jarFile, 0);
@@ -1263,157 +1269,6 @@ namespace io_mockk_proxy_android {
         }
 
         env->ReleaseStringUTFChars(jarFile, jarFileNative);
-    }
-
-    static jvmtiFrameInfo* frameToInspect;
-    static std::string calledClass;
-
-    // Takes the full dex file for class 'classBeingRedefined'
-    // - isolates the dex code for the class out of the dex file
-    // - calls sTransformer.runTransformers on the isolated dex code
-    // - send the transformed code back to the runtime
-    static void
-    InspectClass(jvmtiEnv* jvmtiEnv,
-                 JNIEnv* env,
-                 jclass classBeingRedefined,
-                 jobject loader,
-                 const char* name,
-                 jobject protectionDomain,
-                 jint classDataLen,
-                 const unsigned char* classData,
-                 jint* newClassDataLen,
-                 unsigned char** newClassData) {
-        calledClass = "none";
-
-        Reader reader(classData, classDataLen);
-
-        char *calledMethodName;
-        char *calledMethodSignature;
-        jvmtiError error = jvmtiEnv->GetMethodName(frameToInspect->method, &calledMethodName,
-                                                   &calledMethodSignature, nullptr);
-        if (error != JVMTI_ERROR_NONE) {
-            return;
-        }
-
-        u4 index = reader.FindClassIndex(ClassNameToDescriptor(name).c_str());
-        reader.CreateClassIr(index);
-        std::shared_ptr<ir::DexFile> class_ir = reader.GetIr();
-
-        for (auto& method : class_ir->encoded_methods) {
-            if (Utf8Cmp(method->decl->name->c_str(), calledMethodName) == 0
-                && Utf8Cmp(method->decl->prototype->Signature().c_str(), calledMethodSignature) == 0) {
-                CodeIr method_ir(method.get(), class_ir);
-
-                for (auto instruction : method_ir.instructions) {
-                    Bytecode* bytecode = dynamic_cast<Bytecode*>(instruction);
-                    if (bytecode != nullptr && bytecode->offset == frameToInspect->location) {
-                        Method *method = bytecode->CastOperand<Method>(1);
-                        calledClass = method->ir_method->parent->Decl().c_str();
-
-                        goto exit;
-                    }
-                }
-            }
-        }
-
-        exit:
-        free(calledMethodName);
-        free(calledMethodSignature);
-    }
-
-#define GOTO_ON_ERROR(label) \
-    if (error != JVMTI_ERROR_NONE) { \
-        goto label; \
-    }
-
-// stack frame of the caller if method was called directly
-#define DIRECT_CALL_STACK_FRAME (6)
-
-// stack frame of the caller if method was called as 'real method'
-#define REALMETHOD_CALL_STACK_FRAME (23)
-
-    extern "C" JNIEXPORT jstring JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKMethodAdvice_nativeGetCalledClassName(JNIEnv* env,
-                                                                                     jclass klass) {
-        JavaVM *vm;
-        jint jvmError = env->GetJavaVM(&vm);
-        if (jvmError != JNI_OK) {
-            return nullptr;
-        }
-
-        jvmtiEnv *jvmtiEnv;
-        jvmError = vm->GetEnv(reinterpret_cast<void**>(&jvmtiEnv), JVMTI_VERSION_1_2);
-        if (jvmError != JNI_OK) {
-            return nullptr;
-        }
-
-        jvmtiCapabilities caps;
-        memset(&caps, 0, sizeof(caps));
-        caps.can_retransform_classes = 1;
-
-        jvmtiError error = jvmtiEnv->AddCapabilities(&caps);
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        jvmtiEventCallbacks cb;
-        memset(&cb, 0, sizeof(cb));
-        cb.ClassFileLoadHook = InspectClass;
-
-        jvmtiFrameInfo frameInfo[REALMETHOD_CALL_STACK_FRAME + 1];
-        jint numFrames;
-        error = jvmtiEnv->GetStackTrace(nullptr, 0, REALMETHOD_CALL_STACK_FRAME + 1, frameInfo,
-                                        &numFrames);
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        // Method might be called directly or as 'real method' (see
-        // MockKMethodAdvice.SuperMethodCall#invoke). Hence the real caller might be in stack
-        // frame DIRECT_CALL_STACK_FRAME for a direct call or REALMETHOD_CALL_STACK_FRAME for a
-        // call through the 'real method' mechanism.
-        int callingFrameNum;
-        if (numFrames < REALMETHOD_CALL_STACK_FRAME) {
-            callingFrameNum = DIRECT_CALL_STACK_FRAME;
-        } else {
-            char *directCallMethodName;
-
-            jvmtiEnv->GetMethodName(frameInfo[DIRECT_CALL_STACK_FRAME].method,
-                                    &directCallMethodName, nullptr, nullptr);
-            if (strcmp(directCallMethodName, "invoke") == 0) {
-                callingFrameNum = REALMETHOD_CALL_STACK_FRAME;
-            } else {
-                callingFrameNum = DIRECT_CALL_STACK_FRAME;
-            }
-        }
-
-        jclass callingClass;
-        error = jvmtiEnv->GetMethodDeclaringClass(frameInfo[callingFrameNum].method, &callingClass);
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        error = jvmtiEnv->SetEventCallbacks(&cb, sizeof(cb));
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        error = jvmtiEnv->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_CLASS_FILE_LOAD_HOOK,
-                                                   nullptr);
-        GOTO_ON_ERROR(unset_cb_and_exit);
-
-        frameToInspect = &frameInfo[callingFrameNum];
-        error = jvmtiEnv->RetransformClasses(1, &callingClass);
-        GOTO_ON_ERROR(disable_hook_and_exit);
-
-        disable_hook_and_exit:
-        jvmtiEnv->SetEventNotificationMode(JVMTI_DISABLE, JVMTI_EVENT_CLASS_FILE_LOAD_HOOK,
-                                           nullptr);
-
-        unset_cb_and_exit:
-        memset(&cb, 0, sizeof(cb));
-        jvmtiEnv->SetEventCallbacks(&cb, sizeof(cb));
-
-        unregister_env_and_exit:
-        jvmtiEnv->DisposeEnvironment();
-
-        if (error != JVMTI_ERROR_NONE) {
-            return nullptr;
-        }
-
-        return env->NewStringUTF(calledClass.c_str());
     }
 
 }  // namespace io_mockk_proxy_android

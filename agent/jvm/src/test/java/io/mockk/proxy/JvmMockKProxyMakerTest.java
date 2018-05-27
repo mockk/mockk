@@ -28,13 +28,7 @@ public class JvmMockKProxyMakerTest {
 
         JvmMockKAgentFactory agentFactory = new JvmMockKAgentFactory();
 
-        agentFactory.init(new MockKAgentLogFactory(){
-
-            @Override
-            public MockKAgentLogger logger(Class<?> cls) {
-                return MockKAgentLogger.Companion.getNO_OP();
-            }
-        });
+        agentFactory.init(MockKAgentLogFactory.Companion.getNO_OP());
 
         maker = agentFactory.getProxyMaker();
         staticMaker = agentFactory.getStaticProxyMaker();
@@ -383,15 +377,11 @@ public class JvmMockKProxyMakerTest {
         public Object invocation(Object self,
                                  Method method,
                                  Callable<?> originalCall,
-                                 Object[] args) {
+                                 Object[] args) throws Exception {
 
             calls.add(new Call(self, method, args));
             if (callOriginal) {
-                try {
-                    return originalCall.call();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                return originalCall.call();
             } else {
                 return returnValue;
             }

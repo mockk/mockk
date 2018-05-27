@@ -123,6 +123,12 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
             inliner,
             handlers
         )
+
+        constructorProxyMaker = object : MockKConstructorProxyMaker {
+            override fun constructorProxy(clazz: Class<*>, handler: MockKInvocationHandler): Cancelable<Class<*>> {
+                TODO("constructor mocks are not supported")
+            }
+        }
     }
 
     companion object {

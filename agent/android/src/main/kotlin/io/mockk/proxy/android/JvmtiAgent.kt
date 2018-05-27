@@ -27,7 +27,7 @@ import java.io.InputStream
 import java.security.ProtectionDomain
 
 internal class JvmtiAgent {
-    lateinit var transformer: InliningClassTransformer
+    var transformer: InliningClassTransformer? = null
 
     init {
         // TODO : Replace with proper check for >= P
@@ -62,16 +62,21 @@ internal class JvmtiAgent {
     }
 
     @Suppress("unused") // called by JNI
-    fun shouldTransform(classBeingRedefined: Class<*>) = transformer.shouldTransform(classBeingRedefined)
+    fun shouldTransform(classBeingRedefined: Class<*>?): Boolean {
+        if (classBeingRedefined == null) {
+            return false
+        }
+        return transformer?.shouldTransform(classBeingRedefined) ?: false
+    }
 
     @Suppress("unused") // called by JNI
     fun runTransformers(
-        loader: ClassLoader,
+        loader: ClassLoader?,
         className: String,
         classBeingRedefined: Class<*>,
-        protectionDomain: ProtectionDomain,
+        protectionDomain: ProtectionDomain?,
         classfileBuffer: ByteArray
-    ) = transformer.transform(classBeingRedefined, classfileBuffer)
+    ) = transformer?.transform(classBeingRedefined, classfileBuffer) ?: classfileBuffer
 
     fun disconnect() {
         nativeUnregisterTransformerHook()
@@ -84,6 +89,8 @@ internal class JvmtiAgent {
     companion object {
         private const val libName = "libmockkjvmtiagent.so"
         private val lock = Any()
+
+        @JvmStatic
         private external fun nativeAppendToBootstrapClassLoaderSearch(absolutePath: String)
     }
 }

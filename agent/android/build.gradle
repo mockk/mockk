@@ -101,7 +101,7 @@ afterEvaluate { project ->
                 pom.project {
                     name 'MockK Android Agent'
                     packaging 'aar'
-                    description 'Android instrumentation testing MockK inline mocking agent'
+                    description 'Android instrumented testing MockK inline mocking agent'
                     url 'http://mockk.io'
 
                     scm {

@@ -31,9 +31,18 @@ class JvmMockKGateway : MockKGateway {
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
     val agentFactory: MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
-        InternalPlatform.loadPlugin("io.mockk.proxy.android.AndroidMockKAgentFactory")
+        InternalPlatform.loadPlugin(
+            "io.mockk.proxy.android.AndroidMockKAgentFactory",
+            "Android instrumented test is running, " +
+                    "include 'io.mockk:mockk-andorid' dependency " +
+                    "instead 'io.mockk:mockk'"
+        )
     else
-        InternalPlatform.loadPlugin("io.mockk.proxy.jvm.JvmMockKAgentFactory")
+        InternalPlatform.loadPlugin(
+            "io.mockk.proxy.jvm.JvmMockKAgentFactory",
+            "Check if you included 'io.mockk:mockk-andorid' dependency " +
+                    "instead of 'io.mockk:mockk'"
+        )
 
     init {
         agentFactory.init(object : MockKAgentLogFactory {
@@ -142,7 +151,7 @@ class JvmMockKGateway : MockKGateway {
             log.trace {
                 val runningAndroid = InternalPlatform.isRunningAndroidInstrumentationTest()
                 "Starting JVM MockK implementation. " +
-                        (if (runningAndroid) "Android instrumentation test detected. " else "") +
+                        (if (runningAndroid) "Android instrumented test detected. " else "") +
                         "Java version = ${System.getProperty("java.version")}. "
             }
         }

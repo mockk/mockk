@@ -4,7 +4,7 @@ import com.android.dx.stock.ProxyBuilder
 import com.android.dx.stock.ProxyBuilder.MethodSetEntry
 import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.MockKInvocationHandler
-import io.mockk.proxy.android.ProxyInvocationHandler
+import io.mockk.proxy.common.ProxyInvocationHandler
 import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -28,7 +28,7 @@ internal class AndroidSubclassInstrumentation : SubclassInstrumentation {
         val abstractMethods = mutableSetOf<MethodSetEntry>()
         val nonAbstractMethods = mutableSetOf<MethodSetEntry>()
 
-        tailrec fun fillInAbstractAndNonAbstract(clazz: Class<*>){
+        tailrec fun fillInAbstractAndNonAbstract(clazz: Class<*>) {
             clazz.declaredMethods
                 .filter { Modifier.isAbstract(it.modifiers) }
                 .map { MethodSetEntry(it) }

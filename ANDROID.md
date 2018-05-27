@@ -7,8 +7,8 @@
 MockK supports:
  
  * regular unit tests
- * Android instrumentation tests via subclassing(< Android P)
- * Android instrumentation tests via inlining(≥ Android P)
+ * Android instrumented tests via subclassing(< Android P)
+ * Android instrumented tests via inlining(≥ Android P)
 
 ## Implementation
 
@@ -118,7 +118,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 testImplementation "io.mockk:mockk:{version}"
 ```
 
-#### Android instrumentation tests
+#### Android instrumented tests
 
 ```
 androidTestImplementation "io.mockk:mockk-android:{version}"

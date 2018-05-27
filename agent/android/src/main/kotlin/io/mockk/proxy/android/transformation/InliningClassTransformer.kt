@@ -26,28 +26,45 @@ internal class InliningClassTransformer(
     val identifier = newId()
 
     @Suppress("unused") // JNI call
-    fun transform(classBeingRedefined: Class<*>?, classfileBuffer: ByteArray) =
-        when {
-            classBeingRedefined == null ->
-                null
-
-            !shouldTransform(classBeingRedefined) ->
-                classfileBuffer
-
-            else -> synchronized(lock) {
-                try {
-                    // FIXME specialize transformation
-                    nativeRedefine(identifier, classfileBuffer)
-                } catch (ex: Exception) {
-                    throw MockKAgentException("Transformation issue", ex)
-                }
-            }
+    fun transform(classBeingRedefined: Class<*>?, classfileBuffer: ByteArray): ByteArray? {
+        if (classBeingRedefined == null) {
+            return classfileBuffer
         }
 
-    fun shouldTransform(classBeingRedefined: Class<*>) =
-        specMap[classBeingRedefined]?.shouldDoSomething == true
+        val spec = specMap[classBeingRedefined]
+                ?: return classfileBuffer
 
-    private external fun nativeRedefine(identifier: String, original: ByteArray): ByteArray
+        return synchronized(lock) {
+
+            println(
+                identifier + " " +
+                spec.shouldDoSimpleIntercept + " " +
+                spec.shouldDoStaticIntercept + " " +
+                spec.shouldDoConstructorIntercept
+            )
+            try {
+                nativeRedefine(
+                    identifier,
+                    classfileBuffer,
+                    spec.shouldDoSimpleIntercept,
+                    spec.shouldDoStaticIntercept,
+                    spec.shouldDoConstructorIntercept
+                )
+            } catch (ex: Exception) {
+                throw MockKAgentException("Transformation issue", ex)
+            }
+        }
+    }
+
+    fun shouldTransform(classBeingRedefined: Class<*>) = specMap.shouldTransform(classBeingRedefined)
+
+    private external fun nativeRedefine(
+        identifier: String,
+        original: ByteArray,
+        mockk: Boolean,
+        staticMockk: Boolean,
+        constructorMockk: Boolean
+    ): ByteArray
 
     companion object {
         private val lock = Any()

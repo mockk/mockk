@@ -1,5 +1,7 @@
 package io.mockk.proxy.android
 
+import java.lang.reflect.Method
+
 internal class MethodDescriptor(
     signature: String
 ) {
@@ -14,6 +16,14 @@ internal class MethodDescriptor(
         .filter { it != "" }
         .map(Companion::nameToType)
         .toTypedArray()
+
+    val method: Method
+        get() = Class.forName(className)
+            .getDeclaredMethod(
+                methodName,
+                *methodParamTypes
+            )
+
 
     override fun toString() = "$className#$methodName"
 
@@ -73,10 +83,6 @@ internal class MethodDescriptor(
             n: Int,
             str: String,
             res: String = ""
-        ): String =
-            when (n) {
-                0 -> res
-                else -> repeat(n, str, res + str)
-            }
+        ): String = if (n == 0) res else repeat(n - 1, str, res + str)
     }
 }

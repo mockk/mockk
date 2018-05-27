@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.mockk.proxy.android
+package io.mockk.proxy.common
 
-import com.android.dx.stock.ProxyBuilder
 import io.mockk.proxy.MockKInvocationHandler
 
 import java.lang.reflect.InvocationHandler
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.Callable
 
-internal class ProxyInvocationHandler(private val handler: MockKInvocationHandler) : InvocationHandler {
+class ProxyInvocationHandler(private val handler: MockKInvocationHandler) : InvocationHandler {
 
     override fun invoke(proxy: Any, method: Method, args: Array<Any?>?) = when {
         isEqualsMethod(method) ->
@@ -47,15 +47,23 @@ internal class ProxyInvocationHandler(private val handler: MockKInvocationHandle
         private val args: Array<Any?>
     ) : Callable<Any> {
 
-        override fun call() = try {
-            ProxyBuilder.callSuper(proxy, method, *args)
-        } catch (ex: Exception) {
-            throw ex
-        } catch (ex: Error) {
-            throw ex
-        } catch (throwable: Throwable) {
-            throw RuntimeException(throwable)
+        private fun superMethodName(method: Method): String {
+            return "super$${method.name}$" +
+                    method.returnType.name
+                        .replace('.', '_')
+                        .replace('[', '_')
+                        .replace(';', '_')
+
         }
+
+        override fun call() =
+            try {
+                proxy.javaClass
+                    .getMethod(superMethodName(method), *method.parameterTypes)
+                    .invoke(proxy, *args)
+            } catch (e: InvocationTargetException) {
+                throw e.cause!!
+            }
     }
 
     companion object {

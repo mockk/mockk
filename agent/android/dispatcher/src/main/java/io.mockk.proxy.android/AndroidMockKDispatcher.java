@@ -28,18 +28,21 @@ import java.util.concurrent.ConcurrentMap;
 @SuppressWarnings("unused")
 public class AndroidMockKDispatcher {
     // An instance of {@code MockMethodAdvice}
-    private Object mAdvice;
+    private final Object mAdvice;
 
     // All dispatchers for various identifiers
     private static final ConcurrentMap<String, AndroidMockKDispatcher> INSTANCE =
             new ConcurrentHashMap<>();
 
+    private final Method handleMethod;
+    private final Method isMockMethod;
+    private final Method getOriginMethod;
+
     /**
      * Get the dispatcher for a identifier.
      *
      * @param identifier identifier of the dispatcher
-     * @param instance instance that might be mocked
-     *
+     * @param instance   instance that might be mocked
      * @return dispatcher for the identifier
      */
     public static AndroidMockKDispatcher get(String identifier, Object instance) {
@@ -58,16 +61,29 @@ public class AndroidMockKDispatcher {
      */
     private AndroidMockKDispatcher(Object advice) {
         mAdvice = advice;
+
+        handleMethod = getMethod("handle", Object.class, Method.class, Object[].class);
+        getOriginMethod = getMethod("getOrigin", Object.class, String.class);
+        isMockMethod = getMethod("isMock", Object.class);
     }
 
     /**
      * Set up a new advice to receive calls for an identifier
      *
      * @param identifier a unique identifier
-     * @param advice advice the dispatcher should call
+     * @param advice     advice the dispatcher should call
      */
     public static void set(String identifier, Object advice) {
         INSTANCE.putIfAbsent(identifier, new AndroidMockKDispatcher(advice));
+    }
+
+
+    private Method getMethod(String name, Class... types) {
+        try {
+            return mAdvice.getClass().getMethod(name, types);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Failed to get method '" + name + "' from advice");
+        }
     }
 
     /**
@@ -75,8 +91,7 @@ public class AndroidMockKDispatcher {
      */
     public Callable<?> handle(Object instance, Method origin, Object[] arguments) throws Throwable {
         try {
-            return (Callable<?>) mAdvice.getClass().getMethod("handle", Object.class, Method.class,
-                    Object[].class).invoke(mAdvice, instance, origin, arguments);
+            return (Callable<?>) handleMethod.invoke(mAdvice, instance, origin, arguments);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
@@ -85,45 +100,22 @@ public class AndroidMockKDispatcher {
     /**
      * Calls {@code MockMethodAdvice#isMock}
      */
-    public boolean isMock(Object instance) {
+    public boolean isMock(Object instance) throws Throwable {
         try {
-            return (Boolean) mAdvice.getClass().getMethod("isMock", Object.class).invoke(mAdvice,
-                    instance);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    /**
-     * Calls {@code MockMethodAdvice#isMocked}
-     */
-    public boolean isMocked(Object instance) {
-        try {
-            return (Boolean) mAdvice.getClass().getMethod("isMocked", Object.class).invoke(mAdvice,
-                    instance);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    /**
-     * Calls {@code MockMethodAdvice#isOverridden}
-     */
-    public boolean isOverridden(Object instance, Method origin) {
-        try {
-            return (Boolean) mAdvice.getClass().getMethod("isOverridden", Object.class,
-                    Method.class).invoke(mAdvice, instance, origin);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+            return (Boolean) isMockMethod.invoke(mAdvice, instance);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
         }
     }
 
     /**
      * Calls {@code MockMethodAdvice#getOrigin}
      */
-    public Method getOrigin(Object mock, String instrumentedMethodWithTypeAndSignature)
-            throws Throwable {
-        return (Method) mAdvice.getClass().getMethod("getOrigin", Object.class,
-                String.class).invoke(mAdvice, mock, instrumentedMethodWithTypeAndSignature);
+    public Method getOrigin(Object mock, String instrumentedMethodWithTypeAndSignature) throws Throwable {
+        try {
+            return (Method) getOriginMethod.invoke(mAdvice, mock, instrumentedMethodWithTypeAndSignature);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 }

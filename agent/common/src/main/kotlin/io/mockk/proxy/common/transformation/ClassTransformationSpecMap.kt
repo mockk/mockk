@@ -23,11 +23,7 @@ class ClassTransformationSpecMap {
                         CONSTRUCTOR -> spec.copy(constructorIntercept = spec.constructorIntercept + diff)
                     }
 
-                if (!newSpec.shouldDoSomething) {
-                    classSpecs.remove(cls)
-                } else {
-                    classSpecs[cls] = newSpec
-                }
+                classSpecs[cls] = newSpec
 
                 if (!(spec sameTransforms newSpec)) {
                     result.add(cls)
@@ -37,9 +33,19 @@ class ClassTransformationSpecMap {
             request.copy(classes = result.toSet())
         }
 
+    fun shouldTransform(clazz: Class<*>?) =
+        synchronized(classSpecs) {
+            classSpecs[clazz] != null
+        }
+
     operator fun get(clazz: Class<*>?) =
         synchronized(classSpecs) {
             classSpecs[clazz]
+                ?.apply {
+                    if (!shouldDoSomething) {
+                        classSpecs.remove(clazz)
+                    }
+                }
         }
 
     fun transformationMap(request: TransformationRequest): Map<String, String> =

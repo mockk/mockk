@@ -1,9 +1,7 @@
 package io.mockk.proxy.android;
 
-import io.mockk.proxy.MockKAgentFactory;
-import io.mockk.proxy.MockKInvocationHandler;
-import io.mockk.proxy.MockKProxyMaker;
-import io.mockk.proxy.MockKStaticProxyMaker;
+import io.mockk.proxy.*;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,6 +26,9 @@ public class AndroidMockKProxyMakerTest {
     @BeforeClass
     public static void initAgent() {
         MockKAgentFactory factory = new AndroidMockKAgentFactory();
+
+        factory.init(MockKAgentLogFactory.Companion.getNO_OP());
+
         maker = factory.getProxyMaker();
         staticMaker = factory.getStaticProxyMaker();
     }
@@ -378,10 +379,10 @@ public class AndroidMockKProxyMakerTest {
         List<Call> calls = new ArrayList<Call>();
 
         @Override
-        public Object invocation(Object self,
+        public Object invocation(@NotNull Object self,
                                  Method method,
                                  Callable<?> originalCall,
-                                 Object[] args) throws Exception {
+                                 @NotNull Object[] args) throws Exception {
 
             calls.add(new Call(self, method, args));
             if (callOriginal) {

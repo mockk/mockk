@@ -23,69 +23,39 @@ internal class Advice(
     private val classMocks
         get() = handlers.keys.filterIsInstance<Class<*>>()
 
-    private fun getClassMethodWasCalledOn(methodDesc: MethodDescriptor): Class<*>? {
-        val cls = MethodDescriptor.classForTypeName(methodDesc.className)
 
-        return when {
-            cls.final -> cls
-
-            cls.getDeclaredMethod(
-                methodDesc.methodName,
-                *methodDesc.methodParamTypes
-            ).final -> cls
-
-            cls mightBeMock methodDesc ->
-                Class.forName(nativeGetCalledClassName())
-
-            else -> null
-        }
-    }
-
-    private infix fun Class<*>.mightBeMock(methodDesc: MethodDescriptor) =
-        classMocks.filter {
-            isAssignableFrom(it)
-        }.any {
-            isMethodDefinedBySuperClass(
-                it,
-                this,
-                methodDesc.methodName,
-                methodDesc.methodParamTypes
-            )
-        }
-
-
-    @Suppress("unused") // JNI call
+    @Suppress("unused") // called from dispatcher
     fun getOrigin(instance: Any?, methodWithTypeAndSignature: String): Method? {
         val methodDesc = MethodDescriptor(methodWithTypeAndSignature)
 
-        val method = when (instance ?: getClassMethodWasCalledOn(methodDesc)) {
-            null -> return null
-            !isMocked() -> return null
-            else ->
-                Class.forName(methodDesc.className)
-                    .getDeclaredMethod(
-                        methodDesc.methodName,
-                        *methodDesc.methodParamTypes
-                    )
+        val obj = instance
+                ?: MethodDescriptor.classForTypeName(methodDesc.className)
+
+        if (!obj.checkSelfCall()) {
+            return null
         }
 
-        return instance.nullIfOverridden(method)
+        if (instance != null && instance::class.java.isOverridden(methodDesc.method)) {
+            return null
+        }
+
+        return methodDesc.method
     }
 
 
-    @Suppress("unused") // JNI call
+    @Suppress("unused") // called from dispatcher
     fun handle(
         instance: Any,
         origin: Method,
         arguments: Array<Any?>
     ): Callable<*>? {
-        val instanceOrClass = if (Modifier.isStatic(origin.modifiers)) {
-            val methodDesc = MethodDescriptor(instance as String)
-            getClassMethodWasCalledOn(methodDesc)
-                    ?: throw MockKAgentException("Failed to find class for method signature '$instance'")
-        } else {
-            instance
-        }
+        val instanceOrClass =
+            if (Modifier.isStatic(origin.modifiers)) {
+                val methodDesc = MethodDescriptor(instance as String)
+                MethodDescriptor.classForTypeName(methodDesc.className)
+            } else {
+                instance
+            }
 
         val handler = handlers[instanceOrClass] ?: return null
 
@@ -106,12 +76,11 @@ internal class Advice(
         return Callable { result }
     }
 
-    @Suppress("unused") // called from JNI
+    @Suppress("unused") // called from dispatcher
     fun isMock(instance: Any) =
         instance !== handlers && handlers.containsKey(instance)
 
-    private fun Any.isMocked() = selfCallInfo.shouldMockMethod(this)
-
+    private fun Any.checkSelfCall() = selfCallInfo.checkSelfCall(this)
 
     private class SuperMethodCall(
         private val selfCallInfo: SelfCallInfo,
@@ -131,7 +100,7 @@ internal class Advice(
     }
 
     private class SelfCallInfo : ThreadLocal<Any>() {
-        fun shouldMockMethod(value: Any) =
+        fun checkSelfCall(value: Any) =
             if (get() === value) {
                 set(null)
                 false
@@ -141,37 +110,10 @@ internal class Advice(
     }
 
     companion object {
-        private fun Any?.nullIfOverridden(method: Method) =
-            when (this) {
-                null -> method // static method
-                this::class.java.isOverridden(method) -> null
-                else -> method
-            }
-
         private tailrec fun Class<*>.isOverridden(origin: Method): Boolean {
             val method = findMethod(origin.name, origin.parameterTypes)
                     ?: return superclass.isOverridden(origin)
             return origin.declaringClass != method.declaringClass
-        }
-
-        private tailrec fun isMethodDefinedBySuperClass(
-            subclass: Class<*>,
-            superClass: Class<*>,
-            methodName: String,
-            methodParameters: Array<Class<*>>
-        ): Boolean = when {
-            subclass == superClass ->
-                true
-
-            subclass.findMethod(methodName, methodParameters) != null ->
-                false
-
-            else -> isMethodDefinedBySuperClass(
-                subclass.superclass,
-                superClass,
-                methodName,
-                methodParameters
-            )
         }
 
         private fun Class<*>.findMethod(name: String, parameters: Array<Class<*>>) =
@@ -181,6 +123,7 @@ internal class Advice(
             }
 
         @Synchronized
+        @JvmStatic
         private external fun nativeGetCalledClassName(): String
 
         private val Class<*>.final

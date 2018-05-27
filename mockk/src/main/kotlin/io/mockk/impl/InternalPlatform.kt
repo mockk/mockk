@@ -140,11 +140,11 @@ actual object InternalPlatform {
         }
     }
 
-    inline fun <reified T : Any> loadPlugin(className: String) =
+    inline fun <reified T : Any> loadPlugin(className: String, msg: String = "") =
         try {
             T::class.cast(Class.forName(className).newInstance())
         } catch (ex: Exception) {
-            throw MockKException("Failed to load plugin $className", ex)
+            throw MockKException("Failed to load plugin $className $msg", ex)
         }
 
 
