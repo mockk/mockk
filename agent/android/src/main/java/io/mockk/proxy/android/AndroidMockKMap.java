@@ -3,6 +3,7 @@ package io.mockk.proxy.android;
 import android.os.AsyncTask;
 import android.util.ArraySet;
 import io.mockk.proxy.MockKInvocationHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -106,10 +107,6 @@ public class AndroidMockKMap extends ReferenceQueue<Object>
     @SuppressWarnings("CollectionIncompatibleType")
     @Override
     public MockKInvocationHandler get(Object mock) {
-        if (mock == adapters) {
-            return null;
-        }
-
         synchronized (lock) {
             if (getCount > MAX_GET_WITHOUT_CLEAN) {
                 cleanStaleReferences();
@@ -254,6 +251,10 @@ public class AndroidMockKMap extends ReferenceQueue<Object>
 
             return entries;
         }
+    }
+
+    public boolean isInternalHashMap(@NotNull Object instance) {
+        return adapters == instance || this == instance;
     }
 
     /**

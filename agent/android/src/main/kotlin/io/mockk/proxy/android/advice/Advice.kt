@@ -6,9 +6,8 @@
 package io.mockk.proxy.android.advice
 
 import io.mockk.proxy.MockKAgentException
-import io.mockk.proxy.MockKInvocationHandler
+import io.mockk.proxy.android.AndroidMockKMap
 import io.mockk.proxy.android.MethodDescriptor
-import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -17,9 +16,9 @@ import java.lang.reflect.Modifier.isPublic
 import java.util.concurrent.Callable
 
 internal class Advice(
-    private val handlers: Map<Any, MockKInvocationHandler>,
-    private val staticHandlers: Map<Any, MockKInvocationHandler>,
-    private val constructorHandlers: Map<Any, MockKInvocationHandler>
+    private val handlers: AndroidMockKMap,
+    private val staticHandlers: AndroidMockKMap,
+    private val constructorHandlers: AndroidMockKMap
 ) {
     private val selfCallInfo = SelfCallInfo()
 
@@ -49,6 +48,10 @@ internal class Advice(
         origin: Method,
         arguments: Array<Any?>
     ): Callable<*>? {
+        if (isInternalHashMap(instance)) {
+            return null;
+        }
+
         val instanceOrClass =
             if (Modifier.isStatic(origin.modifiers)) {
                 val methodDesc = MethodDescriptor(instance as String)
@@ -80,6 +83,11 @@ internal class Advice(
         }
     }
 
+    private fun isInternalHashMap(instance: Any) =
+        handlers.isInternalHashMap(instance) ||
+                staticHandlers.isInternalHashMap(instance) ||
+                constructorHandlers.isInternalHashMap(instance)
+
     @Suppress("unused") // called from dispatcher
     fun handleConstructor(
         instance: Any,
@@ -104,11 +112,14 @@ internal class Advice(
     }
 
     @Suppress("unused") // called from dispatcher
-    fun isMock(instance: Any) =
-        instance !== handlers && instance !== staticHandlers && instance !== constructorHandlers &&
-                (handlers.containsKey(instance) ||
-                        staticHandlers.containsKey(instance) ||
-                        constructorHandlers.containsKey(instance))
+    fun isMock(instance: Any): Boolean {
+        if (isInternalHashMap(instance)) {
+            return false;
+        }
+        return handlers.containsKey(instance) ||
+                staticHandlers.containsKey(instance) ||
+                constructorHandlers.containsKey(instance)
+    }
 
     private fun Any.checkSelfCall() = selfCallInfo.checkSelfCall(this)
 
@@ -143,18 +154,17 @@ internal class Advice(
         private tailrec fun Class<*>.isOverridden(origin: Method): Boolean {
             val method = findMethod(origin.name, origin.parameterTypes)
                     ?: return superclass.isOverridden(origin)
-            return origin.declaringClass != method.declaringClass
+            return origin.declaringClass !== method.declaringClass
         }
 
         private fun Class<*>.findMethod(name: String, parameters: Array<Class<*>>) =
             declaredMethods.firstOrNull {
                 it.name == name &&
-                        it.parameterTypes contentEquals parameters
+                        it.parameterTypes refEquals parameters
             }
 
-        @Synchronized
-        @JvmStatic
-        private external fun nativeGetCalledClassName(): String
+        private infix fun <T> Array<T>.refEquals(other: Array<T>) =
+            size == other.size && zip(other).none { (a, b) -> a !== b }
 
         private val Class<*>.final
             get() = isFinal(modifiers)

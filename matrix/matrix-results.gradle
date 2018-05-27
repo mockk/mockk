@@ -141,6 +141,7 @@ task('summarize') {
     testCase("VerifyAtLeastAtMostExactlyTest", "Verification counts")
     testCase("VerifyTest", "Verify test")
     testCase("ManyAnswersAnswerTest", "Many answers")
+    testCase("ConstructorMockTest", "Constructor mocking")
     issue(25)
     issue(31)
     issue(35)

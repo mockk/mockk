@@ -12,6 +12,6 @@ internal class AndroidInlineInstrumentation(
 ) : RetransformInlineInstrumnetation(log, specMap) {
 
     override fun retransform(classes : Array<Class<*>>) {
-        agent.requestTransformClasses(classes)
+        agent.requestTransformClasses(classes.filter { !it.isInterface }.toTypedArray())
     }
 }
