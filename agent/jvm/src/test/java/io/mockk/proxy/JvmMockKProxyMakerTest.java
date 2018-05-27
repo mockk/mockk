@@ -22,7 +22,7 @@ public class JvmMockKProxyMakerTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
 

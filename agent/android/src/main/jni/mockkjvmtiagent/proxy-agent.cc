@@ -354,6 +354,15 @@ namespace io_mockk_proxy_android {
 
 
     static bool
+    canBeTransformedConstructor(ir::EncodedMethod *method) {
+        if ((method->access_flags & kAccConstructor) != 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool
     isHashCode(ir::EncodedMethod *method) {
         if (Utf8Cmp(method->decl->name->c_str(), "hashCode") != 0) {
             return false;
@@ -1146,6 +1155,196 @@ namespace io_mockk_proxy_android {
                         }
                     }
                 }
+
+                c.Assemble();
+            } else if (constructorMockk == JNI_TRUE && canBeTransformedConstructor(method.get())) {
+                /*
+                ConstructorOriginal(int param1, long param2, String param3) {
+                    foo();
+                }
+
+                ConstructorTransformed(int param1, long param2, String param3) {
+                    // foo();
+                    unmodified original byte code
+
+                    // AndroidMockKDispatcher dispatcher = AndroidMockKDispatcher.get(idStr, this);
+                    const-string v0, "65463hg34t"
+                    const v1, 0
+                    invoke-static {v0, v1}, AndroidMockKDispatcher.get(String, Object):AndroidMockKDispatcher
+                    move-result-object v0
+
+                    // if (dispatcher == null) {
+                    //    goto exit;
+                    // }
+                    if-eqz v0, exit
+
+                    // Method origin = dispatcher.getConstructorOrigin(this, methodDesc);
+                    const-string v1 "fully.qualified.ClassName#ClassName(int, long, String)"
+                    const v2, 0
+                    invoke-virtual {v0, v2, v1}, AndroidMockKDispatcher.getConstructorOrigin(Object, String):Method
+                    move-result-object v1
+
+                    // if (origin == null) {
+                    //     goto exit;
+                    // }
+                    if-eqz v1, exit
+
+                    // Create an array with Objects of all parameters.
+
+                    //     Object[] arguments = new Object[3]
+                    const v3, 3
+                    new-array v2, v3, Object[]
+
+                    //     Integer param1Integer = Integer.valueOf(param1)
+                    move-from16 v3, ARG1     # this is necessary as invoke-static cannot deal with high
+                                             # registers and ARG1 might be high
+                    invoke-static {v3}, Integer.valueOf(int):Integer
+                    move-result-object v3
+
+                    //     arguments[0] = param1Integer
+                    const v4, 0
+                    aput-object v3, v2, v4
+
+                    //     Long param2Long = Long.valueOf(param2)
+                    move-widefrom16 v3:v4, ARG2.1:ARG2.2 # this is necessary as invoke-static cannot
+                                                         # deal with high registers and ARG2 might be
+                                                         # high
+                    invoke-static {v3, v4}, Long.valueOf(long):Long
+                    move-result-object v3
+
+                    //     arguments[1] = param2Long
+                    const v4, 1
+                    aput-object v3, v2, v4
+
+                    //     arguments[2] = param3
+                    const v4, 2
+                    move-objectfrom16 v3, ARG3     # this is necessary as aput-object cannot deal with
+                                                   # high registers and ARG3 might be high
+                    aput-object v3, v2, v4
+
+                    // Callable<?> mocked = dispatcher.handle(methodDesc --as this parameter--,
+                    //                                        origin, arguments);
+                    const-string v3 "fully.qualified.ClassName#ClassName(int, long, String)"
+                    invoke-virtual {v0,v3,v1,v2}, AndroidMockKDispatcher.handle(Object, Method,
+                                                                              Object[]):Callable
+                    move-result-object v0
+
+                    //  if (mocked != null) {
+                    if-eqz v0, exit
+
+                    //      Object ret = mocked.call();
+                    invoke-interface {v0}, Callable.call():Object
+                    //  }
+
+                exit:
+                }
+                */
+
+                CodeIr c(method.get(), dex_ir);
+
+                int originalNumRegisters = method->code->registers - method->code->ins_count;
+                int numAdditionalRegs = 5;
+                int firstArg = originalNumRegisters + numAdditionalRegs;
+
+                // Make sure there are at least 5 local registers to use
+                slicer::AllocateScratchRegs scratchRegs(numAdditionalRegs, true);
+                scratchRegs.Apply(&c);
+
+                lir::Instruction* fi = *(c.instructions.end());
+                fi = fi->prev; // cut OP_RETURN_VOID
+
+                // Add methodDesc to dex file
+                std::stringstream ss;
+                ss << method->decl->parent->Decl() << "#" << method->decl->name->c_str() << "(" ;
+                bool first = true;
+                if (method->decl->prototype->param_types != nullptr) {
+                    for (const auto& type : method->decl->prototype->param_types->types) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            ss << ",";
+                        }
+
+                        ss << type->Decl().c_str();
+                    }
+                }
+                ss << ")";
+                std::string methodDescStr = ss.str();
+                ir::String* methodDesc = b.GetAsciiString(methodDescStr.c_str());
+
+                size_t numParams = getNumParams(method.get());
+
+                Label* exitLabel = c.Alloc<Label>(0);
+                CodeLocation* exit = c.Alloc<CodeLocation>(exitLabel);
+                VReg* v0 = c.Alloc<VReg>(0);
+                VReg* v1 = c.Alloc<VReg>(1);
+                VReg* v2 = c.Alloc<VReg>(2);
+                VReg* v3 = c.Alloc<VReg>(3);
+                VReg* v4 = c.Alloc<VReg>(4);
+                VReg* thiz = c.Alloc<VReg>(5);
+
+                addInstr(c, fi, OP_CONST_STRING, {v0, c.Alloc<String>(id, id->orig_index)});
+                addInstr(c, fi, OP_CONST, {v1, c.Alloc<Const32>(0)});
+                addCall(b, c, fi, OP_INVOKE_STATIC, dispatcherT, "get", dispatcherT, {stringT, objectT},
+                        {0, 1});
+                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v0});
+                addInstr(c, fi, OP_IF_EQZ, {v0, exit});
+                addInstr(c, fi, OP_CONST_STRING,
+                         {v1, c.Alloc<String>(methodDesc, methodDesc->orig_index)});
+                addInstr(c, fi, OP_CONST, {v3, c.Alloc<Const32>(numParams)});
+                addInstr(c, fi, OP_NEW_ARRAY, {v2, v3, c.Alloc<Type>(objectArrayT,
+                                                                     objectArrayT->orig_index)});
+
+                if (numParams > 0) {
+                    int argReg = firstArg;
+
+                    for (int argNum = 0; argNum < numParams; argNum++) {
+                        const auto& type = method->decl->prototype->param_types->types[argNum];
+                        BoxingInfo boxingInfo = getBoxingInfo(b, type->descriptor->c_str()[0]);
+
+                        switch (type->GetCategory()) {
+                            case ir::Type::Category::Scalar:
+                                addInstr(c, fi, OP_MOVE_FROM16, {v3, c.Alloc<VReg>(argReg)});
+                                addCall(b, c, fi, OP_INVOKE_STATIC, boxingInfo.boxedType, "valueOf",
+                                        boxingInfo.boxedType, {type}, {3});
+                                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v3});
+
+                                argReg++;
+                                break;
+                            case ir::Type::Category::WideScalar: {
+                                VRegPair* v3v4 = c.Alloc<VRegPair>(3);
+                                VRegPair* argRegPair = c.Alloc<VRegPair>(argReg);
+
+                                addInstr(c, fi, OP_MOVE_WIDE_FROM16, {v3v4, argRegPair});
+                                addCall(b, c, fi, OP_INVOKE_STATIC, boxingInfo.boxedType, "valueOf",
+                                        boxingInfo.boxedType, {type}, {3, 4});
+                                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v3});
+
+                                argReg += 2;
+                                break;
+                            }
+                            case ir::Type::Category::Reference:
+                                addInstr(c, fi, OP_MOVE_OBJECT_FROM16, {v3, c.Alloc<VReg>(argReg)});
+
+                                argReg++;
+                                break;
+                            case ir::Type::Category::Void:
+                                assert(false);
+                        }
+
+                        addInstr(c, fi, OP_CONST, {v4, c.Alloc<Const32>(argNum)});
+                        addInstr(c, fi, OP_APUT_OBJECT, {v3, v2, v4});
+                    }
+                }
+
+                addInstr(c, fi, OP_MOVE_OBJECT_FROM16, {v3, thiz});
+                addCall(b, c, fi, OP_INVOKE_VIRTUAL, dispatcherT, "handleConstructor", callableT,
+                        {objectT, stringT, objectArrayT}, {0, 3, 1, 2});
+                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v0});
+                addInstr(c, fi, OP_IF_EQZ, {v0, exit});
+                addCall(b, c, fi, OP_INVOKE_INTERFACE, callableT, "call", objectT, {}, {0});
+
+                addLabel(c, fi, exitLabel);
 
                 c.Assemble();
             }

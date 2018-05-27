@@ -8,6 +8,7 @@ package io.mockk.proxy.android.advice
 import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.android.MethodDescriptor
+import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -16,12 +17,11 @@ import java.lang.reflect.Modifier.isPublic
 import java.util.concurrent.Callable
 
 internal class Advice(
-    private val handlers: Map<Any, MockKInvocationHandler>
+    private val handlers: Map<Any, MockKInvocationHandler>,
+    private val staticHandlers: Map<Any, MockKInvocationHandler>,
+    private val constructorHandlers: Map<Any, MockKInvocationHandler>
 ) {
     private val selfCallInfo = SelfCallInfo()
-
-    private val classMocks
-        get() = handlers.keys.filterIsInstance<Class<*>>()
 
 
     @Suppress("unused") // called from dispatcher
@@ -57,7 +57,11 @@ internal class Advice(
                 instance
             }
 
-        val handler = handlers[instanceOrClass] ?: return null
+        val handler =
+            handlers[instanceOrClass]
+                    ?: staticHandlers[instanceOrClass]
+                    ?: constructorHandlers[instanceOrClass]
+                    ?: return null
 
         val superMethodCall = SuperMethodCall(
             selfCallInfo,
@@ -66,19 +70,45 @@ internal class Advice(
             arguments
         )
 
-        val result = handler.invocation(
-            instanceOrClass,
-            origin,
-            superMethodCall,
-            arguments ?: arrayOf()
-        )
+        return Callable {
+            handler.invocation(
+                instanceOrClass,
+                origin,
+                superMethodCall,
+                arguments
+            )
+        }
+    }
 
-        return Callable { result }
+    @Suppress("unused") // called from dispatcher
+    fun handleConstructor(
+        instance: Any,
+        methodDescriptor: String,
+        arguments: Array<Any?>
+    ): Callable<*>? {
+        val methodDesc = MethodDescriptor(methodDescriptor)
+        val cls = MethodDescriptor.classForTypeName(methodDesc.className)
+
+        val handler =
+            constructorHandlers[cls]
+                    ?: return null
+
+        return Callable {
+            handler.invocation(
+                instance,
+                null,
+                null,
+                arguments
+            )
+        }
     }
 
     @Suppress("unused") // called from dispatcher
     fun isMock(instance: Any) =
-        instance !== handlers && handlers.containsKey(instance)
+        instance !== handlers && instance !== staticHandlers && instance !== constructorHandlers &&
+                (handlers.containsKey(instance) ||
+                        staticHandlers.containsKey(instance) ||
+                        constructorHandlers.containsKey(instance))
 
     private fun Any.checkSelfCall() = selfCallInfo.checkSelfCall(this)
 

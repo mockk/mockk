@@ -13,7 +13,9 @@ import java.io.IOException
 @Suppress("unused") // dynamically loaded
 class AndroidMockKAgentFactory : MockKAgentFactory {
     private val handlers = AndroidMockKMap()
-    private val advice = Advice(handlers)
+    private val staticHandlers = AndroidMockKMap()
+    private val constructorHandlers = AndroidMockKMap()
+    private val advice = Advice(handlers, staticHandlers, constructorHandlers)
     private val specMap = ClassTransformationSpecMap()
 
     lateinit var log: MockKAgentLogger
@@ -121,14 +123,13 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
 
         staticProxyMaker = StaticProxyMaker(
             inliner,
-            handlers
+            staticHandlers
         )
 
-        constructorProxyMaker = object : MockKConstructorProxyMaker {
-            override fun constructorProxy(clazz: Class<*>, handler: MockKInvocationHandler): Cancelable<Class<*>> {
-                TODO("constructor mocks are not supported")
-            }
-        }
+        constructorProxyMaker = ConstructorProxyMaker(
+            inliner,
+            constructorHandlers
+        )
     }
 
     companion object {

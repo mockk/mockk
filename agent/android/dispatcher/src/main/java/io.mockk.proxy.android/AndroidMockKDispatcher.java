@@ -35,6 +35,7 @@ public class AndroidMockKDispatcher {
             new ConcurrentHashMap<>();
 
     private final Method handleMethod;
+    private final Method handleConstructorMethod;
     private final Method isMockMethod;
     private final Method getOriginMethod;
 
@@ -63,6 +64,7 @@ public class AndroidMockKDispatcher {
         mAdvice = advice;
 
         handleMethod = getMethod("handle", Object.class, Method.class, Object[].class);
+        handleConstructorMethod = getMethod("handleConstructor", Object.class, String.class, Object[].class);
         getOriginMethod = getMethod("getOrigin", Object.class, String.class);
         isMockMethod = getMethod("isMock", Object.class);
     }
@@ -86,9 +88,6 @@ public class AndroidMockKDispatcher {
         }
     }
 
-    /**
-     * Calls {@code MockMethodAdvice#handle}
-     */
     public Callable<?> handle(Object instance, Method origin, Object[] arguments) throws Throwable {
         try {
             return (Callable<?>) handleMethod.invoke(mAdvice, instance, origin, arguments);
@@ -97,9 +96,14 @@ public class AndroidMockKDispatcher {
         }
     }
 
-    /**
-     * Calls {@code MockMethodAdvice#isMock}
-     */
+    public Callable<?> handleConstructor(Object instance, String methodDescriptor, Object[] arguments) throws Throwable {
+        try {
+            return (Callable<?>) handleConstructorMethod.invoke(mAdvice, instance, methodDescriptor, arguments);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
     public boolean isMock(Object instance) throws Throwable {
         try {
             return (Boolean) isMockMethod.invoke(mAdvice, instance);
@@ -108,9 +112,6 @@ public class AndroidMockKDispatcher {
         }
     }
 
-    /**
-     * Calls {@code MockMethodAdvice#getOrigin}
-     */
     public Method getOrigin(Object mock, String instrumentedMethodWithTypeAndSignature) throws Throwable {
         try {
             return (Method) getOriginMethod.invoke(mAdvice, mock, instrumentedMethodWithTypeAndSignature);
