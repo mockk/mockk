@@ -10,7 +10,8 @@ class A {
 }
 
 val reportResults: (Result) -> Unit = slot()
-val aMock: A = mockk()
+val mock: A = mockk()
+
 coEvery { 
   aMock.do(reportResults) 
 } answers {
