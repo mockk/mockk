@@ -1,20 +1,12 @@
 Besides [documentation](mockk.io) you can find many other examples here. 
 Fill free to submit pull request, it is really easy to do.
 
-#### Calling lambda
+Table of contents:
+
+* auto-gen TOC:
+{:toc}
+
+#### Topic
 ```kotlin
-class A { 
-  suspend fun do(callback: (Result) -> Unit) {
-    ...
-  }
-}
-
-val reportResults: (Result) -> Unit = slot()
-val mock: A = mockk()
-
-coEvery { 
-  aMock.do(reportResults) 
-} answers {
-  reportResults(Result())
-}
+CODE
 ```
