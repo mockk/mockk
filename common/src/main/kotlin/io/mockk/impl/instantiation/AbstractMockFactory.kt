@@ -19,7 +19,7 @@ abstract class AbstractMockFactory(
 
     val gatewayAccess = gatewayAccessIn.copy(mockFactory = this)
 
-    protected abstract fun <T : Any> newProxy(
+    abstract fun <T : Any> newProxy(
         cls: KClass<out T>,
         moreInterfaces: Array<out KClass<*>>,
         stub: Stub,

@@ -1,6 +1,5 @@
 package io.mockk.impl.platform
 
-import java.lang.ref.Reference
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
@@ -25,10 +24,12 @@ class JvmWeakConcurrentMap<K, V>() : MutableMap<K, V> {
 
 
     private fun expunge() {
-        var ref: Reference<*>?
-        ref = queue.poll()
+        var ref = queue.poll()
         while (ref != null) {
-            map.remove(ref)
+            val value = map.remove(ref)
+            if (value is Disposable) {
+                value.dispose()
+            }
             ref = queue.poll()
         }
     }

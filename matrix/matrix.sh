@@ -24,7 +24,7 @@ android_ait() {
     #android-wait-for-emulator
     #adb shell input keyevent 82 &
 
-    ../gradlew -b android.gradle -q clean connectedCheck
+    ../gradlew -b android-ait.gradle -q clean connectedCheck
 
     cp -r build/outputs/androidTest-results/connected results/android-ait
 }

@@ -3,6 +3,7 @@ package io.mockk.impl.instantiation
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
+import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -15,21 +16,21 @@ import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
 
 object JvmMockFactoryHelper {
-    fun mockHandler(stub: Stub): (Any, Method, Callable<*>?, Array<Any?>) -> Any? {
-        return { self, method, originalMethod, args ->
-            stdFunctions(self, method, args) {
+    fun mockHandler(stub: Stub) = object : MockKInvocationHandler {
+        override fun invocation(self: Any, method: Method?, originalCall: Callable<*>?, args: Array<Any?>) =
+            stdFunctions(self, method!!, args) {
 
                 stub.handleInvocation(
                     self,
                     method.toDescription(), {
-                        handleOriginalCall(originalMethod, method)
+                        handleOriginalCall(originalCall, method)
                     },
                     args,
                     findBackingField(self, method)
                 )
             }
-        }
     }
+
 
     private fun findBackingField(self: Any, method: Method): BackingFieldValueProvider {
         return {
@@ -97,8 +98,12 @@ object JvmMockFactoryHelper {
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
 
+    val cache = InternalPlatform.weakMap<Method, Int>()
 
     fun Method.varArgPosition(): Int {
+        val cached = cache[this]
+        if (cached != null) return cached
+
         val kFunc =
             try {
                 // workaround for
@@ -109,11 +114,16 @@ object JvmMockFactoryHelper {
                 null
             }
 
-        return if (kFunc != null)
+        val result = if (kFunc != null)
             kFunc.parameters
                 .filter { it.kind != KParameter.Kind.INSTANCE }
                 .indexOfFirst { it.isVararg }
         else
             if (isVarArgs) parameterTypes.size - 1 else -1
+
+        cache[this] = result
+
+        return result
     }
+
 }

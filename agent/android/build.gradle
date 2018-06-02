@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 def dispatcherApkResPath = file("$buildDir/generated/dispatcher-apk")
 def dispatcherDexResPath = file("$buildDir/generated/dispatcher-dex")
@@ -34,24 +35,20 @@ android {
     compileSdkVersion 'android-P'
     buildToolsVersion '27.0.3'
 
-    android {
-        lintOptions {
-            disable 'InvalidPackage'
-            warning 'NewApi'
-        }
-
-        sourceSets {
-            main.resources.srcDirs += dispatcherJarResPath
-            main.resources.includes += "**/*.jar"
-        }
-
-        packagingOptions {
-            exclude 'META-INF/main.kotlin_module'
-        }
-    }
-
     lintOptions {
         abortOnError false
+        disable 'InvalidPackage'
+        warning 'NewApi'
+    }
+
+    sourceSets {
+        main.resources.srcDirs += dispatcherJarResPath
+        main.resources.includes += "**/*.jar"
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
     }
 
     defaultConfig {
@@ -72,9 +69,11 @@ android {
 
 
 dependencies {
+    implementation project(':mockk-agent-api')
+    implementation project(':mockk-agent-common')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.linkedin.dexmaker:dexmaker:$dexmaker_version"
     implementation "org.objenesis:objenesis:$objenesis_version"
-    implementation project(':mockk-agent-api')
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -102,7 +101,7 @@ afterEvaluate { project ->
                 pom.project {
                     name 'MockK Android Agent'
                     packaging 'aar'
-                    description 'Android instrumentation testing MockK inline mocking agent'
+                    description 'Android instrumented testing MockK inline mocking agent'
                     url 'http://mockk.io'
 
                     scm {

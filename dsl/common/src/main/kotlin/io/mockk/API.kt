@@ -254,8 +254,17 @@ object MockKDsl {
     /**
      * Declares object mockk.
      */
-    fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) =
+    inline fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) =
         MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
+
+    /**
+     * Declares constructor mockk.
+     */
+    inline fun <reified T : Any> internalConstructorMockk(
+        recordPrivateCalls: Boolean = false,
+        localToThread: Boolean = false
+    ) =
+        MockKConstructorScope(T::class, recordPrivateCalls, localToThread)
 
     /**
      * Builds a mock for a class.
@@ -1486,7 +1495,7 @@ open class MockKMatcherScope(
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <R, T : Any> R.hint(cls: KClass<T>, n: Int = 1): R {
-        MockKGateway.implementation().callRecorder.hintNextReturnType(cls, n)
+        callRecorder.hintNextReturnType(cls, n)
         return this
     }
 
@@ -1555,6 +1564,8 @@ open class MockKMatcherScope(
             InternalPlatformDsl.dynamicCall(self, methodName, args.toTypedArray(), anyContinuationGen)
     }
 
+    inline fun <reified T : Any> anyConstructed(): T =
+        MockKGateway.implementation().constructorMockFactory.mockPlaceholder(T::class)
 }
 
 /**
@@ -1830,25 +1841,73 @@ class MockKAnswerScope<T, B>(
 /**
  * Cancelable mocking scope
  */
-interface MockKUnmockKScope {
-    fun mock()
+abstract class MockKUnmockKScope {
+    var cancelation: (() -> Unit)? = null
 
-    fun unmock()
+    fun mock() {
+        if (cancelation != null) {
+            throw MockKException("Already mocked")
+        }
+
+        cancelation = doMock()
+    }
+
+    fun unmock() {
+        val cancel = cancelation ?: throw MockKException("Not mocked")
+        cancelation = null
+        cancel()
+    }
+
+    protected abstract fun doMock(): () -> Unit
+
+    abstract fun clear(answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true)
+
+    operator fun plus(scope: MockKUnmockKScope): MockKUnmockKScope = MockKUnmockKCompositeScope(this, scope)
+}
+
+/**
+ * Composite of two scopes. Part of DSL
+ */
+class MockKUnmockKCompositeScope(
+    val first: MockKUnmockKScope,
+    val second: MockKUnmockKScope
+) : MockKUnmockKScope() {
+
+    override fun doMock(): () -> Unit {
+        first.mock()
+        second.mock()
+
+        return {
+            first.unmock()
+            second.unmock()
+        }
+    }
+
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        first.clear(answers, recordedCalls, childMocks)
+        second.clear(answers, recordedCalls, childMocks)
+    }
+
 }
 
 /**
  * Scope for static mockks. Part of DSL
  */
-class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope {
-    override fun mock() {
-        for (type in staticTypes) {
-            MockKGateway.implementation().staticMockFactory.staticMockk(type)
+class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope() {
+
+    override fun doMock(): () -> Unit {
+        val factory = MockKGateway.implementation().staticMockFactory
+
+        val cancellations = staticTypes.map {
+            factory.staticMockk(it)
         }
+
+        return { cancellations.forEach { it() } }
     }
 
-    override fun unmock() {
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
         for (type in staticTypes) {
-            MockKGateway.implementation().staticMockFactory.staticUnMockk(type)
+            MockKGateway.implementation().staticMockFactory.clear(type, answers, recordedCalls, childMocks)
         }
     }
 
@@ -1859,16 +1918,21 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope {
 /**
  * Scope for object mockks. Part of DSL
  */
-class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean = false) : MockKUnmockKScope {
-    override fun mock() {
-        for (obj in objects) {
-            MockKGateway.implementation().objectMockFactory.objectMockk(obj, recordPrivateCalls)
+class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean = false) : MockKUnmockKScope() {
+    override fun doMock(): () -> Unit {
+
+        val factory = MockKGateway.implementation().objectMockFactory
+
+        val cancellations = objects.map {
+            factory.objectMockk(it, recordPrivateCalls)
         }
+
+        return { cancellations.forEach { it() } }
     }
 
-    override fun unmock() {
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
         for (obj in objects) {
-            MockKGateway.implementation().objectMockFactory.objectUnMockk(obj)
+            MockKGateway.implementation().objectMockFactory.clear(obj, answers, recordedCalls, childMocks)
         }
     }
 
@@ -1876,6 +1940,29 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
     inline fun and(obj: Any) = MockKObjectScope(obj, *objects)
 }
 
+/**
+ * Scope for constructor calls. Part of DSL.
+ */
+class MockKConstructorScope<T : Any>(
+    val type: KClass<T>,
+    val recordPrivateCalls: Boolean,
+    val localToThread: Boolean
+) : MockKUnmockKScope() {
+
+    override fun doMock(): () -> Unit {
+        return MockKGateway.implementation().constructorMockFactory.constructorMockk(
+            type, recordPrivateCalls, localToThread
+        )
+    }
+
+    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+        MockKGateway.implementation().constructorMockFactory.clear(type, answers, recordedCalls, childMocks)
+    }
+}
+
+/**
+ * Wraps block of code for safe resource allocation and deallocation. Part of DSL
+ */
 inline fun <T> MockKUnmockKScope.use(block: () -> T): T {
     mock()
     return try {
@@ -2921,9 +3008,6 @@ interface Matcher<in T> {
     fun substitute(map: Map<Any, Any>): Matcher<T> = this
 }
 
-@Suppress("UNCHECKED_CAST")
-internal fun <T> Map<Any, Any>.s(value: Any) = (get(value) ?: value) as T
-
 /**
  * Checks if argument is of specific type
  */
@@ -3044,10 +3128,22 @@ data class Invocation(
     val method: MethodDescription,
     val args: List<Any?>,
     val timestamp: Long,
-    val callStack: List<StackElement>,
+    val callStack: () -> List<StackElement>,
     val originalCall: () -> Any?,
     val fieldValueProvider: BackingFieldValueProvider
 ) {
+
+    fun substitute(map: Map<Any, Any>) = Invocation(
+        self.internalSubstitute(map),
+        stub,
+        method.internalSubstitute(map),
+        args.internalSubstitute(map),
+        timestamp,
+        callStack,
+        originalCall,
+        fieldValueProvider
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Invocation) return false
@@ -3092,6 +3188,13 @@ data class InvocationMatcher(
     val args: List<Matcher<Any>>,
     val allAny: Boolean
 ) {
+    fun substitute(map: Map<Any, Any>) = InvocationMatcher(
+        self.internalSubstitute(map),
+        method.internalSubstitute(map),
+        args.internalSubstitute(map),
+        allAny
+    )
+
     fun match(invocation: Invocation): Boolean {
         if (self !== invocation.self) {
             return false
@@ -3198,3 +3301,10 @@ inline fun <T : Deregisterable, R> T.use(block: (T) -> R): R {
         }
     }
 }
+
+@Suppress("UNCHECKED_CAST")
+fun <T> T.internalSubstitute(map: Map<Any, Any>): T {
+    return (map[this as Any? ?: return null as T] ?: this) as T
+}
+
+fun <T : Any> List<T>.internalSubstitute(map: Map<Any, Any>) = this.map { it.internalSubstitute(map) }

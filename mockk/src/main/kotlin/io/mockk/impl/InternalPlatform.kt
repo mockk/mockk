@@ -2,13 +2,11 @@ package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
-import io.mockk.Ref
 import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
-import java.lang.reflect.AccessibleObject
-import java.lang.reflect.Member
+import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
@@ -118,24 +116,35 @@ actual object InternalPlatform {
         copy(to, from, from::class.java)
     }
 
-    actual fun captureStackTrace(): List<StackElement> {
-        val stack = Exception("Stack trace").stackTrace ?: return listOf()
-        return stack.map {
-            StackElement(
-                it.className ?: "-",
-                it.fileName ?: "-",
-                it.methodName ?: "-",
-                it.lineNumber,
-                it.isNativeMethod
-            )
+    actual fun captureStackTrace(): () -> List<StackElement> {
+        val ex = Exception("Stack trace")
+        return {
+            val stack = ex.stackTrace ?: arrayOf<StackTraceElement>()
+            stack.map {
+                StackElement(
+                    it.className ?: "-",
+                    it.fileName ?: "-",
+                    it.methodName ?: "-",
+                    it.lineNumber,
+                    it.isNativeMethod
+                )
+            }
         }
     }
 
-    inline fun <reified T : Any> loadPlugin(className: String) =
+    actual fun weakRef(value: Any): WeakRef {
+        val weakRef = WeakReference<Any>(value)
+        return object : WeakRef {
+            override val value: Any?
+                get() = weakRef.get()
+        }
+    }
+
+    inline fun <reified T : Any> loadPlugin(className: String, msg: String = "") =
         try {
             T::class.cast(Class.forName(className).newInstance())
         } catch (ex: Exception) {
-            throw MockKException("Failed to load plugin $className", ex)
+            throw MockKException("Failed to load plugin $className $msg", ex)
         }
 
 

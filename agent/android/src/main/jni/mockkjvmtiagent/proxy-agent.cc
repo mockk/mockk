@@ -134,6 +134,9 @@ namespace io_mockk_proxy_android {
                 std::memcpy(*newClassData, transformed, *newClassDataLen);
 
                 env->ReleaseByteArrayElements(transformedArr, transformed, 0);
+            } else if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
             }
         }
     }
@@ -351,6 +354,15 @@ namespace io_mockk_proxy_android {
 
 
     static bool
+    canBeTransformedConstructor(ir::EncodedMethod *method) {
+        if ((method->access_flags & kAccConstructor) != 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool
     isHashCode(ir::EncodedMethod *method) {
         if (Utf8Cmp(method->decl->name->c_str(), "hashCode") != 0) {
             return false;
@@ -385,10 +397,13 @@ namespace io_mockk_proxy_android {
     // Transforms the classes to add the mockk hooks
     // - equals and hashcode are handled in a special way
     extern "C" JNIEXPORT jbyteArray JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKClassTransformer_nativeRedefine(JNIEnv* env,
+    Java_io_mockk_proxy_android_transformation_InliningClassTransformer_nativeRedefine(JNIEnv* env,
                                                                        jobject generator,
                                                                        jstring idStr,
-                                                                       jbyteArray originalArr) {
+                                                                       jbyteArray originalArr,
+                                                                       jboolean mockk,
+                                                                       jboolean staticMockk,
+                                                                       jboolean constructorMockk) {
         unsigned char* original = (unsigned char*)env->GetByteArrayElements(originalArr, 0);
 
         Reader reader(original, env->GetArrayLength(originalArr));
@@ -412,7 +427,7 @@ namespace io_mockk_proxy_android {
         env->ReleaseStringUTFChars(idStr, idNative);
 
         for (auto& method : dex_ir->encoded_methods) {
-            if (canBeTransformedInstance(method.get())) {
+            if (mockk == JNI_TRUE && canBeTransformedInstance(method.get())) {
                 if (isEquals(method.get())) {
                     /*
                     equals_original(Object other) {
@@ -866,7 +881,7 @@ namespace io_mockk_proxy_android {
 
                     c.Assemble();
                 }
-            } else if (canBeTransformedStatic(method.get())) {
+            } else if (staticMockk == JNI_TRUE && canBeTransformedStatic(method.get())) {
                 /*
                 static long method_original(int param1, long param2, String param3) {
                     foo();
@@ -1142,6 +1157,196 @@ namespace io_mockk_proxy_android {
                 }
 
                 c.Assemble();
+            } else if (constructorMockk == JNI_TRUE && canBeTransformedConstructor(method.get())) {
+                /*
+                ConstructorOriginal(int param1, long param2, String param3) {
+                    foo();
+                }
+
+                ConstructorTransformed(int param1, long param2, String param3) {
+                    // foo();
+                    unmodified original byte code
+
+                    // AndroidMockKDispatcher dispatcher = AndroidMockKDispatcher.get(idStr, this);
+                    const-string v0, "65463hg34t"
+                    const v1, 0
+                    invoke-static {v0, v1}, AndroidMockKDispatcher.get(String, Object):AndroidMockKDispatcher
+                    move-result-object v0
+
+                    // if (dispatcher == null) {
+                    //    goto exit;
+                    // }
+                    if-eqz v0, exit
+
+                    // Method origin = dispatcher.getConstructorOrigin(this, methodDesc);
+                    const-string v1 "fully.qualified.ClassName#ClassName(int, long, String)"
+                    const v2, 0
+                    invoke-virtual {v0, v2, v1}, AndroidMockKDispatcher.getConstructorOrigin(Object, String):Method
+                    move-result-object v1
+
+                    // if (origin == null) {
+                    //     goto exit;
+                    // }
+                    if-eqz v1, exit
+
+                    // Create an array with Objects of all parameters.
+
+                    //     Object[] arguments = new Object[3]
+                    const v3, 3
+                    new-array v2, v3, Object[]
+
+                    //     Integer param1Integer = Integer.valueOf(param1)
+                    move-from16 v3, ARG1     # this is necessary as invoke-static cannot deal with high
+                                             # registers and ARG1 might be high
+                    invoke-static {v3}, Integer.valueOf(int):Integer
+                    move-result-object v3
+
+                    //     arguments[0] = param1Integer
+                    const v4, 0
+                    aput-object v3, v2, v4
+
+                    //     Long param2Long = Long.valueOf(param2)
+                    move-widefrom16 v3:v4, ARG2.1:ARG2.2 # this is necessary as invoke-static cannot
+                                                         # deal with high registers and ARG2 might be
+                                                         # high
+                    invoke-static {v3, v4}, Long.valueOf(long):Long
+                    move-result-object v3
+
+                    //     arguments[1] = param2Long
+                    const v4, 1
+                    aput-object v3, v2, v4
+
+                    //     arguments[2] = param3
+                    const v4, 2
+                    move-objectfrom16 v3, ARG3     # this is necessary as aput-object cannot deal with
+                                                   # high registers and ARG3 might be high
+                    aput-object v3, v2, v4
+
+                    // Callable<?> mocked = dispatcher.handle(methodDesc --as this parameter--,
+                    //                                        origin, arguments);
+                    const-string v3 "fully.qualified.ClassName#ClassName(int, long, String)"
+                    invoke-virtual {v0,v3,v1,v2}, AndroidMockKDispatcher.handle(Object, Method,
+                                                                              Object[]):Callable
+                    move-result-object v0
+
+                    //  if (mocked != null) {
+                    if-eqz v0, exit
+
+                    //      Object ret = mocked.call();
+                    invoke-interface {v0}, Callable.call():Object
+                    //  }
+
+                exit:
+                }
+                */
+
+                CodeIr c(method.get(), dex_ir);
+
+                int originalNumRegisters = method->code->registers - method->code->ins_count;
+                int numAdditionalRegs = 5;
+                int firstArg = originalNumRegisters + numAdditionalRegs;
+
+                // Make sure there are at least 5 local registers to use
+                slicer::AllocateScratchRegs scratchRegs(numAdditionalRegs, true);
+                scratchRegs.Apply(&c);
+
+                lir::Instruction* fi = *(c.instructions.end());
+                fi = fi->prev; // cut OP_RETURN_VOID
+
+                // Add methodDesc to dex file
+                std::stringstream ss;
+                ss << method->decl->parent->Decl() << "#" << method->decl->name->c_str() << "(" ;
+                bool first = true;
+                if (method->decl->prototype->param_types != nullptr) {
+                    for (const auto& type : method->decl->prototype->param_types->types) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            ss << ",";
+                        }
+
+                        ss << type->Decl().c_str();
+                    }
+                }
+                ss << ")";
+                std::string methodDescStr = ss.str();
+                ir::String* methodDesc = b.GetAsciiString(methodDescStr.c_str());
+
+                size_t numParams = getNumParams(method.get());
+
+                Label* exitLabel = c.Alloc<Label>(0);
+                CodeLocation* exit = c.Alloc<CodeLocation>(exitLabel);
+                VReg* v0 = c.Alloc<VReg>(0);
+                VReg* v1 = c.Alloc<VReg>(1);
+                VReg* v2 = c.Alloc<VReg>(2);
+                VReg* v3 = c.Alloc<VReg>(3);
+                VReg* v4 = c.Alloc<VReg>(4);
+                VReg* thiz = c.Alloc<VReg>(5);
+
+                addInstr(c, fi, OP_CONST_STRING, {v0, c.Alloc<String>(id, id->orig_index)});
+                addInstr(c, fi, OP_CONST, {v1, c.Alloc<Const32>(0)});
+                addCall(b, c, fi, OP_INVOKE_STATIC, dispatcherT, "get", dispatcherT, {stringT, objectT},
+                        {0, 1});
+                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v0});
+                addInstr(c, fi, OP_IF_EQZ, {v0, exit});
+                addInstr(c, fi, OP_CONST_STRING,
+                         {v1, c.Alloc<String>(methodDesc, methodDesc->orig_index)});
+                addInstr(c, fi, OP_CONST, {v3, c.Alloc<Const32>(numParams)});
+                addInstr(c, fi, OP_NEW_ARRAY, {v2, v3, c.Alloc<Type>(objectArrayT,
+                                                                     objectArrayT->orig_index)});
+
+                if (numParams > 0) {
+                    int argReg = firstArg;
+
+                    for (int argNum = 0; argNum < numParams; argNum++) {
+                        const auto& type = method->decl->prototype->param_types->types[argNum];
+                        BoxingInfo boxingInfo = getBoxingInfo(b, type->descriptor->c_str()[0]);
+
+                        switch (type->GetCategory()) {
+                            case ir::Type::Category::Scalar:
+                                addInstr(c, fi, OP_MOVE_FROM16, {v3, c.Alloc<VReg>(argReg)});
+                                addCall(b, c, fi, OP_INVOKE_STATIC, boxingInfo.boxedType, "valueOf",
+                                        boxingInfo.boxedType, {type}, {3});
+                                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v3});
+
+                                argReg++;
+                                break;
+                            case ir::Type::Category::WideScalar: {
+                                VRegPair* v3v4 = c.Alloc<VRegPair>(3);
+                                VRegPair* argRegPair = c.Alloc<VRegPair>(argReg);
+
+                                addInstr(c, fi, OP_MOVE_WIDE_FROM16, {v3v4, argRegPair});
+                                addCall(b, c, fi, OP_INVOKE_STATIC, boxingInfo.boxedType, "valueOf",
+                                        boxingInfo.boxedType, {type}, {3, 4});
+                                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v3});
+
+                                argReg += 2;
+                                break;
+                            }
+                            case ir::Type::Category::Reference:
+                                addInstr(c, fi, OP_MOVE_OBJECT_FROM16, {v3, c.Alloc<VReg>(argReg)});
+
+                                argReg++;
+                                break;
+                            case ir::Type::Category::Void:
+                                assert(false);
+                        }
+
+                        addInstr(c, fi, OP_CONST, {v4, c.Alloc<Const32>(argNum)});
+                        addInstr(c, fi, OP_APUT_OBJECT, {v3, v2, v4});
+                    }
+                }
+
+                addInstr(c, fi, OP_MOVE_OBJECT_FROM16, {v3, thiz});
+                addCall(b, c, fi, OP_INVOKE_VIRTUAL, dispatcherT, "handleConstructor", callableT,
+                        {objectT, stringT, objectArrayT}, {0, 3, 1, 2});
+                addInstr(c, fi, OP_MOVE_RESULT_OBJECT, {v0});
+                addInstr(c, fi, OP_IF_EQZ, {v0, exit});
+                addCall(b, c, fi, OP_INVOKE_INTERFACE, callableT, "call", objectT, {}, {0});
+
+                addLabel(c, fi, exitLabel);
+
+                c.Assemble();
             }
         }
 
@@ -1212,14 +1417,14 @@ namespace io_mockk_proxy_android {
 
     // Register transformer hook
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeRegisterTransformerHook(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeRegisterTransformerHook(JNIEnv* env,
                                                                                 jobject thiz) {
         sTransformer = env->NewGlobalRef(thiz);
     }
 
     // Unregister transformer hook
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeUnregisterTransformerHook(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeUnregisterTransformerHook(JNIEnv* env,
                                                                                   jobject thiz) {
         env->DeleteGlobalRef(sTransformer);
         sTransformer = NULL;
@@ -1227,7 +1432,7 @@ namespace io_mockk_proxy_android {
 
     // Triggers retransformation of classes via this file's Transform method
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeRetransformClasses(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeRetransformClasses(JNIEnv* env,
                                                                            jobject thiz,
                                                                            jobjectArray classes) {
         jsize numTransformedClasses = env->GetArrayLength(classes);
@@ -1251,7 +1456,7 @@ namespace io_mockk_proxy_android {
 
     // Adds a jar file to the bootstrap class loader
     extern "C" JNIEXPORT void JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKJvmtiAgent_nativeAppendToBootstrapClassLoaderSearch(JNIEnv* env,
+    Java_io_mockk_proxy_android_JvmtiAgent_nativeAppendToBootstrapClassLoaderSearch(JNIEnv* env,
                                                                                       jclass klass,
                                                                                       jstring jarFile) {
         const char *jarFileNative = env->GetStringUTFChars(jarFile, 0);
@@ -1263,157 +1468,6 @@ namespace io_mockk_proxy_android {
         }
 
         env->ReleaseStringUTFChars(jarFile, jarFileNative);
-    }
-
-    static jvmtiFrameInfo* frameToInspect;
-    static std::string calledClass;
-
-    // Takes the full dex file for class 'classBeingRedefined'
-    // - isolates the dex code for the class out of the dex file
-    // - calls sTransformer.runTransformers on the isolated dex code
-    // - send the transformed code back to the runtime
-    static void
-    InspectClass(jvmtiEnv* jvmtiEnv,
-                 JNIEnv* env,
-                 jclass classBeingRedefined,
-                 jobject loader,
-                 const char* name,
-                 jobject protectionDomain,
-                 jint classDataLen,
-                 const unsigned char* classData,
-                 jint* newClassDataLen,
-                 unsigned char** newClassData) {
-        calledClass = "none";
-
-        Reader reader(classData, classDataLen);
-
-        char *calledMethodName;
-        char *calledMethodSignature;
-        jvmtiError error = jvmtiEnv->GetMethodName(frameToInspect->method, &calledMethodName,
-                                                   &calledMethodSignature, nullptr);
-        if (error != JVMTI_ERROR_NONE) {
-            return;
-        }
-
-        u4 index = reader.FindClassIndex(ClassNameToDescriptor(name).c_str());
-        reader.CreateClassIr(index);
-        std::shared_ptr<ir::DexFile> class_ir = reader.GetIr();
-
-        for (auto& method : class_ir->encoded_methods) {
-            if (Utf8Cmp(method->decl->name->c_str(), calledMethodName) == 0
-                && Utf8Cmp(method->decl->prototype->Signature().c_str(), calledMethodSignature) == 0) {
-                CodeIr method_ir(method.get(), class_ir);
-
-                for (auto instruction : method_ir.instructions) {
-                    Bytecode* bytecode = dynamic_cast<Bytecode*>(instruction);
-                    if (bytecode != nullptr && bytecode->offset == frameToInspect->location) {
-                        Method *method = bytecode->CastOperand<Method>(1);
-                        calledClass = method->ir_method->parent->Decl().c_str();
-
-                        goto exit;
-                    }
-                }
-            }
-        }
-
-        exit:
-        free(calledMethodName);
-        free(calledMethodSignature);
-    }
-
-#define GOTO_ON_ERROR(label) \
-    if (error != JVMTI_ERROR_NONE) { \
-        goto label; \
-    }
-
-// stack frame of the caller if method was called directly
-#define DIRECT_CALL_STACK_FRAME (6)
-
-// stack frame of the caller if method was called as 'real method'
-#define REALMETHOD_CALL_STACK_FRAME (23)
-
-    extern "C" JNIEXPORT jstring JNICALL
-    Java_io_mockk_proxy_android_AndroidMockKMethodAdvice_nativeGetCalledClassName(JNIEnv* env,
-                                                                                     jclass klass) {
-        JavaVM *vm;
-        jint jvmError = env->GetJavaVM(&vm);
-        if (jvmError != JNI_OK) {
-            return nullptr;
-        }
-
-        jvmtiEnv *jvmtiEnv;
-        jvmError = vm->GetEnv(reinterpret_cast<void**>(&jvmtiEnv), JVMTI_VERSION_1_2);
-        if (jvmError != JNI_OK) {
-            return nullptr;
-        }
-
-        jvmtiCapabilities caps;
-        memset(&caps, 0, sizeof(caps));
-        caps.can_retransform_classes = 1;
-
-        jvmtiError error = jvmtiEnv->AddCapabilities(&caps);
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        jvmtiEventCallbacks cb;
-        memset(&cb, 0, sizeof(cb));
-        cb.ClassFileLoadHook = InspectClass;
-
-        jvmtiFrameInfo frameInfo[REALMETHOD_CALL_STACK_FRAME + 1];
-        jint numFrames;
-        error = jvmtiEnv->GetStackTrace(nullptr, 0, REALMETHOD_CALL_STACK_FRAME + 1, frameInfo,
-                                        &numFrames);
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        // Method might be called directly or as 'real method' (see
-        // MockKMethodAdvice.SuperMethodCall#invoke). Hence the real caller might be in stack
-        // frame DIRECT_CALL_STACK_FRAME for a direct call or REALMETHOD_CALL_STACK_FRAME for a
-        // call through the 'real method' mechanism.
-        int callingFrameNum;
-        if (numFrames < REALMETHOD_CALL_STACK_FRAME) {
-            callingFrameNum = DIRECT_CALL_STACK_FRAME;
-        } else {
-            char *directCallMethodName;
-
-            jvmtiEnv->GetMethodName(frameInfo[DIRECT_CALL_STACK_FRAME].method,
-                                    &directCallMethodName, nullptr, nullptr);
-            if (strcmp(directCallMethodName, "invoke") == 0) {
-                callingFrameNum = REALMETHOD_CALL_STACK_FRAME;
-            } else {
-                callingFrameNum = DIRECT_CALL_STACK_FRAME;
-            }
-        }
-
-        jclass callingClass;
-        error = jvmtiEnv->GetMethodDeclaringClass(frameInfo[callingFrameNum].method, &callingClass);
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        error = jvmtiEnv->SetEventCallbacks(&cb, sizeof(cb));
-        GOTO_ON_ERROR(unregister_env_and_exit);
-
-        error = jvmtiEnv->SetEventNotificationMode(JVMTI_ENABLE, JVMTI_EVENT_CLASS_FILE_LOAD_HOOK,
-                                                   nullptr);
-        GOTO_ON_ERROR(unset_cb_and_exit);
-
-        frameToInspect = &frameInfo[callingFrameNum];
-        error = jvmtiEnv->RetransformClasses(1, &callingClass);
-        GOTO_ON_ERROR(disable_hook_and_exit);
-
-        disable_hook_and_exit:
-        jvmtiEnv->SetEventNotificationMode(JVMTI_DISABLE, JVMTI_EVENT_CLASS_FILE_LOAD_HOOK,
-                                           nullptr);
-
-        unset_cb_and_exit:
-        memset(&cb, 0, sizeof(cb));
-        jvmtiEnv->SetEventCallbacks(&cb, sizeof(cb));
-
-        unregister_env_and_exit:
-        jvmtiEnv->DisposeEnvironment();
-
-        if (error != JVMTI_ERROR_NONE) {
-            return nullptr;
-        }
-
-        return env->NewStringUTF(calledClass.c_str());
     }
 
 }  // namespace io_mockk_proxy_android

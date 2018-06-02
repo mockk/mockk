@@ -3,7 +3,6 @@ package io.mockk.impl
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.*
 import io.mockk.Ordering
-import io.mockk.agent.MockKAgentFactory
 import io.mockk.impl.annotations.JvmMockInitializer
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
@@ -21,6 +20,8 @@ import io.mockk.impl.verify.AllCallsCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.verify.UnorderedCallVerifier
+import io.mockk.proxy.MockKAgentFactory
+import io.mockk.proxy.MockKAgentLogFactory
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
@@ -29,14 +30,23 @@ class JvmMockKGateway : MockKGateway {
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
-    val agentFactory : MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
-        InternalPlatform.loadPlugin("io.mockk.proxy.android.AndroidMockKAgentFactory")
+    val agentFactory: MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
+        InternalPlatform.loadPlugin(
+            "io.mockk.proxy.android.AndroidMockKAgentFactory",
+            "Android instrumented test is running, " +
+                    "include 'io.mockk:mockk-andorid' dependency " +
+                    "instead 'io.mockk:mockk'"
+        )
     else
-        InternalPlatform.loadPlugin("io.mockk.proxy.jvm.JvmMockKAgentFactory")
+        InternalPlatform.loadPlugin(
+            "io.mockk.proxy.jvm.JvmMockKAgentFactory",
+            "Check if you included 'io.mockk:mockk-andorid' dependency " +
+                    "instead of 'io.mockk:mockk'"
+        )
 
     init {
-        agentFactory.init({
-            Logger.loggerFactory(it.kotlin).adaptor()
+        agentFactory.init(object : MockKAgentLogFactory {
+            override fun logger(cls: Class<*>) = Logger.loggerFactory(cls.kotlin).adaptor()
         })
     }
 
@@ -51,26 +61,37 @@ class JvmMockKGateway : MockKGateway {
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
-    override val mockFactory: MockFactory = JvmMockFactory(
+    val gatewayAccess = StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
+
+    override val mockFactory: AbstractMockFactory = JvmMockFactory(
         agentFactory.proxyMaker,
         instantiator,
         stubRepo,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
+        gatewayAccess
     )
+
+    override val clearer = CommonClearer(stubRepo, safeLog)
 
     override val staticMockFactory = JvmStaticMockFactory(
         agentFactory.staticProxyMaker,
         stubRepo,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
+        gatewayAccess
     )
 
     override val objectMockFactory = JvmObjectMockFactory(
         agentFactory.proxyMaker,
         stubRepo,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog, mockFactory)
+        gatewayAccess
     )
 
-    override val clearer = CommonClearer(stubRepo, safeLog)
+    override val constructorMockFactory = JvmConstructorMockFactory(
+        agentFactory.constructorProxyMaker,
+        clearer,
+        mockFactory,
+        agentFactory.proxyMaker,
+        gatewayAccess
+    )
+
 
     val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeLog)
     val allVerifier = AllCallsCallVerifier(stubRepo, safeLog)
@@ -130,7 +151,7 @@ class JvmMockKGateway : MockKGateway {
             log.trace {
                 val runningAndroid = InternalPlatform.isRunningAndroidInstrumentationTest()
                 "Starting JVM MockK implementation. " +
-                        (if (runningAndroid) "Android instrumentation test detected. " else "") +
+                        (if (runningAndroid) "Android instrumented test detected. " else "") +
                         "Java version = ${System.getProperty("java.version")}. "
             }
         }
