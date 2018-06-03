@@ -144,7 +144,7 @@ actual object InternalPlatform {
         try {
             T::class.cast(Class.forName(className).newInstance())
         } catch (ex: Exception) {
-            throw MockKException("Failed to load plugin $className $msg", ex)
+            throw MockKException("Failed to load plugin. $className $msg", ex)
         }
 
 
