@@ -10,10 +10,10 @@
 [![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
 
 
- <img src="doc/new.png" align="middle" height="40" alt="new"/> <br />
-[Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="middle" height="10" alt="Android"/> <br /> 
-[Constructor mocking](#ccc)
-[Scoped mocking deprecation](DEPRECATED.md)
+ <img src="doc/new.png" align="left" height="40" alt="new"/> <br />
+[Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
+[Constructor mocking](#ccc) <br />
+[Scoped mocking deprecation](DEPRECATED.md) <br />
 Please report any issues
 
 Table of contents:
