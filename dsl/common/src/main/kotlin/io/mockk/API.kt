@@ -242,23 +242,23 @@ object MockKDsl {
     }
 
     /**
-     * Declares static mockk.
+     * Declares static mockk. Deprecated
      */
     inline fun <reified T : Any> internalStaticMockk() = MockKStaticScope(T::class)
 
     /**
-     * Declares static mockk.
+     * Declares static mockk. Deprecated
      */
     inline fun internalStaticMockk(vararg kClass: KClass<out Any>) = MockKStaticScope(*kClass)
 
     /**
-     * Declares object mockk.
+     * Declares object mockk. Deprecated
      */
     inline fun internalObjectMockk(objs: Array<out Any>, recordPrivateCalls: Boolean = false) =
         MockKObjectScope(*objs, recordPrivateCalls = recordPrivateCalls)
 
     /**
-     * Declares constructor mockk.
+     * Declares constructor mockk. Deprecated
      */
     inline fun <reified T : Any> internalConstructorMockk(
         recordPrivateCalls: Boolean = false,
@@ -267,9 +267,9 @@ object MockKDsl {
         MockKConstructorScope(T::class, recordPrivateCalls, localToThread)
 
     /**
-     * Builds a mock for a class.
+     * Builds a mock for a class. Deprecated
      */
-    inline fun <T : Any> internalClassMockk(
+    inline fun <T : Any> internalMockkClass(
         type: KClass<T>,
         name: String?,
         relaxed: Boolean,
@@ -287,6 +287,143 @@ object MockKDsl {
     inline fun internalInitAnnotatedMocks(targets: List<Any>) =
         MockKGateway.implementation().mockInitializer.initAnnotatedMocks(targets)
 
+    /**
+     * Object mockk
+     */
+    inline fun internalMockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) {
+        val factory = MockKGateway.implementation().objectMockFactory
+
+        objects.forEach {
+            val cancellation = factory.objectMockk(it, recordPrivateCalls)
+
+            internalClearMocks(it)
+
+            MockKCancellationRegistry
+                .subRegistry(MockKCancellationRegistry.Type.OBJECT)
+                .cancelPut(it, cancellation)
+        }
+
+    }
+
+    /**
+     * Cancel object mocks.
+     */
+    inline fun internalUnmockkObject(vararg objects: Any) {
+        objects.forEach {
+            MockKCancellationRegistry
+                .subRegistry(MockKCancellationRegistry.Type.OBJECT)
+                .cancel(it)
+        }
+    }
+
+    /**
+     * Clear object mocks.
+     */
+    inline fun internalClearObjectMockk(
+        vararg objects: Any,
+        answers: Boolean = true,
+        recordedCalls: Boolean = true,
+        childMocks: Boolean = true
+    ) {
+        for (obj in objects) {
+            MockKGateway.implementation().objectMockFactory.clear(obj, answers, recordedCalls, childMocks)
+        }
+    }
+
+    /**
+     * Static mockk
+     */
+    inline fun internalMockkStatic(vararg classes: KClass<*>) {
+        val factory = MockKGateway.implementation().staticMockFactory
+
+        classes.forEach {
+            val cancellation = factory.staticMockk(it)
+
+            internalClearStaticMockk(it)
+
+            MockKCancellationRegistry
+                .subRegistry(MockKCancellationRegistry.Type.STATIC)
+                .cancelPut(it, cancellation)
+        }
+    }
+
+    /**
+     * Cancel static mocks.
+     */
+    inline fun internalUnmockkStatic(vararg classes: KClass<*>) {
+        classes.forEach {
+            MockKCancellationRegistry
+                .subRegistry(MockKCancellationRegistry.Type.STATIC)
+                .cancel(it)
+        }
+    }
+
+    /**
+     * Clear static mocks.
+     */
+    inline fun internalClearStaticMockk(
+        vararg classes: KClass<*>,
+        answers: Boolean = true,
+        recordedCalls: Boolean = true,
+        childMocks: Boolean = true
+    ) {
+        for (type in classes) {
+            MockKGateway.implementation().staticMockFactory.clear(type, answers, recordedCalls, childMocks)
+        }
+    }
+
+    /**
+     * Constructor mockk
+     */
+    inline fun internalMockkConstructor(
+        vararg classes: KClass<*>,
+        recordPrivateCalls: Boolean = false,
+        localToThread: Boolean = true
+    ) {
+        val factory = MockKGateway.implementation().constructorMockFactory
+
+        classes.forEach {
+            val cancellation = factory.constructorMockk(it, recordPrivateCalls, localToThread)
+
+            internalClearConstructorMockk(it)
+
+            MockKCancellationRegistry
+                .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)
+                .cancelPut(it, cancellation)
+        }
+    }
+
+    /**
+     * Cancel constructor mocks.
+     */
+    inline fun internalUnmockkConstructor(vararg classes: KClass<*>) {
+        classes.forEach {
+            MockKCancellationRegistry
+                .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)
+                .cancel(it)
+        }
+    }
+
+    /**
+     * Clear constructor mocks.
+     */
+    inline fun internalClearConstructorMockk(
+        vararg classes: KClass<*>,
+        answers: Boolean = true,
+        recordedCalls: Boolean = true,
+        childMocks: Boolean = true
+    ) {
+        for (type in classes) {
+            MockKGateway.implementation().constructorMockFactory.clear(type, answers, recordedCalls, childMocks)
+        }
+    }
+
+    /**
+     * Unmockk everything
+     */
+    inline fun internalUnmockkAll() {
+        MockKCancellationRegistry.cancelAll()
+    }
 }
 
 /**
@@ -1842,20 +1979,15 @@ class MockKAnswerScope<T, B>(
  * Cancelable mocking scope
  */
 abstract class MockKUnmockKScope {
-    var cancelation: (() -> Unit)? = null
-
     fun mock() {
-        if (cancelation != null) {
-            throw MockKException("Already mocked")
-        }
-
-        cancelation = doMock()
+        val cancellation = doMock()
+        MockKCancellationRegistry.pushCancellation(cancellation)
     }
 
     fun unmock() {
-        val cancel = cancelation ?: throw MockKException("Not mocked")
-        cancelation = null
-        cancel()
+        val cancellation = MockKCancellationRegistry.popCancellation() ?: throw MockKException("Not mocked")
+        cancellation.invoke()
+
     }
 
     protected abstract fun doMock(): () -> Unit
@@ -1863,6 +1995,54 @@ abstract class MockKUnmockKScope {
     abstract fun clear(answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true)
 
     operator fun plus(scope: MockKUnmockKScope): MockKUnmockKScope = MockKUnmockKCompositeScope(this, scope)
+}
+
+typealias MockKCancellation = () -> Unit
+
+object MockKCancellationRegistry {
+    enum class Type { OBJECT, STATIC, CONSTRUCTOR }
+    class RegistryPerType {
+        private val mapTl = InternalPlatformDsl.threadLocal { mutableMapOf<Any, MockKCancellation>() }
+
+        fun cancelPut(key: Any, newCancellation: MockKCancellation) {
+            val map = mapTl.value
+            map.remove(key)?.invoke()
+            map[key] = newCancellation
+        }
+
+        fun cancelAll() {
+            val map = mapTl.value
+            map.values.forEach { it() }
+            map.clear()
+        }
+
+        fun cancel(key: Any) {
+            mapTl.value.remove(key)?.invoke()
+        }
+    }
+
+    private val stack = InternalPlatformDsl.threadLocal { mutableListOf<MockKCancellation>() }
+    private val perType = mapOf(
+        Type.OBJECT to RegistryPerType(),
+        Type.STATIC to RegistryPerType(),
+        Type.CONSTRUCTOR to RegistryPerType()
+    )
+
+    fun subRegistry(type: Type) = perType[type]!!
+
+    fun pushCancellation(cancellation: MockKCancellation) = stack.value.add(cancellation)
+    fun popCancellation(): (MockKCancellation)? {
+        val list = stack.value
+        return if (list.isEmpty())
+            null
+        else
+            list.removeAt(list.size - 1)
+    }
+
+    fun cancelAll() {
+        stack.value.apply { forEach { it() } }.clear()
+        perType.values.forEach { it.cancelAll() }
+    }
 }
 
 /**
@@ -1873,7 +2053,7 @@ class MockKUnmockKCompositeScope(
     val second: MockKUnmockKScope
 ) : MockKUnmockKScope() {
 
-    override fun doMock(): () -> Unit {
+    override fun doMock(): MockKCancellation {
         first.mock()
         second.mock()
 
@@ -1895,7 +2075,7 @@ class MockKUnmockKCompositeScope(
  */
 class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope() {
 
-    override fun doMock(): () -> Unit {
+    override fun doMock(): MockKCancellation {
         val factory = MockKGateway.implementation().staticMockFactory
 
         val cancellations = staticTypes.map {
@@ -1919,7 +2099,7 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope() 
  * Scope for object mockks. Part of DSL
  */
 class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean = false) : MockKUnmockKScope() {
-    override fun doMock(): () -> Unit {
+    override fun doMock(): MockKCancellation {
 
         val factory = MockKGateway.implementation().objectMockFactory
 
@@ -1949,7 +2129,7 @@ class MockKConstructorScope<T : Any>(
     val localToThread: Boolean
 ) : MockKUnmockKScope() {
 
-    override fun doMock(): () -> Unit {
+    override fun doMock(): MockKCancellation {
         return MockKGateway.implementation().constructorMockFactory.constructorMockk(
             type, recordPrivateCalls, localToThread
         )

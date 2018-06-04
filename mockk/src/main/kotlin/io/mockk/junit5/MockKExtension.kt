@@ -1,11 +1,11 @@
 package io.mockk.junit5
 
 import io.mockk.MockKAnnotations
-import io.mockk.classMockk
 import io.mockk.impl.annotations.AdditionalInterface
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
+import io.mockk.mockkClass
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
@@ -29,7 +29,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver {
         val annotation = getMockKAnnotation(parameter) ?: return null
         val name = getMockName(parameterContext.parameter, annotation)
 
-        return classMockk(
+        return mockkClass(
             type,
             name,
             annotation is RelaxedMockK,

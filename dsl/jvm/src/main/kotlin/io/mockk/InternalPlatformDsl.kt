@@ -165,4 +165,17 @@ actual object InternalPlatformDsl {
             // skip
         }
     }
+
+    actual fun <T> threadLocal(initializer: () -> T): InternalRef<T> {
+        class TL : ThreadLocal<T>(), InternalRef<T> {
+            override fun initialValue(): T {
+                return initializer()
+            }
+
+            override val value: T
+                get() = get()
+
+        }
+        return TL()
+    }
 }

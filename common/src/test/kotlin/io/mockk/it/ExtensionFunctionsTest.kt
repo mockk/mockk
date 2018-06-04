@@ -8,36 +8,38 @@ class ExtensionFunctionsTest {
 
     @Test
     fun staticExtensionFunction() {
-        staticMockk("io.mockk.it.ExtensionFunctionsTestKt").use {
-            every {
-                IntWrapper(5).f()
-            } returns 11
+        mockkStatic("io.mockk.it.ExtensionFunctionsTestKt")
 
-            assertEquals(11, IntWrapper(5).f())
-            assertEquals(25, IntWrapper(20).f())
+        every {
+            IntWrapper(5).f()
+        } returns 11
 
-            verify {
-                IntWrapper(5).f()
-                IntWrapper(20).f()
-            }
+        assertEquals(11, IntWrapper(5).f())
+        assertEquals(25, IntWrapper(20).f())
+
+        verify {
+            IntWrapper(5).f()
+            IntWrapper(20).f()
         }
+
     }
 
     @Test
     fun objectExtensionFunction() {
-        objectMockk(ExtObj).use {
-            with(ExtObj) {
-                every {
-                    IntWrapper(5).h()
-                } returns 11
+        mockkObject(ExtObj)
 
-                assertEquals(11, IntWrapper(5).h())
+        with(ExtObj) {
+            every {
+                IntWrapper(5).h()
+            } returns 11
 
-                verify {
-                    IntWrapper(5).h()
-                }
+            assertEquals(11, IntWrapper(5).h())
+
+            verify {
+                IntWrapper(5).h()
             }
         }
+
     }
 
     @Test
