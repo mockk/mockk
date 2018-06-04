@@ -14,9 +14,10 @@
  <img src="doc/new.png" align="left" height="30" alt="new" />
 </td><td>
  
-[Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
-[Constructor mocking](#ccc) <br />
-[Scoped mocking deprecation](DEPRECATED.md) <br />
+* [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
+* [Constructor mocking](README.md#ccc) v1.8.1 <br />
+* [Scoped mocking deprecation](DEPRECATED.md) v1.8.1 <br />
+
 Please report any issues
 
 </td></tr>
@@ -232,22 +233,22 @@ object MockObj {
   fun add(a: Int, b: Int) = a + b
 }
 
-objectMockk(MockObj).use {
-  assertEquals(3, MockObj.add(1, 2))
+mockkObject(MockObj) // aplies mocking to an Object
 
-  every { MockObj.add(1, 2) } returns 55
+assertEquals(3, MockObj.add(1, 2))
 
-  assertEquals(55, MockObj.add(1, 2))
-}
+every { MockObj.add(1, 2) } returns 55
+
+assertEquals(55, MockObj.add(1, 2))
 
 ```
 
-The use function is an utility for `mock` and `unmock` methods. If you need to mock an object outside of the `use` scope, you can do it with them:
+To revert back use `unmockkAll` or `unmockkObject`:
 
 ```
 @Before
 fun beforeTests() {
-    objectMockk(MockObj).mock()
+    mockkObject(MockObj)
     every { MockObj.add(1,2) } returns 55
 }
 
@@ -258,7 +259,8 @@ fun willUseMockBehaviour() {
 
 @After
 fun afterTests() {
-    objectMockk(MockObj).unmock()
+    unmockkAll()
+    // or unmockkObject(MockObj)
 }
 
 
@@ -271,10 +273,10 @@ val newObjectMock = mockk<MockObj>()
 
 ### Class mock
 
-Sometimes you need mock of arbitary class. Use `classMockk` in this case.
+Sometimes you need mock of arbitary class. Use `mockkClass` in this case.
 
 ```kotlin
-val car = classMockk(Car::class)
+val car = mockkClass(Car::class)
 
 every { car.drive(Direction.NORTH) } returns Outcome.OK
 
@@ -285,7 +287,7 @@ verify { car.drive(Direction.NORTH) }
 
 ### Enumeration mocks
 
-Enums can be mocked using objectMockk:
+Enums can be mocked using `mockkObject`:
 
 ```
 enum class Enumeration(val goodInt: Int) {
@@ -293,12 +295,33 @@ enum class Enumeration(val goodInt: Int) {
     OTHER_CONSTANT(45);
 }
 
-objectMockk(Enumeration.CONSTANT).use {
-    every { Enumeration.CONSTANT.goodInt } returns 42
-    assertEquals(42, Enumeration.CONSTANT.goodInt)
-}
+mockkObject(Enumeration.CONSTANT)
+every { Enumeration.CONSTANT.goodInt } returns 42
+assertEquals(42, Enumeration.CONSTANT.goodInt)
+```
+
+### Constructor mocks
+
+Sometimes, especially in code you are not owning, you need to mock newly created objects.
+For this purpose following constructs are provided:
 
 ```
+class MockCls {
+  fun add(a: Int, b: Int) = a + b
+}
+
+mockkConstructor(MockCls::class)
+
+every { anyConstructed<MockCls>().op(1, 2) } returns 4
+
+assertEquals(4, MockCls().op(1, 2)) // note new object is created
+
+verify { anyConstructed<MockCls>().op(1, 2) }
+```
+
+Basic idea is that just after constructor of mocked class is executed(any of them), objects become `constructed mock`.
+Mocking behavior of such mock is connected to special `prototype mock` denoted by `anyConstructed<MockCls>()`.
+There is one instance per class of such `prototype mock`. Call recording also happens to `prototype mock`. If no behavior for function is specified original function is executed.
 
 ### Partial argument matching
 
@@ -553,7 +576,7 @@ with(mockk<Ext>()) {
 ```
 
 To mock module wide extension function you need to
-build staticMockk(...) with argument specifying module class name.
+build mockkStatic(...) with argument specifying module class name.
 For example "pkg.FileKt" for module "File.kt" in "pkg" package
 
 ```kotlin
@@ -562,16 +585,16 @@ data class Obj(val value: Int)
 // declared in File.kt ("pkg" package)
 fun Obj.extensionFunc() = value + 5
 
-staticMockk("pkg.FileKt").use {
-    every {
-        Obj(5).extensionFunc()
-    } returns 11
+mockkStatic("pkg.FileKt")
 
-    assertEquals(11, Obj(5).extensionFunc())
+every {
+    Obj(5).extensionFunc()
+} returns 11
 
-    verify {
-        Obj(5).extensionFunc()
-    }
+assertEquals(11, Obj(5).extensionFunc())
+
+verify {
+    Obj(5).extensionFunc()
 }
 ```
 ### Private functions mocking / dynamic calls
