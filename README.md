@@ -12,9 +12,9 @@
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
 
-* [Constructor mocking](README.md#constructor-mocks) v1.8.1 <br />
-* [Scoped mocking deprecation](DEPRECATED.md#scoped-mocking) v1.8.1 <br />
-* [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
+* [Constructor mocking](README.md#constructor-mocks) v1.8.1
+* [Scoped mocking deprecation](DEPRECATED.md#scoped-mocking) v1.8.1
+* [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/>
 Please report any issues
 <br />
 <br />
