@@ -112,6 +112,12 @@ Unfortunatelly public CIs alike Travis and Circle are not supporting emulation o
         <td></td>
         <td>✓</td>
     </tr>
+    <tr>
+        <td>constructor mocking</td>
+        <td>✓</td>
+        <td></td>
+        <td>✓</td>
+    </tr>
     </tbody>
 </table>
 
