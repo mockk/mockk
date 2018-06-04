@@ -78,13 +78,13 @@ All you need to get started is just to add a dependency to `MockK` library.
     </td>
 </tr>
 <tr>
-<td><a href="ANDROID.md"><img align="middle" src="doc/robot-small.png" height="30" alt="android"/> Unit</a></td>
+<td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
 <td>
     <pre>testImplementation "io.mockk:mockk:{version}"</pre>
 </td>
 </tr>
 <tr>
-<td><a href="ANDROID.md"><img align="middle" src="doc/robot-small.png" height="30" alt="android"/> Instrumented</a></td>
+<td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
 <td>
     <pre>androidTestImplementation "io.mockk:mockk-android:{version}"</pre>
 </td>
