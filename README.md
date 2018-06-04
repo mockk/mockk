@@ -15,7 +15,8 @@
 * [Scoped mocking deprecation](DEPRECATED.md) v1.8.1 <br />
 * [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
 Please report any issues
-
+<br />
+<br />
 Table of contents:
 
 * auto-gen TOC:
