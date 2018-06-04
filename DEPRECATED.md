@@ -65,4 +65,4 @@ It is safe to use it alone without `clearing` or `unmocking`
 
 So basically there is no scopes, `mock`, `unmock` or `use`. 
 There is just one call that creates a mock or clears if it is already created.
-It should be safe to have only that one declaration in test before using mock in tested code relying on it.
+It should be safe to have only that one declaration in test before using mock.
