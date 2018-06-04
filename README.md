@@ -13,7 +13,7 @@
 
 * [Constructor mocking](README.md#constructor-mocks) v1.8.1
 * [Scoped mocking deprecation](DEPRECATED.md#scoped-mocking) v1.8.1
-* [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/>
+* [Android instrumented tests](ANDROID.md) v1.8 <img src="doc/robot-small.png" align="top" height="20" alt="Android"/>
 
 Please report any issues
 
@@ -78,13 +78,13 @@ All you need to get started is just to add a dependency to `MockK` library.
     </td>
 </tr>
 <tr>
-<td><a href="ANDROID.md"><img src="doc/robot-small.png" height="30" alt="android"/> Unit</a></td>
+<td><a href="ANDROID.md"><img align="middle" src="doc/robot-small.png" height="30" alt="android"/> Unit</a></td>
 <td>
     <pre>testImplementation "io.mockk:mockk:{version}"</pre>
 </td>
 </tr>
 <tr>
-<td><a href="ANDROID.md"><img src="doc/robot-small.png" height="30" alt="android"/> Instrumented</a></td>
+<td><a href="ANDROID.md"><img align="middle" src="doc/robot-small.png" height="30" alt="android"/> Instrumented</a></td>
 <td>
     <pre>androidTestImplementation "io.mockk:mockk-android:{version}"</pre>
 </td>
