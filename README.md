@@ -11,9 +11,9 @@
  
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
-* [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
-* [Constructor mocking](README.md#ccc) v1.8.1 <br />
+* [Constructor mocking](README.md#constructor-mocks) v1.8.1 <br />
 * [Scoped mocking deprecation](DEPRECATED.md) v1.8.1 <br />
+* [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
 Please report any issues
 
 Table of contents:
