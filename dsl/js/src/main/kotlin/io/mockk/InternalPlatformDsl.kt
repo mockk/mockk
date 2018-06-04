@@ -93,6 +93,12 @@ actual object InternalPlatformDsl {
         throw MockKException("dynamic set is not supported on JS platform")
     }
 
+    actual fun <T> threadLocal(initializer: () -> T): InternalRef<T> {
+        return object : InternalRef<T> {
+            override val value = initializer()
+        }
+    }
+
 }
 
 internal external object Kotlin {
