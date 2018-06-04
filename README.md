@@ -8,20 +8,13 @@
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features) 
 [![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
-
-<table style="border: none !important;">
-<tr><td>
- <img src="doc/new.png" align="left" height="30" alt="new" />
-</td><td>
  
+<img src="doc/new.png" align="left" height="50" alt="new" />
+
 * [Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="top" height="20" alt="Android"/> <br />
 * [Constructor mocking](README.md#ccc) v1.8.1 <br />
 * [Scoped mocking deprecation](DEPRECATED.md) v1.8.1 <br />
-
 Please report any issues
-
-</td></tr>
-</table>
 
 Table of contents:
 
