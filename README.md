@@ -78,7 +78,7 @@ All you need to get started is just to add a dependency to `MockK` library.
     </td>
 </tr>
 <tr>
-<td width="100"><a href="ANDORID.md"><img src="doc/robot-small.png" height="30" alt="AIT"/></a></td>
+<td width="100"><a href="ANDROID.md"><img src="doc/robot-small.png" height="30" alt="AIT"/></a></td>
 <td>
     <pre>testImplementation "io.mockk:mockk:{version}"</pre>
     <pre>androidTestImplementation "io.mockk:mockk-android:{version}"</pre>
