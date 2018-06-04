@@ -1,9 +1,20 @@
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
-[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/mockk/mockk.svg?branch=master)](https://travis-ci.org/mockk/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](http://mockk.io/BACKLOG) [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX) [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features) 
+[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+[![Build Status](https://travis-ci.org/mockk/mockk.svg?branch=master)](https://travis-ci.org/mockk/mockk)
+[![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)
+[![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
+[![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](http://mockk.io/BACKLOG) [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX)
+[![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
+[![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features) 
 [![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
 
- <img src="doc/robot-small.png" align="left" height="50" alt="Android"/> ***[Android instrumented tests](ANDROID.md) are supported from version 1.8. It's quite big amount of changes, so please report any issues***
+
+ <img src="doc/new.png" align="middle" height="40" alt="new"/> <br />
+[Android instrumented tests](ANDROID.md) v1.8. <img src="doc/robot-small.png" align="middle" height="10" alt="Android"/> <br /> 
+[Constructor mocking](#ccc)
+[Scoped mocking deprecation](DEPRECATED.md)
+Please report any issues
 
 Table of contents:
 
@@ -21,6 +32,7 @@ Table of contents:
  - mocking coroutines
  - capturing lambdas
  - object mocks
+ - constructor mocks
  - private function mocking
  - property backing field access
  - extension function mocking (static mocks)
