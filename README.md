@@ -61,7 +61,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <table>
 <thead><tr><th>Approach</th><th>Instruction</th></tr></thead>
 <tr>
-<td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
+<td><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
     <pre>testCompile "io.mockk:mockk:{version}"</pre>
     </td>
@@ -78,19 +78,19 @@ All you need to get started is just to add a dependency to `MockK` library.
     </td>
 </tr>
 <tr>
-<td width="100"><a href="ANDROID.md"><img src="doc/robot-small.png" height="30" alt="android"/> Unit</a></td>
+<td><a href="ANDROID.md"><img src="doc/robot-small.png" height="30" alt="android"/> Unit</a></td>
 <td>
     <pre>testImplementation "io.mockk:mockk:{version}"</pre>
 </td>
 </tr>
 <tr>
-<td width="100"><a href="ANDROID.md"><img src="doc/robot-small.png" height="30" alt="android"/> Instrumented</a></td>
+<td><a href="ANDROID.md"><img src="doc/robot-small.png" height="30" alt="android"/> Instrumented</a></td>
 <td>
     <pre>androidTestImplementation "io.mockk:mockk-android:{version}"</pre>
 </td>
 </tr>
 <tr>
-<td width="100">Common multiplatform</td>
+<td>Common multiplatform</td>
 <td>
     <pre>testCompile "io.mockk:mockk-common:{version}"</pre>
 </td>
