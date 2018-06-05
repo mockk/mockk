@@ -22,7 +22,8 @@ This misuse exposes tests to errors and dependency.
 <table>
 <thead>
 <tr><th>Old syntax</th><th>New syntax</th><th>Annotation</th></tr>
-
+</thead>
+<tbody>
 <tr>
 <td>
 <pre>
@@ -38,8 +39,10 @@ mockkObject(Obj)
 </pre>
 </td>
 <td>
+
 `mockkObject` will automatically clear mock before usage. 
 It is safe to use it alone without `clearing` or `unmocking` 
+
 </td>
 </tr>
 
@@ -58,10 +61,13 @@ mockkStatic(Cls::class)
 </pre>
 </td>
 <td>
+
 `mockkStatic` will automatically clear mock before usage. 
 It is safe to use it alone without `clearing` or `unmocking` 
+
 </td>
 </tr>
+</tbody>
 </table>
 
 So basically there is no scopes, `mock`, `unmock` or `use`. 
