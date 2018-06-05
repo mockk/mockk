@@ -15,14 +15,15 @@ I know it may be inconvenient for end user, but here sooner is better than later
 
 ### Scoped mocking
 
-From the beginning syntax here was weird. But not only that. 
+From the beginning syntax of scoped mocking was weird. But not only that. 
 More and more I am finding that people misusing it in code I see through GH, Gitter and Slack.
 This misuse exposes tests to errors and dependency.
 
 <table>
 <thead>
 <tr><th>Old syntax</th><th>New syntax</th><th>Annotation</th></tr>
-
+</thead>
+<tbody>
 <tr>
 <td>
 <pre>
@@ -38,8 +39,10 @@ mockkObject(Obj)
 </pre>
 </td>
 <td>
-`mockkObject` will automatically clear mock before usage. 
-It is safe to use it alone without `clearing` or `unmocking` 
+
+<code>mockkObject</code> will automatically clear mock before usage. 
+It is safe to use it alone without <code>clearing</code> or <code>unmocking</code>
+
 </td>
 </tr>
 
@@ -58,10 +61,13 @@ mockkStatic(Cls::class)
 </pre>
 </td>
 <td>
-`mockkStatic` will automatically clear mock before usage. 
-It is safe to use it alone without `clearing` or `unmocking` 
+
+<code>mockkStatic</code> will automatically clear mock before usage. 
+It is safe to use it alone without <code>clearing</code> or <code>unmocking</code>
+
 </td>
 </tr>
+</tbody>
 </table>
 
 So basically there is no scopes, `mock`, `unmock` or `use`. 
