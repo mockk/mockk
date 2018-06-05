@@ -699,6 +699,35 @@ thread.join()
 
 Here are few tables helping to master the DSL.
 
+### Top level functions
+
+|Function|Description|
+|--------|-----------|
+|`mockk<T>(...)`|builds a regular mock|
+|`spyk<T>()`|builds a spy using default constructor|
+|`spyk(obj)`|builds a spy by copying from `obj`|
+|`slot()`|creates capturing slot|
+|`every`|starts stubbing block|
+|`coEvery`|starts stubbing block for coroutines|
+|`verify`|starts verification block|
+|`coVerify`|starts verification block for coroutines|
+|`verifyAll`|starts verification block that should include all calls|
+|`verifyOrder`|starts verification block that checks order|
+|`verifySequence`|starts verification block that checks all calls goes in sepecified sequence|
+|`clearMocks(...)`|clears specified mocks|
+|`registerInstanceFactory`|allow to redefine way of instantiation for certain object|
+|`mockkClass`|builds a regular mock, just class is passed as a parameter|
+|`mockkObject`|makes any object an object mock or clears it if already transformed|
+|`unmockkObject`|makes an object mock regular object|
+|`mockkStatic`|makes static mock out of a class or clears it if already transformed|
+|`clearStaticMockk`|clears static mock|
+|`unmockkStatic`|makes static mock back a regular class|
+|`mockkConstructor`|makes constructor mock out of a class or clears it if already transformed|
+|`unmockkConstructor`|makes constructor mock back a regular class|
+|`clearConstructorMockk`|clears constructor mock|
+|`unmockkAll`|unmock object, static and constructor mocks|
+
+
 ### Matchers
 
 By default simple arguments are matched using `eq()`
