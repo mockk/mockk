@@ -1,6 +1,7 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.MockKCancellation
 import io.mockk.MockKException
 import io.mockk.MockKGateway.ConstructorMockFactory
 import io.mockk.impl.InternalPlatform
@@ -33,9 +34,9 @@ class JvmConstructorMockFactory(
         val cls: KClass<*>,
         val recordPrivateCalls: Boolean
     ) {
-        val cancellations = mutableListOf<() -> Unit>()
+        val cancellations = mutableListOf<MockKCancellation>()
 
-        val name = "constructorMockk<${cls.simpleName}>()"
+        val name = "mockkConstructor<${cls.simpleName}>()"
 
         init {
             log.trace { "Creating constructor representation mock for ${cls.toStr()}" }
@@ -174,7 +175,7 @@ class JvmConstructorMockFactory(
 
     override fun <T : Any> mockPlaceholder(cls: KClass<T>) = cls.cast(
         getMock(cls)
-                ?: throw MockKException("to use anyConstructed<T>() first build constructorMockk<T>() and 'use' it")
+                ?: throw MockKException("to use anyConstructed<T>() first build mockkConstructor<T>() and 'use' it")
     )
 
     override fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {

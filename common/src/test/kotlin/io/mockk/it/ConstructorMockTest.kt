@@ -5,8 +5,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ConstructorMockTest {
-    class MockCls {
-        fun op(a: Int, b: Int) = a + b
+    class MockCls(val x: Int = 0) {
+        fun op(a: Int, b: Int) = a + b + x
+
+        fun opList(a: Int, b: Int) = listOf(a, b)
+
+        fun chainOp(a: Int, b: Int) = MockCls(a + b + x)
     }
 
     @Test
@@ -73,5 +77,31 @@ class ConstructorMockTest {
         assertEquals(4, MockCls().op(1, 2))
 
         verify { MockCls().op(1, 2) }
+    }
+
+    @Test
+    fun returnObject() {
+        mockkConstructor(MockCls::class)
+
+        every { MockCls().opList(1, 2) } returns listOf(5, 6)
+
+        assertEquals(listOf(5, 6), MockCls().opList(1, 2))
+
+        verify { MockCls().opList(1, 2) }
+    }
+
+    @Test
+    fun chainedOps() {
+        mockkConstructor(MockCls::class)
+
+        every { MockCls().chainOp(1, 2).chainOp(3, 4).op(5, 6) } returns 7
+
+        assertEquals(7, MockCls().chainOp(1, 2).chainOp(3, 4).op(5, 6))
+
+        verify { MockCls().chainOp(1, 2).chainOp(3, 4).op(5, 6) }
+
+        clearConstructorMockk(MockCls::class)
+
+        assertEquals(21, MockCls().chainOp(1, 2).chainOp(3, 4).op(5, 6))
     }
 }

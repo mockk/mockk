@@ -89,7 +89,7 @@ class JvmMockKGateway : MockKGateway {
         clearer,
         mockFactory,
         agentFactory.proxyMaker,
-        gatewayAccess
+        gatewayAccess.copy(mockFactory = mockFactory)
     )
 
 

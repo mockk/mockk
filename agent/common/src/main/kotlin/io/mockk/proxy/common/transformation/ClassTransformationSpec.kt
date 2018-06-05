@@ -40,10 +40,10 @@ data class ClassTransformationSpec(
             lst.add("mockk")
         }
         if (shouldDoStaticIntercept) {
-            lst.add("staticMockk")
+            lst.add("mockkStatic")
         }
         if (shouldDoConstructorIntercept) {
-            lst.add("constructorMockk")
+            lst.add("mockkConstructor")
         }
         return lst.joinToString(", ")
     }
