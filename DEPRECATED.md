@@ -40,8 +40,8 @@ mockkObject(Obj)
 </td>
 <td>
 
-`mockkObject` will automatically clear mock before usage. 
-It is safe to use it alone without `clearing` or `unmocking` 
+<code>mockkObject</code> will automatically clear mock before usage. 
+It is safe to use it alone without <code>clearing</code> or <code>unmocking</code>
 
 </td>
 </tr>
@@ -62,8 +62,8 @@ mockkStatic(Cls::class)
 </td>
 <td>
 
-`mockkStatic` will automatically clear mock before usage. 
-It is safe to use it alone without `clearing` or `unmocking` 
+<code>mockkStatic</code> will automatically clear mock before usage. 
+It is safe to use it alone without <code>clearing</code> or <code>unmocking</code>
 
 </td>
 </tr>
