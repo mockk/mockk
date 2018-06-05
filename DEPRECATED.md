@@ -15,7 +15,7 @@ I know it may be inconvenient for end user, but here sooner is better than later
 
 ### Scoped mocking
 
-From the beginning syntax here was weird. But not only that. 
+From the beginning syntax of scoped mocking was weird. But not only that. 
 More and more I am finding that people misusing it in code I see through GH, Gitter and Slack.
 This misuse exposes tests to errors and dependency.
 
