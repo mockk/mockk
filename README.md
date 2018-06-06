@@ -706,7 +706,7 @@ Here are few tables helping to master the DSL.
 |`mockk<T>(...)`|builds a regular mock|
 |`spyk<T>()`|builds a spy using default constructor|
 |`spyk(obj)`|builds a spy by copying from `obj`|
-|`slot()`|creates capturing slot|
+|`slot`|creates capturing slot|
 |`every`|starts stubbing block|
 |`coEvery`|starts stubbing block for coroutines|
 |`verify`|starts verification block|
@@ -714,14 +714,14 @@ Here are few tables helping to master the DSL.
 |`verifyAll`|starts verification block that should include all calls|
 |`verifyOrder`|starts verification block that checks order|
 |`verifySequence`|starts verification block that checks all calls goes in sepecified sequence|
-|`clearMocks(...)`|clears specified mocks|
+|`clearMocks`|clears specified mocks|
 |`registerInstanceFactory`|allow to redefine way of instantiation for certain object|
 |`mockkClass`|builds a regular mock, just class is passed as a parameter|
 |`mockkObject`|makes any object an object mock or clears it if already transformed|
 |`unmockkObject`|makes an object mock regular object|
 |`mockkStatic`|makes static mock out of a class or clears it if already transformed|
-|`clearStaticMockk`|clears static mock|
 |`unmockkStatic`|makes static mock back a regular class|
+|`clearStaticMockk`|clears static mock|
 |`mockkConstructor`|makes constructor mock out of a class or clears it if already transformed|
 |`unmockkConstructor`|makes constructor mock back a regular class|
 |`clearConstructorMockk`|clears constructor mock|
