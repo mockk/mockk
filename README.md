@@ -324,11 +324,11 @@ class MockCls {
 
 mockkConstructor(MockCls::class)
 
-every { anyConstructed<MockCls>().op(1, 2) } returns 4
+every { anyConstructed<MockCls>().add(1, 2) } returns 4
 
-assertEquals(4, MockCls().op(1, 2)) // note new object is created
+assertEquals(4, MockCls().add(1, 2)) // note new object is created
 
-verify { anyConstructed<MockCls>().op(1, 2) }
+verify { anyConstructed<MockCls>().add(1, 2) }
 ```
 
 Basic idea is that just after constructor of mocked class is executed(any of them), objects become `constructed mock`.
