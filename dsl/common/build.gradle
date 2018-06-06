@@ -16,6 +16,14 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+jar {
+    eachFile { details ->
+        if (details.path == "META-INF/main.kotlin_module") {
+            details.path = "META-INF/mockk-dsl.kotlin_module"
+        }
+    }
+}
+
 artifacts {
     archives sourcesJar
 }
