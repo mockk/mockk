@@ -35,13 +35,6 @@ internal class InliningClassTransformer(
                 ?: return classfileBuffer
 
         return synchronized(lock) {
-
-            println(
-                identifier + " " +
-                spec.shouldDoSimpleIntercept + " " +
-                spec.shouldDoStaticIntercept + " " +
-                spec.shouldDoConstructorIntercept
-            )
             try {
                 nativeRedefine(
                     identifier,

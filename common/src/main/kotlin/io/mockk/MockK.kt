@@ -267,7 +267,7 @@ inline fun <T : Any> mockkClass(
  * Builds a static mock. Old static mocks of same classes are cancelled before.
  */
 inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) = MockK.useImpl {
-    MockKDsl.internalMockkObject(*objects, recordPrivateCalls)
+    MockKDsl.internalMockkObject(*objects, recordPrivateCalls = recordPrivateCalls)
 }
 
 /**
