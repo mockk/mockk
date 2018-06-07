@@ -63,7 +63,13 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:{version}"</pre>
+    <pre>testImplementation "io.mockk:mockk:{version}"</pre>
+    </td>
+</tr>
+<tr>
+<td><img src="doc/gradle.png" alt="Gradle"/> (Kotlin DSL)</td>
+<td>
+    <pre>testImplementation("io.mockk:mockk:{version}")</pre>
     </td>
 </tr>
 <tr>
@@ -80,19 +86,19 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:{version}"</pre>
+    <pre>testImplementation "io.mockk:mockk:{version}"</pre>
 </td>
 </tr>
 <tr>
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
 <td>
-    <pre>androidTestCompile "io.mockk:mockk-android:{version}"</pre>
+    <pre>androidTestImplementation "io.mockk:mockk-android:{version}"</pre>
 </td>
 </tr>
 <tr>
 <td>Common multiplatform</td>
 <td>
-    <pre>testCompile "io.mockk:mockk-common:{version}"</pre>
+    <pre>testImplementation "io.mockk:mockk-common:{version}"</pre>
 </td>
 </tr>
 <tr>
