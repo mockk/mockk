@@ -98,7 +98,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td>Common multiplatform</td>
 <td>
-    <pre>testImplementation "io.mockk:mockk-common:{version}"</pre>
+    <pre>testCompile "io.mockk:mockk-common:{version}"</pre>
 </td>
 </tr>
 <tr>
