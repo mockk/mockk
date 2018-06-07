@@ -70,18 +70,20 @@ class JvmMockKGateway : MockKGateway {
         gatewayAccess
     )
 
+    val gatewayAccessWithFactory = gatewayAccess.copy(mockFactory = mockFactory)
+
     override val clearer = CommonClearer(stubRepo, safeLog)
 
     override val staticMockFactory = JvmStaticMockFactory(
         agentFactory.staticProxyMaker,
         stubRepo,
-        gatewayAccess
+        gatewayAccessWithFactory
     )
 
     override val objectMockFactory = JvmObjectMockFactory(
         agentFactory.proxyMaker,
         stubRepo,
-        gatewayAccess
+        gatewayAccessWithFactory
     )
 
     override val constructorMockFactory = JvmConstructorMockFactory(
@@ -89,7 +91,7 @@ class JvmMockKGateway : MockKGateway {
         clearer,
         mockFactory,
         agentFactory.proxyMaker,
-        gatewayAccess.copy(mockFactory = mockFactory)
+        gatewayAccessWithFactory
     )
 
 
