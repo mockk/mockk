@@ -615,6 +615,17 @@ verify {
     Obj(5).extensionFunc()
 }
 ```
+
+Sometimes you need to know a little bit more to mock extension function. 
+For example `File.endsWith()` extension function has totally unpredictable `classname`:
+```
+   mockkStatic("kotlin.io.FilesKt__UtilsKt")
+   every { File("abc").endsWith(any<String>()) } returns true
+   println(File("abc").endsWith("abc"))
+```
+This is standard Kotlin behaviour that may be unpredictable for user of mocking library.
+Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR archive to detect such names.
+
 ### Private functions mocking / dynamic calls
 
 In case you have a need to mock private function, you can do it via dynamic call.
