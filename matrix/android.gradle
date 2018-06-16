@@ -29,7 +29,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 'android-P'
+    compileSdkVersion 'android-28'
     buildToolsVersion '27.0.3'
 
     lintOptions {
