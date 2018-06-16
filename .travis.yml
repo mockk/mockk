@@ -5,7 +5,7 @@ android:
     - tools
     - platform-tools
     - build-tools-27.0.3
-    - android-P
+    - android-28
 
 jdk:
   - oraclejdk8
@@ -14,7 +14,6 @@ install:
   - yes | sdkmanager "ndk-bundle"
   - yes | sdkmanager "cmake;3.6.4111459"
   - yes | sdkmanager "lldb;3.1"
-  - yes | sdkmanager "platforms;android-P"
 
 script:
   - ./gradlew check
