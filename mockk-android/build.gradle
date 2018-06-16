@@ -1,0 +1,126 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 'android-28'
+    buildToolsVersion '27.0.3'
+
+    lintOptions {
+        abortOnError false
+        disable 'InvalidPackage'
+        warning 'NewApi'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/main.kotlin_module'
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
+    }
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 27
+        versionName project['version']
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/android/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+        androidTest.kotlin.srcDirs += '../common/src/test/kotlin'
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.6
+        targetCompatibility = 1.6
+    }
+
+}
+
+repositories {
+    jcenter()
+    google()
+}
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation(project(':mockk'), {
+        exclude group: 'io.mockk', module: 'mockk-agent-jvm'
+    })
+    implementation project(":mockk-agent-android")
+    implementation project(":mockk-agent-api")
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
+        exclude group: "junit", module: "junit"
+    }
+
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+    androidTestImplementation "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
+    androidTestImplementation 'org.slf4j:slf4j-api:1.7.25'
+    androidTestImplementation 'ch.qos.logback:logback-classic:1.2.3'
+}
+
+afterEvaluate { project ->
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                if (project.hasProperty('localrepo')) {
+                    repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
+                } else {
+                    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                        authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                    }
+
+                    snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                        authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                    }
+                }
+
+                pom.project {
+                    name 'MockK Android'
+                    packaging 'aar'
+                    description 'mocking library for Kotlin (Android instrumented test)'
+                    url 'http://mockk.io'
+
+                    scm {
+                        connection 'scm:git:git@github.com:mockk/mockk.git'
+                        developerConnection 'scm:git:git@github.com:mockk/mockk.git'
+                        url 'http://www.github.com/mockk/mockk/'
+                    }
+
+                    licenses {
+                        license {
+                            name 'Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'oleksiyp'
+                            name 'Oleksii Pylypenko'
+                            email 'oleksiy.pylypenko@gmail.com'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

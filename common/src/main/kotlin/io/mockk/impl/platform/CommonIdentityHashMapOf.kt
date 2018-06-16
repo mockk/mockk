@@ -1,7 +1,7 @@
 package io.mockk.impl.platform
 
-import io.mockk.Ref
 import io.mockk.impl.InternalPlatform
+import io.mockk.impl.Ref
 
 class CommonIdentityHashMapOf<K, V> : MutableMap<K, V> {
     val map = linkedMapOf<Ref?, V>()

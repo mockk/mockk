@@ -2,17 +2,18 @@ package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
-import io.mockk.Ref
 import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
+import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
+import kotlin.reflect.full.cast
 import kotlin.reflect.full.isSubclassOf
 
 actual object InternalPlatform {
@@ -89,7 +90,7 @@ actual object InternalPlatform {
 
             ex is NoClassDefFoundError &&
                     ex.message?.contains("kotlinx/coroutines/") ?: false ->
-                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ")
+                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ", ex)
 
             else -> ex
         }
@@ -101,7 +102,10 @@ actual object InternalPlatform {
                 if (Modifier.isStatic(field.modifiers)) {
                     continue
                 }
-                field.isAccessible = true
+                if (isRunningAndroidInstrumentationTest() && field.name.startsWith("shadow$")) {
+                    continue
+                }
+                InternalPlatformDsl.makeAccessible(field)
                 val value = field.get(from)
                 field.set(to, value)
             }
@@ -112,16 +116,42 @@ actual object InternalPlatform {
         copy(to, from, from::class.java)
     }
 
-    actual fun captureStackTrace(): List<StackElement> {
-        val stack = Exception("Stack trace").stackTrace ?: return listOf()
-        return stack.map {
-            StackElement(
-                it.className ?: "-",
-                it.fileName ?: "-",
-                it.methodName ?: "-",
-                it.lineNumber,
-                it.isNativeMethod
-            )
+    actual fun captureStackTrace(): () -> List<StackElement> {
+        val ex = Exception("Stack trace")
+        return {
+            val stack = ex.stackTrace ?: arrayOf<StackTraceElement>()
+            stack.map {
+                StackElement(
+                    it.className ?: "-",
+                    it.fileName ?: "-",
+                    it.methodName ?: "-",
+                    it.lineNumber,
+                    it.isNativeMethod
+                )
+            }
         }
     }
+
+    actual fun weakRef(value: Any): WeakRef {
+        val weakRef = WeakReference<Any>(value)
+        return object : WeakRef {
+            override val value: Any?
+                get() = weakRef.get()
+        }
+    }
+
+    inline fun <reified T : Any> loadPlugin(className: String, msg: String = "") =
+        try {
+            T::class.cast(Class.forName(className).newInstance())
+        } catch (ex: Exception) {
+            throw MockKException("Failed to load plugin. $className $msg", ex)
+        }
+
+
+    fun isRunningAndroidInstrumentationTest(): Boolean {
+        return System.getProperty("java.vendor", "")
+            .toLowerCase(Locale.US)
+            .contains("android")
+    }
+
 }

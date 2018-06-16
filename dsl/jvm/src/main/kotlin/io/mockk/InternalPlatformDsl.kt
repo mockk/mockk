@@ -1,17 +1,14 @@
 package io.mockk
 
 import kotlinx.coroutines.experimental.runBlocking
+import java.lang.reflect.AccessibleObject
 import java.lang.reflect.Method
 import kotlin.coroutines.experimental.Continuation
-import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty1
-import kotlin.reflect.KProperty1
+import kotlin.reflect.*
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.javaField
-import kotlin.reflect.jvm.javaGetter
+import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.javaSetter
 
 actual object InternalPlatformDsl {
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
@@ -96,23 +93,46 @@ actual object InternalPlatformDsl {
     ): Any? {
         val params = arrayOf(self, *args)
         val func = self::class.functions.firstOrNull {
-            it.name == methodName &&
-                    it.parameters.size == params.size &&
-                    it.parameters.zip(params).all {
-                        val classifier = it.first.type.classifier
-                        if (classifier is KClass<*>) {
-                            classifier.isInstance(it.second)
-                        } else {
-                            false
-                        }
-                    }
+            if (it.name != methodName) {
+                return@firstOrNull false
+            }
+            if (it.parameters.size != params.size) {
+                return@firstOrNull false
+            }
+
+            for ((idx, param) in it.parameters.withIndex()) {
+                val classifier = param.type.classifier
+
+                val matches = when (classifier) {
+                    is KClass<*> -> classifier.isInstance(params[idx])
+                    is KTypeParameter -> classifier.upperBounds.anyIsInstance(params[idx])
+                    else -> false
+                }
+                if (!matches) {
+                    return@firstOrNull false
+                }
+            }
+
+            return@firstOrNull true
+
         } ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) for dynamic call")
 
-        func.javaMethod?.isAccessible = true
+        func.javaMethod?.let { makeAccessible(it) }
         if (func.isSuspend) {
             return func.call(*params, anyContinuationGen())
         } else {
             return func.call(*params)
+        }
+    }
+
+    private fun List<KType>.anyIsInstance(value: Any?): Boolean {
+        return any { bound ->
+            val classifier = bound.classifier
+            if (classifier is KClass<*>) {
+                classifier.isInstance(value)
+            } else {
+                false
+            }
         }
     }
 
@@ -123,7 +143,7 @@ actual object InternalPlatformDsl {
                 it.name == name
             } ?: throw MockKException("can't find property $name for dynamic property get")
 
-        property.javaGetter?.isAccessible = true
+        property.isAccessible = true
         return property.get(self)
     }
 
@@ -134,8 +154,28 @@ actual object InternalPlatformDsl {
                 it.name == name
             } ?: throw MockKException("can't find property $name for dynamic property set")
 
-        property.javaSetter?.isAccessible = true
+        property.isAccessible = true
         return property.set(self, value)
     }
 
+    fun makeAccessible(obj: AccessibleObject) {
+        try {
+            obj.isAccessible = true
+        } catch (ex: Throwable) {
+            // skip
+        }
+    }
+
+    actual fun <T> threadLocal(initializer: () -> T): InternalRef<T> {
+        class TL : ThreadLocal<T>(), InternalRef<T> {
+            override fun initialValue(): T {
+                return initializer()
+            }
+
+            override val value: T
+                get() = get()
+
+        }
+        return TL()
+    }
 }

@@ -1,18 +1,6 @@
 
 # Backlog
-- [x] [#29](https://github.com/oleksiyp/mockk/issues/29) bug: any() matcher for java Class parameter fails with IllegalAccessError
-- [x] feature: dynamic calls (private calls)
-- [x] ***RELEASE MockK 1.7.6, 1.7.7***
-- [x] [#34](https://github.com/oleksiyp/mockk/pull/34) feature: JUnit5 extension (alike here https://github.com/oleksiyp/mockk/pull/23)
-- [x] [#31](https://github.com/oleksiyp/mockk/issues/31) feture: arbitry class mocks
-- [x] ***RELEASE MockK 1.7.8***
-- [x] feature: switch staticMockk from MocKKStub to SpyKStub
-- [x] ***RELEASE MockK 1.7.9***
-- [x] [#35](https://github.com/oleksiyp/mockk/issues/35) bug: StackOverflowException with HashMap
-- [x] ***RELEASE MockK 1.7.10***
-- [x] bug: broken JDK7 support
-- [x] ***RELEASE MockK 1.7.11***
-- [ ] [#28](https://github.com/oleksiyp/mockk/pull/28) feature: inject mockk
+- [x] ***RELEASE MockK 1.8***
 - [ ] doc: describe captureLambda/captureCoroutine
 - [ ] doc: describe extension *properties*
 - [ ] bug: fix recording calls before validation, which is wrong in case it is failed
@@ -22,18 +10,14 @@
 - [ ] bug: forbid `verify { foo.service() wasNot Called }`
 - [ ] bug: check `verify { service.foo(assert {it.id == "wrongid"}) }` error message
 - [ ] think: how to fix `verify { spyHelper.handleMultipleSensors() wasNot Called }`
-- [ ] feature: dynamic calls for properties
-- [ ] feature: simpler access to private fields for mocking
 - [ ] article: translation Mockito <--> MockK
 - [ ] article: next few articles in series "Mocking is not Rocket Science"
 - [ ] feature: matching inside of data classes and arrays
 - [ ] fix: get rid of implicit dependency on coroutine library
-- [ ] **BIG** feature: runs on Android devices
 - [ ] docs: more JavaDocs
 
 ## Geo
 
-<img align="left" src="doc/logo300k-alt2.png" width="50" height="50"/>
 Beware Kotlin is popular in Germany, Japan, India, USA and Brasil
 
 ## Just for reference

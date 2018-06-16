@@ -9,6 +9,7 @@ interface MockKGateway {
     val mockFactory: MockFactory
     val staticMockFactory: StaticMockFactory
     val objectMockFactory: ObjectMockFactory
+    val constructorMockFactory: ConstructorMockFactory
     val stubber: Stubber
     val verifier: Verifier
     val callRecorder: CallRecorder
@@ -51,18 +52,33 @@ interface MockKGateway {
      * Binds static mocks
      */
     interface StaticMockFactory {
-        fun staticMockk(cls: KClass<*>)
+        fun staticMockk(cls: KClass<*>): () -> Unit
 
-        fun staticUnMockk(cls: KClass<*>)
+        fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
     }
 
     /**
      * Binds object mocks
      */
     interface ObjectMockFactory {
-        fun objectMockk(obj: Any, recordPrivateCalls: Boolean)
+        fun objectMockk(obj: Any, recordPrivateCalls: Boolean): () -> Unit
 
-        fun objectUnMockk(obj: Any)
+        fun clear(obj: Any, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
+    }
+
+    /**
+     * Controls constructor mocking
+     */
+    interface ConstructorMockFactory {
+        fun constructorMockk(
+            cls: KClass<*>,
+            recordPrivateCalls: Boolean,
+            localToThread: Boolean
+        ): () -> Unit
+
+        fun <T : Any> mockPlaceholder(cls: KClass<T>): T
+
+        fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
     }
 
     /**
@@ -84,7 +100,7 @@ interface MockKGateway {
         fun <T> every(
             mockBlock: (MockKMatcherScope.() -> T)?,
             coMockBlock: (suspend MockKMatcherScope.() -> T)?
-        ): MockKStubScope<T>
+        ): MockKStubScope<T, T>
     }
 
     /**
@@ -173,9 +189,4 @@ interface MockKGateway {
     interface MockInitializer {
         fun initAnnotatedMocks(targets: List<Any>)
     }
-}
-
-
-interface Ref {
-    val value: Any
 }

@@ -1,19 +1,17 @@
 package io.mockk.gh
 
-import io.mockk.classMockk
 import io.mockk.every
-import io.mockk.mockk
+import io.mockk.mockkClass
 import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class Issue31Test {
     class MockCls {
         fun op(a: Int, b: Int) = a + b
     }
 
-    val mock = classMockk(MockCls::class)
+    val mock = mockkClass(MockCls::class)
 
     @Test
     fun exactlyZeroWithAny() {

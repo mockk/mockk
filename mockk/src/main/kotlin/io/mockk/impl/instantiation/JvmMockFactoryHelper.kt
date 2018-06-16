@@ -1,22 +1,57 @@
 package io.mockk.impl.instantiation
 
-import io.mockk.MethodDescription
-import io.mockk.MockKException
+import io.mockk.*
+import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
+import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
+import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
 
-internal object JvmMockFactoryHelper {
-    fun mockHandler(stub: Stub): (Any, Method, Callable<*>?, Array<Any?>) -> Any? {
-        return { self, method, originalMethod, args ->
-            stdFunctions(self, method, args) {
-                stub.handleInvocation(self, method.toDescription(), {
-                    handleOriginalCall(originalMethod, method)
-                }, args)
+object JvmMockFactoryHelper {
+    fun mockHandler(stub: Stub) = object : MockKInvocationHandler {
+        override fun invocation(self: Any, method: Method?, originalCall: Callable<*>?, args: Array<Any?>) =
+            stdFunctions(self, method!!, args) {
+
+                stub.handleInvocation(
+                    self,
+                    method.toDescription(), {
+                        handleOriginalCall(originalCall, method)
+                    },
+                    args,
+                    findBackingField(self, method)
+                )
+            }
+    }
+
+
+    private fun findBackingField(self: Any, method: Method): BackingFieldValueProvider {
+        return {
+            val property = self::class.memberProperties.firstOrNull {
+                it.getter.javaMethod == method ||
+                        (it is KMutableProperty<*> && it.setter.javaMethod == method)
+            }
+
+
+            property?.javaField?.let { field ->
+                BackingFieldValue(
+                    property.name,
+                    {
+                        InternalPlatformDsl.makeAccessible(field);
+                        field.get(self)
+                    },
+                    {
+                        InternalPlatformDsl.makeAccessible(field);
+                        field.set(self, it)
+                    }
+                )
             }
         }
     }
@@ -63,23 +98,32 @@ internal object JvmMockFactoryHelper {
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
 
+    val cache = InternalPlatform.weakMap<Method, Int>()
 
     fun Method.varArgPosition(): Int {
+        val cached = cache[this]
+        if (cached != null) return cached
+
         val kFunc =
             try {
                 // workaround for
-                //  https://github.com/oleksiyp/mockk/issues/18
-                //  https://github.com/oleksiyp/mockk/issues/22
+                //  https://github.com/mockk/mockk/issues/18
+                //  https://github.com/mockk/mockk/issues/22
                 kotlinFunction
             } catch (ex: Throwable) {
                 null
             }
 
-        return if (kFunc != null)
+        val result = if (kFunc != null)
             kFunc.parameters
                 .filter { it.kind != KParameter.Kind.INSTANCE }
                 .indexOfFirst { it.isVararg }
         else
             if (isVarArgs) parameterTypes.size - 1 else -1
+
+        cache[this] = result
+
+        return result
     }
+
 }

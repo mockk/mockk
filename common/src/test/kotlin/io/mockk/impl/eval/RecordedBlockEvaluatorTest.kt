@@ -3,10 +3,7 @@ package io.mockk.impl.eval
 import io.mockk.*
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.impl.recording.AutoHinter
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.fail
+import kotlin.test.*
 
 class RecordedBlockEvaluatorTest {
     lateinit var evaluator: RecordedBlockEvaluator

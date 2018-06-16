@@ -47,12 +47,16 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-            }
+            if (project.hasProperty('localrepo')) {
+                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
+            } else {
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
             }
 
             pom.project {
@@ -62,9 +66,9 @@ uploadArchives {
                 url 'http://mockk.io'
 
                 scm {
-                    connection 'scm:git:git@github.com:oleksiyp/mockk.git'
-                    developerConnection 'scm:git:git@github.com:oleksiyp/mockk.git'
-                    url 'http://www.github.com/oleksiyp/mockk/'
+                    connection 'scm:git:git@github.com:mockk/mockk.git'
+                    developerConnection 'scm:git:git@github.com:mockk/mockk.git'
+                    url 'http://www.github.com/mockk/mockk/'
                 }
 
                 licenses {

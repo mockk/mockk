@@ -62,14 +62,14 @@ inline fun <reified T : Any> slot() = MockK.useImpl {
 /**
  * Starts a block of stubbing. Part of DSL.
  */
-inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T> = MockK.useImpl {
+inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalEvery(stubBlock)
 }
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
  */
-inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T> = MockK.useImpl {
+inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalCoEvery(stubBlock)
 }
 
@@ -170,8 +170,15 @@ inline fun <reified T : Any, R> withInstanceFactory(noinline instanceFactory: ()
 
 /**
  * Builds a static mock via static mock scope.
- * To actually use it you need to call use or mock/unmock/use.
+ * To actually use it you need to call use or mock/unmock.
  */
+@Deprecated(
+    message = "Scopes for mocking tend to be error prone. Use new 'mockkStatic' function",
+    replaceWith = ReplaceWith(
+        expression = "mockkStatic(T::class)",
+        imports = ["io.mockk.mockkStatic"]
+    )
+)
 inline fun <reified T : Any> staticMockk(): MockKStaticScope = MockK.useImpl {
     MockKDsl.internalStaticMockk<T>()
 }
@@ -180,6 +187,13 @@ inline fun <reified T : Any> staticMockk(): MockKStaticScope = MockK.useImpl {
  * Builds a static mock via static mock scope.
  * To actually use it you need to call use or mock/unmock/use.
  */
+@Deprecated(
+    message = "Scopes for mocking tend to be error prone. Use new 'mockkStatic' function",
+    replaceWith = ReplaceWith(
+        expression = "mockkStatic(cls)",
+        imports = ["io.mockk.mockkStatic"]
+    )
+)
 inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
     MockKDsl.internalStaticMockk(*cls.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
 }
@@ -188,13 +202,47 @@ inline fun staticMockk(vararg cls: String): MockKStaticScope = MockK.useImpl {
  * Builds a mock for object.
  * To actually use it you need to call use or mock/unmock.
  */
+@Deprecated(
+    message = "Scopes for mocking tend to be error prone. Use new 'mockkObject' function",
+    replaceWith = ReplaceWith(
+        expression = "mockkObject(objs, recordPrivateCalls = recordPrivateCalls)",
+        imports = ["io.mockk.mockkObject"]
+    )
+)
 inline fun objectMockk(vararg objs: Any, recordPrivateCalls: Boolean = false): MockKObjectScope = MockK.useImpl {
     MockKDsl.internalObjectMockk(objs, recordPrivateCalls = recordPrivateCalls)
 }
 
 /**
+ * Builds a mock using particular constructor.
+ * To actually use it you need to call use or mock/unmock.
+ */
+@Deprecated(
+    message = "Scopes for mocking tend to be error prone. Use new 'mockkConstructor' function",
+    replaceWith = ReplaceWith(
+        expression = "mockkConstructor(T::class, recordPrivateCalls = recordPrivateCalls, localToThread = localToThread)",
+        imports = ["io.mockk.mockkConstructor"]
+    )
+)
+inline fun <reified T : Any> constructorMockk(
+    recordPrivateCalls: Boolean = false,
+    localToThread: Boolean = false
+): MockKConstructorScope<T> = MockK.useImpl {
+    MockKDsl.internalConstructorMockk(recordPrivateCalls, localToThread)
+}
+
+/**
  * Builds a mock for a class.
  */
+@Deprecated(
+    message = "Every mocking function now starts with 'mockk...'. " +
+            "Scoped functions alike objectMockk and staticMockk were error prone. " +
+            "Use new 'mockkClass' function",
+    replaceWith = ReplaceWith(
+        expression = "mockkClass(type, name, relaxed, moreInterfaces, block)",
+        imports = ["io.mockk.mockkClass"]
+    )
+)
 inline fun <T : Any> classMockk(
     type: KClass<T>,
     name: String? = null,
@@ -202,9 +250,123 @@ inline fun <T : Any> classMockk(
     vararg moreInterfaces: KClass<*>,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
-    MockKDsl.internalClassMockk(type, name, relaxed, *moreInterfaces, block = block)
+    MockKDsl.internalMockkClass(type, name, relaxed, *moreInterfaces, block = block)
 }
 
+inline fun <T : Any> mockkClass(
+    type: KClass<T>,
+    name: String? = null,
+    relaxed: Boolean = false,
+    vararg moreInterfaces: KClass<*>,
+    block: T.() -> Unit = {}
+): T = MockK.useImpl {
+    MockKDsl.internalMockkClass(type, name, relaxed, *moreInterfaces, block = block)
+}
+
+/**
+ * Builds a static mock. Old static mocks of same classes are cancelled before.
+ */
+inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) = MockK.useImpl {
+    MockKDsl.internalMockkObject(*objects, recordPrivateCalls = recordPrivateCalls)
+}
+
+/**
+ * Cancel object mocks.
+ */
+inline fun unmockkObject(vararg objects: Any) = MockK.useImpl {
+    MockKDsl.internalUnmockkObject(*objects)
+}
+
+/**
+ * Builds a static mock. Old static mocks of same classes are cancelled before.
+ */
+inline fun mockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
+    MockKDsl.internalMockkStatic(*classes)
+}
+
+/**
+ * Builds a static mock. Old static mocks of same classes are cancelled before.
+ */
+inline fun mockkStatic(vararg classes: String) = MockK.useImpl {
+    MockKDsl.internalMockkStatic(*classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
+}
+
+/**
+ * Cancel static mocks.
+ */
+inline fun clearStaticMockk(
+    vararg classes: KClass<*>,
+    answers: Boolean = true,
+    recordedCalls: Boolean = true,
+    childMocks: Boolean = true
+) = MockK.useImpl {
+    MockKDsl.internalClearStaticMockk(
+        *classes,
+        answers = answers,
+        recordedCalls = recordedCalls,
+        childMocks = childMocks
+    )
+}
+
+/**
+ * Cancel static mocks.
+ */
+inline fun unmockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
+    MockKDsl.internalUnmockkStatic(*classes)
+}
+
+/**
+ * Cancel static mocks.
+ */
+inline fun unmockkStatic(vararg classes: String) = MockK.useImpl {
+    MockKDsl.internalUnmockkStatic(*classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
+}
+
+/**
+ * Builds a constructor mock. Old constructor mocks of same classes are cancelled before.
+ */
+inline fun mockkConstructor(
+    vararg classes: KClass<*>,
+    recordPrivateCalls: Boolean = false,
+    localToThread: Boolean = false
+) = MockK.useImpl {
+    MockKDsl.internalMockkConstructor(
+        *classes,
+        recordPrivateCalls = recordPrivateCalls,
+        localToThread = localToThread
+    )
+}
+
+/**
+ * Cancel constructor mocks.
+ */
+inline fun unmockkConstructor(vararg classes: KClass<*>) = MockK.useImpl {
+    MockKDsl.internalUnmockkConstructor(*classes)
+}
+
+/**
+ * Clears constructor mock.
+ */
+inline fun clearConstructorMockk(
+    vararg classes: KClass<*>,
+    answers: Boolean = true,
+    recordedCalls: Boolean = true,
+    childMocks: Boolean = true
+) = MockK.useImpl {
+    MockKDsl.internalClearConstructorMockk(
+        *classes,
+        answers = answers,
+        recordedCalls = recordedCalls,
+        childMocks = childMocks
+    )
+}
+
+/**
+ * Cancels object, static and constructor mocks.
+ */
+inline fun unmockkAll() = MockK.useImpl {
+    MockKDsl.internalUnmockkAll()
+}
 
 object MockKAnnotations {
     /**

@@ -16,7 +16,7 @@ object VerificationHelpers {
     fun stackTraces(calls: List<Invocation>): String {
         return calls.mapIndexed { idx, call ->
             val prefix = "${idx + 1})"
-            "$prefix ${stackTrace(prefix.length + 1, call.callStack)}"
+            "$prefix ${stackTrace(prefix.length + 1, call.callStack())}"
         }.joinToString("\n\n")
     }
 

@@ -1,6 +1,6 @@
 package io.mockk.impl.log
 
-import io.mockk.agent.MockKAgentLogger
+import io.mockk.proxy.MockKAgentLogger
 import kotlin.reflect.KClass
 
 object JvmLogging {

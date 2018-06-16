@@ -78,7 +78,7 @@ open class UnorderedCallVerifier(
                             "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls" +
                                     "\nCall: " + allCallsForMock.first() +
                                     "\nStack trace:\n" +
-                                    stackTrace(0, allCallsForMock.first().callStack)
+                                    stackTrace(0, allCallsForMock.first().callStack())
 
                         )
                     }
@@ -87,7 +87,7 @@ open class UnorderedCallVerifier(
                         "$callIdxMsg. Only one matching call to ${stub.toStr()}/${recordedCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
                                 describeArgumentDifference(recordedCall.matcher, onlyCall) +
                                 "\nStack trace:\n" +
-                                stackTrace(0, allCallsForMock.first().callStack)
+                                stackTrace(0, allCallsForMock.first().callStack())
                     })
                 }
             }

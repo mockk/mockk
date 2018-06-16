@@ -1,8 +1,8 @@
 package io.mockk.impl.platform
 
 import io.mockk.InternalPlatformDsl
-import io.mockk.Ref
 import io.mockk.impl.InternalPlatform
+import io.mockk.impl.Ref
 
 class CommonRef(override val value: Any) : Ref {
     override fun equals(other: Any?): Boolean {

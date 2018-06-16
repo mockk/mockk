@@ -27,4 +27,10 @@ expect object InternalPlatformDsl {
     fun dynamicGet(self: Any, name: String): Any?
 
     fun dynamicSet(self: Any, name: String, value: Any?)
+
+    fun <T> threadLocal(initializer: () -> T): InternalRef<T>
+}
+
+interface InternalRef<T> {
+    val value: T
 }

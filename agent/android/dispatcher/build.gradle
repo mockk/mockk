@@ -1,0 +1,28 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion = '27.0.3'
+
+    android {
+        lintOptions {
+            disable 'InvalidPackage'
+            warning 'NewApi'
+        }
+
+        packagingOptions {
+            exclude 'META-INF/main.kotlin_module'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    defaultConfig {
+        applicationId 'com.android.dexmaker.mockito.inline.dispatcher'
+        minSdkVersion 9
+        targetSdkVersion 27
+        versionName = project['version']
+    }
+}

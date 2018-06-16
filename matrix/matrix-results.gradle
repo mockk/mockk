@@ -1,0 +1,163 @@
+
+
+task('summarize') {
+    def envs = ['jdk6', 'jdk8', 'jdk9', 'jdk10', 'android', 'android-ait']
+
+    def resultsPath = file("results")
+
+    def results = new HashMap<String, Map<String, Object>>()
+    resultsPath.eachFile { env ->
+        def perTestResult = new HashMap<String, Double>()
+        env.eachFile { test ->
+            def junitXml = new XmlSlurper().parse(test)
+
+            junitXml.testcase.forEach {
+                def classname = it.@classname.toString()
+                if (it.failure.isEmpty() && it.error.isEmpty()) {
+                    def time = Double.parseDouble(it.@time.toString())
+                    perTestResult.compute(classname, { k, v -> (v ?: 0) + time })
+                } else {
+                    perTestResult.put(classname, Double.NaN)
+                }
+            }
+        }
+        results.put(env.name, perTestResult)
+    }
+
+    def pw = new PrintWriter("../MATRIX.md")
+
+    pw.println(
+'''                           
+
+### Results of matrix tests
+
+<table>
+    <thead>
+    <tr>
+        <th>Feature</th>
+        <th colspan="4">JDK</th>
+        <th colspan="2">Android</th>
+    </tr>
+    <tr>
+        <td></td>
+        <td>6</td>
+        <td>8</td>
+        <td>9</td>
+        <td>10</td>
+        <td>Unit</td>
+        <td>AIT ≥P</td>
+    </tr>
+    </thead>
+    <tbody>''')
+
+    def summaryTime = new HashMap<String, Double>()
+
+    def outResult = { Double res ->
+        if (Double.isNaN(res)) {
+            return "<span style=\"color: red\">✗</span>"
+        } else {
+            return "<span style=\"color: green\">✓</span> <sup>" + String.format("%.2f", res) + "</sup>"
+        }
+    }
+
+    def testCase = { name, description ->
+        pw.println("        <tr>")
+        pw.println("            <td>$description</td>")
+        envs.forEach { env ->
+            pw.print("            <td>")
+            def perTestResult = results.get(env)
+
+            def keys = perTestResult.keySet().findAll { it.contains(name) }
+            if (keys.size() == 0) {
+                throw new RuntimeException("Test '$name' not found, env=$env")
+            } else if (keys.size() > 1) {
+                throw new RuntimeException("More than one test with name '$name' found, env=$env, keys=$keys")
+            }
+
+            def testName = keys[0]
+
+            def result = perTestResult.remove(testName)
+            summaryTime.compute(env, { k, v -> (v ?: 0) + result })
+            pw.print(outResult(result))
+            pw.println("</td>")
+
+        }
+        pw.println("        </tr>")
+    }
+
+    def rest = {
+        pw.println("        <tr>")
+        pw.println("            <td>(other tests)</td>")
+        envs.forEach { env ->
+            pw.print("            <td>")
+
+            def perTestResult = results.get(env)
+            def result = perTestResult.keySet().sum { testName -> perTestResult[testName] }
+            summaryTime.compute(env, { k, v -> (v ?: 0) + result })
+            pw.print(outResult(result))
+            pw.println("</td>")
+
+        }
+        pw.println("        </tr>")
+    }
+
+    def summary = {
+        pw.println("        <tr>")
+        pw.println("            <td>All tests</td>")
+        envs.forEach { env ->
+            pw.print("            <td>")
+
+            def result = summaryTime.get(env)
+            pw.print(outResult(result))
+            pw.println("</td>")
+
+        }
+        pw.println("        </tr>")
+    }
+
+    def issue = { id ->
+        testCase("Issue${id}Test", "<a href=\"https://github.com/mockk/mockk/issues/${id}\">#${id}</a>")
+    }
+
+    testCase("AdditionalAnswerTest", "Additional answers")
+    testCase("AnnotationsTest", "Annotations")
+    testCase("AnswersTest", "Answers")
+    testCase("ArraysTest", "Arrays")
+    testCase("BackingFieldTest", "Backing field")
+    testCase("ChainedCallsMatchingTest", "Chainied calls")
+    testCase("ClearMocksTest", "Clearing mocks")
+    testCase("CoroutinesTest", "Coroutines")
+    testCase("EnumTest", "Enums")
+    testCase("ExtensionFunctionsTest", "Extension functions")
+    testCase("InitializationBlockTest", "Initialization block")
+    testCase("MatcherTest", "Matchers")
+    testCase("NullsTest", "Nulls")
+    testCase("ObjectMockTest", "Object mocks")
+    testCase("PartialArgumentMatchingTest", "Partial argument matching")
+    testCase("PrivateFunctionsTest", "Private functions")
+    testCase("SpyTest", "Spies")
+    testCase("VarargsTest", "Varargs")
+    testCase("VerificationErrorsTest", "Verification errors")
+    testCase("VerifyAtLeastAtMostExactlyTest", "Verification counts")
+    testCase("VerifyTest", "Verify test")
+    testCase("ManyAnswersAnswerTest", "Many answers")
+    testCase("ConstructorMockTest", "Constructor mocking")
+    issue(25)
+    issue(31)
+    issue(35)
+    issue(36)
+    issue(47)
+    issue(48)
+    issue(51)
+    issue(70)
+    rest()
+    summary()
+
+    pw.println(
+'''    </tbody>
+</table>
+''')
+
+    pw.close()
+
+}

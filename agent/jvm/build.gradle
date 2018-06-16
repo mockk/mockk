@@ -1,0 +1,97 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+dependencies {
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    compile project(':mockk-agent-api')
+    compile project(':mockk-agent-common')
+    compile "net.bytebuddy:byte-buddy:$byte_buddy_version"
+    compileOnly "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+    runtime "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompileOnly "junit:junit:$junit_version"
+    testRuntimeOnly "junit:junit:$junit_version"
+    compile "org.objenesis:objenesis:$objenesis_version"
+}
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task copyMockKDispatcher(type: Copy) {
+    dependsOn compileJava
+    dependsOn compileKotlin
+    from "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher"
+    into "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher"
+    include "JvmMockKDispatcher.class"
+    include "JvmMockKWeakMap.class"
+    include "JvmMockKWeakMap\$StrongKey.class"
+    include "JvmMockKWeakMap\$WeakKey.class"
+    rename { String fileName ->
+        fileName.replace('.class', '.clazz')
+    }
+}
+classes.dependsOn(copyMockKDispatcher)
+
+jar {
+    exclude "io/mockk/proxy/jvm/dispatcher/JvmMockKDispatcher.class"
+    exclude "io/mockk/proxy/jvm/dispatcher/JvmMockKWeakMap*.class"
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            if (project.hasProperty('localrepo')) {
+                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
+            } else {
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
+            }
+
+            pom.project {
+                name 'MockK Java Agent'
+                packaging 'jar'
+                description 'MockK inline mocking agent'
+                url 'http://mockk.io'
+
+                scm {
+                    connection 'scm:git:git@github.com:mockk/mockk.git'
+                    developerConnection 'scm:git:git@github.com:mockk/mockk.git'
+                    url 'http://www.github.com/mockk/mockk/'
+                }
+
+                licenses {
+                    license {
+                        name 'Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'oleksiyp'
+                        name 'Oleksii Pylypenko'
+                        email 'oleksiy.pylypenko@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}

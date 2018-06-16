@@ -1,12 +1,10 @@
 package io.mockk.impl.stub
 
-import io.mockk.Answer
-import io.mockk.Invocation
-import io.mockk.InvocationMatcher
-import io.mockk.MethodDescription
+import io.mockk.*
+import io.mockk.impl.platform.Disposable
 import kotlin.reflect.KClass
 
-interface Stub {
+interface Stub : Disposable {
     val name: String
 
     val type: KClass<*>
@@ -27,7 +25,8 @@ interface Stub {
         self: Any,
         method: MethodDescription,
         originalCall: () -> Any?,
-        args: Array<out Any?>
+        args: Array<out Any?>,
+        fieldValueProvider: BackingFieldValueProvider
     ): Any?
 
     fun toStr(): String

@@ -75,6 +75,7 @@ class ChainedCallDetector(safeLog: SafeLog) {
             )
         }
 
+        @Suppress("UNCHECKED_CAST")
         fun varArgArgument(nArgument: Int): Matcher<*> {
             val varArgMatchers = mutableListOf<Matcher<*>>()
 
@@ -97,8 +98,7 @@ class ChainedCallDetector(safeLog: SafeLog) {
                 )
             }
 
-            // FIXME unchecked cast
-            return ArrayMatcher<Any>(varArgMatchers.map { it as Matcher<Any> })
+            return ArrayMatcher<Any>(varArgMatchers.map { it as Matcher<*> } as List<Matcher<Any>>)
         }
 
         fun detectArgMatchers() {

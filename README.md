@@ -1,10 +1,21 @@
-![mockk](doc/logo-s-alt2.png) ![kotlin](doc/kotlin-logo.png)
+![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
-[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build Status](https://travis-ci.org/oleksiyp/mockk.svg?branch=master)](https://travis-ci.org/oleksiyp/mockk) [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)  [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/oleksiyp/mockk/releases) [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG) [![codecov](https://codecov.io/gh/oleksiyp/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/oleksiyp/mockk) [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
+[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+[![Build Status](https://travis-ci.org/mockk/mockk.svg?branch=master)](https://travis-ci.org/mockk/mockk)
+[![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)
+[![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
+[![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX)
+[![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
+[![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features) 
+[![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
+ 
+<img src="doc/new.png" align="left" height="80" alt="new" />
 
-***thank you for using MockK!!!***
+* [Constructor mocking](README.md#constructor-mocks) v1.8.1
+* [Scoped mocking deprecation](DEPRECATED.md#scoped-mocking) v1.8.1
+* [Android instrumented tests](ANDROID.md) v1.8 <img src="doc/robot-small.png" align="top" height="20" alt="Android"/>
 
-![mockk usage](doc/stats-mockk.png)
+Please report any issues
 
 Table of contents:
 
@@ -22,8 +33,11 @@ Table of contents:
  - mocking coroutines
  - capturing lambdas
  - object mocks
+ - constructor mocks
  - private function mocking
+ - property backing field access
  - extension function mocking (static mocks)
+ - [Android instrumented tests](ANDROID.md)
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
@@ -45,11 +59,17 @@ All you need to get started is just to add a dependency to `MockK` library.
 #### Gradle/maven dependency
 
 <table>
-<thead><tr><th>Tool</th><th>Instruction</th></tr></thead>
+<thead><tr><th>Approach</th><th>Instruction</th></tr></thead>
 <tr>
-<td width="100"><img src="doc/gradle.png" alt="Gradle"/></td>
+<td><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testCompile "io.mockk:mockk:1.7.15"</pre>
+    <pre>testImplementation "io.mockk:mockk:{version}"</pre>
+    </td>
+</tr>
+<tr>
+<td><img src="doc/gradle.png" alt="Gradle"/> (Kotlin DSL)</td>
+<td>
+    <pre>testImplementation("io.mockk:mockk:{version}")</pre>
     </td>
 </tr>
 <tr>
@@ -58,11 +78,33 @@ All you need to get started is just to add a dependency to `MockK` library.
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
     &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;1.7.15&lt;/version&gt;
+    &lt;version&gt;{version}&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
     </td>
 </tr>
+<tr>
+<td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
+<td>
+    <pre>testImplementation "io.mockk:mockk:{version}"</pre>
+</td>
+</tr>
+<tr>
+<td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
+<td>
+    <pre>androidTestImplementation "io.mockk:mockk-android:{version}"</pre>
+</td>
+</tr>
+<tr>
+<td>Common multiplatform</td>
+<td>
+    <pre>testImplementation "io.mockk:mockk-common:{version}"</pre>
+</td>
+</tr>
+<tr>
+ <td></td>
+ <td><img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" /></td>
+</tr> 
 </table>
 
 ## DSL examples
@@ -209,22 +251,22 @@ object MockObj {
   fun add(a: Int, b: Int) = a + b
 }
 
-objectMockk(MockObj).use {
-  assertEquals(3, MockObj.add(1, 2))
+mockkObject(MockObj) // aplies mocking to an Object
 
-  every { MockObj.add(1, 2) } returns 55
+assertEquals(3, MockObj.add(1, 2))
 
-  assertEquals(55, MockObj.add(1, 2))
-}
+every { MockObj.add(1, 2) } returns 55
+
+assertEquals(55, MockObj.add(1, 2))
 
 ```
 
-The use function is an utility for `mock` and `unmock` methods. If you need to mock an object outside of the `use` scope, you can do it with them:
+To revert back use `unmockkAll` or `unmockkObject`:
 
 ```
 @Before
 fun beforeTests() {
-    objectMockk(MockObj).mock()
+    mockkObject(MockObj)
     every { MockObj.add(1,2) } returns 55
 }
 
@@ -235,7 +277,8 @@ fun willUseMockBehaviour() {
 
 @After
 fun afterTests() {
-    objectMockk(MockObj).unmock()
+    unmockkAll()
+    // or unmockkObject(MockObj)
 }
 
 
@@ -248,10 +291,10 @@ val newObjectMock = mockk<MockObj>()
 
 ### Class mock
 
-Sometimes you need mock of arbitary class. Use `classMockk` in this case.
+Sometimes you need mock of arbitary class. Use `mockkClass` in this case.
 
 ```kotlin
-val car = classMockk(Car::class)
+val car = mockkClass(Car::class)
 
 every { car.drive(Direction.NORTH) } returns Outcome.OK
 
@@ -262,20 +305,41 @@ verify { car.drive(Direction.NORTH) }
 
 ### Enumeration mocks
 
-Enums can be mocked using objectMockk:
+Enums can be mocked using `mockkObject`:
 
 ```
-enum class Enoom(val goodInt: Int) {
+enum class Enumeration(val goodInt: Int) {
     CONSTANT(35),
     OTHER_CONSTANT(45);
 }
 
-objectMockk(Enoom.CONSTANT).use {
-    every { Enoom.CONSTANT.goodInt } returns 42
-    assertEquals(42, Enoom.CONSTANT.goodInt)
-}
+mockkObject(Enumeration.CONSTANT)
+every { Enumeration.CONSTANT.goodInt } returns 42
+assertEquals(42, Enumeration.CONSTANT.goodInt)
+```
+
+### Constructor mocks
+
+Sometimes, especially in code you are not owning, you need to mock newly created objects.
+For this purpose following constructs are provided:
 
 ```
+class MockCls {
+  fun add(a: Int, b: Int) = a + b
+}
+
+mockkConstructor(MockCls::class)
+
+every { anyConstructed<MockCls>().add(1, 2) } returns 4
+
+assertEquals(4, MockCls().add(1, 2)) // note new object is created
+
+verify { anyConstructed<MockCls>().add(1, 2) }
+```
+
+Basic idea is that just after constructor of mocked class is executed(any of them), objects become `constructed mock`.
+Mocking behavior of such mock is connected to special `prototype mock` denoted by `anyConstructed<MockCls>()`.
+There is one instance per class of such `prototype mock`. Call recording also happens to `prototype mock`. If no behavior for function is specified original function is executed.
 
 ### Partial argument matching
 
@@ -530,7 +594,7 @@ with(mockk<Ext>()) {
 ```
 
 To mock module wide extension function you need to
-build staticMockk(...) with argument specifying module class name.
+build mockkStatic(...) with argument specifying module class name.
 For example "pkg.FileKt" for module "File.kt" in "pkg" package
 
 ```kotlin
@@ -539,18 +603,29 @@ data class Obj(val value: Int)
 // declared in File.kt ("pkg" package)
 fun Obj.extensionFunc() = value + 5
 
-staticMockk("pkg.FileKt").use {
-    every {
-        Obj(5).extensionFunc()
-    } returns 11
+mockkStatic("pkg.FileKt")
 
-    assertEquals(11, Obj(5).extensionFunc())
+every {
+    Obj(5).extensionFunc()
+} returns 11
 
-    verify {
-        Obj(5).extensionFunc()
-    }
+assertEquals(11, Obj(5).extensionFunc())
+
+verify {
+    Obj(5).extensionFunc()
 }
 ```
+
+Sometimes you need to know a little bit more to mock extension function. 
+For example `File.endsWith()` extension function has totally unpredictable `classname`:
+```
+   mockkStatic("kotlin.io.FilesKt__UtilsKt")
+   every { File("abc").endsWith(any<String>()) } returns true
+   println(File("abc").endsWith("abc"))
+```
+This is standard Kotlin behaviour that may be unpredictable for user of mocking library.
+Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR archive to detect such names.
+
 ### Private functions mocking / dynamic calls
 
 In case you have a need to mock private function, you can do it via dynamic call.
@@ -590,6 +665,31 @@ verify { mock invoke "openDoor" withArguments listOf("left", "rear") }
 
 ```
 
+### Property backing fields
+
+You can access fields backing properties via `fieldValue` and use `value` for value being set.
+
+Note in examples below usage of `propertyType` to specify type of `fieldValue`.
+This is needed because it is possible to capture type automatically only for getter.
+Use `nullablePropertyType` to specify nullable type.
+
+```kotlin
+val mock = spyk(MockCls(), recordPrivateCalls = true)
+
+every { mock.property } answers { fieldValue + 6 }
+every { mock.property = any() } propertyType Int::class answers { fieldValue += value }
+every { mock getProperty "property" } propertyType Int::class answers { fieldValue + 6 }
+every { mock setProperty "property" value any<Int>() } propertyType Int::class answers  { fieldValue += value }
+every {
+    mock.property = any()
+} propertyType Int::class answers {
+    fieldValue = value + 1
+} andThen {
+    fieldValue = value - 1
+}
+
+```
+
 ### More interfaces
 
 Adding additional behaviours via interfaces and stubbing them:
@@ -615,6 +715,35 @@ thread.join()
 ## DSL tables
 
 Here are few tables helping to master the DSL.
+
+### Top level functions
+
+|Function|Description|
+|--------|-----------|
+|`mockk<T>(...)`|builds a regular mock|
+|`spyk<T>()`|builds a spy using default constructor|
+|`spyk(obj)`|builds a spy by copying from `obj`|
+|`slot`|creates capturing slot|
+|`every`|starts stubbing block|
+|`coEvery`|starts stubbing block for coroutines|
+|`verify`|starts verification block|
+|`coVerify`|starts verification block for coroutines|
+|`verifyAll`|starts verification block that should include all calls|
+|`verifyOrder`|starts verification block that checks order|
+|`verifySequence`|starts verification block that checks all calls goes in sepecified sequence|
+|`clearMocks`|clears specified mocks|
+|`registerInstanceFactory`|allow to redefine way of instantiation for certain object|
+|`mockkClass`|builds a regular mock, just class is passed as a parameter|
+|`mockkObject`|makes any object an object mock or clears it if already transformed|
+|`unmockkObject`|makes an object mock regular object|
+|`mockkStatic`|makes static mock out of a class or clears it if already transformed|
+|`unmockkStatic`|makes static mock back a regular class|
+|`clearStaticMockk`|clears static mock|
+|`mockkConstructor`|makes constructor mock out of a class or clears it if already transformed|
+|`unmockkConstructor`|makes constructor mock back a regular class|
+|`clearConstructorMockk`|clears constructor mock|
+|`unmockkAll`|unmock object, static and constructor mocks|
+
 
 ### Matchers
 
@@ -693,6 +822,9 @@ Answer can be followed by one or more additional answers.
 |`answers answerObj`|specify that matched call answers with Answer object|
 |`answers { nothing }`|specify that matched call answers null|
 |`just Runs`|specify that matched call is returning Unit (returns null)|
+|`propertyType Class`|specify type of backing field accessor|
+|`nullablePropertyType Class`|specify type of backing field accessor as nullable type|
+
 
 ### Additional answer
 
@@ -729,6 +861,10 @@ So this has similiar to `returnsMany` semantics.
 |`lambda<...>().invoke()`|call captured lambda|
 |`coroutine<...>().coInvoke()`|call captured coroutine|
 |`nothing`|null value for returning nothing as an answer|
+|`fieldValue`|accessor to property backing field|
+|`fieldValueAny`|accessor to property backing field with `Any?` type|
+|`value`|value being set casted to same type as property backing field|
+|`valueAny`|value being set with `Any?` type|
 
 ## Getting Help
 
@@ -739,5 +875,5 @@ To ask questions, please use stackoverflow or gitter.
 
 To report bugs, please use the GitHub project.
 
-* Project Page: [https://github.com/oleksiyp/mockk](https://github.com/oleksiyp/mockk)
-* Reporting Bugs: [https://github.com/oleksiyp/mockk/issues](https://github.com/oleksiyp/mockk/issues)
+* Project Page: [https://github.com/mockk/mockk](https://github.com/mockk/mockk)
+* Reporting Bugs: [https://github.com/mockk/mockk/issues](https://github.com/mockk/mockk/issues)

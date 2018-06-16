@@ -74,7 +74,8 @@ internal class OperationProxyHandler(
     }
 
     override fun apply(target: dynamic, thisValue: dynamic, args: Array<*>): Any? {
-        return stub.handleInvocation(receiver,
+        return stub.handleInvocation(
+            receiver,
             MethodDescription(
                 name,
                 Any::class,
@@ -84,7 +85,8 @@ internal class OperationProxyHandler(
                 false
             ),
             { originalCall(target, thisValue, args) },
-            args.map { unboxChar(it) }.toTypedArray()
+            args.map { unboxChar(it) }.toTypedArray(),
+            { null }
         )
     }
 

@@ -3,9 +3,9 @@ out
 *.iml
 .gradle
 build
-gradle
-gradlew
-gradlew.bat
 hs_err_*
 replay_*
 cmake-build-debug
+agent/android/.externalNativeBuild/
+matrix/results
+local.properties
