@@ -94,4 +94,7 @@ actual object InternalPlatformDsl {
         TODO("dynamic set")
     }
 
+    actual fun <T> threadLocal(initializer: () -> T): InternalRef<T> {
+        TODO("thread local")
+    }
 }
