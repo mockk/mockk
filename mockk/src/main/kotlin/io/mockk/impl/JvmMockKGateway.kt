@@ -109,7 +109,7 @@ class JvmMockKGateway : MockKGateway {
         }
 
     val callRecorderFactories = CallRecorderFactories(
-        { SignatureMatcherDetector({ ChainedCallDetector(safeLog) }) },
+        { SignatureMatcherDetector(safeLog, { ChainedCallDetector(safeLog) }) },
         { CallRoundBuilder(safeLog) },
         ::ChildHinter,
         this::verifier,

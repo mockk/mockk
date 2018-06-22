@@ -11,36 +11,21 @@ import kotlin.reflect.KClass
 class ChainedCallDetector(safeLog: SafeLog) {
     val log = safeLog(Logger<SignatureMatcherDetector>())
 
-    val matcherMap = hashMapOf<List<Any>, Matcher<*>>()
-    val allCompositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
     val argMatchers = mutableListOf<Matcher<*>>()
 
     lateinit var call: RecordedCall
 
     @Suppress("CAST_NEVER_SUCCEEDS")
-    fun detect(callRounds: List<CallRound>, callN: Int) {
+    fun detect(
+        callRounds: List<CallRound>,
+        callN: Int,
+        matcherMap: HashMap<List<Any>, Matcher<*>>
+    ) {
         val callInAllRounds = callRounds.map { it.calls[callN] }
         val zeroCall = callInAllRounds[0]
         var allAny = false
 
         log.trace { "Processing call #$callN: ${zeroCall.method.toStr()}" }
-
-        fun gatherMatchers() {
-            repeat(zeroCall.matchers.size) { nMatcher ->
-                val matcher = callInAllRounds.map { it.matchers[nMatcher].matcher }.last()
-                val signature = callInAllRounds.map { it.matchers[nMatcher].signature }.toList()
-
-                if (matcher is CompositeMatcher<*>) {
-                    allCompositeMatchers.add(callInAllRounds.map {
-                        it.matchers[nMatcher].matcher as CompositeMatcher<*>
-                    })
-                }
-
-                matcherMap[signature] = matcher
-            }
-
-            log.trace { "Matcher map for ${zeroCall.method.toStr()}: $matcherMap" }
-        }
 
         fun buildMatcher(isStart: Boolean, zeroCallValue: Any?, matcherBySignature: Matcher<*>?): Matcher<*> {
             return if (matcherBySignature == null) {
@@ -118,32 +103,10 @@ class ChainedCallDetector(safeLog: SafeLog) {
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun processCompositeMatchers() {
-            for (compositeMatchers in allCompositeMatchers) {
-                val matcher = compositeMatchers.last()
-
-                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, _) ->
-                    val signature = compositeMatchers.map {
-                        InternalPlatform.packRef(it.operandValues[nOp])
-                    }.toList()
-
-                    log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
-
-                    matcherMap.remove(signature)
-                            ?: eqOrNullMatcher(matcher.operandValues[nOp])
-                } as List<Matcher<Any?>>?
-            }
-        }
-
-        @Suppress("UNCHECKED_CAST")
         fun buildRecordedCall(): RecordedCall {
             if (zeroCall.method.isSuspend()) {
                 log.trace { "Suspend function found. Replacing continuation with any() matcher" }
                 argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
-            }
-
-            if (matcherMap.isNotEmpty()) {
-                throw MockKException("Failed matching mocking signature for\n${zeroCall.invocationStr}\nleft matchers: ${matcherMap.values}")
             }
 
             val im = InvocationMatcher(
@@ -164,9 +127,7 @@ class ChainedCallDetector(safeLog: SafeLog) {
             )
         }
 
-        gatherMatchers()
         detectArgMatchers()
-        processCompositeMatchers()
         call = buildRecordedCall()
     }
 
@@ -175,12 +136,13 @@ class ChainedCallDetector(safeLog: SafeLog) {
         return InternalPlatform.isSuspend(paramTypes as List<KClass<Any>>)
     }
 
-    protected fun eqOrNullMatcher(arg: Any?): Matcher<Any> {
-        return if (arg == null) {
-            NullCheckMatcher(false)
-        } else {
-            EqMatcher(arg)
+    companion object {
+        fun eqOrNullMatcher(arg: Any?): Matcher<Any> {
+            return if (arg == null) {
+                NullCheckMatcher(false)
+            } else {
+                EqMatcher(arg)
+            }
         }
     }
-
 }

@@ -26,12 +26,10 @@ class CallRoundBuilder(val safeLog: SafeLog) {
             invocation.self,
             invocation.method,
             invocation.args,
-            safeLog.exec { invocation.toString() },
-            signedMatchers.toList()
+            safeLog.exec { invocation.toString() }
         )
 
         signedCalls.add(signedCall)
-        signedMatchers.clear()
     }
 
     fun addWasNotCalled(list: List<Any>) {
@@ -44,12 +42,11 @@ class CallRoundBuilder(val safeLog: SafeLog) {
                     self,
                     WasNotCalled.method,
                     listOf(),
-                    safeLog.exec { "${self} wasNot Called" },
-                    listOf()
+                    safeLog.exec { "${self} wasNot Called" }
                 )
             )
         }
     }
 
-    fun build() = CallRound(signedCalls.toList())
+    fun build() = CallRound(signedCalls.toList(), signedMatchers.toList())
 }

@@ -10,6 +10,5 @@ data class SignedCall(
     val self: Any,
     val method: MethodDescription,
     val args: List<Any?>,
-    val invocationStr: String,
-    val matchers: List<SignedMatcher>
+    val invocationStr: String
 )
