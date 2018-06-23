@@ -11,7 +11,7 @@
  
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
-* [Relaxed unit returning functions](README.md#unit-returning-function-relaxed-mock) [#91](https://github.com/mockk/mockk/issues/91) v1.8.4
+* [Relaxed unit returning functions](README.md#unit-returning-function-relaxed-mock) v1.8.4 [#91](https://github.com/mockk/mockk/issues/91)
 * [Constructor mocking](README.md#constructor-mocks) v1.8.1
 * [Scoped mocking deprecation](DEPRECATED.md#scoped-mocking) v1.8.1
 
