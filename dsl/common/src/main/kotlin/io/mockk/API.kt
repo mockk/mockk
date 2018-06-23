@@ -3460,6 +3460,32 @@ data class RecordedCall(
     override fun toString(): String {
         return "RecordedCall(retValue=${retValue.toStr()}, retType=${retType.toStr()}, isRetValueMock=$isRetValueMock matcher=$matcher)"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RecordedCall) return false
+
+        return when {
+            retValue !== other.retValue -> false
+            isRetValueMock != other.isRetValueMock -> false
+            retType != other.retType -> false
+            matcher != other.matcher -> false
+            selfChain != other.selfChain -> false
+            argChains != other.argChains -> false
+            else -> true
+        }
+
+    }
+
+    override fun hashCode(): Int {
+        var result = retValue?.let { InternalPlatformDsl.identityHashCode(it) } ?: 0
+        result = 31 * result + isRetValueMock.hashCode()
+        result = 31 * result + retType.hashCode()
+        result = 31 * result + matcher.hashCode()
+        result = 31 * result + (selfChain?.hashCode() ?: 0)
+        result = 31 * result + (argChains?.hashCode() ?: 0)
+        return result
+    }
 }
 
 /**
