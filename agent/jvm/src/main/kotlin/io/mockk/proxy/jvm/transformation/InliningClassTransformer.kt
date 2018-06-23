@@ -16,6 +16,7 @@ import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
 import net.bytebuddy.matcher.ElementMatchers.*
+import java.io.File
 import java.lang.instrument.ClassFileTransformer
 import java.security.ProtectionDomain
 
@@ -52,10 +53,10 @@ internal class InliningClassTransformer(
     }
 
     override fun transform(
-        loader: ClassLoader,
+        loader: ClassLoader?,
         className: String,
         classBeingRedefined: Class<*>,
-        protectionDomain: ProtectionDomain,
+        protectionDomain: ProtectionDomain?,
         classfileBuffer: ByteArray?
     ): ByteArray? {
         val spec = specMap[classBeingRedefined]
@@ -69,6 +70,8 @@ internal class InliningClassTransformer(
                 .run { if (spec.shouldDoStaticIntercept) visit(staticAdvice(className)) else this }
                 .run { if (spec.shouldDoConstructorIntercept) visit(constructorAdvice()) else this }
                 .make()
+
+            type.saveIn(File("transformed"))
 
             return type.bytes
 
