@@ -71,8 +71,6 @@ internal class InliningClassTransformer(
                 .run { if (spec.shouldDoConstructorIntercept) visit(constructorAdvice()) else this }
                 .make()
 
-            type.saveIn(File("transformed"))
-
             return type.bytes
 
         } catch (e: Throwable) {
