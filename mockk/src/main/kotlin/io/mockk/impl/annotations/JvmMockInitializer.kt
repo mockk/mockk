@@ -12,18 +12,38 @@ import kotlin.reflect.jvm.isAccessible
 import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
 
 class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializer {
-    override fun initAnnotatedMocks(targets: List<Any>) {
+    override fun initAnnotatedMocks(
+        targets: List<Any>,
+        overrideRecordPrivateCalls: Boolean,
+        relaxUnitFun: Boolean
+    ) {
         for (target in targets) {
-            initMock(target)
+            initMock(
+                target,
+                overrideRecordPrivateCalls,
+                relaxUnitFun
+            )
         }
     }
 
-    fun initMock(target: Any) {
+    fun initMock(
+        target: Any,
+        overrideRecordPrivateCalls: Boolean,
+        relaxUnitFun: Boolean
+    ) {
         val cls = target::class
         for (property in cls.memberProperties) {
-            assignMockK(property as KProperty1<Any, Any>, target)
+            assignMockK(
+                property as KProperty1<Any, Any>,
+                target,
+                relaxUnitFun
+            )
             assignRelaxedMockK(property, target)
-            assignSpyK(property, target)
+            assignSpyK(
+                property,
+                target,
+                overrideRecordPrivateCalls
+            )
         }
 
         for (property in cls.memberProperties) {
@@ -73,7 +93,11 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         }
     }
 
-    private fun assignSpyK(property: KProperty1<Any, Any>, target: Any) {
+    private fun assignSpyK(
+        property: KProperty1<Any, Any>,
+        target: Any,
+        overrideRecordPrivateCalls: Boolean
+    ) {
         property.annotated<SpyK>(target) { annotation ->
             val obj = property.get(target)
 
@@ -83,6 +107,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 overrideName(annotation.name, property.name),
                 moreInterfaces(property),
                 annotation.recordPrivateCalls
+                        || overrideRecordPrivateCalls
             )
         }
     }
@@ -96,13 +121,18 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 type,
                 overrideName(annotation.name, property.name),
                 true,
-                moreInterfaces(property)
+                moreInterfaces(property),
+                relaxUnitFun = false
             )
 
         }
     }
 
-    private fun assignMockK(property: KProperty1<Any, Any>, target: Any) {
+    private fun assignMockK(
+        property: KProperty1<Any, Any>,
+        target: Any,
+        relaxUnitFun: Boolean
+    ) {
         property.annotated<MockK>(target) { annotation ->
             val type = property.returnType.classifier as? KClass<*>
                     ?: return@annotated null
@@ -111,7 +141,10 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 type,
                 overrideName(annotation.name, property.name),
                 false,
-                moreInterfaces(property)
+                moreInterfaces(property),
+                relaxUnitFun =
+                annotation.relaxUnitFun ||
+                        relaxUnitFun
             )
 
         }

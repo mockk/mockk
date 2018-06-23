@@ -6,14 +6,27 @@ import kotlin.reflect.KClass
 
 /**
  * Builds a new mock for specified class
+ *
+ * @param name mock name
+ * @param relaxed allow not specify behaviour
+ * @param moreInterfaces additional interfaces for mock to implement
+ * @param relaxUnitFun allow not specify behaviour for Unit returning functions
+ * @param block block to execute after mock created with mock as a receiver
  */
 inline fun <reified T : Any> mockk(
     name: String? = null,
     relaxed: Boolean = false,
     vararg moreInterfaces: KClass<*>,
+    relaxUnitFun: Boolean = false,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
-    MockKDsl.internalMockk(name, relaxed, *moreInterfaces, block = block)
+    MockKDsl.internalMockk(
+        name,
+        relaxed,
+        *moreInterfaces,
+        relaxUnitFun = relaxUnitFun,
+        block = block
+    )
 }
 
 /**
@@ -372,8 +385,12 @@ object MockKAnnotations {
     /**
      * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided object.
      */
-    inline fun init(vararg obj: Any) = MockK.useImpl {
-        MockKDsl.internalInitAnnotatedMocks(obj.toList())
+    inline fun init(
+        vararg obj: Any,
+        overrideRecordPrivateCalls: Boolean = false,
+        relaxUnitFun: Boolean = false
+    ) = MockK.useImpl {
+        MockKDsl.internalInitAnnotatedMocks(obj.toList(), overrideRecordPrivateCalls, relaxUnitFun)
     }
 }
 

@@ -31,7 +31,8 @@ interface MockKGateway {
             mockType: KClass<T>,
             name: String?,
             relaxed: Boolean,
-            moreInterfaces: Array<out KClass<*>>
+            moreInterfaces: Array<out KClass<*>>,
+            relaxUnitFun: Boolean
         ): T
 
         fun <T : Any> spyk(
@@ -187,6 +188,10 @@ interface MockKGateway {
     }
 
     interface MockInitializer {
-        fun initAnnotatedMocks(targets: List<Any>)
+        fun initAnnotatedMocks(
+            targets: List<Any>,
+            overrideRecordPrivateCalls: Boolean,
+            relaxUnitFun: Boolean
+        )
     }
 }

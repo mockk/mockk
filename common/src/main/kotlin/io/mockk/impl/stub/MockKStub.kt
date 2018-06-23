@@ -9,6 +9,7 @@ open class MockKStub(
     override val type: KClass<*>,
     override val name: String,
     val relaxed: Boolean = false,
+    val relaxUnitFun: Boolean = false,
     val gatewayAccess: StubGatewayAccess,
     val recordPrivateCalls: Boolean
 ) : Stub {
@@ -83,7 +84,7 @@ open class MockKStub(
 
     protected open fun defaultAnswer(invocation: Invocation): Any? {
         return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
-            if (relaxed) {
+            if (shouldRelax(invocation)) {
                 return gatewayAccess.anyValueGenerator.anyValue(invocation.method.returnType) {
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
@@ -91,6 +92,13 @@ open class MockKStub(
                 throw MockKException("no answer found for: $invocation")
             }
         }
+    }
+
+    private fun shouldRelax(invocation: Invocation) = when {
+        relaxed -> true
+        relaxUnitFun &&
+                invocation.method.returnTypeVoid -> true
+        else -> false
     }
 
     override fun recordCall(invocation: Invocation) {
@@ -120,7 +128,8 @@ open class MockKStub(
                         childType,
                         childName(this.name),
                         moreInterfaces = arrayOf(),
-                        relaxed = relaxed
+                        relaxed = relaxed,
+                        relaxUnitFun = relaxUnitFun
                     )
                 }
             }

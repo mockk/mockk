@@ -26,9 +26,16 @@ object MockKDsl {
         name: String? = null,
         relaxed: Boolean = false,
         vararg moreInterfaces: KClass<*>,
+        relaxUnitFun: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
-        val mock = MockKGateway.implementation().mockFactory.mockk(T::class, name, relaxed, moreInterfaces)
+        val mock = MockKGateway.implementation().mockFactory.mockk(
+            T::class,
+            name,
+            relaxed,
+            moreInterfaces,
+            relaxUnitFun
+        )
         block(mock)
         return mock
     }
@@ -274,9 +281,10 @@ object MockKDsl {
         name: String?,
         relaxed: Boolean,
         vararg moreInterfaces: KClass<*>,
+        relaxUnitFun: Boolean = false,
         block: T.() -> Unit
     ): T {
-        val mock = MockKGateway.implementation().mockFactory.mockk(type, name, relaxed, moreInterfaces)
+        val mock = MockKGateway.implementation().mockFactory.mockk(type, name, relaxed, moreInterfaces, relaxUnitFun)
         block(mock)
         return mock
     }
@@ -284,8 +292,12 @@ object MockKDsl {
     /**
      * Initializes
      */
-    inline fun internalInitAnnotatedMocks(targets: List<Any>) =
-        MockKGateway.implementation().mockInitializer.initAnnotatedMocks(targets)
+    inline fun internalInitAnnotatedMocks(
+        targets: List<Any>,
+        overrideRecordPrivateCalls: Boolean = false,
+        relaxUnitFun: Boolean = false
+    ) =
+        MockKGateway.implementation().mockInitializer.initAnnotatedMocks(targets, overrideRecordPrivateCalls, relaxUnitFun)
 
     /**
      * Object mockk
@@ -3263,6 +3275,7 @@ data class Call(
 data class MethodDescription(
     val name: String,
     val returnType: KClass<*>,
+    val returnTypeVoid: Boolean,
     val declaringClass: KClass<*>,
     val paramTypes: List<KClass<*>>,
     val varArgsArg: Int,

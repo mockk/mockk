@@ -88,6 +88,7 @@ object JvmMockFactoryHelper {
         MethodDescription(
             name,
             returnType.kotlin,
+            returnType == Void.TYPE,
             declaringClass.kotlin,
             parameterTypes.map { it.kotlin },
             varArgPosition(),

@@ -31,11 +31,12 @@ abstract class AbstractMockFactory(
         mockType: KClass<T>,
         name: String?,
         relaxed: Boolean,
-        moreInterfaces: Array<out KClass<*>>
+        moreInterfaces: Array<out KClass<*>>,
+        relaxUnitFun: Boolean
     ): T {
         val newName = name ?: "#${newId()}"
 
-        val stub = MockKStub(mockType, newName, relaxed, gatewayAccess, true)
+        val stub = MockKStub(mockType, newName, relaxed, relaxUnitFun, gatewayAccess, true)
 
         log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
