@@ -11,9 +11,9 @@
  
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* [Relaxed unit returning functions](README.md#unit-returning-function-relaxed-mock) v1.8.4
 * [Constructor mocking](README.md#constructor-mocks) v1.8.1
 * [Scoped mocking deprecation](DEPRECATED.md#scoped-mocking) v1.8.1
-* [Android instrumented tests](ANDROID.md) v1.8 <img src="doc/robot-small.png" align="top" height="20" alt="Android"/>
 
 Please report any issues
 
@@ -142,18 +142,21 @@ class Test {
   @RelaxedMockK
   lateinit var car2: Car
 
+  @MockK(relaxUnitFun = true)
+  lateinit var car3: Car
+
   @SpyK
-  val car3 = Car()
+  val car4 = Car()
   
   @InjectMockKs
   val trafficSystem = TrafficSystem()
 
   @Before
-  fun setUp() = MockKAnnotations.init(this)
+  fun setUp() = MockKAnnotations.init(this, relaxUnitFun = true) // turn relaxUnitFun on for all mocks
 
   @Test
   fun calculateAddsValues1() {
-      // ... use car1, car2 and car3
+      // ... use car1, car2, car3 and car4
   }
 }
 ```
@@ -182,12 +185,15 @@ class Test {
   @RelaxedMockK
   lateinit var car2: Car
 
+  @MockK(relaxUnitFun = true)
+  lateinit var car3: Car
+
   @SpyK
-  val car3 = Car()
+  val car4 = Car()
 
   @Test
   fun calculateAddsValues1() {
-    // ... use car1, car2 and car3
+      // ... use car1, car2, car3 and car4
   }
 }
 ```
@@ -241,6 +247,12 @@ every { func() } returns Car() // or you can return mockk() for example
 
 func()
 ```
+
+### Unit returning function relaxed mock
+
+In case you would like `Unit` returning functions to be relaxed.
+You can use `relaxUnitFun = true` as an argument to `mockk` function, 
+`@MockK`annotation or `MockKAnntations.init` function.
 
 ### Object mocks
 
