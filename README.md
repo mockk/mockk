@@ -254,6 +254,29 @@ In case you would like `Unit` returning functions to be relaxed.
 You can use `relaxUnitFun = true` as an argument to `mockk` function, 
 `@MockK`annotation or `MockKAnntations.init` function.
 
+Function:
+```
+mockk<MockCls>(relaxUnitFun = true)
+```
+
+Annotation:
+```
+@MockK(relaxUnitFun = true)
+lateinit var mock1: RurfMockCls
+init {
+    MockKAnnotations.init(this)
+}
+```
+
+MockKAnnotations.init:
+```
+@MockK
+lateinit var mock2: RurfMockCls
+init {
+    MockKAnnotations.init(this, relaxUnitFun = true)
+}
+```
+
 ### Object mocks
 
 Objects can be transformed to mocks following way:
