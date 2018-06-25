@@ -796,7 +796,11 @@ By default simple arguments are matched using `eq()`
 |`matchNullable { it?.startsWith("string") }`|matches nullable value via passe predicate|
 |`coMatchNullable { it?.startsWith("string") }`|matches nullable value via passed coroutine predicate|
 |`eq(value)`|matches if value is equal to the provided via deepEquals function|
+|`eq(value, inverse=true)`|matches if value is not equal to the provided via deepEquals function|
+|`neq(value)`|matches if value is not equal to the provided via deepEquals function|
 |`refEq(value)`|matches if value is equal to the provided via reference comparation|
+|`refEq(value, inverse=true)`|matches if value is not equal to the provided via reference comparation||
+|`nrefEq(value)`|matches if value is not equal to the provided via reference comparation||
 |`cmpEq(value)`|matches if value is equal to the provided via compareTo function|
 |`less(value)`|matches if value is less to the provided via compareTo function|
 |`more(value)`|matches if value is more to the provided via compareTo function|
