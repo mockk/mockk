@@ -497,10 +497,11 @@ open class MockKMatcherScope(
 
     inline fun <reified T : Any> matchNullable(noinline matcher: (T?) -> Boolean): T =
         match(FunctionMatcher(matcher, T::class))
-
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T = match(EqMatcher(value, inverse = inverse))
+    inline fun <reified T: Any> neq(value: T): T = eq(value, true)
     inline fun <reified T : Any> refEq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, ref = true, inverse = inverse))
+    inline fun <reified T : Any> nrefEq(value: T) = refEq(value, true)
 
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
     inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
