@@ -5,8 +5,10 @@ import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 
+@Ignore
 class RecordingStateTest {
     lateinit var recorder: CommonCallRecorder
     lateinit var state: RecordingState

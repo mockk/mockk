@@ -3,6 +3,7 @@ apply plugin: 'kotlin-platform-js'
 dependencies {
     expectedBy project(":mockk-dsl")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutines_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
@@ -10,6 +11,10 @@ kotlin {
     experimental {
         coroutines "enable"
     }
+}
+
+[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+    kotlinOptions.moduleKind = "commonjs"
 }
 
 task sourcesJar(type: Jar) {

@@ -4,7 +4,7 @@ rootProject.name = 'mockk-top'
 
 include 'mockk-common'
 include 'mockk'
-//include 'mockk-js'
+include 'mockk-js'
 include 'mockk-android'
 
 include 'mockk-agent-api'

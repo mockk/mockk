@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.41'
+    ext.kotlin_version = '1.2.50'
     ext.kotlin_gradle_version = '1.2.41'
     ext.android_gradle_version = '3.1.2'
     ext.byte_buddy_version = '1.8.8'

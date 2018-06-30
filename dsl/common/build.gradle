@@ -2,6 +2,7 @@ apply plugin: 'kotlin-platform-common'
 
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutines_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
 }
 
