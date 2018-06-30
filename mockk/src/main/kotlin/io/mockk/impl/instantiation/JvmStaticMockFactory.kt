@@ -41,7 +41,7 @@ class JvmStaticMockFactory(
 
         return {
             if (refCntMap.decrementRefCnt(cls)) {
-                val stub = stubRepository[cls]
+                val stub = stubRepository[cls.java]
                 stub?.let {
                     log.debug { "Disposing static mockk for $cls" }
                     it.dispose()
