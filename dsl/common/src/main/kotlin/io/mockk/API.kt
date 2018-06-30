@@ -525,6 +525,7 @@ open class MockKMatcherScope(
     inline fun <reified T : Any> not(value: T) = match(NotMatcher(value))
     inline fun <reified T : Any> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls))
+    inline fun <reified T : Any> ofType() = match(OfTypeMatcher<T>(T::class))
 
     inline fun <reified T : () -> R, R> invoke() = match(InvokeMatcher<T> { it() })
     inline fun <reified T : (A1) -> R, R, A1> invoke(arg1: A1) = match(InvokeMatcher<T> { it(arg1) })
