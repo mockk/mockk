@@ -16,7 +16,6 @@ import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
 import net.bytebuddy.matcher.ElementMatchers.*
-import java.io.File
 import java.lang.instrument.ClassFileTransformer
 import java.security.ProtectionDomain
 
@@ -29,6 +28,9 @@ internal class InliningClassTransformer(
     private val byteBuddy: ByteBuddy
 ) : ClassFileTransformer {
 
+    private val restrictedMethods = setOf(
+        "java.lang.System.getSecurityManager"
+    )
 
     private lateinit var advice: JvmMockKProxyAdvice
     private lateinit var staticAdvice: JvmMockKStaticProxyAdvice
@@ -98,7 +100,11 @@ internal class InliningClassTransformer(
                 isStatic<OfByteCodeElement>()
                     .and(not<MethodDescription>(isTypeInitializer<MethodDescription>()))
                     .and(not<MethodDescription>(isConstructor<MethodDescription>()))
+                    .and(not<MethodDescription>(this::matchRestrictedMethods))
             )
+
+    private fun matchRestrictedMethods(desc: MethodDescription) =
+        desc.declaringType.typeName + "." + desc.name in restrictedMethods
 
     private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods? {
         return Advice.withCustomMapping()
