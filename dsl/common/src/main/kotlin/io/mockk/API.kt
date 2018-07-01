@@ -1685,6 +1685,9 @@ open class MockKMatcherScope(
     infix fun Any.invoke(name: String) =
         DynamicCallLong(this, name, { any() })
 
+    infix fun Any.invokeNoArgs(name: String) =
+        invoke(name).withArguments(listOf())
+
     infix fun Any.getProperty(name: String) =
         InternalPlatformDsl.dynamicGet(this, name)
 
