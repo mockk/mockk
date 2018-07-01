@@ -29,12 +29,12 @@ class CommonCallRecorder(
     var childHinter = factories.childHinter()
 
     override fun startStubbing() {
-        state = state.startStubbing()
+        state = factories.stubbingState(this)
         log.trace { "Starting stubbing" }
     }
 
     override fun startVerification(params: VerificationParameters) {
-        state = state.startVerification(params)
+        state = factories.verifyingState(this, params)
         log.trace { "Starting verification" }
     }
 

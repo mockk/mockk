@@ -15,18 +15,22 @@ class CommonCallRecorderTest {
     lateinit var commonCallRecorder: CommonCallRecorder
     lateinit var initState: CallRecordingState
     lateinit var hinter: ChildHinter
+    lateinit var factories: CallRecorderFactories
 
     @BeforeTest
     fun setUp() {
         initState = mockk(relaxed = true)
         hinter = mockk(relaxed = true)
+        factories = mockk<CallRecorderFactories>(relaxed = true)
 
         val initStateFactory = mockk<(CommonCallRecorder) -> CallRecordingState>(relaxed = true)
         every { initStateFactory(any()) } returns initState
 
-        val factories = mockk<CallRecorderFactories>(relaxed = true)
+
 
         every { factories.childHinter() } returns hinter
+        every { factories.verifyingState.invoke(any(), any()) } returns mockk()
+        every { factories.stubbingState.invoke(any()) } returns mockk()
 
         commonCallRecorder = CommonCallRecorder(
             mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
@@ -37,14 +41,14 @@ class CommonCallRecorderTest {
     @Test
     fun givenCallRecorderWhenStartStubbingThenCurrentStateStartStubbingCalled() {
         commonCallRecorder.startStubbing()
-        verify { initState.startStubbing() }
+        verify { factories.stubbingState.invoke(any()) }
     }
 
     @Test
     fun givenCallRecorderWhenStartVerificationThenCurrentStateStartVerificationCalled() {
         val params = VerificationParameters(Ordering.ORDERED, 1, 1, false)
         commonCallRecorder.startVerification(params)
-        verify { initState.startVerification(params) }
+        verify { factories.verifyingState.invoke(any(), any()) }
     }
 
     @Test
