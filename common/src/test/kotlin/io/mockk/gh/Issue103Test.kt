@@ -3,7 +3,6 @@ package io.mockk.gh
 import io.mockk.every
 import io.mockk.spyk
 import io.mockk.verify
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 class Issue103Test {
