@@ -89,25 +89,25 @@ object MockKDsl {
     /**
      * Starts a block of stubbing. Part of DSL.
      */
-    inline fun <T> internalEvery(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
+    fun <T> internalEvery(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
         MockKGateway.implementation().stubber.every(stubBlock, null)
 
     /**
      * Starts a block of stubbing for coroutines. Part of DSL.
      */
-    inline fun <T> internalCoEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> =
+    fun <T> internalCoEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> =
         MockKGateway.implementation().stubber.every(null, stubBlock)
 
     /**
      * Verifies calls happened in the past. Part of DSL
      */
-    inline fun internalVerify(
+    fun internalVerify(
         ordering: Ordering = Ordering.UNORDERED,
         inverse: Boolean = false,
         atLeast: Int = 1,
         atMost: Int = Int.MAX_VALUE,
         exactly: Int = -1,
-        noinline verifyBlock: MockKVerificationScope.() -> Unit
+        verifyBlock: MockKVerificationScope.() -> Unit
     ) {
 
         internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost, ordering)
@@ -125,13 +125,13 @@ object MockKDsl {
     /**
      * Verify for coroutines
      */
-    inline fun internalCoVerify(
+    fun internalCoVerify(
         ordering: Ordering = Ordering.UNORDERED,
         inverse: Boolean = false,
         atLeast: Int = 1,
         atMost: Int = Int.MAX_VALUE,
         exactly: Int = -1,
-        noinline verifyBlock: suspend MockKVerificationScope.() -> Unit
+        verifyBlock: suspend MockKVerificationScope.() -> Unit
     ) {
 
         internalCheckExactlyAtMostAtLeast(exactly, atLeast, atMost, ordering)
@@ -174,9 +174,9 @@ object MockKDsl {
     /**
      * Shortcut for ordered calls verification
      */
-    inline fun internalVerifyOrder(
+    fun internalVerifyOrder(
         inverse: Boolean = false,
-        noinline verifyBlock: MockKVerificationScope.() -> Unit
+        verifyBlock: MockKVerificationScope.() -> Unit
     ) {
         internalVerify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
     }
@@ -184,9 +184,9 @@ object MockKDsl {
     /**
      * Shortcut for all calls verification
      */
-    inline fun internalVerifyAll(
+    fun internalVerifyAll(
         inverse: Boolean = false,
-        noinline verifyBlock: MockKVerificationScope.() -> Unit
+        verifyBlock: MockKVerificationScope.() -> Unit
     ) {
         internalVerify(Ordering.ALL, inverse, verifyBlock = verifyBlock)
     }
@@ -194,9 +194,9 @@ object MockKDsl {
     /**
      * Shortcut for sequence calls verification
      */
-    inline fun internalVerifySequence(
+    fun internalVerifySequence(
         inverse: Boolean = false,
-        noinline verifyBlock: MockKVerificationScope.() -> Unit
+        verifyBlock: MockKVerificationScope.() -> Unit
     ) {
         internalVerify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
     }
