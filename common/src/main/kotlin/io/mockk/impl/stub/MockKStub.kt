@@ -222,10 +222,6 @@ open class MockKStub(
 
     companion object {
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
-
-        fun MethodDescription.isToString() = name == "toString" && paramTypes.isEmpty()
-        fun MethodDescription.isHashCode() = name == "hashCode" && paramTypes.isEmpty()
-        fun MethodDescription.isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
     }
 
     private data class InvocationAnswer(val matcher: InvocationMatcher, var answer: Answer<*>)

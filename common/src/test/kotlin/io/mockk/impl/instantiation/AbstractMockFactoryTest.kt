@@ -5,10 +5,7 @@ import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertSame
+import kotlin.test.*
 
 class AbstractMockFactoryTest {
     lateinit var mockFactory: Factory
@@ -50,7 +47,7 @@ class AbstractMockFactoryTest {
             mockFactory.publicNewProxy(any(), any(), capture(stubSlot), any(), any())
         }
 
-        assertEquals("name", stubSlot.captured.name)
+        assertTrue(stubSlot.captured.name.startsWith("name"))
     }
 
     @Test
@@ -77,7 +74,7 @@ class AbstractMockFactoryTest {
             mockFactory.publicNewProxy(any(), any(), capture(stubSlot), any(), any())
         }
 
-        assertEquals("name", stubSlot.captured.name)
+        assertTrue(stubSlot.captured.name.startsWith("name"))
     }
 
     @Test
