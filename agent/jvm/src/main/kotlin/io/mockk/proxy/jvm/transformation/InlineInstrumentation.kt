@@ -20,7 +20,20 @@ internal class InlineInstrumentation(
         val cancellation = { doCancel(request) }
 
         try {
-            val classes = instrumentationRequest.classes.toTypedArray()
+
+            val classes = instrumentationRequest.classes.filter {
+                instrumentation.isModifiableClass(it)
+            }.toTypedArray()
+
+            if (instrumentationRequest.classes.size != classes.size) {
+                log.warn(
+                    "Non instrumentable classes(skipped): " +
+                            instrumentationRequest.classes.filter {
+                                !instrumentation.isModifiableClass(it)
+                            }.joinToString()
+                )
+            }
+
             if (classes.isNotEmpty()) {
                 log.trace("Retransforming ${instrumentationRequest.classes}")
                 instrumentation.retransformClasses(*classes)

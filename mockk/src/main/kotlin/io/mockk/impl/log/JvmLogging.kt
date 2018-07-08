@@ -27,6 +27,10 @@ object JvmLogging {
                 this@adaptor.trace(ex) { msg }
             }
 
+            override fun warn(msg: String) {
+                this@adaptor.warn { msg }
+            }
+
             override fun warn(ex: Throwable, msg: String) {
                 this@adaptor.warn(ex) { msg }
             }
