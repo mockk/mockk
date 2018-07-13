@@ -439,7 +439,7 @@ object MockKDsl {
 }
 
 /**
- * Verification orderding
+ * Verification ordering
  */
 enum class Ordering {
     /**
