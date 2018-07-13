@@ -8,10 +8,13 @@ import kotlin.reflect.KClass
  * Builds a new mock for specified class
  *
  * @param name mock name
- * @param relaxed allow not specify behaviour
- * @param moreInterfaces additional interfaces for mock to implement
- * @param relaxUnitFun allow not specify behaviour for Unit returning functions
- * @param block block to execute after mock created with mock as a receiver
+ * @param relaxed allows creation with no specific behaviour
+ * @param moreInterfaces additional interfaces for this mockk to implement
+ * @param relaxUnitFun allows creation with no specific behaviour for Unit function
+ * @param block block to execute after mock is created with mock as a receiver
+ *
+ * @sample [io.mockk.MockKSamples.basicMockkCreation]
+ * @sample [io.mockk.MockKSamples.mockkWithCreationBlock]
  */
 inline fun <reified T : Any> mockk(
     name: String? = null,
@@ -31,6 +34,16 @@ inline fun <reified T : Any> mockk(
 
 /**
  * Builds a new spy for specified class. Initializes object via default constructor.
+ *
+ * A spy is a special kind of mockk that enables a mix of mocked behaviour and real behaviour.
+ * A part of the behaviour may be mocked, but any non-mocked behaviour will call the original method.
+ *
+ * @param name spyk name
+ * @param moreInterfaces additional interfaces for this spyk to implement
+ * @param recordPrivateCalls allows this spyk to record any private calls, enabling a verification
+ * @param block block to execute after spyk is created with spyk as a receiver
+ *
+ * @sample [io.mockk.SpykSamples.spyOriginalBehaviourDefaultConstructor]
  */
 inline fun <reified T : Any> spyk(
     name: String? = null,
@@ -47,7 +60,13 @@ inline fun <reified T : Any> spyk(
 }
 
 /**
- * Builds a new spy for specified class. Copies fields from provided object
+ * Builds a new spy for specified class, copying fields from [objToCopy].
+ *
+ * A spy is a special kind of mockk that enables a mix of mocked behaviour and real behaviour.
+ * A part of the behaviour may be mocked, but any non-mocked behaviour will call the original method.
+ *
+ * @sample [io.mockk.SpykSamples.spyOriginalBehaviourCopyingFields]
+ * @sample [io.mockk.SpykSamples.spyOriginalBehaviourWithPrivateCalls]
  */
 inline fun <reified T : Any> spyk(
     objToCopy: T,
@@ -67,6 +86,8 @@ inline fun <reified T : Any> spyk(
 
 /**
  * Creates new capturing slot
+ *
+ * @sample [io.mockk.SlotSample.captureSlot]
  */
 inline fun <reified T : Any> slot() = MockK.useImpl {
     MockKDsl.internalSlot<T>()
@@ -74,6 +95,10 @@ inline fun <reified T : Any> slot() = MockK.useImpl {
 
 /**
  * Starts a block of stubbing. Part of DSL.
+ *
+ * Used to define what behaviour is going to be mocked.
+ *
+ * @sample [io.mockk.EverySample.simpleEvery]
  */
 inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalEvery(stubBlock)
@@ -81,13 +106,26 @@ inline fun <T> every(noinline stubBlock: MockKMatcherScope.() -> T): MockKStubSc
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
+ * Similar to [every]
+ *
+ * Used to define what behaviour is going to be mocked.
+ * @see [every]
  */
 inline fun <T> coEvery(noinline stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalCoEvery(stubBlock)
 }
 
 /**
- * Verifies calls happened in the past. Part of DSL
+ * Verifies that calls were made in the past. Part of DSL
+ *
+ * @param ordering how the verification should be ordered
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
+ * @param atLeast verifies that the behaviour happened at least [atLeast] times
+ * @param atMost verifies that the behaviour happened at most [atMost] times
+ * @param exactly verifies that the behaviour happened exactly [exactly] times. Use -1 to disable
+ *
+ * @sample [io.mockk.VerifySample.verifyAmount]
+ * @sample [io.mockk.VerifySample.verifyRange]
  */
 inline fun verify(
     ordering: Ordering = Ordering.UNORDERED,
@@ -101,7 +139,15 @@ inline fun verify(
 }
 
 /**
- * Verify for coroutines
+ * Verifies that calls were made inside a coroutine.
+ *
+ * @param ordering how the verification should be ordered
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
+ * @param atLeast verifies that the behaviour happened at least [atLeast] times
+ * @param atMost verifies that the behaviour happened at most [atMost] times
+ * @param exactly verifies that the behaviour happened exactly [exactly] times. Use -1 to disable
+ *
+ * @see [verify]
  */
 inline fun coVerify(
     ordering: Ordering = Ordering.UNORDERED,
@@ -122,7 +168,14 @@ inline fun coVerify(
 }
 
 /**
- * Shortcut for ordered calls verification
+ * Verifies that all calls inside [verifyBlock] happened, **not** verifying any order.
+ *
+ * If ordering is important, use [verifyOrder]
+ *
+ * @see verify
+ * @see verifyOrder
+ *
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
 inline fun verifyAll(
     inverse: Boolean = false,
@@ -132,7 +185,14 @@ inline fun verifyAll(
 }
 
 /**
- * Shortcut for ordered calls verification
+ * Verifies that all calls inside [verifyBlock] happened, checking that they happened in the order declared.
+ *
+ * @see verify
+ *
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
+ *
+ * @sample [io.mockk.VerifySample.verifyOrder]
+ * @sample [io.mockk.VerifySample.failingVerifyOrder]
  */
 inline fun verifyOrder(
     inverse: Boolean = false,
@@ -142,7 +202,14 @@ inline fun verifyOrder(
 }
 
 /**
- * Shortcut for sequence calls verification
+ * Verifies that all calls inside [verifyBlock] happened, and no other call was made to those mocks
+ *
+ * @see verify
+ *
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
+ *
+ * @sample [io.mockk.VerifySample.verifySequence]
+ * @sample [io.mockk.VerifySample.failingVerifySequence]
  */
 inline fun verifySequence(
     inverse: Boolean = false,
@@ -266,6 +333,9 @@ inline fun <T : Any> classMockk(
     MockKDsl.internalMockkClass(type, name, relaxed, *moreInterfaces, block = block)
 }
 
+/**
+ * Builds a mock for an arbitrary class
+ */
 inline fun <T : Any> mockkClass(
     type: KClass<T>,
     name: String? = null,
@@ -277,7 +347,10 @@ inline fun <T : Any> mockkClass(
 }
 
 /**
- * Builds a static mock. Old static mocks of same classes are cancelled before.
+ * Builds an Object mock. Any mocks of this exact object are cancelled before it's mocked.
+ *
+ * @sample io.mockk.ObjectMockkSample.mockSimpleObject
+ * @sample io.mockk.ObjectMockkSample.mockEnumeration
  */
 inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) = MockK.useImpl {
     MockKDsl.internalMockkObject(*objects, recordPrivateCalls = recordPrivateCalls)
@@ -291,7 +364,9 @@ inline fun unmockkObject(vararg objects: Any) = MockK.useImpl {
 }
 
 /**
- * Builds a static mock. Old static mocks of same classes are cancelled before.
+ * Builds a static mock. Any mocks of this exact class are cancelled before it's mocked
+ *
+ * @sample io.mockk.StaticMockkSample.mockJavaStatic
  */
 inline fun mockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
     MockKDsl.internalMockkStatic(*classes)
@@ -299,6 +374,8 @@ inline fun mockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
 
 /**
  * Builds a static mock. Old static mocks of same classes are cancelled before.
+ *
+ * @sample io.mockk.StaticMockkSample.mockJavaStaticString
  */
 inline fun mockkStatic(vararg classes: String) = MockK.useImpl {
     MockKDsl.internalMockkStatic(*classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
