@@ -8,3 +8,4 @@ replay_*
 agent/android/.externalNativeBuild/
 matrix/results
 local.properties
+/mockk-js/node_modules
