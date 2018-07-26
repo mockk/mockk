@@ -1,5 +1,10 @@
 apply plugin: 'kotlin-platform-common'
 
+configurations {
+    sampleTestCompile.extendsFrom testCompile
+    sampleTestRuntime.extendsFrom testRuntime
+}
+
 dependencies {
     compile project(":mockk-dsl")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
@@ -11,6 +16,23 @@ kotlin {
     experimental {
         coroutines "enable"
     }
+}
+
+sourceSets {
+    sample {
+        kotlin {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/sample/kotlin')
+        }
+        resources.srcDir file('src/sample/resources')
+    }
+}
+
+
+task samples(type: Test) {
+    setTestClassesDirs(sourceSets.sample.output.classesDirs)
+    classpath = sourceSets.sample.runtimeClasspath
 }
 
 task sourcesJar(type: Jar) {

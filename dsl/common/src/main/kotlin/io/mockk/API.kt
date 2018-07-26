@@ -3291,6 +3291,9 @@ data class MethodDescription(
 
     fun argToStr(argType: KClass<*>) = argType.simpleName
 
+    fun isToString() = name == "toString" && paramTypes.isEmpty()
+    fun isHashCode() = name == "hashCode" && paramTypes.isEmpty()
+    fun isEquals() = name == "equals" && paramTypes.size == 1 && paramTypes[0] == Any::class
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

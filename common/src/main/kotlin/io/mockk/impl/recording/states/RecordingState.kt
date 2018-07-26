@@ -62,10 +62,15 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
         val retType = recorder.childHinter.nextChildType { invocation.method.returnType }
         var isTemporaryMock = false
 
-        val retValue = recorder.anyValueGenerator.anyValue(retType) {
-            isTemporaryMock = true
-            recorder.mockFactory.temporaryMock(retType)
-        }
+        val retValue =
+            if (invocation.method.isToString()) {
+                recorder.stubRepo[invocation.self]?.toStr() ?: ""
+            } else {
+                recorder.anyValueGenerator.anyValue(retType) {
+                    isTemporaryMock = true
+                    recorder.mockFactory.temporaryMock(retType)
+                }
+            }
 
         if (retValue == null) {
             isTemporaryMock = false

@@ -8,6 +8,8 @@ interface MockKAgentLogger {
 
     fun trace(ex: Throwable, msg: String)
 
+    fun warn(msg: String)
+
     fun warn(ex: Throwable, msg: String)
 
     companion object {
@@ -18,9 +20,9 @@ interface MockKAgentLogger {
 
             override fun trace(ex: Throwable, msg: String) {}
 
-            override fun warn(ex: Throwable, msg: String) {
+            override fun warn(msg: String) {}
 
-            }
+            override fun warn(ex: Throwable, msg: String) {}
         }
     }
 }

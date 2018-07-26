@@ -34,7 +34,8 @@ abstract class AbstractMockFactory(
         moreInterfaces: Array<out KClass<*>>,
         relaxUnitFun: Boolean
     ): T {
-        val newName = name ?: "#${newId()}"
+        val id = newId()
+        val newName = (name ?: "") + "#$id"
 
         val stub = MockKStub(mockType, newName, relaxed, relaxUnitFun, gatewayAccess, true)
 
@@ -57,12 +58,13 @@ abstract class AbstractMockFactory(
         moreInterfaces: Array<out KClass<*>>,
         recordPrivateCalls: Boolean
     ): T {
-        val newName = name ?: "#${newId()}"
+        val id = newId()
+        val newName = (name ?: "") + "#$id"
 
         val actualCls = when {
             objToCopy != null -> objToCopy::class
             mockType != null -> mockType
-            else -> throw MockKException("Either cls or objToCopy should not be null")
+            else -> throw MockKException("Either mockType or objToCopy should not be null")
         }
 
         log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
