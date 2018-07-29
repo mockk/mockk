@@ -1,6 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.StackElement
+import io.mockk.impl.stub.Stub
 import kotlin.reflect.KClass
 
 expect object InternalPlatform {
@@ -35,6 +36,8 @@ expect object InternalPlatform {
     fun captureStackTrace(): () -> List<StackElement>
 
     fun weakRef(value: Any): WeakRef
+
+    fun multiNotifier() : MultiNotifier
 }
 
 interface Ref {
@@ -43,4 +46,16 @@ interface Ref {
 
 interface WeakRef {
     val value: Any?
+}
+
+interface MultiNotifier {
+    fun notify(key: Any)
+
+    fun openSession(keys: List<Any>, timeout: Long): Session
+
+    interface Session {
+        fun wait(): Boolean
+
+        fun close()
+    }
 }

@@ -10,22 +10,19 @@ import io.mockk.impl.instantiation.*
 import io.mockk.impl.log.JvmLogging
 import io.mockk.impl.log.JvmLogging.adaptor
 import io.mockk.impl.log.Logger
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import io.mockk.impl.recording.*
 import io.mockk.impl.recording.states.*
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
-import io.mockk.impl.verify.AllCallsCallVerifier
-import io.mockk.impl.verify.OrderedCallVerifier
-import io.mockk.impl.verify.SequenceCallVerifier
-import io.mockk.impl.verify.UnorderedCallVerifier
+import io.mockk.impl.verify.*
 import io.mockk.proxy.MockKAgentFactory
 import io.mockk.proxy.MockKAgentLogFactory
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
-    val safeLog: SafeLog = SafeLog({ callRecorderTL.get() })
+    val safeToString: SafeToString = SafeToString({ callRecorderTL.get() })
 
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
@@ -50,7 +47,7 @@ class JvmMockKGateway : MockKGateway {
         })
     }
 
-    val stubRepo = StubRepository(safeLog)
+    val stubRepo = StubRepository(safeToString)
 
     val instantiator = JvmInstantiator(
         agentFactory.instantiator,
@@ -61,7 +58,7 @@ class JvmMockKGateway : MockKGateway {
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
-    val gatewayAccess = StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
+    val gatewayAccess = StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeToString)
 
     override val mockFactory: AbstractMockFactory = JvmMockFactory(
         agentFactory.proxyMaker,
@@ -72,7 +69,7 @@ class JvmMockKGateway : MockKGateway {
 
     val gatewayAccessWithFactory = gatewayAccess.copy(mockFactory = mockFactory)
 
-    override val clearer = CommonClearer(stubRepo, safeLog)
+    override val clearer = CommonClearer(stubRepo, safeToString)
 
     override val staticMockFactory = JvmStaticMockFactory(
         agentFactory.staticProxyMaker,
@@ -95,25 +92,35 @@ class JvmMockKGateway : MockKGateway {
     )
 
 
-    val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeLog)
-    val allVerifier = AllCallsCallVerifier(stubRepo, safeLog)
-    val orderedVerifier = OrderedCallVerifier(stubRepo, safeLog)
-    val sequenceVerifier = SequenceCallVerifier(stubRepo, safeLog)
+    val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeToString)
+    val allVerifier = AllCallsCallVerifier(stubRepo, safeToString)
+    val orderedVerifier = OrderedCallVerifier(stubRepo, safeToString)
+    val sequenceVerifier = SequenceCallVerifier(stubRepo, safeToString)
 
-    override fun verifier(ordering: Ordering): CallVerifier =
-        when (ordering) {
+    override fun verifier(params: VerificationParameters): CallVerifier {
+        val ordering = params.ordering
+
+        val verifier = when (ordering) {
             Ordering.UNORDERED -> unorderedVerifier
             Ordering.ALL -> allVerifier
             Ordering.ORDERED -> orderedVerifier
             Ordering.SEQUENCE -> sequenceVerifier
         }
 
+        return if (params.timeout > 0) {
+            TimeoutVerifier(stubRepo, verifier)
+        } else {
+            verifier
+        }
+    }
+
+
     val callRecorderFactories = CallRecorderFactories(
-        { SignatureMatcherDetector(safeLog, { ChainedCallDetector(safeLog) }) },
-        { CallRoundBuilder(safeLog) },
+        { SignatureMatcherDetector(safeToString, { ChainedCallDetector(safeToString) }) },
+        { CallRoundBuilder(safeToString) },
         ::ChildHinter,
         this::verifier,
-        { PermanentMocker(stubRepo, safeLog) },
+        { PermanentMocker(stubRepo, safeToString) },
         ::VerificationCallSorter,
         ::AnsweringState,
         ::AnsweringStillAcceptingAnswersState,
@@ -130,7 +137,7 @@ class JvmMockKGateway : MockKGateway {
             signatureValueGenerator,
             mockFactory,
             anyValueGenerator,
-            safeLog,
+            safeToString,
             callRecorderFactories,
             { recorder -> callRecorderFactories.answeringState(recorder) })
     }

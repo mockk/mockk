@@ -19,7 +19,7 @@ class VerifyingState(
     override fun recordingDone(): CallRecordingState {
         checkMissingCalls()
 
-        val verifier = recorder.factories.verifier(params.ordering)
+        val verifier = recorder.factories.verifier(params)
 
         val sorter = recorder.factories.verificationCallSorter()
 
@@ -29,8 +29,7 @@ class VerifyingState(
             recorder.safeExec {
                 verifier.verify(
                     sorter.regularCalls,
-                    params.min,
-                    params.max
+                    params
                 )
             }
 

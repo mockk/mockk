@@ -19,7 +19,7 @@ class VerifyingStateTest {
     @BeforeTest
     fun setUp() {
         recorder = mockk(relaxed = true)
-        val params = VerificationParameters(Ordering.UNORDERED, 1, 2, false)
+        val params = VerificationParameters(Ordering.UNORDERED, 1, 2, false, 0)
         state = spyk(VerifyingState(recorder, params))
         verifier = mockk(relaxed = true)
         sorter = mockk(relaxed = true)
@@ -87,7 +87,12 @@ class VerifyingStateTest {
         every { sorter.sort(any()) } just Runs
         every { recorder.factories.answeringState(recorder) } returns mockk(relaxed = true)
         every { recorder.safeExec<Any>(captureLambda()) } answers { lambda<() -> Any>().invoke() }
-        every { verifier.verify(listOf(call1, call2), 1, 2) } returns outcome
+        every {
+            verifier.verify(
+                listOf(call1, call2),
+                VerificationParameters(Ordering.UNORDERED, 1, 2, false, 0)
+            )
+        } returns outcome
     }
 
     private fun setupWasNotCalled(wasNotCalled: Int) {

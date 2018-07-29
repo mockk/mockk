@@ -5,11 +5,11 @@ import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MockCls {
-    var intProp: Int = 5
-}
-
 class BackingFieldTest {
+    class MockCls {
+        var intProp: Int = 5
+    }
+
     val mock = spyk(MockCls(), recordPrivateCalls = true)
 
     @Test

@@ -133,9 +133,10 @@ fun verify(
     atLeast: Int = 1,
     atMost: Int = Int.MAX_VALUE,
     exactly: Int = -1,
+    timeout: Long = 0,
     verifyBlock: MockKVerificationScope.() -> Unit
 ) = MockK.useImpl {
-    MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, verifyBlock)
+    MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
 }
 
 /**
@@ -155,6 +156,7 @@ fun coVerify(
     atLeast: Int = 1,
     atMost: Int = Int.MAX_VALUE,
     exactly: Int = -1,
+    timeout: Long = 0,
     verifyBlock: suspend MockKVerificationScope.() -> Unit
 ) = MockK.useImpl {
     MockKDsl.internalCoVerify(
@@ -163,6 +165,7 @@ fun coVerify(
         atLeast,
         atMost,
         exactly,
+        timeout,
         verifyBlock
     )
 }

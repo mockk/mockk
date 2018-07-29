@@ -17,7 +17,7 @@ interface MockKGateway {
     val clearer: Clearer
     val mockInitializer: MockInitializer
 
-    fun verifier(ordering: Ordering): CallVerifier
+    fun verifier(params: VerificationParameters): CallVerifier
 
     companion object {
         lateinit var implementation: () -> MockKGateway
@@ -122,7 +122,8 @@ interface MockKGateway {
         val ordering: Ordering,
         val min: Int,
         val max: Int,
-        val inverse: Boolean
+        val inverse: Boolean,
+        val timeout: Long
     )
 
 
@@ -163,7 +164,7 @@ interface MockKGateway {
      * Verifier takes the list of calls and checks what invocations happened to the mocks
      */
     interface CallVerifier {
-        fun verify(verificationSequence: List<RecordedCall>, min: Int, max: Int): VerificationResult
+        fun verify(verificationSequence: List<RecordedCall>, params: VerificationParameters): VerificationResult
 
         fun captureArguments()
     }

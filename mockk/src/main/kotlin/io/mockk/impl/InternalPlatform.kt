@@ -90,7 +90,10 @@ actual object InternalPlatform {
 
             ex is NoClassDefFoundError &&
                     ex.message?.contains("kotlinx/coroutines/") ?: false ->
-                MockKException("Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ", ex)
+                MockKException(
+                    "Add coroutines support artifact 'org.jetbrains.kotlinx:kotlinx-coroutines-core' to your project ",
+                    ex
+                )
 
             else -> ex
         }
@@ -139,6 +142,8 @@ actual object InternalPlatform {
                 get() = weakRef.get()
         }
     }
+
+    actual fun multiNotifier(): MultiNotifier = JvmMultiNotifier()
 
     inline fun <reified T : Any> loadPlugin(className: String, msg: String = "") =
         try {

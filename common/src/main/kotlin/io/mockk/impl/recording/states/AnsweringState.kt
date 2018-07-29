@@ -7,7 +7,7 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 
 open class AnsweringState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
-    open val log = recorder.safeLog(Logger<AnsweringState>())
+    open val log = recorder.safeToString(Logger<AnsweringState>())
 
     override fun call(invocation: Invocation): Any? {
         val stub = recorder.stubRepo.stubFor(invocation.self)

@@ -28,7 +28,7 @@ class JvmConstructorMockFactory(
     val objectProxyMaker: MockKProxyMaker,
     val gatewayAccess: StubGatewayAccess
 ) : ConstructorMockFactory {
-    val log = gatewayAccess.safeLog(Logger<JvmConstructorMockFactory>())
+    val log = gatewayAccess.safeToString(Logger<JvmConstructorMockFactory>())
 
     inner class ConstructorMock(
         val cls: KClass<*>,

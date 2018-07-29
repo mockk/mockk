@@ -10,7 +10,7 @@ class AnsweringStillAcceptingAnswersState(
     recorder: CommonCallRecorder,
     val answerOpportunity: AdditionalAnswerOpportunity
 ) : AnsweringState(recorder) {
-    override val log = recorder.safeLog(Logger<AnsweringStillAcceptingAnswersState>())
+    override val log = recorder.safeToString(Logger<AnsweringStillAcceptingAnswersState>())
 
     override fun call(invocation: Invocation): Any? {
         val res = super.call(invocation)

@@ -2,10 +2,10 @@ package io.mockk.impl.recording
 
 import io.mockk.Invocation
 import io.mockk.Matcher
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import kotlin.reflect.KClass
 
-class CallRoundBuilder(val safeLog: SafeLog) {
+class CallRoundBuilder(val safeToString: SafeToString) {
     val signedMatchers = mutableListOf<SignedMatcher>()
     val signedCalls = mutableListOf<SignedCall>()
 
@@ -26,7 +26,7 @@ class CallRoundBuilder(val safeLog: SafeLog) {
             invocation.self,
             invocation.method,
             invocation.args,
-            safeLog.exec { invocation.toString() }
+            safeToString.exec { invocation.toString() }
         )
 
         signedCalls.add(signedCall)
@@ -42,7 +42,7 @@ class CallRoundBuilder(val safeLog: SafeLog) {
                     self,
                     WasNotCalled.method,
                     listOf(),
-                    safeLog.exec { "${self} wasNot Called" }
+                    safeToString.exec { "${self} wasNot Called" }
                 )
             )
         }

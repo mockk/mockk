@@ -6,14 +6,14 @@ import io.mockk.MockKException
 import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 
 class SignatureMatcherDetector(
-    safeLog: SafeLog,
+    safeToString: SafeToString,
     val chainedCallDetectorFactory: ChainedCallDetectorFactory
 ) {
     val calls = mutableListOf<RecordedCall>()
-    val log = safeLog(Logger<SignatureMatcherDetector>())
+    val log = safeToString(Logger<SignatureMatcherDetector>())
 
     fun detect(callRounds: List<CallRound>) {
         calls.clear()

@@ -3,10 +3,9 @@ package io.mockk.impl.verify
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
-import io.mockk.MockKGateway.CallVerifier
-import io.mockk.MockKGateway.VerificationResult
+import io.mockk.MockKGateway.*
 import io.mockk.RecordedCall
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.formatCalls
 import io.mockk.impl.verify.VerificationHelpers.stackTrace
@@ -14,13 +13,20 @@ import io.mockk.impl.verify.VerificationHelpers.stackTraces
 
 open class UnorderedCallVerifier(
     val stubRepo: StubRepository,
-    val safeLog: SafeLog
+    val safeToString: SafeToString
 ) : CallVerifier {
     private val captureBlocks = mutableListOf<() -> Unit>()
 
-    override fun verify(verificationSequence: List<RecordedCall>, min: Int, max: Int): VerificationResult {
+    override fun verify(
+        verificationSequence: List<RecordedCall>,
+        params: VerificationParameters
+    ): VerificationResult {
+
+        val min = params.min
+        val max = params.max
+
         for ((i, call) in verificationSequence.withIndex()) {
-            val callIdxMsg = safeLog.exec { "call ${i + 1} of ${verificationSequence.size}: ${call.matcher}" }
+            val callIdxMsg = safeToString.exec { "call ${i + 1} of ${verificationSequence.size}: ${call.matcher}" }
             val result = matchCall(call, min, max, callIdxMsg)
 
             if (!result.matches) {
@@ -58,7 +64,7 @@ open class UnorderedCallVerifier(
                 } else if (allCallsForMock.isEmpty()) {
                     VerificationResult(false, "$callIdxMsg was not called")
                 } else {
-                    VerificationResult(false, safeLog.exec {
+                    VerificationResult(false, safeToString.exec {
                         "$callIdxMsg was not called." +
                                 "\n\nCalls to same mock:\n" +
                                 formatCalls(allCallsForMock) +
@@ -83,7 +89,7 @@ open class UnorderedCallVerifier(
                         )
                     }
                 } else {
-                    VerificationResult(false, safeLog.exec {
+                    VerificationResult(false, safeToString.exec {
                         "$callIdxMsg. Only one matching call to ${stub.toStr()}/${recordedCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
                                 describeArgumentDifference(recordedCall.matcher, onlyCall) +
                                 "\nStack trace:\n" +
@@ -98,7 +104,7 @@ open class UnorderedCallVerifier(
                 } else {
                     if (n == 0) {
                         VerificationResult(false,
-                            safeLog.exec {
+                            safeToString.exec {
                                 "$callIdxMsg. No matching calls found." +
                                         "\n\nCalls to same method:\n" +
                                         formatCalls(allCallsForMockMethod) +

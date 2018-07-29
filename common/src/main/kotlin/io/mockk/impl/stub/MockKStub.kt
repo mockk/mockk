@@ -109,6 +109,7 @@ open class MockKStub(
 
         if (record) {
             recordedCalls.add(invocation)
+            gatewayAccess.stubRepository.notifyCallRecorded(this)
         }
     }
 
@@ -122,7 +123,7 @@ open class MockKStub(
 
     override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any {
         return synchronized(childs) {
-            gatewayAccess.safeLog.exec {
+            gatewayAccess.safeToString.exec {
                 childs.customComputeIfAbsent(matcher) {
                     gatewayAccess.mockFactory!!.mockk(
                         childType,

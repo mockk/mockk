@@ -1,23 +1,29 @@
 package io.mockk.impl.verify
 
 import io.mockk.MockKGateway
+import io.mockk.MockKGateway.VerificationParameters
+import io.mockk.MockKGateway.VerificationResult
 import io.mockk.RecordedCall
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.allInvocations
 import io.mockk.impl.verify.VerificationHelpers.reportCalls
 
 class OrderedCallVerifier(
     val stubRepo: StubRepository,
-    val safeLog: SafeLog
+    val safeToString: SafeToString
 ) : MockKGateway.CallVerifier {
     private val captureBlocks = mutableListOf<() -> Unit>()
 
-    override fun verify(verificationSequence: List<RecordedCall>, min: Int, max: Int): MockKGateway.VerificationResult {
+    override fun verify(
+        verificationSequence: List<RecordedCall>,
+        params: VerificationParameters
+    ): VerificationResult {
+
         val allCalls = verificationSequence.allInvocations(stubRepo)
 
         if (verificationSequence.size > allCalls.size) {
-            return MockKGateway.VerificationResult(false, safeLog.exec {
+            return VerificationResult(false, safeToString.exec {
                 "less calls happened then demanded by order verification sequence. " +
                         reportCalls(verificationSequence, allCalls)
             })
@@ -81,9 +87,9 @@ class OrderedCallVerifier(
 
             backTrackCalls(allCalls.size - 1, verificationSequence.size - 1)
 
-            return MockKGateway.VerificationResult(true)
+            return VerificationResult(true)
         } else {
-            return MockKGateway.VerificationResult(false, safeLog.exec {
+            return VerificationResult(false, safeToString.exec {
                 "calls are not in verification order" + reportCalls(verificationSequence, allCalls)
             })
         }

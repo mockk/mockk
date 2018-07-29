@@ -8,7 +8,7 @@ import io.mockk.RecordedCall
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
 import io.mockk.impl.log.Logger
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import io.mockk.impl.recording.states.CallRecordingState
 import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
@@ -19,7 +19,7 @@ class CommonCallRecorder(
     val signatureValueGenerator: SignatureValueGenerator,
     val mockFactory: MockFactory,
     val anyValueGenerator: AnyValueGenerator,
-    val safeLog: SafeLog,
+    val safeToString: SafeToString,
     val factories: CallRecorderFactories,
     val initialState: (CommonCallRecorder) -> CallRecordingState
 ) : CallRecorder {

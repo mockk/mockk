@@ -5,15 +5,15 @@ import io.mockk.EquivalentMatcher
 import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import io.mockk.impl.stub.StubRepository
 
 class PermanentMocker(
     val stubRepo: StubRepository,
-    val safeLog: SafeLog
+    val safeToString: SafeToString
 ) {
 
-    val log = safeLog(Logger<PermanentMocker>())
+    val log = safeToString(Logger<PermanentMocker>())
 
     val permanentMocks = InternalPlatform.identityMap<Any, Any>()
     val callRef = InternalPlatform.weakMap<Any, RecordedCall>()
@@ -25,7 +25,7 @@ class PermanentMocker(
             result.add(permanentCall)
         }
 
-        val callTree = safeLog.exec { describeCallTree(result) }
+        val callTree = safeToString.exec { describeCallTree(result) }
         if (callTree.size == 1) {
             log.trace { "Mocked permanently: " + callTree[0] }
         } else {

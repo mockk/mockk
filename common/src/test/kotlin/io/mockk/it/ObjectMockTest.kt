@@ -49,9 +49,8 @@ class ObjectMockTest {
     @Suppress("DEPRECATION")
     @Test
     fun objectMockUnmockCanBeSeparate() {
-        val x = MockCls()
-        objectMockk(x).mock()
-        objectMockk(x).unmock()
+        objectMockk(MockObj).mock()
+        objectMockk(MockObj).unmock()
     }
 
 }

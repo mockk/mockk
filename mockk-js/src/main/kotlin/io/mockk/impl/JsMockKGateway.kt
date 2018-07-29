@@ -12,7 +12,7 @@ import io.mockk.impl.instantiation.JsInstantiator
 import io.mockk.impl.instantiation.JsMockFactory
 import io.mockk.impl.log.JsConsoleLogger
 import io.mockk.impl.log.Logger
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.safeToString
 import io.mockk.impl.recording.*
 import io.mockk.impl.recording.states.*
 import io.mockk.impl.stub.CommonClearer
@@ -25,12 +25,12 @@ import io.mockk.impl.verify.UnorderedCallVerifier
 import kotlin.reflect.KClass
 
 class JsMockKGateway : MockKGateway {
-    val safeLog = SafeLog({ commonCallRecorder })
+    val safeToString = safeToString({ commonCallRecorder })
 
     val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
-    val stubRepo = StubRepository(safeLog)
+    val stubRepo = StubRepository(safeToString)
     val instantiator = JsInstantiator(instanceFactoryRegistryIntrnl)
     val anyValueGenerator = AnyValueGenerator()
     val signatureValueGenerator = JsSignatureValueGenerator()
@@ -39,7 +39,7 @@ class JsMockKGateway : MockKGateway {
     override val mockFactory: MockFactory = JsMockFactory(
         stubRepo,
         instantiator,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeLog)
+        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeToString)
     )
 
     override val staticMockFactory: StaticMockFactory
@@ -48,12 +48,12 @@ class JsMockKGateway : MockKGateway {
     override val objectMockFactory: ObjectMockFactory
         get() = throw UnsupportedOperationException("Object mocks are not supported in JS version")
 
-    override val clearer = CommonClearer(stubRepo, safeLog)
+    override val clearer = CommonClearer(stubRepo, safeToString)
 
-    val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeLog)
-    val allVerifier = AllCallsCallVerifier(stubRepo, safeLog)
-    val orderedVerifier = OrderedCallVerifier(stubRepo, safeLog)
-    val sequenceVerifier = SequenceCallVerifier(stubRepo, safeLog)
+    val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeToString)
+    val allVerifier = AllCallsCallVerifier(stubRepo, safeToString)
+    val orderedVerifier = OrderedCallVerifier(stubRepo, safeToString)
+    val sequenceVerifier = SequenceCallVerifier(stubRepo, safeToString)
 
     override fun verifier(ordering: Ordering): CallVerifier =
         when (ordering) {
@@ -64,11 +64,11 @@ class JsMockKGateway : MockKGateway {
         }
 
     val callRecorderFactories = CallRecorderFactories(
-        { SignatureMatcherDetector({ ChainedCallDetector(safeLog) }) },
-        { CallRoundBuilder(safeLog) },
+        { SignatureMatcherDetector({ ChainedCallDetector(safeToString) }) },
+        { CallRoundBuilder(safeToString) },
         ::ChildHinter,
         this::verifier,
-        { PermanentMocker(stubRepo, safeLog) },
+        { PermanentMocker(stubRepo, safeToString) },
         ::VerificationCallSorter,
         ::AnsweringState,
         ::AnsweringStillAcceptingAnswersState,
@@ -84,7 +84,7 @@ class JsMockKGateway : MockKGateway {
         signatureValueGenerator,
         mockFactory,
         anyValueGenerator,
-        safeLog,
+        safeToString,
         callRecorderFactories,
         { recorder -> callRecorderFactories.answeringState(recorder) })
     override val callRecorder: CallRecorder = commonCallRecorder

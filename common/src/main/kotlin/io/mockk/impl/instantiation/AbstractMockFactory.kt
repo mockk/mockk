@@ -14,8 +14,8 @@ abstract class AbstractMockFactory(
     gatewayAccessIn: StubGatewayAccess
 ) : MockKGateway.MockFactory {
 
-    val safeLog = gatewayAccessIn.safeLog
-    val log = safeLog(Logger<AbstractMockFactory>())
+    val safeToString = gatewayAccessIn.safeToString
+    val log = safeToString(Logger<AbstractMockFactory>())
 
     val gatewayAccess = gatewayAccessIn.copy(mockFactory = this)
 
@@ -106,7 +106,7 @@ abstract class AbstractMockFactory(
         return proxy
     }
 
-    override fun isMock(value: Any) = gatewayAccess.stubRepository.stubs.containsKey(value)
+    override fun isMock(value: Any) = gatewayAccess.stubRepository.get(value) != null
 
     companion object {
         val idCounter = InternalPlatform.counter()

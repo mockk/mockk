@@ -6,7 +6,7 @@ import io.mockk.Ordering
 import io.mockk.impl.recording.states.CallRecordingState
 import io.mockk.impl.stub.AdditionalAnswerOpportunity
 
-typealias VerifierFactory = (Ordering) -> CallVerifier
+typealias VerifierFactory = (VerificationParameters) -> CallVerifier
 typealias SignatureMatcherDetectorFactory = () -> SignatureMatcherDetector
 typealias CallRoundBuilderFactory = () -> CallRoundBuilder
 typealias ChildHinterFactory = () -> ChildHinter

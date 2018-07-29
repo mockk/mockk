@@ -3,14 +3,14 @@ package io.mockk.impl.recording
 import io.mockk.EqMatcher
 import io.mockk.Matcher
 import io.mockk.every
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ChainedCallDetectorTest {
-    val safeLog = mockk<SafeLog>(relaxed = true)
-    val detector = ChainedCallDetector(safeLog)
+    val safeToString = mockk<SafeToString>(relaxed = true)
+    val detector = ChainedCallDetector(safeToString)
     val callRound1 = mockk<CallRound>(relaxed = true)
     val callRound2 = mockk<CallRound>(relaxed = true)
     val call1 = mockk<SignedCall>(relaxed = true)

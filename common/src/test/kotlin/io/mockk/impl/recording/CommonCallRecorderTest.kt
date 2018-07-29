@@ -46,7 +46,7 @@ class CommonCallRecorderTest {
 
     @Test
     fun givenCallRecorderWhenStartVerificationThenCurrentStateStartVerificationCalled() {
-        val params = VerificationParameters(Ordering.ORDERED, 1, 1, false)
+        val params = VerificationParameters(Ordering.ORDERED, 1, 1, false, 0)
         commonCallRecorder.startVerification(params)
         verify { factories.verifyingState.invoke(any(), any()) }
     }

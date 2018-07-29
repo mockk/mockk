@@ -107,6 +107,7 @@ object MockKDsl {
         atLeast: Int = 1,
         atMost: Int = Int.MAX_VALUE,
         exactly: Int = -1,
+        timeout: Long = 0,
         verifyBlock: MockKVerificationScope.() -> Unit
     ) {
 
@@ -116,7 +117,7 @@ object MockKDsl {
         val max = if (exactly != -1) exactly else atMost
 
         MockKGateway.implementation().verifier.verify(
-            VerificationParameters(ordering, min, max, inverse),
+            VerificationParameters(ordering, min, max, inverse, timeout),
             verifyBlock,
             null
         )
@@ -131,6 +132,7 @@ object MockKDsl {
         atLeast: Int = 1,
         atMost: Int = Int.MAX_VALUE,
         exactly: Int = -1,
+        timeout: Long = 0,
         verifyBlock: suspend MockKVerificationScope.() -> Unit
     ) {
 
@@ -140,7 +142,7 @@ object MockKDsl {
         val max = if (exactly != -1) exactly else atMost
 
         MockKGateway.implementation().verifier.verify(
-            VerificationParameters(ordering, min, max, inverse),
+            VerificationParameters(ordering, min, max, inverse, timeout),
             null,
             verifyBlock
         )

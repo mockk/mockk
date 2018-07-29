@@ -5,11 +5,11 @@ import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
-import io.mockk.impl.log.SafeLog
+import io.mockk.impl.log.SafeToString
 import kotlin.reflect.KClass
 
-class ChainedCallDetector(safeLog: SafeLog) {
-    val log = safeLog(Logger<SignatureMatcherDetector>())
+class ChainedCallDetector(safeToString: SafeToString) {
+    val log = safeToString(Logger<SignatureMatcherDetector>())
 
     val argMatchers = mutableListOf<Matcher<*>>()
 
