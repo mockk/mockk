@@ -367,6 +367,18 @@ inline fun unmockkObject(vararg objects: Any) = MockK.useImpl {
 }
 
 /**
+ * Builds a static mock and unmocks it after the block has been executed.
+ */
+inline fun mockkObjectScoped(vararg objects: Any, recordPrivateCalls: Boolean = false, block: () -> Unit) {
+    mockkObject(*objects, recordPrivateCalls = recordPrivateCalls)
+    try {
+        block()
+    } finally {
+        unmockkObject(*objects)
+    }
+}
+
+/**
  * Builds a static mock. Any mocks of this exact class are cancelled before it's mocked
  *
  * @sample io.mockk.StaticMockkSample.mockJavaStatic
@@ -416,6 +428,30 @@ inline fun unmockkStatic(vararg classes: String) = MockK.useImpl {
 }
 
 /**
+ * Builds a static mock and unmocks it after the block has been executed.
+ */
+inline fun mockkStaticScoped(vararg classes: KClass<*>, block: () -> Unit) {
+    mockkStatic(*classes)
+    try {
+        block()
+    } finally {
+        unmockkStatic(*classes)
+    }
+}
+
+/**
+ * Builds a static mock and unmocks it after the block has been executed.
+ */
+inline fun mockkStaticScoped(vararg classes: String, block: () -> Unit) {
+    mockkStatic(*classes)
+    try {
+        block()
+    } finally {
+        unmockkStatic(*classes)
+    }
+}
+
+/**
  * Builds a constructor mock. Old constructor mocks of same classes are cancelled before.
  */
 inline fun mockkConstructor(
@@ -435,6 +471,23 @@ inline fun mockkConstructor(
  */
 inline fun unmockkConstructor(vararg classes: KClass<*>) = MockK.useImpl {
     MockKDsl.internalUnmockkConstructor(*classes)
+}
+
+/**
+ * Builds a constructor mock and unmocks it after the block has been executed.
+ */
+inline fun mockkConstructorScoped(
+        vararg classes: KClass<*>,
+        recordPrivateCalls: Boolean = false,
+        localToThread: Boolean = false,
+        block: () -> Unit
+) {
+    mockkConstructor(*classes, recordPrivateCalls = recordPrivateCalls, localToThread = localToThread)
+    try {
+        block()
+    } finally {
+        unmockkConstructor(*classes)
+    }
 }
 
 /**
