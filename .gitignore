@@ -9,3 +9,7 @@ agent/android/.externalNativeBuild/
 matrix/results
 local.properties
 /mockk-js/node_modules
+/cloud-badge/credentials.json
+/cloud-badge/node_modules/
+/cloud-badge/package-lock.json
+
