@@ -46,6 +46,23 @@ class MatcherTest {
             mock.op(IntWrapper(3), b)
         }
     }
+    
+    @Test
+    fun nEqNRefEq() {
+        val a = IntWrapper(3)
+        val b = IntWrapper(4)
+        
+        every { mock.op(neq(a), nrefEq(b)) } returns 1
+        
+        assertEquals(1, mock.op(b, a), "Answer should be one, as b != a and a != b, so both neq and nrefEq.")
+        assertFailsWith<MockKException>("Should fail because a is eq to a, so neq fails") { mock.op(a, IntWrapper(4)) }
+        assertFailsWith<MockKException>("Should fail because b is referencial equal tob, so nrefEq fails") { mock.op(b, b) }
+        assertEquals(1, mock.op(b, IntWrapper(3)))
+        
+        verify {
+            mock.op(b, IntWrapper(3))
+        }
+    }
 
     @Test
     fun less() {
