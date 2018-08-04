@@ -4,18 +4,18 @@
         <loc>http://mockk.io/</loc>
         <lastmod>2018-08-03</lastmod>
         <changefreq>Daily</changefreq>
-        <priority>3</priority>
+        <priority>1</priority>
     </url>
     <url>
         <loc>http://mockk.io/ANDROID.html</loc>
         <lastmod>2018-08-03</lastmod>
         <changefreq>Daily</changefreq>
-        <priority>2</priority>
+        <priority>0.5</priority>
     </url>
     <url>
         <loc>http://mockk.io/MATRIX</loc>
         <lastmod>2018-08-03</lastmod>
         <changefreq>Daily</changefreq>
-        <priority>1</priority>
+        <priority>0.5</priority>
     </url>
 </urlset>
