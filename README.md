@@ -530,6 +530,20 @@ verify {
 }
 ```
 
+### Verification timeout
+
+To verify concurrent operations you can use `timeout = xxx`:
+
+```
+verify(timeout = 1000) { //ms
+    obj.sum(1, 3)
+    obj.sum(1, 2)
+    obj.sum(2, 2)  
+}
+```
+
+This will will wait one of two states: either verification is passed or timeout is reached.
+
 ### Returning Unit
 
 If the function is returning `Unit` you can use `just Runs` construct:
