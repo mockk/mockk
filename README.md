@@ -7,7 +7,7 @@ log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://gi
 tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX) 
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
-![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk) 
+[![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
  
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
