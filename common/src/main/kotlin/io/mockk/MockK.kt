@@ -369,7 +369,7 @@ inline fun unmockkObject(vararg objects: Any) = MockK.useImpl {
 /**
  * Builds a static mock and unmocks it after the block has been executed.
  */
-inline fun mockkObjectScoped(vararg objects: Any, recordPrivateCalls: Boolean = false, block: () -> Unit) {
+inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false, block: () -> Unit) {
     mockkObject(*objects, recordPrivateCalls = recordPrivateCalls)
     try {
         block()
@@ -430,7 +430,7 @@ inline fun unmockkStatic(vararg classes: String) = MockK.useImpl {
 /**
  * Builds a static mock and unmocks it after the block has been executed.
  */
-inline fun mockkStaticScoped(vararg classes: KClass<*>, block: () -> Unit) {
+inline fun mockkStatic(vararg classes: KClass<*>, block: () -> Unit) {
     mockkStatic(*classes)
     try {
         block()
@@ -442,7 +442,7 @@ inline fun mockkStaticScoped(vararg classes: KClass<*>, block: () -> Unit) {
 /**
  * Builds a static mock and unmocks it after the block has been executed.
  */
-inline fun mockkStaticScoped(vararg classes: String, block: () -> Unit) {
+inline fun mockkStatic(vararg classes: String, block: () -> Unit) {
     mockkStatic(*classes)
     try {
         block()
@@ -476,7 +476,7 @@ inline fun unmockkConstructor(vararg classes: KClass<*>) = MockK.useImpl {
 /**
  * Builds a constructor mock and unmocks it after the block has been executed.
  */
-inline fun mockkConstructorScoped(
+inline fun mockkConstructor(
         vararg classes: KClass<*>,
         recordPrivateCalls: Boolean = false,
         localToThread: Boolean = false,
