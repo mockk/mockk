@@ -535,10 +535,15 @@ verify {
 To verify concurrent operations you can use `timeout = xxx`:
 
 ```
-verify(timeout = 1000) { //ms
-    obj.sum(1, 3)
-    obj.sum(1, 2)
-    obj.sum(2, 2)  
+mockk<MockCls> {
+    every { sum(1, 2) } returns 4
+
+    Thread {
+        Thread.sleep(2000)
+        sum(1, 2)
+    }.start()
+
+    verify(timeout = 3000) { sum(1, 2) }
 }
 ```
 
