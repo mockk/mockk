@@ -17,7 +17,6 @@
 
 Please report any issues
 
-
 Table of contents:
 
 * auto-gen TOC:
@@ -924,6 +923,10 @@ So this has similiar to `returnsMany` semantics.
 |`fieldValueAny`|accessor to property backing field with `Any?` type|
 |`value`|value being set casted to same type as property backing field|
 |`valueAny`|value being set with `Any?` type|
+
+## Funding
+
+[![Become baker](https://opencollective.com/mockk/tiers/backer.svg?avatarHeight=150)](https://opencollective.com/mockk) [![Become sponsor](https://opencollective.com/mockk/tiers/sponsor.svg?avatarHeight=150)](https://opencollective.com/mockk)
 
 ## Getting Help
 
