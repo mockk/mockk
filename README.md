@@ -11,6 +11,7 @@
 [![Android](https://img.shields.io/badge/android-support-green.svg)](http://mockk.io/ANDROID)
 [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX)
 [![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG)
+[![Deprecated](https://img.shields.io/badge/deprecated-API-red.svg)](/DEPRECATED)
 [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features) 
 [![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
 [![Become sponsor](https://opencollective.com/mockk/tiers/sponsor/badge.svg?label=become+sponsor&color=green)](https://opencollective.com/mockk)
