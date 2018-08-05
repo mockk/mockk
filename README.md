@@ -11,9 +11,9 @@
  
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* [Open collective funding](https://opencollective.com/mockk)
 * [Verification timeout](README.md#verification-timeout) v1.8.6 [#114](https://github.com/mockk/mockk/issues/114)
 * [Relaxed unit returning functions](README.md#unit-returning-function-relaxed-mock) v1.8.4 [#91](https://github.com/mockk/mockk/issues/91)
-* [Constructor mocking](README.md#constructor-mocks) v1.8.1
 
 Please report any issues
 
