@@ -926,7 +926,7 @@ So this has similiar to `returnsMany` semantics.
 
 ## Funding
 
-[![Become baker](https://opencollective.com/mockk/tiers/backer.svg?avatarHeight=150)](https://opencollective.com/mockk) [![Become sponsor](https://opencollective.com/mockk/tiers/sponsor.svg?avatarHeight=150)](https://opencollective.com/mockk)
+[![Become baker](https://opencollective.com/mockk/tiers/backer.svg?avatarHeight=150)](https://opencollective.com/mockk) or [![Become sponsor](https://opencollective.com/mockk/tiers/sponsor.svg?avatarHeight=150)](https://opencollective.com/mockk)
 
 ## Getting Help
 
