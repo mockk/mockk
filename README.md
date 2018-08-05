@@ -8,6 +8,7 @@ tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MAT
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features)
 [![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
+[![Backers](https://opencollective.com/mockk/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/mockk)]
  
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
@@ -16,6 +17,8 @@ tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MAT
 * [Constructor mocking](README.md#constructor-mocks) v1.8.1
 
 Please report any issues
+
+[![Become sponsor](https://opencollective.com/mockk/tiers/sponsor.svg?avatarHeight=150])](https://opencollective.com/mockk)
 
 Table of contents:
 
