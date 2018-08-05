@@ -1,5 +1,5 @@
 theme: jekyll-theme-cayman
 title: MockK
-description: mocking library for Kotlin. Provides concise DSL to mock object behaviour.
+description: Provides DSL to mock behavior. Built from zero to fit Kotlin language. Supports named parameters, object mocks, coroutines and extension function mocking
 tag_line: mocking library for Kotlin
 google_analytics: UA-69800663-3
