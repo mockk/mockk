@@ -1,5 +1,6 @@
 ---
 title: MockK Android support
+description: MockK supports regular unit tests, Android instrumented tests via subclassing(< Android P) and Android instrumented tests via inlining(≥ Android P)
 ---
 ![mockk](doc/logo-site.png) ![kotlin](doc/robot.png)
 
