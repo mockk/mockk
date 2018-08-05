@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8">
 
-{% seo %}
+{% seo title=false %}
+    <title>{{ page.title | default: site.title }}</title>
     <meta property="og:image" content="http://mockk.io/doc/logo-share.png" />
     <meta name="description" content="{{ page.description | default: site.description | default: site.github.project_tagline }}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
