@@ -1,3 +1,6 @@
+---
+title: MockK more sophisticated usage examples
+---
 Besides [documentation](mockk.io) you can find many other examples here. 
 Fill free to submit pull request, it is really easy to do.
 
