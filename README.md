@@ -6,7 +6,7 @@
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
-[![Backers](https://opencollective.com/mockk/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/mockk)]
+[![Backers](https://opencollective.com/mockk/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/mockk)
 [![Become sponsor](https://opencollective.com/mockk/tiers/sponsor/badge.svg?label=become sponsor&color=brightgreen])](https://opencollective.com/mockk)
  
 <img src="doc/new.png" align="left" height="80" alt="new" />
