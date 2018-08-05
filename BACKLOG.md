@@ -1,4 +1,6 @@
-
+---
+title: MockK strategic planning on a napkin
+---
 # Backlog
 - [x] ***RELEASE MockK 1.8***
 - [ ] doc: describe captureLambda/captureCoroutine
