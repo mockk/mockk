@@ -17,6 +17,21 @@
 
 Please report any issues
 
+We are actively looking for contributors and co-authors. There are two ambitious goals, that look unachievable at first sight, but in my opinion is essential to win Kotlin competition and require just hard and inventive work. They are - support for Kotlin/JS and Kotlin/Native platforms. If you think you can accept one of this two challenges and join us please contact me.
+
+Besides,  contributions may cover:
+
+* documentation improvements
+* KDoc samples
+* refactorings
+ * additional test coverage
+* bug fixes
+* features similar to Mockito
+* new features with user-oriented goals in mind
+* integration with RxJava, SpringFu, Spring test, e.t.c.
+
+![MockK march - may 2018](https://mockk.io/doc/mockk-march-jul.jpg)
+
 Table of contents:
 
 * auto-gen TOC:
