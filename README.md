@@ -58,7 +58,7 @@ Table of contents:
  - private function mocking
  - property backing field access
  - extension function mocking (static mocks)
- - [Android instrumented tests](ANDROID.md)
+ - [Android instrumented tests](ANDROID)
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
