@@ -157,7 +157,7 @@ class TrafficSystem {
   lateinit var car3: Car
 }
 
-class Test {
+class CarTest {
   @MockK
   lateinit var car1: Car
 
