@@ -168,11 +168,11 @@ class CarTest {
   lateinit var car3: Car
 
   @SpyK
-  val car4 = Car()
+  var car4 = Car()
   
   @InjectMockKs
-  val trafficSystem = TrafficSystem()
-
+  var trafficSystem = TrafficSystem()
+  
   @Before
   fun setUp() = MockKAnnotations.init(this, relaxUnitFun = true) // turn relaxUnitFun on for all mocks
 
