@@ -4,6 +4,7 @@ import io.mockk.proxy.*
 import io.mockk.proxy.common.CancelableResult
 import io.mockk.proxy.common.transformation.TransformationRequest
 import io.mockk.proxy.common.transformation.TransformationType
+import io.mockk.proxy.jvm.advice.BaseAdvice
 import io.mockk.proxy.jvm.transformation.InlineInstrumentation
 
 internal class ConstructorProxyMaker(
@@ -33,7 +34,7 @@ internal class ConstructorProxyMaker(
             )
         )
 
-        return CancelableResult<Class<*>>(clazz, cancellation)
+        return CancelableResult(clazz, cancellation)
             .alsoOnCancel {
                 constructorHandlers.remove(clazz)
             }

@@ -6,10 +6,13 @@ import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKMatcherScope
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.recording.AutoHinter
+import io.mockk.proxy.MockKInterceptionScope
+import io.mockk.proxy.safeScope
 
 abstract class RecordedBlockEvaluator(
     val callRecorder: () -> CallRecorder,
-    val autoHinterFactory: () -> AutoHinter
+    val autoHinterFactory: () -> AutoHinter,
+    val intereceptionScope: MockKInterceptionScope
 ) {
 
     fun <T, S : MockKMatcherScope> record(
@@ -32,7 +35,7 @@ abstract class RecordedBlockEvaluator(
                 callRecorder(),
                 0,
                 64,
-                block
+                { intereceptionScope.safeScope(false, block) }
             )
 
             val n = callRecorder().estimateCallRounds();

@@ -11,6 +11,8 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeToString
 import io.mockk.impl.recording.states.CallRecordingState
 import io.mockk.impl.stub.StubRepository
+import io.mockk.proxy.MockKInterceptionScope
+import io.mockk.proxy.safeScope
 import kotlin.reflect.KClass
 
 class CommonCallRecorder(
@@ -21,7 +23,8 @@ class CommonCallRecorder(
     val anyValueGenerator: AnyValueGenerator,
     val safeToString: SafeToString,
     val factories: CallRecorderFactories,
-    val initialState: (CommonCallRecorder) -> CallRecordingState
+    val initialState: (CommonCallRecorder) -> CallRecordingState,
+    val interceptionScope: MockKInterceptionScope
 ) : CallRecorder {
 
     override val calls = mutableListOf<RecordedCall>()
@@ -63,7 +66,7 @@ class CommonCallRecorder(
         val prevState = state
         try {
             state = factories.safeLoggingState(this)
-            return block()
+            return interceptionScope.safeScope(false, block)
         } finally {
             state = prevState
         }

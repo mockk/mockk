@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
+import io.mockk.proxy.ProxyInterceptionScope;
 import io.mockk.proxy.MockKInvocationHandler;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
@@ -18,8 +19,11 @@ import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAM
  * Workaround #35
  */
 public class JvmMockKHashMapStaticProxyAdvice extends BaseAdvice {
-    public JvmMockKHashMapStaticProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
-        super(handlers);
+    public JvmMockKHashMapStaticProxyAdvice(
+            Map<Object, MockKInvocationHandler> handlers,
+            ProxyInterceptionScope interceptionScope
+    ) {
+        super(handlers, interceptionScope);
     }
 
     @OnMethodEnter(skipOn = OnNonDefaultValue.class)

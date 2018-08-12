@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm.transformation
 
+import io.mockk.proxy.ProxyInterceptionScope
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
@@ -15,7 +16,8 @@ import java.lang.Thread.currentThread
 
 internal class SubclassInstrumentation(
     private val handlers: Map<Any, MockKInvocationHandler>,
-    private val byteBuddy: ByteBuddy
+    private val byteBuddy: ByteBuddy,
+    private val interceptionScope: ProxyInterceptionScope
 ) {
     private val bootstrapMonitor = Any()
     private val proxyClassCache = TypeCache<CacheKey>(TypeCache.Sort.WEAK)
@@ -24,7 +26,7 @@ internal class SubclassInstrumentation(
     init {
         class AdviceBuilder {
             fun build() {
-                interceptor = JvmMockKProxyInterceptor(handlers)
+                interceptor = JvmMockKProxyInterceptor(handlers, interceptionScope)
 
                 JvmMockKDispatcher.set(interceptor.id, interceptor)
             }

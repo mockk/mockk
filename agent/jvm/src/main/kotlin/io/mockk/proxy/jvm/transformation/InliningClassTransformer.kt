@@ -1,6 +1,7 @@
 package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.ProxyInterceptionScope
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
@@ -25,7 +26,8 @@ internal class InliningClassTransformer(
     private val handlers: MutableMap<Any, MockKInvocationHandler>,
     private val staticHandlers: MutableMap<Any, MockKInvocationHandler>,
     private val constructorHandlers: MutableMap<Any, MockKInvocationHandler>,
-    private val byteBuddy: ByteBuddy
+    private val byteBuddy: ByteBuddy,
+    private val interceptionScope: ProxyInterceptionScope
 ) : ClassFileTransformer {
 
     private val restrictedMethods = setOf(
@@ -40,10 +42,10 @@ internal class InliningClassTransformer(
     init {
         class AdviceBuilder {
             fun build() {
-                advice = JvmMockKProxyAdvice(handlers)
-                staticAdvice = JvmMockKStaticProxyAdvice(staticHandlers)
-                staticHashMapAdvice = JvmMockKHashMapStaticProxyAdvice(staticHandlers)
-                constructorAdvice = JvmMockKConstructorProxyAdvice(constructorHandlers)
+                advice = JvmMockKProxyAdvice(handlers, interceptionScope)
+                staticAdvice = JvmMockKStaticProxyAdvice(staticHandlers, interceptionScope)
+                staticHashMapAdvice = JvmMockKHashMapStaticProxyAdvice(staticHandlers, interceptionScope)
+                constructorAdvice = JvmMockKConstructorProxyAdvice(constructorHandlers, interceptionScope)
 
                 JvmMockKDispatcher.set(advice.id, advice)
                 JvmMockKDispatcher.set(staticAdvice.id, staticAdvice)

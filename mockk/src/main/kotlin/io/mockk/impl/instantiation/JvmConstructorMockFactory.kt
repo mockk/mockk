@@ -46,7 +46,7 @@ class JvmConstructorMockFactory(
         val representativeMock = mockFactory.newProxy(cls, arrayOf(), representativeStub)
 
         init {
-            with(representativeStub){
+            with(representativeStub) {
                 hashCodeStr = InternalPlatform.hkd(representativeMock)
                 disposeRoutine = this@ConstructorMock::dispose
 
@@ -78,7 +78,7 @@ class JvmConstructorMockFactory(
             args: Array<Any?>
         ): Any? {
             val mock = constructorMock
-                    ?: throw MockKException("Bad constructor mock handler for ${self::class}")
+                    ?: return null
 
             log.trace { "Connecting just created object to constructor representation mock for ${cls.toStr()}" }
 
@@ -164,11 +164,16 @@ class JvmConstructorMockFactory(
         localToThread: Boolean
     ): () -> Unit {
         return synchronized(handlers) {
-            val handler = handlers.getOrPut(cls, {
-                ConstructorInvocationHandler(cls)
-            })
+            val handler = handlers[cls]
+            if (handler == null) {
+                val newHandler = ConstructorInvocationHandler(cls)
+                val ret = newHandler.push(localToThread, recordPrivateCalls)
+                handlers[cls] = newHandler
+                ret
+            } else {
+                handler.push(localToThread, recordPrivateCalls)
+            }
 
-            handler.push(localToThread, recordPrivateCalls)
         }
     }
 

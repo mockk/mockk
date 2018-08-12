@@ -2,7 +2,10 @@ package io.mockk.impl.log
 
 import io.mockk.impl.recording.CommonCallRecorder
 
-class SafeLogger(val logger: Logger, val callRecorderGetter: () -> CommonCallRecorder) : Logger {
+class SafeLogger(
+    val logger: Logger,
+    val callRecorderGetter: () -> CommonCallRecorder
+) : Logger {
 
     override fun error(msg: () -> String) {
         safeLogging {

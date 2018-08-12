@@ -3,6 +3,7 @@ package io.mockk.impl.stub
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
+import io.mockk.proxy.safeScope
 import kotlin.reflect.KClass
 
 open class MockKStub(
@@ -54,7 +55,9 @@ open class MockKStub(
                 invocation.fieldValueProvider
             )
 
-            answer.answer(call)
+            gatewayAccess.interceptorScope.safeScope(false, {
+                answer.answer(call)
+            })
         }
     }
 

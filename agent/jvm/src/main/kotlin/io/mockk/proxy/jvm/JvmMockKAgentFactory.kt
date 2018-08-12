@@ -20,6 +20,7 @@ class JvmMockKAgentFactory : MockKAgentFactory {
     private lateinit var jvmProxyMaker: MockKProxyMaker
     private lateinit var jvmStaticProxyMaker: MockKStaticProxyMaker
     private lateinit var jvmConstructorProxyMaker: MockKConstructorProxyMaker
+    private lateinit var jvmInterceptionMockKScope: ProxyInterceptionScope
 
     override fun init(logFactory: MockKAgentLogFactory) {
         log = logFactory.logger(JvmMockKAgentFactory::class.java)
@@ -34,6 +35,8 @@ class JvmMockKAgentFactory : MockKAgentFactory {
             fun init() {
                 val byteBuddy = ByteBuddy()
                     .with(TypeValidation.DISABLED)
+
+                jvmInterceptionMockKScope = JvmProxyInterceptionScope(ThreadLocal())
 
                 jvmInstantiator = ObjenesisInstantiator(
                     logFactory.logger(ObjenesisInstantiator::class.java),
@@ -56,7 +59,8 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                             handlers,
                             staticHandlers,
                             constructorHandlers,
-                            byteBuddy
+                            byteBuddy,
+                            interceptionScope
                         ),
                         true
                     )
@@ -68,7 +72,7 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     )
                 }
 
-                val subclasser = SubclassInstrumentation(handlers, byteBuddy)
+                val subclasser = SubclassInstrumentation(handlers, byteBuddy, interceptionScope)
 
 
                 jvmProxyMaker = ProxyMaker(
@@ -89,8 +93,8 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     logFactory.logger(ConstructorProxyMaker::class.java),
                     inliner,
                     constructorHandlers
-
                 )
+
             }
 
             private fun handlerMap(hasInstrumentation: Boolean) =
@@ -127,5 +131,6 @@ class JvmMockKAgentFactory : MockKAgentFactory {
     override val proxyMaker get() = jvmProxyMaker
     override val staticProxyMaker get() = jvmStaticProxyMaker
     override val constructorProxyMaker get() = jvmConstructorProxyMaker
-
+    override val interceptionScope: ProxyInterceptionScope get() = jvmInterceptionMockKScope
 }
+

@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
+import io.mockk.proxy.ProxyInterceptionScope;
 import io.mockk.proxy.MockKInvocationHandler;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
@@ -11,8 +12,11 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class JvmMockKProxyInterceptor extends BaseAdvice {
-    public JvmMockKProxyInterceptor(Map<Object, MockKInvocationHandler> handlers) {
-        super(handlers);
+    public JvmMockKProxyInterceptor(
+            Map<Object, MockKInvocationHandler> handlers,
+            ProxyInterceptionScope interceptionScope
+    ) {
+        super(handlers, interceptionScope);
     }
 
     @RuntimeType

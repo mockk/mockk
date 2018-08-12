@@ -8,16 +8,12 @@ internal class Interceptor(
     private val handler: MockKInvocationHandler,
     private val self: Any,
     private val method: Method,
-    private val arguments: Array<Any?>
+    private val arguments: Array<Any?>,
+    val orignalMethodCall: Callable<*>
 ) : Callable<Any?> {
 
     override fun call(): Any? {
-        val callOriginalMethod = SelfCallEliminatorCallable(
-            MethodCall(self, method, arguments),
-            self,
-            method
-        )
-        return handler.invocation(self, method, callOriginalMethod, arguments)
+        return handler.invocation(self, method, orignalMethodCall, arguments)
     }
 
 }

@@ -9,5 +9,8 @@ interface MockKAgentFactory {
     val staticProxyMaker: MockKStaticProxyMaker
 
     val constructorProxyMaker: MockKConstructorProxyMaker
+
+    val interceptionScope: ProxyInterceptionScope
+
     fun init(logFactory: MockKAgentLogFactory)
 }

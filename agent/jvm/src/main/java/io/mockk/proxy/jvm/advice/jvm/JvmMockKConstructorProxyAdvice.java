@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
+import io.mockk.proxy.ProxyInterceptionScope;
 import io.mockk.proxy.MockKInvocationHandler;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
@@ -11,8 +12,11 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class JvmMockKConstructorProxyAdvice extends BaseAdvice {
-    public JvmMockKConstructorProxyAdvice(@NotNull Map<Object, ? extends MockKInvocationHandler> handlers) {
-        super(handlers);
+    public JvmMockKConstructorProxyAdvice(
+            @NotNull Map<Object, ? extends MockKInvocationHandler> handlers,
+            @NotNull ProxyInterceptionScope interceptionScope
+            ) {
+        super(handlers, interceptionScope);
     }
 
     @Advice.OnMethodExit

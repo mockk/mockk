@@ -3,6 +3,7 @@ package io.mockk.impl.eval
 import io.mockk.*
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.impl.recording.AutoHinter
+import io.mockk.proxy.MockKInterceptionScope
 import kotlin.test.*
 
 class RecordedBlockEvaluatorTest {
@@ -10,13 +11,15 @@ class RecordedBlockEvaluatorTest {
     lateinit var callRecorder: CallRecorder
     lateinit var autoHinter: AutoHinter
     lateinit var scope: MockKMatcherScope
+    lateinit var interceptionScope: MockKInterceptionScope
 
     @BeforeTest
     fun setUp() {
         callRecorder = mockk(relaxed = true)
         autoHinter = mockk(relaxed = true)
         scope = MockKMatcherScope(callRecorder, CapturingSlot())
-        evaluator = object : RecordedBlockEvaluator({ callRecorder }, { autoHinter }) {}
+        interceptionScope = mockk(relaxed = true)
+        evaluator = object : RecordedBlockEvaluator({ callRecorder }, { autoHinter }, interceptionScope) {}
     }
 
     @Test

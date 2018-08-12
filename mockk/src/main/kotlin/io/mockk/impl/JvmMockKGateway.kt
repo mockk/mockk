@@ -19,6 +19,8 @@ import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.*
 import io.mockk.proxy.MockKAgentFactory
 import io.mockk.proxy.MockKAgentLogFactory
+import io.mockk.proxy.MockKInterceptionScope
+import io.mockk.proxy.ProxyInterceptionScope
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
@@ -57,8 +59,21 @@ class JvmMockKGateway : MockKGateway {
     val anyValueGenerator = JvmAnyValueGenerator(instantiator)
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
+    val interceptionScope = object : MockKInterceptionScope {
+        val proxyInterceptionScope = agentFactory.interceptionScope
+        override fun isInSafeScope() = proxyInterceptionScope.isInSafeScope()
+        override fun enterSafeScope() = proxyInterceptionScope.enterSafeScope()
+        override fun exitSafeScope() = proxyInterceptionScope.exitSafeScope()
+    }
 
-    val gatewayAccess = StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeToString)
+
+    val gatewayAccess = StubGatewayAccess(
+        { callRecorder },
+        anyValueGenerator,
+        stubRepo,
+        safeToString,
+        interceptionScope
+    )
 
     override val mockFactory: AbstractMockFactory = JvmMockFactory(
         agentFactory.proxyMaker,
@@ -139,14 +154,25 @@ class JvmMockKGateway : MockKGateway {
             anyValueGenerator,
             safeToString,
             callRecorderFactories,
-            { recorder -> callRecorderFactories.answeringState(recorder) })
+            { recorder -> callRecorderFactories.answeringState(recorder) },
+            interceptionScope
+        )
     }
 
     override val callRecorder: CallRecorder
         get() = callRecorderTL.get()
 
-    override val stubber: Stubber = EveryBlockEvaluator(callRecorderTL::get, ::JvmAutoHinter)
-    override val verifier: Verifier = VerifyBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
+    override val stubber: Stubber = EveryBlockEvaluator(
+        callRecorderTL::get,
+        ::JvmAutoHinter,
+        interceptionScope
+    )
+    override val verifier: Verifier = VerifyBlockEvaluator(
+        callRecorderTL::get,
+        stubRepo,
+        ::JvmAutoHinter,
+        interceptionScope
+    )
     override val mockInitializer = JvmMockInitializer(this)
 
     companion object {
