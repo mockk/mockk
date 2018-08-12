@@ -200,7 +200,7 @@ In JUnit5 you can use MockKExtension to initialize mock.
 
 ```kotlin
 @ExtendWith(MockKExtension::class)
-class Test {
+class CarTest {
   @MockK
   lateinit var car1: Car
 
@@ -211,7 +211,7 @@ class Test {
   lateinit var car3: Car
 
   @SpyK
-  val car4 = Car()
+  var car4 = Car()
 
   @Test
   fun calculateAddsValues1() {
