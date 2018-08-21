@@ -1,16 +1,24 @@
 package io.mockk.proxy;
 
-import io.mockk.proxy.jvm.JvmMockKAgentFactory;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import io.mockk.proxy.jvm.JvmMockKAgentFactory;
 
 public class JvmMockKProxyMakerTest {
     MockKProxyMaker maker;
@@ -346,7 +354,51 @@ public class JvmMockKProxyMakerTest {
         checkProxyHandlerCalled(1, H.class, "a");
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @interface ClassAnnotation {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @interface MethodAnnotation {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.PARAMETER})
+    @interface ParameterAnnotation {
+    }
+
+    @ClassAnnotation
+    static class I {
+        @MethodAnnotation
+        public void i(@ParameterAnnotation String parameter) {
+            executed[0] = true;
+        }
+    }
+
+    @Test
+    public void openClassAnnotationProxy() throws Exception {
+        I proxy = makeProxy(I.class);
+
+        Class proxyClass = proxy.getClass();
+        assertTrue(proxyClass.isAnnotationPresent(ClassAnnotation.class));
+        @SuppressWarnings("unchecked")
+        Method proxyMethod = proxyClass.getMethod("i", String.class);
+        assertTrue(proxyMethod.isAnnotationPresent(MethodAnnotation.class));
+        assertEquals(ParameterAnnotation.class, proxyMethod.getParameterAnnotations()[0][0].annotationType());
+
+        proxy.i("");
+
+        assertFalse(executed[0]);
+        checkProxyHandlerCalled(1, proxy, "i", 1, 1);
+    }
+
     private void checkProxyHandlerCalled(int nTimes, Object proxy, String methodName) {
+        checkProxyHandlerCalled(nTimes, proxy, methodName, 0, 0);
+    }
+
+    private void checkProxyHandlerCalled(int nTimes, Object proxy, String methodName, int parameterType, int argsLength) {
 
         StringBuilder sb = new StringBuilder();
         for (Call call : handler.calls) {
@@ -362,8 +414,8 @@ public class JvmMockKProxyMakerTest {
         Call call = handler.calls.get(0);
         assertSame(proxy, call.self);
         assertSame(methodName, call.method.getName());
-        assertSame(0, call.method.getParameterTypes().length);
-        assertSame(0, call.args.length);
+        assertSame(parameterType, call.method.getParameterTypes().length);
+        assertSame(argsLength, call.args.length);
     }
 
     private static class ListAppendingHandler implements MockKInvocationHandler {
