@@ -49,6 +49,7 @@ class ObjenesisInstantiator(
             CacheKey(cls, setOf()),
             {
                 byteBuddy.subclass(cls)
+                    .annotateType(*cls.annotations)
                     .make()
                     .load(classLoader)
                     .loaded

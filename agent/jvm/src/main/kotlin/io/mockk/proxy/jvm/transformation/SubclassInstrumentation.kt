@@ -9,6 +9,7 @@ import net.bytebuddy.TypeCache
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy
 import net.bytebuddy.dynamic.loading.MultipleParentClassLoader
 import net.bytebuddy.implementation.MethodDelegation
+import net.bytebuddy.implementation.attribute.MethodAttributeAppender
 import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
 import net.bytebuddy.matcher.ElementMatchers.any
 import java.lang.Thread.currentThread
@@ -61,7 +62,6 @@ internal class SubclassInstrumentation(
             .append(JvmMockKProxyInterceptor::class.java)
             .build(JvmMockKProxyInterceptor::class.java.classLoader)
 
-
         val interceptor = MethodDelegation.withDefaultConfiguration()
             .withBinders(
                 TargetMethodAnnotationDrivenBinder.ParameterBinder.ForFixedValue.OfConstant.of(
@@ -72,8 +72,10 @@ internal class SubclassInstrumentation(
 
         return byteBuddy.subclass(clazz)
             .implement(*interfaces)
+            .annotateType(*clazz.annotations)
             .method(any<Any>())
             .intercept(interceptor)
+            .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
             .make()
             .load(resultClassLoader, ClassLoadingStrategy.Default.INJECTION)
             .loaded
