@@ -52,6 +52,12 @@ class ConstructorStub(
             it.substitute(revertRepresentation)
         }
 
+    override fun allRecordedCalls(method: MethodDescription) =
+        stub.allRecordedCalls(method)
+            .map {
+                it.substitute(revertRepresentation)
+            }
+
     override fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean) =
         stub.clear(answers, calls, childMocks)
 

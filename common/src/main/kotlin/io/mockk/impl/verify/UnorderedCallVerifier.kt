@@ -37,16 +37,13 @@ open class UnorderedCallVerifier(
     }
 
     private fun matchCall(recordedCall: RecordedCall, min: Int, max: Int, callIdxMsg: String): VerificationResult {
-        val stub = stubRepo.stubFor(recordedCall.matcher.self)
+        val matcher = recordedCall.matcher
+        val stub = stubRepo.stubFor(matcher.self)
         val allCallsForMock = stub.allRecordedCalls()
-        val allCallsForMockMethod = allCallsForMock.filter {
-            recordedCall.matcher.method == it.method
-        }
-
+        val allCallsForMockMethod = stub.allRecordedCalls(matcher.method)
 
         val result = if (min == 0 && max == 0) {
-            val n = allCallsForMockMethod.filter { recordedCall.matcher.match(it) }.count()
-            if (n == 0) {
+            if (!allCallsForMockMethod.any(matcher::match)) {
                 VerificationResult(true)
             } else {
                 VerificationResult(
@@ -74,8 +71,8 @@ open class UnorderedCallVerifier(
                 }
             }
             1 -> {
-                val onlyCall = allCallsForMockMethod.get(0)
-                if (recordedCall.matcher.match(onlyCall)) {
+                val onlyCall = allCallsForMockMethod[0]
+                if (matcher.match(onlyCall)) {
                     if (1 in min..max) {
                         VerificationResult(true)
                     } else {
@@ -90,15 +87,15 @@ open class UnorderedCallVerifier(
                     }
                 } else {
                     VerificationResult(false, safeToString.exec {
-                        "$callIdxMsg. Only one matching call to ${stub.toStr()}/${recordedCall.matcher.method.toStr()} happened, but arguments are not matching:\n" +
-                                describeArgumentDifference(recordedCall.matcher, onlyCall) +
+                        "$callIdxMsg. Only one matching call to ${stub.toStr()}/${matcher.method.toStr()} happened, but arguments are not matching:\n" +
+                                describeArgumentDifference(matcher, onlyCall) +
                                 "\nStack trace:\n" +
                                 stackTrace(0, allCallsForMock.first().callStack())
                     })
                 }
             }
             else -> {
-                val n = allCallsForMockMethod.filter { recordedCall.matcher.match(it) }.count()
+                val n = allCallsForMockMethod.filter(matcher::match).count()
                 if (n in min..max) {
                     VerificationResult(true)
                 } else {
@@ -128,7 +125,7 @@ open class UnorderedCallVerifier(
 
         captureBlocks.add({
             for (call in allCallsForMockMethod) {
-                recordedCall.matcher.captureAnswer(call)
+                matcher.captureAnswer(call)
             }
         })
 

@@ -92,19 +92,14 @@ class JvmMockKGateway : MockKGateway {
     )
 
 
-    val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeToString)
-    val allVerifier = AllCallsCallVerifier(stubRepo, safeToString)
-    val orderedVerifier = OrderedCallVerifier(stubRepo, safeToString)
-    val sequenceVerifier = SequenceCallVerifier(stubRepo, safeToString)
-
     override fun verifier(params: VerificationParameters): CallVerifier {
         val ordering = params.ordering
 
         val verifier = when (ordering) {
-            Ordering.UNORDERED -> unorderedVerifier
-            Ordering.ALL -> allVerifier
-            Ordering.ORDERED -> orderedVerifier
-            Ordering.SEQUENCE -> sequenceVerifier
+            Ordering.UNORDERED -> UnorderedCallVerifier(stubRepo, safeToString)
+            Ordering.ALL -> AllCallsCallVerifier(stubRepo, safeToString)
+            Ordering.ORDERED -> OrderedCallVerifier(stubRepo, safeToString)
+            Ordering.SEQUENCE -> SequenceCallVerifier(stubRepo, safeToString)
         }
 
         return if (params.timeout > 0) {

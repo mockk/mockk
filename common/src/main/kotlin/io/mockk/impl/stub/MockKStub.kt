@@ -16,6 +16,8 @@ open class MockKStub(
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
     private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
+    private val recordedCallsByMethod =
+        InternalPlatform.synchronizedMutableMap<MethodDescription, MutableList<Invocation>>()
 
     lateinit var hashCodeStr: String
 
@@ -109,6 +111,12 @@ open class MockKStub(
 
         if (record) {
             recordedCalls.add(invocation)
+
+            synchronized(recordedCallsByMethod) {
+                recordedCallsByMethod.getOrPut(invocation.method, { mutableListOf() })
+                    .add(invocation)
+            }
+
             gatewayAccess.stubRepository.notifyCallRecorded(this)
         }
     }
@@ -116,6 +124,12 @@ open class MockKStub(
     override fun allRecordedCalls(): List<Invocation> {
         synchronized(recordedCalls) {
             return recordedCalls.toList()
+        }
+    }
+
+    override fun allRecordedCalls(method: MethodDescription): List<Invocation> {
+        synchronized(recordedCallsByMethod) {
+            return recordedCallsByMethod[method]?.toList() ?: listOf()
         }
     }
 
@@ -215,6 +229,7 @@ open class MockKStub(
         }
         if (calls) {
             this.recordedCalls.clear()
+            this.recordedCallsByMethod.clear()
         }
         if (childMocks) {
             this.childs.clear()

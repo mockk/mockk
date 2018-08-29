@@ -19,6 +19,8 @@ interface Stub : Disposable {
 
     fun allRecordedCalls(): List<Invocation>
 
+    fun allRecordedCalls(method: MethodDescription): List<Invocation>
+
     fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
 
     fun handleInvocation(
