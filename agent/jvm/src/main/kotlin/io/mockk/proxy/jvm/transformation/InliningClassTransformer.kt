@@ -16,8 +16,10 @@ import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
 import net.bytebuddy.matcher.ElementMatchers.*
+import java.io.File
 import java.lang.instrument.ClassFileTransformer
 import java.security.ProtectionDomain
+import java.util.concurrent.atomic.AtomicLong
 
 internal class InliningClassTransformer(
     private val log: MockKAgentLogger,
@@ -74,6 +76,17 @@ internal class InliningClassTransformer(
                 .run { if (spec.shouldDoConstructorIntercept) visit(constructorAdvice()) else this }
                 .make()
 
+            try {
+                val property = System.getProperty("io.mockk.classdump.path")
+                if (property != null) {
+                    val nextIndex = classDumpIndex.incrementAndGet().toString()
+                    val storePath = File(property, nextIndex)
+                    type.saveIn(storePath)
+                }
+            } catch (ex: Exception) {
+                log.trace(ex, "Failed to save file to a dump");
+            }
+
             return type.bytes
 
         } catch (e: Throwable) {
@@ -129,4 +142,7 @@ internal class InliningClassTransformer(
             else -> JvmMockKStaticProxyAdvice::class.java
         }
 
+    companion object {
+        val classDumpIndex = AtomicLong();
+    }
 }
