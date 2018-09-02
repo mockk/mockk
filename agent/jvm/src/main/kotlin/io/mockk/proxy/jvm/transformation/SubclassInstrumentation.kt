@@ -77,7 +77,7 @@ internal class SubclassInstrumentation(
             .intercept(interceptor)
             .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
             .make()
-            .load(resultClassLoader, ClassLoadingStrategy.Default.INJECTION)
+            .load(resultClassLoader, ClassLoadingStrategy.Default.INJECTION.with(clazz.protectionDomain))
             .loaded
     }
 }
