@@ -40,6 +40,7 @@ Please provide any relevant information about your setup. This is important in c
 * OS:
 * Kotlin version:
 * JDK version:
+* JUnit version:
 * Type of test: unit test OR android instrumented test
 
 
