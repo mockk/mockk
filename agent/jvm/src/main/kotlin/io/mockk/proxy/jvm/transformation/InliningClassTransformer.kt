@@ -66,6 +66,7 @@ internal class InliningClassTransformer(
 
         try {
             val builder = byteBuddy.redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
+                .visit(FixParameterNamesVisitor(classBeingRedefined))
 
             val type = builder
                 .run { if (spec.shouldDoSimpleIntercept) visit(simpleAdvice()) else this }

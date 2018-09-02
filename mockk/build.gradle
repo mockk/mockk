@@ -126,3 +126,4 @@ uploadArchives {
     }
 }
 
+compileTestKotlin.kotlinOptions.javaParameters = true
