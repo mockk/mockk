@@ -192,7 +192,8 @@ interface MockKGateway {
         fun initAnnotatedMocks(
             targets: List<Any>,
             overrideRecordPrivateCalls: Boolean,
-            relaxUnitFun: Boolean
+            relaxUnitFun: Boolean,
+            relaxed: Boolean
         )
     }
 }

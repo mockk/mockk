@@ -477,10 +477,10 @@ inline fun unmockkConstructor(vararg classes: KClass<*>) = MockK.useImpl {
  * Builds a constructor mock and unmocks it after the block has been executed.
  */
 inline fun mockkConstructor(
-        vararg classes: KClass<*>,
-        recordPrivateCalls: Boolean = false,
-        localToThread: Boolean = false,
-        block: () -> Unit
+    vararg classes: KClass<*>,
+    recordPrivateCalls: Boolean = false,
+    localToThread: Boolean = false,
+    block: () -> Unit
 ) {
     mockkConstructor(*classes, recordPrivateCalls = recordPrivateCalls, localToThread = localToThread)
     try {
@@ -521,9 +521,15 @@ object MockKAnnotations {
     inline fun init(
         vararg obj: Any,
         overrideRecordPrivateCalls: Boolean = false,
-        relaxUnitFun: Boolean = false
+        relaxUnitFun: Boolean = false,
+        relaxed: Boolean = false
     ) = MockK.useImpl {
-        MockKDsl.internalInitAnnotatedMocks(obj.toList(), overrideRecordPrivateCalls, relaxUnitFun)
+        MockKDsl.internalInitAnnotatedMocks(
+            obj.toList(),
+            overrideRecordPrivateCalls,
+            relaxUnitFun,
+            relaxed
+        )
     }
 }
 

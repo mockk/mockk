@@ -3,6 +3,7 @@ package io.mockk.impl.instantiation
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.MockKGateway
+import io.mockk.MockKSettings
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.*
@@ -37,7 +38,14 @@ abstract class AbstractMockFactory(
         val id = newId()
         val newName = (name ?: "") + "#$id"
 
-        val stub = MockKStub(mockType, newName, relaxed, relaxUnitFun, gatewayAccess, true)
+        val stub = MockKStub(
+            mockType,
+            newName,
+            relaxed || MockKSettings.relaxed,
+            relaxUnitFun || MockKSettings.relaxUnitFun,
+            gatewayAccess,
+            true
+        )
 
         log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
@@ -69,7 +77,12 @@ abstract class AbstractMockFactory(
 
         log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
 
-        val stub = SpyKStub(actualCls, newName, gatewayAccess, recordPrivateCalls)
+        val stub = SpyKStub(
+            actualCls,
+            newName,
+            gatewayAccess,
+            recordPrivateCalls || MockKSettings.recordPrivateCalls
+        )
 
         val useDefaultConstructor = objToCopy == null
 

@@ -15,13 +15,15 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     override fun initAnnotatedMocks(
         targets: List<Any>,
         overrideRecordPrivateCalls: Boolean,
-        relaxUnitFun: Boolean
+        relaxUnitFun: Boolean,
+        relaxed: Boolean
     ) {
         for (target in targets) {
             initMock(
                 target,
                 overrideRecordPrivateCalls,
-                relaxUnitFun
+                relaxUnitFun,
+                relaxed
             )
         }
     }
@@ -29,14 +31,16 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     fun initMock(
         target: Any,
         overrideRecordPrivateCalls: Boolean,
-        relaxUnitFun: Boolean
+        relaxUnitFun: Boolean,
+        relaxed: Boolean
     ) {
         val cls = target::class
         for (property in cls.memberProperties) {
             assignMockK(
                 property as KProperty1<Any, Any>,
                 target,
-                relaxUnitFun
+                relaxUnitFun,
+                relaxed
             )
             assignRelaxedMockK(property, target)
             assignSpyK(
@@ -131,7 +135,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     private fun assignMockK(
         property: KProperty1<Any, Any>,
         target: Any,
-        relaxUnitFun: Boolean
+        relaxUnitFun: Boolean,
+    relaxed: Boolean
     ) {
         property.annotated<MockK>(target) { annotation ->
             val type = property.returnType.classifier as? KClass<*>
@@ -140,7 +145,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
             gateway.mockFactory.mockk(
                 type,
                 overrideName(annotation.name, property.name),
-                false,
+                annotation.relaxed ||
+                        relaxed,
                 moreInterfaces(property),
                 relaxUnitFun =
                 annotation.relaxUnitFun ||

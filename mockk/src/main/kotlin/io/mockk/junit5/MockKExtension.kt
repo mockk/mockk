@@ -17,6 +17,10 @@ import java.lang.reflect.Parameter
  *
  * Parameters can use [MockK] and [RelaxedMockK].
  * Class properties can use [MockK], [RelaxedMockK] and [SpyK]
+ *
+ * Usage: declare @ExtendWith(MockKExtension.class) on a test class
+ *
+ * Alternatively –Djunit.extensions.autodetection.enabled=true may be placed on a command line.
  */
 class MockKExtension : TestInstancePostProcessor, ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
