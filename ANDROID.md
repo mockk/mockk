@@ -92,7 +92,7 @@ Unfortunatelly public CIs alike Travis and Circle are not supporting emulation o
     <tr>
         <td>private function mocking</td>
         <td>✓</td>
-        <td>✓</td>
+        <td></td>
         <td>✓</td>
     </tr>
     <tr>
