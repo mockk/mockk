@@ -18,9 +18,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* Java 11 support v1.8.8 [#150](https://github.com/mockk/mockk/issues/150)
 * [Open collective community support](https://opencollective.com/mockk)
 * [Verification timeout](README.md#verification-timeout) v1.8.6 [#114](https://github.com/mockk/mockk/issues/114)
-* [Relaxed unit returning functions](README.md#unit-returning-function-relaxed-mock) v1.8.4 [#91](https://github.com/mockk/mockk/issues/91)
 
 Please report any issues
 
@@ -790,7 +790,7 @@ thread.join()
 
 ## Settings file
 
-To adjust parameters globaly there is a posibility to specify few settings in a resource file:
+To adjust parameters globaly there is a posibility to specify few settings in a resource file.
 
 How to use: 
  1. create `io/mockk/settings.properties` file in resources.
