@@ -788,10 +788,6 @@ thread.join()
 
 ```
 
-## DSL tables
-
-Here are few tables helping to master the DSL.
-
 ## Settings file
 
 To adjust parameters globaly there is a posibility to specify few settings in a resource file:
@@ -805,6 +801,9 @@ relaxUnitFun=true|false
 recordPrivateCalls=true|false
 ```
 
+## DSL tables
+
+Here are few tables helping to master the DSL.
 
 ### Top level functions
 
