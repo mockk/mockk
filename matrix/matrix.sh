@@ -36,6 +36,7 @@ jvm_test jdk7 /usr/java/jdk1.7.0_80
 jvm_test jdk8 /usr/java/jdk1.8.0_161
 jvm_test jdk9 /usr/java/jdk-9.0.1
 jvm_test jdk10 /usr/java/jdk-10.0.1
+jvm_test jdk11 /usr/java/jdk-11
 android_unit
 # done manually
 #android_ait $HOME/Android/Sdk Nexus_S_API_P

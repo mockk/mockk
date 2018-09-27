@@ -52,7 +52,7 @@ class JvmAutoHinter : AutoHinter() {
         // JDK 9:
         // JDK 10:
         // JDK 11: class net.bytebuddy.renamed.java.lang.Object$ByteBuddy$rpycQEYo$ByteBuddy$bHEk1ADY cannot be cast to class java.lang.String (net.bytebuddy.renamed.java.lang.Object$ByteBuddy$rpycQEYo$ByteBuddy$bHEk1ADY is in unnamed module of loader net.bytebuddy.dynamic.loading.ByteArrayClassLoader @19569ebd; java.lang.String is in module java.base of loader 'bootstrap')
-        val exceptionMessage = Regex("cannot be cast to (class )?(.+/)?(.+)( \\((.+)\\))?$")
+        val exceptionMessage = Regex("cannot be cast to (class )?(.+/)?(.+?)( \\((.+)\\))?$")
 
         val log = Logger<JvmAutoHinter>()
     }
