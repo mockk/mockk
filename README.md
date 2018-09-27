@@ -792,6 +792,20 @@ thread.join()
 
 Here are few tables helping to master the DSL.
 
+## Settings file
+
+To adjust parameters globaly there is a posibility to specify few settings in a resource file:
+
+How to use: 
+ 1. create `io/mockk/settings.properties` file in resources.
+ 2. Put one of following options:
+```
+relaxed=true|false
+relaxUnitFun=true|false
+recordPrivateCalls=true|false
+```
+
+
 ### Top level functions
 
 |Function|Description|
