@@ -5,7 +5,7 @@ package io.mockk
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKGateway.VerificationParameters
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
 /**

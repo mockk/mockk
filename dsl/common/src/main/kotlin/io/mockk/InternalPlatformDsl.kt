@@ -1,6 +1,6 @@
 package io.mockk
 
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 
 expect object InternalPlatformDsl {
     fun identityHashCode(obj: Any): Int

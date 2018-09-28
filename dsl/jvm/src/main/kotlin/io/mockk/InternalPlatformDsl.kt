@@ -1,9 +1,9 @@
 package io.mockk
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.Method
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.*
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties

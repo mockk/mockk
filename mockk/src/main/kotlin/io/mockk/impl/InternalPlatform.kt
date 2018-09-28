@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.isSubclassOf
