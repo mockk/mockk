@@ -2,7 +2,7 @@
 title: MockK Kotlin 1.3 support
 description: MockK supports Kotlin 1.3 and non-experimental coroutines
 ---
-![mockk](doc/logo-site.png) ![kotlin](doc/kotlin13.png)
+![mockk](doc/logo-site.png) <img src="doc/kotlin13.png" alt="kotlin" width="200px" />
 
 ## Two branches
 
