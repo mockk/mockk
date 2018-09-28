@@ -18,9 +18,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* [Kotlin 1.3](KOTLIN13.md) early access support v1.8.8.kotlin13 [#150](https://github.com/mockk/mockk/issues/151)
 * Java 11 support v1.8.8 [#150](https://github.com/mockk/mockk/issues/150)
 * [Open collective community support](https://opencollective.com/mockk)
-* [Verification timeout](README.md#verification-timeout) v1.8.6 [#114](https://github.com/mockk/mockk/issues/114)
 
 Please report any issues
 
