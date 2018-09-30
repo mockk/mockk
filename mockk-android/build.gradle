@@ -8,7 +8,7 @@ apply from: "${gradles}/upload-archives-android.gradle"
 
 android {
     compileSdkVersion 'android-28'
-    buildToolsVersion '27.0.3'
+    buildToolsVersion android_build_tools_version
 
     lintOptions {
         abortOnError false
@@ -31,22 +31,14 @@ android {
     }
 
     sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-        test.java.srcDirs += 'src/android/kotlin'
-        androidTest.java.srcDirs += 'src/androidTest/kotlin'
         androidTest.kotlin.srcDirs += '../common/src/test/kotlin'
     }
 
     compileOptions {
-        sourceCompatibility = 1.6
-        targetCompatibility = 1.6
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
 
-}
-
-repositories {
-    jcenter()
-    google()
 }
 
 dependencies {
@@ -70,7 +62,5 @@ dependencies {
     androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
     androidTestImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
     androidTestImplementation "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
-    androidTestImplementation 'org.slf4j:slf4j-api:1.7.25'
-    androidTestImplementation 'ch.qos.logback:logback-classic:1.2.3'
 }
 

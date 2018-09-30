@@ -11,9 +11,3 @@ kotlin {
         coroutines "enable"
     }
 }
-
-afterEvaluate {
-    task("compileJava") {}
-    task("compileTestJava") {}
-}
-
