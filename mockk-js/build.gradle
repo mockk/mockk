@@ -1,32 +1,23 @@
-apply plugin: 'kotlin-platform-js'
-
-repositories {
-    mavenCentral()
+ext {
+    mavenName = 'MockK JS'
+    mavenDescription = 'mocking library for Kotlin (JS)'
 }
+
+apply from: "${gradles}/js-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
     expectedBy project(":mockk-common")
-    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     compile project(":mockk-dsl-js")
-}
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
 }
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
-    from(project(':mockk-common').sourceSets.main.allSource) {
+    from(project(':mockk-common').sourcesJar.inputs.files) {
         exclude "io/mockk/impl/InternalPlatform.kt"
     }
-}
-
-artifacts {
-    archives sourcesJar
 }
 
 task unpackStdLib() {
@@ -41,52 +32,3 @@ task unpackStdLib() {
 }
 
 test.dependsOn(unpackStdLib)
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            if (project.hasProperty('localrepo')) {
-                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
-            } else {
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                }
-            }
-
-            pom.project {
-                name 'MockK JS'
-                packaging 'jar'
-                description 'mocking library for Kotlin (JS)'
-                url 'http://mockk.io'
-
-                scm {
-                    connection 'scm:git:git@github.com:mockk/mockk.git'
-                    developerConnection 'scm:git:git@github.com:mockk/mockk.git'
-                    url 'http://www.github.com/mockk/mockk/'
-                }
-
-                licenses {
-                    license {
-                        name 'Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'oleksiyp'
-                        name 'Oleksii Pylypenko'
-                        email 'oleksiy.pylypenko@gmail.com'
-                    }
-                }
-            }
-        }
-    }
-}
-

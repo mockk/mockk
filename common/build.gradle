@@ -1,4 +1,10 @@
-apply plugin: 'kotlin-platform-common'
+ext {
+    mavenName = 'MockK common'
+    mavenDescription = 'Common(JS and Java) MockK module'
+}
+apply from: "${gradles}/common-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/additional-archives.gradle"
 
 configurations {
     sampleTestCompile.extendsFrom testCompile
@@ -7,9 +13,6 @@ configurations {
 
 dependencies {
     compile project(":mockk-dsl")
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
 }
 
 kotlin {
@@ -25,19 +28,15 @@ sourceSets {
             runtimeClasspath += main.output + test.output
             srcDir file('src/sample/kotlin')
         }
-        resources.srcDir file('src/sample/resources')
+        resources {
+            srcDir file('src/sample/resources')
+        }
     }
 }
-
 
 task samples(type: Test) {
     setTestClassesDirs(sourceSets.sample.output.classesDirs)
     classpath = sourceSets.sample.runtimeClasspath
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
 }
 
 jar {
@@ -47,56 +46,3 @@ jar {
         }
     }
 }
-
-artifacts {
-    archives sourcesJar
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            if (project.hasProperty('localrepo')) {
-                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
-            } else {
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                }
-            }
-
-            pom.project {
-                name 'MockK common'
-                packaging 'jar'
-                description 'Common(JS and Java) MockK module'
-                url 'http://mockk.io'
-
-                scm {
-                    connection 'scm:git:git@github.com:mockk/mockk.git'
-                    developerConnection 'scm:git:git@github.com:mockk/mockk.git'
-                    url 'http://www.github.com/mockk/mockk/'
-                }
-
-                licenses {
-                    license {
-                        name 'Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'oleksiyp'
-                        name 'Oleksii Pylypenko'
-                        email 'oleksiy.pylypenko@gmail.com'
-                    }
-                }
-            }
-        }
-    }
-}
-

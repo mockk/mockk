@@ -1,128 +1,38 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
+ext {
+    mavenName = "MockK"
+    mavenDescription = "mocking library for Kotlin"
 }
-plugins {
-    id "jacoco"
-}
-apply plugin: "java"
-apply plugin: "kotlin-platform-jvm"
+
+apply from: "${gradles}/jacoco.gradle"
+apply from: "${gradles}/jvm-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     expectedBy project(':mockk-common')
     compile project(':mockk-dsl-jvm')
     compile project(":mockk-agent-jvm")
 
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
-
     compileOnly 'org.slf4j:slf4j-api:1.7.25'
 
-    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
-    testCompile 'org.slf4j:slf4j-api:1.7.25'
-    testCompile 'ch.qos.logback:logback-classic:1.2.3'
-
-    testCompile("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
-        exclude group: "junit", module: "junit"
-    }
-
-    compileOnly "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
-    testCompile "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
-    testCompile "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
-    testCompile "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
+    runtime project(":mockk-common")
 }
 
+//test {
+//    testLogging.showStandardStreams = true
+//    jvmArgs '-DprojectConfigScan=false'
+//}
+
+evaluationDependsOn(":mockk-common")
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
-    from(project(':mockk-common').sourceSets.main.allSource) {
+    from(project(':mockk-common').sourcesJar.inputs.files) {
         exclude "io/mockk/impl/InternalPlatform.kt"
-    }
-}
-
-artifacts {
-    archives sourcesJar
-}
-
-test {
-    testLogging.showStandardStreams = true
-    jvmArgs '-DprojectConfigScan=false'
-}
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        html.enabled true
-    }
-    afterEvaluate {
-        classDirectories = files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                    'io/mockk/APIKt.class',
-                    'io/mockk/CapturingSlot.class',
-                    'io/mockk/LambdaArgs.class',
-                    'io/mockk/MockK**Scope**.class'
-            ])
-        })
-    }
-}
-
-check.dependsOn jacocoTestReport
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            if (project.hasProperty('localrepo')) {
-                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
-            } else {
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                }
-            }
-
-            pom.project {
-                name 'MockK'
-                packaging 'jar'
-                description 'mocking library for Kotlin'
-                url 'http://mockk.io'
-
-                scm {
-                    connection 'scm:git:git@github.com:mockk/mockk.git'
-                    developerConnection 'scm:git:git@github.com:mockk/mockk.git'
-                    url 'http://www.github.com/mockk/mockk/'
-                }
-
-                licenses {
-                    license {
-                        name 'Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'oleksiyp'
-                        name 'Oleksii Pylypenko'
-                        email 'oleksiy.pylypenko@gmail.com'
-                    }
-                }
-            }
-        }
     }
 }
 

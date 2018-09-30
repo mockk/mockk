@@ -1,0 +1,48 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:${rootProject.dokka_version}"
+    }
+}
+
+apply plugin: 'kotlin-android'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'org.jetbrains.dokka-android'
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
+afterEvaluate { project ->
+    task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+        dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:${rootProject.dokka_version}"
+        outputFormat = 'javadoc'
+        outputDirectory = "$buildDir/javadoc"
+    }
+
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+        classifier = 'javadoc'
+        from "$buildDir/javadoc"
+    }
+
+    task sourceJar(type: Jar) {
+        from android.sourceSets.main.java.srcDirs
+        classifier "source"
+    }
+
+    task androidSourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    artifacts {
+        archives javadocJar
+        archives androidSourcesJar
+    }
+}

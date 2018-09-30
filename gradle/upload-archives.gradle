@@ -1,0 +1,50 @@
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            if (project.hasProperty('localrepo')) {
+                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
+            } else {
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+                }
+            }
+
+            pom.project {
+                name = mavenName
+                packaging = project.hasProperty('mavenPackage') ? mavenPackage : 'jar'
+                description mavenDescription
+                url 'http://mockk.io'
+
+                scm {
+                    connection 'scm:git:git@github.com:mockk/mockk.git'
+                    developerConnection 'scm:git:git@github.com:mockk/mockk.git'
+                    url 'http://www.github.com/mockk/mockk/'
+                }
+
+                licenses {
+                    license {
+                        name 'Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'oleksiyp'
+                        name 'Oleksii Pylypenko'
+                        email 'oleksiy.pylypenko@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
+

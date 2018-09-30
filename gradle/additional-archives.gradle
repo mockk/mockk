@@ -1,0 +1,21 @@
+
+afterEvaluate {
+    if (!project.tasks.findByName('javadocJar')) {
+        task javadocJar(type: Jar) {
+            classifier = 'javadoc'
+            from "$buildDir/no-javadocs"
+        }
+    }
+
+    if (!project.tasks.findByName('sourcesJar')) {
+        task sourcesJar(type: Jar) {
+            classifier = 'sources'
+            from sourceSets.main.allSource
+        }
+    }
+
+    artifacts {
+        archives javadocJar
+        archives sourcesJar
+    }
+}
