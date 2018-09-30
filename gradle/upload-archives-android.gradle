@@ -1,0 +1,7 @@
+afterEvaluate {
+    if (!project.hasProperty('mavenPackage')) {
+        ext.mavenPackage = 'aar'
+    }
+
+    apply from: "${gradles}/upload-archives.gradle"
+}

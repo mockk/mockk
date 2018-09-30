@@ -1,5 +1,11 @@
+ext {
+    mavenName = 'MockK Android Agent'
+    mavenDescription = 'Android instrumented testing MockK inline mocking agent'
+}
+
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply from: "${gradles}/android-module.gradle"
+apply from: "${gradles}/upload-archives-android.gradle"
 
 def dispatcherApkResPath = file("$buildDir/generated/dispatcher-apk")
 def dispatcherDexResPath = file("$buildDir/generated/dispatcher-dex")
@@ -33,7 +39,7 @@ preBuild.dependsOn(packageDispatcherJar)
 
 android {
     compileSdkVersion 'android-28'
-    buildToolsVersion '27.0.3'
+    buildToolsVersion android_build_tools_version
 
     lintOptions {
         abortOnError false
@@ -78,54 +84,4 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     androidTestImplementation 'junit:junit:4.12'
-}
-
-afterEvaluate { project ->
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-                if (project.hasProperty('localrepo')) {
-                    repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
-                } else {
-                    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                        authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                    }
-
-                    snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                        authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-                    }
-                }
-
-                pom.project {
-                    name 'MockK Android Agent'
-                    packaging 'aar'
-                    description 'Android instrumented testing MockK inline mocking agent'
-                    url 'http://mockk.io'
-
-                    scm {
-                        connection 'scm:git:git@github.com:mockk/mockk.git'
-                        developerConnection 'scm:git:git@github.com:mockk/mockk.git'
-                        url 'http://www.github.com/mockk/mockk/'
-                    }
-
-                    licenses {
-                        license {
-                            name 'Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id 'oleksiyp'
-                            name 'Oleksii Pylypenko'
-                            email 'oleksiy.pylypenko@gmail.com'
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

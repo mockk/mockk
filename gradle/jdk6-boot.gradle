@@ -1,0 +1,17 @@
+
+def detectJdk6Path() {
+    if (project.hasProperty('JDK6_HOME')) {
+        return JDK6_HOME
+    } else if (file("/usr/lib/jvm/jdk1.6.0_45").exists()) {
+        return "/usr/lib/jvm/jdk1.6.0_45"
+    }
+    return null
+}
+
+def jdk6Path = detectJdk6Path()
+
+if (jdk6Path != null) {
+    tasks.withType(JavaCompile) {
+        options.bootClasspath = "$jdk6Path/jre/lib/rt.jar"
+    }
+}

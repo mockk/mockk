@@ -1,4 +1,4 @@
-apply from: 'detect-android-sdk.gradle'
+apply from: 'gradle/detect-android-sdk.gradle'
 
 rootProject.name = 'mockk-top'
 

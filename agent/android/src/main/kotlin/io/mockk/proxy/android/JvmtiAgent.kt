@@ -30,9 +30,13 @@ internal class JvmtiAgent {
     var transformer: InliningClassTransformer? = null
 
     init {
-        // TODO : Replace with proper check for >= P
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            throw MockKAgentException("Requires API level " + Build.VERSION_CODES.P + ". API level is "
+                    + Build.VERSION.SDK_INT)
+        }
+
         if (Build.VERSION.CODENAME != "P") {
-            throw MockKAgentException("Requires Android P. Build is " + Build.VERSION.CODENAME)
+
         }
 
         val cl =

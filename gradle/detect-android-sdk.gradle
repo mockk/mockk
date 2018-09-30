@@ -4,7 +4,7 @@ def setPropPath(Properties props, String prop, String path) {
     props[prop] = path
 }
 
-def propsPath = file("local.properties")
+def propsPath = file("../local.properties")
 
 def props = new Properties()
 if (propsPath.isFile()) {

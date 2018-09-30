@@ -29,7 +29,7 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
         log = logFactory.logger(AndroidMockKAgentFactory::class.java)
 
         var inliner: AndroidInlineInstrumentation? = null
-        if (Build.VERSION.CODENAME == "P") { // FIXME >= 'P'
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val agent: JvmtiAgent
             val dispatcherClass: Class<*>
             try {
