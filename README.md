@@ -18,9 +18,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* Fixed AIT for Android P+ v1.8.9 and v1.8.9.kotlin13 [#112](https://github.com/mockk/mockk/issues/112)
 * [Kotlin 1.3](KOTLIN13.md) early access support v1.8.8.kotlin13 [#151](https://github.com/mockk/mockk/issues/151)
 * Java 11 support v1.8.8 [#150](https://github.com/mockk/mockk/issues/150)
-* [Open collective community support](https://opencollective.com/mockk)
 
 Please report any issues
 
