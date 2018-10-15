@@ -64,6 +64,7 @@ Table of contents:
 
 ## Examples & articles
 
+ - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
  - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
  - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
