@@ -1,3 +1,8 @@
+<div classname="helpmasha">
+    <img src="doc/heart.png" width="20px" align="left" />
+    <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco/">Help</a> my kid <a href="/MASHA">Masha</a> with a stem cell theraphy
+</div>
+
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) 
