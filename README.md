@@ -1,3 +1,8 @@
+<div class="helpmasha">
+    <img src="doc/heart.png" width="40px" align="top" />
+    <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco/">Help</a> my kid <a href="/MASHA">Masha</a> with a stem cell theraphy
+</div>
+
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) 
@@ -64,6 +69,7 @@ Table of contents:
 
 ## Examples & articles
 
+ - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
  - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
  - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
@@ -277,12 +283,12 @@ You can use `relaxUnitFun = true` as an argument to `mockk` function,
 `@MockK`annotation or `MockKAnntations.init` function.
 
 Function:
-```
+```kotlin
 mockk<MockCls>(relaxUnitFun = true)
 ```
 
 Annotation:
-```
+```kotlin
 @MockK(relaxUnitFun = true)
 lateinit var mock1: RurfMockCls
 init {
@@ -291,7 +297,7 @@ init {
 ```
 
 MockKAnnotations.init:
-```
+```kotlin
 @MockK
 lateinit var mock2: RurfMockCls
 init {
@@ -303,7 +309,7 @@ init {
 
 Objects can be transformed to mocks following way:
 
-```
+```kotlin
 object MockObj {
   fun add(a: Int, b: Int) = a + b
 }
@@ -320,7 +326,7 @@ assertEquals(55, MockObj.add(1, 2))
 
 To revert back use `unmockkAll` or `unmockkObject`:
 
-```
+```kotlin
 @Before
 fun beforeTests() {
     mockkObject(MockObj)
@@ -342,7 +348,7 @@ fun afterTests() {
 ```
 
 Despite Kotlin language limits you can create new instances of objects if testing logic needs that:
-```
+```kotlin
 val newObjectMock = mockk<MockObj>()
 ```
 
@@ -364,7 +370,7 @@ verify { car.drive(Direction.NORTH) }
 
 Enums can be mocked using `mockkObject`:
 
-```
+```kotlin
 enum class Enumeration(val goodInt: Int) {
     CONSTANT(35),
     OTHER_CONSTANT(45);
@@ -380,7 +386,7 @@ assertEquals(42, Enumeration.CONSTANT.goodInt)
 Sometimes, especially in code you are not owning, you need to mock newly created objects.
 For this purpose following constructs are provided:
 
-```
+```kotlin
 class MockCls {
   fun add(a: Int, b: Int) = a + b
 }
@@ -556,7 +562,7 @@ verify {
 
 To verify concurrent operations you can use `timeout = xxx`:
 
-```
+```kotlin
 mockk<MockCls> {
     every { sum(1, 2) } returns 4
 
@@ -694,7 +700,7 @@ verify {
 
 Sometimes you need to know a little bit more to mock extension function. 
 For example `File.endsWith()` extension function has totally unpredictable `classname`:
-```
+```kotlin
    mockkStatic("kotlin.io.FilesKt__UtilsKt")
    every { File("abc").endsWith(any<String>()) } returns true
    println(File("abc").endsWith("abc"))
@@ -705,7 +711,7 @@ Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR arc
 ### Private functions mocking / dynamic calls
 
 In case you have a need to mock private function, you can do it via dynamic call.
-```
+```kotlin
 class Car {
     fun drive() = accelerate()
 
@@ -795,7 +801,7 @@ To adjust parameters globaly there is a posibility to specify few settings in a 
 How to use: 
  1. create `io/mockk/settings.properties` file in resources.
  2. Put one of following options:
-```
+```properties
 relaxed=true|false
 relaxUnitFun=true|false
 recordPrivateCalls=true|false

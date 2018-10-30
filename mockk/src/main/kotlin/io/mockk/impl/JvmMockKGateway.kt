@@ -31,13 +31,13 @@ class JvmMockKGateway : MockKGateway {
         InternalPlatform.loadPlugin(
             "io.mockk.proxy.android.AndroidMockKAgentFactory",
             "Android instrumented test is running, " +
-                    "include 'io.mockk:mockk-andorid' dependency " +
+                    "include 'io.mockk:mockk-android' dependency " +
                     "instead 'io.mockk:mockk'"
         )
     else
         InternalPlatform.loadPlugin(
             "io.mockk.proxy.jvm.JvmMockKAgentFactory",
-            "Check if you included 'io.mockk:mockk-andorid' dependency " +
+            "Check if you included 'io.mockk:mockk-android' dependency " +
                     "instead of 'io.mockk:mockk'"
         )
 
