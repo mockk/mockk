@@ -3,10 +3,10 @@ title: Masha's cerebral palsy
 description: You can do good thing by donating for a stem cell therapy for my kid
 ---
 
-<div classname="charitytext">
+<div class="charitytext">
 Hi, hope you are doing well. 
 
-I am not only an author of MockK, but I am as well a father of kid with cerebral palsy.
+I am not only the author of MockK, but I am as well a father of kid with cerebral palsy.
 
 Despite the fact, 
 that she can smile on pictures, 
