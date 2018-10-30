@@ -9,7 +9,7 @@ Hi, hope you are doing well.<br>
 I am not only the author of MockK, but I am as well a father of kid with cerebral palsy.<br>
 <br>
 Despite the fact, 
-that she can smile on pictures, 
+that she is smiling very cheerful on photographies, 
 her condition is quite severe. 
 There is basically no abilities available for her and 
 we have a problem even with feeding her. <br>
