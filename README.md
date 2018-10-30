@@ -1,5 +1,5 @@
 <div class="helpmasha">
-    <img src="doc/heart.png" width="20px" align="left" />
+    <img src="doc/heart.png" width="40px" align="left" />
     <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco/">Help</a> my kid <a href="/MASHA">Masha</a> with a stem cell theraphy
 </div>
 
