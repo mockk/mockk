@@ -16,9 +16,9 @@ import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.implementation.Implementation
 import net.bytebuddy.jar.asm.ClassVisitor
 import net.bytebuddy.jar.asm.MethodVisitor
-import net.bytebuddy.jar.asm.Opcodes
 import net.bytebuddy.matcher.ElementMatchers.*
 import net.bytebuddy.pool.TypePool
+import net.bytebuddy.utility.OpenedClassReader
 
 internal class FixParameterNamesVisitor(val type: Class<*>) :
     AsmVisitorWrapper.AbstractBase() {
@@ -42,7 +42,7 @@ internal class FixParameterNamesVisitor(val type: Class<*>) :
     internal class FixParameterNamesClassVisitor constructor(
         visitor: ClassVisitor,
         val typeDescription: TypeDescription
-    ) : ClassVisitor(Opcodes.ASM5, visitor) {
+    ) : ClassVisitor(OpenedClassReader.ASM_API, visitor) {
 
         override fun visitMethod(
             access: Int,
@@ -81,7 +81,7 @@ internal class FixParameterNamesVisitor(val type: Class<*>) :
                 )
             }
 
-            return object : MethodVisitor(Opcodes.ASM5, methodVisitor) {
+            return object : MethodVisitor(OpenedClassReader.ASM_API, methodVisitor) {
                 override fun visitParameter(name: String, access: Int) {}
             }
 
