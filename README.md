@@ -512,7 +512,7 @@ verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) } // means no
 
 ### Verification order
 
-`verifyAll` verifies that all calls happened without checking it's order.
+`verifyAll` verifies that all calls happened without checking its order.
 `verifySequence` verifies that the exact sequence happened and `verifyOrder` that calls happened in order.
 `wasNot Called` verifies that mock or list of mocks was not called at all.
 
