@@ -52,6 +52,7 @@ class CommonCallRecorder(
 
     override fun hintNextReturnType(cls: KClass<*>, n: Int) = childHinter.hint(n, cls)
     override fun discardLastCallRound() = state.discardLastCallRound()
+    override fun isLastCallReturnsNothing() = state.isLastCallReturnsNothing()
 
     override fun reset() {
         calls.clear()

@@ -3289,6 +3289,7 @@ data class MethodDescription(
     val name: String,
     val returnType: KClass<*>,
     val returnTypeVoid: Boolean,
+    val returnNothing: () -> Boolean,
     val declaringClass: KClass<*>,
     val paramTypes: List<KClass<*>>,
     val varArgsArg: Int,

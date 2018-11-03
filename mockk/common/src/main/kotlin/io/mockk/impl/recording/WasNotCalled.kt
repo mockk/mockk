@@ -7,6 +7,7 @@ object WasNotCalled {
         "wasNot Called",
         Unit::class,
         true,
+        { false },
         Unit::class,
         listOf(),
         -1,

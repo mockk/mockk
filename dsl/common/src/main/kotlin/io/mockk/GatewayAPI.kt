@@ -158,6 +158,8 @@ interface MockKGateway {
         fun wasNotCalled(list: List<Any>)
 
         fun discardLastCallRound()
+
+        fun isLastCallReturnsNothing(): Boolean
     }
 
     /**

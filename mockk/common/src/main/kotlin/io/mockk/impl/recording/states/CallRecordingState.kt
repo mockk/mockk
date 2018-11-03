@@ -20,6 +20,8 @@ abstract class CallRecordingState(val recorder: CommonCallRecorder) {
     open fun estimateCallRounds(): Int = cancelAndThrowBadRecordingState()
     open fun wasNotCalled(list: List<Any>): Unit = cancelAndThrowBadRecordingState()
     open fun discardLastCallRound(): Unit = cancelAndThrowBadRecordingState()
+    open fun isLastCallReturnsNothing(): Boolean = cancelAndThrowBadRecordingState()
+
 
     private fun cancelAndThrowBadRecordingState(): Nothing {
         val state = recorder.state

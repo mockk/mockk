@@ -89,6 +89,7 @@ object JvmMockFactoryHelper {
             name,
             returnType.kotlin,
             returnType == Void.TYPE,
+            { kotlinFunction?.returnType?.toString() == "kotlin.Nothing" },
             declaringClass.kotlin,
             parameterTypes.map { it.kotlin },
             varArgPosition(),
