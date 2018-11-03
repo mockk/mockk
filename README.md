@@ -23,9 +23,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - medium article about problems MockK solves 
+* [Kotlin 1.3](KOTLIN13.md) support v1.8.10.kotlin13 [#162](https://github.com/mockk/mockk/pull/162)
 * Fixed AIT for Android P+ v1.8.9 and v1.8.9.kotlin13 [#112](https://github.com/mockk/mockk/issues/112)
-* [Kotlin 1.3](KOTLIN13.md) early access support v1.8.8.kotlin13 [#151](https://github.com/mockk/mockk/issues/151)
-* Java 11 support v1.8.8 [#150](https://github.com/mockk/mockk/issues/150)
 
 Please report any issues
 
@@ -69,6 +69,7 @@ Table of contents:
 
 ## Examples & articles
 
+ - [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b)
  - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
  - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
@@ -512,7 +513,7 @@ verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) } // means no
 
 ### Verification order
 
-`verifyAll` verifies that all calls happened without checking it's order.
+`verifyAll` verifies that all calls happened without checking its order.
 `verifySequence` verifies that the exact sequence happened and `verifyOrder` that calls happened in order.
 `wasNot Called` verifies that mock or list of mocks was not called at all.
 

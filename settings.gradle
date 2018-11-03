@@ -1,9 +1,9 @@
 apply from: 'gradle/detect-android-sdk.gradle'
 
-rootProject.name = 'mockk-top'
+rootProject.name = 'mockk-root'
 
-include 'mockk-common'
 include 'mockk'
+include 'mockk-common'
 //include 'mockk-js'
 include 'mockk-android'
 
@@ -17,7 +17,10 @@ include 'mockk-dsl'
 include 'mockk-dsl-jvm'
 include 'mockk-dsl-js'
 
-project(":mockk-common").projectDir = file("common")
+project(":mockk").projectDir = file("mockk/jvm")
+project(":mockk-common").projectDir = file("mockk/common")
+//project(":mockk-js").projectDir = file("mockk/js")
+project(":mockk-android").projectDir = file("mockk/android")
 
 project(":mockk-agent-api").projectDir = file("agent/api")
 project(":mockk-agent-common").projectDir = file("agent/common")
