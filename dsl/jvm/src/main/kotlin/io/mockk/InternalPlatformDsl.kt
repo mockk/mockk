@@ -159,6 +159,15 @@ actual object InternalPlatformDsl {
         return property.set(self, value)
     }
 
+    actual fun dynamicSetField(self: Any, name: String, value: Any?) {
+        val field = self.javaClass
+            .declaredFields.firstOrNull { it.name == name }
+                ?: return
+
+        makeAccessible(field)
+        field.set(self, value)
+    }
+
     fun makeAccessible(obj: AccessibleObject) {
         try {
             obj.isAccessible = true

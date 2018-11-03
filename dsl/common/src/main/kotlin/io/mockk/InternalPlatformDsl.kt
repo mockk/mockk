@@ -28,6 +28,8 @@ expect object InternalPlatformDsl {
 
     fun dynamicSet(self: Any, name: String, value: Any?)
 
+    fun dynamicSetField(self: Any, name: String, value: Any?)
+
     fun <T> threadLocal(initializer: () -> T): InternalRef<T>
 
     fun counter(): InternalCounter
