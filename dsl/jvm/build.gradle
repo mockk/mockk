@@ -14,7 +14,7 @@ dependencies {
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 }
 
-
+evaluationDependsOn(":mockk-dsl")
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
