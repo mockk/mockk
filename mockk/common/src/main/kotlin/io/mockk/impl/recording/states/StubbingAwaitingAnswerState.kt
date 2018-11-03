@@ -7,6 +7,7 @@ import io.mockk.InvocationMatcher
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.AdditionalAnswerOpportunity
+import io.mockk.impl.stub.MockKStub
 
 class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
     override fun answer(answer: Answer<*>) {
@@ -26,10 +27,13 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
             }
 
             val mock = recordedCall.matcher.self
-            answerOpportunity = recorder.stubRepo.stubFor(mock)
+            val stub = recorder.stubRepo.stubFor(mock)
+            answerOpportunity = stub
                 .addAnswer(recordedCall.matcher, ans)
 
-            assignFieldIfMockingProperty(mock, recordedCall.matcher, ans)
+            if (stub::class == MockKStub::class) {
+                assignFieldIfMockingProperty(mock, recordedCall.matcher, ans)
+            }
         }
 
         calls.clear()
