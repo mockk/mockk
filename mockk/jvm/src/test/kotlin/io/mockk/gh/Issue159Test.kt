@@ -2,7 +2,6 @@ package io.mockk.gh
 
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicInteger
@@ -11,7 +10,7 @@ import kotlin.test.assertEquals
 
 class Issue159Test {
     @Test
-    fun testConcurrentGetMany() = runBlocking {
+    fun testConcurrentGetMany() {
         val numValues = 10000
         val nThreads = 10
         val fetchTimes = numValues / nThreads
