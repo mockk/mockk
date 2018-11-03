@@ -37,3 +37,7 @@ task sourcesJar(type: Jar) {
 }
 
 compileTestKotlin.kotlinOptions.javaParameters = true
+
+jar.baseName = 'mockk'
+javadocJar.baseName = 'mockk'
+sourcesJar.baseName = 'mockk'
