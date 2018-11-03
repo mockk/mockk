@@ -99,6 +99,11 @@ actual object InternalPlatformDsl {
         }
     }
 
+    actual fun counter() = object : InternalCounter {
+        override var value = 0L
+
+        override fun increment() = value++
+    }
 }
 
 internal external object Kotlin {

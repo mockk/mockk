@@ -3,6 +3,7 @@ package io.mockk
 import kotlinx.coroutines.experimental.runBlocking
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.Method
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.*
 import kotlin.reflect.full.functions
@@ -177,5 +178,14 @@ actual object InternalPlatformDsl {
 
         }
         return TL()
+    }
+
+    actual fun counter() = object : InternalCounter {
+        val atomicValue = AtomicLong()
+
+        override val value: Long
+            get() = atomicValue.get()
+
+        override fun increment() = atomicValue.getAndIncrement()
     }
 }

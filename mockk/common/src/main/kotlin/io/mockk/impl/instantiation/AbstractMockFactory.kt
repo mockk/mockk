@@ -1,5 +1,6 @@
 package io.mockk.impl.instantiation
 
+import io.mockk.InternalPlatformDsl
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
 import io.mockk.MockKGateway
@@ -122,8 +123,8 @@ abstract class AbstractMockFactory(
     override fun isMock(value: Any) = gatewayAccess.stubRepository.get(value) != null
 
     companion object {
-        val idCounter = InternalPlatform.counter()
+        val idCounter = InternalPlatformDsl.counter()
 
-        fun newId(): Long = idCounter()
+        fun newId(): Long = idCounter.increment() + 1
     }
 }

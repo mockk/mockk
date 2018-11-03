@@ -23,8 +23,6 @@ expect object InternalPlatform {
 
     fun <K, V> synchronizedMutableMap(): MutableMap<K, V>
 
-    fun counter(): () -> Long
-
     fun packRef(arg: Any?): Any?
 
     fun isSuspend(paramTypes: List<KClass<Any>>): Boolean
