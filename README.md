@@ -839,6 +839,7 @@ Here are few tables helping to master the DSL.
 |`unmockkConstructor`|makes constructor mock back a regular class|
 |`clearConstructorMockk`|clears constructor mock|
 |`unmockkAll`|unmock object, static and constructor mocks|
+|`clearAllMocks`|clears regular, object, static and constructor mocks|
 
 
 ### Matchers
