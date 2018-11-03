@@ -43,7 +43,9 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation(project(':mockk'), {
+    // very weird hack to make it working in IDE (check settings.gradle)
+    def mockKProject = findProject(':mockk-jvm') ?: project(":mockk")
+    implementation(mockKProject, {
         exclude group: 'io.mockk', module: 'mockk-agent-jvm'
     })
     implementation project(":mockk-agent-android")

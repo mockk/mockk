@@ -2,7 +2,7 @@ apply from: 'gradle/detect-android-sdk.gradle'
 
 rootProject.name = 'mockk-root'
 
-include 'mockk'
+include 'mockk-jvm'
 include 'mockk-common'
 //include 'mockk-js'
 include 'mockk-android'
@@ -17,7 +17,7 @@ include 'mockk-dsl'
 include 'mockk-dsl-jvm'
 include 'mockk-dsl-js'
 
-project(":mockk").projectDir = file("mockk/jvm")
+project(":mockk-jvm").projectDir = file("mockk/jvm")
 project(":mockk-common").projectDir = file("mockk/common")
 //project(":mockk-js").projectDir = file("mockk/js")
 project(":mockk-android").projectDir = file("mockk/android")
@@ -31,3 +31,8 @@ project(":mockk-agent-android-dispatcher").projectDir = file("agent/android/disp
 project(":mockk-dsl").projectDir = file("dsl/common")
 project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
+
+// very weird hack to make it working in IDE and stay compatible with naming
+if (gradle.startParameter.taskNames.contains("uploadArchives")) {
+    project(":mockk-jvm").name = 'mockk'
+}
