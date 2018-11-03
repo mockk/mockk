@@ -23,7 +23,7 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
-* new function `clearAllMocks` [#153](https://github.com/mockk/mockk/pull/153) is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13
+* new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
 * [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
 * [Kotlin 1.3](KOTLIN13.md) support v1.8.10.kotlin13 [#162](https://github.com/mockk/mockk/pull/162)
 
