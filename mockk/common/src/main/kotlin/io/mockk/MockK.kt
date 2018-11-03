@@ -514,6 +514,29 @@ inline fun unmockkAll() = MockK.useImpl {
     MockKDsl.internalUnmockkAll()
 }
 
+/**
+ * Clears all regular, object, static and constructor mocks.
+ */
+inline fun clearAllMocks(
+    answers: Boolean = true,
+    recordedCalls: Boolean = true,
+    childMocks: Boolean = true,
+    regularMocks: Boolean = true,
+    objectMocks: Boolean = true,
+    staticMocks: Boolean = true,
+    constructorMocks: Boolean = true
+) = MockK.useImpl {
+    MockKDsl.internalClearAllMocks(
+        answers,
+        recordedCalls,
+        childMocks,
+        regularMocks,
+        objectMocks,
+        staticMocks,
+        constructorMocks
+    )
+}
+
 object MockKAnnotations {
     /**
      * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided object.

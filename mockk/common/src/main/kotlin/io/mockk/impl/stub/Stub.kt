@@ -21,7 +21,7 @@ interface Stub : Disposable {
 
     fun allRecordedCalls(method: MethodDescription): List<Invocation>
 
-    fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean)
+    fun clear(options: MockKGateway.ClearOptions)
 
     fun handleInvocation(
         self: Any,

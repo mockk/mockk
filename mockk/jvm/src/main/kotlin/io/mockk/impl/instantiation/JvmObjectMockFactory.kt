@@ -2,6 +2,7 @@ package io.mockk.impl.instantiation
 
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKException
+import io.mockk.MockKGateway
 import io.mockk.MockKGateway.ObjectMockFactory
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
@@ -67,11 +68,17 @@ class JvmObjectMockFactory(
 
     override fun clear(
         obj: Any,
-        answers: Boolean,
-        recordedCalls: Boolean,
-        childMocks: Boolean
+        options: MockKGateway.ClearOptions
     ) {
-        stubRepository[obj]?.clear(answers, recordedCalls, childMocks)
+        stubRepository[obj]?.clear(options)
+    }
+
+    override fun clearAll(
+        options: MockKGateway.ClearOptions
+    ) {
+        stubRepository.allStubs.forEach {
+            it.clear(options)
+        }
     }
 
     companion object {

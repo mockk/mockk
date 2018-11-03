@@ -223,15 +223,15 @@ open class MockKStub(
         return gatewayAccess.callRecorder().call(invocation)
     }
 
-    override fun clear(answers: Boolean, calls: Boolean, childMocks: Boolean) {
-        if (answers) {
+    override fun clear(options: MockKGateway.ClearOptions) {
+        if (options.answers) {
             this.answers.clear()
         }
-        if (calls) {
+        if (options.recordedCalls) {
             this.recordedCalls.clear()
             this.recordedCallsByMethod.clear()
         }
-        if (childMocks) {
+        if (options.childMocks) {
             this.childs.clear()
         }
     }
@@ -255,7 +255,7 @@ open class MockKStub(
         )
 
     override fun dispose() {
-        clear(true, true, true)
+        clear(MockKGateway.ClearOptions(true, true, true))
         disposeRoutine.invoke()
     }
 }
