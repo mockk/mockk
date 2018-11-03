@@ -1,5 +1,7 @@
 package io.mockk
 
+import kotlin.math.min
+
 /**
  * Returns one constant reply
  */
@@ -19,10 +21,12 @@ data class FunctionAnswer<T>(val answerFunc: (Call) -> T) : Answer<T> {
 }
 
 /**
- * Allows to check if has one more element in answer
+ * Required to signalize many answers available
  */
 interface ManyAnswerable<out T> : Answer<T> {
     val hasMore: Boolean
+
+    val flatAnswers: List<Answer<T>>
 }
 
 /**
@@ -30,47 +34,25 @@ interface ManyAnswerable<out T> : Answer<T> {
  * Stops at the end.
  */
 data class ManyAnswersAnswer<T>(val answers: List<Answer<T>>) : ManyAnswerable<T> {
-    private var n = 0
-    private var prevAnswer: Answer<T>? = null
-    val manyAnswers = answers.map { if (it is ManyAnswerable) it else SingleAnswer(it) }
 
-    inner class SingleAnswer(val wrapped: Answer<T>) : ManyAnswerable<T> {
-        var answered = false
-
-        override val hasMore: Boolean
-            get() = !answered
-
-        override fun answer(call: Call): T {
-            answered = true
-            return wrapped.answer(call)
+    override val flatAnswers = answers.flatMap {
+        when (it) {
+            is ManyAnswerable<T> -> it.flatAnswers
+            else -> listOf(it)
         }
     }
 
-    private fun nextAnswerable(): ManyAnswerable<T>? {
-        while (n < answers.size) {
-            if (manyAnswers[n].hasMore) {
-                return manyAnswers[n]
-            }
-            prevAnswer = manyAnswers[n]
-            n++
-        }
-        return null
-    }
+    private var pos = InternalPlatformDsl.counter()
 
     override val hasMore: Boolean
-        get() = nextAnswerable()?.hasMore ?: false
-
+        get() = pos.value < flatAnswers.size
 
     override fun answer(call: Call): T {
-        val next = nextAnswerable()
-        if (next != null) {
-            return next.answer(call)
+        if (flatAnswers.isEmpty()) {
+            throw MockKException("In many answers answer no answer available")
         }
-        val prev = prevAnswer
-        if (prev != null) {
-            return prev.answer(call)
-        }
-        throw RuntimeException("In many answers answer no answer available")
+        val pos = min(pos.increment(), (flatAnswers.size - 1).toLong()).toInt()
+        return flatAnswers[pos].answer(call)
     }
 }
 

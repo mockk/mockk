@@ -19,6 +19,12 @@ interface MockKGateway {
 
     fun verifier(params: VerificationParameters): CallVerifier
 
+    data class ClearOptions(
+        val answers: Boolean,
+        val recordedCalls: Boolean,
+        val childMocks: Boolean
+    )
+
     companion object {
         lateinit var implementation: () -> MockKGateway
     }
@@ -55,7 +61,9 @@ interface MockKGateway {
     interface StaticMockFactory {
         fun staticMockk(cls: KClass<*>): () -> Unit
 
-        fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
+        fun clear(type: KClass<*>, options: ClearOptions)
+
+        fun clearAll(options: ClearOptions)
     }
 
     /**
@@ -64,7 +72,9 @@ interface MockKGateway {
     interface ObjectMockFactory {
         fun objectMockk(obj: Any, recordPrivateCalls: Boolean): () -> Unit
 
-        fun clear(obj: Any, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
+        fun clear(obj: Any, options: ClearOptions)
+
+        fun clearAll(options: ClearOptions)
     }
 
     /**
@@ -79,7 +89,9 @@ interface MockKGateway {
 
         fun <T : Any> mockPlaceholder(cls: KClass<T>): T
 
-        fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean)
+        fun clear(type: KClass<*>, options: ClearOptions)
+
+        fun clearAll(options: ClearOptions)
     }
 
     /**
@@ -88,9 +100,11 @@ interface MockKGateway {
     interface Clearer {
         fun clear(
             mocks: Array<out Any>,
-            answers: Boolean,
-            recordedCalls: Boolean,
-            childMocks: Boolean
+            options: ClearOptions
+        )
+
+        fun clearAll(
+            options: ClearOptions
         )
     }
 
@@ -158,6 +172,8 @@ interface MockKGateway {
         fun wasNotCalled(list: List<Any>)
 
         fun discardLastCallRound()
+
+        fun isLastCallReturnsNothing(): Boolean
     }
 
     /**

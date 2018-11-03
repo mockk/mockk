@@ -213,10 +213,8 @@ object MockKDsl {
         childMocks: Boolean = true
     ) {
         MockKGateway.implementation().clearer.clear(
-            mocks = mocks,
-            answers = answers,
-            recordedCalls = recordedCalls,
-            childMocks = childMocks
+            mocks,
+            MockKGateway.ClearOptions(answers, recordedCalls, childMocks)
         )
     }
 
@@ -346,7 +344,7 @@ object MockKDsl {
         childMocks: Boolean = true
     ) {
         for (obj in objects) {
-            MockKGateway.implementation().objectMockFactory.clear(obj, answers, recordedCalls, childMocks)
+            MockKGateway.implementation().objectMockFactory.clear(obj, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
         }
     }
 
@@ -388,7 +386,7 @@ object MockKDsl {
         childMocks: Boolean = true
     ) {
         for (type in classes) {
-            MockKGateway.implementation().staticMockFactory.clear(type, answers, recordedCalls, childMocks)
+            MockKGateway.implementation().staticMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
         }
     }
 
@@ -434,7 +432,7 @@ object MockKDsl {
         childMocks: Boolean = true
     ) {
         for (type in classes) {
-            MockKGateway.implementation().constructorMockFactory.clear(type, answers, recordedCalls, childMocks)
+            MockKGateway.implementation().constructorMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
         }
     }
 
@@ -443,6 +441,32 @@ object MockKDsl {
      */
     inline fun internalUnmockkAll() {
         MockKCancellationRegistry.cancelAll()
+    }
+
+    inline fun internalClearAllMocks(
+        answers: Boolean = true,
+        recordedCalls: Boolean = true,
+        childMocks: Boolean = true,
+        regularMocks: Boolean = true,
+        objectMocks: Boolean = true,
+        staticMocks: Boolean = true,
+        constructorMocks: Boolean = true
+    ) {
+        val options = MockKGateway.ClearOptions(answers, recordedCalls, childMocks)
+        val implementation = MockKGateway.implementation()
+
+        if (regularMocks) {
+            implementation.clearer.clearAll(options)
+        }
+        if (objectMocks) {
+            implementation.objectMockFactory.clearAll(options)
+        }
+        if (staticMocks) {
+            implementation.staticMockFactory.clearAll(options)
+        }
+        if (constructorMocks) {
+            implementation.constructorMockFactory.clearAll(options)
+        }
     }
 }
 
@@ -2112,7 +2136,7 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope() 
 
     override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
         for (type in staticTypes) {
-            MockKGateway.implementation().staticMockFactory.clear(type, answers, recordedCalls, childMocks)
+            MockKGateway.implementation().staticMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
         }
     }
 
@@ -2137,7 +2161,7 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
 
     override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
         for (obj in objects) {
-            MockKGateway.implementation().objectMockFactory.clear(obj, answers, recordedCalls, childMocks)
+            MockKGateway.implementation().objectMockFactory.clear(obj, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
         }
     }
 
@@ -2161,7 +2185,7 @@ class MockKConstructorScope<T : Any>(
     }
 
     override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
-        MockKGateway.implementation().constructorMockFactory.clear(type, answers, recordedCalls, childMocks)
+        MockKGateway.implementation().constructorMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
     }
 }
 
@@ -3289,6 +3313,7 @@ data class MethodDescription(
     val name: String,
     val returnType: KClass<*>,
     val returnTypeVoid: Boolean,
+    val returnNothing: () -> Boolean,
     val declaringClass: KClass<*>,
     val paramTypes: List<KClass<*>>,
     val varArgsArg: Int,

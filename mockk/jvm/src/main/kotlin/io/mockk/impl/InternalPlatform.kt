@@ -60,9 +60,6 @@ actual object InternalPlatform {
 
     actual fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
 
-
-    actual fun counter(): () -> Long = AtomicLong()::incrementAndGet
-
     actual fun packRef(arg: Any?): Any? {
         return if (arg == null || isPassedByValue(arg::class))
             arg

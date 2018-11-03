@@ -22,6 +22,9 @@ class StubRepository(val safeToString: SafeToString) {
 
     operator fun get(mock: Any): Stub? = stubs[mock]?.value as? Stub
 
+    val allStubs: List<Stub>
+        get() = stubs.values.mapNotNull { it.value as? Stub }
+
     fun notifyCallRecorded(stub: MockKStub) {
         recordCallMultiNotifier.notify(stub)
     }

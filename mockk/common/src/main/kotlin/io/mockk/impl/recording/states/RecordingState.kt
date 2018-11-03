@@ -125,6 +125,13 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
 
     override fun nCalls(): Int = callRoundBuilder?.signedCalls?.size ?: 0
 
+    override fun isLastCallReturnsNothing(): Boolean {
+        val lastCall = callRoundBuilder?.signedCalls?.lastOrNull()
+                ?: return false
+
+        return lastCall.method.returnNothing()
+    }
+
     /**
      * Main idea is to have enough random information
      * to create signature for the argument.

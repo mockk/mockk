@@ -93,12 +93,21 @@ actual object InternalPlatformDsl {
         throw MockKException("dynamic set is not supported on JS platform")
     }
 
+    actual fun dynamicSetField(self: Any, name: String, value: Any?) {
+        throw MockKException("dynamic set is not supported on JS platform")
+    }
+
     actual fun <T> threadLocal(initializer: () -> T): InternalRef<T> {
         return object : InternalRef<T> {
             override val value = initializer()
         }
     }
 
+    actual fun counter() = object : InternalCounter {
+        override var value = 0L
+
+        override fun increment() = value++
+    }
 }
 
 internal external object Kotlin {

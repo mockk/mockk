@@ -3,6 +3,7 @@ package io.mockk.impl.instantiation
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKCancellation
 import io.mockk.MockKException
+import io.mockk.MockKGateway
 import io.mockk.MockKGateway.ConstructorMockFactory
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
@@ -178,10 +179,14 @@ class JvmConstructorMockFactory(
                 ?: throw MockKException("to use anyConstructed<T>() first build mockkConstructor<T>() and 'use' it")
     )
 
-    override fun clear(type: KClass<*>, answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+    override fun clear(type: KClass<*>, options: MockKGateway.ClearOptions) {
         getMock(type)?.let {
-            clearer.clear(arrayOf(it), answers, recordedCalls, childMocks)
+            clearer.clear(arrayOf(it), options)
         }
+    }
+
+    override fun clearAll(options: MockKGateway.ClearOptions) {
+            clearer.clearAll(options)
     }
 
     private fun <T : Any> getMock(cls: KClass<T>): Any? {

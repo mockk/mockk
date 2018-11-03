@@ -3,7 +3,8 @@ package io.mockk
 import kotlinx.coroutines.runBlocking
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.Method
-import kotlin.coroutines.Continuation
+import java.util.concurrent.atomic.AtomicLong
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.*
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
@@ -158,6 +159,15 @@ actual object InternalPlatformDsl {
         return property.set(self, value)
     }
 
+    actual fun dynamicSetField(self: Any, name: String, value: Any?) {
+        val field = self.javaClass
+            .declaredFields.firstOrNull { it.name == name }
+                ?: return
+
+        makeAccessible(field)
+        field.set(self, value)
+    }
+
     fun makeAccessible(obj: AccessibleObject) {
         try {
             obj.isAccessible = true
@@ -177,5 +187,14 @@ actual object InternalPlatformDsl {
 
         }
         return TL()
+    }
+
+    actual fun counter() = object : InternalCounter {
+        val atomicValue = AtomicLong()
+
+        override val value: Long
+            get() = atomicValue.get()
+
+        override fun increment() = atomicValue.getAndIncrement()
     }
 }

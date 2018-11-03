@@ -18,6 +18,8 @@ abstract class RecordedBlockEvaluator(
         coMockBlock: (suspend S.() -> T)?
     ) {
         try {
+            val callRecorderInstance = callRecorder()
+
             val block: () -> T = if (mockBlock != null) {
                 { scope.mockBlock() }
             } else if (coMockBlock != null) {
@@ -26,29 +28,57 @@ abstract class RecordedBlockEvaluator(
                 { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
             }
 
+            val blockWithRethrow = enhanceWithNPERethrow(block, callRecorderInstance::isLastCallReturnsNothing)
+
             val autoHinter = autoHinterFactory()
 
-            autoHinter.autoHint(
-                callRecorder(),
-                0,
-                64,
-                block
-            )
-
-            val n = callRecorder().estimateCallRounds();
-            for (i in 1 until n) {
+            try {
                 autoHinter.autoHint(
-                    callRecorder(),
-                    i,
-                    n,
-                    block
+                    callRecorderInstance,
+                    0,
+                    64,
+                    blockWithRethrow
                 )
+            } catch (npe: NothingThrownNullPointerException) {
+                // skip
             }
-            callRecorder().round(n, n)
-            callRecorder().done()
+
+            val n = callRecorderInstance.estimateCallRounds();
+            for (i in 1 until n) {
+                try {
+                    autoHinter.autoHint(
+                        callRecorderInstance,
+                        i,
+                        n,
+                        block
+                    )
+                } catch (npe: NothingThrownNullPointerException) {
+                    // skip
+                }
+            }
+            callRecorderInstance.round(n, n)
+            callRecorderInstance.done()
         } catch (ex: Throwable) {
             throw InternalPlatform.prettifyRecordingException(ex)
         }
     }
+
+    private class NothingThrownNullPointerException : RuntimeException()
+
+    private fun <T> enhanceWithNPERethrow(
+        block: () -> T,
+        checkLastCallReturnsNothing: () -> Boolean
+    ) =
+        {
+            try {
+                block()
+            } catch (npe: NullPointerException) {
+                if (checkLastCallReturnsNothing()) {
+                    throw NothingThrownNullPointerException()
+                } else {
+                    throw npe
+                }
+            }
+        }
 }
 
