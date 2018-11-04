@@ -10,14 +10,25 @@ import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
-internal class AndroidSubclassInstrumentation : SubclassInstrumentation {
+internal class AndroidSubclassInstrumentation(
+    val inlineInstrumentationApplied: Boolean
+) : SubclassInstrumentation {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> subclass(clazz: Class<T>, interfaces: Array<Class<*>>): Class<T> =
         try {
             ProxyBuilder.forClass(clazz)
                 .implementing(*interfaces)
-                .onlyMethods(getMethodsToProxy(clazz, interfaces))
+                .apply {
+                    if (inlineInstrumentationApplied) {
+                        onlyMethods(getMethodsToProxy(clazz, interfaces))
+                    }
+                }
+                .apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//                        markTrusted();
+                    }
+                }
                 .apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         withSharedClassLoader()
