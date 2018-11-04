@@ -109,7 +109,9 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
             logFactory.logger(OnjenesisInstantiator::class.java)
         )
 
-        val subclasser = AndroidSubclassInstrumentation()
+        val subclasser = AndroidSubclassInstrumentation(
+            inliner != null
+        )
 
         proxyMaker = ProxyMaker(
             logFactory.logger(

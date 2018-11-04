@@ -31,7 +31,23 @@ class JvmMockKAgentFactory : MockKAgentFactory {
         val jvmInstrumenatation = initInstrumentation(loader)
 
         class Initializer {
+            fun preload() {
+                listOf(
+                    "java.lang.WeakPairMap",
+                    "java.lang.WeakPairMap\$Pair",
+                    "java.lang.WeakPairMap\$Pair\$Weak"
+                ).forEach {
+                    try {
+                        Class.forName(it, false, null)
+                    } catch (ignored: ClassNotFoundException) {
+                         // skip
+                    }
+                }
+            }
+
             fun init() {
+                preload()
+
                 val byteBuddy = ByteBuddy()
                     .with(TypeValidation.DISABLED)
 

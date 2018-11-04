@@ -1,5 +1,6 @@
 package io.mockk.proxy.android.transformation
 
+import android.os.Build
 import com.android.dx.stock.ProxyBuilder
 import com.android.dx.stock.ProxyBuilder.MethodSetEntry
 import io.mockk.proxy.MockKAgentException
@@ -9,15 +10,30 @@ import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
-internal class AndroidSubclassInstrumentation : SubclassInstrumentation {
+internal class AndroidSubclassInstrumentation(
+    val inlineInstrumentationApplied: Boolean
+) : SubclassInstrumentation {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> subclass(clazz: Class<T>, interfaces: Array<Class<*>>): Class<T> =
         try {
             ProxyBuilder.forClass(clazz)
                 .implementing(*interfaces)
-                .onlyMethods(getMethodsToProxy(clazz, interfaces))
-                .withSharedClassLoader()
+                .apply {
+                    if (inlineInstrumentationApplied) {
+                        onlyMethods(getMethodsToProxy(clazz, interfaces))
+                    }
+                }
+                .apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//                        markTrusted();
+                    }
+                }
+                .apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        withSharedClassLoader()
+                    }
+                }
                 .buildProxyClass() as Class<T>
         } catch (e: Exception) {
             throw MockKAgentException("Failed to mock $clazz", e)
