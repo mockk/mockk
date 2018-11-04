@@ -1,5 +1,6 @@
 package io.mockk.proxy.android.transformation
 
+import android.os.Build
 import com.android.dx.stock.ProxyBuilder
 import com.android.dx.stock.ProxyBuilder.MethodSetEntry
 import io.mockk.proxy.MockKAgentException
@@ -17,7 +18,11 @@ internal class AndroidSubclassInstrumentation : SubclassInstrumentation {
             ProxyBuilder.forClass(clazz)
                 .implementing(*interfaces)
                 .onlyMethods(getMethodsToProxy(clazz, interfaces))
-                .withSharedClassLoader()
+                .apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        withSharedClassLoader()
+                    }
+                }
                 .buildProxyClass() as Class<T>
         } catch (e: Exception) {
             throw MockKAgentException("Failed to mock $clazz", e)
