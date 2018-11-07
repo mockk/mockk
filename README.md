@@ -23,6 +23,8 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development
+](https://www.youtube.com/watch?v=h8_LZn1DFDI)
 * new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
 * [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
 * [Kotlin 1.3](KOTLIN13.md) support v1.8.10.kotlin13 [#162](https://github.com/mockk/mockk/pull/162)
@@ -69,6 +71,8 @@ Table of contents:
 
 ## Examples & articles
 
+ - [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development
+](https://www.youtube.com/watch?v=h8_LZn1DFDI)
  - [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b)
  - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
