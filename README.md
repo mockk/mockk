@@ -27,7 +27,7 @@
 * new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
 * [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
 
-## Known issues
+### Known issues
 
 * reported by users: in Spring boot applications for some reason newer byte buddy version used by MockK get overriden with older version, so there is a need to override it(current BB version used by MockK can be checked here: https://github.com/mockk/mockk/blob/master/build.gradle#L6)  
 
