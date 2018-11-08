@@ -27,8 +27,6 @@
 * new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
 * [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
 
-Please report any issues
-
 ![MockK stats](https://mockk.io/doc/oct2018-stats.png)
 
 Table of contents:
