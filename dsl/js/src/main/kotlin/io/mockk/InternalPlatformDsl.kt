@@ -1,6 +1,7 @@
 package io.mockk
 
 import kotlin.coroutines.experimental.Continuation
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 actual object InternalPlatformDsl {
@@ -108,6 +109,15 @@ actual object InternalPlatformDsl {
 
         override fun increment() = value++
     }
+
+    actual fun reflectionCall(
+        callable: KCallable<*>,
+        vararg params: Any?
+    ): Any? {
+        throw MockKException("reflectionCall is not supported")
+    }
+
+
 }
 
 internal external object Kotlin {
