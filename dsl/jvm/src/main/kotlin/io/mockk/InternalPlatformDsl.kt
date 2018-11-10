@@ -165,7 +165,7 @@ actual object InternalPlatformDsl {
     actual fun dynamicSetField(self: Any, name: String, value: Any?) {
         val field = self.javaClass
             .declaredFields.firstOrNull { it.name == name }
-                ?: return
+            ?: return
 
         makeAccessible(field)
         field.set(self, value)
@@ -201,15 +201,21 @@ actual object InternalPlatformDsl {
         override fun increment() = atomicValue.getAndIncrement()
     }
 
-    actual fun reflectionCall(
-        callable: KCallable<*>,
-        vararg params: Any?
-    ): Any? {
-        try {
-            return callable.call(*params)
+    actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall<T>(lambda)
+}
+
+class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T> {
+    companion object {
+        val callMethod = JvmCoroutineCall::class.java.getMethod("callCoroutine", Continuation::class.java)
+    }
+
+    suspend fun callCoroutine() = lambda()
+
+    override fun callWithContinuation(continuation: Continuation<*>): T {
+        return try {
+            callMethod.invoke(this, continuation) as T
         } catch (ex: InvocationTargetException) {
             throw ex.targetException
         }
     }
-
 }

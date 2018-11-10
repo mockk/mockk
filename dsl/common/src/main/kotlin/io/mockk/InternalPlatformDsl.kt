@@ -35,10 +35,11 @@ expect object InternalPlatformDsl {
 
     fun counter(): InternalCounter
 
-    fun reflectionCall(
-        callable: KCallable<*>,
-        vararg params: Any?
-    ): Any?
+    fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T>
+}
+
+interface CoroutineCall<T> {
+    fun callWithContinuation(continuation: Continuation<*>): T
 }
 
 interface InternalRef<T> {

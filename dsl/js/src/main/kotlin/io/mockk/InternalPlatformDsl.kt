@@ -110,14 +110,9 @@ actual object InternalPlatformDsl {
         override fun increment() = value++
     }
 
-    actual fun reflectionCall(
-        callable: KCallable<*>,
-        vararg params: Any?
-    ): Any? {
-        throw MockKException("reflectionCall is not supported")
+    actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> {
+        throw MockKException("coroutineCall is not supported")
     }
-
-
 }
 
 internal external object Kotlin {

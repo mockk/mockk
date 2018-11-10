@@ -25,15 +25,14 @@ data class FunctionAnswer<T>(val answerFunc: (Call) -> T) : Answer<T> {
  * Delegates reply to the lambda suspendable function
  */
 data class CoFunctionAnswer<T>(val answerFunc: suspend (Call) -> T) : Answer<T> {
+
     override fun answer(call: Call): T {
         val continuation = call.invocation.args.lastOrNull() as? Continuation<*>
+            ?: throw MockKException("last parameter is not Continuation<*> for suspend call")
 
-        return InternalPlatformDsl.reflectionCall(
-            CoFunctionAnswer.coAnswerFunction,
-            this,
-            call,
-            continuation
-        ) as T
+        return InternalPlatformDsl.coroutineCall {
+            answerFunc(call)
+        }.callWithContinuation(continuation)
     }
 
     override suspend fun coAnswer(call: Call) = answerFunc(call)
@@ -41,7 +40,6 @@ data class CoFunctionAnswer<T>(val answerFunc: suspend (Call) -> T) : Answer<T> 
     override fun toString(): String = "coAnswer()"
 
     companion object {
-        val coAnswerFunction = CoFunctionAnswer::class.members.first { it.name == "coAnswer" }
     }
 }
 
