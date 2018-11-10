@@ -27,12 +27,15 @@ data class FunctionAnswer<T>(val answerFunc: (Call) -> T) : Answer<T> {
 data class CoFunctionAnswer<T>(val answerFunc: suspend (Call) -> T) : Answer<T> {
 
     override fun answer(call: Call): T {
-        val continuation = call.invocation.args.lastOrNull() as? Continuation<*>
-            ?: throw MockKException("last parameter is not Continuation<*> for suspend call")
-
-        return InternalPlatformDsl.coroutineCall {
-            answerFunc(call)
-        }.callWithContinuation(continuation)
+        val lastParam = call.invocation.args.lastOrNull()
+        return if (lastParam is Continuation<*>)
+            InternalPlatformDsl.coroutineCall {
+                answerFunc(call)
+            }.callWithContinuation(lastParam)
+        else
+            InternalPlatformDsl.runCoroutine {
+                answerFunc(call)
+            }
     }
 
     override suspend fun coAnswer(call: Call) = answerFunc(call)

@@ -6,7 +6,6 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeToString
-import kotlin.reflect.KClass
 
 class ChainedCallDetector(safeToString: SafeToString) {
     val log = safeToString(Logger<SignatureMatcherDetector>())

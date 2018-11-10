@@ -87,16 +87,16 @@ object JvmMockFactoryHelper {
 
     private fun Method.toDescription(): MethodDescription {
 
-        val isSuspend: () -> Boolean = if (
-            parameterTypes.lastOrNull()?.let { Continuation::class.java.isAssignableFrom(it) } == true
-        ) {
-            {
-                kotlinFunction?.isSuspend ?: false
-            }
+        val lastParam = parameterTypes.lastOrNull()
+        val isLastParamContinuation = lastParam?.let {
+            Continuation::class.java.isAssignableFrom(it)
+        } ?: false
+
+        val isSuspend: () -> Boolean = if (isLastParamContinuation) {
+            { kotlinFunction?.isSuspend ?: false }
         } else {
             { false }
         }
-
 
         return MethodDescription(
             name,
