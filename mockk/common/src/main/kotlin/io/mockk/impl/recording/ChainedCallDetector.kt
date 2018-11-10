@@ -131,11 +131,6 @@ class ChainedCallDetector(safeToString: SafeToString) {
         call = buildRecordedCall()
     }
 
-    @Suppress("UNCHECKED_CAST")
-    protected fun MethodDescription.isSuspend(): Boolean {
-        return InternalPlatform.isSuspend(paramTypes as List<KClass<Any>>)
-    }
-
     companion object {
         fun eqOrNullMatcher(arg: Any?): Matcher<Any> {
             return if (arg == null) {

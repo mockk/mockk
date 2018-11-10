@@ -1897,17 +1897,14 @@ class MockKStubScope<T, B>(
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
     infix fun answers(answer: MockKAnswerScope<T, B>.(Call) -> T) =
-        answers(FunctionAnswer({ MockKAnswerScope<T, B>(lambda, it).answer(it) }))
+        answers(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 
     infix fun <K : Any> propertyType(cls: KClass<K>) = MockKStubScope<T, K>(callRecorder, lambda)
 
     infix fun <K : Any> nullablePropertyType(cls: KClass<K>) = MockKStubScope<T, K?>(callRecorder, lambda)
 
-    infix fun coAnswers(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) = answers {
-        InternalPlatformDsl.runCoroutine {
-            answer(it)
-        }
-    }
+    infix fun coAnswers(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
+        answers(CoFunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 }
 
 /**
@@ -1937,14 +1934,10 @@ class MockKAdditionalAnswerScope<T, B>(
     infix fun andThenThrows(ex: Throwable) = andThenAnswer(ThrowingAnswer(ex))
 
     infix fun andThen(answer: MockKAnswerScope<T, B>.(Call) -> T) =
-        andThenAnswer(FunctionAnswer({ MockKAnswerScope<T, B>(lambda, it).answer(it) }))
+        andThenAnswer(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 
-    infix fun coAndThen(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) = andThen {
-        InternalPlatformDsl.runCoroutine {
-            answer(it)
-        }
-    }
-
+    infix fun coAndThen(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
+        andThenAnswer(CoFunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 }
 
 
@@ -3283,6 +3276,8 @@ interface CompositeMatcher<T> {
  */
 interface Answer<out T> {
     fun answer(call: Call): T
+
+    suspend fun coAnswer(call: Call): T = answer(call)
 }
 
 /**
@@ -3314,6 +3309,7 @@ data class MethodDescription(
     val returnType: KClass<*>,
     val returnTypeVoid: Boolean,
     val returnNothing: () -> Boolean,
+    val isSuspend: () -> Boolean,
     val declaringClass: KClass<*>,
     val paramTypes: List<KClass<*>>,
     val varArgsArg: Int,

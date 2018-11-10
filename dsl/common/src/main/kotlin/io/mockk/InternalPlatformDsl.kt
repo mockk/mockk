@@ -1,6 +1,7 @@
 package io.mockk
 
 import kotlin.coroutines.experimental.Continuation
+import kotlin.reflect.KCallable
 
 expect object InternalPlatformDsl {
     fun identityHashCode(obj: Any): Int
@@ -33,6 +34,11 @@ expect object InternalPlatformDsl {
     fun <T> threadLocal(initializer: () -> T): InternalRef<T>
 
     fun counter(): InternalCounter
+
+    fun reflectionCall(
+        callable: KCallable<*>,
+        vararg params: Any?
+    ): Any?
 }
 
 interface InternalRef<T> {

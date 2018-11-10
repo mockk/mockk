@@ -1,7 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.StackElement
-import io.mockk.impl.stub.Stub
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 expect object InternalPlatform {
@@ -24,8 +24,6 @@ expect object InternalPlatform {
     fun <K, V> synchronizedMutableMap(): MutableMap<K, V>
 
     fun packRef(arg: Any?): Any?
-
-    fun isSuspend(paramTypes: List<KClass<Any>>): Boolean
 
     fun prettifyRecordingException(ex: Throwable): Throwable
 

@@ -12,9 +12,14 @@ open class AnsweringState(recorder: CommonCallRecorder) : CallRecordingState(rec
     override fun call(invocation: Invocation): Any? {
         val stub = recorder.stubRepo.stubFor(invocation.self)
         stub.recordCall(invocation.copy(originalCall = { null }))
-        val answer = stub.answer(invocation)
-        log.debug { "Answering ${answer.toStr()} on $invocation" }
-        return answer
+        try {
+            val answer = stub.answer(invocation)
+            log.debug { "Answering ${answer.toStr()} on $invocation" }
+            return answer
+        } catch (ex: Exception) {
+            log.debug { "Throwing ${ex.toStr()} on $invocation" }
+            throw ex
+        }
     }
 
     override fun startStubbing() = recorder.factories.stubbingState(recorder)

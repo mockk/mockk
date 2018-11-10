@@ -3,7 +3,9 @@ package io.mockk.impl.stub
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
+import kotlin.coroutines.experimental.startCoroutine
 
 open class MockKStub(
     override val type: KClass<*>,
@@ -43,8 +45,7 @@ open class MockKStub(
             answers
                 .reversed()
                 .firstOrNull { it.matcher.match(invocation) }
-                    ?: return defaultAnswer(invocation)
-        }
+        } ?: return defaultAnswer(invocation)
 
         return with(invocationAndMatcher) {
             matcher.captureAnswer(invocation)
@@ -186,9 +187,9 @@ open class MockKStub(
             }
 
             val idx = search("io.mockk.proxy.MockKCallProxy", "call")
-                    ?: search("io.mockk.proxy.MockKProxyInterceptor", "intercept")
-                    ?: search("io.mockk.proxy.MockKProxyInterceptor", "interceptNoSuper")
-                    ?: return this
+                ?: search("io.mockk.proxy.MockKProxyInterceptor", "intercept")
+                ?: search("io.mockk.proxy.MockKProxyInterceptor", "interceptNoSuper")
+                ?: return this
 
             return this.drop(idx + 1)
         }
