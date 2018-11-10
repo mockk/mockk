@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
+import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties
@@ -84,18 +85,32 @@ object JvmMockFactoryHelper {
         }
     }
 
-    private fun Method.toDescription() =
-        MethodDescription(
+    private fun Method.toDescription(): MethodDescription {
+
+        val lastParam = parameterTypes.lastOrNull()
+        val isLastParamContinuation = lastParam?.let {
+            Continuation::class.java.isAssignableFrom(it)
+        } ?: false
+
+        val isSuspend: () -> Boolean = if (isLastParamContinuation) {
+            { kotlinFunction?.isSuspend ?: false }
+        } else {
+            { false }
+        }
+
+        return MethodDescription(
             name,
             returnType.kotlin,
             returnType == Void.TYPE,
             { kotlinFunction?.returnType?.toString() == "kotlin.Nothing" },
+            isSuspend,
             declaringClass.kotlin,
             parameterTypes.map { it.kotlin },
             varArgPosition(),
             Modifier.isPrivate(modifiers) ||
                     Modifier.isProtected(modifiers)
         )
+    }
 
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java

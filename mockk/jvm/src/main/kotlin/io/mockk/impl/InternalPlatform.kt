@@ -7,11 +7,13 @@ import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
 import java.lang.ref.WeakReference
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.Continuation
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.isSubclassOf
@@ -65,14 +67,6 @@ actual object InternalPlatform {
             arg
         else
             ref(arg)
-    }
-
-    actual fun isSuspend(paramTypes: List<KClass<Any>>): Boolean {
-        val sz = paramTypes.size
-        if (sz == 0) {
-            return false
-        }
-        return paramTypes[sz - 1].isSubclassOf(Continuation::class)
     }
 
     actual fun prettifyRecordingException(ex: Throwable): Throwable {

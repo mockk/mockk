@@ -1,6 +1,7 @@
 package io.mockk
 
 import kotlin.coroutines.Continuation
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 actual object InternalPlatformDsl {
@@ -107,6 +108,10 @@ actual object InternalPlatformDsl {
         override var value = 0L
 
         override fun increment() = value++
+    }
+
+    actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> {
+        throw MockKException("coroutineCall is not supported")
     }
 }
 

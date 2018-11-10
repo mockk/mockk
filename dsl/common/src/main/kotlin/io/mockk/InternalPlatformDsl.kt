@@ -33,6 +33,12 @@ expect object InternalPlatformDsl {
     fun <T> threadLocal(initializer: () -> T): InternalRef<T>
 
     fun counter(): InternalCounter
+
+    fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T>
+}
+
+interface CoroutineCall<T> {
+    fun callWithContinuation(continuation: Continuation<*>): T
 }
 
 interface InternalRef<T> {

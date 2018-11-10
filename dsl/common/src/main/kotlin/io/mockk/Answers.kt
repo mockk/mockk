@@ -1,5 +1,6 @@
 package io.mockk
 
+import kotlin.coroutines.experimental.Continuation
 import kotlin.math.min
 
 /**
@@ -18,6 +19,31 @@ data class FunctionAnswer<T>(val answerFunc: (Call) -> T) : Answer<T> {
     override fun answer(call: Call): T = answerFunc(call)
 
     override fun toString(): String = "answer()"
+}
+
+/**
+ * Delegates reply to the lambda suspendable function
+ */
+data class CoFunctionAnswer<T>(val answerFunc: suspend (Call) -> T) : Answer<T> {
+
+    override fun answer(call: Call): T {
+        val lastParam = call.invocation.args.lastOrNull()
+        return if (lastParam is Continuation<*>)
+            InternalPlatformDsl.coroutineCall {
+                answerFunc(call)
+            }.callWithContinuation(lastParam)
+        else
+            InternalPlatformDsl.runCoroutine {
+                answerFunc(call)
+            }
+    }
+
+    override suspend fun coAnswer(call: Call) = answerFunc(call)
+
+    override fun toString(): String = "coAnswer()"
+
+    companion object {
+    }
 }
 
 /**

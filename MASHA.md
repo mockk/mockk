@@ -18,7 +18,8 @@ We decided to give a try for a stem cell therapy and
 need to collect some amount of money 
 that we are not able to collect as a family.<br>
 <br>
-So if you would like to support us, please donate via this link: <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco">https://salveazaoinima.ro/en/campaigns/maria-pilipenco/</a><br> 
+So if you would like to support us, please donate via this link: <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco">https://salveazaoinima.ro/en/campaigns/maria-pilipenco/ (Donate online for the Open Campaign for Mariia Pylypenko)
+</a><br> 
 <br>
 As well we do have a blog: 
 <a href="http://mashawillgo.blogspot.com">link</a><br>

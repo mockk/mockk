@@ -23,26 +23,15 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines](https://www.youtube.com/watch?v=h8_LZn1DFDI)
 * new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
 * [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
-* [Kotlin 1.3](KOTLIN13.md) support v1.8.10.kotlin13 [#162](https://github.com/mockk/mockk/pull/162)
 
-Please report any issues
+### Known issues
 
-We are actively looking for contributors and co-authors. There are two ambitious goals, that look unachievable at first sight, but in my opinion is essential to win Kotlin competition and require just hard and inventive work. They are - support for Kotlin/JS and Kotlin/Native platforms. If you think you can accept one of this two challenges and join us please contact me.
+* reported by users: in Spring boot applications for some reason newer byte buddy version used by MockK get overriden with older version, so there is a need to override it(current BB version used by MockK can be checked here: https://github.com/mockk/mockk/blob/master/build.gradle#L6)  
 
-Besides,  contributions may cover:
-
-* documentation improvements
-* KDoc samples
-* refactorings
- * additional test coverage
-* bug fixes
-* features similar to Mockito
-* new features with user-oriented goals in mind
-* integration with RxJava, SpringFu, Spring test, e.t.c.
-
-![MockK march - may 2018](https://mockk.io/doc/mockk-march-jul.jpg)
+![MockK stats](https://mockk.io/doc/oct2018-stats.png)
 
 Table of contents:
 
@@ -69,6 +58,8 @@ Table of contents:
 
 ## Examples & articles
 
+ - [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development
+](https://www.youtube.com/watch?v=h8_LZn1DFDI)
  - [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b)
  - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests

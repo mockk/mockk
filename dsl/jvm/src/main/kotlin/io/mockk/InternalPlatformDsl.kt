@@ -2,6 +2,7 @@ package io.mockk
 
 import kotlinx.coroutines.runBlocking
 import java.lang.reflect.AccessibleObject
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.Continuation
@@ -34,6 +35,8 @@ actual object InternalPlatformDsl {
                 is DoubleArray -> this.contentToString()
                 is Array<*> -> this.contentDeepToString()
                 Void.TYPE.kotlin -> "void"
+                kotlin.coroutines.experimental.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
+                is Continuation<*> -> "continuation {}"
                 is KClass<*> -> this.simpleName ?: "<null name class>"
                 is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
                 is Function<*> -> "lambda {}"
@@ -162,7 +165,7 @@ actual object InternalPlatformDsl {
     actual fun dynamicSetField(self: Any, name: String, value: Any?) {
         val field = self.javaClass
             .declaredFields.firstOrNull { it.name == name }
-                ?: return
+            ?: return
 
         makeAccessible(field)
         field.set(self, value)
@@ -196,5 +199,23 @@ actual object InternalPlatformDsl {
             get() = atomicValue.get()
 
         override fun increment() = atomicValue.getAndIncrement()
+    }
+
+    actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall<T>(lambda)
+}
+
+class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T> {
+    companion object {
+        val callMethod = JvmCoroutineCall::class.java.getMethod("callCoroutine", Continuation::class.java)
+    }
+
+    suspend fun callCoroutine() = lambda()
+
+    override fun callWithContinuation(continuation: Continuation<*>): T {
+        return try {
+            callMethod.invoke(this, continuation) as T
+        } catch (ex: InvocationTargetException) {
+            throw ex.targetException
+        }
     }
 }
