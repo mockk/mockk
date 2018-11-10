@@ -3,9 +3,9 @@ package io.mockk.impl.stub
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
-import kotlin.coroutines.experimental.startCoroutine
+import kotlin.coroutines.startCoroutine
 
 open class MockKStub(
     override val type: KClass<*>,

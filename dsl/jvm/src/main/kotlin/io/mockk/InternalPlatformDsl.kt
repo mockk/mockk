@@ -35,7 +35,7 @@ actual object InternalPlatformDsl {
                 is DoubleArray -> this.contentToString()
                 is Array<*> -> this.contentDeepToString()
                 Void.TYPE.kotlin -> "void"
-                kotlin.coroutines.experimental.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
+                kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
                 is Continuation<*> -> "continuation {}"
                 is KClass<*> -> this.simpleName ?: "<null name class>"
                 is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"

@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties
