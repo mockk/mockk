@@ -29,7 +29,7 @@
 
 ### Known issues
 
-* reported by users: in Spring boot applications for some reason newer byte buddy version used by MockK get overriden with older version, so there is a need to override it(current BB version used by MockK can be checked here: https://github.com/mockk/mockk/blob/master/build.gradle#L6)  
+* Spring Boot plugin redefines ByteBuddy version. Need to override one manualy to [the version used by MockK](https://github.com/mockk/mockk/blob/master/build.gradle#L6) [#80](https://github.com/mockk/mockk/issues/80#issuecomment-397847582)
 
 ![MockK stats](https://mockk.io/doc/oct2018-stats.png)
 
