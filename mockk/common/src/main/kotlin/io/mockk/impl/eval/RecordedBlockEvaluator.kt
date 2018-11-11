@@ -50,7 +50,7 @@ abstract class RecordedBlockEvaluator(
                         callRecorderInstance,
                         i,
                         n,
-                        block
+                        blockWithRethrow
                     )
                 } catch (npe: NothingThrownNullPointerException) {
                     // skip
