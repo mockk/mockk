@@ -30,6 +30,7 @@
 ### Known issues
 
 * Spring Boot plugin redefines ByteBuddy version. Need to override one manualy to [the version used by MockK](https://github.com/mockk/mockk/blob/master/build.gradle#L6) [#80](https://github.com/mockk/mockk/issues/80#issuecomment-397847582)
+ * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
 
 ![MockK stats](https://mockk.io/doc/oct2018-stats.png)
 
