@@ -14,6 +14,8 @@ her condition is quite severe.
 There is basically no abilities available for her and 
 we have a problem even with feeding her. <br>
 <br>
+<img src="http://mockk.io/doc/masha.jpg" width="500px" />
+<br>
 We decided to give a try for a stem cell therapy and 
 need to collect some amount of money 
 that we are not able to collect as a family.<br>

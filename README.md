@@ -27,9 +27,11 @@
 * new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
 * [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
 
-### Known issues
+### Known issues & worth to remeber
 
-* reported by users: in Spring boot applications for some reason newer byte buddy version used by MockK get overriden with older version, so there is a need to override it(current BB version used by MockK can be checked here: https://github.com/mockk/mockk/blob/master/build.gradle#L6)  
+* Kotlin 1.3: remember there is two version lines supported right now: "v1.8.x" for Kotlin 1.2.y and "v1.8.x.kotlin13" for Kotlin 1.3
+* Spring Boot plugin redefines ByteBuddy version. Need to override one manualy to [the version used by MockK](https://github.com/mockk/mockk/blob/master/build.gradle#L6) [#80](https://github.com/mockk/mockk/issues/80#issuecomment-397847582)
+ * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
 
 ![MockK stats](https://mockk.io/doc/oct2018-stats.png)
 

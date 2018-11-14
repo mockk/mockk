@@ -3330,7 +3330,7 @@ data class MethodDescription(
         if (other !is MethodDescription) return false
 
         return when {
-            name !== other.name -> false
+            name != other.name -> false
             returnType != other.returnType -> false
             declaringClass != other.declaringClass -> false
             paramTypes != other.paramTypes -> false
