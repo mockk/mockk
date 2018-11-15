@@ -23,9 +23,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* MockK is now present on [Thoughtworks technology radar](https://www.thoughtworks.com/radar/languages-and-frameworks/mockk)
+* coroutines support was improved, instead of runBlocking it passes through continunation by reflection. v1.8.13 and v1.8.13.kotlin13 [#171](https://github.com/mockk/mockk/pull/171)
 * [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines](https://www.youtube.com/watch?v=h8_LZn1DFDI)
-* new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
-* [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
 
 ### Known issues & worth to remeber
 
