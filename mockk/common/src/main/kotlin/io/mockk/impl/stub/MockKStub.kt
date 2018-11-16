@@ -3,9 +3,7 @@ package io.mockk.impl.stub
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
-import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
-import kotlin.coroutines.experimental.startCoroutine
 
 open class MockKStub(
     override val type: KClass<*>,
@@ -88,6 +86,7 @@ open class MockKStub(
     protected open fun defaultAnswer(invocation: Invocation): Any? {
         return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
             if (shouldRelax(invocation)) {
+                if (invocation.method.returnsUnit) return Unit
                 return gatewayAccess.anyValueGenerator.anyValue(invocation.method.returnType) {
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
@@ -100,7 +99,7 @@ open class MockKStub(
     private fun shouldRelax(invocation: Invocation) = when {
         relaxed -> true
         relaxUnitFun &&
-                invocation.method.returnTypeVoid -> true
+                invocation.method.returnsUnit -> true
         else -> false
     }
 

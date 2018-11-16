@@ -3307,9 +3307,9 @@ data class Call(
 data class MethodDescription(
     val name: String,
     val returnType: KClass<*>,
-    val returnTypeVoid: Boolean,
-    val returnNothing: () -> Boolean,
-    val isSuspend: () -> Boolean,
+    val returnsUnit: Boolean,
+    val returnsNothing: Boolean,
+    val isSuspend: Boolean,
     val declaringClass: KClass<*>,
     val paramTypes: List<KClass<*>>,
     val varArgsArg: Int,

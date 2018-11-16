@@ -129,7 +129,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
         val lastCall = callRoundBuilder?.signedCalls?.lastOrNull()
                 ?: return false
 
-        return lastCall.method.returnNothing()
+        return lastCall.method.returnsNothing
     }
 
     /**

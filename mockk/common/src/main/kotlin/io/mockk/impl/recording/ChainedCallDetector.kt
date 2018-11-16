@@ -82,7 +82,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
                 )
             }
 
-            return ArrayMatcher<Any>(varArgMatchers.map { it as Matcher<*> } as List<Matcher<Any>>)
+            return ArrayMatcher<Any>(varArgMatchers.map { it } as List<Matcher<Any>>)
         }
 
         fun detectArgMatchers() {
@@ -103,7 +103,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
         @Suppress("UNCHECKED_CAST")
         fun buildRecordedCall(): RecordedCall {
-            if (zeroCall.method.isSuspend()) {
+            if (zeroCall.method.isSuspend) {
                 log.trace { "Suspend function found. Replacing continuation with any() matcher" }
                 argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
             }
