@@ -164,21 +164,6 @@ class VerificationErrorsTest {
         }
     }
 
-    @Test
-    @SkipInstrumentedAndroidTest
-    fun byteBuddyContraction() {
-        expectVerificationError("MockCls(BB).op") {
-            every { openMock.op(1, any()) } returns 3
-
-            openMock.op(1, 2)
-            openMock.op(1, 3)
-
-            verifyAll {
-                openMock.op(1, 2)
-            }
-        }
-    }
-
     data class IntWrapper(val data: Int)
 
     class MockCls {

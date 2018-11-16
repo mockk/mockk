@@ -179,7 +179,7 @@ open class MockKStub(
 
 
         fun List<StackElement>.cutMockKCallProxyCall(): List<StackElement> {
-            fun List<StackElement>.search(cls: String, mtd: String): Int? {
+            fun search(cls: String, mtd: String): Int? {
                 return indexOfFirst {
                     it.className == cls && it.methodName == mtd
                 }.let { if (it == -1) null else it }
@@ -193,16 +193,6 @@ open class MockKStub(
             return this.drop(idx + 1)
         }
 
-        fun List<StackElement>.unmangleByteBuddy(): List<StackElement> {
-            return map {
-                val idx = it.className.indexOf("\$ByteBuddy\$")
-                if (idx == -1)
-                    it
-                else
-                    it.copy(className = it.className.substring(0, idx) + "(BB)")
-            }
-        }
-
         val stackTraceHolder = InternalPlatform.captureStackTrace()
 
         val invocation = Invocation(
@@ -214,7 +204,6 @@ open class MockKStub(
             {
                 stackTraceHolder()
                     .cutMockKCallProxyCall()
-                    .unmangleByteBuddy()
             },
             originalPlusToString,
             fieldValueProvider

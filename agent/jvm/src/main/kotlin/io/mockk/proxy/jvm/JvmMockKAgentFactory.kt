@@ -8,10 +8,13 @@ import io.mockk.proxy.jvm.transformation.InlineInstrumentation
 import io.mockk.proxy.jvm.transformation.InliningClassTransformer
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
 import net.bytebuddy.ByteBuddy
+import net.bytebuddy.NamingStrategy
 import net.bytebuddy.agent.ByteBuddyAgent
+import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.scaffold.TypeValidation
 import java.lang.instrument.Instrumentation
 import java.util.*
+import java.util.concurrent.atomic.AtomicLong
 
 class JvmMockKAgentFactory : MockKAgentFactory {
     private lateinit var log: MockKAgentLogger
@@ -50,6 +53,8 @@ class JvmMockKAgentFactory : MockKAgentFactory {
 
                 val byteBuddy = ByteBuddy()
                     .with(TypeValidation.DISABLED)
+                    .with(MockKSubclassNamingStrategy())
+
 
                 jvmInstantiator = ObjenesisInstantiator(
                     logFactory.logger(ObjenesisInstantiator::class.java),
@@ -144,4 +149,16 @@ class JvmMockKAgentFactory : MockKAgentFactory {
     override val staticProxyMaker get() = jvmStaticProxyMaker
     override val constructorProxyMaker get() = jvmConstructorProxyMaker
 
+}
+
+internal class MockKSubclassNamingStrategy : NamingStrategy.AbstractBase() {
+    val counter = AtomicLong()
+
+    override fun name(superClass: TypeDescription): String {
+        var baseName = superClass.name
+        if (baseName.startsWith("java.")) {
+            baseName = "io.mockk.renamed.$baseName"
+        }
+        return "$baseName\$Subclass${counter.getAndIncrement()}"
+    }
 }

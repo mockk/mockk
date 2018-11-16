@@ -20,8 +20,11 @@ class ObjenesisInstantiator(
 
     private val instantiators = Collections.synchronizedMap(WeakHashMap<Class<*>, ObjectInstantiator<*>>())
 
-    override fun <T> instance(cls: Class<T>): T  {
-        if (!Modifier.isFinal(cls.modifiers)) {
+    override fun <T> instance(cls: Class<T>): T {
+        if (cls == Any::class.java) {
+            @Suppress("UNCHECKED_CAST")
+            return Any() as T
+        } else if (!Modifier.isFinal(cls.modifiers)) {
             try {
                 val instance = instantiateViaProxy(cls)
                 if (instance != null) {
@@ -40,21 +43,25 @@ class ObjenesisInstantiator(
     }
 
     private fun <T> instantiateViaProxy(cls: Class<T>): T? {
-        log.trace("Instantiating $cls via subclass proxy")
+        val proxyCls = if (!Modifier.isAbstract(cls.modifiers)) {
+            log.trace("Skipping instantiation subsclassing $cls because class is not abstract.")
+            cls
+        } else {
+            log.trace("Instantiating $cls via subclass proxy")
 
-        val classLoader = cls.classLoader
-        val monitor = classLoader ?: bootstrapMonitor
-        val proxyCls = typeCache.findOrInsert(
-            classLoader,
-            CacheKey(cls, setOf()),
-            {
-                byteBuddy.subclass(cls)
-                    .annotateType(*cls.annotations)
-                    .make()
-                    .load(classLoader)
-                    .loaded
-            }, monitor
-        )
+            val classLoader = cls.classLoader
+            typeCache.findOrInsert(
+                classLoader,
+                CacheKey(cls, setOf()),
+                {
+                    byteBuddy.subclass(cls)
+                        .annotateType(*cls.annotations)
+                        .make()
+                        .load(classLoader)
+                        .loaded
+                }, classLoader ?: bootstrapMonitor
+            )
+        }
 
         return cls.cast(instanceViaObjenesis(proxyCls))
     }
