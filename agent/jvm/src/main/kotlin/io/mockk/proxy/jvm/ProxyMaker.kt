@@ -102,7 +102,7 @@ internal class ProxyMaker(
         return if (Modifier.isFinal(clazz.modifiers)) {
             log.trace("Taking instance of $clazz itself because it is final.")
             clazz
-        } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers)) {
+        } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null) {
             log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
             clazz
         } else {
