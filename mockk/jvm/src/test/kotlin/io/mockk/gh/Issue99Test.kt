@@ -10,19 +10,14 @@ import kotlin.test.assertNotEquals
 
 class Issue99Test {
     @Test
-    fun someTest() {
-        val timestamp = Instant.now().toEpochMilli()
-        assertNotEquals(123L, timestamp)
-    }
-
-    @Test
-    fun someOtherTest() {
+    fun `unmockStatic() unmocks static mocks`() {
         mockkStatic(Instant::class)
-        every { Instant.now().toEpochMilli() } returns 123
+        every { Instant.now().toEpochMilli() } returns 123L
 
-        val timestamp = Instant.now().toEpochMilli()
-        assertEquals(123, timestamp)
+        assertEquals(123L, Instant.now().toEpochMilli())
 
         unmockkStatic(Instant::class)
+
+        assertNotEquals(123L, Instant.now().toEpochMilli())
     }
 }
