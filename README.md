@@ -715,7 +715,7 @@ class Car {
     private fun accelerate() = "going faster"
 }
 
-val mock = spyk<Car>()
+val mock = spyk<Car>(recordPrivateCalls = true)
 
 every { mock["accelerate"]() } returns "going not so fast"
 
