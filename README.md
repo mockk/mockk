@@ -478,6 +478,8 @@ every {
     direction = Direction.SOUTH
   )
 } answers {
+  println(list.captured())
+
   Outcome.RECORDED
 }
 
@@ -485,7 +487,6 @@ obj.recordTelemetry(speed = 15, direction = Direction.NORTH) // prints 15
 obj.recordTelemetry(speed = 16, direction = Direction.SOUTH) // prints 16
 
 verify(exactly = 2) { obj.recordTelemetry(speed = or(15, 16), direction = any()) }
-assertTrue(list.containsAll(15, 16))
 ```
 
 ### Verification atLeast, atMost or exactly times
