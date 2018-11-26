@@ -1,6 +1,6 @@
 <div class="helpmasha">
+    Yes! We have maid it. We collected 100% for my stem cell theraphy for my kid <a href="/MASHA">Masha</a>
     <img src="doc/heart.png" width="40px" align="top" />
-    <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco/">Help</a> my kid <a href="/MASHA">Masha</a> with a stem cell theraphy
 </div>
 
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
