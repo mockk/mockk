@@ -4,10 +4,7 @@ description: You can do good thing by donating for a stem cell therapy for my ki
 ---
 
 <div class="charitytext">
-<b>Update:</b> Yes! We have maid it! 100% <br>
-But this is just first step. <br>
-Hardest is waiting for results, more and more till we will aproach the date of surgery <br>
-Thanks! <br>
+<b>Update:</b> Yes! We have maid it! 100% But this is just first step. Hardest is waiting for results, more and more till we will aproach the date of surgery  Thanks!
 </div>
 <br><br><br>
 <div class="charitytext">
