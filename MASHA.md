@@ -7,9 +7,9 @@ description: You can do good thing by donating for a stem cell therapy for my ki
 <b>Update:</b> Yes! We have maid it! 100% <br>
 But this is just first step. <br>
 Hardest is waiting for results, more and more till we will aproach the date of surgery <br>
-Thanks!
+Thanks! <br>
 </div>
-
+<br><br><br>
 <div class="charitytext">
 Hi, hope you are doing well.<br>
 <br>
