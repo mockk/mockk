@@ -1,7 +1,3 @@
-<div class="helpmasha">
-    Thank you for donations for <a href="/MASHA">Masha</a>
-    <img src="doc/heart.png" width="40px" align="top" />
-</div>
 
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
