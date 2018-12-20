@@ -692,7 +692,7 @@ verify {
 }
 ```
 
-When `@JvmName` is used consider using it.
+When `@JvmName` is used, just use it as a classname.
 
 KHttp.kt:
 ```
