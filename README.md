@@ -692,6 +692,21 @@ verify {
 }
 ```
 
+When `@JvmName` is used consider using it.
+
+KHttp.kt:
+```
+@file:JvmName("KHttp")
+
+package khttp
+// ... KHttp code 
+```
+
+Testing code:
+```
+mockkStatic("khttp.KHttp")
+```
+
 Sometimes you need to know a little bit more to mock extension function. 
 For example `File.endsWith()` extension function has totally unpredictable `classname`:
 ```kotlin
