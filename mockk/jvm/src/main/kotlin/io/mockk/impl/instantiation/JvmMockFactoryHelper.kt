@@ -9,6 +9,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
 import kotlin.coroutines.Continuation
+import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties
@@ -85,43 +86,11 @@ object JvmMockFactoryHelper {
         }
     }
 
-    private fun Method.toDescription(): MethodDescription {
-
-        val lastParam = parameterTypes.lastOrNull()
-        val isLastParamContinuation = lastParam?.let {
-            Continuation::class.java.isAssignableFrom(it)
-        } ?: false
-
-        val isSuspend: () -> Boolean = if (isLastParamContinuation) {
-            { kotlinFunction?.isSuspend ?: false }
-        } else {
-            { false }
-        }
-
-        return MethodDescription(
-            name,
-            returnType.kotlin,
-            returnType == Void.TYPE,
-            { kotlinFunction?.returnType?.toString() == "kotlin.Nothing" },
-            isSuspend,
-            declaringClass.kotlin,
-            parameterTypes.map { it.kotlin },
-            varArgPosition(),
-            Modifier.isPrivate(modifiers) ||
-                    Modifier.isProtected(modifiers)
-        )
-    }
-
-    fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
-    fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
-
-    val cache = InternalPlatform.weakMap<Method, Int>()
-
-    fun Method.varArgPosition(): Int {
+    internal fun Method.toDescription(): MethodDescription {
         val cached = cache[this]
         if (cached != null) return cached
 
-        val kFunc =
+        val kotlinFunc =
             try {
                 // workaround for
                 //  https://github.com/mockk/mockk/issues/18
@@ -131,16 +100,61 @@ object JvmMockFactoryHelper {
                 null
             }
 
-        val result = if (kFunc != null)
-            kFunc.parameters
-                .filter { it.kind != KParameter.Kind.INSTANCE }
-                .indexOfFirst { it.isVararg }
-        else
-            if (isVarArgs) parameterTypes.size - 1 else -1
+        val vararg = when {
+            kotlinFunc != null ->
+                kotlinFunc.parameters
+                    .filter { it.kind != KParameter.Kind.INSTANCE }
+                    .indexOfFirst { it.isVararg }
+
+            isVarArgs ->
+                parameterTypes.size - 1
+
+            else -> -1
+        }
+
+        val returnTypeIsUnit = when {
+            kotlinFunc != null ->
+                kotlinFunc.returnType.toString() == "kotlin.Unit"
+            else ->
+                returnType == Void.TYPE
+        }
+
+        val returnTypeIsNothing =
+            kotlinFunc?.returnType?.toString() == "kotlin.Nothing"
+
+        val isSuspend = when {
+            kotlinFunc != null ->
+                kotlinFunc.isSuspend
+
+            else -> parameterTypes.lastOrNull()?.let {
+                Continuation::class.java.isAssignableFrom(it)
+            } ?: false
+        }
+
+        val returnType = kotlinFunc?.returnType as? KClass<*> ?: returnType.kotlin
+
+        val result = MethodDescription(
+            name,
+            returnType,
+            returnTypeIsUnit,
+            returnTypeIsNothing,
+            isSuspend,
+            declaringClass.kotlin,
+            parameterTypes.map { it.kotlin },
+            vararg,
+            Modifier.isPrivate(modifiers) ||
+                    Modifier.isProtected(modifiers)
+        )
 
         cache[this] = result
 
         return result
     }
+
+    fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
+    fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
+
+    val cache = InternalPlatform.weakMap<Method, MethodDescription>()
+
 
 }

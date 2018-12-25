@@ -294,6 +294,10 @@ class InvokeMatcher<in T : Any>(val block: (T) -> Unit) : Matcher<T>, Equivalent
 /**
  * Checks if assertion is true
  */
+@Deprecated(
+    "'AssertMatcher' is problematic in case of many calls being verified",
+    ReplaceWith("FunctionMatcher(assertFunction, argumentType)")
+)
 class AssertMatcher<in T : Any>(
     val assertFunction: (T?) -> Boolean,
     val msg: String? = null,

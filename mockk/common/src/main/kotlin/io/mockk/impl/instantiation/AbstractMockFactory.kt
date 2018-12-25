@@ -48,7 +48,11 @@ abstract class AbstractMockFactory(
             true
         )
 
-        log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
+        if (moreInterfaces.isEmpty()) {
+            log.debug { "Creating mockk for ${mockType.toStr()} name=$newName" }
+        } else {
+            log.debug { "Creating mockk for ${mockType.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
+        }
 
         log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }
         val proxy = newProxy(mockType, moreInterfaces, stub)
@@ -76,7 +80,11 @@ abstract class AbstractMockFactory(
             else -> throw MockKException("Either mockType or objToCopy should not be null")
         }
 
-        log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
+        if (moreInterfaces.isEmpty()) {
+            log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName" }
+        } else {
+            log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
+        }
 
         val stub = SpyKStub(
             actualCls,
@@ -120,7 +128,7 @@ abstract class AbstractMockFactory(
         return proxy
     }
 
-    override fun isMock(value: Any) = gatewayAccess.stubRepository.get(value) != null
+    override fun isMock(value: Any) = gatewayAccess.stubRepository[value] != null
 
     companion object {
         val idCounter = InternalPlatformDsl.counter()

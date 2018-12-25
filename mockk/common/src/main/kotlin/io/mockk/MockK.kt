@@ -171,12 +171,13 @@ fun coVerify(
 }
 
 /**
- * Verifies that all calls inside [verifyBlock] happened, **not** verifying any order.
+ * Verifies that all calls inside [verifyBlock] happened. **Does not** verify any order.
  *
  * If ordering is important, use [verifyOrder]
  *
  * @see verify
  * @see verifyOrder
+ * @see verifySequence
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -191,6 +192,8 @@ fun verifyAll(
  * Verifies that all calls inside [verifyBlock] happened, checking that they happened in the order declared.
  *
  * @see verify
+ * @see verifyAll
+ * @see verifySequence
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  *
@@ -208,6 +211,8 @@ fun verifyOrder(
  * Verifies that all calls inside [verifyBlock] happened, and no other call was made to those mocks
  *
  * @see verify
+ * @see verifyOrder
+ * @see verifyAll
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  *
@@ -219,6 +224,63 @@ fun verifySequence(
     verifyBlock: MockKVerificationScope.() -> Unit
 ) = MockK.useImpl {
     MockKDsl.internalVerifySequence(inverse, verifyBlock)
+}
+
+/**
+ * Verifies that all calls inside [verifyBlock] happened. **Does not** verify any order. Coroutine version
+ *
+ * If ordering is important, use [verifyOrder]
+ *
+ * @see coVerify
+ * @see coVerifyOrder
+ * @see coVerifySequence
+ *
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
+ */
+fun coVerifyAll(
+    inverse: Boolean = false,
+    verifyBlock: suspend MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
+    MockKDsl.internalCoVerifyAll(inverse, verifyBlock)
+}
+
+/**
+ * Verifies that all calls inside [verifyBlock] happened, checking that they happened in the order declared.
+ * Coroutine version.
+ *
+ * @see coVerify
+ * @see coVerifyAll
+ * @see coVerifySequence
+ *
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
+ *
+ * @sample [io.mockk.VerifySample.verifyOrder]
+ * @sample [io.mockk.VerifySample.failingVerifyOrder]
+ */
+fun coVerifyOrder(
+    inverse: Boolean = false,
+    verifyBlock: suspend MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
+    MockKDsl.internalCoVerifyOrder(inverse, verifyBlock)
+}
+
+/**
+ * Verifies that all calls inside [verifyBlock] happened, and no other call was made to those mocks
+ *
+ * @see coVerify
+ * @see coVerifyOrder
+ * @see coVerifyAll
+ *
+ * @param inverse when true, the verification will check that the behaviour specified did **not** happen
+ *
+ * @sample [io.mockk.VerifySample.verifySequence]
+ * @sample [io.mockk.VerifySample.failingVerifySequence]
+ */
+fun coVerifySequence(
+    inverse: Boolean = false,
+    verifyBlock: suspend MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
+    MockKDsl.internalCoVerifySequence(inverse, verifyBlock)
 }
 
 /**

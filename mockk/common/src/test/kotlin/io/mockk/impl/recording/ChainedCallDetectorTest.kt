@@ -30,9 +30,6 @@ class ChainedCallDetectorTest {
         every { call1.method.varArgsArg } returns -1
         every { call2.method.varArgsArg } returns -1
 
-        every { call1.method.isSuspend } returns { false }
-        every { call2.method.isSuspend } returns { false }
-
         detector.detect(listOf(callRound1, callRound2), 0, hashMapOf())
 
         assertEquals("abc", detector.call.matcher.method.name)
@@ -58,9 +55,6 @@ class ChainedCallDetectorTest {
 
         every { call1.method.varArgsArg } returns -1
         every { call2.method.varArgsArg } returns -1
-
-        every { call1.method.isSuspend } returns { false }
-        every { call2.method.isSuspend } returns { false }
 
         detector.detect(listOf(callRound1, callRound2), 0, matcherMap)
 

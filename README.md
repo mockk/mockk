@@ -1,7 +1,3 @@
-<div class="helpmasha">
-    <img src="doc/heart.png" width="40px" align="top" />
-    <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco/">Help</a> my kid <a href="/MASHA">Masha</a> with a stem cell theraphy
-</div>
 
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
@@ -23,11 +19,11 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* MockK is now present on [Thoughtworks technology radar](https://www.thoughtworks.com/radar/languages-and-frameworks/mockk)
+* coroutines support was improved, instead of runBlocking it passes through continunation by reflection. v1.8.13 and v1.8.13.kotlin13 [#171](https://github.com/mockk/mockk/pull/171)
 * [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines](https://www.youtube.com/watch?v=h8_LZn1DFDI)
-* new function `clearAllMocks` is available to clear the state of all mocks v1.8.11 and v1.8.11.kotlin13 [#153](https://github.com/mockk/mockk/pull/153)
-* [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b) - Medium article about problems MockK solves 
 
-### Known issues & worth to remeber
+### Known issues & worth to remember
 
 * Kotlin 1.3: remember there is two version lines supported right now: "v1.8.x" for Kotlin 1.2.y and "v1.8.x.kotlin13" for Kotlin 1.3
 * Spring Boot plugin redefines ByteBuddy version. Need to override one manualy to [the version used by MockK](https://github.com/mockk/mockk/blob/master/build.gradle#L6) [#80](https://github.com/mockk/mockk/issues/80#issuecomment-397847582)
@@ -59,7 +55,10 @@ Table of contents:
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
-
+ - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
+ - [MockK 功能介紹：mockk, every, Annotation, verify](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-2-4-4be059331110)
+ - [MockK 功能介紹：Relaxed Mocks, 再談 Verify, Capture](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-3-4-79b40fb73964)
+ - [如何測試 Static Method, Singleton](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-4-4-f82443848a3a)
  - [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development
 ](https://www.youtube.com/watch?v=h8_LZn1DFDI)
  - [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b)
@@ -67,6 +66,7 @@ Table of contents:
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
  - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
  - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
+ - [Mocking in Kotlin with MockK - Yannick De Turck](https://ordina-jworks.github.io/testing/2018/02/05/Writing-tests-in-Kotlin-with-MockK.html)
  
 #### Kotlin Academy <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
 
@@ -692,6 +692,21 @@ verify {
 }
 ```
 
+When `@JvmName` is used just use it as a classname.
+
+KHttp.kt:
+```
+@file:JvmName("KHttp")
+
+package khttp
+// ... KHttp code 
+```
+
+Testing code:
+```
+mockkStatic("khttp.KHttp")
+```
+
 Sometimes you need to know a little bit more to mock extension function. 
 For example `File.endsWith()` extension function has totally unpredictable `classname`:
 ```kotlin
@@ -712,7 +727,7 @@ class Car {
     private fun accelerate() = "going faster"
 }
 
-val mock = spyk<Car>()
+val mock = spyk<Car>(recordPrivateCalls = true)
 
 every { mock["accelerate"]() } returns "going not so fast"
 
@@ -786,6 +801,22 @@ val thread = Thread(spy as Runnable)
 thread.start()
 thread.join()
 
+```
+
+### Mocking nothing
+
+Nothing special here. If you have a function returning `Nothing`:
+
+```kotlin
+fun quit(status: Int): Nothing {
+    exitProcess(status)
+}
+```
+
+Then you need to throw some exception as a behaviour:
+
+```kotlin
+every { quit(1) } throws Exception("this is a test")
 ```
 
 ## Settings file
@@ -878,14 +909,10 @@ Few special matchers available in verification mode only:
 
 |Matcher|Description|
 |-------|-----------|
-|`run { code }`|matches any value and allows to execute some code|
-|`runNullable { code }`|matches any nullable value and allows to execute some code|
-|`coRun { code }`|matches any value and allows to execute some coroutine code|
-|`coRunNullable { code }`|matches any nullable value and allows to execute some coroutine code|
-|`assert(msg) { predicate }`|matches any value and checks the assertion|
-|`assertNullable(msg) { predicate }`|matches any nullable value and checks the assertion|
-|`coAssert(msg) { predicate }`|matches any value and checks the coroutine assertion|
-|`coAssertNullable(msg) { predicate }`|matches any nullable value and checks the coroutine assertion|
+|`withArg { code }`|matches any value and allows to execute some code|
+|`withNullableArg { code }`|matches any nullable value and allows to execute some code|
+|`coWithArg { code }`|matches any value and allows to execute some coroutine code|
+|`coWithNullableArg { code }`|matches any nullable value and allows to execute some coroutine code|
 
 ### Validators
 

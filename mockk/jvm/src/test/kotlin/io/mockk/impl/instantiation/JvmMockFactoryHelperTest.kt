@@ -1,8 +1,8 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.JvmVarArgsCls
-import io.mockk.impl.instantiation.JvmMockFactoryHelper.varArgPosition
 import kotlin.test.Test
+import io.mockk.impl.instantiation.JvmMockFactoryHelper.toDescription
 import kotlin.test.assertEquals
 
 class JvmMockFactoryHelperTest {
@@ -13,19 +13,19 @@ class JvmMockFactoryHelperTest {
 
         assertEquals(
                 -1,
-                clazz.getMethod("noArg").varArgPosition()
+            clazz.getMethod("noArg").toDescription().varArgsArg
         )
         assertEquals(
                 -1,
-                clazz.getMethod("noVarArg", Unit.javaClass).varArgPosition()
+            clazz.getMethod("noVarArg", Unit.javaClass).toDescription().varArgsArg
                 )
         assertEquals(
                 0,
-                clazz.getMethod("varArgFirst", Array<Unit>::class.java, Unit.javaClass).varArgPosition()
+            clazz.getMethod("varArgFirst", Array<Unit>::class.java, Unit.javaClass).toDescription().varArgsArg
         )
         assertEquals(
                 1,
-                clazz.getMethod("varArgLast", Unit.javaClass, Array<Unit>::class.java).varArgPosition()
+            clazz.getMethod("varArgLast", Unit.javaClass, Array<Unit>::class.java).toDescription().varArgsArg
         )
     }
 
@@ -35,7 +35,7 @@ class JvmMockFactoryHelperTest {
 
         assertEquals(
                 1,
-                        clazz.getMethod("varArgsOp", Int::class.javaPrimitiveType, IntArray::class.java).varArgPosition()
+            clazz.getMethod("varArgsOp", Int::class.javaPrimitiveType, IntArray::class.java).toDescription().varArgsArg
         )
     }
 }
