@@ -90,6 +90,17 @@ class AnswersTest {
 
         assertEquals(5, spy.lambdaOp(1, { 3 }))
 
-        verify { spy.lambdaOp(1, assert { it.invoke() == 3 }) }
+        verify { spy.lambdaOp(1, any()) }
+    }
+
+    @Test
+    fun answersNthArg() {
+        every { spy.lambdaOp(any(), any()) } returnsArgument 0
+
+        assertEquals(1, spy.lambdaOp(1) { 3 })
+        assertEquals(2, spy.lambdaOp(2) { 3 })
+        assertEquals(5, spy.lambdaOp(5) { 3 })
+
+        verify { spy.lambdaOp(1, any()) }
     }
 }
