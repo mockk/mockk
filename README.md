@@ -909,14 +909,10 @@ Few special matchers available in verification mode only:
 
 |Matcher|Description|
 |-------|-----------|
-|`run { code }`|matches any value and allows to execute some code|
-|`runNullable { code }`|matches any nullable value and allows to execute some code|
-|`coRun { code }`|matches any value and allows to execute some coroutine code|
-|`coRunNullable { code }`|matches any nullable value and allows to execute some coroutine code|
-|`assert(msg) { predicate }`|matches any value and checks the assertion|
-|`assertNullable(msg) { predicate }`|matches any nullable value and checks the assertion|
-|`coAssert(msg) { predicate }`|matches any value and checks the coroutine assertion|
-|`coAssertNullable(msg) { predicate }`|matches any nullable value and checks the coroutine assertion|
+|`withArg { code }`|matches any value and allows to execute some code|
+|`withNullableArg { code }`|matches any nullable value and allows to execute some code|
+|`coWithArg { code }`|matches any value and allows to execute some coroutine code|
+|`coWithNullableArg { code }`|matches any nullable value and allows to execute some coroutine code|
 
 ### Validators
 

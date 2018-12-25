@@ -550,10 +550,9 @@ open class MockKMatcherScope(
     }
 
     inline fun <reified T : Any> match(noinline matcher: (T) -> Boolean): T = matchNullable {
-        if (it == null) {
-            false
-        } else {
-            matcher(it)
+        when (it) {
+            null -> false
+            else -> matcher(it)
         }
     }
 
@@ -1791,9 +1790,17 @@ class MockKVerificationScope(
     callRecorder: CallRecorder,
     lambda: CapturingSlot<Function<*>>
 ) : MockKMatcherScope(callRecorder, lambda) {
+    @Deprecated(
+        "'assert' is problematic in case of many calls being verified",
+        ReplaceWith("match(assertion)")
+    )
     inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T =
         match(AssertMatcher({ assertion(it as T) }, msg, T::class))
 
+    @Deprecated(
+        "'assertNullable' is problematic in case of many calls being verified",
+        ReplaceWith("matchNullable(assertion)")
+    )
     inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T =
         match(AssertMatcher(assertion, msg, T::class, nullable = true))
 
@@ -1817,6 +1824,10 @@ class MockKVerificationScope(
     inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
         runNullable(captureBlock)
 
+    @Deprecated(
+        "'coAssert' is problematic in case of many calls being verified",
+        ReplaceWith("coMatch(assertion)")
+    )
     inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T =
         assert(msg) {
             InternalPlatformDsl.runCoroutine {
@@ -1824,6 +1835,10 @@ class MockKVerificationScope(
             }
         }
 
+    @Deprecated(
+        "'coAssertNullable' is problematic in case of many calls being verified",
+        ReplaceWith("coMatchNullable(assertion)")
+    )
     inline fun <reified T : Any> coAssertNullable(msg: String? = null, noinline assertion: suspend (T?) -> Boolean): T =
         assertNullable(msg) {
             InternalPlatformDsl.runCoroutine {
