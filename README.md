@@ -803,6 +803,22 @@ thread.join()
 
 ```
 
+### Mocking nothing
+
+Nothing special here. If you have a function returning `Nothing`:
+
+```kotlin
+fun quit(status: Int): Nothing {
+    exitProcess(status)
+}
+```
+
+Then you need to throw some exception as a behaviour:
+
+```kotlin
+every { quit(1) } throws Exception("this is a test")
+```
+
 ## Settings file
 
 To adjust parameters globaly there is a posibility to specify few settings in a resource file.
