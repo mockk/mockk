@@ -1,7 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
