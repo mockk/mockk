@@ -204,6 +204,36 @@ object MockKDsl {
     }
 
     /**
+     * Shortcut for ordered calls verification
+     */
+    fun internalCoVerifyOrder(
+        inverse: Boolean = false,
+        verifyBlock: suspend MockKVerificationScope.() -> Unit
+    ) {
+        internalCoVerify(Ordering.ORDERED, inverse, verifyBlock = verifyBlock)
+    }
+
+    /**
+     * Shortcut for all calls verification
+     */
+    fun internalCoVerifyAll(
+        inverse: Boolean = false,
+        verifyBlock: suspend MockKVerificationScope.() -> Unit
+    ) {
+        internalCoVerify(Ordering.ALL, inverse, verifyBlock = verifyBlock)
+    }
+
+    /**
+     * Shortcut for sequence calls verification
+     */
+    fun internalCoVerifySequence(
+        inverse: Boolean = false,
+        verifyBlock: suspend MockKVerificationScope.() -> Unit
+    ) {
+        internalCoVerify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
+    }
+
+    /**
      * Resets information associated with mock
      */
     inline fun internalClearMocks(
