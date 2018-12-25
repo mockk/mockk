@@ -4,6 +4,10 @@ description: You can do good thing by donating for a stem cell therapy for my ki
 ---
 
 <div class="charitytext">
+<b>Update:</b> Yes! We have maid it! 100% But this is just first step. Hardest is waiting for results, more and more till we will aproach the date of surgery  Thanks!
+</div>
+<br><br><br>
+<div class="charitytext">
 Hi, hope you are doing well.<br>
 <br>
 I am not only the author of MockK, but I am as well a father of kid with cerebral palsy.<br>

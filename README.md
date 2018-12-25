@@ -1,7 +1,3 @@
-<div class="helpmasha">
-    <img src="doc/heart.png" width="40px" align="top" />
-    <a href="https://salveazaoinima.ro/en/campaigns/maria-pilipenco/">Help</a> my kid <a href="/MASHA">Masha</a> with a stem cell theraphy
-</div>
 
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
@@ -59,7 +55,10 @@ Table of contents:
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
-
+ - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
+ - [MockK 功能介紹：mockk, every, Annotation, verify](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-2-4-4be059331110)
+ - [MockK 功能介紹：Relaxed Mocks, 再談 Verify, Capture](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-3-4-79b40fb73964)
+ - [如何測試 Static Method, Singleton](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-4-4-f82443848a3a)
  - [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development
 ](https://www.youtube.com/watch?v=h8_LZn1DFDI)
  - [MockK: intentions](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b)
@@ -67,6 +66,7 @@ Table of contents:
  - [kotlin-fullstack-sample](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
  - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
  - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
+ - [Mocking in Kotlin with MockK - Yannick De Turck](https://ordina-jworks.github.io/testing/2018/02/05/Writing-tests-in-Kotlin-with-MockK.html)
  
 #### Kotlin Academy <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
 
@@ -692,6 +692,21 @@ verify {
 }
 ```
 
+When `@JvmName` is used just use it as a classname.
+
+KHttp.kt:
+```
+@file:JvmName("KHttp")
+
+package khttp
+// ... KHttp code 
+```
+
+Testing code:
+```
+mockkStatic("khttp.KHttp")
+```
+
 Sometimes you need to know a little bit more to mock extension function. 
 For example `File.endsWith()` extension function has totally unpredictable `classname`:
 ```kotlin
@@ -712,7 +727,7 @@ class Car {
     private fun accelerate() = "going faster"
 }
 
-val mock = spyk<Car>()
+val mock = spyk<Car>(recordPrivateCalls = true)
 
 every { mock["accelerate"]() } returns "going not so fast"
 
