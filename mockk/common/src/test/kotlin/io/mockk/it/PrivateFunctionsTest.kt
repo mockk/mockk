@@ -17,6 +17,12 @@ class PrivateFunctionsTest {
         private fun x() = "abc"
     }
 
+    class MockCls {
+        fun y(a: Int, b: Int?, d: Def?) = x(a, b, d)
+
+        private fun x(a: Int, b: Int?, d: Def?) = "abc $a $b"
+    }
+
     @Test
     fun spyPrivateMethod() {
         val mock = spyk<Abc>(recordPrivateCalls = true)
@@ -30,7 +36,7 @@ class PrivateFunctionsTest {
 
     @Test
     fun objectPrivateMethod() {
-        objectMockk(Def, recordPrivateCalls = true).use {
+        mockkObject(Def, recordPrivateCalls = true) {
             every { Def["x"]() } returns "ghi"
             assertEquals("ghi", Def.y())
             verify {
@@ -52,7 +58,7 @@ class PrivateFunctionsTest {
 
     @Test
     fun objectNoRecordingPrivateMethod() {
-        objectMockk(Def).use {
+        mockkObject(Def) {
             every { Def["x"]() } returns "ghi"
             assertEquals("ghi", Def.y())
             verifySequence {
@@ -61,5 +67,14 @@ class PrivateFunctionsTest {
         }
     }
 
+    @Test
+    fun privateCallsWithNullability() {
+        val mock = spyk<MockCls>(recordPrivateCalls = true)
+        every { mock["x"](any<Int>(), any<Int>(), any<Def>()) } returns "test"
+
+        assertEquals("test", mock.y(1, 2, null))
+
+        verify { mock["x"](any<Int>(), any<Int>(), any<Def>()) }
+    }
 
 }
