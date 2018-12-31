@@ -25,6 +25,7 @@
 
 ### Known issues & worth to remember
 
+* Gradle 5+: seems while running in IDE runtime libraries are skipped. Check [workaround](https://github.com/mockk/mockk/issues/211#issuecomment-450694639)
 * Kotlin 1.3: remember there is two version lines supported right now: "v1.8.x" for Kotlin 1.2.y and "v1.8.x.kotlin13" for Kotlin 1.3
 * Spring Boot plugin redefines ByteBuddy version. Need to override one manualy to [the version used by MockK](https://github.com/mockk/mockk/blob/master/build.gradle#L6) [#80](https://github.com/mockk/mockk/issues/80#issuecomment-397847582)
  * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
