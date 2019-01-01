@@ -1,8 +1,12 @@
 package io.mockk.gh
 
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.spyk
 import kotlin.test.Test
 
+@Suppress("UNUSED_PARAMETER")
 class Issue70Test {
     class Cls {
         private fun <T> updateItemInDb(id: Long, column: String, data: T) {

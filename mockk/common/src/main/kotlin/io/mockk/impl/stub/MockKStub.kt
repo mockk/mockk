@@ -3,6 +3,7 @@ package io.mockk.impl.stub
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
+import io.mockk.impl.log.Logger
 import kotlin.reflect.KClass
 
 open class MockKStub(
@@ -13,11 +14,15 @@ open class MockKStub(
     val gatewayAccess: StubGatewayAccess,
     val recordPrivateCalls: Boolean
 ) : Stub {
+    val log = gatewayAccess.safeToString(Logger<MockKStub>())
+
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
     private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
     private val recordedCallsByMethod =
         InternalPlatform.synchronizedMutableMap<MethodDescription, MutableList<Invocation>>()
+    private val exclusions = InternalPlatform.synchronizedMutableList<InvocationMatcher>()
+    private val verifiedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
 
     lateinit var hashCodeStr: String
 
@@ -104,21 +109,29 @@ open class MockKStub(
     }
 
     override fun recordCall(invocation: Invocation) {
-        val record = if (recordPrivateCalls)
-            true
-        else
-            !invocation.method.privateCall
+        val record = when {
+            checkExcluded(invocation) -> {
+                log.debug { "Call excluded: $invocation" }
+                false
+            }
+            recordPrivateCalls -> true
+            else -> !invocation.method.privateCall
+        }
 
         if (record) {
             recordedCalls.add(invocation)
 
             synchronized(recordedCallsByMethod) {
-                recordedCallsByMethod.getOrPut(invocation.method, { mutableListOf() })
+                recordedCallsByMethod.getOrPut(invocation.method) { mutableListOf() }
                     .add(invocation)
             }
 
             gatewayAccess.stubRepository.notifyCallRecorded(this)
         }
+    }
+
+    private fun checkExcluded(invocation: Invocation) = synchronized(exclusions) {
+        exclusions.any { it.match(invocation) }
     }
 
     override fun allRecordedCalls(): List<Invocation> {
@@ -130,6 +143,53 @@ open class MockKStub(
     override fun allRecordedCalls(method: MethodDescription): List<Invocation> {
         synchronized(recordedCallsByMethod) {
             return recordedCallsByMethod[method]?.toList() ?: listOf()
+        }
+    }
+
+    override fun excludeRecordedCalls(
+        params: MockKGateway.ExclusionParameters,
+        matcher: InvocationMatcher
+    ) {
+        exclusions.add(matcher)
+
+        if (params.current) {
+            synchronized(recordedCalls) {
+                val callsToExclude = recordedCalls
+                    .filter(matcher::match)
+
+                if (callsToExclude.isNotEmpty()) {
+                    log.debug {
+                        "Calls excluded: " + callsToExclude.joinToString(", ")
+                    }
+                }
+
+                callsToExclude
+                    .forEach { recordedCalls.remove(it) }
+
+                synchronized(recordedCallsByMethod) {
+
+                    recordedCallsByMethod[matcher.method]?.apply {
+                        filter(matcher::match)
+                            .forEach { remove(it) }
+                    }
+                }
+
+                synchronized(verifiedCalls) {
+                    verifiedCalls
+                        .filter(matcher::match)
+                        .forEach { verifiedCalls.remove(it) }
+                }
+            }
+        }
+    }
+
+    override fun markCallVerified(invocation: Invocation) {
+        verifiedCalls.add(invocation)
+    }
+
+    override fun verifiedCalls(): List<Invocation> {
+        synchronized(verifiedCalls) {
+            return verifiedCalls.toList()
         }
     }
 
@@ -244,7 +304,7 @@ open class MockKStub(
         )
 
     override fun dispose() {
-        clear(MockKGateway.ClearOptions(true, true, true))
+        clear(MockKGateway.ClearOptions(true, true, true, true))
         disposeRoutine.invoke()
     }
 }

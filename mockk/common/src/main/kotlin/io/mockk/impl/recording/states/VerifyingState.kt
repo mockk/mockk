@@ -6,6 +6,7 @@ import io.mockk.MockKGateway.VerificationResult
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.Stub
+import io.mockk.impl.verify.VerificationHelpers
 
 class VerifyingState(
     recorder: CommonCallRecorder,
@@ -39,6 +40,7 @@ class VerifyingState(
 
         log.trace { "Done verification. Outcome: $outcome" }
         failIfNotPassed(outcome, params.inverse)
+        markVerified(outcome)
 
         checkWasNotCalled(sorter.wasNotCalledCalls.map { it.matcher.self })
 
@@ -52,15 +54,24 @@ class VerifyingState(
     }
 
     private fun failIfNotPassed(outcome: VerificationResult, inverse: Boolean) {
-        val explanation = if (outcome.message != null) ": ${outcome.message}" else ""
-
         if (inverse) {
-            if (outcome.matches) {
-                throw AssertionError("Inverse verification failed$explanation")
+            when (outcome) {
+                is VerificationResult.OK -> {
+                    val callsReport = VerificationHelpers.formatCalls(outcome.verifiedCalls)
+                    throw AssertionError("Inverse verification failed.\n\nVerified calls:\n$callsReport")
+                }
             }
         } else {
-            if (!outcome.matches) {
-                throw AssertionError("Verification failed$explanation")
+            when (outcome) {
+                is VerificationResult.Failure -> throw AssertionError("Verification failed: ${outcome.message}")
+            }
+        }
+    }
+
+    private fun markVerified(outcome: VerificationResult) {
+        if (outcome is VerificationResult.OK) {
+            for (invocation in outcome.verifiedCalls) {
+                recorder.ack.markCallVerified(invocation)
             }
         }
     }

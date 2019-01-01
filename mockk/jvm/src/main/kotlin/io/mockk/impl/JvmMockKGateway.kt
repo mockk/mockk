@@ -5,6 +5,7 @@ import io.mockk.MockKGateway.*
 import io.mockk.Ordering
 import io.mockk.impl.annotations.JvmMockInitializer
 import io.mockk.impl.eval.EveryBlockEvaluator
+import io.mockk.impl.eval.ExcludeBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
 import io.mockk.impl.instantiation.*
 import io.mockk.impl.log.JvmLogging
@@ -111,7 +112,7 @@ class JvmMockKGateway : MockKGateway {
 
 
     val callRecorderFactories = CallRecorderFactories(
-        { SignatureMatcherDetector(safeToString, { ChainedCallDetector(safeToString) }) },
+        { SignatureMatcherDetector(safeToString) { ChainedCallDetector(safeToString) } },
         { CallRoundBuilder(safeToString) },
         ::ChildHinter,
         this::verifier,
@@ -121,6 +122,7 @@ class JvmMockKGateway : MockKGateway {
         ::AnsweringStillAcceptingAnswersState,
         ::StubbingState,
         ::VerifyingState,
+        ::ExclusionState,
         ::StubbingAwaitingAnswerState,
         ::SafeLoggingState
     )
@@ -134,7 +136,9 @@ class JvmMockKGateway : MockKGateway {
             anyValueGenerator,
             safeToString,
             callRecorderFactories,
-            { recorder -> callRecorderFactories.answeringState(recorder) })
+            { recorder -> callRecorderFactories.answeringState(recorder) },
+            verificationAcknowledger
+        )
     }
 
     override val callRecorder: CallRecorder
@@ -142,7 +146,9 @@ class JvmMockKGateway : MockKGateway {
 
     override val stubber: Stubber = EveryBlockEvaluator(callRecorderTL::get, ::JvmAutoHinter)
     override val verifier: Verifier = VerifyBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
+    override val excluder: Excluder = ExcludeBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
     override val mockInitializer = JvmMockInitializer(this)
+    override val verificationAcknowledger = CommonVerificationAcknowledger(stubRepo, safeToString)
 
     companion object {
         private var log: Logger

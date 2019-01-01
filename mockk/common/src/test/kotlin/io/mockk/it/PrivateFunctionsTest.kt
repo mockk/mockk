@@ -4,6 +4,7 @@ import io.mockk.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("UNUSED_PARAMETER")
 class PrivateFunctionsTest {
     class Abc {
         fun y() = x()

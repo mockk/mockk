@@ -284,6 +284,37 @@ fun coVerifySequence(
 }
 
 /**
+ * Exclude calls from recording
+ *
+ * @param current if current recorded calls should be filtered out
+ */
+fun excludeRecords(
+    current: Boolean = true,
+    excludeBlock: MockKMatcherScope.() -> Unit
+) = MockK.useImpl {
+    MockKDsl.internalExcludeRecords(current, excludeBlock)
+}
+
+/**
+ * Exclude calls from recording for a suspend block
+ *
+ * @param current if current recorded calls should be filtered out
+ */
+fun coExcludeRecords(
+    current: Boolean = true,
+    excludeBlock: suspend MockKMatcherScope.() -> Unit
+) = MockK.useImpl {
+    MockKDsl.internalCoExcludeRecords(current, excludeBlock)
+}
+
+/**
+ * Checks if all recorded calls were verified.
+ */
+fun ackVerified(vararg mocks: Any) = MockK.useImpl {
+    MockKDsl.internalAckVerified(*mocks)
+}
+
+/**
  * Resets information associated with mock
  */
 fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) =

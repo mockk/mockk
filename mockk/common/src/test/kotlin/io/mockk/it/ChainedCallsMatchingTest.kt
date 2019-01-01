@@ -5,6 +5,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("UNUSED_PARAMETER")
 class ChainedCallsMatchingTest {
     class ChainedOpClass {
         fun chainOp(a: Int, b: Int) = this

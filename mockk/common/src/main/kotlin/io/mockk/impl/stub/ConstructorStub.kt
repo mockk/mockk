@@ -1,6 +1,7 @@
 package io.mockk.impl.stub
 
 import io.mockk.*
+import io.mockk.MockKGateway.ExclusionParameters
 import io.mockk.impl.InternalPlatform
 import kotlin.reflect.KClass
 
@@ -47,6 +48,19 @@ class ConstructorStub(
         }
     }
 
+    override fun excludeRecordedCalls(params: ExclusionParameters, matcher: InvocationMatcher) {
+        stub.excludeRecordedCalls(
+            params,
+            matcher.substitute(represent)
+        )
+    }
+
+    override fun markCallVerified(invocation: Invocation) {
+        stub.markCallVerified(
+            invocation.substitute(represent)
+        )
+    }
+
     override fun allRecordedCalls() = stub.allRecordedCalls()
         .map {
             it.substitute(revertRepresentation)
@@ -57,6 +71,11 @@ class ConstructorStub(
             .map {
                 it.substitute(revertRepresentation)
             }
+
+    override fun verifiedCalls() = stub.verifiedCalls()
+        .map {
+            it.substitute(revertRepresentation)
+        }
 
     override fun clear(options: MockKGateway.ClearOptions) =
         stub.clear(options)
