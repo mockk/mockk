@@ -6,6 +6,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.test.*
 
+@Suppress("UNUSED_PARAMETER")
 class MockInjectorTest {
     interface MockIf
     class MockCls : MockIf

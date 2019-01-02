@@ -54,6 +54,7 @@ class ExtensionAndInitMocksTest {
         assertSame(carSpySaved, carSpy)
     }
 
+    @Suppress("USELESS_CAST")
     @Test
     fun allRunnable() {
         assertTrue { runnableCar as Any is Runnable }

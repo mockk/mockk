@@ -52,7 +52,7 @@ class VerifyingStateTest {
 
     @Test
     fun givenCallsWithNegativeVerificationOutcomeWhenRecordingDoneThrowsException() {
-        setupCalls(VerificationResult.OK(listOf()))
+        setupCalls(VerificationResult.Failure("failure"))
         setupWasNotCalled(0)
 
         assertFailsWith<AssertionError> {
@@ -116,5 +116,5 @@ class VerifyingStateTest {
         }
     }
 
-    private fun MockKMatcherScope.allRecordedCalls(mock: Any) = recorder.stubRepo.stubFor(mock).allRecordedCalls()
+    private fun allRecordedCalls(mock: Any) = recorder.stubRepo.stubFor(mock).allRecordedCalls()
 }
