@@ -25,7 +25,8 @@ interface MockKGateway {
         val answers: Boolean,
         val recordedCalls: Boolean,
         val childMocks: Boolean,
-        val verificationMarks: Boolean
+        val verificationMarks: Boolean,
+        val exclusionRules: Boolean
     )
 
     companion object {

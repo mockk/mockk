@@ -310,20 +310,29 @@ fun coExcludeRecords(
 /**
  * Checks if all recorded calls were verified.
  */
-fun ackVerified(vararg mocks: Any) = MockK.useImpl {
-    MockKDsl.internalAckVerified(*mocks)
+fun confirmVerified(vararg mocks: Any) = MockK.useImpl {
+    MockKDsl.internalConfirmVerified(*mocks)
 }
 
 /**
  * Resets information associated with mock
  */
-fun clearMocks(vararg mocks: Any, answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true) =
+fun clearMocks(
+    vararg mocks: Any,
+    answers: Boolean = true,
+    recordedCalls: Boolean = true,
+    childMocks: Boolean = true,
+    verificationMarks: Boolean = true,
+    exclusionRules: Boolean = true
+) =
     MockK.useImpl {
         MockKDsl.internalClearMocks(
             mocks = *mocks,
             answers = answers,
             recordedCalls = recordedCalls,
-            childMocks = childMocks
+            childMocks = childMocks,
+            verificationMarks = verificationMarks,
+            exclusionRules = exclusionRules
         )
     }
 

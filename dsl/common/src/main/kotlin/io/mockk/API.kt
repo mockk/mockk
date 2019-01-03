@@ -267,7 +267,7 @@ object MockKDsl {
     /**
      * Checks if all recorded calls were verified.
      */
-    fun internalAckVerified(vararg mocks: Any) {
+    fun internalConfirmVerified(vararg mocks: Any) {
         for (mock in mocks) {
             MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified(mock)
         }
@@ -281,11 +281,18 @@ object MockKDsl {
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
-        verificationMarks: Boolean = true
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         MockKGateway.implementation().clearer.clear(
             mocks,
-            MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+            MockKGateway.ClearOptions(
+                answers,
+                recordedCalls,
+                childMocks,
+                verificationMarks,
+                exclusionRules
+            )
         )
     }
 
@@ -413,12 +420,19 @@ object MockKDsl {
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
-        verificationMarks: Boolean = true
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         for (obj in objects) {
             MockKGateway.implementation().objectMockFactory.clear(
                 obj,
-                MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
             )
         }
     }
@@ -459,12 +473,19 @@ object MockKDsl {
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
-        verificationMarks: Boolean = true
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         for (type in classes) {
             MockKGateway.implementation().staticMockFactory.clear(
                 type,
-                MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
             )
         }
     }
@@ -509,12 +530,19 @@ object MockKDsl {
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
-        verificationMarks: Boolean = true
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         for (type in classes) {
             MockKGateway.implementation().constructorMockFactory.clear(
                 type,
-                MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
             )
         }
     }
@@ -534,9 +562,16 @@ object MockKDsl {
         objectMocks: Boolean = true,
         staticMocks: Boolean = true,
         constructorMocks: Boolean = true,
-        verificationMarks: Boolean = true
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
-        val options = MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+        val options = MockKGateway.ClearOptions(
+            answers,
+            recordedCalls,
+            childMocks,
+            verificationMarks,
+            exclusionRules
+        )
         val implementation = MockKGateway.implementation()
 
         if (regularMocks) {
@@ -2145,7 +2180,8 @@ abstract class MockKUnmockKScope {
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
-        verificationMarks: Boolean = true
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     )
 
     operator fun plus(scope: MockKUnmockKScope): MockKUnmockKScope = MockKUnmockKCompositeScope(this, scope)
@@ -2221,10 +2257,23 @@ class MockKUnmockKCompositeScope(
         answers: Boolean,
         recordedCalls: Boolean,
         childMocks: Boolean,
-        verificationMarks: Boolean
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
     ) {
-        first.clear(answers, recordedCalls, childMocks, verificationMarks)
-        second.clear(answers, recordedCalls, childMocks, verificationMarks)
+        first.clear(
+            answers,
+            recordedCalls,
+            childMocks,
+            verificationMarks,
+            exclusionRules
+        )
+        second.clear(
+            answers,
+            recordedCalls,
+            childMocks,
+            verificationMarks,
+            exclusionRules
+        )
     }
 
 }
@@ -2248,12 +2297,19 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope() 
         answers: Boolean,
         recordedCalls: Boolean,
         childMocks: Boolean,
-        verificationMarks: Boolean
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
     ) {
         for (type in staticTypes) {
             MockKGateway.implementation().staticMockFactory.clear(
                 type,
-                MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
             )
         }
     }
@@ -2281,12 +2337,19 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
         answers: Boolean,
         recordedCalls: Boolean,
         childMocks: Boolean,
-        verificationMarks: Boolean
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
     ) {
         for (obj in objects) {
             MockKGateway.implementation().objectMockFactory.clear(
                 obj,
-                MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
             )
         }
     }
@@ -2314,11 +2377,18 @@ class MockKConstructorScope<T : Any>(
         answers: Boolean,
         recordedCalls: Boolean,
         childMocks: Boolean,
-        verificationMarks: Boolean
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
     ) {
         MockKGateway.implementation().constructorMockFactory.clear(
             type,
-            MockKGateway.ClearOptions(answers, recordedCalls, childMocks, verificationMarks)
+            MockKGateway.ClearOptions(
+                answers,
+                recordedCalls,
+                childMocks,
+                verificationMarks,
+                exclusionRules
+            )
         )
     }
 }

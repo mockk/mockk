@@ -51,7 +51,7 @@ class VerificationAcknowledgeTest {
             mock.op(7)
         }
 
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -67,7 +67,7 @@ class VerificationAcknowledgeTest {
             mock.op(5)
         }
 
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -84,7 +84,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -98,7 +98,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -112,7 +112,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -126,7 +126,7 @@ class VerificationAcknowledgeTest {
         }
 
         excludeRecords { mock.op(6) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -139,7 +139,7 @@ class VerificationAcknowledgeTest {
         }
 
         excludeRecords { mock.op(7) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -152,7 +152,7 @@ class VerificationAcknowledgeTest {
         }
 
         excludeRecords { mock.op(5) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -165,7 +165,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -179,7 +179,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -193,7 +193,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -207,7 +207,7 @@ class VerificationAcknowledgeTest {
             mock.op(7)
         }
 
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -220,7 +220,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -235,7 +235,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -250,7 +250,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -263,7 +263,7 @@ class VerificationAcknowledgeTest {
         }
 
         excludeRecords { mock.op(0) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -275,7 +275,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -288,7 +288,7 @@ class VerificationAcknowledgeTest {
         }
 
         excludeRecords { mock.op(0) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -300,7 +300,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -313,7 +313,7 @@ class VerificationAcknowledgeTest {
         }
 
         excludeRecords { mock.op(0) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -325,7 +325,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -338,7 +338,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -352,7 +352,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -365,7 +365,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -378,7 +378,7 @@ class VerificationAcknowledgeTest {
         }
 
         assertFails {
-            ackVerified(mock)
+            confirmVerified(mock)
         }
     }
 
@@ -391,7 +391,7 @@ class VerificationAcknowledgeTest {
             listOf(secondMock, thirdMock) wasNot Called
         }
 
-        ackVerified(secondMock, thirdMock)
+        confirmVerified(secondMock, thirdMock)
     }
 
     @Test
@@ -401,7 +401,7 @@ class VerificationAcknowledgeTest {
         verify { mock.op(0) }
 
         excludeRecords { mock.op(1) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -416,7 +416,7 @@ class VerificationAcknowledgeTest {
         }
 
         excludeRecords { mock.op(0) }
-        ackVerified(mock)
+        confirmVerified(mock)
     }
 
     @Test
@@ -431,7 +431,100 @@ class VerificationAcknowledgeTest {
             mock.op(1)
         }
 
-        ackVerified(mock)
+        confirmVerified(mock)
+    }
+
+    @Test
+    fun clearExclusions() {
+
+        every { mock.op(1) } returns 1
+        every { mock.op(2) } returns 2
+        every { mock.op(3) } returns 3
+        every { mock.op(4) } returns 4
+
+        assertEquals(1, mock.op(1))
+        assertEquals(2, mock.op(2))
+        assertEquals(3, mock.op(3))
+        assertEquals(4, mock.op(4))
+
+        excludeRecords { mock.op(more(3, andEquals = true)) }
+
+        verifySequence {
+            mock.op(1)
+            mock.op(2)
+        }
+
+        assertEquals(3, mock.op(3))
+        assertEquals(4, mock.op(4))
+
+        verifySequence {
+            mock.op(1)
+            mock.op(2)
+        }
+
+        clearMocks(
+            mock,
+            answers = false,
+            recordedCalls = false,
+            childMocks = false,
+            verificationMarks = false,
+            exclusionRules = true
+        )
+
+        assertEquals(3, mock.op(3))
+        assertEquals(4, mock.op(4))
+
+        verifySequence {
+            mock.op(1)
+            mock.op(2)
+            mock.op(3)
+            mock.op(4)
+        }
+
+        confirmVerified(mock)
+    }
+
+    @Test
+    fun clearMarks() {
+
+        every { mock.op(1) } returns 1
+        every { mock.op(2) } returns 2
+        every { mock.op(3) } returns 3
+        every { mock.op(4) } returns 4
+
+        assertEquals(1, mock.op(1))
+        assertEquals(2, mock.op(2))
+        assertEquals(3, mock.op(3))
+        assertEquals(4, mock.op(4))
+
+        verify {
+            mock.op(1)
+            mock.op(2)
+            mock.op(3)
+        }
+
+        assertFails {
+            confirmVerified(mock)
+        }
+
+        verify {
+            mock.op(4)
+        }
+
+        confirmVerified(mock)
+
+        clearMocks(
+            mock,
+            answers = false,
+            recordedCalls = false,
+            childMocks = false,
+            verificationMarks = true,
+            exclusionRules = false
+        )
+
+        assertFails {
+            confirmVerified(mock)
+        }
     }
 }
 

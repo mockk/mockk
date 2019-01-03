@@ -283,6 +283,12 @@ open class MockKStub(
         if (options.childMocks) {
             this.childs.clear()
         }
+        if (options.verificationMarks) {
+            this.verifiedCalls.clear()
+        }
+        if (options.exclusionRules) {
+            this.exclusions.clear()
+        }
     }
 
     companion object {
@@ -304,7 +310,15 @@ open class MockKStub(
         )
 
     override fun dispose() {
-        clear(MockKGateway.ClearOptions(true, true, true, true))
+        clear(
+            MockKGateway.ClearOptions(
+                true,
+                true,
+                true,
+                true,
+                true
+            )
+        )
         disposeRoutine.invoke()
     }
 }

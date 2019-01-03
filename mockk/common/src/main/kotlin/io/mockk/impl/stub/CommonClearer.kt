@@ -12,7 +12,7 @@ class CommonClearer(
     val log = safeToString(Logger<CommonClearer>())
 
     override fun clear(mocks: Array<out Any>, options: MockKGateway.ClearOptions) {
-        log.debug { "Clearing ${mocks.contentToString()} mocks" }
+        log.debug { "Clearing ${mocks.contentToString()} mocks $options" }
         for (mock in mocks) {
             stubRepository.stubFor(mock).clear(options)
         }
