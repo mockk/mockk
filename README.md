@@ -890,8 +890,13 @@ Here are few tables helping to master the DSL.
 |`verify`|starts verification block|
 |`coVerify`|starts verification block for coroutines|
 |`verifyAll`|starts verification block that should include all calls|
+|`coVerifyAll`|starts verification block that should include all calls for coroutines|
 |`verifyOrder`|starts verification block that checks order|
+|`coVerifyOrder`|starts verification block that checks order for coroutines|
 |`verifySequence`|starts verification block that checks all calls goes in sepecified sequence|
+|`coVerifySequence`|starts verification block that checks all calls goes in sepecified sequence for coroutines|
+|`excludeRecords`|exclude some calls from recording|
+|`confirmVerified`|confirms that all recorded calls were verified|
 |`clearMocks`|clears specified mocks|
 |`registerInstanceFactory`|allow to redefine way of instantiation for certain object|
 |`mockkClass`|builds a regular mock, just class is passed as a parameter|
