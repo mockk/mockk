@@ -23,7 +23,7 @@ class SequenceCallVerifier(
         val allCalls = verificationSequence.allInvocations(stubRepo)
 
         if (allCalls.size != verificationSequence.size) {
-            return VerificationResult(false, safeToString.exec {
+            return VerificationResult.Failure(safeToString.exec {
                 "number of calls happened not matching exact number of verification sequence" + reportCalls(
                     verificationSequence,
                     allCalls
@@ -34,7 +34,7 @@ class SequenceCallVerifier(
         for ((i, call) in allCalls.withIndex()) {
             val matcher = verificationSequence[i].matcher
             if (!matcher.match(call)) {
-                return VerificationResult(false, safeToString.exec {
+                return VerificationResult.Failure(safeToString.exec {
                     "calls are not exactly matching verification sequence" + reportCalls(verificationSequence, allCalls)
                 })
             }
@@ -42,7 +42,7 @@ class SequenceCallVerifier(
         }
 
 
-        return VerificationResult(true)
+        return VerificationResult.OK(allCalls)
     }
 
     override fun captureArguments() {

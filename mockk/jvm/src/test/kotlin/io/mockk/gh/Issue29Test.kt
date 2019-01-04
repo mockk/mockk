@@ -7,6 +7,7 @@ import org.junit.Test
 import kotlin.test.assertFalse
 
 
+@Suppress("UNUSED_PARAMETER")
 class Issue29Test {
     class MockCls {
         fun op(klass: Class<*>): Boolean = true

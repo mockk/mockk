@@ -26,7 +26,7 @@ class AllCallsCallVerifier(
                 .filter { invoke -> doesNotMatchAnyCalls(verificationSequence, invoke) }
 
             if (nonMatchingInvocations.isNotEmpty()) {
-                return MockKGateway.VerificationResult(false, safeToString.exec {
+                return MockKGateway.VerificationResult.Failure(safeToString.exec {
                     "some calls were not matched: $nonMatchingInvocations" + reportCalls(verificationSequence, allInvocations)
                 })
             }

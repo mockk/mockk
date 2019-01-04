@@ -25,11 +25,10 @@
 
 ### Known issues & worth to remember
 
+* Gradle 5+: seems while running in IDE runtime libraries are skipped. Check [workaround](https://github.com/mockk/mockk/issues/211#issuecomment-450694639)
 * Kotlin 1.3: remember there is two version lines supported right now: "v1.8.x" for Kotlin 1.2.y and "v1.8.x.kotlin13" for Kotlin 1.3
 * Spring Boot plugin redefines ByteBuddy version. Need to override one manualy to [the version used by MockK](https://github.com/mockk/mockk/blob/master/build.gradle#L6) [#80](https://github.com/mockk/mockk/issues/80#issuecomment-397847582)
  * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
-
-![MockK stats](https://mockk.io/doc/oct2018-stats.png)
 
 Table of contents:
 
@@ -55,6 +54,8 @@ Table of contents:
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
+ - [https://github.com/PhilippeBoisney/NoBullshit](https://github.com/PhilippeBoisney/NoBullshit)
+ - [https://medium.com/@Phil_Boisney/playing-with-kotlin-you-know-everything-john-doe-8275a6e98a96](https://medium.com/@Phil_Boisney/playing-with-kotlin-you-know-everything-john-doe-8275a6e98a96)
  - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
  - [MockK 功能介紹：mockk, every, Annotation, verify](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-2-4-4be059331110)
  - [MockK 功能介紹：Relaxed Mocks, 再談 Verify, Capture](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-3-4-79b40fb73964)

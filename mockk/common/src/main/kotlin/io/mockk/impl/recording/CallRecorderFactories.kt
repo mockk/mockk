@@ -1,8 +1,6 @@
 package io.mockk.impl.recording
 
-import io.mockk.MockKGateway.CallVerifier
-import io.mockk.MockKGateway.VerificationParameters
-import io.mockk.Ordering
+import io.mockk.MockKGateway.*
 import io.mockk.impl.recording.states.CallRecordingState
 import io.mockk.impl.stub.AdditionalAnswerOpportunity
 
@@ -14,6 +12,7 @@ typealias ChildHinterFactory = () -> ChildHinter
 typealias PermanentMockerFactory = () -> PermanentMocker
 typealias StateFactory = (recorder: CommonCallRecorder) -> CallRecordingState
 typealias VerifyingStateFactory = (recorder: CommonCallRecorder, verificationParams: VerificationParameters) -> CallRecordingState
+typealias ExclusionStateFactory = (recorder: CommonCallRecorder, exclusionParams: ExclusionParameters) -> CallRecordingState
 typealias AnsweringStillAcceptingAnswersStateFactory = (recorder: CommonCallRecorder, answerOpportunity: AdditionalAnswerOpportunity) -> CallRecordingState
 typealias ChainedCallDetectorFactory = () -> ChainedCallDetector
 typealias VerificationCallSorterFactory = () -> VerificationCallSorter
@@ -29,6 +28,7 @@ data class CallRecorderFactories(
     val answeringStillAcceptingAnswersState: AnsweringStillAcceptingAnswersStateFactory,
     val stubbingState: StateFactory,
     val verifyingState: VerifyingStateFactory,
+    val exclusionState: ExclusionStateFactory,
     val stubbingAwaitingAnswerState: StateFactory,
     val safeLoggingState: StateFactory
 )

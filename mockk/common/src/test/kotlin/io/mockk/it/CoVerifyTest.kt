@@ -17,7 +17,7 @@ class CoVerifyTest {
         coEvery { mock.op(6) } returns 2
         coEvery { mock.op(7) } returns 3
 
-        runBlocking {
+        InternalPlatformDsl.runCoroutine {
             assertEquals(1, mock.op(5))
             assertEquals(2, mock.op(6))
             assertEquals(3, mock.op(7))

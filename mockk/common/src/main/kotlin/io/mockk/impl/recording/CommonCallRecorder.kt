@@ -21,7 +21,8 @@ class CommonCallRecorder(
     val anyValueGenerator: AnyValueGenerator,
     val safeToString: SafeToString,
     val factories: CallRecorderFactories,
-    val initialState: (CommonCallRecorder) -> CallRecordingState
+    val initialState: (CommonCallRecorder) -> CallRecordingState,
+    val ack: VerificationAcknowledger
 ) : CallRecorder {
 
     override val calls = mutableListOf<RecordedCall>()
@@ -36,6 +37,11 @@ class CommonCallRecorder(
     override fun startVerification(params: VerificationParameters) {
         state = factories.verifyingState(this, params)
         log.trace { "Starting verification" }
+    }
+
+    override fun startExclusion(params: ExclusionParameters) {
+        state = factories.exclusionState(this, params)
+        log.trace { "Starting exclusion" }
     }
 
     override fun done() {

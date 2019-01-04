@@ -1,5 +1,6 @@
 package io.mockk.impl.verify
 
+import io.mockk.Invocation
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.VerificationResult
@@ -23,15 +24,15 @@ class OrderedCallVerifier(
         val allCalls = verificationSequence.allInvocations(stubRepo)
 
         if (verificationSequence.size > allCalls.size) {
-            return VerificationResult(false, safeToString.exec {
+            return VerificationResult.Failure(safeToString.exec {
                 "less calls happened then demanded by order verification sequence. " +
                         reportCalls(verificationSequence, allCalls)
             })
         }
 
         // LCS algorithm
-        val nEdits = Array(allCalls.size, { Array(verificationSequence.size, { 0 }) })
-        val path = Array(allCalls.size, { Array(verificationSequence.size, { '?' }) })
+        val nEdits = Array(allCalls.size) { Array(verificationSequence.size) { 0 } }
+        val path = Array(allCalls.size) { Array(verificationSequence.size) { '?' } }
 
         fun maxOf(a: Pair<Int, Char>, b: Pair<Int, Char>) =
             if (a.first > b.first) a else b
@@ -49,7 +50,7 @@ class OrderedCallVerifier(
                         if (callIdx == 0)
                             Pair(0, '^')
                         else
-                            Pair(nEdits[callIdx - 1][matcherIdx], '='),
+                            Pair(nEdits[callIdx - 1][matcherIdx], '^'),
 
                         if (matcherIdx == 0)
                             Pair(0, '<')
@@ -66,6 +67,7 @@ class OrderedCallVerifier(
         // match only if all matchers present
         if (nEdits[allCalls.size - 1][verificationSequence.size - 1] == verificationSequence.size) {
 
+            val verifiedCalls = mutableListOf<Invocation>()
             tailrec fun backTrackCalls(callIdx: Int, matcherIdx: Int) {
                 if (callIdx < 0 || matcherIdx < 0) return
 
@@ -74,6 +76,7 @@ class OrderedCallVerifier(
                         val matcher = verificationSequence[matcherIdx].matcher
                         val invocation = allCalls[callIdx]
                         captureBlocks.add { matcher.captureAnswer(invocation) }
+                        verifiedCalls.add(invocation)
                         backTrackCalls(callIdx - 1, matcherIdx - 1)
                     }
                     '^' -> {
@@ -87,9 +90,9 @@ class OrderedCallVerifier(
 
             backTrackCalls(allCalls.size - 1, verificationSequence.size - 1)
 
-            return VerificationResult(true)
+            return VerificationResult.OK(verifiedCalls)
         } else {
-            return VerificationResult(false, safeToString.exec {
+            return VerificationResult.Failure(safeToString.exec {
                 "calls are not in verification order" + reportCalls(verificationSequence, allCalls)
             })
         }

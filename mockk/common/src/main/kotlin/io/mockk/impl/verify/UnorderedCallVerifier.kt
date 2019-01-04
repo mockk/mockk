@@ -5,6 +5,8 @@ import io.mockk.Invocation
 import io.mockk.InvocationMatcher
 import io.mockk.MockKGateway.*
 import io.mockk.RecordedCall
+import io.mockk.impl.InternalPlatform
+import io.mockk.impl.Ref
 import io.mockk.impl.log.SafeToString
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.formatCalls
@@ -25,15 +27,21 @@ open class UnorderedCallVerifier(
         val min = params.min
         val max = params.max
 
+        val verifiedCalls = mutableSetOf<Ref>()
         for ((i, call) in verificationSequence.withIndex()) {
             val callIdxMsg = safeToString.exec { "call ${i + 1} of ${verificationSequence.size}: ${call.matcher}" }
             val result = matchCall(call, min, max, callIdxMsg)
 
-            if (!result.matches) {
-                return result
+            when (result) {
+                is VerificationResult.OK -> verifiedCalls.addAll(
+                    result
+                        .verifiedCalls
+                        .map { InternalPlatform.ref(it) }
+                )
+                is VerificationResult.Failure -> return result
             }
         }
-        return VerificationResult(true)
+        return VerificationResult.OK(verifiedCalls.map { it.value as Invocation })
     }
 
     private fun matchCall(recordedCall: RecordedCall, min: Int, max: Int, callIdxMsg: String): VerificationResult {
@@ -44,10 +52,10 @@ open class UnorderedCallVerifier(
 
         val result = if (min == 0 && max == 0) {
             if (!allCallsForMockMethod.any(matcher::match)) {
-                VerificationResult(true)
+                VerificationResult.OK(listOf())
             } else {
-                VerificationResult(
-                    false, "$callIdxMsg should not be called" +
+                VerificationResult.Failure(
+                    "$callIdxMsg should not be called" +
                             "\n\nCalls:\n" +
                             formatCalls(allCallsForMockMethod) +
                             "\n\nStack traces:\n" +
@@ -57,11 +65,11 @@ open class UnorderedCallVerifier(
         } else when (allCallsForMockMethod.size) {
             0 -> {
                 if (min == 0 && max == 0) {
-                    VerificationResult(true)
+                    VerificationResult.OK(listOf())
                 } else if (allCallsForMock.isEmpty()) {
-                    VerificationResult(false, "$callIdxMsg was not called")
+                    VerificationResult.Failure("$callIdxMsg was not called")
                 } else {
-                    VerificationResult(false, safeToString.exec {
+                    VerificationResult.Failure(safeToString.exec {
                         "$callIdxMsg was not called." +
                                 "\n\nCalls to same mock:\n" +
                                 formatCalls(allCallsForMock) +
@@ -74,10 +82,9 @@ open class UnorderedCallVerifier(
                 val onlyCall = allCallsForMockMethod[0]
                 if (matcher.match(onlyCall)) {
                     if (1 in min..max) {
-                        VerificationResult(true)
+                        VerificationResult.OK(listOf(onlyCall))
                     } else {
-                        VerificationResult(
-                            false,
+                        VerificationResult.Failure(
                             "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls" +
                                     "\nCall: " + allCallsForMock.first() +
                                     "\nStack trace:\n" +
@@ -86,7 +93,7 @@ open class UnorderedCallVerifier(
                         )
                     }
                 } else {
-                    VerificationResult(false, safeToString.exec {
+                    VerificationResult.Failure(safeToString.exec {
                         "$callIdxMsg. Only one matching call to ${stub.toStr()}/${matcher.method.toStr()} happened, but arguments are not matching:\n" +
                                 describeArgumentDifference(matcher, onlyCall) +
                                 "\nStack trace:\n" +
@@ -95,12 +102,13 @@ open class UnorderedCallVerifier(
                 }
             }
             else -> {
-                val n = allCallsForMockMethod.filter(matcher::match).count()
+                val matchedCalls = allCallsForMockMethod.filter(matcher::match)
+                val n = matchedCalls.count()
                 if (n in min..max) {
-                    VerificationResult(true)
+                    VerificationResult.OK(matchedCalls)
                 } else {
                     if (n == 0) {
-                        VerificationResult(false,
+                        VerificationResult.Failure(
                             safeToString.exec {
                                 "$callIdxMsg. No matching calls found." +
                                         "\n\nCalls to same method:\n" +
@@ -109,8 +117,7 @@ open class UnorderedCallVerifier(
                                         stackTraces(allCallsForMockMethod)
                             })
                     } else {
-                        VerificationResult(
-                            false,
+                        VerificationResult.Failure(
                             "$callIdxMsg. $n matching calls found, " +
                                     "but needs at least $min${atMostMsg(max)} calls" +
                                     "\nCalls:\n" +
@@ -123,11 +130,11 @@ open class UnorderedCallVerifier(
             }
         }
 
-        captureBlocks.add({
+        captureBlocks.add {
             for (call in allCallsForMockMethod) {
                 matcher.captureAnswer(call)
             }
-        })
+        }
 
         return result
     }
