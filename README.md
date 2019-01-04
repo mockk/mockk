@@ -146,6 +146,8 @@ every { car.drive(Direction.NORTH) } returns Outcome.OK
 car.drive(Direction.NORTH) // returns OK
 
 verify { car.drive(Direction.NORTH) }
+
+confirmVerified(car)
 ```
 
 ### Annotations
@@ -556,6 +558,26 @@ verify {
     listOf(obj2, obj3) wasNot Called
 }
 ```
+
+### Verification confirmation
+
+To double check that all calls were verified by `verify...` constructs you can use `confirmVerified`:
+
+```
+confirmVerified(mock1, mock2)
+```
+
+It will throw exception in case same calls left without verification.
+
+### Recording exclusions
+
+To exclude some not so important calls from being recorded you can use `excludeRecords`:
+
+```
+excludeRecords { mock.operation(any(), 5) }
+```
+
+All matching calls will be excluded from recording. This may be useful in case you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
 
 ### Verification timeout
 
