@@ -23,12 +23,16 @@
 * coroutines support was improved, instead of runBlocking it passes through continunation by reflection. v1.8.13 and v1.8.13.kotlin13 [#171](https://github.com/mockk/mockk/pull/171)
 * [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines](https://www.youtube.com/watch?v=h8_LZn1DFDI)
 
+### Version twist
+
+From version 1.9 MockK switched to Kotlin 1.3 and Coroutines 1.0 by default and old branch 1.9.kotlin12 may be used for compatibility with Kotlin 1.2.
+
+![Switch of versions](doc/19-verison-twist.png)
+
 ### Known issues & worth to remember
 
-* Gradle 5+: seems while running in IDE runtime libraries are skipped. Check [workaround](https://github.com/mockk/mockk/issues/211#issuecomment-450694639)
-* Kotlin 1.3: remember there is two version lines supported right now: "v1.8.x" for Kotlin 1.2.y and "v1.8.x.kotlin13" for Kotlin 1.3
-* Spring Boot plugin redefines ByteBuddy version. Need to override one manualy to [the version used by MockK](https://github.com/mockk/mockk/blob/master/build.gradle#L6) [#80](https://github.com/mockk/mockk/issues/80#issuecomment-397847582)
- * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
+* Some known issues related to Kotlin 1.3, Gradle 5 and Spring Boot were fixed in MockK 1.9. Please report if you face any problems. 
+* PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
 
 Table of contents:
 
