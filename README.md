@@ -608,7 +608,7 @@ To exclude some not so important calls from being recorded you can use `excludeR
 excludeRecords { mock.operation(any(), 5) }
 ```
 
-Example:
+All matching calls will be excluded from recording. This may be useful in case you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
 
 ```
 val car = mockk<Car>()
@@ -627,9 +627,6 @@ verify {
 
 confirmVerified(car) // car.drive(Direction.SOUTH) was excluded, so confirmation is fine with only car.drive(Direction.NORTH)
 ```
-
-
-All matching calls will be excluded from recording. This may be useful in case you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
 
 ### Verification timeout
 
