@@ -1,7 +1,7 @@
 package io.mockk.gh
 
 import io.mockk.mockk
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class Issue174Test {
