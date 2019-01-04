@@ -583,6 +583,23 @@ confirmVerified(mock1, mock2)
 
 It will throw exception in case same calls left without verification.
 
+```
+val car = mockk<Car>()
+
+every { car.drive(Direction.NORTH) } returns Outcome.OK
+every { car.drive(Direction.SOUTH) } returns Outcome.OK
+
+car.drive(Direction.NORTH) // returns OK
+car.drive(Direction.SOUTH) // returns OK
+
+verify {
+    car.drive(Direction.SOUTH)
+    car.drive(Direction.NORTH)
+}
+
+confirmVerified(car) // makes sure all calls were covered with verification
+```
+
 ### Recording exclusions
 
 To exclude some not so important calls from being recorded you can use `excludeRecords`:
@@ -590,6 +607,27 @@ To exclude some not so important calls from being recorded you can use `excludeR
 ```
 excludeRecords { mock.operation(any(), 5) }
 ```
+
+Example:
+
+```
+val car = mockk<Car>()
+
+every { car.drive(Direction.NORTH) } returns Outcome.OK
+every { car.drive(Direction.SOUTH) } returns Outcome.OK
+
+excludeRecords { car.drive(Direction.SOUTH) }
+
+car.drive(Direction.NORTH) // returns OK
+car.drive(Direction.SOUTH) // returns OK
+
+verify {
+    car.drive(Direction.NORTH)
+}
+
+confirmVerified(car) // car.drive(Direction.SOUTH) was excluded, so confirmation is fine with only car.drive(Direction.NORTH)
+```
+
 
 All matching calls will be excluded from recording. This may be useful in case you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
 
