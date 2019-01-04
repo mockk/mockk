@@ -19,9 +19,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* New feature: [verification confirmation](#verification-confirmation) [#207](https://github.com/mockk/mockk/pull/207)
 * MockK is now present on [Thoughtworks technology radar](https://www.thoughtworks.com/radar/languages-and-frameworks/mockk)
 * coroutines support was improved, instead of runBlocking it passes through continunation by reflection. v1.8.13 and v1.8.13.kotlin13 [#171](https://github.com/mockk/mockk/pull/171)
-* [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines](https://www.youtube.com/watch?v=h8_LZn1DFDI)
 
 ### Version twist
 
