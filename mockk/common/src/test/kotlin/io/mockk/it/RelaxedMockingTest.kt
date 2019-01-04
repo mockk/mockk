@@ -6,6 +6,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
+@Suppress("UNUSED_PARAMETER")
 class RelaxedMockingTest {
     class MockCls {
         fun op(a: Int, b: Int) = a + b

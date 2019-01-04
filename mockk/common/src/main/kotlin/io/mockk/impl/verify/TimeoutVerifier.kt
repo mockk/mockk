@@ -49,7 +49,7 @@ class TimeoutVerifier(
 }
 
 private fun VerificationResult.addTimeoutToMessage(timeout: Long) =
-    VerificationResult(matches,
-        message?.let { "$it (timeout = $timeout ms)" }
-                ?: "timeout reached (timeout = $timeout ms)"
-    )
+    when (this) {
+        is VerificationResult.OK -> VerificationResult.OK(verifiedCalls)
+        is VerificationResult.Failure -> VerificationResult.Failure("$message (timeout = $timeout ms)")
+    }

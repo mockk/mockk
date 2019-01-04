@@ -6,6 +6,7 @@ import io.mockk.spyk
 import io.mockk.verify
 import kotlin.test.Test
 
+@Suppress("UNUSED_PARAMETER")
 class Issue48Test {
     class MyClass {
         fun publicCall() {

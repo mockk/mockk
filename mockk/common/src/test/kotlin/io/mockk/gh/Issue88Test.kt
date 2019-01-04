@@ -4,6 +4,7 @@ import io.mockk.*
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+@Suppress("UNUSED_PARAMETER")
 class Issue88Test {
     open class B {}
     class C : B() {}

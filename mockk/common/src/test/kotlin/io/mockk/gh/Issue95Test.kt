@@ -4,6 +4,7 @@ import io.mockk.every
 import io.mockk.spyk
 import kotlin.test.Test
 
+@Suppress("UNUSED_PARAMETER")
 class Issue95Test {
     class Foo {
 

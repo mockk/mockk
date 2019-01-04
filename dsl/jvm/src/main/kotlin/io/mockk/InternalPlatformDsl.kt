@@ -213,6 +213,7 @@ class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T
 
     override fun callWithContinuation(continuation: Continuation<*>): T {
         return try {
+            @Suppress("UNCHECKED_CAST")
             callMethod.invoke(this, continuation) as T
         } catch (ex: InvocationTargetException) {
             throw ex.targetException

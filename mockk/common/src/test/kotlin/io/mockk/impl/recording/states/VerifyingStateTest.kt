@@ -10,6 +10,7 @@ import kotlin.test.assertFailsWith
 
 class VerifyingStateTest {
     lateinit var state: VerifyingState
+    lateinit var acknowledger: VerificationAcknowledger
     lateinit var recorder: CommonCallRecorder
     lateinit var verifier: CallVerifier
     lateinit var sorter: VerificationCallSorter
@@ -19,6 +20,7 @@ class VerifyingStateTest {
     @BeforeTest
     fun setUp() {
         recorder = mockk(relaxed = true)
+        acknowledger = mockk(relaxed = true)
         val params = VerificationParameters(Ordering.UNORDERED, 1, 2, false, 0)
         state = spyk(VerifyingState(recorder, params))
         verifier = mockk(relaxed = true)
@@ -38,7 +40,7 @@ class VerifyingStateTest {
 
     @Test
     fun givenCallsWithPositiveVerificationOutcomeWhenRecordingDoneThenSwitchToAnsweringState() {
-        setupCalls(VerificationResult(true))
+        setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(0)
 
         state.recordingDone()
@@ -50,7 +52,7 @@ class VerifyingStateTest {
 
     @Test
     fun givenCallsWithNegativeVerificationOutcomeWhenRecordingDoneThrowsException() {
-        setupCalls(VerificationResult(false))
+        setupCalls(VerificationResult.Failure("failure"))
         setupWasNotCalled(0)
 
         assertFailsWith<AssertionError> {
@@ -61,7 +63,7 @@ class VerifyingStateTest {
 
     @Test
     fun givenOneCalledMocksWhenRecordingDoneThrowsException() {
-        setupCalls(VerificationResult(true))
+        setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(1)
 
         assertFailsWith<AssertionError> {
@@ -71,7 +73,7 @@ class VerifyingStateTest {
 
     @Test
     fun givenTwoCalledMocksWhenRecordingDoneThrowsException() {
-        setupCalls(VerificationResult(true))
+        setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(2)
 
         assertFailsWith<AssertionError> {
@@ -114,5 +116,5 @@ class VerifyingStateTest {
         }
     }
 
-    private fun MockKMatcherScope.allRecordedCalls(mock: Any) = recorder.stubRepo.stubFor(mock).allRecordedCalls()
+    private fun allRecordedCalls(mock: Any) = recorder.stubRepo.stubFor(mock).allRecordedCalls()
 }

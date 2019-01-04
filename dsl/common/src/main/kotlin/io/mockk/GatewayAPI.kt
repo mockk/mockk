@@ -12,17 +12,21 @@ interface MockKGateway {
     val constructorMockFactory: ConstructorMockFactory
     val stubber: Stubber
     val verifier: Verifier
+    val excluder: Excluder
     val callRecorder: CallRecorder
     val instanceFactoryRegistry: InstanceFactoryRegistry
     val clearer: Clearer
     val mockInitializer: MockInitializer
+    val verificationAcknowledger: VerificationAcknowledger
 
     fun verifier(params: VerificationParameters): CallVerifier
 
     data class ClearOptions(
         val answers: Boolean,
         val recordedCalls: Boolean,
-        val childMocks: Boolean
+        val childMocks: Boolean,
+        val verificationMarks: Boolean,
+        val exclusionRules: Boolean
     )
 
     companion object {
@@ -130,6 +134,17 @@ interface MockKGateway {
     }
 
     /**
+     * Verify calls
+     */
+    interface Excluder {
+        fun exclude(
+            params: ExclusionParameters,
+            mockBlock: (MockKMatcherScope.() -> Unit)?,
+            coMockBlock: (suspend MockKMatcherScope.() -> Unit)?
+        )
+    }
+
+    /**
      * Parameters of verification
      */
     data class VerificationParameters(
@@ -140,6 +155,12 @@ interface MockKGateway {
         val timeout: Long
     )
 
+    /**
+     * Parameters of exclusion
+     */
+    data class ExclusionParameters(
+        val current: Boolean
+    )
 
     /**
      * Builds a list of calls
@@ -150,6 +171,8 @@ interface MockKGateway {
         fun startStubbing()
 
         fun startVerification(params: VerificationParameters)
+
+        fun startExclusion(params: ExclusionParameters)
 
         fun round(n: Int, total: Int = 64)
 
@@ -188,7 +211,13 @@ interface MockKGateway {
     /**
      * Result of verification
      */
-    data class VerificationResult(val matches: Boolean, val message: String? = null)
+    sealed class VerificationResult {
+        data class OK(val verifiedCalls: List<Invocation>) : VerificationResult()
+        data class Failure(val message: String) : VerificationResult()
+
+        val matches: Boolean
+            get() = this is VerificationResult.OK
+    }
 
 
     interface InstanceFactoryRegistry {
@@ -211,5 +240,11 @@ interface MockKGateway {
             relaxUnitFun: Boolean,
             relaxed: Boolean
         )
+    }
+
+    interface VerificationAcknowledger {
+        fun markCallVerified(invocation: Invocation)
+
+        fun acknowledgeVerified(mock: Any)
     }
 }

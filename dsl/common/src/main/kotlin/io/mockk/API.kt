@@ -3,8 +3,7 @@
 package io.mockk
 
 import io.mockk.InternalPlatformDsl.toStr
-import io.mockk.MockKGateway.CallRecorder
-import io.mockk.MockKGateway.VerificationParameters
+import io.mockk.MockKGateway.*
 import kotlin.coroutines.experimental.Continuation
 import kotlin.reflect.KClass
 
@@ -234,17 +233,66 @@ object MockKDsl {
     }
 
     /**
+     * Exclude calls from recording
+     *
+     * @param current if current recorded calls should be filtered out
+     */
+    fun internalExcludeRecords(
+        current: Boolean = true,
+        excludeBlock: MockKMatcherScope.() -> Unit
+    ) {
+        MockKGateway.implementation().excluder.exclude(
+            ExclusionParameters(current),
+            excludeBlock,
+            null
+        )
+    }
+
+    /**
+     * Exclude calls from recording for a suspend block
+     *
+     * @param current if current recorded calls should be filtered out
+     */
+    fun internalCoExcludeRecords(
+        current: Boolean = true,
+        excludeBlock: suspend MockKMatcherScope.() -> Unit
+    ) {
+        MockKGateway.implementation().excluder.exclude(
+            ExclusionParameters(current),
+            null,
+            excludeBlock
+        )
+    }
+
+    /**
+     * Checks if all recorded calls were verified.
+     */
+    fun internalConfirmVerified(vararg mocks: Any) {
+        for (mock in mocks) {
+            MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified(mock)
+        }
+    }
+
+    /**
      * Resets information associated with mock
      */
     inline fun internalClearMocks(
         vararg mocks: Any,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
-        childMocks: Boolean = true
+        childMocks: Boolean = true,
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         MockKGateway.implementation().clearer.clear(
             mocks,
-            MockKGateway.ClearOptions(answers, recordedCalls, childMocks)
+            MockKGateway.ClearOptions(
+                answers,
+                recordedCalls,
+                childMocks,
+                verificationMarks,
+                exclusionRules
+            )
         )
     }
 
@@ -371,10 +419,21 @@ object MockKDsl {
         vararg objects: Any,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
-        childMocks: Boolean = true
+        childMocks: Boolean = true,
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         for (obj in objects) {
-            MockKGateway.implementation().objectMockFactory.clear(obj, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
+            MockKGateway.implementation().objectMockFactory.clear(
+                obj,
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
+            )
         }
     }
 
@@ -413,10 +472,21 @@ object MockKDsl {
         vararg classes: KClass<*>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
-        childMocks: Boolean = true
+        childMocks: Boolean = true,
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         for (type in classes) {
-            MockKGateway.implementation().staticMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
+            MockKGateway.implementation().staticMockFactory.clear(
+                type,
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
+            )
         }
     }
 
@@ -459,10 +529,21 @@ object MockKDsl {
         vararg classes: KClass<*>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
-        childMocks: Boolean = true
+        childMocks: Boolean = true,
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
         for (type in classes) {
-            MockKGateway.implementation().constructorMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
+            MockKGateway.implementation().constructorMockFactory.clear(
+                type,
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
+            )
         }
     }
 
@@ -480,9 +561,17 @@ object MockKDsl {
         regularMocks: Boolean = true,
         objectMocks: Boolean = true,
         staticMocks: Boolean = true,
-        constructorMocks: Boolean = true
+        constructorMocks: Boolean = true,
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
     ) {
-        val options = MockKGateway.ClearOptions(answers, recordedCalls, childMocks)
+        val options = MockKGateway.ClearOptions(
+            answers,
+            recordedCalls,
+            childMocks,
+            verificationMarks,
+            exclusionRules
+        )
         val implementation = MockKGateway.implementation()
 
         if (regularMocks) {
@@ -1950,8 +2039,10 @@ class MockKStubScope<T, B>(
     infix fun answers(answer: MockKAnswerScope<T, B>.(Call) -> T) =
         answers(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 
+    @Suppress("UNUSED_PARAMETER")
     infix fun <K : Any> propertyType(cls: KClass<K>) = MockKStubScope<T, K>(callRecorder, lambda)
 
+    @Suppress("UNUSED_PARAMETER")
     infix fun <K : Any> nullablePropertyType(cls: KClass<K>) = MockKStubScope<T, K?>(callRecorder, lambda)
 
     infix fun coAnswers(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
@@ -2085,7 +2176,13 @@ abstract class MockKUnmockKScope {
 
     protected abstract fun doMock(): () -> Unit
 
-    abstract fun clear(answers: Boolean = true, recordedCalls: Boolean = true, childMocks: Boolean = true)
+    abstract fun clear(
+        answers: Boolean = true,
+        recordedCalls: Boolean = true,
+        childMocks: Boolean = true,
+        verificationMarks: Boolean = true,
+        exclusionRules: Boolean = true
+    )
 
     operator fun plus(scope: MockKUnmockKScope): MockKUnmockKScope = MockKUnmockKCompositeScope(this, scope)
 }
@@ -2156,9 +2253,27 @@ class MockKUnmockKCompositeScope(
         }
     }
 
-    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
-        first.clear(answers, recordedCalls, childMocks)
-        second.clear(answers, recordedCalls, childMocks)
+    override fun clear(
+        answers: Boolean,
+        recordedCalls: Boolean,
+        childMocks: Boolean,
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
+    ) {
+        first.clear(
+            answers,
+            recordedCalls,
+            childMocks,
+            verificationMarks,
+            exclusionRules
+        )
+        second.clear(
+            answers,
+            recordedCalls,
+            childMocks,
+            verificationMarks,
+            exclusionRules
+        )
     }
 
 }
@@ -2178,9 +2293,24 @@ class MockKStaticScope(vararg val staticTypes: KClass<*>) : MockKUnmockKScope() 
         return { cancellations.forEach { it() } }
     }
 
-    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+    override fun clear(
+        answers: Boolean,
+        recordedCalls: Boolean,
+        childMocks: Boolean,
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
+    ) {
         for (type in staticTypes) {
-            MockKGateway.implementation().staticMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
+            MockKGateway.implementation().staticMockFactory.clear(
+                type,
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
+            )
         }
     }
 
@@ -2203,9 +2333,24 @@ class MockKObjectScope(vararg val objects: Any, val recordPrivateCalls: Boolean 
         return { cancellations.forEach { it() } }
     }
 
-    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
+    override fun clear(
+        answers: Boolean,
+        recordedCalls: Boolean,
+        childMocks: Boolean,
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
+    ) {
         for (obj in objects) {
-            MockKGateway.implementation().objectMockFactory.clear(obj, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
+            MockKGateway.implementation().objectMockFactory.clear(
+                obj,
+                MockKGateway.ClearOptions(
+                    answers,
+                    recordedCalls,
+                    childMocks,
+                    verificationMarks,
+                    exclusionRules
+                )
+            )
         }
     }
 
@@ -2228,8 +2373,23 @@ class MockKConstructorScope<T : Any>(
         )
     }
 
-    override fun clear(answers: Boolean, recordedCalls: Boolean, childMocks: Boolean) {
-        MockKGateway.implementation().constructorMockFactory.clear(type, MockKGateway.ClearOptions(answers, recordedCalls, childMocks))
+    override fun clear(
+        answers: Boolean,
+        recordedCalls: Boolean,
+        childMocks: Boolean,
+        verificationMarks: Boolean,
+        exclusionRules: Boolean
+    ) {
+        MockKGateway.implementation().constructorMockFactory.clear(
+            type,
+            MockKGateway.ClearOptions(
+                answers,
+                recordedCalls,
+                childMocks,
+                verificationMarks,
+                exclusionRules
+            )
+        )
     }
 }
 

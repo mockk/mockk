@@ -1,6 +1,7 @@
 package io.mockk.impl.stub
 
 import io.mockk.*
+import io.mockk.MockKGateway.ExclusionParameters
 import io.mockk.impl.platform.Disposable
 import kotlin.reflect.KClass
 
@@ -20,6 +21,12 @@ interface Stub : Disposable {
     fun allRecordedCalls(): List<Invocation>
 
     fun allRecordedCalls(method: MethodDescription): List<Invocation>
+
+    fun excludeRecordedCalls(params: ExclusionParameters, matcher: InvocationMatcher)
+
+    fun markCallVerified(invocation: Invocation)
+
+    fun verifiedCalls(): List<Invocation>
 
     fun clear(options: MockKGateway.ClearOptions)
 

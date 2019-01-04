@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package io.mockk.impl.instantiation
 
 import io.mockk.*
@@ -5,7 +7,10 @@ import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class AbstractMockFactoryTest {
     lateinit var mockFactory: Factory

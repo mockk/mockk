@@ -5,6 +5,7 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.Test
 
+@Suppress("UNUSED_VARIABLE")
 class Issue129Test {
     @Test
     fun testConstructorGetParametersMocked() {

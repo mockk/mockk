@@ -20,6 +20,7 @@ class Issue102Test {
         checkLineNumber(ex, stackTrace, "everyLineNumberIsCorrect")
     }
 
+    @Suppress("UNUSED_VALUE")
     @Test
     fun verifyLineNumberIsCorrect() {
         var stackTrace: Array<StackTraceElement>? = null

@@ -34,7 +34,8 @@ class CommonCallRecorderTest {
 
         commonCallRecorder = CommonCallRecorder(
             mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-            mockk(relaxed = true), mockk(relaxed = true), factories, initStateFactory
+            mockk(relaxed = true), mockk(relaxed = true), factories, initStateFactory,
+            mockk(relaxed = true)
         )
     }
 

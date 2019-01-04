@@ -7,6 +7,7 @@ import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("UNUSED_PARAMETER")
 class VarargsTest {
     val mock = mockk<VarargsCls>()
 

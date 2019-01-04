@@ -1,8 +1,8 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.JvmVarArgsCls
-import kotlin.test.Test
 import io.mockk.impl.instantiation.JvmMockFactoryHelper.toDescription
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JvmMockFactoryHelperTest {
@@ -40,6 +40,7 @@ class JvmMockFactoryHelperTest {
     }
 }
 
+@Suppress("UNUSED_PARAMETER")
 internal class SomeClass {
     fun noArg() {}
     fun noVarArg(arg0: Unit) {}
