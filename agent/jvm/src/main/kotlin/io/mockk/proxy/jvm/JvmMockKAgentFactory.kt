@@ -36,9 +36,12 @@ class JvmMockKAgentFactory : MockKAgentFactory {
         class Initializer {
             fun preload() {
                 listOf(
+                    "java.lang.WeakPairMap\$Pair\$Weak",
+                    "java.lang.WeakPairMap\$Pair\$Lookup",
                     "java.lang.WeakPairMap",
+                    "java.lang.WeakPairMap\$WeakRefPeer",
                     "java.lang.WeakPairMap\$Pair",
-                    "java.lang.WeakPairMap\$Pair\$Weak"
+                    "java.lang.WeakPairMap\$Pair\$Weak\$1"
                 ).forEach {
                     try {
                         Class.forName(it, false, null)
