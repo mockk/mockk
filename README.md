@@ -19,13 +19,13 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* New feature: [verification confirmation](#verification-confirmation) [#207](https://github.com/mockk/mockk/pull/207)
 * MockK is now present on [Thoughtworks technology radar](https://www.thoughtworks.com/radar/languages-and-frameworks/mockk)
 * coroutines support was improved, instead of runBlocking it passes through continunation by reflection. v1.8.13 and v1.8.13.kotlin13 [#171](https://github.com/mockk/mockk/pull/171)
-* [YouTube: Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines](https://www.youtube.com/watch?v=h8_LZn1DFDI)
 
 ### Version twist
 
-From version 1.9 MockK switched to Kotlin 1.3 and Coroutines 1.0 by default and old branch 1.9.kotlin12 may be used for compatibility with Kotlin 1.2.
+From version 1.9 MockK switched to Kotlin 1.3 and Coroutines 1.0 by default and other branch 1.9.kotlin12 may be used for compatibility with Kotlin 1.2.
 
 ![Switch of versions](doc/19-verison-twist.png)
 
@@ -146,6 +146,8 @@ every { car.drive(Direction.NORTH) } returns Outcome.OK
 car.drive(Direction.NORTH) // returns OK
 
 verify { car.drive(Direction.NORTH) }
+
+confirmVerified(car)
 ```
 
 ### Annotations
@@ -244,6 +246,8 @@ val car = spyk(Car()) // or spyk<Car>() to call default constructor
 car.drive(Direction.NORTH) // returns whatever real function of Car returns
 
 verify { car.drive(Direction.NORTH) }
+
+confirmVerified(car)
 ```
 
 Note: the spy object is a copy of a passed object.
@@ -260,6 +264,8 @@ val car = mockk<Car>(relaxed = true)
 car.drive(Direction.NORTH) // returns null
 
 verify { car.drive(Direction.NORTH) }
+
+confirmVerified(car)
 ```
 
 Note: relaxed mocking is working badly with generic return type. Usually in this case class cast exception is thrown. You need to specify stubbing manually for case of generic return type.
@@ -422,6 +428,8 @@ every {
 obj.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142)
 
 verify { obj.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142) }
+
+confirmVerified(obj)
 ```
 
 ### Chained calls
@@ -437,6 +445,8 @@ car.door(DoorType.FRONT_LEFT) // returns chained mock for Door
 car.door(DoorType.FRONT_LEFT).windowState() // returns WindowState.UP
 
 verify { car.door(DoorType.FRONT_LEFT).windowState() }
+
+confirmVerified(car)
 ```
 
 Note: in case function return type is generic the information about actual type is erased.
@@ -488,6 +498,8 @@ obj.recordTelemetry(speed = 15, direction = Direction.NORTH) // prints 15
 obj.recordTelemetry(speed = 16, direction = Direction.SOUTH) // prints 16
 
 verify(exactly = 2) { obj.recordTelemetry(speed = or(15, 16), direction = any()) }
+
+confirmVerified(obj)
 ```
 
 ### Verification atLeast, atMost or exactly times
@@ -507,6 +519,8 @@ verify(atLeast = 3) { car.accelerate(allAny()) }
 verify(atMost  = 2) { car.accelerate(fromSpeed = 10, toSpeed = or(20, 30)) }
 verify(exactly = 1) { car.accelerate(fromSpeed = 10, toSpeed = 20) }
 verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) } // means no calls were performed
+
+confirmVerified(car)
 ```
 
 ### Verification order
@@ -555,6 +569,63 @@ val obj3 = mockk<MockedClass>()
 verify {
     listOf(obj2, obj3) wasNot Called
 }
+
+confirmVerified(obj)
+```
+
+### Verification confirmation
+
+To double check that all calls were verified by `verify...` constructs you can use `confirmVerified`:
+
+```
+confirmVerified(mock1, mock2)
+```
+
+It will throw exception in case same calls left without verification.
+
+```
+val car = mockk<Car>()
+
+every { car.drive(Direction.NORTH) } returns Outcome.OK
+every { car.drive(Direction.SOUTH) } returns Outcome.OK
+
+car.drive(Direction.NORTH) // returns OK
+car.drive(Direction.SOUTH) // returns OK
+
+verify {
+    car.drive(Direction.SOUTH)
+    car.drive(Direction.NORTH)
+}
+
+confirmVerified(car) // makes sure all calls were covered with verification
+```
+
+### Recording exclusions
+
+To exclude some not so important calls from being recorded you can use `excludeRecords`:
+
+```
+excludeRecords { mock.operation(any(), 5) }
+```
+
+All matching calls will be excluded from recording. This may be useful in case you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
+
+```
+val car = mockk<Car>()
+
+every { car.drive(Direction.NORTH) } returns Outcome.OK
+every { car.drive(Direction.SOUTH) } returns Outcome.OK
+
+excludeRecords { car.drive(Direction.SOUTH) }
+
+car.drive(Direction.NORTH) // returns OK
+car.drive(Direction.SOUTH) // returns OK
+
+verify {
+    car.drive(Direction.NORTH)
+}
+
+confirmVerified(car) // car.drive(Direction.SOUTH) was excluded, so confirmation is fine with only car.drive(Direction.NORTH)
 ```
 
 ### Verification timeout
@@ -854,8 +925,13 @@ Here are few tables helping to master the DSL.
 |`verify`|starts verification block|
 |`coVerify`|starts verification block for coroutines|
 |`verifyAll`|starts verification block that should include all calls|
+|`coVerifyAll`|starts verification block that should include all calls for coroutines|
 |`verifyOrder`|starts verification block that checks order|
+|`coVerifyOrder`|starts verification block that checks order for coroutines|
 |`verifySequence`|starts verification block that checks all calls goes in sepecified sequence|
+|`coVerifySequence`|starts verification block that checks all calls goes in sepecified sequence for coroutines|
+|`excludeRecords`|exclude some calls from recording|
+|`confirmVerified`|confirms that all recorded calls were verified|
 |`clearMocks`|clears specified mocks|
 |`registerInstanceFactory`|allow to redefine way of instantiation for certain object|
 |`mockkClass`|builds a regular mock, just class is passed as a parameter|
