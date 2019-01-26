@@ -80,7 +80,7 @@ internal class InliningClassTransformer(
                 val property = System.getProperty("io.mockk.classdump.path")
                 if (property != null) {
                     val nextIndex = classDumpIndex.incrementAndGet().toString()
-                    val storePath = File(property, nextIndex)
+                    val storePath = File(File(property, "inline"), nextIndex)
                     type.saveIn(storePath)
                 }
             } catch (ex: Exception) {
