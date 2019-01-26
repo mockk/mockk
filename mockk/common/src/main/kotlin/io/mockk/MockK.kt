@@ -446,9 +446,17 @@ inline fun <T : Any> mockkClass(
     name: String? = null,
     relaxed: Boolean = false,
     vararg moreInterfaces: KClass<*>,
+    relaxUnitFun: Boolean = false,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
-    MockKDsl.internalMockkClass(type, name, relaxed, *moreInterfaces, block = block)
+    MockKDsl.internalMockkClass(
+        type,
+        name,
+        relaxed,
+        *moreInterfaces,
+        relaxUnitFun = relaxUnitFun,
+        block = block
+    )
 }
 
 /**
