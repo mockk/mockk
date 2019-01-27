@@ -52,30 +52,30 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver {
             relaxUnitFun = isRelaxedUnitFun
         )
     }
-}
 
-private fun getMockKAnnotation(parameter: Parameter): Any? {
-    return parameter.getAnnotation(MockK::class.java)
-        ?: parameter.getAnnotation(RelaxedMockK::class.java)
-}
 
-private fun getMockName(parameter: Parameter, annotation: Any): String? {
-    return when {
-        annotation is MockK -> annotation.name
-        annotation is RelaxedMockK -> annotation.name
-        parameter.isNamePresent -> parameter.name
-        else -> null
+    private fun getMockKAnnotation(parameter: Parameter): Any? {
+        return parameter.getAnnotation(MockK::class.java)
+            ?: parameter.getAnnotation(RelaxedMockK::class.java)
     }
-}
 
-private fun moreInterfaces(parameter: Parameter) =
-    parameter.annotations
-        .filter { it is AdditionalInterface }
-        .map { it as AdditionalInterface }
-        .map { it.type }
-        .toTypedArray()
+    private fun getMockName(parameter: Parameter, annotation: Any): String? {
+        return when {
+            annotation is MockK -> annotation.name
+            annotation is RelaxedMockK -> annotation.name
+            parameter.isNamePresent -> parameter.name
+            else -> null
+        }
+    }
 
-override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
-    MockKAnnotations.init(testInstance)
-}
+    private fun moreInterfaces(parameter: Parameter) =
+        parameter.annotations
+            .filter { it is AdditionalInterface }
+            .map { it as AdditionalInterface }
+            .map { it.type }
+            .toTypedArray()
+
+    override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
+        MockKAnnotations.init(testInstance)
+    }
 }
