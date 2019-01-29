@@ -44,7 +44,7 @@ class JvmAutoHinter : AutoHinter() {
     }
 
     private fun extractClassName(ex: ClassCastException): String? {
-        return exceptionMessage.find(ex.message!!)?.groups?.get(3)?.value
+        return ex.message?.let { exceptionMessage.find(it)?.groups?.get(3)?.value }
     }
 
     companion object {
