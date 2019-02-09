@@ -84,8 +84,8 @@ class CommonCallRecorderTest {
 
     @Test
     fun givenCallRecorderWhenAnswerCalledThenCurrentStateAnswerCalled() {
-        commonCallRecorder.answer(mockk(relaxed = true))
-        verify { initState.answer(any()) }
+        commonCallRecorder.answerOpportunity()
+        verify { initState.answerOpportunity() }
     }
 
     @Test

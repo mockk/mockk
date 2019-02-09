@@ -163,6 +163,10 @@ interface MockKGateway {
         val current: Boolean
     )
 
+    interface AnswerOpportunity<T> {
+        fun provideAnswer(answer: Answer<T>)
+    }
+
     /**
      * Builds a list of calls
      */
@@ -181,7 +185,7 @@ interface MockKGateway {
 
         fun call(invocation: Invocation): Any?
 
-        fun answer(answer: Answer<*>)
+        fun answerOpportunity(): AnswerOpportunity<*>
 
         fun done()
 

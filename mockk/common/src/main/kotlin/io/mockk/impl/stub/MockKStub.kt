@@ -29,19 +29,9 @@ open class MockKStub(
 
     var disposeRoutine: () -> Unit = {}
 
-    override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>): AdditionalAnswerOpportunity {
+    override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         val invocationAnswer = InvocationAnswer(matcher, answer)
         answers.add(invocationAnswer)
-
-        return AdditionalAnswerOpportunity({
-            synchronized(answers) {
-                invocationAnswer.answer
-            }
-        }, {
-            synchronized(answers) {
-                invocationAnswer.answer = it
-            }
-        })
     }
 
     override fun answer(invocation: Invocation): Any? {
@@ -296,7 +286,7 @@ open class MockKStub(
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
     }
 
-    private data class InvocationAnswer(val matcher: InvocationMatcher, var answer: Answer<*>)
+    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
     protected fun Invocation.allEqMatcher() =
         InvocationMatcher(

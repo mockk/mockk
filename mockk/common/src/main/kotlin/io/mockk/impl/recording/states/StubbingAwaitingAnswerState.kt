@@ -4,22 +4,23 @@ import io.mockk.*
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
-import io.mockk.impl.stub.AdditionalAnswerOpportunity
+import io.mockk.impl.stub.AnswerAnsweringOpportunity
 import io.mockk.impl.stub.MockKStub
 
 class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
     val log = recorder.safeToString(Logger<StubbingAwaitingAnswerState>())
 
-    override fun answer(answer: Answer<*>) {
+    override fun answerOpportunity(): MockKGateway.AnswerOpportunity<*> {
         val calls = recorder.calls
 
-        var answerOpportunity: AdditionalAnswerOpportunity? = null
+        var answerOpportunity: AnswerAnsweringOpportunity<*>? = null
 
         for ((idx, recordedCall) in calls.withIndex()) {
             val lastCall = idx == calls.size - 1
 
             val ans = if (lastCall) {
-                answer
+                answerOpportunity = AnswerAnsweringOpportunity<Any>(recordedCall.matcher.toString())
+                answerOpportunity
             } else if (recordedCall.isRetValueMock) {
                 ConstantAnswer(recordedCall.retValue)
             } else {
@@ -28,8 +29,8 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
 
             val mock = recordedCall.matcher.self
             val stub = recorder.stubRepo.stubFor(mock)
-            answerOpportunity = stub
-                .addAnswer(recordedCall.matcher, ans)
+
+            stub.addAnswer(recordedCall.matcher, ans)
 
             if (stub::class == MockKStub::class) {
                 assignFieldIfMockingProperty(mock, recordedCall.matcher, ans)
@@ -40,7 +41,8 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
 
         log.trace { "Done stubbing. Still accepting additional answers" }
 
-        recorder.state = recorder.factories.answeringStillAcceptingAnswersState(recorder, answerOpportunity!!)
+        recorder.state = recorder.factories.answeringState(recorder)
+        return answerOpportunity!!
     }
 
     override fun call(invocation: Invocation): Any? {
@@ -56,6 +58,12 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
     }
 
     private fun assignFieldIfMockingProperty(mock: Any, matcher: InvocationMatcher, ans: Answer<Any?>) {
+        if (ans is AnswerAnsweringOpportunity<*>) {
+            ans.onFirstAnswer { answer ->
+                assignFieldIfMockingProperty(mock, matcher, answer)
+            }
+            return
+        }
         try {
             if (ans !is ConstantAnswer) {
                 return

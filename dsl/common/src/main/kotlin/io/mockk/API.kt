@@ -2042,12 +2042,13 @@ typealias runs = Runs
  * Allows to specify function result
  */
 class MockKStubScope<T, B>(
-    val callRecorder: CallRecorder,
+    private val answerOpportunity: AnswerOpportunity<T>,
+    private val callRecorder: CallRecorder,
     private val lambda: CapturingSlot<Function<*>>
 ) {
     infix fun answers(answer: Answer<T>): MockKAdditionalAnswerScope<T, B> {
-        callRecorder.answer(answer)
-        return MockKAdditionalAnswerScope(callRecorder, lambda)
+        answerOpportunity.provideAnswer(answer)
+        return MockKAdditionalAnswerScope(answerOpportunity, callRecorder, lambda)
     }
 
     infix fun returns(returnValue: T) = answers(ConstantAnswer(returnValue))
@@ -2066,10 +2067,11 @@ class MockKStubScope<T, B>(
         answers(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 
     @Suppress("UNUSED_PARAMETER")
-    infix fun <K : Any> propertyType(cls: KClass<K>) = MockKStubScope<T, K>(callRecorder, lambda)
+    infix fun <K : Any> propertyType(cls: KClass<K>) = MockKStubScope<T, K>(answerOpportunity, callRecorder, lambda)
 
     @Suppress("UNUSED_PARAMETER")
-    infix fun <K : Any> nullablePropertyType(cls: KClass<K>) = MockKStubScope<T, K?>(callRecorder, lambda)
+    infix fun <K : Any> nullablePropertyType(cls: KClass<K>) =
+        MockKStubScope<T, K?>(answerOpportunity, callRecorder, lambda)
 
     infix fun coAnswers(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
         answers(CoFunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
@@ -2085,11 +2087,12 @@ infix fun MockKStubScope<Unit, Unit>.just(runs: Runs) = answers(ConstantAnswer(U
  * Scope to chain additional answers to reply. Part of DSL
  */
 class MockKAdditionalAnswerScope<T, B>(
-    val callRecorder: CallRecorder,
+    private val answerOpportunity: AnswerOpportunity<T>,
+    private val callRecorder: CallRecorder,
     private val lambda: CapturingSlot<Function<*>>
 ) {
     infix fun andThenAnswer(answer: Answer<T>): MockKAdditionalAnswerScope<T, B> {
-        callRecorder.answer(answer)
+        answerOpportunity.provideAnswer(answer)
         return this
     }
 

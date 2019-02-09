@@ -123,7 +123,6 @@ class JvmMockKGateway : MockKGateway {
         { PermanentMocker(stubRepo, safeToString) },
         ::VerificationCallSorter,
         ::AnsweringState,
-        ::AnsweringStillAcceptingAnswersState,
         ::StubbingState,
         ::VerifyingState,
         ::ExclusionState,
