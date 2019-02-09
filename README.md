@@ -584,7 +584,7 @@ confirmVerified(mock1, mock2)
 
 There is no big sense to use it for `verifySequence` and `verifyAll` as this verification methods already exhasutively cover all calls with verification. 
 
-It will throw exception in case same calls left without verification.
+It will throw exception in case some calls left without verification.
 
 Some calls may be skipped from such confirmation, check next section for more details.
 
