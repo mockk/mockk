@@ -12,7 +12,8 @@ open class MockKStub(
     val relaxed: Boolean = false,
     val relaxUnitFun: Boolean = false,
     val gatewayAccess: StubGatewayAccess,
-    val recordPrivateCalls: Boolean
+    val recordPrivateCalls: Boolean,
+    val mockType: MockType
 ) : Stub {
     val log = gatewayAccess.safeToString(Logger<MockKStub>())
 

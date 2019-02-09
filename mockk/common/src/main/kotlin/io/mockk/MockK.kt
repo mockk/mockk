@@ -650,6 +650,28 @@ inline fun clearAllMocks(
     )
 }
 
+/**
+ * Checks if provided mock is mock of certain type
+ */
+fun isMockKMock(
+    mock: Any,
+    regular: Boolean = true,
+    spy: Boolean = false,
+    objectMock: Boolean = false,
+    staticMock: Boolean = false,
+    constructorMock: Boolean = false
+) = MockK.useImpl {
+    MockKDsl.internalIsMockKMock(
+        mock,
+        regular,
+        spy,
+        objectMock,
+        staticMock,
+        constructorMock
+    )
+}
+
+
 object MockKAnnotations {
     /**
      * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided object.

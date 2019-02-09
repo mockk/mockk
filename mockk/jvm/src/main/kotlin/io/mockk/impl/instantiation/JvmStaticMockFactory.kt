@@ -6,6 +6,7 @@ import io.mockk.MockKGateway
 import io.mockk.MockKGateway.StaticMockFactory
 import io.mockk.impl.InternalPlatform.hkd
 import io.mockk.impl.log.Logger
+import io.mockk.impl.stub.MockType
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
@@ -25,7 +26,13 @@ class JvmStaticMockFactory(
         if (refCntMap.incrementRefCnt(cls)) {
             log.debug { "Creating static mockk for ${cls.toStr()}" }
 
-            val stub = SpyKStub(cls, "static " + cls.simpleName, gatewayAccess, true)
+            val stub = SpyKStub(
+                cls,
+                "static " + cls.simpleName,
+                gatewayAccess,
+                true,
+                MockType.STATIC
+            )
 
             log.trace { "Building static proxy for ${cls.toStr()} hashcode=${hkd(cls)}" }
             val cancellation = try {

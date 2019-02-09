@@ -588,6 +588,29 @@ object MockKDsl {
             implementation.constructorMockFactory.clearAll(options)
         }
     }
+
+    /*
+     * Checks if provided mock is mock of certain type
+     */
+    fun internalIsMockKMock(
+        mock: Any,
+        regular: Boolean = true,
+        spy: Boolean = false,
+        objectMock: Boolean = false,
+        staticMock: Boolean = false,
+        constructorMock: Boolean = false
+    ): Boolean {
+        val typeChecker = MockKGateway.implementation().mockTypeChecker
+
+        return when {
+            regular && typeChecker.isRegularMock(mock) -> true
+            spy && typeChecker.isSpy(mock) -> true
+            objectMock && typeChecker.isObjectMock(mock) -> true
+            staticMock && typeChecker.isStaticMock(mock) -> true
+            constructorMock && typeChecker.isConstructorMock(mock) -> true
+            else -> false
+        }
+    }
 }
 
 /**
@@ -651,9 +674,11 @@ open class MockKMatcherScope(
 
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
-    inline fun <reified T: Any> neq(value: T): T = eq(value, true)
+
+    inline fun <reified T : Any> neq(value: T): T = eq(value, true)
     inline fun <reified T : Any> refEq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, ref = true, inverse = inverse))
+
     inline fun <reified T : Any> nrefEq(value: T) = refEq(value, true)
 
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
@@ -2149,13 +2174,13 @@ class MockKAnswerScope<T, B>(
     var fieldValueAny: Any?
         set(value) {
             val fv = backingFieldValue
-                    ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
+                ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
 
             fv.setter(value)
         }
         get() {
             val fv = backingFieldValue
-                    ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
+                ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
             return fv.getter()
         }
 }
