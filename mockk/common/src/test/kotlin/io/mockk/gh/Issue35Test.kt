@@ -1,7 +1,9 @@
 package io.mockk.gh
 
 import io.mockk.*
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class Issue35Test {
     class CloudBlockBlob {
@@ -30,5 +32,6 @@ class Issue35Test {
         verify { map["abc"] }
 //        verify(exactly = 0) { map.put("gh", "kl") }
         verify { map.put("ghi", "klm") }
+        unmockkAll()
     }
 }

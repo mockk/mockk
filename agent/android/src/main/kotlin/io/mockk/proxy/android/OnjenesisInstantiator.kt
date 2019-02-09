@@ -6,7 +6,6 @@ import io.mockk.proxy.MockKInstantiatior
 import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.Modifier
-import java.lang.reflect.Proxy
 import java.util.*
 
 internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantiatior {
@@ -32,7 +31,10 @@ internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantia
     private fun <T> proxyInterface(clazz: Class<T>) =
         if (Modifier.isAbstract(clazz.modifiers)) {
             if (clazz.isInterface) {
-                Proxy.getProxyClass(clazz.classLoader, clazz) as Class<T>
+                ProxyBuilder.forClass(Any::class.java)
+                    .parentClassLoader(clazz.classLoader)
+                    .implementing(clazz)
+                    .buildProxyClass()
             } else {
                 ProxyBuilder.forClass(clazz)
                     .parentClassLoader(clazz.classLoader)
