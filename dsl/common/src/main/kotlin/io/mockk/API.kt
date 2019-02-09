@@ -277,6 +277,7 @@ object MockKDsl {
      * Resets information associated with mock
      */
     inline fun internalClearMocks(
+        firstMock: Any,
         vararg mocks: Any,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
@@ -285,7 +286,7 @@ object MockKDsl {
         exclusionRules: Boolean = true
     ) {
         MockKGateway.implementation().clearer.clear(
-            mocks,
+            arrayOf(firstMock, *mocks),
             MockKGateway.ClearOptions(
                 answers,
                 recordedCalls,

@@ -1,6 +1,6 @@
 package io.mockk.gh
 
-import io.mockk.clearMocks
+import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.Test
@@ -17,7 +17,7 @@ class Issue129Test {
         // inject a mockk object to alter native constructor.getParameters
         val instance: DataClass = mockk()
 
-        clearMocks()
+        clearAllMocks()
         unmockkAll()
 
         parameters = DataClass::class.java.constructors[0].parameters
@@ -37,7 +37,7 @@ class Issue129Test {
         // inject a mockk object to alter native constructor.getParameters
         val instance: DataClass = mockk()
 
-        clearMocks()
+        clearAllMocks()
         unmockkAll()
 
         assert(javaClass === DataClass::class.java)

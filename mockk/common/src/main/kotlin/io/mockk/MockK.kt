@@ -315,9 +315,11 @@ fun confirmVerified(vararg mocks: Any) = MockK.useImpl {
 }
 
 /**
- * Resets information associated with mock
+ * Resets information associated with specified mocks.
+ * To clear all mocks use clearAllMocks.
  */
 fun clearMocks(
+    firstMock: Any,
     vararg mocks: Any,
     answers: Boolean = true,
     recordedCalls: Boolean = true,
@@ -327,6 +329,7 @@ fun clearMocks(
 ) =
     MockK.useImpl {
         MockKDsl.internalClearMocks(
+            firstMock = firstMock,
             mocks = *mocks,
             answers = answers,
             recordedCalls = recordedCalls,
