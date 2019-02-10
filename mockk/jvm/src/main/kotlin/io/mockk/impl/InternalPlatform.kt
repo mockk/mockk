@@ -7,16 +7,11 @@ import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
 import java.lang.ref.WeakReference
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Modifier
 import java.util.*
 import java.util.Collections.synchronizedList
-import java.util.concurrent.atomic.AtomicLong
-import kotlin.coroutines.experimental.Continuation
-import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
-import kotlin.reflect.full.isSubclassOf
 
 actual object InternalPlatform {
     actual fun time(): Long = System.nanoTime()
@@ -73,10 +68,22 @@ actual object InternalPlatform {
         return when {
             ex is ClassCastException ->
                 MockKException(
-                    "Class cast exception. " +
-                            "Probably type information was erased.\n" +
-                            "In this case use `hint` before call to specify " +
-                            "exact return type of a method. ", ex
+                    when {
+                        ex.message == null ->
+                            "Class cast exception happened.\n" +
+                                    "WARN: 'message' property in ClassCastException provided by JVM is null, autohinting is not possible. \n" +
+                                    "This is most probably happening due to Java optimization enabled. \n" +
+                                    "You can use `hint` before call or use -XX:-OmitStackTraceInFastThrow to disable this optimization behaviour and make autohiniting work. \n" +
+                                    "For example in gradle use: \n" +
+                                    "\n" +
+                                    "test {\n" +
+                                    "   jvmArgs '-XX:-OmitStackTraceInFastThrow'\n" +
+                                    "}"
+                        else -> "Class cast exception happened.\n" +
+                                "Probably type information was erased.\n" +
+                                "In this case use `hint` before call to specify " +
+                                "exact return type of a method.\n"
+                    }, ex
                 )
 
             ex is NoClassDefFoundError &&
