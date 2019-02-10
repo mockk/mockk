@@ -707,7 +707,14 @@ open class MockKMatcherScope(
     inline fun <reified T : Any> ofType() = match(OfTypeMatcher<T>(T::class))
 
     inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
+    inline fun anyBooleanVararg() = anyVararg<Boolean>().toBooleanArray()
+    inline fun anyByteVararg() = anyVararg<Byte>().toByteArray()
+    inline fun anyCharVararg() = anyVararg<Char>().toCharArray()
+    inline fun anyShortVararg() = anyVararg<Short>().toShortArray()
     inline fun anyIntVararg() = anyVararg<Int>().toIntArray()
+    inline fun anyLongVararg() = anyVararg<Long>().toLongArray()
+    inline fun anyFloatVararg() = anyVararg<Float>().toFloatArray()
+    inline fun anyDoubleVararg() = anyVararg<Double>().toDoubleArray()
 
     inline fun <reified T : Any> varargAll(noinline matcher: MockKVarargScope.(T) -> Boolean) =
         varargAllNullable<T> {
