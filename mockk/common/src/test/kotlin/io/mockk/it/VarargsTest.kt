@@ -1,9 +1,6 @@
 package io.mockk.it
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -851,6 +848,51 @@ class VarargsTest {
             )
         }
         assertEquals(4.0, slot.captured)
+    }
+
+    @Test
+    fun emptyVararg() {
+        every { mock.intWrapperOp(1, c = 2) } returns 3
+
+        mock.intWrapperOp(1, c = 2)
+
+        verify { mock.intWrapperOp(1, c = 2) }
+    }
+
+    @Test
+    fun anyVarargNoPrefixPostfix() {
+        every { mock.intWrapperOp(1, *anyVararg(), c = 5) } returns 3
+
+        mock.intWrapperOp(
+            1,
+            IntWrapper(2),
+            IntWrapper(3),
+            IntWrapper(4),
+            c = 5
+        )
+
+        val slot1 = CapturingSlot<IntWrapper>()
+        val slot2 = CapturingSlot<IntWrapper>()
+
+        verify {
+            mock.intWrapperOp(
+                1,
+                *anyVararg(),
+                c = 5
+            )
+        }
+        verify {
+            mock.intWrapperOp(
+                1,
+                capture(slot1),
+                capture(slot2),
+                *anyVararg(),
+                c = 5
+            )
+        }
+
+        assertEquals(IntWrapper(2), slot1.captured)
+        assertEquals(IntWrapper(3), slot2.captured)
     }
 
     data class IntWrapper(val value: Int)
