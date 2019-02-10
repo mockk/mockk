@@ -5,7 +5,7 @@ buildscript {
     ext.android_build_tools_version = '28.0.2'
     ext.byte_buddy_version = '1.9.3'
     ext.coroutines_version = '1.0.0'
-    ext.dexmaker_version = '2.12.1'
+    ext.dexmaker_version = '2.21.0'
     ext.objenesis_version = '2.6'
     ext.junit_version = '4.12'
     ext.junit_jupiter_version = '5.0.3'

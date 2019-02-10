@@ -10,7 +10,7 @@ interface Stub : Disposable {
 
     val type: KClass<*>
 
-    fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>): AdditionalAnswerOpportunity
+    fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
 
     fun answer(invocation: Invocation): Any?
 

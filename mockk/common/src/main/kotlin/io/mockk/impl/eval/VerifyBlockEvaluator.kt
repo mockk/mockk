@@ -17,6 +17,9 @@ class VerifyBlockEvaluator(
         mockBlock: (MockKVerificationScope.() -> Unit)?,
         coMockBlock: (suspend MockKVerificationScope.() -> Unit)?
     ) {
+        if (coMockBlock != null) {
+            initializeCoroutines()
+        }
 
         callRecorder().startVerification(params)
 

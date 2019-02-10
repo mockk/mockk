@@ -80,5 +80,7 @@ abstract class RecordedBlockEvaluator(
                 }
             }
         }
+
+    protected fun initializeCoroutines() = InternalPlatformDsl.runCoroutine {}
 }
 

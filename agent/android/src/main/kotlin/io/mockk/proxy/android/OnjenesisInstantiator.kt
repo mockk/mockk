@@ -9,7 +9,7 @@ import java.lang.reflect.Modifier
 import java.util.*
 
 internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantiatior {
-    private val objenesis = ObjenesisStd(true)
+    private val objenesis = ObjenesisStd(false)
     private val instantiators = Collections.synchronizedMap(WeakHashMap<Class<*>, ObjectInstantiator<*>>())
 
     override fun <T> instance(cls: Class<T>): T {
@@ -17,11 +17,14 @@ internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantia
 
         log.trace("Creating new empty instance of $clazz")
 
-        val inst = instantiators.getOrPut(clazz) {
-            objenesis.getInstantiatorOf(clazz)
+        val inst = synchronized(instantiators) {
+            instantiators.getOrPut(clazz) {
+                objenesis.getInstantiatorOf(clazz)
+            }
         }
 
-        return clazz.cast(inst.newInstance()) as T
+        val newInstance = inst.newInstance()
+        return clazz.cast(newInstance) as T
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -31,7 +34,7 @@ internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantia
                 ProxyBuilder.forClass(Any::class.java)
                     .parentClassLoader(clazz.classLoader)
                     .implementing(clazz)
-                    .buildProxyClass() as Class<T>
+                    .buildProxyClass()
             } else {
                 ProxyBuilder.forClass(clazz)
                     .parentClassLoader(clazz.classLoader)

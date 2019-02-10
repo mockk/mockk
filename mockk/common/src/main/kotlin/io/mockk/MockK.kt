@@ -315,9 +315,11 @@ fun confirmVerified(vararg mocks: Any) = MockK.useImpl {
 }
 
 /**
- * Resets information associated with mock
+ * Resets information associated with specified mocks.
+ * To clear all mocks use clearAllMocks.
  */
 fun clearMocks(
+    firstMock: Any,
     vararg mocks: Any,
     answers: Boolean = true,
     recordedCalls: Boolean = true,
@@ -327,6 +329,7 @@ fun clearMocks(
 ) =
     MockK.useImpl {
         MockKDsl.internalClearMocks(
+            firstMock = firstMock,
             mocks = *mocks,
             answers = answers,
             recordedCalls = recordedCalls,
@@ -446,9 +449,17 @@ inline fun <T : Any> mockkClass(
     name: String? = null,
     relaxed: Boolean = false,
     vararg moreInterfaces: KClass<*>,
+    relaxUnitFun: Boolean = false,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
-    MockKDsl.internalMockkClass(type, name, relaxed, *moreInterfaces, block = block)
+    MockKDsl.internalMockkClass(
+        type,
+        name,
+        relaxed,
+        *moreInterfaces,
+        relaxUnitFun = relaxUnitFun,
+        block = block
+    )
 }
 
 /**
@@ -638,6 +649,28 @@ inline fun clearAllMocks(
         constructorMocks
     )
 }
+
+/**
+ * Checks if provided mock is mock of certain type
+ */
+fun isMockKMock(
+    mock: Any,
+    regular: Boolean = true,
+    spy: Boolean = false,
+    objectMock: Boolean = false,
+    staticMock: Boolean = false,
+    constructorMock: Boolean = false
+) = MockK.useImpl {
+    MockKDsl.internalIsMockKMock(
+        mock,
+        regular,
+        spy,
+        objectMock,
+        staticMock,
+        constructorMock
+    )
+}
+
 
 object MockKAnnotations {
     /**

@@ -277,6 +277,7 @@ object MockKDsl {
      * Resets information associated with mock
      */
     inline fun internalClearMocks(
+        firstMock: Any,
         vararg mocks: Any,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
@@ -285,7 +286,7 @@ object MockKDsl {
         exclusionRules: Boolean = true
     ) {
         MockKGateway.implementation().clearer.clear(
-            mocks,
+            arrayOf(firstMock, *mocks),
             MockKGateway.ClearOptions(
                 answers,
                 recordedCalls,
@@ -587,6 +588,29 @@ object MockKDsl {
             implementation.constructorMockFactory.clearAll(options)
         }
     }
+
+    /*
+     * Checks if provided mock is mock of certain type
+     */
+    fun internalIsMockKMock(
+        mock: Any,
+        regular: Boolean = true,
+        spy: Boolean = false,
+        objectMock: Boolean = false,
+        staticMock: Boolean = false,
+        constructorMock: Boolean = false
+    ): Boolean {
+        val typeChecker = MockKGateway.implementation().mockTypeChecker
+
+        return when {
+            regular && typeChecker.isRegularMock(mock) -> true
+            spy && typeChecker.isSpy(mock) -> true
+            objectMock && typeChecker.isObjectMock(mock) -> true
+            staticMock && typeChecker.isStaticMock(mock) -> true
+            constructorMock && typeChecker.isConstructorMock(mock) -> true
+            else -> false
+        }
+    }
 }
 
 /**
@@ -650,9 +674,11 @@ open class MockKMatcherScope(
 
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
-    inline fun <reified T: Any> neq(value: T): T = eq(value, true)
+
+    inline fun <reified T : Any> neq(value: T): T = eq(value, true)
     inline fun <reified T : Any> refEq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, ref = true, inverse = inverse))
+
     inline fun <reified T : Any> nrefEq(value: T) = refEq(value, true)
 
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
@@ -679,6 +705,88 @@ open class MockKMatcherScope(
     inline fun <reified T : Any> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls))
     inline fun <reified T : Any> ofType() = match(OfTypeMatcher<T>(T::class))
+
+    inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
+    inline fun anyBooleanVararg() = anyVararg<Boolean>().toBooleanArray()
+    inline fun anyByteVararg() = anyVararg<Byte>().toByteArray()
+    inline fun anyCharVararg() = anyVararg<Char>().toCharArray()
+    inline fun anyShortVararg() = anyVararg<Short>().toShortArray()
+    inline fun anyIntVararg() = anyVararg<Int>().toIntArray()
+    inline fun anyLongVararg() = anyVararg<Long>().toLongArray()
+    inline fun anyFloatVararg() = anyVararg<Float>().toFloatArray()
+    inline fun anyDoubleVararg() = anyVararg<Double>().toDoubleArray()
+
+    inline fun <reified T : Any> varargAll(noinline matcher: MockKVarargScope.(T) -> Boolean) =
+        varargAllNullable<T> {
+            when (it) {
+                null -> false
+                else -> matcher(it)
+            }
+        }
+
+    inline fun <reified T : Any> varargAllNullable(noinline matcher: MockKVarargScope.(T?) -> Boolean) =
+        arrayOf(callRecorder.matcher(VarargMatcher(true, matcher), T::class))
+
+    inline fun varargAllBoolean(noinline matcher: MockKVarargScope.(Boolean) -> Boolean) =
+        varargAll(matcher).toBooleanArray()
+
+    inline fun varargAllByte(noinline matcher: MockKVarargScope.(Byte) -> Boolean) =
+        varargAll(matcher).toByteArray()
+
+    inline fun varargAllChar(noinline matcher: MockKVarargScope.(Char) -> Boolean) =
+        varargAll(matcher).toCharArray()
+
+    inline fun varargAllShort(noinline matcher: MockKVarargScope.(Short) -> Boolean) =
+        varargAll(matcher).toShortArray()
+
+    inline fun varargAllInt(noinline matcher: MockKVarargScope.(Int) -> Boolean) =
+        varargAll(matcher).toIntArray()
+
+    inline fun varargAllLong(noinline matcher: MockKVarargScope.(Long) -> Boolean) =
+        varargAll(matcher).toLongArray()
+
+    inline fun varargAllFloat(noinline matcher: MockKVarargScope.(Float) -> Boolean) =
+        varargAll(matcher).toFloatArray()
+
+    inline fun varargAllDouble(noinline matcher: MockKVarargScope.(Double) -> Boolean) =
+        varargAll(matcher).toDoubleArray()
+
+    inline fun <reified T : Any> varargAny(noinline matcher: MockKVarargScope.(T) -> Boolean) =
+        varargAnyNullable<T> {
+            when (it) {
+                null -> false
+                else -> matcher(it)
+            }
+        }
+
+    inline fun <reified T : Any> varargAnyNullable(noinline matcher: MockKVarargScope.(T?) -> Boolean) =
+        arrayOf(callRecorder.matcher(VarargMatcher(false, matcher), T::class))
+
+    inline fun varargAnyBoolean(noinline matcher: MockKVarargScope.(Boolean) -> Boolean) =
+        varargAny(matcher).toBooleanArray()
+
+    inline fun varargAnyByte(noinline matcher: MockKVarargScope.(Byte) -> Boolean) =
+        varargAny(matcher).toByteArray()
+
+    inline fun varargAnyChar(noinline matcher: MockKVarargScope.(Char) -> Boolean) =
+        varargAny(matcher).toCharArray()
+
+    inline fun varargAnyShort(noinline matcher: MockKVarargScope.(Short) -> Boolean) =
+        varargAny(matcher).toShortArray()
+
+    inline fun varargAnyInt(noinline matcher: MockKVarargScope.(Int) -> Boolean) =
+        varargAny(matcher).toIntArray()
+
+    inline fun varargAnyLong(noinline matcher: MockKVarargScope.(Long) -> Boolean) =
+        varargAny(matcher).toLongArray()
+
+    inline fun varargAnyFloat(noinline matcher: MockKVarargScope.(Float) -> Boolean) =
+        varargAny(matcher).toFloatArray()
+
+    inline fun varargAnyDouble(noinline matcher: MockKVarargScope.(Double) -> Boolean) =
+        varargAny(matcher).toDoubleArray()
+
+    class MockKVarargScope(val position: Int, val nArgs: Int)
 
     inline fun <reified T : () -> R, R> invoke() = match(InvokeMatcher<T> { it() })
     inline fun <reified T : (A1) -> R, R, A1> invoke(arg1: A1) = match(InvokeMatcher<T> { it(arg1) })
@@ -2016,12 +2124,13 @@ typealias runs = Runs
  * Allows to specify function result
  */
 class MockKStubScope<T, B>(
-    val callRecorder: CallRecorder,
+    private val answerOpportunity: AnswerOpportunity<T>,
+    private val callRecorder: CallRecorder,
     private val lambda: CapturingSlot<Function<*>>
 ) {
     infix fun answers(answer: Answer<T>): MockKAdditionalAnswerScope<T, B> {
-        callRecorder.answer(answer)
-        return MockKAdditionalAnswerScope(callRecorder, lambda)
+        answerOpportunity.provideAnswer(answer)
+        return MockKAdditionalAnswerScope(answerOpportunity, callRecorder, lambda)
     }
 
     infix fun returns(returnValue: T) = answers(ConstantAnswer(returnValue))
@@ -2040,10 +2149,11 @@ class MockKStubScope<T, B>(
         answers(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 
     @Suppress("UNUSED_PARAMETER")
-    infix fun <K : Any> propertyType(cls: KClass<K>) = MockKStubScope<T, K>(callRecorder, lambda)
+    infix fun <K : Any> propertyType(cls: KClass<K>) = MockKStubScope<T, K>(answerOpportunity, callRecorder, lambda)
 
     @Suppress("UNUSED_PARAMETER")
-    infix fun <K : Any> nullablePropertyType(cls: KClass<K>) = MockKStubScope<T, K?>(callRecorder, lambda)
+    infix fun <K : Any> nullablePropertyType(cls: KClass<K>) =
+        MockKStubScope<T, K?>(answerOpportunity, callRecorder, lambda)
 
     infix fun coAnswers(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
         answers(CoFunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
@@ -2059,11 +2169,12 @@ infix fun MockKStubScope<Unit, Unit>.just(runs: Runs) = answers(ConstantAnswer(U
  * Scope to chain additional answers to reply. Part of DSL
  */
 class MockKAdditionalAnswerScope<T, B>(
-    val callRecorder: CallRecorder,
+    private val answerOpportunity: AnswerOpportunity<T>,
+    private val callRecorder: CallRecorder,
     private val lambda: CapturingSlot<Function<*>>
 ) {
     infix fun andThenAnswer(answer: Answer<T>): MockKAdditionalAnswerScope<T, B> {
-        callRecorder.answer(answer)
+        answerOpportunity.provideAnswer(answer)
         return this
     }
 
@@ -2148,13 +2259,13 @@ class MockKAnswerScope<T, B>(
     var fieldValueAny: Any?
         set(value) {
             val fv = backingFieldValue
-                    ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
+                ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
 
             fv.setter(value)
         }
         get() {
             val fv = backingFieldValue
-                    ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
+                ?: throw MockKException("no backing field found for '${call.invocation.method.name}'")
             return fv.getter()
         }
 }

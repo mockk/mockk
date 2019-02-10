@@ -45,7 +45,8 @@ abstract class AbstractMockFactory(
             relaxed || MockKSettings.relaxed,
             relaxUnitFun || MockKSettings.relaxUnitFun,
             gatewayAccess,
-            true
+            true,
+            MockType.REGULAR
         )
 
         if (moreInterfaces.isEmpty()) {
@@ -90,7 +91,8 @@ abstract class AbstractMockFactory(
             actualCls,
             newName,
             gatewayAccess,
-            recordPrivateCalls || MockKSettings.recordPrivateCalls
+            recordPrivateCalls || MockKSettings.recordPrivateCalls,
+            MockType.SPY
         )
 
         val useDefaultConstructor = objToCopy == null
@@ -116,7 +118,8 @@ abstract class AbstractMockFactory(
             mockType,
             "temporary mock",
             gatewayAccess = gatewayAccess,
-            recordPrivateCalls = true
+            recordPrivateCalls = true,
+            mockType = MockType.TEMPORARY
         )
 
         log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }

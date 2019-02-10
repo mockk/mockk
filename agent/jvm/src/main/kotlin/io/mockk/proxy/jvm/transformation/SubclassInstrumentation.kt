@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm.transformation
 
+import io.mockk.proxy.MockKAgentLogger
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
@@ -12,9 +13,12 @@ import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.implementation.attribute.MethodAttributeAppender
 import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
 import net.bytebuddy.matcher.ElementMatchers.any
+import java.io.File
 import java.lang.Thread.currentThread
+import java.util.concurrent.atomic.AtomicLong
 
 internal class SubclassInstrumentation(
+    private val log: MockKAgentLogger,
     private val handlers: Map<Any, MockKInvocationHandler>,
     private val byteBuddy: ByteBuddy
 ) {
@@ -70,14 +74,31 @@ internal class SubclassInstrumentation(
             )
             .to(JvmMockKProxyInterceptor::class.java)
 
-        return byteBuddy.subclass(clazz)
+        val type = byteBuddy.subclass(clazz)
             .implement(*interfaces)
             .annotateType(*clazz.annotations)
             .method(any<Any>())
             .intercept(interceptor)
             .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
             .make()
+
+        try {
+            val property = System.getProperty("io.mockk.classdump.path")
+            if (property != null) {
+                val nextIndex = classDumpIndex.incrementAndGet().toString()
+                val storePath = File(File(property, "subclass"), nextIndex)
+                type.saveIn(storePath)
+            }
+        } catch (ex: Exception) {
+            log.trace(ex, "Failed to save file to a dump");
+        }
+
+        return type
             .load(resultClassLoader, ClassLoadingStrategy.Default.INJECTION.with(clazz.protectionDomain))
             .loaded
+    }
+
+    companion object {
+        val classDumpIndex = AtomicLong();
     }
 }

@@ -1,6 +1,7 @@
 package io.mockk.impl.eval
 
 import io.mockk.CapturingSlot
+import io.mockk.MockKGateway
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKGateway.Stubber
 import io.mockk.MockKMatcherScope
@@ -12,10 +13,14 @@ class EveryBlockEvaluator(
     autoHinterFactory: () -> AutoHinter
 ) : RecordedBlockEvaluator(callRecorder, autoHinterFactory), Stubber {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> every(
         mockBlock: (MockKMatcherScope.() -> T)?,
         coMockBlock: (suspend MockKMatcherScope.() -> T)?
     ): MockKStubScope<T, T> {
+        if (coMockBlock != null) {
+            initializeCoroutines()
+        }
 
         callRecorder().startStubbing()
 
@@ -24,6 +29,8 @@ class EveryBlockEvaluator(
 
         record(scope, mockBlock, coMockBlock)
 
-        return MockKStubScope(callRecorder(), lambda)
+        val opportunity = callRecorder().answerOpportunity() as MockKGateway.AnswerOpportunity<T>
+
+        return MockKStubScope(opportunity, callRecorder(), lambda)
     }
 }

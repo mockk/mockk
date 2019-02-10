@@ -22,7 +22,7 @@ class CallRecordingStateTest {
             { state.startStubbing() },
             { state.startVerification(mockk(relaxed = true)) },
             { state.round(1, 1) },
-            { state.answer(mockk(relaxed = true)) },
+            { state.answerOpportunity() },
             { state.recordingDone() },
             { state.nCalls() },
             { state.estimateCallRounds() },

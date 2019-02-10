@@ -7,10 +7,7 @@ import io.mockk.MockKGateway
 import io.mockk.MockKGateway.ConstructorMockFactory
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
-import io.mockk.impl.stub.CommonClearer
-import io.mockk.impl.stub.ConstructorStub
-import io.mockk.impl.stub.SpyKStub
-import io.mockk.impl.stub.StubGatewayAccess
+import io.mockk.impl.stub.*
 import io.mockk.proxy.Cancelable
 import io.mockk.proxy.MockKConstructorProxyMaker
 import io.mockk.proxy.MockKInvocationHandler
@@ -43,11 +40,17 @@ class JvmConstructorMockFactory(
             log.trace { "Creating constructor representation mock for ${cls.toStr()}" }
         }
 
-        val representativeStub = SpyKStub(cls, name, gatewayAccess, true)
+        val representativeStub = SpyKStub(
+            cls,
+            name,
+            gatewayAccess,
+            true,
+            MockType.CONSTRUCTOR
+        )
         val representativeMock = mockFactory.newProxy(cls, arrayOf(), representativeStub)
 
         init {
-            with(representativeStub){
+            with(representativeStub) {
                 hashCodeStr = InternalPlatform.hkd(representativeMock)
                 disposeRoutine = this@ConstructorMock::dispose
 
@@ -79,7 +82,7 @@ class JvmConstructorMockFactory(
             args: Array<Any?>
         ): Any? {
             val mock = constructorMock
-                    ?: throw MockKException("Bad constructor mock handler for ${self::class}")
+                ?: throw MockKException("Bad constructor mock handler for ${self::class}")
 
             log.trace { "Connecting just created object to constructor representation mock for ${cls.toStr()}" }
 
@@ -176,7 +179,7 @@ class JvmConstructorMockFactory(
 
     override fun <T : Any> mockPlaceholder(cls: KClass<T>) = cls.cast(
         getMock(cls)
-                ?: throw MockKException("to use anyConstructed<T>() first build mockkConstructor<T>() and 'use' it")
+            ?: throw MockKException("to use anyConstructed<T>() first build mockkConstructor<T>() and 'use' it")
     )
 
     override fun clear(type: KClass<*>, options: MockKGateway.ClearOptions) {
@@ -186,8 +189,10 @@ class JvmConstructorMockFactory(
     }
 
     override fun clearAll(options: MockKGateway.ClearOptions) {
-            clearer.clearAll(options)
+        clearer.clearAll(options)
     }
+
+    fun isMock(cls: KClass<*>) = getMock(cls) != null
 
     private fun <T : Any> getMock(cls: KClass<T>): Any? {
         return synchronized(handlers) {

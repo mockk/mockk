@@ -385,6 +385,96 @@ data class ArrayMatcher<in T : Any>(private val matchers: List<Matcher<Any>>) : 
     }
 }
 
+data class VarargMatcher<T : Any>(
+    private val all: Boolean,
+    private val matcher: MockKMatcherScope.MockKVarargScope.(T?) -> Boolean,
+    private val prefix: List<Matcher<T>> = listOf(),
+    private val postfix: List<Matcher<T>> = listOf()
+) : Matcher<Any>, CapturingMatcher {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun match(arg: Any?): Boolean {
+        if (arg == null) {
+            return false
+        }
+
+        val arr = arg.toArray()
+
+        if (arr.size < prefix.size + postfix.size) {
+            return false
+        }
+
+        repeat(prefix.size) {
+            val el = arr[it] as T?
+            if (!prefix[it].match(el)) {
+                return false
+            }
+        }
+
+        repeat(postfix.size) {
+            val el = arr[arr.size - postfix.size + it] as T?
+            if (!postfix[it].match(el)) {
+                return false
+            }
+        }
+
+
+        val centralPartSize = arr.size - postfix.size - prefix.size
+
+        if (all) {
+            repeat(centralPartSize) {
+                val position = it + prefix.size
+                val el = arr[position] as T?
+                val scope = MockKMatcherScope.MockKVarargScope(position, arr.size)
+                if (!scope.matcher(el)) {
+                    return false
+                }
+            }
+            return true
+        } else {
+            repeat(centralPartSize) {
+                val position = it + prefix.size
+                val el = arr[position] as T?
+                val scope = MockKMatcherScope.MockKVarargScope(position, arr.size)
+                if (scope.matcher(el)) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
+    override fun capture(arg: Any?) {
+        if (arg == null) {
+            return
+        }
+
+        val arr = arg.toArray()
+
+        if (arr.size < prefix.size + postfix.size) {
+            return
+        }
+
+        repeat(prefix.size) {
+            val el = arr[it] as T?
+            val elMatcher = prefix[it]
+            if (elMatcher is CapturingMatcher) {
+                elMatcher.capture(el)
+            }
+        }
+
+        repeat(postfix.size) {
+            val el = arr[arr.size - postfix.size + it] as T?
+            val elMatcher = postfix[it]
+            if (elMatcher is CapturingMatcher) {
+                elMatcher.capture(el)
+            }
+        }
+    }
+
+    override fun toString() = "VarargMatcher(all=$all, prefix=$prefix, postfix=$postfix, centralPart=lambda)"
+}
+
 
 fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
     subMatchers?.let {

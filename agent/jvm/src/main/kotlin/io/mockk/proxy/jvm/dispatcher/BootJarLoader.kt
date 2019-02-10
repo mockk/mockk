@@ -7,6 +7,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.lang.instrument.Instrumentation
+import java.util.*
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
@@ -51,7 +52,7 @@ internal class BootJarLoader(
 
     private fun buildBootJar(): File? {
         try {
-            val boot = File.createTempFile("mockk_boot", ".jar")
+            val boot = createTempBootFile()
             boot.deleteOnExit()
 
             val out = JarOutputStream(FileOutputStream(boot))
@@ -71,6 +72,13 @@ internal class BootJarLoader(
         }
 
     }
+
+    private fun createTempBootFile() =
+        try {
+            File.createTempFile("mockk_boot", ".jar")
+        } catch (ex: IOException) {
+            File("mockk_boot_${Math.abs(rnd.nextLong())}.jar")
+        }
 
     @Throws(IOException::class)
     private fun addClass(out: JarOutputStream, source: String): Boolean {
@@ -94,6 +102,8 @@ internal class BootJarLoader(
 
     companion object {
         private val pkg = "${BootJarLoader::class.java.`package`.name}."
+
+        private val rnd = Random()
 
         private val classNames = arrayOf(
             pkg + "JvmMockKDispatcher",

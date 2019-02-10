@@ -23,10 +23,7 @@ class JvmAutoHinter : AutoHinter() {
                 block()
                 break
             } catch (ex: ClassCastException) {
-                val clsName =
-                    extractClassName(ex)
-                            ?: extractClassName(ex)
-                            ?: throw ex
+                val clsName = extractClassName(ex)
                 val nCalls = callRecorder.nCalls()
                 if (nCalls <= callsPassed) {
                     throw ex
@@ -43,8 +40,10 @@ class JvmAutoHinter : AutoHinter() {
         }
     }
 
-    private fun extractClassName(ex: ClassCastException): String? {
-        return ex.message?.let { exceptionMessage.find(it)?.groups?.get(3)?.value } ?: throw ex
+    private fun extractClassName(ex: ClassCastException): String {
+        return ex.message?.let {
+            exceptionMessage.find(it)?.groups?.get(3)?.value
+        } ?: throw ex
     }
 
     companion object {

@@ -18,6 +18,7 @@ interface MockKGateway {
     val clearer: Clearer
     val mockInitializer: MockInitializer
     val verificationAcknowledger: VerificationAcknowledger
+    val mockTypeChecker: MockTypeChecker
 
     fun verifier(params: VerificationParameters): CallVerifier
 
@@ -162,6 +163,10 @@ interface MockKGateway {
         val current: Boolean
     )
 
+    interface AnswerOpportunity<T> {
+        fun provideAnswer(answer: Answer<T>)
+    }
+
     /**
      * Builds a list of calls
      */
@@ -180,7 +185,7 @@ interface MockKGateway {
 
         fun call(invocation: Invocation): Any?
 
-        fun answer(answer: Answer<*>)
+        fun answerOpportunity(): AnswerOpportunity<*>
 
         fun done()
 
@@ -246,5 +251,17 @@ interface MockKGateway {
         fun markCallVerified(invocation: Invocation)
 
         fun acknowledgeVerified(mock: Any)
+    }
+
+    interface MockTypeChecker {
+        fun isRegularMock(mock: Any): Boolean
+
+        fun isSpy(mock: Any): Boolean
+
+        fun isObjectMock(mock: Any): Boolean
+
+        fun isStaticMock(mock: Any): Boolean
+
+        fun isConstructorMock(mock: Any): Boolean
     }
 }

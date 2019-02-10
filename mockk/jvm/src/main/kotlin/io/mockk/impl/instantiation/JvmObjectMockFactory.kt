@@ -6,6 +6,7 @@ import io.mockk.MockKGateway
 import io.mockk.MockKGateway.ObjectMockFactory
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
+import io.mockk.impl.stub.MockType
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
@@ -25,7 +26,13 @@ class JvmObjectMockFactory(
 
             log.debug { "Creating object mockk for ${cls.toStr()}" }
 
-            val stub = SpyKStub(cls, "object " + cls.simpleName, gatewayAccess, recordPrivateCalls)
+            val stub = SpyKStub(
+                cls,
+                "object " + cls.simpleName,
+                gatewayAccess,
+                recordPrivateCalls,
+                MockType.OBJECT
+            )
 
             log.trace {
                 "Building object proxy for ${cls.toStr()} hashcode=${InternalPlatform.hkd(

@@ -92,7 +92,11 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     )
                 }
 
-                val subclasser = SubclassInstrumentation(handlers, byteBuddy)
+                val subclasser = SubclassInstrumentation(
+                    logFactory.logger(SubclassInstrumentation::class.java),
+                    handlers,
+                    byteBuddy
+                )
 
 
                 jvmProxyMaker = ProxyMaker(

@@ -153,7 +153,8 @@ open class UnorderedCallVerifier(
         for ((i, arg) in invocation.args.withIndex()) {
             val argMatcher = matcher.args[i]
             val matches = argMatcher.match(arg)
-            str.append("[$i]: argument: $arg, matcher: $argMatcher, result: ${if (matches) "+" else "-"}\n")
+            val argStr = safeToString.exec { arg.toStr() }
+            str.append("[$i]: argument: $argStr, matcher: $argMatcher, result: ${if (matches) "+" else "-"}\n")
         }
         return str.toString()
     }

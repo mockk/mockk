@@ -7,6 +7,7 @@ object JvmLogging {
     fun slf4jOrJulLogging(): (KClass<*>) -> Logger {
         return try {
             Class.forName("org.slf4j.Logger");
+            Class.forName("org.slf4j.impl.StaticLoggerBinder");
             { cls: KClass<*> -> Slf4jLogger(cls) }
         } catch (ex: ClassNotFoundException) {
             { cls: KClass<*> -> JULLogger(cls) }

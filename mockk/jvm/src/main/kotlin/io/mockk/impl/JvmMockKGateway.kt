@@ -92,6 +92,10 @@ class JvmMockKGateway : MockKGateway {
         gatewayAccessWithFactory
     )
 
+    override val mockTypeChecker = JvmMockTypeChecker(
+        stubRepo,
+        constructorMockFactory::isMock
+    )
 
     override fun verifier(params: VerificationParameters): CallVerifier {
         val ordering = params.ordering
@@ -119,7 +123,6 @@ class JvmMockKGateway : MockKGateway {
         { PermanentMocker(stubRepo, safeToString) },
         ::VerificationCallSorter,
         ::AnsweringState,
-        ::AnsweringStillAcceptingAnswersState,
         ::StubbingState,
         ::VerifyingState,
         ::ExclusionState,

@@ -1,6 +1,5 @@
 package io.mockk.impl.recording
 
-import io.mockk.Answer
 import io.mockk.Invocation
 import io.mockk.Matcher
 import io.mockk.MockKGateway.*
@@ -52,7 +51,7 @@ class CommonCallRecorder(
     override fun nCalls() = state.nCalls()
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T = state.matcher(matcher, cls)
     override fun call(invocation: Invocation) = state.call(invocation)
-    override fun answer(answer: Answer<*>) = state.answer(answer)
+    override fun answerOpportunity() = state.answerOpportunity()
     override fun estimateCallRounds(): Int = state.estimateCallRounds()
     override fun wasNotCalled(list: List<Any>) = state.wasNotCalled(list)
 

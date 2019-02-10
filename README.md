@@ -19,7 +19,7 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
-* [TDD for Android tutorial part 1](https://www.youtube.com/watch?v=60KFJTb_HwU) by Ryan Kay 
+* TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
 * New feature: [verification confirmation](#verification-confirmation) [#207](https://github.com/mockk/mockk/pull/207)
 * MockK is now present on [Thoughtworks technology radar](https://www.thoughtworks.com/radar/languages-and-frameworks/mockk)
 
@@ -58,7 +58,7 @@ Table of contents:
  - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
- - [TDD for Android tutorial part 1](https://www.youtube.com/watch?v=60KFJTb_HwU) by Ryan Kay 
+ - TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
  - [https://github.com/PhilippeBoisney/NoBullshit](https://github.com/PhilippeBoisney/NoBullshit)
  - [https://medium.com/@Phil_Boisney/playing-with-kotlin-you-know-everything-john-doe-8275a6e98a96](https://medium.com/@Phil_Boisney/playing-with-kotlin-you-know-everything-john-doe-8275a6e98a96)
  - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
@@ -582,7 +582,11 @@ To double check that all calls were verified by `verify...` constructs you can u
 confirmVerified(mock1, mock2)
 ```
 
-It will throw exception in case same calls left without verification.
+There is no big sense to use it for `verifySequence` and `verifyAll` as this verification methods already exhasutively cover all calls with verification. 
+
+It will throw exception in case some calls left without verification.
+
+Some calls may be skipped from such confirmation, check next section for more details.
 
 ```
 val car = mockk<Car>()

@@ -1,25 +1,27 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.Answer
-import io.mockk.ConstantAnswer
-import io.mockk.InternalPlatformDsl
-import io.mockk.InvocationMatcher
+import io.mockk.*
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
-import io.mockk.impl.stub.AdditionalAnswerOpportunity
+import io.mockk.impl.stub.AnswerAnsweringOpportunity
 import io.mockk.impl.stub.MockKStub
 
 class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
-    override fun answer(answer: Answer<*>) {
+    val log = recorder.safeToString(Logger<StubbingAwaitingAnswerState>())
+
+    override fun answerOpportunity(): MockKGateway.AnswerOpportunity<*> {
         val calls = recorder.calls
 
-        var answerOpportunity: AdditionalAnswerOpportunity? = null
+        var answerOpportunity: AnswerAnsweringOpportunity<*>? = null
 
         for ((idx, recordedCall) in calls.withIndex()) {
             val lastCall = idx == calls.size - 1
 
             val ans = if (lastCall) {
-                answer
+                answerOpportunity = AnswerAnsweringOpportunity<Any> {
+                    recorder.safeExec { recordedCall.matcher.toString() }
+                }
+                answerOpportunity
             } else if (recordedCall.isRetValueMock) {
                 ConstantAnswer(recordedCall.retValue)
             } else {
@@ -28,8 +30,8 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
 
             val mock = recordedCall.matcher.self
             val stub = recorder.stubRepo.stubFor(mock)
-            answerOpportunity = stub
-                .addAnswer(recordedCall.matcher, ans)
+
+            stub.addAnswer(recordedCall.matcher, ans)
 
             if (stub::class == MockKStub::class) {
                 assignFieldIfMockingProperty(mock, recordedCall.matcher, ans)
@@ -40,10 +42,17 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
 
         log.trace { "Done stubbing. Still accepting additional answers" }
 
-        recorder.state = recorder.factories.answeringStillAcceptingAnswersState(recorder, answerOpportunity!!)
+        recorder.state = recorder.factories.answeringState(recorder)
+        return answerOpportunity!!
     }
 
     private fun assignFieldIfMockingProperty(mock: Any, matcher: InvocationMatcher, ans: Answer<Any?>) {
+        if (ans is AnswerAnsweringOpportunity<*>) {
+            ans.onFirstAnswer { answer ->
+                assignFieldIfMockingProperty(mock, matcher, answer)
+            }
+            return
+        }
         try {
             if (ans !is ConstantAnswer) {
                 return
@@ -63,8 +72,4 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
     }
 
     private fun String.toCamelCase() = if (isEmpty()) this else substring(0, 1).toLowerCase() + substring(1)
-
-    companion object {
-        val log = Logger<StubbingAwaitingAnswerState>()
-    }
 }

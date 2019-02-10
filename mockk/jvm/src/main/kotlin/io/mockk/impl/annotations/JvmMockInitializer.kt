@@ -2,6 +2,7 @@ package io.mockk.impl.annotations
 
 import io.mockk.MockKException
 import io.mockk.MockKGateway
+import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
@@ -9,7 +10,6 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
-import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
 
 class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializer {
     override fun initAnnotatedMocks(
@@ -178,7 +178,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 ?: return
 
         if (this !is KMutableProperty1<Any, Any>) {
-            throw MockKException("Annotation $annotation present on $name read-only property, make it read-write please('lateinit var' for example)")
+            throw MockKException("Annotation $annotation present on $name read-only property, make it read-write please('lateinit var' or 'var')")
         }
 
         set(target, ret)

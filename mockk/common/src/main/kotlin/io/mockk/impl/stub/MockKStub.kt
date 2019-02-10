@@ -12,7 +12,8 @@ open class MockKStub(
     val relaxed: Boolean = false,
     val relaxUnitFun: Boolean = false,
     val gatewayAccess: StubGatewayAccess,
-    val recordPrivateCalls: Boolean
+    val recordPrivateCalls: Boolean,
+    val mockType: MockType
 ) : Stub {
     val log = gatewayAccess.safeToString(Logger<MockKStub>())
 
@@ -28,19 +29,9 @@ open class MockKStub(
 
     var disposeRoutine: () -> Unit = {}
 
-    override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>): AdditionalAnswerOpportunity {
+    override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
         val invocationAnswer = InvocationAnswer(matcher, answer)
         answers.add(invocationAnswer)
-
-        return AdditionalAnswerOpportunity({
-            synchronized(answers) {
-                invocationAnswer.answer
-            }
-        }, {
-            synchronized(answers) {
-                invocationAnswer.answer = it
-            }
-        })
     }
 
     override fun answer(invocation: Invocation): Any? {
@@ -96,7 +87,7 @@ open class MockKStub(
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
             } else {
-                throw MockKException("no answer found for: $invocation")
+                throw MockKException("no answer found for: ${gatewayAccess.safeToString.exec { invocation.toString() }}")
             }
         }
     }
@@ -295,7 +286,7 @@ open class MockKStub(
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
     }
 
-    private data class InvocationAnswer(val matcher: InvocationMatcher, var answer: Answer<*>)
+    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
 
     protected fun Invocation.allEqMatcher() =
         InvocationMatcher(

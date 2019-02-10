@@ -1,9 +1,9 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.Answer
 import io.mockk.Invocation
 import io.mockk.Matcher
 import io.mockk.MockKException
+import io.mockk.MockKGateway.AnswerOpportunity
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.impl.recording.CommonCallRecorder
 import kotlin.reflect.KClass
@@ -13,7 +13,7 @@ abstract class CallRecordingState(val recorder: CommonCallRecorder) {
     open fun startStubbing(): CallRecordingState = cancelAndThrowBadRecordingState()
     open fun startVerification(params: VerificationParameters): CallRecordingState = cancelAndThrowBadRecordingState()
     open fun round(round: Int, total: Int): Unit = cancelAndThrowBadRecordingState()
-    open fun answer(answer: Answer<*>): Unit = cancelAndThrowBadRecordingState()
+    open fun answerOpportunity(): AnswerOpportunity<*> = cancelAndThrowBadRecordingState()
     open fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T = cancelAndThrowBadRecordingState()
     open fun recordingDone(): CallRecordingState = cancelAndThrowBadRecordingState()
     open fun nCalls(): Int = cancelAndThrowBadRecordingState()
