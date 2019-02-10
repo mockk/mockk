@@ -17,6 +17,9 @@ class ExcludeBlockEvaluator(
         mockBlock: (MockKMatcherScope.() -> Unit)?,
         coMockBlock: (suspend MockKMatcherScope.() -> Unit)?
     ) {
+        if (coMockBlock != null) {
+            initializeCoroutines()
+        }
 
         callRecorder().startExclusion(params)
 

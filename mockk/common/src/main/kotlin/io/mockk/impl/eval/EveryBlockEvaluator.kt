@@ -18,6 +18,9 @@ class EveryBlockEvaluator(
         mockBlock: (MockKMatcherScope.() -> T)?,
         coMockBlock: (suspend MockKMatcherScope.() -> T)?
     ): MockKStubScope<T, T> {
+        if (coMockBlock != null) {
+            initializeCoroutines()
+        }
 
         callRecorder().startStubbing()
 
