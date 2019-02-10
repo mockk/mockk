@@ -1244,7 +1244,8 @@ namespace io_mockk_proxy_android {
 
                 int originalNumRegisters = method->code->registers - method->code->ins_count;
                 int numAdditionalRegs = 5;
-                int firstArg = originalNumRegisters + numAdditionalRegs;
+                int thisReg = originalNumRegisters + numAdditionalRegs;
+                int firstArg = thisReg + 1;
 
                 // Make sure there are at least 5 local registers to use
                 slicer::AllocateScratchRegs scratchRegs(numAdditionalRegs, true);
@@ -1281,7 +1282,7 @@ namespace io_mockk_proxy_android {
                 VReg* v2 = c.Alloc<VReg>(2);
                 VReg* v3 = c.Alloc<VReg>(3);
                 VReg* v4 = c.Alloc<VReg>(4);
-                VReg* thiz = c.Alloc<VReg>(5);
+                VReg* thiz = c.Alloc<VReg>(thisReg);
 
                 addInstr(c, fi, OP_CONST_STRING, {v0, c.Alloc<String>(id, id->orig_index)});
                 addInstr(c, fi, OP_CONST, {v1, c.Alloc<Const32>(0)});
