@@ -25,8 +25,8 @@ class JvmAutoHinter : AutoHinter() {
             } catch (ex: ClassCastException) {
                 val clsName =
                     extractClassName(ex)
-                            ?: extractClassName(ex)
-                            ?: throw ex
+                        ?: extractClassName(ex)
+                        ?: throw ex
                 val nCalls = callRecorder.nCalls()
                 if (nCalls <= callsPassed) {
                     throw ex
@@ -44,7 +44,19 @@ class JvmAutoHinter : AutoHinter() {
     }
 
     private fun extractClassName(ex: ClassCastException): String? {
-        return ex.message?.let { exceptionMessage.find(it)?.groups?.get(3)?.value } ?: throw ex
+        return ex.message?.let {
+            exceptionMessage.find(it)?.groups?.get(3)?.value
+        } ?: let {
+            throw ClassCastException(
+                "Message in ClassCastException provided by JVM is null. \n" +
+                        "This is most probably happening due to Java optimization enabled. \n" +
+                        "Use -XX:-OmitStackTraceInFastThrow to disable this behaviour and make autohiniting work. \n" +
+                        "For example in gradle use: \n" +
+                        "test {\n" +
+                        "   jvmArgs '-XX:-OmitStackTraceInFastThrow'\n" +
+                        "}"
+            )
+        }
     }
 
     companion object {
