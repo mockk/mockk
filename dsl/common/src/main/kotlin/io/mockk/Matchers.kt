@@ -8,8 +8,11 @@ import kotlin.reflect.KClass
 /**
  * Matcher that checks equality. By reference and by value (equals method)
  */
-data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = false, val inverse: Boolean = false) :
-    Matcher<T> {
+data class EqMatcher<in T : Any>(
+    private val valueArg: T,
+    val ref: Boolean = false,
+    val inverse: Boolean = false
+) : Matcher<T> {
     val value = InternalPlatformDsl.unboxChar(valueArg)
 
     override fun match(arg: T?): Boolean {

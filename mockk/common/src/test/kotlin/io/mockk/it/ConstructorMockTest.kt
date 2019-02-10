@@ -80,6 +80,28 @@ class ConstructorMockTest {
     }
 
     @Test
+    fun fakeConstructor2() {
+        mockkConstructor(MockCls::class)
+
+        every { MockCls(5).op(1, 2) } returns 4
+
+        assertEquals(4, MockCls(5).op(1, 2))
+
+        verify { MockCls(5).op(1, 2) }
+    }
+
+    @Test
+    fun anyConstructed() {
+        mockkConstructor(MockCls::class)
+
+        every { constructedWith<MockCls>(EqMatcher(5)).op(1, 2) } returns 4
+
+        assertEquals(4, MockCls(5).op(1, 2))
+
+        verify { constructedWith<MockCls>(EqMatcher(5)).op(1, 2) }
+    }
+
+    @Test
     fun returnObject() {
         mockkConstructor(MockCls::class)
 
