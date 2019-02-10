@@ -706,6 +706,81 @@ open class MockKMatcherScope(
     inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls))
     inline fun <reified T : Any> ofType() = match(OfTypeMatcher<T>(T::class))
 
+    inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
+    inline fun anyIntVararg() = anyVararg<Int>().toIntArray()
+
+    inline fun <reified T : Any> varargAll(noinline matcher: MockKVarargScope.(T) -> Boolean) =
+        varargAllNullable<T> {
+            when (it) {
+                null -> false
+                else -> matcher(it)
+            }
+        }
+
+    inline fun <reified T : Any> varargAllNullable(noinline matcher: MockKVarargScope.(T?) -> Boolean) =
+        arrayOf(callRecorder.matcher(VarargMatcher(true, matcher), T::class))
+
+    inline fun varargAllBoolean(noinline matcher: MockKVarargScope.(Boolean) -> Boolean) =
+        varargAll(matcher).toBooleanArray()
+
+    inline fun varargAllByte(noinline matcher: MockKVarargScope.(Byte) -> Boolean) =
+        varargAll(matcher).toByteArray()
+
+    inline fun varargAllChar(noinline matcher: MockKVarargScope.(Char) -> Boolean) =
+        varargAll(matcher).toCharArray()
+
+    inline fun varargAllShort(noinline matcher: MockKVarargScope.(Short) -> Boolean) =
+        varargAll(matcher).toShortArray()
+
+    inline fun varargAllInt(noinline matcher: MockKVarargScope.(Int) -> Boolean) =
+        varargAll(matcher).toIntArray()
+
+    inline fun varargAllLong(noinline matcher: MockKVarargScope.(Long) -> Boolean) =
+        varargAll(matcher).toLongArray()
+
+    inline fun varargAllFloat(noinline matcher: MockKVarargScope.(Float) -> Boolean) =
+        varargAll(matcher).toFloatArray()
+
+    inline fun varargAllDouble(noinline matcher: MockKVarargScope.(Double) -> Boolean) =
+        varargAll(matcher).toDoubleArray()
+
+    inline fun <reified T : Any> varargAny(noinline matcher: MockKVarargScope.(T) -> Boolean) =
+        varargAnyNullable<T> {
+            when (it) {
+                null -> false
+                else -> matcher(it)
+            }
+        }
+
+    inline fun <reified T : Any> varargAnyNullable(noinline matcher: MockKVarargScope.(T?) -> Boolean) =
+        arrayOf(callRecorder.matcher(VarargMatcher(false, matcher), T::class))
+
+    inline fun varargAnyBoolean(noinline matcher: MockKVarargScope.(Boolean) -> Boolean) =
+        varargAny(matcher).toBooleanArray()
+
+    inline fun varargAnyByte(noinline matcher: MockKVarargScope.(Byte) -> Boolean) =
+        varargAny(matcher).toByteArray()
+
+    inline fun varargAnyChar(noinline matcher: MockKVarargScope.(Char) -> Boolean) =
+        varargAny(matcher).toCharArray()
+
+    inline fun varargAnyShort(noinline matcher: MockKVarargScope.(Short) -> Boolean) =
+        varargAny(matcher).toShortArray()
+
+    inline fun varargAnyInt(noinline matcher: MockKVarargScope.(Int) -> Boolean) =
+        varargAny(matcher).toIntArray()
+
+    inline fun varargAnyLong(noinline matcher: MockKVarargScope.(Long) -> Boolean) =
+        varargAny(matcher).toLongArray()
+
+    inline fun varargAnyFloat(noinline matcher: MockKVarargScope.(Float) -> Boolean) =
+        varargAny(matcher).toFloatArray()
+
+    inline fun varargAnyDouble(noinline matcher: MockKVarargScope.(Double) -> Boolean) =
+        varargAny(matcher).toDoubleArray()
+
+    class MockKVarargScope(val position: Int, val nArgs: Int)
+
     inline fun <reified T : () -> R, R> invoke() = match(InvokeMatcher<T> { it() })
     inline fun <reified T : (A1) -> R, R, A1> invoke(arg1: A1) = match(InvokeMatcher<T> { it(arg1) })
     inline fun <reified T : (A1, A2) -> R, R, A1, A2> invoke(arg1: A1, arg2: A2) =

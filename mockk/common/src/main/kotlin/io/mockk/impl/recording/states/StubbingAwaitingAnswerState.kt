@@ -1,7 +1,6 @@
 package io.mockk.impl.recording.states
 
 import io.mockk.*
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.AnswerAnsweringOpportunity
@@ -19,7 +18,9 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
             val lastCall = idx == calls.size - 1
 
             val ans = if (lastCall) {
-                answerOpportunity = AnswerAnsweringOpportunity<Any>(recordedCall.matcher.toString())
+                answerOpportunity = AnswerAnsweringOpportunity<Any> {
+                    recorder.safeExec { recordedCall.matcher.toString() }
+                }
                 answerOpportunity
             } else if (recordedCall.isRetValueMock) {
                 ConstantAnswer(recordedCall.retValue)
@@ -43,18 +44,6 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
 
         recorder.state = recorder.factories.answeringState(recorder)
         return answerOpportunity!!
-    }
-
-    override fun call(invocation: Invocation): Any? {
-        val stub = recorder.stubRepo.stubFor(invocation.self)
-        try {
-            val answer = stub.answer(invocation)
-            log.debug { "Answering(await answering state) ${answer.toStr()} on $invocation" }
-            return answer
-        } catch (ex: Exception) {
-            log.debug { "Throwing(await answering state) ${ex.toStr()} on $invocation" }
-            throw ex
-        }
     }
 
     private fun assignFieldIfMockingProperty(mock: Any, matcher: InvocationMatcher, ans: Answer<Any?>) {

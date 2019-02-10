@@ -60,6 +60,17 @@ class ChainedCallDetector(safeToString: SafeToString) {
         }
 
         @Suppress("UNCHECKED_CAST")
+        fun composeVarArgMatcher(matchers: List<Matcher<*>>): Matcher<*> {
+            val idx = matchers.indexOfFirst { it is VarargMatcher<*> }
+
+            val prefix = matchers.subList(0, idx) as List<Matcher<Any>>
+            val postfix = matchers.subList(idx + 1, matchers.size) as List<Matcher<Any>>
+
+            val matcher = matchers[idx] as VarargMatcher<*>
+            return matcher.copy(prefix = prefix, postfix = postfix)
+        }
+
+        @Suppress("UNCHECKED_CAST")
         fun varArgArgument(nArgument: Int): Matcher<*> {
             val varArgMatchers = mutableListOf<Matcher<*>>()
 
@@ -82,7 +93,12 @@ class ChainedCallDetector(safeToString: SafeToString) {
                 )
             }
 
-            return ArrayMatcher<Any>(varArgMatchers.map { it } as List<Matcher<Any>>)
+            val nVarArgMatchers = varArgMatchers.count { it is VarargMatcher<*> }
+            return when (nVarArgMatchers) {
+                0 -> ArrayMatcher<Any>(varArgMatchers.map { it } as List<Matcher<Any>>)
+                1 -> composeVarArgMatcher(varArgMatchers)
+                else -> throw MockKException("using more then one vararg VarargMatcher in one expression is not possible: $varArgMatchers")
+            }
         }
 
         fun detectArgMatchers() {

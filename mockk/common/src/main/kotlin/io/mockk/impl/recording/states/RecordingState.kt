@@ -9,6 +9,7 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CallRound
 import io.mockk.impl.recording.CallRoundBuilder
 import io.mockk.impl.recording.CommonCallRecorder
+import kotlin.math.max
 import kotlin.reflect.KClass
 
 abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
@@ -127,7 +128,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
 
     override fun isLastCallReturnsNothing(): Boolean {
         val lastCall = callRoundBuilder?.signedCalls?.lastOrNull()
-                ?: return false
+            ?: return false
 
         return lastCall.method.returnsNothing
     }
@@ -139,11 +140,23 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
      * Max 40 calls looks like reasonable compromise
      */
     override fun estimateCallRounds(): Int {
-        return builder().signedCalls
+        val regularArguments = builder().signedCalls
             .flatMap { it.args }
             .filterNotNull()
             .map(this::typeEstimation)
             .max() ?: 1
+
+        val varargArguments = builder().signedCalls
+            .mapNotNull {
+                if (it.method.varArgsArg != -1) {
+                    it.method.paramTypes[it.method.varArgsArg]
+                } else {
+                    null
+                }
+            }.map(this::varArgTypeEstimation)
+            .max() ?: 1
+
+        return max(regularArguments, varargArguments)
     }
 
     private fun typeEstimation(it: Any): Int {
@@ -158,11 +171,23 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
         }
     }
 
+    private fun varArgTypeEstimation(it: KClass<*>): Int {
+        return when (it) {
+            BooleanArray::class -> 40
+            ByteArray::class -> 8
+            CharArray::class -> 4
+            ShortArray::class -> 4
+            IntArray::class -> 2
+            FloatArray::class -> 2
+            else -> 1
+        }
+    }
+
     override fun discardLastCallRound() {
         callRoundBuilder = null
     }
 
     private fun builder(): CallRoundBuilder = callRoundBuilder
-            ?: throw MockKException("Call builder is not initialized. Bad state")
+        ?: throw MockKException("Call builder is not initialized. Bad state")
 
 }
