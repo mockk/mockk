@@ -838,6 +838,44 @@ For example `File.endsWith()` extension function has totally unpredictable `clas
 This is standard Kotlin behaviour that may be unpredictable for user of mocking library.
 Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR archive to detect such names.
 
+### Varargs
+
+From version 1.9.1 more extended vararg handling is possible:
+
+```kotlin
+    interface ClsWithManyMany {
+        fun manyMany(vararg x: Any): Int
+    }
+
+    val obj = mockk<ClsWithManyMany>()
+
+    every { obj.manyMany(5, 6, *varargAll { it == 7 }) } returns 3
+
+    println(obj.manyMany(5, 6, 7)) // 3
+    println(obj.manyMany(5, 6, 7, 7)) // 3
+    println(obj.manyMany(5, 6, 7, 7, 7)) // 3
+
+    every { obj.manyMany(5, 6, *anyVararg(), 7) } returns 4
+
+    println(obj.manyMany(5, 6, 1, 7)) // 4
+    println(obj.manyMany(5, 6, 2, 3, 7)) // 4
+    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 4
+
+    every { obj.manyMany(5, 6, *varargAny { nArgs > 5 }, 7) } returns 5
+
+    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 5
+    println(obj.manyMany(5, 6, 4, 5, 6, 7, 7)) // 5
+
+    every {
+        obj.manyMany(5, 6, *varargAny {
+            if (position < 3) it == 3 else it == 4
+        }, 7)
+    } returns 6
+    
+    println(obj.manyMany(5, 6, 3, 4, 7)) // 6
+    println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
+```
+
 ### Private functions mocking / dynamic calls
 
 In case you have a need to mock private function, you can do it via dynamic call.
@@ -1030,6 +1068,12 @@ By default simple arguments are matched using `eq()`
 |`invoke(...)`|calls matched argument|
 |`coInvoke(...)`|calls matched argument for coroutine|
 |`hint(cls)`|hints next return type in case it's got erased|
+|`anyVararg()`|matches any elements in vararg|
+|`varargAny(matcher)`|matches if any element is matching matcher|
+|`varargAll(matcher)`|matches if all elements are matching matcher|
+|`any...Vararg()`|matches any elements in vararg(specific to primitive type)|
+|`varargAny...(matcher)`|matches if any element is matching matcher(specific to primitive type)|
+|`varargAll...(matcher)`|matches if all elements are matching matcher(specific to primitive type)|
 
 Few special matchers available in verification mode only:
 
@@ -1112,6 +1156,13 @@ So this has similiar to `returnsMany` semantics.
 |`fieldValueAny`|accessor to property backing field with `Any?` type|
 |`value`|value being set casted to same type as property backing field|
 |`valueAny`|value being set with `Any?` type|
+
+### Vararg scope
+
+|Parameter|Description|
+|---------|-----------|
+|`position`|a position of argument in vararg array|
+|`nArgs`|overall count of arguments in vararg array|
 
 ## Funding
 
