@@ -19,9 +19,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* Check Spring support in this project: https://github.com/Ninja-Squad/springmockk 
+* New features: [hierarchical mocking](#hierarchical mocking) and [better vararg support](#vararg) 
 * TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
-* New feature: [verification confirmation](#verification-confirmation) [#207](https://github.com/mockk/mockk/pull/207)
-* MockK is now present on [Thoughtworks technology radar](https://www.thoughtworks.com/radar/languages-and-frameworks/mockk)
 
 ### Version twist
 
