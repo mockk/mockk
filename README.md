@@ -46,6 +46,7 @@ Table of contents:
  - pure Kotlin mocking DSL
  - matchers partial specification
  - chained calls
+ - hierarchical mocking
  - matcher expressions
  - mocking coroutines
  - capturing lambdas
@@ -461,6 +462,47 @@ every { obj.op2(1, 2).hint(Int::class).op1(3, 4) } returns 5
 
 ```
 
+### Hierarchical mocking
+
+From version 1.9.1 mocks may be chained into hierarchies:
+
+```
+interface AddressBook {
+    val contacts: List<Contact>
+}
+
+interface Contact {
+    val name: String
+    val telephone: String
+    val address: Address
+}
+
+interface Address {
+    val city: String
+    val zip: String
+}
+
+val addressBook = mockk<AddressBook> {
+    every { contacts } returns listOf(
+        mockk {
+            every { name } returns "John"
+            every { telephone } returns "123-456-789"
+            every { address } returns mockk {
+                every { city } returns "New-York"
+                every { zip } returns "123-45"
+            }
+        },
+        mockk {
+            every { name } returns "Alex"
+            every { telephone } returns "789-456-123"
+            every { address } returns mockk {
+                every { city } returns "Wroclaw"
+                every { zip } returns "543-21"
+            }
+        }
+    )
+}
+```
 
 ### Capturing
 
