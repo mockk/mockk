@@ -466,7 +466,7 @@ every { obj.op2(1, 2).hint(Int::class).op1(3, 4) } returns 5
 
 From version 1.9.1 mocks may be chained into hierarchies:
 
-```
+```kotlin
 interface AddressBook {
     val contacts: List<Contact>
 }
@@ -487,10 +487,8 @@ val addressBook = mockk<AddressBook> {
         mockk {
             every { name } returns "John"
             every { telephone } returns "123-456-789"
-            every { address } returns mockk {
-                every { city } returns "New-York"
-                every { zip } returns "123-45"
-            }
+            every { address.city } returns "New-York"
+            every { address.zip } returns "123-45"
         },
         mockk {
             every { name } returns "Alex"
