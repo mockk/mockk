@@ -19,7 +19,7 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
-* Check [DexOpener](https://github.com/tmurakami/dexopener) ([example](https://github.com/tmurakami/dexopener/tree/master/examples/mockk/src)) to open classes for AndroidInstrumentedTests (< Android9)
+* Check [DexOpener](https://github.com/tmurakami/dexopener) ([example](https://github.com/tmurakami/dexopener/tree/master/examples/mockk)) to open classes for AndroidInstrumentedTests (< Android9)
 * Check Spring support in this project: [https://github.com/Ninja-Squad/springmockk](https://github.com/Ninja-Squad/springmockk)
 * New features: [hierarchical mocking](#hierarchical-mocking) and [better vararg support](#varargs) 
 
