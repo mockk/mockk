@@ -14,7 +14,7 @@ MockK supports:
 
 ## DexOpener
 
-To open classes before Android P you can use [DexOpener](https://github.com/tmurakami/dexopener), [example](https://github.com/tmurakami/dexopener/tree/master/examples/mockk/src)
+To open classes before Android P you can use [DexOpener](https://github.com/tmurakami/dexopener), [example](https://github.com/tmurakami/dexopener/tree/master/examples/mockk)
 
 ## Implementation
 
