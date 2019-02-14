@@ -44,7 +44,7 @@ Unfortunatelly public CIs alike Travis and Circle are not supporting emulation o
     <tr>
         <td>mocking final classes</td>
         <td>✓</td>
-        <td></td>
+        <td>(check (DexOpener)[https://github.com/tmurakami/dexopener])</td>
         <td>✓</td>
     </tr>
     <tr>
