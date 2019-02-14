@@ -19,9 +19,9 @@
 
 <img src="doc/new.png" align="left" height="80" alt="new" />
 
+* Check [DexOpener](https://github.com/tmurakami/dexopener) to open classes for AndroidInstrumentedTests (< Android9)
 * Check Spring support in this project: [https://github.com/Ninja-Squad/springmockk](https://github.com/Ninja-Squad/springmockk)
 * New features: [hierarchical mocking](#hierarchical-mocking) and [better vararg support](#varargs) 
-* TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
 
 ### Version twist
 
