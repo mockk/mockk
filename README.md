@@ -17,17 +17,12 @@
 [![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
 [![Become sponsor](https://opencollective.com/mockk/tiers/sponsor/badge.svg?label=become+sponsor&color=green)](https://opencollective.com/mockk)
 
-<img src="doc/new.png" align="left" height="80" alt="new" />
-
-* Check [DexOpener](https://github.com/tmurakami/dexopener) ([example](https://github.com/tmurakami/dexopener/tree/master/examples/mockk)) to open classes for AndroidInstrumentedTests (< Android9)
-* Check Spring support in this project: [https://github.com/Ninja-Squad/springmockk](https://github.com/Ninja-Squad/springmockk)
-* New features: [hierarchical mocking](#hierarchical-mocking) and [better vararg support](#varargs) 
-
-### Kotlin Academy <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
+### Kotlin Academy articles <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
 
  - [Mocking is not rocket science: Basics](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-basics-ae55d0aadf2b)
  - [Mocking is not rocket science: Expected behavior and behavior verification](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-expected-behavior-and-behavior-verification-3862dd0e0f03)
  - [Mocking is not rocket science: MockK features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-features-e5d55d735a98)
+ - [Mocking is not rocket science: MockK advanced features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-advanced-features-42277e5983b5)
 
 ### Version twist
 
