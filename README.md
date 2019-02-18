@@ -35,25 +35,6 @@ Table of contents:
 * auto-gen TOC:
 {:toc}
 
-## Nice features
-
- - annotations
- - mocking final classes and functions (via inlining)
- - pure Kotlin mocking DSL
- - matchers partial specification
- - chained calls
- - hierarchical mocking
- - matcher expressions
- - mocking coroutines
- - capturing lambdas
- - object mocks
- - constructor mocks
- - private function mocking
- - property backing field access
- - extension function mocking (static mocks)
- - [Android instrumented tests](ANDROID)
- - multiplatform support (JS support is highly experimental)
-
 ## Examples & articles
  - TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
  - [https://github.com/PhilippeBoisney/NoBullshit](https://github.com/PhilippeBoisney/NoBullshit)
