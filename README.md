@@ -254,7 +254,7 @@ every { func() } returns Car() // or you can return mockk() for example
 func()
 ```
 
-### Unit returning function relaxed mock
+### Mock relaxed for functions returning Unit
 
 In case you would like `Unit` returning functions to be relaxed.
 You can use `relaxUnitFun = true` as an argument to `mockk` function, 
