@@ -1054,8 +1054,8 @@ By default simple arguments are matched using `eq()`
 |`cmpEq(value)`|matches if value is equal to the provided via compareTo function|
 |`less(value)`|matches if value is less to the provided via compareTo function|
 |`more(value)`|matches if value is more to the provided via compareTo function|
-|`less(value, andEquals=false)`|matches if value is less or equals to the provided via compareTo function|
-|`more(value, andEquals=false)`|matches if value is more or equals to the provided via compareTo function|
+|`less(value, andEquals=true)`|matches if value is less or equals to the provided via compareTo function|
+|`more(value, andEquals=true)`|matches if value is more or equals to the provided via compareTo function|
 |`range(from, to, fromInclusive=true, toInclusive=true)`|matches if value is in range via compareTo function|
 |`and(left, right)`|combines two matchers via logical and|
 |`or(left, right)`|combines two matchers via logical or|
