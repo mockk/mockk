@@ -21,7 +21,7 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
 
 ### Spring support
 
- * https://github.com/Ninja-Squad/springmockk
+ * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
 
 ### Version twist
 
