@@ -19,6 +19,10 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
  - [MockK features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-features-e5d55d735a98)
  - [MockK advanced features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-advanced-features-42277e5983b5)
 
+### Spring support
+
+ * https://github.com/Ninja-Squad/springmockk
+
 ### Version twist
 
 From version 1.9 MockK switched to Kotlin 1.3 and Coroutines 1.0 by default and other branch 1.9.kotlin12 may be used for compatibility with Kotlin 1.2.
