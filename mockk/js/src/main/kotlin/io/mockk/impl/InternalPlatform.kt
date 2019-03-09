@@ -1,7 +1,6 @@
 package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
-import io.mockk.impl.Ref
 import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
@@ -44,17 +43,11 @@ actual object InternalPlatform {
         }
     }
 
-    actual fun counter(): () -> Long = JsCounter()::next
-
     actual fun packRef(arg: Any?): Any? {
         return if (arg == null || isPassedByValue(arg::class))
             arg
         else
             ref(arg)
-    }
-
-    actual fun isSuspend(paramTypes: List<KClass<Any>>): Boolean {
-        return false
     }
 
     actual fun prettifyRecordingException(ex: Throwable) = ex
@@ -81,5 +74,8 @@ actual object InternalPlatform {
         override val value: Any?
             get() = value
     }
+
+    actual fun multiNotifier(): MultiNotifier =
+        throw UnsupportedOperationException("not implemented for JS")
 }
 

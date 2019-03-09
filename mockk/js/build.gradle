@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
+    }
+}
+
 ext {
     mavenName = 'MockK JS'
     mavenDescription = 'mocking library for Kotlin (JS)'
@@ -6,29 +15,53 @@ ext {
 apply from: "${gradles}/js-module.gradle"
 apply from: "${gradles}/upload-archives.gradle"
 apply from: "${gradles}/additional-archives.gradle"
+apply plugin: 'com.moowork.node'
 
 dependencies {
     expectedBy project(":mockk-common")
+    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutines_version"
     compile project(":mockk-dsl-js")
 }
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
-    from(project(':mockk-common').sourcesJar.inputs.files) {
+    from(project(':mockk-common').sourceSets.main.allSource) {
         exclude "io/mockk/impl/InternalPlatform.kt"
     }
 }
 
-task unpackStdLib() {
-    configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-        if (artifact.getFile().exists()) {
-            copy {
-                from zipTree(artifact.getFile())
-                into "${buildDir}/" + artifact.name
-            }
-        }
-    }
+artifacts {
+    archives sourcesJar
 }
 
-test.dependsOn(unpackStdLib)
+[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+    kotlinOptions.moduleKind = "commonjs"
+}
+
+task populateNodeModules(type: Copy, dependsOn: compileKotlin2Js) {
+    from compileKotlin2Js.destinationDir
+
+    configurations.testCompile.each {
+        from zipTree(it.absolutePath).matching { include '*.js' }
+    }
+
+    into "${buildDir}/node_modules"
+}
+
+node {
+    download = true
+}
+
+task installMocha(type: NpmTask) {
+    args = ['install', 'mocha']
+    workingDir = file("${buildDir}/node_modules")
+}
+
+task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installMocha]) {
+    script = file("${buildDir}/node_modules/mocha/bin/mocha")
+    args = [compileTestKotlin2Js.outputs.files[0]]
+}
+
+test.dependsOn runMocha
+

@@ -444,6 +444,7 @@ data class VarargMatcher<T : Any>(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         if (arg == null) {
             return

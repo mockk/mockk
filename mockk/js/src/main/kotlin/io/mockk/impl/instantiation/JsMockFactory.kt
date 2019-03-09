@@ -48,9 +48,21 @@ internal external interface ProxyHandler {
 
 internal abstract class EmptyProxyHandler : ProxyHandler {
     protected fun isJsNativeMethods(name: String) =
-        name in listOf("kotlinHashCodeValue\$", "\$metadata\$", "prototype", "constructor", "equals", "hashCode", "toString", "stub", "length")
+        name in listOf(
+            "kotlinHashCodeValue\$",
+            "\$metadata\$",
+            "prototype",
+            "constructor",
+            "equals",
+            "hashCode",
+            "toString",
+            "stub",
+            "length"
+        )
 
-    override fun get(target: dynamic, name: String, receiver: dynamic): Any? = throw UnsupportedOperationException("get")
+    override fun get(target: dynamic, name: String, receiver: dynamic): Any? =
+        throw UnsupportedOperationException("get")
+
     override fun apply(target: dynamic, thisValue: dynamic, args: Array<*>): Any? =
         throw UnsupportedOperationException("apply")
 }
@@ -72,6 +84,8 @@ internal class StubProxyHandler(
             MethodDescription(
                 "get_$name",
                 Any::class,
+                false,
+                false,
                 false,
                 cls,
                 listOf(),
@@ -95,6 +109,8 @@ internal class StubProxyHandler(
             MethodDescription(
                 "apply",
                 Any::class,
+                false,
+                false,
                 false,
                 cls,
                 listOf(),
