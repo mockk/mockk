@@ -75,7 +75,13 @@ actual object InternalPlatform {
             get() = value
     }
 
-    actual fun multiNotifier(): MultiNotifier =
-        throw UnsupportedOperationException("not implemented for JS")
+    actual fun multiNotifier() = object : MultiNotifier {
+        override fun notify(key: Any) {
+            // skip
+        }
+
+        override fun openSession(keys: List<Any>, timeout: Long) =
+            throw UnsupportedOperationException("not implemented for JS")
+    }
 }
 

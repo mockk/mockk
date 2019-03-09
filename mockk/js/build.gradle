@@ -19,7 +19,6 @@ apply plugin: 'com.moowork.node'
 
 dependencies {
     expectedBy project(":mockk-common")
-    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutines_version"
     compile project(":mockk-dsl-js")
 }
 
