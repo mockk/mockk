@@ -1,3 +1,8 @@
+> Just be aware about my usual support pattern. 
+> I check tickets from time to time, reply, discuss, label, e.t.c.
+> But real fixes I am doing once in a month-two month period in a bunch.
+> If you think this is unacceptable, go on, join the project, change the world.
+
 ## Please remove sections wisely
 
 Below information is actually needed to make all the process of fixing faster.
