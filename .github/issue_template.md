@@ -1,6 +1,6 @@
-> Just be aware about my usual support pattern. 
-> I check tickets from time to time, reply, discuss, label, e.t.c.
-> But real fixes I am doing once in a month-two month period in a bunch.
+> Just be aware about usual MockK support pattern. 
+> Tickets are checked from time to time, replied, discussed, labeled, e.t.c.
+> But real fixes are applied in a month-two month period in a bunch.
 > If you think this is unacceptable, go on, join the project, change the world.
 
 ## Please remove sections wisely
