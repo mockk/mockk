@@ -4,8 +4,8 @@ import io.mockk.proxy.*
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.dispatcher.BootJarLoader
 import io.mockk.proxy.jvm.dispatcher.JvmMockKWeakMap
-import io.mockk.proxy.jvm.transformation.InlineInstrumentation
 import io.mockk.proxy.jvm.transformation.InliningClassTransformer
+import io.mockk.proxy.jvm.transformation.JvmInlineInstrumentation
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.NamingStrategy
@@ -85,8 +85,8 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                         true
                     )
 
-                    InlineInstrumentation(
-                        logFactory.logger(InlineInstrumentation::class.java),
+                    JvmInlineInstrumentation(
+                        logFactory.logger(JvmInlineInstrumentation::class.java),
                         specMap,
                         jvmInstrumenatation
                     )
