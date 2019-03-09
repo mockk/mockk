@@ -1,7 +1,7 @@
 package io.mockk.impl
 
 import io.mockk.InternalPlatformDsl
-import io.mockk.Ref
+import io.mockk.impl.Ref
 import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
@@ -59,21 +59,27 @@ actual object InternalPlatform {
 
     actual fun prettifyRecordingException(ex: Throwable) = ex
 
-    actual fun <K : Any, V> weakMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
+    actual fun <K, V> weakMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
 
-    actual fun <K : Any, V> identityMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
+    actual fun <K, V> identityMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
 
     actual fun <T> synchronizedMutableList(): MutableList<T> = mutableListOf()
 
     actual fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = hashMapOf()
 
     @Suppress("NAME_SHADOWING", "UNUSED_VARIABLE")
-    actual fun <T> copyFields(to: T, from: T) {
+    actual fun <T : Any> copyFields(to: T, from: T) {
         val to = to.asDynamic()
         val from = from.asDynamic()
         js("for (var key in from) { to[key] = from[key]; }")
     }
 
-    actual fun captureStackTrace() = listOf<StackElement>()
+    // TODO
+    actual fun captureStackTrace() = { listOf<StackElement>() }
+
+    actual fun weakRef(value: Any) = object : WeakRef {
+        override val value: Any?
+            get() = value
+    }
 }
 

@@ -11,13 +11,6 @@ class JsConsoleLogger(cls: KClass<*>) : Logger {
     override fun info(ex: Throwable, msg: () -> String) = console.info(msg(), js("ex.stack"))
     override fun debug(msg: () -> String) = console.log(msg())
     override fun debug(ex: Throwable, msg: () -> String) = console.log(msg(), js("ex.stack"))
-    override fun trace(msg: () -> String) {
-        val m = msg()
-        js("console.debug(m)")
-    }
-
-    override fun trace(ex: Throwable, msg: () -> String) {
-        val m = msg()
-        js("console.debug(m, ex.stack)")
-    }
+    override fun trace(msg: () -> String) = console.info(msg())
+    override fun trace(ex: Throwable, msg: () -> String) = console.info(msg(), js("ex.stack"))
 }

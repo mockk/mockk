@@ -48,6 +48,9 @@ class JsMockKGateway : MockKGateway {
     override val objectMockFactory: ObjectMockFactory
         get() = throw UnsupportedOperationException("Object mocks are not supported in JS version")
 
+    override val constructorMockFactory: ConstructorMockFactory
+        get() = throw UnsupportedOperationException("Constructor mocks are not supported in JS version")
+
     override val clearer = CommonClearer(stubRepo, safeToString)
 
     val unorderedVerifier = UnorderedCallVerifier(stubRepo, safeToString)
@@ -64,7 +67,7 @@ class JsMockKGateway : MockKGateway {
         }
 
     val callRecorderFactories = CallRecorderFactories(
-        { SignatureMatcherDetector({ ChainedCallDetector(safeToString) }) },
+        { SignatureMatcherDetector(safeLog, { ChainedCallDetector(safeToString) }) },
         { CallRoundBuilder(safeToString) },
         ::ChildHinter,
         this::verifier,
