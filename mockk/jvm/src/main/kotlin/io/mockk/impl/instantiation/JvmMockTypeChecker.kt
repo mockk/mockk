@@ -15,6 +15,6 @@ class JvmMockTypeChecker(
 
     override fun isConstructorMock(mock: Any) = when (mock) {
         is Class<*> -> super.isConstructorMock(mock.kotlin)
-        else -> false
+        else -> super.isConstructorMock(mock)
     }
 }
