@@ -11,7 +11,14 @@ internal class AndroidInlineInstrumentation(
     private val agent: JvmtiAgent
 ) : RetransformInlineInstrumnetation(log, specMap) {
 
-    override fun retransform(classes : Array<Class<*>>) {
-        agent.requestTransformClasses(classes.filter { !it.isInterface }.toTypedArray())
+    override fun retransform(classesToTransform: Collection<Class<*>>) {
+        val classes = classesToTransform.filter { !it.isInterface }.toTypedArray()
+
+        if (!classes.isEmpty()) {
+            log.trace("Retransforming $classes (skipping interfaces)")
+            agent.requestTransformClasses(classes)
+        } else {
+            log.trace("No need to transform")
+        }
     }
 }

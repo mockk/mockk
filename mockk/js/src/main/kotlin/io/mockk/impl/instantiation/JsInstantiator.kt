@@ -18,7 +18,7 @@ internal class InstanceStubTarget {
 }
 
 internal class InstanceProxyHandler : EmptyProxyHandler() {
-    override fun get(target: dynamic, name: String, receiver: dynamic): Any {
+    override fun get(target: dynamic, name: String, receiver: dynamic): Any? {
         if (isJsNativeMethods(name)) {
             return target[name]
         }

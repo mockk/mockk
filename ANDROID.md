@@ -12,6 +12,10 @@ MockK supports:
  * Android instrumented tests via subclassing(< Android P)
  * Android instrumented tests via inlining(≥ Android P)
 
+## DexOpener
+
+To open classes before Android P you can use [DexOpener](https://github.com/tmurakami/dexopener), [example](https://github.com/tmurakami/dexopener/tree/master/examples/mockk)
+
 ## Implementation
 
 Implementation is based on [dexmaker](https://github.com/linkedin/dexmaker) project. With Anroid P instrumentation tests may use full power of inline instrumentation, so object mocks, static mocks and mocking of final classes are supported. Before Android P only subclassing can be employed and that means you need 'all-open' plugin.
@@ -44,7 +48,7 @@ Unfortunatelly public CIs alike Travis and Circle are not supporting emulation o
     <tr>
         <td>mocking final classes</td>
         <td>✓</td>
-        <td></td>
+        <td>can use DexOpener</td>
         <td>✓</td>
     </tr>
     <tr>

@@ -2,9 +2,9 @@ package io.mockk.proxy.jvm
 
 import io.mockk.proxy.*
 import io.mockk.proxy.common.CancelableResult
+import io.mockk.proxy.common.transformation.InlineInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
 import io.mockk.proxy.common.transformation.TransformationType.SIMPLE
-import io.mockk.proxy.jvm.transformation.InlineInstrumentation
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier

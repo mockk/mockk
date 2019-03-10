@@ -2,26 +2,26 @@
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) 
-[![Build Status](https://travis-ci.org/mockk/mockk.svg?branch=master)](https://travis-ci.org/mockk/mockk)
 [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
-[![Backers](https://opencollective.com/mockk/tiers/backer/badge.svg?label=backer&color=brightgreen)](https://opencollective.com/mockk)
-
 [![Android](https://img.shields.io/badge/android-support-green.svg)](http://mockk.io/ANDROID)
 [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX)
-[![Back log](https://img.shields.io/badge/back%20log-%E2%96%A4-orange.svg)](/BACKLOG)
 [![Deprecated](https://img.shields.io/badge/deprecated-API-red.svg)](/DEPRECATED)
-[![Documentation](https://img.shields.io/badge/documentation-%E2%86%93-yellowgreen.svg)](#nice-features) 
-[![GitHub stars](https://img.shields.io/github/stars/mockk/mockk.svg?label=stars)](https://github.com/mockk/mockk)
-[![Become sponsor](https://opencollective.com/mockk/tiers/sponsor/badge.svg?label=become+sponsor&color=green)](https://opencollective.com/mockk)
 
-<img src="doc/new.png" align="left" height="80" alt="new" />
+### Kotlin Academy articles <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
 
-* TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
-* New feature: [verification confirmation](#verification-confirmation) [#207](https://github.com/mockk/mockk/pull/207)
-* MockK is now present on [Thoughtworks technology radar](https://www.thoughtworks.com/radar/languages-and-frameworks/mockk)
+Check the series of articles "Mocking is not rocket science" at [Kt. Academy](https://blog.kotlin-academy.com) describing MockK from the very basics of mocking up to description of all advanced features.
+
+ - [Basics](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-basics-ae55d0aadf2b)
+ - [Expected behavior and behavior verification](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-expected-behavior-and-behavior-verification-3862dd0e0f03)
+ - [MockK features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-features-e5d55d735a98)
+ - [MockK advanced features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-advanced-features-42277e5983b5)
+
+### Spring support
+
+ * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
 
 ### Version twist
 
@@ -38,24 +38,6 @@ Table of contents:
 
 * auto-gen TOC:
 {:toc}
-
-## Nice features
-
- - annotations
- - mocking final classes and functions (via inlining)
- - pure Kotlin mocking DSL
- - matchers partial specification
- - chained calls
- - matcher expressions
- - mocking coroutines
- - capturing lambdas
- - object mocks
- - constructor mocks
- - private function mocking
- - property backing field access
- - extension function mocking (static mocks)
- - [Android instrumented tests](ANDROID)
- - multiplatform support (JS support is highly experimental)
 
 ## Examples & articles
  - TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
@@ -74,12 +56,6 @@ Table of contents:
  - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
  - [Mocking in Kotlin with MockK - Yannick De Turck](https://ordina-jworks.github.io/testing/2018/02/05/Writing-tests-in-Kotlin-with-MockK.html)
  
-#### Kotlin Academy <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
-
- - [Mocking is not rocket science: Basics](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-basics-ae55d0aadf2b)
- - [Mocking is not rocket science: Expected behavior and behavior verification](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-expected-behavior-and-behavior-verification-3862dd0e0f03)
- - [Mocking is not rocket science: MockK features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-features-e5d55d735a98)
-
 ## Installation
 
 All you need to get started is just to add a dependency to `MockK` library.
@@ -282,7 +258,7 @@ every { func() } returns Car() // or you can return mockk() for example
 func()
 ```
 
-### Unit returning function relaxed mock
+### Mock relaxed for functions returning Unit
 
 In case you would like `Unit` returning functions to be relaxed.
 You can use `relaxUnitFun = true` as an argument to `mockk` function, 
@@ -461,6 +437,45 @@ every { obj.op2(1, 2).hint(Int::class).op1(3, 4) } returns 5
 
 ```
 
+### Hierarchical mocking
+
+From version 1.9.1 mocks may be chained into hierarchies:
+
+```kotlin
+interface AddressBook {
+    val contacts: List<Contact>
+}
+
+interface Contact {
+    val name: String
+    val telephone: String
+    val address: Address
+}
+
+interface Address {
+    val city: String
+    val zip: String
+}
+
+val addressBook = mockk<AddressBook> {
+    every { contacts } returns listOf(
+        mockk {
+            every { name } returns "John"
+            every { telephone } returns "123-456-789"
+            every { address.city } returns "New-York"
+            every { address.zip } returns "123-45"
+        },
+        mockk {
+            every { name } returns "Alex"
+            every { telephone } returns "789-456-123"
+            every { address } returns mockk {
+                every { city } returns "Wroclaw"
+                every { zip } returns "543-21"
+            }
+        }
+    )
+}
+```
 
 ### Capturing
 
@@ -798,6 +813,44 @@ For example `File.endsWith()` extension function has totally unpredictable `clas
 This is standard Kotlin behaviour that may be unpredictable for user of mocking library.
 Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR archive to detect such names.
 
+### Varargs
+
+From version 1.9.1 more extended vararg handling is possible:
+
+```kotlin
+    interface ClsWithManyMany {
+        fun manyMany(vararg x: Any): Int
+    }
+
+    val obj = mockk<ClsWithManyMany>()
+
+    every { obj.manyMany(5, 6, *varargAll { it == 7 }) } returns 3
+
+    println(obj.manyMany(5, 6, 7)) // 3
+    println(obj.manyMany(5, 6, 7, 7)) // 3
+    println(obj.manyMany(5, 6, 7, 7, 7)) // 3
+
+    every { obj.manyMany(5, 6, *anyVararg(), 7) } returns 4
+
+    println(obj.manyMany(5, 6, 1, 7)) // 4
+    println(obj.manyMany(5, 6, 2, 3, 7)) // 4
+    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 4
+
+    every { obj.manyMany(5, 6, *varargAny { nArgs > 5 }, 7) } returns 5
+
+    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 5
+    println(obj.manyMany(5, 6, 4, 5, 6, 7, 7)) // 5
+
+    every {
+        obj.manyMany(5, 6, *varargAny {
+            if (position < 3) it == 3 else it == 4
+        }, 7)
+    } returns 6
+    
+    println(obj.manyMany(5, 6, 3, 4, 7)) // 6
+    println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
+```
+
 ### Private functions mocking / dynamic calls
 
 In case you have a need to mock private function, you can do it via dynamic call.
@@ -976,8 +1029,8 @@ By default simple arguments are matched using `eq()`
 |`cmpEq(value)`|matches if value is equal to the provided via compareTo function|
 |`less(value)`|matches if value is less to the provided via compareTo function|
 |`more(value)`|matches if value is more to the provided via compareTo function|
-|`less(value, andEquals=false)`|matches if value is less or equals to the provided via compareTo function|
-|`more(value, andEquals=false)`|matches if value is more or equals to the provided via compareTo function|
+|`less(value, andEquals=true)`|matches if value is less or equals to the provided via compareTo function|
+|`more(value, andEquals=true)`|matches if value is more or equals to the provided via compareTo function|
 |`range(from, to, fromInclusive=true, toInclusive=true)`|matches if value is in range via compareTo function|
 |`and(left, right)`|combines two matchers via logical and|
 |`or(left, right)`|combines two matchers via logical or|
@@ -990,6 +1043,12 @@ By default simple arguments are matched using `eq()`
 |`invoke(...)`|calls matched argument|
 |`coInvoke(...)`|calls matched argument for coroutine|
 |`hint(cls)`|hints next return type in case it's got erased|
+|`anyVararg()`|matches any elements in vararg|
+|`varargAny(matcher)`|matches if any element is matching matcher|
+|`varargAll(matcher)`|matches if all elements are matching matcher|
+|`any...Vararg()`|matches any elements in vararg(specific to primitive type)|
+|`varargAny...(matcher)`|matches if any element is matching matcher(specific to primitive type)|
+|`varargAll...(matcher)`|matches if all elements are matching matcher(specific to primitive type)|
 
 Few special matchers available in verification mode only:
 
@@ -1072,6 +1131,13 @@ So this has similiar to `returnsMany` semantics.
 |`fieldValueAny`|accessor to property backing field with `Any?` type|
 |`value`|value being set casted to same type as property backing field|
 |`valueAny`|value being set with `Any?` type|
+
+### Vararg scope
+
+|Parameter|Description|
+|---------|-----------|
+|`position`|a position of argument in vararg array|
+|`nArgs`|overall count of arguments in vararg array|
 
 ## Funding
 
