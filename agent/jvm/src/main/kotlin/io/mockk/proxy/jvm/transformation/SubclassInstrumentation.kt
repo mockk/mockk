@@ -2,12 +2,12 @@ package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
 import io.mockk.proxy.MockKInvocationHandler
+import io.mockk.proxy.jvm.ClassLoadingStrategyChooser
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.TypeCache
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy
 import net.bytebuddy.dynamic.loading.MultipleParentClassLoader
 import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.implementation.attribute.MethodAttributeAppender
@@ -94,9 +94,11 @@ internal class SubclassInstrumentation(
         }
 
         return type
-            .load(resultClassLoader, ClassLoadingStrategy.Default.INJECTION.with(clazz.protectionDomain))
+            .load(resultClassLoader, chooseClassLoadingStrategy(clazz))
             .loaded
     }
+
+    private fun <T> chooseClassLoadingStrategy(clazz: Class<T>) = ClassLoadingStrategyChooser.chooseClassLoadingStrategy(clazz)
 
     companion object {
         val classDumpIndex = AtomicLong();
