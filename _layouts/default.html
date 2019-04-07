@@ -13,25 +13,236 @@
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     <link href="https://fonts.googleapis.com/css?family=Slabo+27px" rel="stylesheet">
     <style>
-      .main-content > ul:first-of-type {
-          list-style-position: inside;
-      }
-      .main-content ul {
-          list-style-type: circle;
-      }
-      .charitytext {
-          font-family: 'Slabo 27px', serif;
-          font-size: 30px;
-      }
-      .helpmasha {
-          font-family: 'Slabo 27px', serif;
-          font-size: 35px;
-          margin: auto
-      }
-      .helpmasha img{
-          margin-right: 5px;
-      }
+        .main-content > ul:first-of-type {
+            list-style-position: inside;
+        }
+
+        .main-content ul {
+            list-style-type: circle;
+        }
+
+        .charitytext {
+            font-family: 'Slabo 27px', serif;
+            font-size: 30px;
+        }
+
+        .helpmasha {
+            font-family: 'Slabo 27px', serif;
+            font-size: 35px;
+            margin: auto
+        }
+
+        .helpmasha img {
+            margin-right: 5px;
+        }
+
+        .page-header {
+            padding-bottom: 10px;
+        }
+
+        .main-content {
+            padding-top: 0;
+        }
+
+        .idea {
+            color: white;
+            background: #0086B3;
+            padding: 23px 5px 10px 10px;
+            width: 100%;
+        }
+
+        .idea .input {
+            display: block;
+            height: 0;
+            overflow-y: hidden;
+        }
+
+        .idea .input.show {
+            display: flex;
+            height: auto;
+            overflow-y: auto;
+            justify-content: center;
+        }
+
+        .idea .input textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .idea .input textarea {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 0.3rem;
+            transition: height 0.5s ease;
+            resize: none;
+            height: 70px;
+            width: 30em;
+            overflow: hidden;
+            padding: 10px;
+            outline: none;
+        }
+
+        .btn.selected {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3)
+        }
+
+        .idea .input.show textarea:focus {
+            height: 50vh;
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+
+        .idea.focused .input.show textarea {
+            height: 50vh;
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+
+        .idea .input textarea.writing {
+            border-color: rgba(0, 255, 0, 0.7)
+        }
+
+        .idea .input textarea::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .idea .input textarea::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        .idea .input textarea::-webkit-scrollbar-thumb {
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .idea .input textarea::scrollbar-thumb:window-inactive {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .idea .bar {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+        }
+
+        @media screen and (max-width: 42em) {
+            .idea .bar {
+                flex-direction: column;
+            }
+
+            .idea .input textarea {
+                width: calc(100% - 20px);
+            }
+        }
+
+        .idea .header {
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+        }
+
     </style>
+    <script>
+        function hideIdeaInput() {
+            document.getElementById("idea-input").className = "input";
+        }
+
+        function enterIdeaArea() {
+            document.getElementById("idea-section").className = "idea focused";
+        }
+
+        function leaveIdeaArea() {
+            document.getElementById("idea-section").className = "idea";
+        }
+
+        function uniqueId() {
+            var id = localStorage.getItem("uniqueId");
+            if (!id) {
+                var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+
+                var str = '';
+                for (var i = 0; i < 8; i++) {
+                    str += chars[Math.floor(Math.random() * chars.length)];
+                }
+                id = str;
+                localStorage.setItem("uniqueId", id);
+            }
+            return id;
+        }
+
+        function storeItem(what, value) {
+            window.localStorage.setItem(what, value);
+
+            var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            xhr.open('POST', "https://script.google.com/macros/s/AKfycbxI5yg6JsSpC7ILQgiuAupRTvHPQ2MZvTOZM6hy-paKSuxHV6s/exec" +
+                "?ID=" + encodeURIComponent(uniqueId()) +
+                "&Type=" + encodeURIComponent(what), true);
+
+            xhr.setRequestHeader('Content-Type', 'text/plain');
+
+            if (value.length > 10000) {
+                value = value.substring(0, 10000);
+            }
+            xhr.send(value);
+        }
+
+        function ideaButtonClicked(what) {
+            var textArea = document.getElementById("idea-input-textarea");
+            clearTimeout(window.timeoutTypeIdea);
+            if (window['timeoutTypeIdeaFn']) {
+                window.timeoutTypeIdeaFn();
+            }
+
+            if (document.getElementById("idea-btn-" + what).className === "btn selected") {
+                hideIdeaInput();
+                document.getElementById("idea-btn-" + what).className = "btn";
+                return;
+            }
+            document.getElementById("idea-input").className = "input show";
+            // textArea.focus();
+            var btnTypes = ["paid", "library", "idea", "feedback"];
+            var messages = [
+                "What additional paid services or products you/your company/other mockk users would pay for?",
+                "What open source Kotlin library you or your company would like to have?",
+                "What other idea you would like to share?",
+                "What feedback do you have regarding mockk?"
+            ];
+            for (var btnTypeIdx in btnTypes) {
+                var btnType = btnTypes[btnTypeIdx];
+                document.getElementById("idea-btn-" + btnType).className = (btnType === what ? "btn selected" : "btn");
+                if (btnType === what) {
+                    textArea.setAttribute("placeholder", messages[btnTypeIdx] + "\n\nInput area is sent to server automatically and used for feedback purposes only. If you do not agree to this, please do not use it.");
+                    var textValue = window.localStorage.getItem(what) || "";
+                    if (textArea.value !== textValue) {
+                        textArea.value = textValue;
+                    }
+                    textArea.onkeydown = function () {
+                        textArea.className = "writing";
+                        clearTimeout(window.timeoutTypeIdea);
+                        window.timeoutTypeIdeaFn = function () {
+                            textArea.className = "";
+                            storeItem(what, textArea.value);
+                            window.timeoutTypeIdeaFn = null;
+                        };
+                        window.timeoutTypeIdea = setTimeout(window.timeoutTypeIdeaFn, 1000);
+                        return true;
+                    }
+
+                }
+            }
+            // window.scrollTo(0, document.getElementById("idea-section").offsetTop);
+        }
+
+    </script>
   </head>
   <body>
     <section class="page-header">
@@ -44,6 +255,19 @@
         <a href="{{ site.github.zip_url }}" class="btn">Download .zip</a>
         <a href="{{ site.github.tar_url }}" class="btn">Download .tar.gz</a>
       {% endif %}
+    </section>
+
+    <section class="idea" id="idea-section" onmouseenter="enterIdeaArea()" onmouseleave="leaveIdeaArea()">
+      <div class="bar" id="idea-bar">
+          <span class="header">What's next?</span>
+          <button class="btn" id="idea-btn-paid" onclick="ideaButtonClicked('paid')">Paid service</button>
+          <button class="btn" id="idea-btn-library" onclick="ideaButtonClicked('library')">Library</button>
+          <button class="btn" id="idea-btn-idea" onclick="ideaButtonClicked('idea')">Idea</button>
+          <button class="btn" id="idea-btn-feedback" onclick="ideaButtonClicked('feedback')">Other feedback</button>
+      </div>
+      <div class="input" id="idea-input">
+          <textarea id="idea-input-textarea"></textarea>
+      </div>
     </section>
 
     <section class="main-content">
