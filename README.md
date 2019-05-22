@@ -61,7 +61,6 @@ Table of contents:
 All you need to get started is just to add a dependency to `MockK` library.
 
 #### Gradle/maven dependency
-
 <table>
 <thead><tr><th>Approach</th><th>Instruction</th></tr></thead>
 <tr>
@@ -105,11 +104,12 @@ All you need to get started is just to add a dependency to `MockK` library.
     <pre>testImplementation "io.mockk:mockk-common:{version}"</pre>
 </td>
 </tr>
-<tr>
- <td></td>
- <td><img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" /></td>
-</tr> 
 </table>
+
+where `{version}` corresponds to version as below:
+
+- Kotlin 1.3+ and Coroutines 1.0+ Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg?version=1.9.3) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/1.9.3/link)
+- Kotlin 1.2 Compatible Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/_latestVersion)
 
 ## DSL examples
 
