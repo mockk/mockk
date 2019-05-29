@@ -68,18 +68,17 @@ abstract class RecordedBlockEvaluator(
     private fun <T> enhanceWithNPERethrow(
         block: () -> T,
         checkLastCallReturnsNothing: () -> Boolean
-    ) =
-        {
-            try {
-                block()
-            } catch (npe: NullPointerException) {
-                if (checkLastCallReturnsNothing()) {
-                    throw NothingThrownNullPointerException()
-                } else {
-                    throw npe
-                }
+    ): () -> T = {
+        try {
+            block()
+        } catch (npe: NullPointerException) {
+            if (checkLastCallReturnsNothing()) {
+                throw NothingThrownNullPointerException()
+            } else {
+                throw npe
             }
         }
+    }
 
     protected fun initializeCoroutines() = InternalPlatformDsl.runCoroutine {}
 }

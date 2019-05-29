@@ -60,5 +60,4 @@ class ClassTransformationSpecMap {
         specLock.withLock {
             request.classes.map { it.simpleName to classSpecs[it].toString() }.toMap()
         }
-
 }

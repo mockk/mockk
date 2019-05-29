@@ -86,7 +86,7 @@ class VerifyingState(
             }
         }
 
-        if (!calledStubs.isEmpty()) {
+        if (calledStubs.isNotEmpty()) {
             if (calledStubs.size == 1) {
                 val calledStub = calledStubs[0]
                 throw AssertionError(recorder.safeExec {

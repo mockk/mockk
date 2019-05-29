@@ -9,7 +9,7 @@ open class CancelableResult<T : Any>(
     private val cancelBlock: () -> Unit = {}
 ) : Cancelable<T> {
 
-    val fired = AtomicBoolean()
+    private val fired = AtomicBoolean()
 
     override fun get() = value
             ?: throw MockKAgentException("Value for this result is not assigned")

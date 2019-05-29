@@ -134,7 +134,7 @@ abstract class AbstractMockFactory(
     override fun isMock(value: Any) = gatewayAccess.stubRepository[value] != null
 
     companion object {
-        val idCounter = InternalPlatformDsl.counter()
+        private val idCounter = InternalPlatformDsl.counter()
 
         fun newId(): Long = idCounter.increment() + 1
     }

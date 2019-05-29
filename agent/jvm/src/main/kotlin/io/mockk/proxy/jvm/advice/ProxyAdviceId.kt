@@ -1,5 +1,4 @@
 package io.mockk.proxy.jvm.advice
 
-
-@Retention()
+@Retention
 internal annotation class ProxyAdviceId

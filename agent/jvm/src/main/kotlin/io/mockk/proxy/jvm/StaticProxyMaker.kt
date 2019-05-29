@@ -34,7 +34,7 @@ internal class StaticProxyMaker(
 
         staticHandlers[clazz] = handler
 
-        return CancelableResult<Class<*>>(clazz, cancellation)
+        return CancelableResult(clazz, cancellation)
             .alsoOnCancel {
                 staticHandlers.remove(clazz)
             }

@@ -41,7 +41,7 @@ class Issue159Test {
             it.join()
         }
 
-        // expect to recive each value once
+        // expect to receive each value once
         assertEquals(values.sum(), sum.get())
     }
 }

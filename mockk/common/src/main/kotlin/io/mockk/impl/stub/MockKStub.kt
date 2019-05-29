@@ -207,9 +207,9 @@ open class MockKStub(
         return if (result != null) {
             val group = result.groupValues[2]
             val childN = if (group.isEmpty()) 1 else group.toInt()
-            "child^" + (childN + 1) + " of " + result.groupValues[3]
+            "child^${childN + 1} of ${result.groupValues[3]}"
         } else {
-            "child of " + name
+            "child of $name"
         }
     }
 

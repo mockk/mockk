@@ -159,7 +159,7 @@ class JvmMockKAgentFactory : MockKAgentFactory {
 }
 
 internal class MockKSubclassNamingStrategy : NamingStrategy.AbstractBase() {
-    val counter = AtomicLong()
+    private val counter = AtomicLong()
 
     override fun name(superClass: TypeDescription): String {
         var baseName = superClass.name

@@ -15,8 +15,8 @@ class PermanentMocker(
 
     val log = safeToString(Logger<PermanentMocker>())
 
-    val permanentMocks = InternalPlatform.identityMap<Any, Any>()
-    val callRef = InternalPlatform.weakMap<Any, RecordedCall>()
+    private val permanentMocks = InternalPlatform.identityMap<Any, Any>()
+    private val callRef = InternalPlatform.weakMap<Any, RecordedCall>()
 
     fun mock(calls: List<RecordedCall>): List<RecordedCall> {
         val result = mutableListOf<RecordedCall>()

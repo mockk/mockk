@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 class ConstructorStub(
     val mock: Any,
-    val representativeMock: Any,
+    representativeMock: Any,
     val stub: Stub,
     val recordPrivateCalls: Boolean
 ) : Stub {

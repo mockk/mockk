@@ -27,7 +27,7 @@ object VerificationHelpers {
         fun StackElement.fileLine() =
             "($fileName:$line)${if (nativeMethod) "N" else ""}"
 
-        fun spaces(n: Int) = if (n < 0) "" else (1..n).map { " " }.joinToString("")
+        fun spaces(n: Int) = if (n < 0) "" else (1..n).joinToString("") { " " }
         fun columnRight(s: String, sz: Int) = spaces(sz - s.length) + s
         fun columnLeft(s: String, sz: Int) = s + spaces(sz - s.length)
 
@@ -36,12 +36,12 @@ object VerificationHelpers {
         val maxMethodLen = columnSize { methodName }
         val maxThirdColumn = columnSize { fileLine() }
 
-        return stackTrace.map {
+        return stackTrace.joinToString("\n") {
             spaces(prefix) +
                     columnRight(it.className, maxClassNameLen) + "." +
                     columnLeft(it.methodName, maxMethodLen) + " " +
                     columnLeft(it.fileLine(), maxThirdColumn)
-        }.joinToString("\n").substring(prefix)
+        }.substring(prefix)
     }
 
 
@@ -53,7 +53,7 @@ object VerificationHelpers {
             .sortedBy { it.timestamp }
 
     fun reportCalls(calls: List<RecordedCall>, allCalls: List<Invocation>): String {
-        return "\n\nMatchers: \n" + calls.map { it.matcher.toString() }.joinToString("\n") +
+        return "\n\nMatchers: \n" + calls.joinToString("\n") { it.matcher.toString() } +
                 "\n\nCalls:\n" +
                 formatCalls(allCalls) +
                 "\n\nStack traces:\n" +

@@ -55,15 +55,12 @@ internal class BootJarLoader(
             val boot = createTempBootFile()
             boot.deleteOnExit()
 
-            val out = JarOutputStream(FileOutputStream(boot))
-            try {
+            JarOutputStream(FileOutputStream(boot)).use {
                 for (name in classNames) {
-                    if (!addClass(out, name)) {
+                    if (!addClass(it, name)) {
                         return null
                     }
                 }
-            } finally {
-                out.close()
             }
             return boot
         } catch (ex: IOException) {

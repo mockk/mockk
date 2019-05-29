@@ -13,8 +13,8 @@ class Issue69Test {
     @Test
     fun test() {
         val kafkaFuture: KafkaFuture<Void> = mockk()
-        every { kafkaFuture.get(any(), any()) } returns mockk()
-        kafkaFuture.get(10, TimeUnit.MILLISECONDS)
+        every { kafkaFuture[any(), any()] } returns mockk()
+        kafkaFuture[10, TimeUnit.MILLISECONDS]
     }
 
 }

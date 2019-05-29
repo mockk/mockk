@@ -23,11 +23,11 @@ class SignatureMatcherDetector(
         fun checkAllSameNumberOfCalls() {
             if (callRounds.any { it.calls.size != nCalls }) {
                 throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
-                        callRounds.withIndex().map {
-                            "Round ${it.index + 1}: " + it.value.calls.map { it.invocationStr }.joinToString(
+                        callRounds.withIndex().joinToString("\n") { indexedValue ->
+                            "Round ${indexedValue.index + 1}: " + indexedValue.value.calls.joinToString(
                                 ", "
-                            )
-                        }.joinToString("\n")
+                            ) { it.invocationStr }
+                        }
                 )
             }
         }
@@ -35,12 +35,13 @@ class SignatureMatcherDetector(
         val nMatchers = callRounds[0].matchers.size
         fun checkAllSameNumberOfMatchers() {
             if (callRounds.any { it.matchers.size != nMatchers }) {
-                throw MockKException("every/verify {} block were run several times. Recorded matchers count differ between runs\n" +
-                        callRounds.withIndex().map {
-                            "Round ${it.index + 1}: " + it.value.matchers.map { it }.joinToString(
-                                ", "
-                            )
-                        }.joinToString("\n")
+                throw MockKException(
+                    "every/verify {} block were run several times. Recorded matchers count differ between runs\n" +
+                            callRounds.withIndex().joinToString("\n") { indexedValue ->
+                                "Round ${indexedValue.index + 1}: " + indexedValue.value.matchers.map { it }.joinToString(
+                                    ", "
+                                )
+                            }
                 )
             }
         }
@@ -78,7 +79,7 @@ class SignatureMatcherDetector(
                     log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
 
                     matcherMap.remove(signature)
-                            ?: ChainedCallDetector.eqOrNullMatcher(matcher.operandValues[nOp])
+                        ?: ChainedCallDetector.eqOrNullMatcher(matcher.operandValues[nOp])
                 } as List<Matcher<Any?>>?
             }
         }

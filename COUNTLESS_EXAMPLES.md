@@ -31,7 +31,7 @@ data class ListWithoutOrderMatcher<T>(
                 refEq -> InternalPlatform.ref(item)
                 else -> item
             }
-            map.compute(key, { _, value -> (value ?: 0) + 1 })
+            map.compute(key) { _, value -> (value ?: 0) + 1 }
         }
 
         return map

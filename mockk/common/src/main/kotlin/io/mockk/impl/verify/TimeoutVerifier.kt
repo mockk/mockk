@@ -41,11 +41,11 @@ class TimeoutVerifier(
     }
 
     private fun List<RecordedCall>.allStubs(stubRepo: StubRepository) =
-        this.map { InternalPlatform.ref(it.matcher.self) }
+        asSequence().map { InternalPlatform.ref(it.matcher.self) }
             .distinct()
             .map { it.value }
             .map { stubRepo.stubFor(it) }
-            .distinct()
+            .distinct().toList()
 }
 
 private fun VerificationResult.addTimeoutToMessage(timeout: Long) =

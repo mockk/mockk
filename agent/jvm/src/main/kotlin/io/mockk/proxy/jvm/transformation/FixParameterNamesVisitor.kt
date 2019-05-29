@@ -41,7 +41,7 @@ internal class FixParameterNamesVisitor(val type: Class<*>) :
 
     internal class FixParameterNamesClassVisitor constructor(
         visitor: ClassVisitor,
-        val typeDescription: TypeDescription
+        private val typeDescription: TypeDescription
     ) : ClassVisitor(OpenedClassReader.ASM_API, visitor) {
 
         override fun visitMethod(

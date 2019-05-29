@@ -19,7 +19,6 @@ open class CommonMockTypeChecker(
     }
 
     override fun isSpy(mock: Any): Boolean {
-
         val stub = stubRepository[mock] as? SpyKStub<*>
             ?: return false
 

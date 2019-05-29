@@ -6,7 +6,7 @@ import kotlin.test.Test
 
 abstract class MyAbstractClass
 
-interface IOtherInterface {}
+interface IOtherInterface
 
 interface IMockableInterface {
     fun doSomethingWithAbstractClass(a: MyAbstractClass?)
