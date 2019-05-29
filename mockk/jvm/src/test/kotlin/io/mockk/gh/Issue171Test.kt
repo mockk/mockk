@@ -2,7 +2,10 @@ package io.mockk.gh
 
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.lang.RuntimeException
 import java.lang.Thread.sleep
 import java.util.concurrent.atomic.AtomicBoolean
