@@ -25,7 +25,7 @@ class OrderedCallVerifier(
 
         if (verificationSequence.size > allCalls.size) {
             return VerificationResult.Failure(safeToString.exec {
-                "less calls happened then demanded by order verification sequence. " +
+                "less calls happened than demanded by order verification sequence. " +
                         reportCalls(verificationSequence, allCalls)
             })
         }
