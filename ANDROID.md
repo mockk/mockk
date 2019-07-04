@@ -29,7 +29,7 @@ Unfortunatelly public CIs alike Travis and Circle are not supporting emulation o
     <tr>
         <th>Feature</th>
         <th>Unit tests</th>
-        <th colspan="2">Instrumetation test</th>
+        <th colspan="2">Instrumentation test</th>
     </tr>
     <tr>
         <td></td>
