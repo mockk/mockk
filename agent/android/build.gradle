@@ -63,6 +63,10 @@ android {
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
+
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
+        }
     }
 
     externalNativeBuild {
@@ -70,7 +74,6 @@ android {
             path = 'CMakeLists.txt'
         }
     }
-
 }
 
 
