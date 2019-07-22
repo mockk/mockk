@@ -164,27 +164,12 @@
             document.getElementById("idea-section").className = "idea";
         }
 
-        function uniqueId() {
-            var id = localStorage.getItem("uniqueId");
-            if (!id) {
-                var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
-
-                var str = '';
-                for (var i = 0; i < 8; i++) {
-                    str += chars[Math.floor(Math.random() * chars.length)];
-                }
-                id = str;
-                localStorage.setItem("uniqueId", id);
-            }
-            return id;
-        }
-
         function storeItem(what, value) {
             window.localStorage.setItem(what, value);
 
             var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
             xhr.open('POST', "https://script.google.com/macros/s/AKfycbxI5yg6JsSpC7ILQgiuAupRTvHPQ2MZvTOZM6hy-paKSuxHV6s/exec" +
-                "?ID=" + encodeURIComponent(uniqueId()) +
+                "?ID=" + encodeURIComponent("anonymous") +
                 "&Type=" + encodeURIComponent(what), true);
 
             xhr.setRequestHeader('Content-Type', 'text/plain');
@@ -209,10 +194,10 @@
             }
             document.getElementById("idea-input").className = "input show";
             // textArea.focus();
-            var btnTypes = ["paid", "library", "idea", "feedback"];
+            var btnTypes = ["example", "feature", "idea", "feedback"];
             var messages = [
-                "What additional paid services or products you/your company/other mockk users would pay for?",
-                "What open source Kotlin library you or your company would like to have?",
+                "What example you would like to share?",
+                "What additional DSL feature you would like to have?",
                 "What other idea you would like to share?",
                 "What feedback do you have regarding mockk?"
             ];
@@ -259,9 +244,9 @@
 
     <section class="idea" id="idea-section" onmouseenter="enterIdeaArea()" onmouseleave="leaveIdeaArea()">
       <div class="bar" id="idea-bar">
-          <span class="header">What's next?</span>
-          <button class="btn" id="idea-btn-paid" onclick="ideaButtonClicked('paid')">Paid service</button>
-          <button class="btn" id="idea-btn-library" onclick="ideaButtonClicked('library')">Library</button>
+          <span class="header">What's on your mind?</span>
+          <button class="btn" id="idea-btn-example" onclick="ideaButtonClicked('example')">Example to share</button>
+          <button class="btn" id="idea-btn-feature" onclick="ideaButtonClicked('feature')">DSL feature</buttone>
           <button class="btn" id="idea-btn-idea" onclick="ideaButtonClicked('idea')">Idea</button>
           <button class="btn" id="idea-btn-feedback" onclick="ideaButtonClicked('feedback')">Other feedback</button>
       </div>
