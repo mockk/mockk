@@ -11,6 +11,6 @@ staleLabel: stale
 markComment: >
   This issue has been automatically marked as stale because it has not had
   recent activity. It will be closed if no further activity occurs. Thank you
-  for your contributions. If you are sure that this issue is important and should not be marked as `stale` just put an `important` tag. 
+  for your contributions. If you are sure that this issue is important and should not be marked as `stale` just ask to put an `important` label. 
 # Comment to post when closing a stale issue. Set to `false` to disable
 closeComment: false
