@@ -26,7 +26,7 @@ uploadArchives {
                 scm {
                     connection 'scm:git:git@github.com:mockk/mockk.git'
                     developerConnection 'scm:git:git@github.com:mockk/mockk.git'
-                    url 'http://www.github.com/mockk/mockk/'
+                    url 'https://github.com/mockk/mockk/'
                 }
 
                 licenses {
