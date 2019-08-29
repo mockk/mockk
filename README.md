@@ -881,7 +881,8 @@ Additionally more verbose syntax allows to get and set properties, do same dynam
 val mock = spyk(Team(), recordPrivateCalls = true)
 
 every { mock getProperty "speed" } returns 33
-every { mock setProperty "acceleration" value less(5) } just Runs
+every { mock setProperty "acceleration" value less(5) } just runs
+every { mock invokeReturnsUnit "privateMethod" } just runs
 every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
 
 verify { mock getProperty "speed" }
