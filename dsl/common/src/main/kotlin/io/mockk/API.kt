@@ -662,15 +662,11 @@ open class MockKMatcherScope(
         return callRecorder.matcher(matcher, T::class)
     }
 
-    inline fun <reified T : Any> match(noinline matcher: (T) -> Boolean): T = matchNullable {
-        when (it) {
-            null -> false
-            else -> matcher(it)
-        }
-    }
+    inline fun <reified T : Any> match(noinline matcher: (T) -> Boolean): T =
+        match(FunctionMatcher(matcher, T::class))
 
     inline fun <reified T : Any> matchNullable(noinline matcher: (T?) -> Boolean): T =
-        match(FunctionMatcher(matcher, T::class))
+        match(FunctionWithNullableArgMatcher(matcher, T::class))
 
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
