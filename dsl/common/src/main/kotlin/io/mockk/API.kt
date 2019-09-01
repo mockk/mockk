@@ -1949,6 +1949,9 @@ open class MockKMatcherScope(
     infix fun Any.invokeNoArgs(name: String) =
         invoke(name).withArguments(listOf())
 
+    @Suppress("CAST_NEVER_SUCCEEDS")
+    infix fun Any.invokeReturnsUnit(name: String) = invoke(name) as Unit
+
     infix fun Any.getProperty(name: String) =
         InternalPlatformDsl.dynamicGet(this, name)
 
