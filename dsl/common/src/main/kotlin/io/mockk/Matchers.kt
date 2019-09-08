@@ -50,12 +50,31 @@ data class ConstantMatcher<in T : Any>(val constValue: Boolean) : Matcher<T> {
  * Delegates matching to lambda function
  */
 data class FunctionMatcher<in T : Any>(
+    val matchingFunc: (T) -> Boolean,
+    override val argumentType: KClass<*>
+) : Matcher<T>, TypedMatcher, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
+
+    override fun match(arg: T?): Boolean = if(arg == null) false else matchingFunc(arg)
+
+    override fun toString(): String = "matcher<${argumentType.simpleName}>()"
+}
+
+data class FunctionWithNullableArgMatcher<in T : Any>(
     val matchingFunc: (T?) -> Boolean,
     override val argumentType: KClass<*>
 ) : Matcher<T>, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     override fun match(arg: T?): Boolean = matchingFunc(arg)
+
+    override fun checkType(arg: Any?): Boolean {
+        if(arg == null) {
+            return true
+        }
+
+        return super.checkType(arg)
+    }
 
     override fun toString(): String = "matcher<${argumentType.simpleName}>()"
 }
