@@ -662,15 +662,11 @@ open class MockKMatcherScope(
         return callRecorder.matcher(matcher, T::class)
     }
 
-    inline fun <reified T : Any> match(noinline matcher: (T) -> Boolean): T = matchNullable {
-        when (it) {
-            null -> false
-            else -> matcher(it)
-        }
-    }
+    inline fun <reified T : Any> match(noinline matcher: (T) -> Boolean): T =
+        match(FunctionMatcher(matcher, T::class))
 
     inline fun <reified T : Any> matchNullable(noinline matcher: (T?) -> Boolean): T =
-        match(FunctionMatcher(matcher, T::class))
+        match(FunctionWithNullableArgMatcher(matcher, T::class))
 
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
@@ -1948,6 +1944,9 @@ open class MockKMatcherScope(
 
     infix fun Any.invokeNoArgs(name: String) =
         invoke(name).withArguments(listOf())
+
+    @Suppress("CAST_NEVER_SUCCEEDS")
+    infix fun Any.invokeReturnsUnit(name: String) = invoke(name) as Unit
 
     infix fun Any.getProperty(name: String) =
         InternalPlatformDsl.dynamicGet(this, name)

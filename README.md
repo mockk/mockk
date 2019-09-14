@@ -61,7 +61,6 @@ Table of contents:
 All you need to get started is just to add a dependency to `MockK` library.
 
 #### Gradle/maven dependency
-
 <table>
 <thead><tr><th>Approach</th><th>Instruction</th></tr></thead>
 <tr>
@@ -105,11 +104,12 @@ All you need to get started is just to add a dependency to `MockK` library.
     <pre>testImplementation "io.mockk:mockk-common:{version}"</pre>
 </td>
 </tr>
-<tr>
- <td></td>
- <td><img align="middle" src="https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=current+version" alt="current version" /></td>
-</tr> 
 </table>
+
+where `{version}` corresponds to version as below:
+
+- Kotlin 1.3+ and Coroutines 1.0+ Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg?version=1.9.3) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/1.9.3/link)
+- Kotlin 1.2 Compatible Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/_latestVersion)
 
 ## DSL examples
 
@@ -597,7 +597,7 @@ To double check that all calls were verified by `verify...` constructs you can u
 confirmVerified(mock1, mock2)
 ```
 
-There is no big sense to use it for `verifySequence` and `verifyAll` as this verification methods already exhasutively cover all calls with verification. 
+There is no big sense to use it for `verifySequence` and `verifyAll` as this verification methods already exhaustively cover all calls with verification.
 
 It will throw exception in case some calls left without verification.
 
@@ -881,7 +881,8 @@ Additionally more verbose syntax allows to get and set properties, do same dynam
 val mock = spyk(Team(), recordPrivateCalls = true)
 
 every { mock getProperty "speed" } returns 33
-every { mock setProperty "acceleration" value less(5) } just Runs
+every { mock setProperty "acceleration" value less(5) } just runs
+every { mock invokeReturnsUnit "privateMethod" } just runs
 every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
 
 verify { mock getProperty "speed" }
