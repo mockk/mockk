@@ -18,9 +18,9 @@ To open classes before Android P you can use [DexOpener](https://github.com/tmur
 
 ## Implementation
 
-Implementation is based on [dexmaker](https://github.com/linkedin/dexmaker) project. With Android P instrumentation tests may use full power of inline instrumentation, so object mocks, static mocks and mocking of final classes are supported. Before Android P only subclassing can be employed and that means you need 'all-open' plugin.
+Implementation is based on [dexmaker](https://github.com/linkedin/dexmaker) project. With Android P, instrumentation tests may use full power of inline instrumentation, so object mocks, static mocks and mocking of final classes are supported. Before Android P, only subclassing can be employed, so you will need the 'all-open' plugin.
 
-Unfortunately, public CIs alike Travis and Circle are not supporting emulation of Android P because of absense of ARM Anroid P images. Hope this will change soon.
+Unfortunately, public CIs such as Travis and Circle are not supporting Android P emulation due to the absence of ARM Android P images. Hopefully, this will change soon.
  
 ## Supported features
 
@@ -122,7 +122,7 @@ Unfortunately, public CIs alike Travis and Circle are not supporting emulation o
 
 ## Installation
 
-All you need to get started is just to add a dependency to `MockK` library.
+All you need to get started is by adding a dependency to `MockK` library.
 
 #### Unit tests
 
