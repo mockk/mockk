@@ -954,6 +954,19 @@ Then you need to throw some exception as a behaviour:
 every { quit(1) } throws Exception("this is a test")
 ```
 
+## Matcher extensibility
+
+Here is very simple way to create new matchers by attaching function 
+to `MockKMatcherScope` or `MockKVerificationScope` and using `match` function:
+
+```
+    fun MockKMatcherScope.seqEq(seq: Sequence<String>) = match<Sequence<String>> {
+        it.toList() == seq.toList()
+    }
+```
+
+Also it is possible to create more advanced matchers by implementing `Matcher` interface. 
+
 ## Settings file
 
 To adjust parameters globaly there is a posibility to specify few settings in a resource file.
