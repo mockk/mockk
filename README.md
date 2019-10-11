@@ -505,7 +505,7 @@ every {
     direction = Direction.SOUTH
   )
 } answers {
-  println(list.captured())
+  println(list)
 
   Outcome.RECORDED
 }
