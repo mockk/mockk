@@ -9,6 +9,7 @@
 [![Android](https://img.shields.io/badge/android-support-green.svg)](http://mockk.io/ANDROID)
 [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX)
 [![Deprecated](https://img.shields.io/badge/deprecated-API-red.svg)](/DEPRECATED)
+[![Open Source Helpers](https://www.codetriage.com/mockk/mockk/badges/users.svg)](https://www.codetriage.com/mockk/mockk)
 
 ### Kotlin Academy articles <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
 
