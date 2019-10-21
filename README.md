@@ -1152,7 +1152,7 @@ So this is similar to the `returnsMany` semantics.
 
 You can also support this project by becoming a sponsor. Your logo will show up here with a link to your website.
 
-## Sponsors
+### Sponsors
 
 <a href="https://opencollective.com/mockk/sponsor/0/website" target="_blank">
   <img src="https://opencollective.com/mockk/sponsor/0/avatar.svg"/>
@@ -1161,7 +1161,7 @@ You can also support this project by becoming a sponsor. Your logo will show up 
   <img src="https://opencollective.com/mockk/sponsor/1/avatar.svg"/>
 </a>
 
-## Backers
+### Backers
 
 Thank you to all our backers! 🙏
 
