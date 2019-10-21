@@ -1172,7 +1172,7 @@ Thank you to all our backers! 🙏
 
 This project exists thanks to all the people who contribute.
 
-<a href="https://github.com/drcmda/mockk/graphs/contributors">
+<a href="https://github.com/mockk/mockk/graphs/contributors">
   <img src="https://opencollective.com/mockk/contributors.svg?width=890" />
 </a>
 
