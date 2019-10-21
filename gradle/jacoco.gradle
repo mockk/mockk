@@ -1,5 +1,9 @@
 apply plugin: 'jacoco'
 
+jacoco {
+    toolVersion = "0.8.2"
+}
+
 afterEvaluate {
     jacocoTestReport {
         reports {
