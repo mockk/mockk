@@ -1149,11 +1149,32 @@ So this is similar to the `returnsMany` semantics.
 
 ## Funding
 
-[![Become a backer](https://opencollective.com/mockk/tiers/backer.svg?avatarHeight=150)](https://opencollective.com/mockk)
+You can also support this project by becoming a sponsor. Your logo will show up here with a link to your website.
 
-or
+## Sponsors
 
-[![Become a sponsor](https://opencollective.com/mockk/tiers/sponsor.svg?avatarHeight=150)](https://opencollective.com/mockk)
+<a href="https://opencollective.com/mockk/sponsor/0/website" target="_blank">
+  <img src="https://opencollective.com/mockk/sponsor/0/avatar.svg"/>
+</a>
+<a href="https://opencollective.com/mockk/sponsor/1/website" target="_blank">
+  <img src="https://opencollective.com/mockk/sponsor/1/avatar.svg"/>
+</a>
+
+## Backers
+
+Thank you to all our backers! 🙏
+
+<a href="https://opencollective.com/mockk#backers" target="_blank">
+  <img src="https://opencollective.com/mockk/backers.svg?width=890"/>
+</a>
+
+### Contributors
+
+This project exists thanks to all the people who contribute.
+
+<a href="https://github.com/drcmda/mockk/graphs/contributors">
+  <img src="https://opencollective.com/mockk/contributors.svg?width=890" />
+</a>
 
 ## Getting Help
 
