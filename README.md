@@ -949,6 +949,11 @@ Then you can for example throw an exception as behaviour:
 every { quit(1) } throws Exception("this is a test")
 ```
 
+### Clearing vs Unmocking
+
+* clear - deletes internal state of objects associated with mock resulting in empty object
+* unmock - re-assigns transformation of classes back to original state prior to mock
+
 ## Matcher extensibility
 
 A very simple way is to create new matchers by attaching a function 
@@ -974,11 +979,6 @@ relaxed=true|false
 relaxUnitFun=true|false
 recordPrivateCalls=true|false
 ```
-
-### Clearing vs Unmocking
-
-* clear - deletes internal state of objects associated with mock resulting in empty object
-* unmock - re-assigns transformation of classes back to original state prior to mock
 
 ## DSL tables
 
