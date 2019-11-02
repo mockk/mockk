@@ -975,6 +975,11 @@ relaxUnitFun=true|false
 recordPrivateCalls=true|false
 ```
 
+### Clearing vs Unmocking
+
+* clear - deletes internal state of objects associated with mock resulting in empty object
+* unmock - re-assigns transformation of classes back to original state prior to mock
+
 ## DSL tables
 
 Here are a few tables to help you master the DSL.
