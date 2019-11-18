@@ -264,7 +264,7 @@ func()
 ### Mock relaxed for functions returning Unit
 
 In case you would like `Unit` returning functions to be relaxed, you can use `relaxUnitFun = true` as an argument to the `mockk` function, 
-`@MockK`annotation or `MockKAnntations.init` function.
+`@MockK`annotation or `MockKAnnotations.init` function.
 
 Function:
 ```kotlin
