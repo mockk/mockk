@@ -31,7 +31,7 @@ class JvmMockKAgentFactory : MockKAgentFactory {
             logFactory.logger(BootJarLoader::class.java)
         )
 
-        val jvmInstrumenatation = initInstrumentation(loader)
+        val jvmInstrumentation = initInstrumentation(loader)
 
         class Initializer {
             fun preload() {
@@ -64,14 +64,14 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     byteBuddy
                 )
 
-                val handlers = handlerMap(jvmInstrumenatation != null)
-                val staticHandlers = handlerMap(jvmInstrumenatation != null)
-                val constructorHandlers = handlerMap(jvmInstrumenatation != null)
+                val handlers = handlerMap(jvmInstrumentation != null)
+                val staticHandlers = handlerMap(jvmInstrumentation != null)
+                val constructorHandlers = handlerMap(jvmInstrumentation != null)
 
                 val specMap = ClassTransformationSpecMap()
 
 
-                val inliner = jvmInstrumenatation?.let {
+                val inliner = jvmInstrumentation?.let {
 
                     it.addTransformer(
                         InliningClassTransformer(
@@ -88,7 +88,7 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     JvmInlineInstrumentation(
                         logFactory.logger(JvmInlineInstrumentation::class.java),
                         specMap,
-                        jvmInstrumenatation
+                        jvmInstrumentation
                     )
                 }
 
