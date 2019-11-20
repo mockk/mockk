@@ -89,4 +89,34 @@ class AnyValueGeneratorTest {
     fun givenDoubleArrayClassWhenRequestedForAnyValueThenEmptyDoubleArrayIsReturned() {
         assertArrayEquals(DoubleArray(0), generator.anyValue(DoubleArray::class, failOnPassThrough) as DoubleArray, 1e-6)
     }
+
+    @Test
+    fun givenListClassWhenRequestedForAnyValueThenEmptyListIsReturned() {
+        assertEquals(listOf<Any>(), generator.anyValue(List::class, failOnPassThrough) as List<*>)
+    }
+
+    @Test
+    fun givenMapClassWhenRequestedForAnyValueThenEmptyMapIsReturned() {
+        assertEquals(mapOf<Any, Any>(), generator.anyValue(Map::class, failOnPassThrough) as Map<*, *>)
+    }
+
+    @Test
+    fun givenSetClassWhenRequestedForAnyValueThenEmptySetIsReturned() {
+        assertEquals(setOf<Any>(), generator.anyValue(Set::class, failOnPassThrough) as Set<*>)
+    }
+
+    @Test
+    fun givenArrayListClassWhenRequestedForAnyValueThenEmptyArrayListIsReturned() {
+        assertEquals(arrayListOf<Any>(), generator.anyValue(ArrayList::class, failOnPassThrough) as ArrayList<*>)
+    }
+
+    @Test
+    fun givenHashMapClassWhenRequestedForAnyValueThenEmptyHashMapIsReturned() {
+        assertEquals(hashMapOf<Any, Any>(), generator.anyValue(HashMap::class, failOnPassThrough) as HashMap<*, *>)
+    }
+
+    @Test
+    fun givenHashSetClassWhenRequestedForAnyValueThenEmptyHashSetIsReturned() {
+        assertEquals(hashSetOf<Any>(), generator.anyValue(HashSet::class, failOnPassThrough) as HashSet<*>)
+    }
 }
