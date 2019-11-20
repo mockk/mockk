@@ -24,6 +24,13 @@ open class AnyValueGenerator {
             FloatArray::class -> FloatArray(0)
             DoubleArray::class -> DoubleArray(0)
 
+            List::class -> emptyList<Any>()
+            Map::class -> emptyMap<Any, Any>()
+            Set::class -> emptySet<Any>()
+            ArrayList::class -> arrayListOf<Any>()
+            HashMap::class -> hashMapOf<Any, Any>()
+            HashSet::class -> hashSetOf<Any>()
+
             else -> orInstantiateVia()
         }
     }
