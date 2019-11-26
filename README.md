@@ -487,8 +487,8 @@ val list = mutableListOf<Double>()
 
 every {
   obj.recordTelemetry(
-    speed = capture(slot),
-    direction = Direction.NORTH
+    speed = capture(slot), // makes mock match call with any value for `speed` and record it in a slot
+    direction = Direction.NORTH // makes mock and capturing only match calls with specific `direction`. Use `any()` to match calls with any `direction`
   )
 } answers {
   println(slot.captured)
