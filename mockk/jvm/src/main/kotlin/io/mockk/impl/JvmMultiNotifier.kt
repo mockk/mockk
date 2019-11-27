@@ -60,7 +60,7 @@ class JvmMultiNotifier : MultiNotifier {
     private fun changeCounters(keys: List<Any>, delta: Int) {
         keys.forEach { it ->
             val ref = InternalPlatform.ref(it)
-            val value = counters.getOrDefault(ref, 0) + delta
+            val value = counters.getOrElse(ref) { 0 } + delta
             if (value == 0) {
                 conditionMet.remove(ref)
                 counters.remove(ref)
