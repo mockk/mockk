@@ -22,6 +22,7 @@ class Issue389Test {
         repositoryMock.persist(Tweet(1, "first tweet"))
         repositoryMock.persist(Tweet(2, "second tweet"))
 
+
         verifyAll {
             repositoryMock.persist(
                 withArg {
