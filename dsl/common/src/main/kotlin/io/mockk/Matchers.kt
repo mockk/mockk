@@ -55,7 +55,17 @@ data class FunctionMatcher<in T : Any>(
 ) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
-    override fun match(arg: T?): Boolean = if(arg == null) false else matchingFunc(arg)
+    override fun match(arg: T?): Boolean {
+        return if(arg == null) {
+            false
+        } else {
+            try {
+                matchingFunc(arg)
+            } catch (a: AssertionError) {
+                false
+            }
+        }
+    }
 
     override fun toString(): String = "matcher<${argumentType.simpleName}>()"
 }
