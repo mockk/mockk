@@ -115,6 +115,13 @@ data class CaptureNullableMatcher<T : Any>(
     override fun match(arg: T?): Boolean = true
 
     override fun toString(): String = "captureNullable<${argumentType.simpleName}>()"
+
+    override fun checkType(arg: Any?): Boolean {
+        if(arg == null) {
+            return true
+        }
+        return super.checkType(arg)
+    }
 }
 
 /**
