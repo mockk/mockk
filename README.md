@@ -41,7 +41,7 @@ Table of contents:
 {:toc}
 
 ## Examples & articles
- - [Teting With MockK paid course on raywenderlich.com](https://www.raywenderlich.com/5443751-testing-with-mockk)
+ - [Testing With MockK paid course on raywenderlich.com](https://www.raywenderlich.com/5443751-testing-with-mockk)
  - TDD for Android tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay 
  - [https://github.com/PhilippeBoisney/NoBullshit](https://github.com/PhilippeBoisney/NoBullshit)
  - [https://medium.com/@Phil_Boisney/playing-with-kotlin-you-know-everything-john-doe-8275a6e98a96](https://medium.com/@Phil_Boisney/playing-with-kotlin-you-know-everything-john-doe-8275a6e98a96)
