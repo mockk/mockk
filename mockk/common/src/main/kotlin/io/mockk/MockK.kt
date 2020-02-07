@@ -123,6 +123,9 @@ fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T,
  * @param atLeast verifies that the behaviour happened at least [atLeast] times
  * @param atMost verifies that the behaviour happened at most [atMost] times
  * @param exactly verifies that the behaviour happened exactly [exactly] times. Use -1 to disable
+ * @param timeout timeout value in milliseconds. Will wait until one of two following states: either verification is
+ * passed or timeout is reached.
+ * @param verifyBlock code block containing at least 1 call to verify
  *
  * @sample [io.mockk.VerifySample.verifyAmount]
  * @sample [io.mockk.VerifySample.verifyRange]
@@ -147,6 +150,9 @@ fun verify(
  * @param atLeast verifies that the behaviour happened at least [atLeast] times
  * @param atMost verifies that the behaviour happened at most [atMost] times
  * @param exactly verifies that the behaviour happened exactly [exactly] times. Use -1 to disable
+ * @param timeout timeout value in milliseconds. Will wait until one of two following states: either verification is
+ * passed or timeout is reached.
+ * @param verifyBlock code block containing at least 1 call to verify
  *
  * @see [verify]
  */
