@@ -1,3 +1,7 @@
+<div class="helpmasha">
+    <img src="doc/heart.png" width="40px" align="left" />
+    Help <a href="/ALINA">Alina</a> with a tumor surgery
+</div>
 
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
