@@ -20,8 +20,8 @@ who have at a degree more troubles.
 <br>
 Alina Posidielova is from the same city that I am residing in.
 She has benign brain tumor and currently waiting for surgery.
- 
-<a img="https://www.fundacjaavalon.pl/uploads/images/alina_posidielova_13256.jpg" />
+
+<img src="https://www.fundacjaavalon.pl/uploads/images/alina_posidielova_13256.jpg" />
 
 <br>
 <br>
@@ -29,7 +29,9 @@ She has benign brain tumor and currently waiting for surgery.
 
 <small>
 <br>
-https://www.fundacjaavalon.pl/ is well-known Poland organization with good reputation. 
+<small> 
+https://www.fundacjaavalon.pl/ is a well-known Poland organization with good reputation. 
+</small>
 </small>
 
 <pre>
