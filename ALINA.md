@@ -18,8 +18,8 @@ who have at a degree more troubles.
 
 <br>
 <br>
-Alina Posidielova is from the same city that I am residing in.
-She has benign brain tumor and currently waiting for surgery.
+Alina Posidielova is from the same city that I am residing in(Wroclaw).
+My wife knows personally mother of the girl. She has benign brain tumor and currently waiting for surgery.
 
 <img src="https://www.fundacjaavalon.pl/uploads/images/alina_posidielova_13256.jpg" />
 
