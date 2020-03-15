@@ -35,6 +35,10 @@ https://www.fundacjaavalon.pl/ is a well-known Poland organization with good rep
 </small>
 
 <pre>
+Paypal
+<a href="https://www.paypal.com/pools/c/8nhS0FYIfz">https://www.paypal.com/pools/c/8nhS0FYIfz</a>
+
+Bank transfer
 <b>Transfer title: Darowizna POSIDIELOVA, 13256</b> 
 
 Accounts:
