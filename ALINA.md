@@ -25,7 +25,12 @@ My wife knows personally mother of this girl. She has benign brain tumor and cur
 
 <br>
 <br>
+
+<b>LINKS</b>
+
 <a href="https://www.fundacjaavalon.pl/nasi_beneficjenci/alina_posidielova_13256.html">Donation web-site</a>
+<br>
+<a href="https://www.paypal.com/pools/c/8nhS0FYIfz">Paypal</a>
 
 <small>
 <br>
@@ -35,9 +40,6 @@ https://www.fundacjaavalon.pl/ is a well-known Poland organization with good rep
 </small>
 
 <pre>
-Paypal
-<a href="https://www.paypal.com/pools/c/8nhS0FYIfz">https://www.paypal.com/pools/c/8nhS0FYIfz</a>
-
 Bank transfer
 <b>Transfer title: Darowizna POSIDIELOVA, 13256</b> 
 
