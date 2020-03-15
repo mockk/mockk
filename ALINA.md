@@ -26,8 +26,8 @@ My wife knows personally mother of this girl. She has benign brain tumor and cur
 <br>
 <br>
 
-<b>LINKS</b>
-
+<b>Links:</b>
+<br>
 <a href="https://www.fundacjaavalon.pl/nasi_beneficjenci/alina_posidielova_13256.html">Donation web-site</a>
 <br>
 <a href="https://www.paypal.com/pools/c/8nhS0FYIfz">Paypal</a>
