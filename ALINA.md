@@ -3,6 +3,8 @@ title: Help Alina to survive
 description: You can do good thing by donating for a Alina's surgery
 ---
 
+[![Weekly MockK users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
+
 <div class="charitytext">
 <br>
 <br>
