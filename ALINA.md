@@ -59,7 +59,7 @@ Kod SWIFT/BIC:  PPAB PLPK
 
 <br>
 <small>
-I just copied all transfer accounts below. You can double-check on original web-site.<br>
+I just copied all transfer accounts below. You can double-check on original web-site. If needed just use translator.<br>
 Scroll to the bottom and check: "Dane dla przelewów walutowych i zagranicznych >>"<br>
 This means: "Information about transfers in currencies and from abroad"<br>
 Account for PLN is taken from main page.
