@@ -12,8 +12,8 @@
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
-[![Android](https://img.shields.io/badge/android-support-green.svg)](http://mockk.io/ANDROID)
-[![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](http://mockk.io/MATRIX)
+[![Android](https://img.shields.io/badge/android-support-green.svg)](https://mockk.io/ANDROID)
+[![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](https://mockk.io/MATRIX)
 [![Deprecated](https://img.shields.io/badge/deprecated-API-red.svg)](/DEPRECATED)
 [![Open Source Helpers](https://www.codetriage.com/mockk/mockk/badges/users.svg)](https://www.codetriage.com/mockk/mockk)
 

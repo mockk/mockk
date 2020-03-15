@@ -21,7 +21,7 @@ uploadArchives {
                 name = mavenName
                 packaging = project.hasProperty('mavenPackage') ? mavenPackage : 'jar'
                 description mavenDescription
-                url 'http://mockk.io'
+                url 'https://mockk.io'
 
                 scm {
                     connection 'scm:git:git@github.com:mockk/mockk.git'
