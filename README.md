@@ -1,7 +1,7 @@
 <div class="helpmasha">
     <div class="centered">
       <img src="doc/heart.png" width="40px" align="left">
-      Help <a href="/ALINA">Alina</a> with a tumor surgery
+      Help <a href="https://www.gofundme.com/f/help-save-alina039s-life">Alina</a> with a tumor surgery
     </div>
 </div>
 
