@@ -32,6 +32,9 @@ She has benign brain tumor and currently waiting for surgery.
 <a href="https://www.fundacjaavalon.pl/nasi_beneficjenci/alina_posidielova_13256.html">Donation web-site</a>
 <br>
 <a href="https://www.paypal.com/pools/c/8nhS0FYIfz">Paypal</a>
+<br>
+<a href="https://www.gofundme.com/f/help-save-alina039s-life">Go fund me</a>
+
 
 <small>
 <br>
