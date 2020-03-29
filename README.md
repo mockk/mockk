@@ -47,6 +47,7 @@ Table of contents:
 {:toc}
 
 ## Examples & articles
+ - [“Kotlin Unit Testing with Mockk” by Marco Cattaneo](https://link.medium.com/ObtQ4eBfg5)
  - [Documentation translation to Japanese](https://qiita.com/yasuX/items/d3cfc9853c53dfaee222)
  - [Use verify in MockK to validate function calls on mocked object](https://www.youtube.com/watch?v=J7_4WrImJPk)
  - [Testing With MockK paid course on raywenderlich.com](https://www.raywenderlich.com/5443751-testing-with-mockk)
