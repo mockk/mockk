@@ -15,7 +15,7 @@ class Issue346Test {
 
     @Test
     fun test() {
-        val mock = spyk<Cls>()
+        val mock = spyk<Cls>(recordPrivateCalls = true)
 
         every { mock invokeReturnsUnit "privateCall" } just Runs
 

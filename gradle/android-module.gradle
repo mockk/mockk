@@ -13,12 +13,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'org.jetbrains.dokka-android'
 
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
-
 afterEvaluate { project ->
     task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
         dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:${rootProject.dokka_version}"

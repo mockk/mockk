@@ -1,10 +1,10 @@
 buildscript {
-    ext.kotlin_version = '1.3.0-rc-80'
-    ext.kotlin_gradle_version = '1.3.0-rc-80'
+    ext.kotlin_version = '1.3.61'
+    ext.kotlin_gradle_version = '1.3.61'
     ext.android_gradle_version = '3.1.2'
     ext.coroutines_version = '0.27.0-eap13'
-    ext.junit_jupiter_version = '5.0.3'
-    ext.junit_vintage_version = '4.12.0'
+    ext.junit_jupiter_version = '5.6.2'
+    ext.junit_vintage_version = '5.6.2'
     ext.mockk_version = '1.8.8-SNAPSHOT'
 
     repositories {
@@ -31,11 +31,11 @@ apply plugin: "kotlin"
 
 
 compileKotlin {
-    sourceCompatibility = JavaVersion.VERSION_1_6
-    targetCompatibility = JavaVersion.VERSION_1_6
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
     kotlinOptions {
-        jvmTarget = "1.6"
+        jvmTarget = "1.8"
     }
 }
 

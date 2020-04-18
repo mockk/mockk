@@ -11,14 +11,8 @@ apply plugin: 'java'
 apply plugin: 'kotlin-platform-jvm'
 apply plugin: 'org.jetbrains.dokka'
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

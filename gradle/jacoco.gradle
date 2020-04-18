@@ -7,14 +7,14 @@ afterEvaluate {
             html.enabled = true
         }
         afterEvaluate {
-            classDirectories = files(classDirectories.files.collect {
+            classDirectories.from(files(classDirectories.files.collect {
                 fileTree(dir: it, exclude: [
                         'io/mockk/APIKt.class',
                         'io/mockk/CapturingSlot.class',
                         'io/mockk/LambdaArgs.class',
                         'io/mockk/MockK**Scope**.class'
                 ])
-            })
+            }))
         }
     }
 
