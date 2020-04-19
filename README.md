@@ -29,11 +29,9 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
 
  * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
 
-### Version twist
+### Kotlin version
 
-From version 1.9 MockK switched to Kotlin 1.3 and Coroutines 1.0 by default and other branch 1.9.kotlin12 may be used for compatibility with Kotlin 1.2.
-
-![Switch of versions](doc/19-verison-twist.png)
+From version 1.10.0 MockK does not support Kotlin 1.2.*
 
 ### Known issues & worth to remember
 
