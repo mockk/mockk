@@ -14,19 +14,12 @@ dokka {
     outputDirectory = "$buildDir/javadoc"
 }
 
-afterEvaluate { project ->
-    task sourceJar(type: Jar) {
-        from android.sourceSets.main.java.srcDirs
-        classifier "source"
-    }
+task javadocJar(type: Jar, dependsOn: dokka) {
+    archiveClassifier.set('javadoc')
+    from "$buildDir/javadoc"
+}
 
-    task androidSourcesJar(type: Jar) {
-         archiveClassifier.set('sources')
-        from android.sourceSets.main.java.srcDirs
-    }
-
-    artifacts {
-//        archives javadocJar
-        archives androidSourcesJar
-    }
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
 }

@@ -13,6 +13,11 @@ afterEvaluate {
                     }
                 } else if (components.findByName("release") != null) {
                     from components["release"]
+                    artifact androidSourcesJar
+                    try {
+                        artifact tasks['javadocJar']
+                    } catch(UnknownTaskException ignored) {
+                    }
                 } else {
                     throw RuntimeException("missing components to publish")
                 }

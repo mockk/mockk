@@ -4,7 +4,7 @@ ext {
 }
 apply plugin: 'com.android.library'
 apply from: "${gradles}/android-module.gradle"
-apply from: "${gradles}/upload-android.gradle"
+apply from: "${gradles}/upload.gradle"
 
 android {
     compileSdkVersion 'android-28'
