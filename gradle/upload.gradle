@@ -6,20 +6,20 @@ afterEvaluate {
             mavenJava(MavenPublication) {
                 if (components.findByName("kotlin") != null) {
                     from components["kotlin"]
-                    artifact kotlinSourcesJar
+                    artifact tasks['sourcesJar']
                     try {
                         artifact tasks['javadocJar']
-                    } catch(UnknownTaskException ignored) {
+                    } catch (UnknownTaskException ignored) {
                     }
                 } else if (components.findByName("release") != null) {
                     from components["release"]
                     artifact androidSourcesJar
                     try {
                         artifact tasks['javadocJar']
-                    } catch(UnknownTaskException ignored) {
+                    } catch (UnknownTaskException ignored) {
                     }
                 } else {
-                    throw RuntimeException("missing components to publish")
+                    throw new RuntimeException("missing components to publish")
                 }
 
                 pom {
@@ -51,40 +51,32 @@ afterEvaluate {
             }
         }
         repositories {
-            if (project.hasProperty('localrepo')) {
-                maven {
+            maven {
+                if (project.hasProperty('localrepo')) {
                     url = rootProject.properties['localrepo']
+                } else if (version.endsWith('SNAPSHOT')) {
+                    url = "https://oss.sonatype.org/content/repositories/snapshots/"
+                    credentials {
+                        username = rootProject.properties['ossrhUsername'] ?: ''
+                        password = rootProject.properties['ossrhPassword'] ?: ''
+                    }
+                } else {
+                    url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    credentials {
+                        username = rootProject.properties['ossrhUsername'] ?: ''
+                        password = rootProject.properties['ossrhPassword'] ?: ''
+                    }
                 }
             }
         }
     }
-//uploadArchives {
-//    repositories {
-//        mavenDeployer {
-//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-//
-//            if (project.hasProperty('localrepo')) {
-//                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
-//            } else {
-//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-//                }
-//
-//                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-//                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
-//                }
-//            }
-//
-//            pom.project {
-//                name = mavenName
-//                packaging = project.hasProperty('mavenPackage') ? mavenPackage : 'jar'
-//                description mavenDescription
-//
-//
-//            }
-//        }
-//    }
-//}
-//
 
+    if (!project.hasProperty('localrepo')) {
+        if (!project.hasProperty('signing.keyId')) {
+            throw new RuntimeException('missing signing.keyId to sign archives')
+        }
+        signing {
+            sign publishing.publications.mavenJava
+        }
+    }
 }

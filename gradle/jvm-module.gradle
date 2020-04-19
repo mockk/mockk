@@ -28,14 +28,14 @@ dependencies {
     testImplementation "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
 }
 
-dokka {
-    outputFormat = 'javadoc'
-    outputDirectory = "$buildDir/javadoc"
+afterEvaluate {
+    dokka {
+        outputFormat = 'javadoc'
+        outputDirectory = "$buildDir/javadoc"
+    }
+
+    task javadocJar(type: Jar, dependsOn: dokka) {
+        archiveClassifier.set('javadoc')
+        from "$buildDir/javadoc"
+    }
 }
-
-
-task javadocJar(type: Jar, dependsOn: dokka) {
-    archiveClassifier.set('javadoc')
-    from "$buildDir/javadoc"
-}
-

@@ -5,8 +5,8 @@ ext {
 
 apply from: "${gradles}/common-module.gradle"
 apply from: "${gradles}/common-module.gradle"
-apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
+apply from: "${gradles}/upload.gradle"
 
 jar {
 }

@@ -49,7 +49,7 @@ dependencies {
         exclude group: 'io.mockk', module: 'mockk-agent-jvm'
     })
     implementation project(":mockk-agent-android")
-    api project(":mockk-agent-api")
+    implementation project(":mockk-agent-api")
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {

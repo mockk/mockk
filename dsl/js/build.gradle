@@ -4,8 +4,8 @@ ext {
 }
 
 apply from: "${gradles}/js-module.gradle"
-apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
+apply from: "${gradles}/upload.gradle"
 
 dependencies {
     expectedBy project(":mockk-dsl")
@@ -19,7 +19,7 @@ dependencies {
 }
 
 task sourcesJar(type: Jar) {
-     archiveClassifier.set('sources')
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
     from(project(':mockk-dsl').sourcesJar.inputs.files) {
         exclude "io/mockk/InternalPlatformDsl.kt"

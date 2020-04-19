@@ -5,8 +5,8 @@ ext {
 
 apply from: "${gradles}/jacoco.gradle"
 apply from: "${gradles}/jvm-module.gradle"
-apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
+apply from: "${gradles}/upload.gradle"
 
 dependencies {
     expectedBy project(':mockk-common')
@@ -23,7 +23,7 @@ dependencies {
 evaluationDependsOn(":mockk-common")
 task sourcesJar(type: Jar) {
     archiveClassifier.set('sources')
-    from sourceSets.main.allSource
+    from(sourceSets.main.allSource)
     from(project(':mockk-common').sourcesJar.inputs.files) {
         exclude "io/mockk/impl/InternalPlatform.kt"
     }
