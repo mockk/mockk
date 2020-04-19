@@ -8,7 +8,7 @@ class CommonInstanceFactoryRegistry : InstanceFactoryRegistry {
     private val factories = InternalPlatform.synchronizedMutableList<InstanceFactory>()
 
     val instanceFactories: List<InstanceFactory>
-        get() = synchronized(factories) {
+        get() = InternalPlatform.synchronized(factories) {
             factories.toList()
         }
 

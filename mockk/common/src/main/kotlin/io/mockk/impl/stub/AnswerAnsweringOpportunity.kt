@@ -1,6 +1,7 @@
 package io.mockk.impl.stub
 
 import io.mockk.*
+import io.mockk.impl.InternalPlatform
 
 class AnswerAnsweringOpportunity<T>(
     private val matcherStr: () -> String
@@ -14,7 +15,7 @@ class AnswerAnsweringOpportunity<T>(
     override suspend fun coAnswer(call: Call) = getAnswer().answer(call)
 
     override fun provideAnswer(answer: Answer<T>) {
-        synchronized(this) {
+        InternalPlatform.synchronized(this) {
             val currentAnswer = this.storedAnswer
             this.storedAnswer = if (currentAnswer == null) {
                 notifyFirstAnswerHandlers(answer)
@@ -30,7 +31,7 @@ class AnswerAnsweringOpportunity<T>(
     }
 
     fun onFirstAnswer(handler: (Answer<T>) -> Unit) {
-        synchronized(this) {
+        InternalPlatform.synchronized(this) {
             firstAnswerHandlers.add(handler)
         }
     }

@@ -683,7 +683,7 @@ open class MockKMatcherScope(
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
     inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
     inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class))
-    inline fun <reified T : Any> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst, T::class))
+    inline fun <reified T : Any> captureNullable(lst: MutableList<T?>): T? = match(CaptureNullableMatcher(lst, T::class))
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class))
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class))
@@ -3763,7 +3763,7 @@ data class InvocationMatcher(
             }
         }
 
-        for (i in 0 until invocation.args.size) {
+        for (i in invocation.args.indices) {
             val matcher = args[i]
             val arg = invocation.args[i]
 

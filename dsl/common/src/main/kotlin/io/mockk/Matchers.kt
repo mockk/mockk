@@ -105,7 +105,7 @@ data class CaptureNullableMatcher<T : Any>(
     val captureList: MutableList<T?>,
     override val argumentType: KClass<*>
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
@@ -114,7 +114,15 @@ data class CaptureNullableMatcher<T : Any>(
 
     override fun match(arg: T?): Boolean = true
 
-    override fun toString(): String = "captureNullable<${argumentType.simpleName}>()"
+    override fun checkType(arg: Any?): Boolean {
+        if(arg == null) {
+            return true
+        }
+
+        return super.checkType(arg)
+    }
+
+    override fun toString(): String = "capture<${argumentType.simpleName}?>()"
 }
 
 /**
