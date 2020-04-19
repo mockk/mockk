@@ -7,12 +7,11 @@ buildscript {
 }
 
 apply plugin: 'kotlin-android'
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'org.jetbrains.dokka'
 
 dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/dokka"
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
 }
 
 afterEvaluate { project ->

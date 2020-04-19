@@ -29,8 +29,8 @@ dependencies {
 }
 
 dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/dokka"
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
 }
 //task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
 //    dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:${rootProject.dokka_version}"
