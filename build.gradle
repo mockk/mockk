@@ -11,25 +11,21 @@ buildscript {
     ext.junit_jupiter_version = '5.6.2'
     ext.junit_vintage_version = '5.6.2'
     ext.android_maven_version = '2.1'
-    ext.dokka_version = '0.9.17'
+    ext.dokka_version = '0.10.1'
     ext.gradles = project.projectDir.toString() + "/gradle"
 
     repositories {
         mavenCentral()
         google()
         jcenter()
-        maven { url = "http://dl.bintray.com/kotlin/kotlin-eap" }
-    }
+     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
         classpath "com.android.tools.build:gradle:$android_gradle_version"
         classpath "com.github.dcendents:android-maven-gradle-plugin:$android_maven_version"
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
-        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:$dokka_version"
     }
 }
-
-apply from: "${gradles}/jdk6-boot.gradle"
 
 subprojects { subProject ->
     group = 'io.mockk'
@@ -39,7 +35,6 @@ subprojects { subProject ->
         maven { url = "https://dl.bintray.com/linkedin/maven/" }
         google()
         jcenter()
-        maven { url = "http://dl.bintray.com/kotlin/kotlin-eap" }
     }
 
     apply from: "${gradles}/signing.gradle"

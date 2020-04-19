@@ -10,13 +10,13 @@ apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
     expectedBy project(":mockk-dsl")
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 }
 
 evaluationDependsOn(":mockk-dsl")
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
     from(project(':mockk-dsl').sourcesJar.inputs.files) {
         exclude "io/mockk/InternalPlatformDsl.kt"

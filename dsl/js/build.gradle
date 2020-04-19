@@ -11,7 +11,7 @@ dependencies {
     expectedBy project(":mockk-dsl")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutines_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
 [compileKotlin2Js, compileTestKotlin2Js]*.configure {
@@ -19,7 +19,7 @@ dependencies {
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+     archiveClassifier.set('sources')
     from sourceSets.main.allSource
     from(project(':mockk-dsl').sourcesJar.inputs.files) {
         exclude "io/mockk/InternalPlatformDsl.kt"

@@ -10,16 +10,17 @@ apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
     expectedBy project(':mockk-common')
-    compile project(':mockk-dsl-jvm')
-    compile project(":mockk-agent-jvm")
+    implementation project(':mockk-dsl-jvm')
+    implementation project(":mockk-agent-jvm")
+    implementation project(":mockk-agent-api")
 
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
-    compileOnly 'org.slf4j:slf4j-api:1.7.25'
+    compileOnly 'org.slf4j:slf4j-api:1.7.26'
 
-    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
-    runtime project(":mockk-common")
+    runtimeOnly project(":mockk-common")
 }
 
 //test {
@@ -29,7 +30,7 @@ dependencies {
 
 evaluationDependsOn(":mockk-common")
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
     from(project(':mockk-common').sourcesJar.inputs.files) {
         exclude "io/mockk/impl/InternalPlatform.kt"
@@ -38,6 +39,5 @@ task sourcesJar(type: Jar) {
 
 compileTestKotlin.kotlinOptions.javaParameters = true
 
-jar.baseName = 'mockk'
-javadocJar.baseName = 'mockk'
-sourcesJar.baseName = 'mockk'
+jar.archiveBaseName.set('mockk')
+sourcesJar.archiveBaseName.set('mockk')

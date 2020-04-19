@@ -669,7 +669,7 @@ This will will wait one of two states: either verification is passed or timeout 
 
 ### Returning Unit
 
-If the function is returning `Unit` you can use `just Runs` construct:
+If the function is returning `Unit` you can use `justRun` construct:
 
 ```kotlin
 class MockedClass {
@@ -680,7 +680,7 @@ class MockedClass {
 
 val obj = mockk<MockedClass>()
 
-every { obj.sum(any(), 3) } just Runs
+justRun { obj.sum(any(), 3) }
 
 obj.sum(1, 1)
 obj.sum(1, 2)
@@ -693,6 +693,11 @@ verify {
 }
 ```
 
+Another ways to write `justRun { obj.sum(any(), 3) }` is:
+ - `every { obj.sum(any(), 3) } just Runs`
+ - `every { obj.sum(any(), 3) } returns Unit`
+ - `every { obj.sum(any(), 3) } answers { Unit }`
+
 ### Coroutines
 
 To mock coroutines you need to add dependency to the support library.
@@ -702,7 +707,7 @@ To mock coroutines you need to add dependency to the support library.
 </tr>
 <tr>
     <td>
-<pre>testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
+<pre>testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
     </td>
 </tr>
 </table>
@@ -882,7 +887,7 @@ val mock = spyk(Team(), recordPrivateCalls = true)
 
 every { mock getProperty "speed" } returns 33
 every { mock setProperty "acceleration" value less(5) } just runs
-every { mock invokeReturnsUnit "privateMethod" } just runs
+justRun { mock invokeNoArgs "privateMethod" }
 every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
 
 verify { mock getProperty "speed" }

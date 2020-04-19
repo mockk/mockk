@@ -7,13 +7,5 @@ apply from: "${gradles}/upload-archives.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
-    compile project(":mockk-dsl")
-}
-
-jar {
-    eachFile { details ->
-        if (details.path == "META-INF/main.kotlin_module") {
-            details.path = "META-INF/mockk-common.kotlin_module"
-        }
-    }
+    implementation project(":mockk-dsl")
 }

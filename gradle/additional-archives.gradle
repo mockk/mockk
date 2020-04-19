@@ -2,14 +2,14 @@
 afterEvaluate {
     if (!project.tasks.findByName('javadocJar')) {
         task javadocJar(type: Jar) {
-            classifier = 'javadoc'
+             archiveClassifier.set('javadoc')
             from "$buildDir/no-javadocs"
         }
     }
 
     if (!project.tasks.findByName('sourcesJar')) {
         task sourcesJar(type: Jar) {
-            classifier = 'sources'
+             archiveClassifier.set('sources')
             from sourceSets.main.allSource
         }
     }

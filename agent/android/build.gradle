@@ -30,8 +30,8 @@ task unzipDispatcherApk(type: Copy) {
 
 task packageDispatcherJar(type: Jar) {
     dependsOn unzipDispatcherApk
-    archiveName = "dispatcher.jar"
-    destinationDir = dispatcherJarResPath
+    archiveFileName.set("dispatcher.jar")
+    destinationDirectory.set(dispatcherJarResPath)
 
     from dispatcherDexResPath
 }
@@ -58,8 +58,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 27
+        minSdkVersion 14
+        targetSdkVersion 28
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"

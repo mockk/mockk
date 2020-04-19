@@ -621,14 +621,17 @@ enum class Ordering {
      * Order is not important. Some calls just should happen
      */
     UNORDERED,
+
     /**
      * Order is not important. All calls should happen
      */
     ALL,
+
     /**
      * Order is important, but not all calls are checked
      */
     ORDERED,
+
     /**
      * Order is important and all calls should be specified
      */
@@ -695,12 +698,12 @@ open class MockKMatcherScope(
         toInclusive: Boolean = true
     ): T = and(more(from, fromInclusive), less(to, toInclusive))
 
-    inline fun <reified T : Any> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
-    inline fun <reified T : Any> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
-    inline fun <reified T : Any> not(value: T) = match(NotMatcher(value))
-    inline fun <reified T : Any> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
-    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls))
-    inline fun <reified T : Any> ofType() = match(OfTypeMatcher<T>(T::class))
+    inline fun <reified T : Any> and(left: T, right: T): T = match(AndOrMatcher<T>(true, left, right))
+    inline fun <reified T : Any> or(left: T, right: T): T = match(AndOrMatcher<T>(false, left, right))
+    inline fun <reified T : Any> not(value: T): T = match(NotMatcher<T>(value))
+    inline fun <reified T : Any> isNull(inverse: Boolean = false): T = match(NullCheckMatcher<T>(inverse))
+    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>): T = match(OfTypeMatcher<T>(cls))
+    inline fun <reified T : Any> ofType(): T = match(OfTypeMatcher<T>(T::class))
 
     inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
     inline fun anyBooleanVararg() = anyVararg<Boolean>().toBooleanArray()
@@ -1944,11 +1947,6 @@ open class MockKMatcherScope(
 
     infix fun Any.invokeNoArgs(name: String) =
         invoke(name).withArguments(listOf())
-
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    infix fun Any.invokeReturnsUnit(name: String) {
-        invoke(name)
-    }
 
     infix fun Any.getProperty(name: String) =
         InternalPlatformDsl.dynamicGet(this, name)

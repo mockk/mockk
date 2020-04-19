@@ -6,10 +6,6 @@ apply plugin: 'com.android.library'
 apply from: "${gradles}/android-module.gradle"
 apply from: "${gradles}/upload-archives-android.gradle"
 
-afterEvaluate {
-    dokkaJavadoc.enabled = false
-}
-
 android {
     compileSdkVersion 'android-28'
     buildToolsVersion android_build_tools_version
@@ -27,8 +23,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 27
+        minSdkVersion 14
+        targetSdkVersion 28
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"

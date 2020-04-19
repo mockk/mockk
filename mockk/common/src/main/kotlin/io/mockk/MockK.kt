@@ -13,8 +13,7 @@ import kotlin.reflect.KClass
  * @param relaxUnitFun allows creation with no specific behaviour for Unit function
  * @param block block to execute after mock is created with mock as a receiver
  *
- * @sample [io.mockk.MockKSamples.basicMockkCreation]
- * @sample [io.mockk.MockKSamples.mockkWithCreationBlock]
+
  */
 inline fun <reified T : Any> mockk(
     name: String? = null,
@@ -43,7 +42,6 @@ inline fun <reified T : Any> mockk(
  * @param recordPrivateCalls allows this spyk to record any private calls, enabling a verification
  * @param block block to execute after spyk is created with spyk as a receiver
  *
- * @sample [io.mockk.SpykSamples.spyOriginalBehaviourDefaultConstructor]
  */
 inline fun <reified T : Any> spyk(
     name: String? = null,
@@ -65,9 +63,7 @@ inline fun <reified T : Any> spyk(
  * A spy is a special kind of mockk that enables a mix of mocked behaviour and real behaviour.
  * A part of the behaviour may be mocked, but any non-mocked behaviour will call the original method.
  *
- * @sample [io.mockk.SpykSamples.spyOriginalBehaviourCopyingFields]
- * @sample [io.mockk.SpykSamples.spyOriginalBehaviourWithPrivateCalls]
- */
+  */
 inline fun <reified T : Any> spyk(
     objToCopy: T,
     name: String? = null,
@@ -87,7 +83,6 @@ inline fun <reified T : Any> spyk(
 /**
  * Creates new capturing slot
  *
- * @sample [io.mockk.SlotSample.captureSlot]
  */
 inline fun <reified T : Any> slot() = MockK.useImpl {
     MockKDsl.internalSlot<T>()
@@ -98,11 +93,17 @@ inline fun <reified T : Any> slot() = MockK.useImpl {
  *
  * Used to define what behaviour is going to be mocked.
  *
- * @sample [io.mockk.EverySample.simpleEvery]
  */
 fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalEvery(stubBlock)
 }
+
+/**
+ * Stub block to return Unit result. Part of DSL.
+ *
+ * Used to define what behaviour is going to be mocked.
+ */
+fun justRun(stubBlock: MockKMatcherScope.() -> Unit) = every(stubBlock) just Runs
 
 /**
  * Starts a block of stubbing for coroutines. Part of DSL.
@@ -116,6 +117,14 @@ fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T,
 }
 
 /**
+ * Stub block to return Unit result as a coroutine block. Part of DSL.
+ * Similar to [justRun]
+ *
+ * Used to define what behaviour is going to be mocked.
+ */
+fun coJustRun(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubBlock) just Runs
+
+/**
  * Verifies that calls were made in the past. Part of DSL
  *
  * @param ordering how the verification should be ordered
@@ -124,8 +133,6 @@ fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T,
  * @param atMost verifies that the behaviour happened at most [atMost] times
  * @param exactly verifies that the behaviour happened exactly [exactly] times. Use -1 to disable
  *
- * @sample [io.mockk.VerifySample.verifyAmount]
- * @sample [io.mockk.VerifySample.verifyRange]
  */
 fun verify(
     ordering: Ordering = Ordering.UNORDERED,
@@ -197,9 +204,7 @@ fun verifyAll(
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  *
- * @sample [io.mockk.VerifySample.verifyOrder]
- * @sample [io.mockk.VerifySample.failingVerifyOrder]
- */
+  */
 fun verifyOrder(
     inverse: Boolean = false,
     verifyBlock: MockKVerificationScope.() -> Unit
@@ -216,9 +221,7 @@ fun verifyOrder(
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  *
- * @sample [io.mockk.VerifySample.verifySequence]
- * @sample [io.mockk.VerifySample.failingVerifySequence]
- */
+  */
 fun verifySequence(
     inverse: Boolean = false,
     verifyBlock: MockKVerificationScope.() -> Unit
@@ -254,9 +257,7 @@ fun coVerifyAll(
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  *
- * @sample [io.mockk.VerifySample.verifyOrder]
- * @sample [io.mockk.VerifySample.failingVerifyOrder]
- */
+  */
 fun coVerifyOrder(
     inverse: Boolean = false,
     verifyBlock: suspend MockKVerificationScope.() -> Unit
@@ -273,9 +274,7 @@ fun coVerifyOrder(
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  *
- * @sample [io.mockk.VerifySample.verifySequence]
- * @sample [io.mockk.VerifySample.failingVerifySequence]
- */
+  */
 fun coVerifySequence(
     inverse: Boolean = false,
     verifyBlock: suspend MockKVerificationScope.() -> Unit
@@ -465,9 +464,7 @@ inline fun <T : Any> mockkClass(
 /**
  * Builds an Object mock. Any mocks of this exact object are cancelled before it's mocked.
  *
- * @sample io.mockk.ObjectMockkSample.mockSimpleObject
- * @sample io.mockk.ObjectMockkSample.mockEnumeration
- */
+  */
 inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) = MockK.useImpl {
     MockKDsl.internalMockkObject(*objects, recordPrivateCalls = recordPrivateCalls)
 }
@@ -494,7 +491,6 @@ inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false,
 /**
  * Builds a static mock. Any mocks of this exact class are cancelled before it's mocked
  *
- * @sample io.mockk.StaticMockkSample.mockJavaStatic
  */
 inline fun mockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
     MockKDsl.internalMockkStatic(*classes)
@@ -503,7 +499,6 @@ inline fun mockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
 /**
  * Builds a static mock. Old static mocks of same classes are cancelled before.
  *
- * @sample io.mockk.StaticMockkSample.mockJavaStaticString
  */
 inline fun mockkStatic(vararg classes: String) = MockK.useImpl {
     MockKDsl.internalMockkStatic(*classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
