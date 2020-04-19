@@ -1990,88 +1990,30 @@ class MockKVerificationScope(
     callRecorder: CallRecorder,
     lambda: CapturingSlot<Function<*>>
 ) : MockKMatcherScope(callRecorder, lambda) {
-    @Deprecated(
-        "'assert' is problematic in case of many calls being verified",
-        ReplaceWith("match(assertion)")
-    )
-    inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T =
-        match(AssertMatcher({ assertion(it as T) }, msg, T::class))
-
-    @Deprecated(
-        "'assertNullable' is problematic in case of many calls being verified",
-        ReplaceWith("matchNullable(assertion)")
-    )
-    inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T =
-        match(AssertMatcher(assertion, msg, T::class, nullable = true))
-
-    @Deprecated("'run' seems to be too wide name, so replaced with 'withArg'", ReplaceWith("withArg(captureBlock)"))
-    inline fun <reified T : Any> run(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
+    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
         MockKAssertScope(it).captureBlock(it)
         true
     }
-
-    @Deprecated(
-        "'runNullable' seems to be too wide name, so replaced with 'withNullableArg'",
-        ReplaceWith("withNullableArg(captureBlock)")
-    )
-    inline fun <reified T : Any> runNullable(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = matchNullable {
-        MockKAssertScope(it).captureBlock(it)
-        true
-    }
-
-    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = run(captureBlock)
 
     inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
-        runNullable(captureBlock)
-
-    @Deprecated(
-        "'coAssert' is problematic in case of many calls being verified",
-        ReplaceWith("coMatch(assertion)")
-    )
-    inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T =
-        assert(msg) {
-            InternalPlatformDsl.runCoroutine {
-                assertion(it)
-            }
+        matchNullable {
+            MockKAssertScope(it).captureBlock(it)
+            true
         }
 
-    @Deprecated(
-        "'coAssertNullable' is problematic in case of many calls being verified",
-        ReplaceWith("coMatchNullable(assertion)")
-    )
-    inline fun <reified T : Any> coAssertNullable(msg: String? = null, noinline assertion: suspend (T?) -> Boolean): T =
-        assertNullable(msg) {
-            InternalPlatformDsl.runCoroutine {
-                assertion(it)
-            }
-        }
-
-    @Deprecated(
-        "'coRun' seems to be too wide name, so replaced with 'coWithArg'",
-        ReplaceWith("withNullableArg(captureBlock)")
-    )
-    inline fun <reified T : Any> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
-        InternalPlatformDsl.runCoroutine {
-            captureBlock(it)
-        }
-    }
-
-    @Deprecated(
-        "'coRunNullable' seems to be too wide name, so replaced with 'coWithNullableArg'",
-        ReplaceWith("withNullableArg(captureBlock)")
-    )
-    inline fun <reified T : Any> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
-        runNullable {
+    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
+        withArg {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
         }
 
-    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
-        coRun(captureBlock)
-
     inline fun <reified T : Any> coWithNullableArg(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
-        coRunNullable(captureBlock)
+        withNullableArg {
+            InternalPlatformDsl.runCoroutine {
+                captureBlock(it)
+            }
+        }
 
     infix fun Any.wasNot(called: Called) {
         listOf(this) wasNot called

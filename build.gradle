@@ -16,7 +16,7 @@ buildscript {
         mavenCentral()
         google()
         jcenter()
-     }
+    }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
         classpath "com.android.tools.build:gradle:$android_gradle_version"
