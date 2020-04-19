@@ -75,6 +75,7 @@ afterEvaluate {
         if (!project.hasProperty('signing.keyId')) {
             throw new RuntimeException('missing signing.keyId to sign archives')
         }
+        apply plugin: 'signing'
         signing {
             sign publishing.publications.mavenJava
         }
