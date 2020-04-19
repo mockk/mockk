@@ -19,7 +19,7 @@ apply plugin: 'com.moowork.node'
 
 dependencies {
     expectedBy project(":mockk-common")
-    implementation project(":mockk-dsl-js")
+    api project(":mockk-dsl-js")
 }
 
 task sourcesJar(type: Jar) {

@@ -9,13 +9,13 @@ apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
-    implementation project(':mockk-agent-api')
-    implementation project(':mockk-agent-common')
+    api project(':mockk-agent-api')
+    api project(':mockk-agent-common')
 
-    implementation "org.objenesis:objenesis:$objenesis_version"
+    api "org.objenesis:objenesis:$objenesis_version"
 
-    implementation "net.bytebuddy:byte-buddy:$byte_buddy_version"
-    implementation "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+    api "net.bytebuddy:byte-buddy:$byte_buddy_version"
+    api "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
 }
 
 task copyMockKDispatcher(type: Copy) {

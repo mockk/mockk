@@ -7,5 +7,5 @@ apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
-    implementation project(":mockk-dsl")
+    api project(":mockk-dsl")
 }

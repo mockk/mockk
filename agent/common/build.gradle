@@ -9,5 +9,5 @@ apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
-    implementation project(path: ':mockk-agent-api')
+    api project(path: ':mockk-agent-api')
 }

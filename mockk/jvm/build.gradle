@@ -10,17 +10,14 @@ apply from: "${gradles}/additional-archives.gradle"
 
 dependencies {
     expectedBy project(':mockk-common')
-    implementation project(':mockk-dsl-jvm')
+    api project(':mockk-dsl-jvm')
     implementation project(":mockk-agent-jvm")
-    implementation project(":mockk-agent-api")
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     compileOnly 'org.slf4j:slf4j-api:1.7.26'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
-
-    runtimeOnly project(":mockk-common")
 }
 
 evaluationDependsOn(":mockk-common")
