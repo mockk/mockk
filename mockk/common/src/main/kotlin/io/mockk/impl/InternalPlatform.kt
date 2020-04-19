@@ -33,7 +33,9 @@ expect object InternalPlatform {
 
     fun weakRef(value: Any): WeakRef
 
-    fun multiNotifier() : MultiNotifier
+    fun multiNotifier(): MultiNotifier
+
+    inline fun <T> synchronized(obj: Any, block: () -> T): T
 }
 
 interface Ref {

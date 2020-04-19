@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import io.mockk.proxy.jvm.JvmMockKAgentFactory;
 
+@SuppressWarnings("unchecked")
 public class JvmMockKProxyMakerTest {
     MockKProxyMaker maker;
     MockKStaticProxyMaker staticMaker;
@@ -36,7 +37,7 @@ public class JvmMockKProxyMakerTest {
 
         JvmMockKAgentFactory agentFactory = new JvmMockKAgentFactory();
 
-        agentFactory.init(MockKAgentLogFactory.Companion.getNO_OP());
+        agentFactory.init(MockKAgentLogFactory.Companion.getSimpleConsoleLogFactory());
 
         maker = agentFactory.getProxyMaker();
         staticMaker = agentFactory.getStaticProxyMaker();

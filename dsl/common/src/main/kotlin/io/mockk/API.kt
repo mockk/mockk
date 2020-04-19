@@ -4,7 +4,7 @@ package io.mockk
 
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
 /**
@@ -621,14 +621,17 @@ enum class Ordering {
      * Order is not important. Some calls just should happen
      */
     UNORDERED,
+
     /**
      * Order is not important. All calls should happen
      */
     ALL,
+
     /**
      * Order is important, but not all calls are checked
      */
     ORDERED,
+
     /**
      * Order is important and all calls should be specified
      */
@@ -680,7 +683,9 @@ open class MockKMatcherScope(
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
     inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
     inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class))
-    inline fun <reified T : Any> captureNullable(lst: MutableList<T?>): T = match(CaptureNullableMatcher(lst, T::class))
+    inline fun <reified T : Any> captureNullable(lst: MutableList<T?>): T? =
+        match(CaptureNullableMatcher(lst, T::class))
+
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class))
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class))
@@ -695,12 +700,12 @@ open class MockKMatcherScope(
         toInclusive: Boolean = true
     ): T = and(more(from, fromInclusive), less(to, toInclusive))
 
-    inline fun <reified T : Any> and(left: T, right: T) = match(AndOrMatcher(true, left, right))
-    inline fun <reified T : Any> or(left: T, right: T) = match(AndOrMatcher(false, left, right))
-    inline fun <reified T : Any> not(value: T) = match(NotMatcher(value))
-    inline fun <reified T : Any> isNull(inverse: Boolean = false) = match(NullCheckMatcher<T>(inverse))
-    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>) = match(OfTypeMatcher<T>(cls))
-    inline fun <reified T : Any> ofType() = match(OfTypeMatcher<T>(T::class))
+    inline fun <reified T : Any> and(left: T, right: T): T = match(AndOrMatcher<T>(true, left, right))
+    inline fun <reified T : Any> or(left: T, right: T): T = match(AndOrMatcher<T>(false, left, right))
+    inline fun <reified T : Any> not(value: T): T = match(NotMatcher<T>(value))
+    inline fun <reified T : Any> isNull(inverse: Boolean = false): T = match(NullCheckMatcher<T>(inverse))
+    inline fun <reified T : Any, R : T> ofType(cls: KClass<R>): T = match(OfTypeMatcher<T>(cls))
+    inline fun <reified T : Any> ofType(): T = match(OfTypeMatcher<T>(T::class))
 
     inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
     inline fun anyBooleanVararg() = anyVararg<Boolean>().toBooleanArray()
@@ -1945,9 +1950,6 @@ open class MockKMatcherScope(
     infix fun Any.invokeNoArgs(name: String) =
         invoke(name).withArguments(listOf())
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
-    infix fun Any.invokeReturnsUnit(name: String) = invoke(name) as Unit
-
     infix fun Any.getProperty(name: String) =
         InternalPlatformDsl.dynamicGet(this, name)
 
@@ -1988,88 +1990,30 @@ class MockKVerificationScope(
     callRecorder: CallRecorder,
     lambda: CapturingSlot<Function<*>>
 ) : MockKMatcherScope(callRecorder, lambda) {
-    @Deprecated(
-        "'assert' is problematic in case of many calls being verified",
-        ReplaceWith("match(assertion)")
-    )
-    inline fun <reified T : Any> assert(msg: String? = null, noinline assertion: (T) -> Boolean): T =
-        match(AssertMatcher({ assertion(it as T) }, msg, T::class))
-
-    @Deprecated(
-        "'assertNullable' is problematic in case of many calls being verified",
-        ReplaceWith("matchNullable(assertion)")
-    )
-    inline fun <reified T : Any> assertNullable(msg: String? = null, noinline assertion: (T?) -> Boolean): T =
-        match(AssertMatcher(assertion, msg, T::class, nullable = true))
-
-    @Deprecated("'run' seems to be too wide name, so replaced with 'withArg'", ReplaceWith("withArg(captureBlock)"))
-    inline fun <reified T : Any> run(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
+    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
         MockKAssertScope(it).captureBlock(it)
         true
     }
-
-    @Deprecated(
-        "'runNullable' seems to be too wide name, so replaced with 'withNullableArg'",
-        ReplaceWith("withNullableArg(captureBlock)")
-    )
-    inline fun <reified T : Any> runNullable(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T = matchNullable {
-        MockKAssertScope(it).captureBlock(it)
-        true
-    }
-
-    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = run(captureBlock)
 
     inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
-        runNullable(captureBlock)
-
-    @Deprecated(
-        "'coAssert' is problematic in case of many calls being verified",
-        ReplaceWith("coMatch(assertion)")
-    )
-    inline fun <reified T : Any> coAssert(msg: String? = null, noinline assertion: suspend (T) -> Boolean): T =
-        assert(msg) {
-            InternalPlatformDsl.runCoroutine {
-                assertion(it)
-            }
+        matchNullable {
+            MockKAssertScope(it).captureBlock(it)
+            true
         }
 
-    @Deprecated(
-        "'coAssertNullable' is problematic in case of many calls being verified",
-        ReplaceWith("coMatchNullable(assertion)")
-    )
-    inline fun <reified T : Any> coAssertNullable(msg: String? = null, noinline assertion: suspend (T?) -> Boolean): T =
-        assertNullable(msg) {
-            InternalPlatformDsl.runCoroutine {
-                assertion(it)
-            }
-        }
-
-    @Deprecated(
-        "'coRun' seems to be too wide name, so replaced with 'coWithArg'",
-        ReplaceWith("withNullableArg(captureBlock)")
-    )
-    inline fun <reified T : Any> coRun(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T = run {
-        InternalPlatformDsl.runCoroutine {
-            captureBlock(it)
-        }
-    }
-
-    @Deprecated(
-        "'coRunNullable' seems to be too wide name, so replaced with 'coWithNullableArg'",
-        ReplaceWith("withNullableArg(captureBlock)")
-    )
-    inline fun <reified T : Any> coRunNullable(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
-        runNullable {
+    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
+        withArg {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
         }
 
-    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
-        coRun(captureBlock)
-
     inline fun <reified T : Any> coWithNullableArg(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
-        coRunNullable(captureBlock)
+        withNullableArg {
+            InternalPlatformDsl.runCoroutine {
+                captureBlock(it)
+            }
+        }
 
     infix fun Any.wasNot(called: Called) {
         listOf(this) wasNot called
@@ -3631,6 +3575,7 @@ data class MethodDescription(
     val returnsUnit: Boolean,
     val returnsNothing: Boolean,
     val isSuspend: Boolean,
+    val isFnCall: Boolean,
     val declaringClass: KClass<*>,
     val paramTypes: List<KClass<*>>,
     val varArgsArg: Int,
@@ -3763,7 +3708,7 @@ data class InvocationMatcher(
             }
         }
 
-        for (i in 0 until invocation.args.size) {
+        for (i in invocation.args.indices) {
             val matcher = args[i]
             val arg = invocation.args[i]
 

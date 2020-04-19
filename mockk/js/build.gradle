@@ -13,17 +13,18 @@ ext {
 }
 
 apply from: "${gradles}/js-module.gradle"
-apply from: "${gradles}/upload-archives.gradle"
 apply from: "${gradles}/additional-archives.gradle"
+apply from: "${gradles}/upload.gradle"
+
 apply plugin: 'com.moowork.node'
 
 dependencies {
     expectedBy project(":mockk-common")
-    compile project(":mockk-dsl-js")
+    api project(":mockk-dsl-js")
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
     from(project(':mockk-common').sourceSets.main.allSource) {
         exclude "io/mockk/impl/InternalPlatform.kt"

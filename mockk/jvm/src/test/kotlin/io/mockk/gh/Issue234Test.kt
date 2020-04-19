@@ -12,7 +12,6 @@ class Issue234Test {
 
     @Test
     fun test() {
-        mockkStatic("java.lang.System")
         mockkConstructor(Example::class)
         coEvery { anyConstructed<Example>().a() } just runs
     }

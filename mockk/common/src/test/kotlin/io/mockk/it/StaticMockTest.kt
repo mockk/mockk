@@ -44,12 +44,4 @@ class StaticMockTest {
 
         verify { 5 op 6 }
     }
-
-    @Suppress("DEPRECATION")
-    @Test
-    fun compatibilityDisjointMocking() {
-        staticMockk<MockCls>().mock()
-        staticMockk<MockCls>().unmock()
-    }
-
 }

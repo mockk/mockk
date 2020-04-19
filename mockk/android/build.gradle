@@ -4,11 +4,7 @@ ext {
 }
 apply plugin: 'com.android.library'
 apply from: "${gradles}/android-module.gradle"
-apply from: "${gradles}/upload-archives-android.gradle"
-
-afterEvaluate {
-    dokkaJavadoc.enabled = false
-}
+apply from: "${gradles}/upload.gradle"
 
 android {
     compileSdkVersion 'android-28'
@@ -27,8 +23,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 27
+        minSdkVersion 14
+        targetSdkVersion 28
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
@@ -46,10 +42,10 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     // very weird hack to make it working in IDE (check settings.gradle)
     def mockKProject = findProject(':mockk-jvm') ?: project(":mockk")
-    implementation(mockKProject, {
+    api(mockKProject, {
         exclude group: 'io.mockk', module: 'mockk-agent-jvm'
     })
     implementation project(":mockk-agent-android")

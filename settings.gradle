@@ -33,6 +33,6 @@ project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
 project(":mockk-dsl-js").projectDir = file("dsl/js")
 
 // very weird hack to make it working in IDE and stay compatible with naming
-if (gradle.startParameter.taskNames.contains("uploadArchives")) {
+if (gradle.startParameter.taskNames.contains("publish")) {
     project(":mockk-jvm").name = 'mockk'
 }

@@ -143,6 +143,8 @@ actual object InternalPlatform {
 
     actual fun multiNotifier(): MultiNotifier = JvmMultiNotifier()
 
+    actual inline fun <T> synchronized(obj: Any, block: () -> T) = kotlin.synchronized(obj, block)
+
     inline fun <reified T : Any> loadPlugin(className: String, msg: String = "") =
         try {
             T::class.cast(Class.forName(className).newInstance())

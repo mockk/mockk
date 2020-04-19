@@ -45,12 +45,4 @@ class ObjectMockTest {
 
         verify { MockObj.add(1, 2) }
     }
-
-    @Suppress("DEPRECATION")
-    @Test
-    fun objectMockUnmockCanBeSeparate() {
-        objectMockk(MockObj).mock()
-        objectMockk(MockObj).unmock()
-    }
-
 }

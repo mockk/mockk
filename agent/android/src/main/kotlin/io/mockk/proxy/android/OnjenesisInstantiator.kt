@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package io.mockk.proxy.android
 
 import com.android.dx.stock.ProxyBuilder

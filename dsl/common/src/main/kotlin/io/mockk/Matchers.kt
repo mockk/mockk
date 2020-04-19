@@ -115,7 +115,7 @@ data class CaptureNullableMatcher<T : Any>(
     val captureList: MutableList<T?>,
     override val argumentType: KClass<*>
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
@@ -124,14 +124,15 @@ data class CaptureNullableMatcher<T : Any>(
 
     override fun match(arg: T?): Boolean = true
 
-    override fun toString(): String = "captureNullable<${argumentType.simpleName}>()"
-
     override fun checkType(arg: Any?): Boolean {
         if(arg == null) {
             return true
         }
+
         return super.checkType(arg)
     }
+
+    override fun toString(): String = "capture<${argumentType.simpleName}?>()"
 }
 
 /**
@@ -324,53 +325,6 @@ class InvokeMatcher<in T : Any>(val block: (T) -> Unit) : Matcher<T>, Equivalent
 
 
     override fun toString(): String = "coInvoke()"
-}
-
-
-/**
- * Checks if assertion is true
- */
-@Deprecated(
-    "'AssertMatcher' is problematic in case of many calls being verified",
-    ReplaceWith("FunctionMatcher(assertFunction, argumentType)")
-)
-class AssertMatcher<in T : Any>(
-    val assertFunction: (T?) -> Boolean,
-    val msg: String? = null,
-    override val argumentType: KClass<*>,
-    val nullable: Boolean = false
-) : Matcher<T>, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
-
-    override fun checkType(arg: Any?): Boolean {
-        if (arg != null && !argumentType.isInstance(arg)) {
-            val argType = arg::class.simpleName
-            val requiredType = argumentType.simpleName
-            throw AssertionError(
-                "Verification matcher assertion failed:\n" +
-                        "    type <$argType> is not matching\n" +
-                        "    required by assertion type <$requiredType>\n"
-            )
-        }
-        return true
-    }
-
-    override fun match(arg: T?): Boolean {
-        if (!nullable) {
-            if (arg == null) {
-                throw AssertionError("Verification matcher assertion failed: null passed to non-nullable assert")
-            }
-        }
-        if (!assertFunction(arg)) {
-            throw AssertionError(
-                "Verification matcher assertion failed" +
-                        (if (msg != null) ": $msg" else "")
-            )
-        }
-        return true
-    }
-
-    override fun toString(): String = "assert<${argumentType.simpleName}>()"
 }
 
 /**

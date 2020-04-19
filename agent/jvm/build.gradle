@@ -5,17 +5,17 @@ ext {
 
 apply from: "${gradles}/jacoco.gradle"
 apply from: "${gradles}/jvm-module.gradle"
-apply from: "${gradles}/upload-archives.gradle"
 apply from: "${gradles}/additional-archives.gradle"
+apply from: "${gradles}/upload.gradle"
 
 dependencies {
-    compile project(':mockk-agent-api')
-    compile project(':mockk-agent-common')
+    api project(':mockk-agent-api')
+    api project(':mockk-agent-common')
 
-    compile "org.objenesis:objenesis:$objenesis_version"
+    api "org.objenesis:objenesis:$objenesis_version"
 
-    compile "net.bytebuddy:byte-buddy:$byte_buddy_version"
-    compile "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+    api "net.bytebuddy:byte-buddy:$byte_buddy_version"
+    api "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
 }
 
 task copyMockKDispatcher(type: Copy) {

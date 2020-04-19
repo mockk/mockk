@@ -2,7 +2,7 @@ package io.mockk.gh
 
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import java.lang.RuntimeException
 import java.lang.Thread.sleep
 import java.util.concurrent.atomic.AtomicBoolean

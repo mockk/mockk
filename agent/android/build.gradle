@@ -5,7 +5,7 @@ ext {
 
 apply plugin: 'com.android.library'
 apply from: "${gradles}/android-module.gradle"
-apply from: "${gradles}/upload-archives-android.gradle"
+apply from: "${gradles}/upload.gradle"
 
 def dispatcherApkResPath = file("$buildDir/generated/dispatcher-apk")
 def dispatcherDexResPath = file("$buildDir/generated/dispatcher-dex")
@@ -30,8 +30,8 @@ task unzipDispatcherApk(type: Copy) {
 
 task packageDispatcherJar(type: Jar) {
     dependsOn unzipDispatcherApk
-    archiveName = "dispatcher.jar"
-    destinationDir = dispatcherJarResPath
+    archiveFileName.set("dispatcher.jar")
+    destinationDirectory.set(dispatcherJarResPath)
 
     from dispatcherDexResPath
 }
@@ -58,8 +58,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 27
+        minSdkVersion 14
+        targetSdkVersion 28
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
@@ -78,11 +78,11 @@ android {
 
 
 dependencies {
-    implementation project(':mockk-agent-api')
-    implementation project(':mockk-agent-common')
+    api project(':mockk-agent-api')
+    api project(':mockk-agent-common')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.linkedin.dexmaker:dexmaker:$dexmaker_version"
-    implementation "org.objenesis:objenesis:$objenesis_version"
+    implementation "org.objenesis:objenesis:$objenesis_android_version"
     androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

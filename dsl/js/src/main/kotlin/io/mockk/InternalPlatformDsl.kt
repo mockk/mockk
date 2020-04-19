@@ -1,6 +1,6 @@
 package io.mockk
 
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 

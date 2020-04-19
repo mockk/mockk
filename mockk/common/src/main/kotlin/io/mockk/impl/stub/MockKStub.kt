@@ -35,7 +35,7 @@ open class MockKStub(
     }
 
     override fun answer(invocation: Invocation): Any? {
-        val invocationAndMatcher = synchronized(answers) {
+        val invocationAndMatcher = InternalPlatform.synchronized(answers) {
             answers
                 .reversed()
                 .firstOrNull { it.matcher.match(invocation) }
@@ -112,7 +112,7 @@ open class MockKStub(
         if (record) {
             recordedCalls.add(invocation)
 
-            synchronized(recordedCallsByMethod) {
+            InternalPlatform.synchronized(recordedCallsByMethod) {
                 recordedCallsByMethod.getOrPut(invocation.method) { mutableListOf() }
                     .add(invocation)
             }
@@ -121,18 +121,18 @@ open class MockKStub(
         }
     }
 
-    private fun checkExcluded(invocation: Invocation) = synchronized(exclusions) {
+    private fun checkExcluded(invocation: Invocation) = InternalPlatform.synchronized(exclusions) {
         exclusions.any { it.match(invocation) }
     }
 
     override fun allRecordedCalls(): List<Invocation> {
-        synchronized(recordedCalls) {
+        InternalPlatform.synchronized(recordedCalls) {
             return recordedCalls.toList()
         }
     }
 
     override fun allRecordedCalls(method: MethodDescription): List<Invocation> {
-        synchronized(recordedCallsByMethod) {
+        InternalPlatform.synchronized(recordedCallsByMethod) {
             return recordedCallsByMethod[method]?.toList() ?: listOf()
         }
     }
@@ -144,7 +144,7 @@ open class MockKStub(
         exclusions.add(matcher)
 
         if (params.current) {
-            synchronized(recordedCalls) {
+            InternalPlatform.synchronized(recordedCalls) {
                 val callsToExclude = recordedCalls
                     .filter(matcher::match)
 
@@ -157,7 +157,7 @@ open class MockKStub(
                 callsToExclude
                     .forEach { recordedCalls.remove(it) }
 
-                synchronized(recordedCallsByMethod) {
+                InternalPlatform.synchronized(recordedCallsByMethod) {
 
                     recordedCallsByMethod[matcher.method]?.apply {
                         filter(matcher::match)
@@ -165,7 +165,7 @@ open class MockKStub(
                     }
                 }
 
-                synchronized(verifiedCalls) {
+                InternalPlatform.synchronized(verifiedCalls) {
                     verifiedCalls
                         .filter(matcher::match)
                         .forEach { verifiedCalls.remove(it) }
@@ -179,7 +179,7 @@ open class MockKStub(
     }
 
     override fun verifiedCalls(): List<Invocation> {
-        synchronized(verifiedCalls) {
+        InternalPlatform.synchronized(verifiedCalls) {
             return verifiedCalls.toList()
         }
     }
@@ -187,7 +187,7 @@ open class MockKStub(
     override fun toStr() = "${type.simpleName}($name)"
 
     override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any {
-        return synchronized(childs) {
+        return InternalPlatform.synchronized(childs) {
             gatewayAccess.safeToString.exec {
                 childs.customComputeIfAbsent(matcher) {
                     gatewayAccess.mockFactory!!.mockk(

@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package io.mockk.it
 
 import io.mockk.*
@@ -6,7 +8,7 @@ import kotlin.test.assertEquals
 
 class AnswersTest {
     class MockCls {
-        fun op(a: Int, b: Int, c: Int = 10, d: Int = 25) = a + b + c + d
+        fun op(a: Int, b: Int, c: Int = 10, d: Int = 25, e: Int? = 55) = a + b + c + d
 
         fun lambdaOp(a: Int, b: () -> Int) = a + b()
     }
@@ -39,24 +41,24 @@ class AnswersTest {
 
     @Test
     fun answerLastArg() {
-        every { spy.op(any(), 7, d = any()) } answers { if (lastArg<Int>() == 11) 7 else 8 }
+        every { spy.op(any(), 7, e = any()) } answers { if (lastArg<Int>() == 11) 7 else 8 }
 
-        assertEquals(7, spy.op(2, 7, d = 11))
-        assertEquals(8, spy.op(3, 7, d = 12))
+        assertEquals(7, spy.op(2, 7, e = 11))
+        assertEquals(8, spy.op(3, 7, e = 12))
     }
 
     @Test
     fun answerNArgs() {
         every { spy.op(any(), 1) } answers { nArgs }
 
-        assertEquals(4, spy.op(2, 1))
+        assertEquals(5, spy.op(2, 1))
     }
 
     @Test
     fun answerParamTypesCount() {
         every { spy.op(any(), 2) } answers { method.paramTypes.size }
 
-        assertEquals(4, spy.op(2, 2))
+        assertEquals(5, spy.op(2, 2))
     }
 
     @Test
@@ -70,9 +72,13 @@ class AnswersTest {
     @Test
     fun answerCaptureListNullable() {
         val lst = mutableListOf<Int?>()
-        every { spy.op(3, 4, d = captureNullable(lst)) } answers { lst.captured()!! }
+        every { spy.op(3, 4, e = captureNullable(lst)) } answers { lst.captured() ?: 55 }
 
-        assertEquals(33, spy.op(3, 4, d = 33))
+        spy.op(3, 4, e = 1)
+        spy.op(3, 4, e = null)
+        spy.op(3, 4, e = 2)
+        spy.op(3, 4, e = 3)
+        assertEquals(listOf(1, null, 2, 3), lst)
     }
 
     @Test

@@ -2,12 +2,6 @@ apply plugin: 'kotlin-platform-common'
 
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
-}
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
+    testImplementation "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlin_version"
 }

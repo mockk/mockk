@@ -14,7 +14,6 @@
 [![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
 [![Android](https://img.shields.io/badge/android-support-green.svg)](https://mockk.io/ANDROID)
 [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](https://mockk.io/MATRIX)
-[![Deprecated](https://img.shields.io/badge/deprecated-API-red.svg)](/DEPRECATED)
 [![Open Source Helpers](https://www.codetriage.com/mockk/mockk/badges/users.svg)](https://www.codetriage.com/mockk/mockk)
 
 ### Kotlin Academy articles <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
@@ -677,7 +676,7 @@ This will wait until one of two following states: either verification is passed 
 
 ### Returning Unit
 
-If the function is returning `Unit` you can use the `just Runs` construct:
+If the function is returning `Unit` you can use the `justRun` construct:
 
 ```kotlin
 class MockedClass {
@@ -688,7 +687,7 @@ class MockedClass {
 
 val obj = mockk<MockedClass>()
 
-every { obj.sum(any(), 3) } just Runs
+justRun { obj.sum(any(), 3) }
 
 obj.sum(1, 1)
 obj.sum(1, 2)
@@ -701,6 +700,11 @@ verify {
 }
 ```
 
+Another ways to write `justRun { obj.sum(any(), 3) }` is:
+ - `every { obj.sum(any(), 3) } just Runs`
+ - `every { obj.sum(any(), 3) } returns Unit`
+ - `every { obj.sum(any(), 3) } answers { Unit }`
+
 ### Coroutines
 
 To mock coroutines you need to add another dependency to the support library.
@@ -710,7 +714,7 @@ To mock coroutines you need to add another dependency to the support library.
 </tr>
 <tr>
     <td>
-<pre>testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
+<pre>testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:x.x"</pre>
     </td>
 </tr>
 </table>
@@ -890,7 +894,7 @@ val mock = spyk(Team(), recordPrivateCalls = true)
 
 every { mock getProperty "speed" } returns 33
 every { mock setProperty "acceleration" value less(5) } just runs
-every { mock invokeReturnsUnit "privateMethod" } just runs
+justRun { mock invokeNoArgs "privateMethod" }
 every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
 
 verify { mock getProperty "speed" }
@@ -976,6 +980,73 @@ to `MockKMatcherScope` or `MockKVerificationScope` and using the `match` functio
 
 Also, it is possible to create more advanced matchers by implementing the `Matcher` interface. 
 
+### Custom matchers
+
+Example of a custom matcher that compares list without order:
+
+```kotlin 
+
+@Test
+fun test() {
+    class MockCls {
+        fun op(a: List<Int>) = a.reversed()
+    }
+
+    val mock = mockk<MockCls>()
+
+    every { mock.op(any()) } returns listOf(5, 6, 9)
+
+    println(mock.op(listOf(1, 2, 3)))
+
+    verify { mock.op(matchListWithoutOrder(3, 2, 1)) }
+
+}
+
+data class ListWithoutOrderMatcher<T>(
+    val expectedList: List<T>,
+    val refEq: Boolean
+) : Matcher<List<T>> {
+    val map = buildCountsMap(expectedList, refEq)
+
+    override fun match(arg: List<T>?): Boolean {
+        if (arg == null) return false
+        return buildCountsMap(arg, refEq) == map
+    }
+
+    private fun buildCountsMap(list: List<T>, ref: Boolean): Map<Any?, Int> {
+        val map = mutableMapOf<Any?, Int>()
+
+        for (item in list) {
+            val key = when {
+                item == null -> nullKey
+                refEq -> InternalPlatform.ref(item)
+                else -> item
+            }
+            map.compute(key, { _, value -> (value ?: 0) + 1 })
+        }
+
+        return map
+    }
+
+    override fun toString() = "matchListWithoutOrder($expectedList)"
+
+    @Suppress("UNCHECKED_CAST")
+    override fun substitute(map: Map<Any, Any>): Matcher<List<T>> {
+        return copy(expectedList = expectedList.map { map.getOrDefault(it as Any?, it) } as List<T>)
+    }
+
+    companion object {
+        val nullKey = Any()
+    }
+}
+
+inline fun <reified T : List<E>, E : Any> MockKMatcherScope.matchListWithoutOrder(
+    vararg items: E,
+    refEq: Boolean = true
+): T = match(ListWithoutOrderMatcher(listOf(*items), refEq))
+
+```
+
 ## Settings file
 
 To adjust parameters globally, there is a possibility to specify a few settings in a resource file.
@@ -987,6 +1058,7 @@ How to use:
 relaxed=true|false
 relaxUnitFun=true|false
 recordPrivateCalls=true|false
+stackTracesOnVerify=true|false
 ```
 
 ## DSL tables

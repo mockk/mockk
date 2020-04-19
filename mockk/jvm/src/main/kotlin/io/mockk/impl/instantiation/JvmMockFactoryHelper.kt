@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
@@ -131,6 +131,8 @@ object JvmMockFactoryHelper {
             } ?: false
         }
 
+        val isFnCall = Function::class.java.isAssignableFrom(declaringClass)
+
         val returnType = kotlinFunc?.returnType as? KClass<*> ?: returnType.kotlin
 
         val result = MethodDescription(
@@ -139,6 +141,7 @@ object JvmMockFactoryHelper {
             returnTypeIsUnit,
             returnTypeIsNothing,
             isSuspend,
+            isFnCall,
             declaringClass.kotlin,
             parameterTypes.map { it.kotlin },
             vararg,

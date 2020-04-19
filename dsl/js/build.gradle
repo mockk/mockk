@@ -4,20 +4,14 @@ ext {
 }
 
 apply from: "${gradles}/js-module.gradle"
-apply from: "${gradles}/upload-archives.gradle"
 apply from: "${gradles}/additional-archives.gradle"
+apply from: "${gradles}/upload.gradle"
 
 dependencies {
     expectedBy project(":mockk-dsl")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutines_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
-}
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
+    testImplementation "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
 [compileKotlin2Js, compileTestKotlin2Js]*.configure {
@@ -25,7 +19,7 @@ kotlin {
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
     from(project(':mockk-dsl').sourcesJar.inputs.files) {
         exclude "io/mockk/InternalPlatformDsl.kt"

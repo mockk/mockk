@@ -1,11 +1,11 @@
 package io.mockk
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.coroutines.experimental.Continuation
+import kotlin.coroutines.Continuation
 import kotlin.reflect.*
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
@@ -35,7 +35,7 @@ actual object InternalPlatformDsl {
                 is DoubleArray -> this.contentToString()
                 is Array<*> -> this.contentDeepToString()
                 Void.TYPE.kotlin -> "void"
-                kotlin.coroutines.experimental.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
+                kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
                 is Continuation<*> -> "continuation {}"
                 is KClass<*> -> this.simpleName ?: "<null name class>"
                 is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"

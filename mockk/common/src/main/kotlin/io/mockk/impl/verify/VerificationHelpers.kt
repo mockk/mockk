@@ -1,6 +1,7 @@
 package io.mockk.impl.verify
 
 import io.mockk.Invocation
+import io.mockk.MockKSettings
 import io.mockk.RecordedCall
 import io.mockk.StackElement
 import io.mockk.impl.InternalPlatform
@@ -56,8 +57,11 @@ object VerificationHelpers {
         return "\n\nMatchers: \n" + calls.map { it.matcher.toString() }.joinToString("\n") +
                 "\n\nCalls:\n" +
                 formatCalls(allCalls) +
-                "\n\nStack traces:\n" +
-                stackTraces(allCalls)
+                "\n" +
+                if (MockKSettings.stackTracesOnVerify)
+                    "\nStack traces:\n" + stackTraces(allCalls)
+                else
+                    ""
     }
 }
 
