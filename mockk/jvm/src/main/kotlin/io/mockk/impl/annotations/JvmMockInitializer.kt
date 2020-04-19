@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package io.mockk.impl.annotations
 
 import io.mockk.MockKException

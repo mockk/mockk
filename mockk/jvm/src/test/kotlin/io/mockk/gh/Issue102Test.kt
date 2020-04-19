@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_VALUE")
+
 package io.mockk.gh
 
 import io.mockk.every
