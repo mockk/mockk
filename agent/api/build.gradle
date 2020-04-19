@@ -5,5 +5,5 @@ ext {
 
 apply from: "${gradles}/jacoco.gradle"
 apply from: "${gradles}/jvm-module.gradle"
-apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"

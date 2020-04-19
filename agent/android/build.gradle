@@ -5,7 +5,7 @@ ext {
 
 apply plugin: 'com.android.library'
 apply from: "${gradles}/android-module.gradle"
-apply from: "${gradles}/upload-archives-android.gradle"
+apply from: "${gradles}/upload-android.gradle"
 
 def dispatcherApkResPath = file("$buildDir/generated/dispatcher-apk")
 def dispatcherDexResPath = file("$buildDir/generated/dispatcher-dex")

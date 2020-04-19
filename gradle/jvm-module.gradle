@@ -32,13 +32,10 @@ dokka {
     outputFormat = 'javadoc'
     outputDirectory = "$buildDir/javadoc"
 }
-//task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-//    dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:${rootProject.dokka_version}"
-//    outputFormat = 'javadoc'
-//    outputDirectory = "$buildDir/javadoc"
-//}
-//
-//task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-//     archiveClassifier.set('javadoc')
-//    from "$buildDir/javadoc"
-//}
+
+
+task javadocJar(type: Jar, dependsOn: dokka) {
+    archiveClassifier.set('javadoc')
+    from "$buildDir/javadoc"
+}
+

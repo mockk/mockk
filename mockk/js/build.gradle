@@ -13,7 +13,7 @@ ext {
 }
 
 apply from: "${gradles}/js-module.gradle"
-apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 apply plugin: 'com.moowork.node'
 

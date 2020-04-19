@@ -1,0 +1,85 @@
+apply plugin: 'maven-publish'
+
+afterEvaluate {
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                if (components.findByName("kotlin") != null) {
+                    from components["kotlin"]
+                    artifact kotlinSourcesJar
+                    try {
+                        artifact tasks['javadocJar']
+                    } catch(UnknownTaskException ignored) {
+                    }
+                } else if (components.findByName("release") != null) {
+                    from components["release"]
+                } else {
+                    throw RuntimeException("missing components to publish")
+                }
+
+                pom {
+                    name = mavenName
+                    description = mavenDescription
+                    url = 'http://mockk.io'
+
+                    scm {
+                        connection = 'scm:git:git@github.com:mockk/mockk.git'
+                        developerConnection = 'scm:git:git@github.com:mockk/mockk.git'
+                        url = 'https://github.com/mockk/mockk/'
+                    }
+
+                    developers {
+                        developer {
+                            id = 'oleksiyp'
+                            name = 'Oleksii Pylypenko'
+                            email = 'oleksiy.pylypenko@gmail.com'
+                        }
+                    }
+
+                    licenses {
+                        license {
+                            name = 'Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0'
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            if (project.hasProperty('localrepo')) {
+                maven {
+                    url = rootProject.properties['localrepo']
+                }
+            }
+        }
+    }
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//
+//            if (project.hasProperty('localrepo')) {
+//                repository(url: "file://" + rootProject.properties['localrepo'] ?: '')
+//            } else {
+//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+//                }
+//
+//                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//                    authentication(userName: rootProject.properties['ossrhUsername'] ?: '', password: rootProject.properties['ossrhPassword'] ?: '')
+//                }
+//            }
+//
+//            pom.project {
+//                name = mavenName
+//                packaging = project.hasProperty('mavenPackage') ? mavenPackage : 'jar'
+//                description mavenDescription
+//
+//
+//            }
+//        }
+//    }
+//}
+//
+
+}

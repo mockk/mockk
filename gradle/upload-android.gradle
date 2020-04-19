@@ -1,0 +1,3 @@
+afterEvaluate {
+    apply from: "${gradles}/upload.gradle"
+}
