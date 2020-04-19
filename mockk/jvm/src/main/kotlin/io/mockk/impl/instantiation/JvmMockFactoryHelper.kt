@@ -131,6 +131,8 @@ object JvmMockFactoryHelper {
             } ?: false
         }
 
+        val isFnCall = Function::class.java.isAssignableFrom(declaringClass)
+
         val returnType = kotlinFunc?.returnType as? KClass<*> ?: returnType.kotlin
 
         val result = MethodDescription(
@@ -139,6 +141,7 @@ object JvmMockFactoryHelper {
             returnTypeIsUnit,
             returnTypeIsNothing,
             isSuspend,
+            isFnCall,
             declaringClass.kotlin,
             parameterTypes.map { it.kotlin },
             vararg,

@@ -6,6 +6,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeToString
+import kotlin.coroutines.Continuation
 
 class ChainedCallDetector(safeToString: SafeToString) {
     val log = safeToString(Logger<SignatureMatcherDetector>())
@@ -119,7 +120,15 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
         @Suppress("UNCHECKED_CAST")
         fun buildRecordedCall(): RecordedCall {
-            if (zeroCall.method.isSuspend) {
+            fun SignedCall.isSuspend() = when {
+                method.isSuspend -> true
+                method.isFnCall -> args.lastOrNull()?.let {
+                    Continuation::class.isInstance(it)
+                } ?: false
+                else -> false
+            }
+
+            if (zeroCall.isSuspend()) {
                 log.trace { "Suspend function found. Replacing continuation with any() matcher" }
                 argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
             }
