@@ -36,7 +36,7 @@ public class JvmMockKProxyMakerTest {
 
         JvmMockKAgentFactory agentFactory = new JvmMockKAgentFactory();
 
-        agentFactory.init(MockKAgentLogFactory.Companion.getNO_OP());
+        agentFactory.init(MockKAgentLogFactory.Companion.getSIMPLE_CONSOLE_LOGGER());
 
         maker = agentFactory.getProxyMaker();
         staticMaker = agentFactory.getStaticProxyMaker();

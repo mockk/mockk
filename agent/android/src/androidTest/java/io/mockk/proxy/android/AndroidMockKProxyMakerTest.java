@@ -27,7 +27,7 @@ public class AndroidMockKProxyMakerTest {
     public static void initAgent() {
         MockKAgentFactory factory = new AndroidMockKAgentFactory();
 
-        factory.init(MockKAgentLogFactory.Companion.getNO_OP());
+        factory.init(MockKAgentLogFactory.Companion.getSIMPLE_CONSOLE_LOGGER());
 
         maker = factory.getProxyMaker();
         staticMaker = factory.getStaticProxyMaker();
