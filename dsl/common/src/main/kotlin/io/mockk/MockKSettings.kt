@@ -6,4 +6,6 @@ expect object MockKSettings {
     val relaxUnitFun: Boolean
 
     val recordPrivateCalls: Boolean
+
+    val stackTracesOnVerify: Boolean
 }

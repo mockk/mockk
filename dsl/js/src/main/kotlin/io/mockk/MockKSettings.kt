@@ -9,4 +9,7 @@ actual object MockKSettings {
 
     actual val recordPrivateCalls: Boolean
         get() = js("global.io_mockk_settings_recordPrivateCalls || false") as Boolean
+
+    actual val stackTracesOnVerify: Boolean
+        get() = js("global.io_mockk_settings_stackTracesOnVerify || false") as Boolean
 }

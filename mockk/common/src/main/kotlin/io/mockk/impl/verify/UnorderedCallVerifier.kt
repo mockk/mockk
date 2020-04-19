@@ -4,6 +4,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
 import io.mockk.MockKGateway.*
+import io.mockk.MockKSettings
 import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.Ref
@@ -58,8 +59,11 @@ open class UnorderedCallVerifier(
                     "$callIdxMsg should not be called" +
                             "\n\nCalls:\n" +
                             formatCalls(allCallsForMockMethod) +
-                            "\n\nStack traces:\n" +
-                            stackTraces(allCallsForMockMethod)
+                            "\n" +
+                            if (MockKSettings.stackTracesOnVerify)
+                                "\n\nStack traces:\n" + stackTraces(allCallsForMockMethod)
+                            else
+                                ""
                 )
             }
         } else when (allCallsForMockMethod.size) {
@@ -73,8 +77,11 @@ open class UnorderedCallVerifier(
                         "$callIdxMsg was not called." +
                                 "\n\nCalls to same mock:\n" +
                                 formatCalls(allCallsForMock) +
-                                "\n\nStack traces:\n" +
-                                stackTraces(allCallsForMock)
+                                "\n" +
+                                if (MockKSettings.stackTracesOnVerify)
+                                    "\n\nStack traces:\n" + stackTraces(allCallsForMock)
+                                else
+                                    ""
                     })
                 }
             }
@@ -113,8 +120,11 @@ open class UnorderedCallVerifier(
                                 "$callIdxMsg. No matching calls found." +
                                         "\n\nCalls to same method:\n" +
                                         formatCalls(allCallsForMockMethod) +
-                                        "\n\nStack traces:\n" +
-                                        stackTraces(allCallsForMockMethod)
+                                        "\n" +
+                                        if (MockKSettings.stackTracesOnVerify)
+                                            "\n\nStack traces:\n" + stackTraces(allCallsForMockMethod)
+                                        else
+                                            ""
                             })
                     } else {
                         VerificationResult.Failure(
@@ -122,8 +132,11 @@ open class UnorderedCallVerifier(
                                     "but needs at least $min${atMostMsg(max)} calls" +
                                     "\nCalls:\n" +
                                     formatCalls(allCallsForMock) +
-                                    "\n\nStack traces:\n" +
-                                    stackTraces(allCallsForMock)
+                                    "\n" +
+                                    if (MockKSettings.stackTracesOnVerify)
+                                        "\n\nStack traces:\n" + stackTraces(allCallsForMock)
+                                    else
+                                        ""
                         )
                     }
                 }

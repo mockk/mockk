@@ -27,6 +27,9 @@ actual object MockKSettings {
     actual val recordPrivateCalls: Boolean
         get() = booleanProperty("recordPrivateCalls", "false")
 
+    actual val stackTracesOnVerify: Boolean
+        get() = booleanProperty("stackTracesOnVerify", "true")
+
 
     fun setRelaxed(value: Boolean) {
         properties.setProperty("relaxed", value.toString());

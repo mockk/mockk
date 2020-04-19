@@ -1037,6 +1037,7 @@ How to use:
 relaxed=true|false
 relaxUnitFun=true|false
 recordPrivateCalls=true|false
+stackTracesOnVerify=true|false
 ```
 
 ## DSL tables
