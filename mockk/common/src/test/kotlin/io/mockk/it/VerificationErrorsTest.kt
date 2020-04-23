@@ -106,7 +106,7 @@ class VerificationErrorsTest {
 
     @Test
     fun lessCallsHappenedThanDemanded() {
-        expectVerificationError("less calls happened than demanded by order verification sequence", "MockCls.otherOp") {
+        expectVerificationError("fewer calls happened than demanded by order verification sequence", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
             mock.otherOp(1, 3)
