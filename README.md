@@ -116,8 +116,8 @@ All you need to get started is just to add a dependency to `MockK` library.
 
 where `{version}` corresponds to version as below:
 
-- Kotlin 1.3+ and Coroutines 1.0+ Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg?version=1.9.3) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/1.9.3/link)
-- Kotlin 1.2 Compatible Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/_latestVersion)
+- Kotlin 1.3+ and Coroutines 1.0+ Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/_latestVersion)
+- Kotlin 1.2 Compatible Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg?version=1.9.3) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/1.9.3/link)
 
 ## DSL examples
 
