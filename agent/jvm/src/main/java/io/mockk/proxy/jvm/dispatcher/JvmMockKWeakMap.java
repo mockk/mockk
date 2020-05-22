@@ -9,30 +9,30 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JvmMockKWeakMap<K, V> implements Map<K, V> {
-    private final Map<Object, V> map = new ConcurrentHashMap<Object, V>();
+    private final Map<Object, V> target = new ConcurrentHashMap<Object, V>();
     private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
 
     @SuppressWarnings("unchecked")
     public V get(Object key) {
-        return map.get(new StrongKey<K>((K) key));
+        return target.get(new StrongKey<K>((K) key));
     }
 
     public V put(K key, V value) {
         expunge();
-        return map.put(new WeakKey<K>(key, queue), value);
+        return target.put(new WeakKey<K>(key, queue), value);
     }
 
     @SuppressWarnings("unchecked")
     public V remove(Object key) {
         expunge();
-        return map.remove(new StrongKey<K>((K) key));
+        return target.remove(new StrongKey<K>((K) key));
     }
 
 
     private void expunge() {
         Reference<?> ref;
         while ((ref = queue.poll()) != null) {
-            map.remove(ref);
+            target.remove(ref);
         }
     }
 
@@ -106,12 +106,12 @@ public class JvmMockKWeakMap<K, V> implements Map<K, V> {
 
     @Override
     public int size() {
-        return map.size();
+        return target.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return map.isEmpty();
+        return target.isEmpty();
     }
 
     @Override
@@ -121,7 +121,7 @@ public class JvmMockKWeakMap<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        return map.containsValue(value);
+        return target.containsValue(value);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class JvmMockKWeakMap<K, V> implements Map<K, V> {
 
     @Override
     public void clear() {
-        map.clear();
+        target.clear();
     }
 
     @Override
@@ -141,7 +141,7 @@ public class JvmMockKWeakMap<K, V> implements Map<K, V> {
 
     @Override
     public Collection<V> values() {
-        return map.values();
+        return target.values();
     }
 
     @Override
@@ -149,4 +149,7 @@ public class JvmMockKWeakMap<K, V> implements Map<K, V> {
         throw new UnsupportedOperationException("entrySet");
     }
 
+    public Map<Object, V> getTarget() {
+        return target;
+    }
 }

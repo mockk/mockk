@@ -38,4 +38,5 @@ public abstract class JvmMockKDispatcher {
             Callable<Object> originalMethod
     ) throws Exception;
 
+    public abstract boolean isMock(Object instance);
 }

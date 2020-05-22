@@ -2,8 +2,9 @@ package io.mockk.proxy.jvm.advice
 
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
+import io.mockk.proxy.jvm.dispatcher.JvmMockKWeakMap
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Random
 import java.util.concurrent.Callable
 
 internal open class BaseAdvice(
@@ -40,6 +41,16 @@ internal open class BaseAdvice(
                     ?: originalMethod
 
         return handler?.call()
+    }
+
+    override fun isMock(instance: Any): Boolean {
+        // in order to avoid endless checks when concurrent hashmap is mocked we need to exclude handlers map explicitly
+        val castedHandlers = handlers as? JvmMockKWeakMap
+        if (castedHandlers != null) {
+            return instance !== castedHandlers.target && handlers.containsKey(instance)
+        }
+
+        return instance !== handlers && handlers.containsKey(instance)
     }
 
     companion object {

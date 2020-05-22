@@ -41,7 +41,8 @@ public class JvmMockKProxyAdvice extends BaseAdvice {
         }
 
         JvmMockKDispatcher dispatcher = JvmMockKDispatcher.get(id, self);
-        if (dispatcher == null) {
+
+        if (dispatcher == null || !dispatcher.isMock(self)) {
             return null;
         }
 
