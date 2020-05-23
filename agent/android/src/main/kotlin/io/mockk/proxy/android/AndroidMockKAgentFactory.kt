@@ -9,6 +9,7 @@ import io.mockk.proxy.android.transformation.InliningClassTransformer
 import io.mockk.proxy.common.ProxyMaker
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import java.io.IOException
+import java.lang.reflect.Method
 
 @Suppress("unused") // dynamically loaded
 class AndroidMockKAgentFactory : MockKAgentFactory {
@@ -77,6 +78,30 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
                 )
             }
 
+            // Set up exemption for blacklisted APIs to allow mocking on SDK objects with hidden methods.
+            // https://android-developers.googleblog.com/2018/02/improving-stability-by-reducing-usage.html
+            try {
+                val vmRuntimeClass = Class.forName(vmRuntimeClassName)
+                val getDeclaredMethod = Class::class.java.getDeclaredMethod(
+                        getDeclaredMethodMethodName,
+                        String::class.java,
+                        arrayOf<Class<*>>()::class.java
+                ) as Method
+                val getRuntime = getDeclaredMethod(
+                        vmRuntimeClass,
+                        getRuntimeMethodName,
+                        null
+                ) as Method
+                val setHiddenApiExemptions = getDeclaredMethod(
+                        vmRuntimeClass,
+                        setHiddenApiExemptionsMethodName,
+                        arrayOf(arrayOf<String>()::class.java)
+                ) as Method
+
+                setHiddenApiExemptions(getRuntime(null), arrayOf("L"))
+            } catch (ex: Exception) {
+                throw MockKAgentException("Could not set up hiddenApiExemptions")
+            }
 
             log.debug("Android P or higher detected. Using inlining class transformer")
             val classTransformer = InliningClassTransformer(specMap)
@@ -135,7 +160,11 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
     }
 
     companion object {
-        private val dispatcherClassName = "io.mockk.proxy.android.AndroidMockKDispatcher"
-        private val dispatcherJar = "dispatcher.jar"
+        private const val dispatcherClassName = "io.mockk.proxy.android.AndroidMockKDispatcher"
+        private const val dispatcherJar = "dispatcher.jar"
+        private const val vmRuntimeClassName = "dalvik.system.VMRuntime"
+        private const val getDeclaredMethodMethodName = "getDeclaredMethod"
+        private const val getRuntimeMethodName = "getRuntime"
+        private const val setHiddenApiExemptionsMethodName = "setHiddenApiExemptions"
     }
 }
