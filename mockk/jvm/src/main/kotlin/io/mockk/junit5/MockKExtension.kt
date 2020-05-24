@@ -24,13 +24,13 @@ import java.lang.reflect.Parameter
  */
 class MockKExtension : TestInstancePostProcessor, ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
-        return getMockKAnnotation(parameterContext.parameter) != null
+        return getMockKAnnotation(parameterContext) != null
     }
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any? {
         val parameter = parameterContext.parameter
         val type = parameter.type.kotlin
-        val annotation = getMockKAnnotation(parameter) ?: return null
+        val annotation = getMockKAnnotation(parameterContext) ?: return null
         val name = getMockName(parameterContext.parameter, annotation)
 
         val isRelaxed = when {
@@ -48,15 +48,16 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver {
             type,
             name,
             isRelaxed,
-            *moreInterfaces(parameter),
+            *moreInterfaces(parameterContext),
             relaxUnitFun = isRelaxedUnitFun
         )
     }
 
-
-    private fun getMockKAnnotation(parameter: Parameter): Any? {
-        return parameter.getAnnotation(MockK::class.java)
-            ?: parameter.getAnnotation(RelaxedMockK::class.java)
+    private fun getMockKAnnotation(parameter: ParameterContext): Any? {
+        return sequenceOf(MockK::class, RelaxedMockK::class)
+            .map { parameter.findAnnotation(it.java) }
+            .firstOrNull { it.isPresent }
+            ?.get()
     }
 
     private fun getMockName(parameter: Parameter, annotation: Any): String? {
@@ -68,12 +69,11 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver {
         }
     }
 
-    private fun moreInterfaces(parameter: Parameter) =
-        parameter.annotations
-            .filter { it is AdditionalInterface }
-            .map { it as AdditionalInterface }
-            .map { it.type }
-            .toTypedArray()
+    private fun moreInterfaces(parameter: ParameterContext) =
+            parameter.findAnnotation(AdditionalInterface::class.java)
+                    .map { it.type }
+                    .map { arrayOf(it) }
+                    .orElseGet { emptyArray() }
 
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         MockKAnnotations.init(testInstance)
