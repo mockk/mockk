@@ -1,10 +1,3 @@
-<div class="helpmasha">
-    <div class="centered">
-      <img src="doc/heart.png" width="40px" align="left">
-      Help <a href="https://www.gofundme.com/f/help-save-alina039s-life">Alina</a> with a tumor surgery
-    </div>
-</div>
-
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) 
