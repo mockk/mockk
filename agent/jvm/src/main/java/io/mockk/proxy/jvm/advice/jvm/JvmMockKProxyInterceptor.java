@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class JvmMockKProxyInterceptor extends BaseAdvice {
-    public JvmMockKProxyInterceptor(Map<Object, MockKInvocationHandler> handlers) {
+    public JvmMockKProxyInterceptor(MockHandlerMap handlers) {
         super(handlers);
     }
 

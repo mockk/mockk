@@ -18,7 +18,7 @@ import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAM
  * Workaround #35
  */
 public class JvmMockKHashMapStaticProxyAdvice extends BaseAdvice {
-    public JvmMockKHashMapStaticProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
+    public JvmMockKHashMapStaticProxyAdvice(MockHandlerMap handlers) {
         super(handlers);
     }
 

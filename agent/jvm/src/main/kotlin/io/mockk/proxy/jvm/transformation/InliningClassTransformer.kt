@@ -8,6 +8,7 @@ import io.mockk.proxy.jvm.advice.jvm.JvmMockKConstructorProxyAdvice
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKHashMapStaticProxyAdvice
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyAdvice
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKStaticProxyAdvice
+import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.asm.Advice
@@ -24,9 +25,9 @@ import java.util.concurrent.atomic.AtomicLong
 internal class InliningClassTransformer(
     private val log: MockKAgentLogger,
     private val specMap: ClassTransformationSpecMap,
-    private val handlers: MutableMap<Any, MockKInvocationHandler>,
-    private val staticHandlers: MutableMap<Any, MockKInvocationHandler>,
-    private val constructorHandlers: MutableMap<Any, MockKInvocationHandler>,
+    private val handlers: MockHandlerMap,
+    private val staticHandlers: MockHandlerMap,
+    private val constructorHandlers: MockHandlerMap,
     private val byteBuddy: ByteBuddy
 ) : ClassFileTransformer {
 

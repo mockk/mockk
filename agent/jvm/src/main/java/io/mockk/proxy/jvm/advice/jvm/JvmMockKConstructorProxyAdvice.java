@@ -11,7 +11,7 @@ import java.util.Map;
 
 @SuppressWarnings("unused")
 public class JvmMockKConstructorProxyAdvice extends BaseAdvice {
-    public JvmMockKConstructorProxyAdvice(@NotNull Map<Object, ? extends MockKInvocationHandler> handlers) {
+    public JvmMockKConstructorProxyAdvice(@NotNull MockHandlerMap handlers) {
         super(handlers);
     }
 

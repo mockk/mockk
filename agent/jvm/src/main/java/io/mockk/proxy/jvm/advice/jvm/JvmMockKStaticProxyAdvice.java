@@ -15,7 +15,7 @@ import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAM
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
 public class JvmMockKStaticProxyAdvice extends BaseAdvice {
-    public JvmMockKStaticProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
+    public JvmMockKStaticProxyAdvice(MockHandlerMap handlers) {
         super(handlers);
     }
 
