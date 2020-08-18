@@ -14,7 +14,7 @@ class ObjenesisInstantiator(
     private val log: MockKAgentLogger,
     private val byteBuddy: ByteBuddy
 ) : MockKInstantiatior {
-    private val objenesis = ObjenesisStd(true)
+    private val objenesis = ObjenesisStd(false)
 
     private val typeCache = TypeCache<CacheKey>(TypeCache.Sort.WEAK)
 
