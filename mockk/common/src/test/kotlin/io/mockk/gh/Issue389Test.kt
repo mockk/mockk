@@ -16,7 +16,7 @@ interface TweetRepository {
 class Issue389Test {
 
     @Test
-    internal fun `verify multiple persists`() {
+    internal fun verifyMultiplePersists() {
         val repositoryMock = mockk<TweetRepository>(relaxed = true)
 
         repositoryMock.persist(Tweet(1, "first tweet"))

@@ -35,7 +35,8 @@ class SequenceCallVerifier(
             val matcher = verificationSequence[i].matcher
             if (!matcher.match(call)) {
                 return VerificationResult.Failure(safeToString.exec {
-                    "calls are not exactly matching verification sequence" + reportCalls(verificationSequence, allCalls)
+                    "calls are not exactly matching verification sequence" + reportCalls(verificationSequence,
+                        allCalls)
                 })
             }
             captureBlocks.add { matcher.captureAnswer(call) }

@@ -8,9 +8,11 @@ import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.StubRepository
 
 object VerificationHelpers {
-    fun formatCalls(calls: List<Invocation>): String {
+    fun formatCalls(calls: List<Invocation>, verifiedCalls: List<Invocation> = listOf()): String {
         return calls.mapIndexed { idx, call ->
-            "${idx + 1}) $call"
+            val plusSign = (if (verifiedCalls.contains(call)) "+" else "")
+
+            "${idx + 1}) $plusSign$call"
         }.joinToString("\n")
     }
 
@@ -53,15 +55,24 @@ object VerificationHelpers {
             .flatMap { stubRepo.stubFor(it).allRecordedCalls() }
             .sortedBy { it.timestamp }
 
-    fun reportCalls(calls: List<RecordedCall>, allCalls: List<Invocation>): String {
-        return "\n\nMatchers: \n" + calls.map { it.matcher.toString() }.joinToString("\n") +
+    fun reportCalls(
+        matchers: List<RecordedCall>,
+        allCalls: List<Invocation>,
+        lcs: LCSMatchingAlgo = LCSMatchingAlgo(allCalls, matchers).apply { lcs() }
+    ): String {
+        return "\n\nMatchers: \n" + formatMatchers(matchers, lcs.verifiedMatchers) +
                 "\n\nCalls:\n" +
-                formatCalls(allCalls) +
+                formatCalls(allCalls, lcs.verifiedCalls) +
                 "\n" +
                 if (MockKSettings.stackTracesOnVerify)
                     "\nStack traces:\n" + stackTraces(allCalls)
                 else
                     ""
     }
+
+    private fun formatMatchers(matchers: List<RecordedCall>, verifiedMatchers: List<RecordedCall>) =
+        matchers.map {
+            (if (verifiedMatchers.contains(it)) "+" else "") + it.matcher.toString()
+        }.joinToString("\n")
 }
 
