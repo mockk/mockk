@@ -29,12 +29,11 @@ dependencies {
 }
 
 afterEvaluate {
-    dokka {
-        outputFormat = 'javadoc'
+    dokkaHtml {
         outputDirectory = "$buildDir/javadoc"
     }
 
-    task javadocJar(type: Jar, dependsOn: dokka) {
+    task javadocJar(type: Jar, dependsOn: dokkaHtml) {
         archiveClassifier.set('javadoc')
         from "$buildDir/javadoc"
     }
