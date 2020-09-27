@@ -19,7 +19,7 @@ class StubbingStateTest {
 
     @Test
     fun givenEmptyCallListInStubbingStateWhenRecordingDoneIsCalledThenExceptionIsThrown() {
-        every { recorder.calls.isEmpty() } returns true
+        every { recorder.calls } returns mutableListOf()
 
         assertFailsWith<MockKException> {
             state.recordingDone()
@@ -32,7 +32,7 @@ class StubbingStateTest {
 
     @Test
     fun givenNonEmptyCallListInStubbingStateWhenRecordingDoneIsCalledThenStateSwitchedToAnswering() {
-        every { recorder.calls.isEmpty() } returns false
+        every { recorder.calls } returns mutableListOf(mockk())
         every { recorder.factories.stubbingAwaitingAnswerState(any()) } returns mockk(relaxed = true)
 
         state.recordingDone()

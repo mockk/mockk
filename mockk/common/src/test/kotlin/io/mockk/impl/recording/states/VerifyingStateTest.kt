@@ -31,7 +31,7 @@ class VerifyingStateTest {
 
     @Test
     fun givenEmptyCallListInVerifyingStateWhenRecordingDoneThenExceptionIsThrown() {
-        every { recorder.calls.isEmpty() } returns true
+        every { recorder.calls } returns mutableListOf()
 
         assertFailsWith<MockKException> {
             state.recordingDone()
@@ -82,7 +82,7 @@ class VerifyingStateTest {
     }
 
     private fun setupCalls(outcome: VerificationResult) {
-        every { recorder.calls.isEmpty() } returns false
+        every { recorder.calls } returns mutableListOf(mockk())
         every { recorder.factories.verifier(any()) } returns verifier
         every { recorder.factories.verificationCallSorter() } returns sorter
         every { sorter.regularCalls } returns listOf(call1, call2)

@@ -9,11 +9,11 @@ buildscript {
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka'
 
-dokkaHtml {
-    outputDirectory = "$buildDir/javadoc"
+dokkaJavadoc {
+    outputDirectory = new File("$buildDir/javadoc")
 }
 
-task javadocJar(type: Jar, dependsOn: dokkaHtml) {
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
     archiveClassifier.set('javadoc')
     from "$buildDir/javadoc"
 }

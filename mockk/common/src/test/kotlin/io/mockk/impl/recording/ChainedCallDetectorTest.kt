@@ -21,8 +21,8 @@ class ChainedCallDetectorTest {
     @Test
     fun givenTwoCallRoundsWithOneCallNoArgsWhenDetectCallsHappenThenOneCallIsReturned() {
 
-        every { callRound1.calls[0] } returns call1
-        every { callRound2.calls[0] } returns call2
+        every { callRound1.calls } returns listOf(call1)
+        every { callRound2.calls } returns listOf(call2)
 
         every { call1.method.name } returns "abc"
         every { call2.method.name } returns "abc"
@@ -41,8 +41,8 @@ class ChainedCallDetectorTest {
 
         matcherMap[listOf(signedMatcher1.signature, signedMatcher2.signature)] = signedMatcher1.matcher
 
-        every { callRound1.calls[0] } returns call1
-        every { callRound2.calls[0] } returns call2
+        every { callRound1.calls } returns listOf(call1)
+        every { callRound2.calls } returns listOf(call2)
 
         every { signedMatcher1.signature } returns 5
         every { signedMatcher2.signature } returns 6
