@@ -19,7 +19,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
     fun detect(
         callRounds: List<CallRound>,
         callN: Int,
-        matcherList: SignatureMatchersList
+        matchersList: SignatureMatchersList
     ) {
         val callInAllRounds = callRounds.map { it.calls[callN] }
         val zeroCall = callInAllRounds[0]
@@ -51,7 +51,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
             log.trace { "Signature for $nArgument argument of ${zeroCall.method.toStr()}: $signature" }
 
-            val matcherBySignature = matcherList.remove(signature)
+            val matcherBySignature = matchersList.remove(signature)
 
             return buildMatcher(
                 nArgument == 0,
@@ -84,7 +84,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
                 log.trace { "Signature for $nArgument/$nVarArg argument of ${zeroCall.method.toStr()}: $signature" }
 
-                val matcherBySignature = matcherList.remove(signature)
+                val matcherBySignature = matchersList.remove(signature)
                 varArgMatchers.add(
                     buildMatcher(
                         nArgument == 0 && nVarArg == 0,

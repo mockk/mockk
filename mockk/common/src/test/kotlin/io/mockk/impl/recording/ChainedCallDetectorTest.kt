@@ -37,9 +37,9 @@ class ChainedCallDetectorTest {
 
     @Test
     fun givenTwoCallsRoundsWithOneCallOneArgWhenDetectCallsHappenThenOneCallWithArgIsReturned() {
-        val matcherMap = SignatureMatchersList()
+        val matchersList = SignatureMatchersList()
 
-        matcherMap.add(listOf(signedMatcher1.signature, signedMatcher2.signature), signedMatcher1.matcher)
+        matchersList.add(listOf(signedMatcher1.signature, signedMatcher2.signature), signedMatcher1.matcher)
 
         every { callRound1.calls } returns listOf(call1)
         every { callRound2.calls } returns listOf(call2)
@@ -56,7 +56,7 @@ class ChainedCallDetectorTest {
         every { call1.method.varArgsArg } returns -1
         every { call2.method.varArgsArg } returns -1
 
-        detector.detect(listOf(callRound1, callRound2), 0, matcherMap)
+        detector.detect(listOf(callRound1, callRound2), 0, matchersList)
 
         assertEquals("abc", detector.call.matcher.method.name)
         assertEquals(listOf<Matcher<*>>(EqMatcher(5)), detector.call.matcher.args)
