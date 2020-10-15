@@ -9,12 +9,8 @@ class Issue510Test {
 
     class ShopService {
 
-        fun buyProducts(products: List<Product>) {
-            println("You bought...")
-        }
-
         fun addProductAndOrders(products: List<Product>, orders: List<Order>) {
-            println("Add and orders...")
+            println("Products $products and orders $orders")
         }
     }
 
