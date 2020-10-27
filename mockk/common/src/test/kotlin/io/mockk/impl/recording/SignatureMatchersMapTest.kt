@@ -8,12 +8,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-class SignatureMatchersListTest {
+class SignatureMatchersMapTest {
 
     @Test
     fun shouldAddMatcherForSignature() {
         // given
-        val map = SignatureMatchersList()
+        val map = SignatureMatchersMap()
         val signedMatcher = mockk<SignedMatcher>(relaxed = true)
         val signature = listOf(signedMatcher.signature)
         val matcher = signedMatcher.matcher
@@ -29,7 +29,7 @@ class SignatureMatchersListTest {
     @Test
     fun shouldNotContainAnyMatchers() {
         // given
-        val map = SignatureMatchersList()
+        val map = SignatureMatchersMap()
 
         // when && then
         assertFalse { map.isNotEmpty() }
@@ -38,7 +38,7 @@ class SignatureMatchersListTest {
     @Test
     fun shouldNotRemoveFromEmptyList() {
         // given
-        val map = SignatureMatchersList()
+        val map = SignatureMatchersMap()
         val signedMatcher = mockk<SignedMatcher>(relaxed = true)
         val signature = listOf(signedMatcher.signature)
 
@@ -53,7 +53,7 @@ class SignatureMatchersListTest {
     @Test
     fun shouldRemoveFromList() {
         // given
-        val map = SignatureMatchersList()
+        val map = SignatureMatchersMap()
         val signedMatcher1 = mockk<SignedMatcher>(relaxed = true)
         val signedMatcher2 = mockk<SignedMatcher>(relaxed = true)
         val signature1 = listOf(signedMatcher1.signature)
@@ -76,7 +76,7 @@ class SignatureMatchersListTest {
     @Test
     fun shouldPrintListCorrectly() {
         // given
-        val list = SignatureMatchersList()
+        val list = SignatureMatchersMap()
         val signedMatcher = mockk<SignedMatcher>(relaxed = true)
         val signature = listOf(signedMatcher.signature)
         val matcher = AllAnyMatcher<Any>()
@@ -89,6 +89,6 @@ class SignatureMatchersListTest {
         val matchersAsString = list.toString()
 
         // then
-        assertEquals(matchersAsString, expectedMatchersListAsString)
+        assertEquals(expectedMatchersListAsString, matchersAsString)
     }
 }

@@ -45,7 +45,7 @@ class SignatureMatcherDetector(
             }
         }
 
-        val matchersList = SignatureMatchersList()
+        val matchersMap = SignatureMatchersMap()
         val allCompositeMatchers = mutableListOf<List<CompositeMatcher<*>>>()
 
         fun gatherMatchers() {
@@ -59,10 +59,10 @@ class SignatureMatcherDetector(
                     })
                 }
 
-                matchersList.add(signature, matcher)
+                matchersMap.add(signature, matcher)
             }
 
-            log.trace { "Matcher list: $matchersList" }
+            log.trace { "Matcher list: $matchersMap" }
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -77,7 +77,7 @@ class SignatureMatcherDetector(
 
                     log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
 
-                    matchersList.remove(signature)
+                    matchersMap.remove(signature)
                             ?: ChainedCallDetector.eqOrNullMatcher(matcher.operandValues[nOp])
                 } as List<Matcher<Any?>>?
             }
@@ -90,13 +90,13 @@ class SignatureMatcherDetector(
 
         repeat(nCalls) { callN ->
             val detector = chainedCallDetectorFactory()
-            detector.detect(callRounds, callN, matchersList)
+            detector.detect(callRounds, callN, matchersMap)
             calls.add(detector.call)
         }
 
         processCompositeMatchers()
-        if (matchersList.isNotEmpty()) {
-            throw MockKException("Failed matching mocking signature for\n${callRounds[0].calls.joinToString("\n")}\nleft matchers: $matchersList")
+        if (matchersMap.isNotEmpty()) {
+            throw MockKException("Failed matching mocking signature for\n${callRounds[0].calls.joinToString("\n")}\nleft matchers: $matchersMap")
         }
     }
 }
