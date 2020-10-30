@@ -792,6 +792,12 @@ verify {
 }
 ```
 
+On `jvm` environments you can replace the class name with a function reference:
+```kotlin
+mockkStatic(Obj::extensionFunc)
+```
+Note that this will mock the whole `pkg.FileKt` class, and not just `extensionFunc`. 
+
 If `@JvmName` is used, specify it as a class name.
 
 KHttp.kt:
