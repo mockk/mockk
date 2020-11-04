@@ -5,12 +5,39 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ConstructorMockTest {
+    class ExampleClass {
+        val exampleProperty: Int = 1
+    }
+
+    object ExampleObject {
+        private val exampleClass = ExampleClass()
+        fun getExampleProperty(): Int = exampleClass.exampleProperty
+    }
+
     class MockCls(val x: Int = 0) {
         fun op(a: Int, b: Int) = a + b + x
 
         fun opList(a: Int, b: Int) = listOf(a, b)
 
         fun chainOp(a: Int, b: Int) = MockCls(a + b + x)
+    }
+
+    @Test
+    fun test1() {
+        mockkConstructor(ExampleClass::class)
+
+        every { anyConstructed<ExampleClass>().exampleProperty } returns 0
+
+        assertEquals(0, ExampleObject.getExampleProperty())
+    }
+
+    @Test
+    fun test2() {
+        mockkConstructor(ExampleClass::class)
+
+        every { anyConstructed<ExampleClass>().exampleProperty } returns 0
+
+        assertEquals(0, ExampleObject.getExampleProperty())
     }
 
     @Test
