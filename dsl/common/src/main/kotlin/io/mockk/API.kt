@@ -2121,6 +2121,9 @@ class MockKAdditionalAnswerScope<T, B>(
         return this
     }
 
+    infix fun andThenAnswer(answer: MockKAnswerScope<T, B>.(Call) -> T) =
+        andThenAnswer(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
+
     infix fun andThen(returnValue: T) = andThenAnswer(ConstantAnswer(returnValue))
 
     infix fun andThenMany(values: List<T>) = andThenAnswer(ManyAnswersAnswer(values.allConst()))
@@ -2129,6 +2132,7 @@ class MockKAdditionalAnswerScope<T, B>(
 
     infix fun andThenThrows(ex: Throwable) = andThenAnswer(ThrowingAnswer(ex))
 
+    @Deprecated("Use andThenAnswer instead of andThen.")
     infix fun andThen(answer: MockKAnswerScope<T, B>.(Call) -> T) =
         andThenAnswer(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 
