@@ -248,7 +248,7 @@
       <h1 class="project-name"><a href="/">{{ site.title | default: site.github.repository_name }}</a></h1>
       <h2 class="project-tagline">{{ site.tag_line | site.description | default: site.github.project_tagline }}</h2>
       {% if site.github.is_project_page %}
-        <a href="{{ site.github.repository_url }}" class="btn"><span style="vertical-align: middle">View on GitHub and </span><img src="https://mockk.io/doc/star.png" style="vertical-align: middle" /></a> </br>
+        <a href="{{ site.github.repository_url }}" class="btn"><span style="vertical-align: middle">View on GitHub and <b>submit PR</b></a> </br>
       {% endif %}
       {% if site.show_downloads %}
         <a href="{{ site.github.zip_url }}" class="btn">Download .zip</a>
