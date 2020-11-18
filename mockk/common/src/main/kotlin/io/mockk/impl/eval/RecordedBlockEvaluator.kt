@@ -28,7 +28,7 @@ abstract class RecordedBlockEvaluator(
                 { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
             }
 
-            val blockWithRethrow = enhanceWithNPERethrow(block, callRecorderInstance::isLastCallReturnsNothing)
+            val blockWithRethrow = enhanceWithRethrow(block, callRecorderInstance::isLastCallReturnsNothing)
 
             val autoHinter = autoHinterFactory()
 
@@ -65,7 +65,7 @@ abstract class RecordedBlockEvaluator(
 
     private class NothingThrownNullPointerException : RuntimeException()
 
-    private fun <T> enhanceWithNPERethrow(
+    private fun <T> enhanceWithRethrow(
         block: () -> T,
         checkLastCallReturnsNothing: () -> Boolean
     ): () -> T =
