@@ -68,15 +68,15 @@ abstract class RecordedBlockEvaluator(
     private fun <T> enhanceWithNPERethrow(
         block: () -> T,
         checkLastCallReturnsNothing: () -> Boolean
-    ) =
+    ): () -> T =
         {
             try {
                 block()
-            } catch (npe: NullPointerException) {
+            } catch (e: Exception) {
                 if (checkLastCallReturnsNothing()) {
                     throw NothingThrownNullPointerException()
                 } else {
-                    throw npe
+                    throw e
                 }
             }
         }
