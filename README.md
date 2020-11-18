@@ -30,6 +30,7 @@ From version 1.10.0 MockK does not support Kotlin 1.2.*
 
 * Some known issues related to Kotlin 1.3, Gradle 5 and Spring Boot were fixed in MockK 1.9. Please report if you face any problems. 
 * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
+* Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
 
 Table of contents:
 
