@@ -86,6 +86,14 @@ class AnnotationsTest {
         val obj = MockCls()
     }
 
+    class InjectionTarget4{
+        lateinit var obj: MockCls
+        fun op(a: Int): Int {
+            return obj.op(a)
+        }
+
+    }
+
     class InjectSourceCls {
         @MockK
         lateinit var mock: MockCls
@@ -111,5 +119,26 @@ class AnnotationsTest {
         assertSame(source.mock, source.target1.obj)
         assertSame(source.mock, source.target2.obj)
         assertSame(source.mock, source.target3.obj)
+    }
+
+    class InjectIntoSpySourceCls {
+        @MockK
+        lateinit var mock: MockCls
+
+        @InjectMockKs
+        @SpyK
+        lateinit var target4: InjectionTarget4
+    }
+
+    @Test
+    fun injectIntoSpy() {
+        val callValue = 5
+        val source = InjectIntoSpySourceCls()
+        MockKAnnotations.init(source)
+
+        every { source.mock.op(any()) } returns callValue
+        assertNotNull(source.target4)
+        assertEquals(callValue, source.target4.op(0))
+        verify { source.target4.op(any()) }
     }
 }
