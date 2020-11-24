@@ -1,9 +1,13 @@
 package io.mockk.impl.verify
 
+import io.mockk.CapturingSlotMatcher
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
-import io.mockk.MockKGateway.*
+import io.mockk.MockKException
+import io.mockk.MockKGateway.CallVerifier
+import io.mockk.MockKGateway.VerificationParameters
+import io.mockk.MockKGateway.VerificationResult
 import io.mockk.MockKSettings
 import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
@@ -50,6 +54,13 @@ open class UnorderedCallVerifier(
         val stub = stubRepo.stubFor(matcher.self)
         val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = stub.allRecordedCalls(matcher.method)
+
+        if(allCallsForMockMethod.size > 1 && matcher.args.any { it is CapturingSlotMatcher<*> }) {
+            val msg = "$matcher execution is being verified more than once and its arguments are being captured with a slot.\n" +
+                "This will store only the argument of the last invocation in the slot.\n" +
+                "If you want to store all the arguments, use a mutableList to capture arguments."
+            throw MockKException(msg)
+        }
 
         val result = if (min == 0 && max == 0) {
             if (!allCallsForMockMethod.any(matcher::match)) {

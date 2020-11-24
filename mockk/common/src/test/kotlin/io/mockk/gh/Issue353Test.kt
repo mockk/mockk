@@ -12,7 +12,7 @@ class Issue353Test {
     @Test
     fun testNullableCapture() {
         class Mock {
-            fun call(arg: String?) {
+            fun call(_: String?) {
             }
         }
 

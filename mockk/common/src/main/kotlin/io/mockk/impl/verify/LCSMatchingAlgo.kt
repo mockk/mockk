@@ -5,8 +5,8 @@ import io.mockk.RecordedCall
 
 class LCSMatchingAlgo(
     val allCalls: List<Invocation>,
-    val verificationSequence: List<RecordedCall>,
-    val captureBlocks: MutableList<() -> Unit>? = null
+    private val verificationSequence: List<RecordedCall>,
+    private val captureBlocks: MutableList<() -> Unit>? = null
 ) {
     private val nEdits = Array(allCalls.size) { Array(verificationSequence.size) { 0 } }
     private val path = Array(allCalls.size) { Array(verificationSequence.size) { '?' } }
@@ -71,9 +71,5 @@ class LCSMatchingAlgo(
                 backTrackCalls(callIdx, matcherIdx - 1)
             }
         }
-    }
-
-    fun postProcess() {
-        backTrackCalls(allCalls.size - 1, verificationSequence.size - 1)
     }
 }
