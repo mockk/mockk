@@ -12,7 +12,8 @@ class Issue353Test {
     @Test
     fun testNullableCapture() {
         class Mock {
-            fun call(_: String?) {
+            fun call(unused: String?) {
+                println(unused)
             }
         }
 
