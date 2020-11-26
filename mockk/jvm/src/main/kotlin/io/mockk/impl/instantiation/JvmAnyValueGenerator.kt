@@ -2,8 +2,9 @@ package io.mockk.impl.instantiation
 
 import kotlin.reflect.KClass
 
-class JvmAnyValueGenerator(instantiator: JvmInstantiator) : AnyValueGenerator() {
-    val voidInstance = instantiator.instantiate(Void::class)
+class JvmAnyValueGenerator(
+    private val voidInstance: Any
+) : AnyValueGenerator() {
 
     override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
         return when (cls) {
@@ -20,12 +21,12 @@ class JvmAnyValueGenerator(instantiator: JvmInstantiator) : AnyValueGenerator() 
             java.lang.Double::class -> 0.0
             java.lang.Class::class -> Object::class.java
 
-            java.util.List::class -> listOf<Any>()
-            java.util.Map::class -> mapOf<Any, Any>()
-            java.util.Set::class -> emptySet<Any>()
-            java.util.ArrayList::class -> arrayListOf<Any>()
-            java.util.HashMap::class -> hashMapOf<Any, Any>()
-            java.util.HashSet::class -> hashSetOf<Any>()
+            java.util.List::class -> List<Any>(0) {}
+            java.util.Map::class -> HashMap<Any, Any>()
+            java.util.Set::class -> HashSet<Any>()
+            java.util.ArrayList::class -> ArrayList<Any>()
+            java.util.HashMap::class -> HashMap<Any, Any>()
+            java.util.HashSet::class -> HashSet<Any>()
 
             else -> super.anyValue(cls) {
                 if (cls.java.isArray) {

@@ -6,9 +6,9 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 class AnyValueGeneratorTest {
-    val generator = AnyValueGenerator()
+    private val generator = AnyValueGenerator()
 
-    val failOnPassThrough = { fail("Passed trough") }
+    private val failOnPassThrough = { fail("Passed trough") }
 
     @Test
     fun givenByteClassWhenRequestedForAnyValueThen0IsReturned() {

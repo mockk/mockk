@@ -6,7 +6,7 @@ import io.mockk.proxy.MockKInstantiatior
 import kotlin.reflect.KClass
 
 class JvmInstantiator(
-    val instantiator: MockKInstantiatior,
+    private val instantiator: MockKInstantiatior,
     instanceFactoryRegistry: CommonInstanceFactoryRegistry
 ) : AbstractInstantiator(instanceFactoryRegistry) {
 
