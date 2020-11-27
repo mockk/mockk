@@ -24,12 +24,12 @@ open class AnyValueGenerator {
             FloatArray::class -> FloatArray(0)
             DoubleArray::class -> DoubleArray(0)
 
-            List::class -> emptyList<Any>()
-            Map::class -> emptyMap<Any, Any>()
-            Set::class -> emptySet<Any>()
-            ArrayList::class -> arrayListOf<Any>()
-            HashMap::class -> hashMapOf<Any, Any>()
-            HashSet::class -> hashSetOf<Any>()
+            List::class -> List<Any>(0) {}
+            Map::class -> HashMap<Any, Any>()
+            Set::class -> HashSet<Any>()
+            ArrayList::class -> ArrayList<Any>()
+            HashMap::class -> HashMap<Any, Any>()
+            HashSet::class -> HashSet<Any>()
 
             else -> orInstantiateVia()
         }
