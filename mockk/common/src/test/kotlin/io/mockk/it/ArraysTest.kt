@@ -20,11 +20,11 @@ class ArraysTest {
 
     @Test
     fun byteArray() {
-        every { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) } returns ByteArray(3, { (3 - it).toByte() })
+        every { mock.arrayOp(ByteArray(3) { (it + 1).toByte() }) } returns ByteArray(3) { (3 - it).toByte() }
 
-        assertArrayEquals(ByteArray(3, { (3 - it).toByte() }), mock.arrayOp(ByteArray(3, { (it + 1).toByte() })))
+        assertArrayEquals(ByteArray(3) { (3 - it).toByte() }, mock.arrayOp(ByteArray(3) { (it + 1).toByte() }))
 
-        verify { mock.arrayOp(ByteArray(3, { (it + 1).toByte() })) }
+        verify { mock.arrayOp(ByteArray(3) { (it + 1).toByte() }) }
     }
 
     @Test
@@ -221,7 +221,7 @@ class ArraysTest {
         fun arrayOp(arr: Array<Double>) = arr.map { it + 1 }.toTypedArray()
 
         fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> =
-            array.map { it.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+            array.map { outer -> outer.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
 
         fun arrayOp(array: Array<IntWrapper>): Array<IntWrapper> = array.map { IntWrapper(it.data + 1) }.toTypedArray()
     }

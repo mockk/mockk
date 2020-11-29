@@ -11,7 +11,7 @@ class Issue158Test {
         }
     }
 
-    val targetClass = mockk<TestClass>()
+    private val targetClass = mockk<TestClass>()
 
     @Test
     fun testNothingIsNotThrowingNPE() {
