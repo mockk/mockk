@@ -2,10 +2,10 @@ package io.mockk.gh
 
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.RelaxedMockK
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ReturningCollections {
     fun getList(): List<Any> {
