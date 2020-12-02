@@ -25,12 +25,12 @@ object VerificationHelpers {
 
     fun stackTrace(prefix: Int, stackTrace: List<StackElement>): String {
         fun columnSize(block: StackElement.() -> String) =
-            stackTrace.map(block).map { it.length }.max() ?: 0
+            stackTrace.map(block).map { it.length }.maxOrNull() ?: 0
 
         fun StackElement.fileLine() =
             "($fileName:$line)${if (nativeMethod) "N" else ""}"
 
-        fun spaces(n: Int) = if (n < 0) "" else (1..n).map { " " }.joinToString("")
+        fun spaces(n: Int) = if (n < 0) "" else (1..n).joinToString("") { " " }
         fun columnRight(s: String, sz: Int) = spaces(sz - s.length) + s
         fun columnLeft(s: String, sz: Int) = s + spaces(sz - s.length)
 
@@ -39,12 +39,12 @@ object VerificationHelpers {
         val maxMethodLen = columnSize { methodName }
         val maxThirdColumn = columnSize { fileLine() }
 
-        return stackTrace.map {
+        return stackTrace.joinToString("\n") {
             spaces(prefix) +
-                    columnRight(it.className, maxClassNameLen) + "." +
-                    columnLeft(it.methodName, maxMethodLen) + " " +
-                    columnLeft(it.fileLine(), maxThirdColumn)
-        }.joinToString("\n").substring(prefix)
+                columnRight(it.className, maxClassNameLen) + "." +
+                columnLeft(it.methodName, maxMethodLen) + " " +
+                columnLeft(it.fileLine(), maxThirdColumn)
+        }.substring(prefix)
     }
 
 
@@ -71,8 +71,8 @@ object VerificationHelpers {
     }
 
     private fun formatMatchers(matchers: List<RecordedCall>, verifiedMatchers: List<RecordedCall>) =
-        matchers.map {
+        matchers.joinToString("\n") {
             (if (verifiedMatchers.contains(it)) "+" else "") + it.matcher.toString()
-        }.joinToString("\n")
+        }
 }
 
