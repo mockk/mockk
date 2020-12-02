@@ -44,6 +44,30 @@ class Issue352Test {
     }
 
     @Test
+    fun `It does not throw a MockkException when there are multiple tests verifying with slots`() {
+        mock.doSomething("1", "data1")
+
+        val slot = slot<String>()
+        verify {
+            mock.doSomething("1", capture(slot))
+        }
+
+        assertEquals("data1", slot.captured)
+    }
+
+    @Test
+    fun `Another test to test the coexistence of tests with slots`() {
+        mock.doSomething("1", "data1")
+
+        val slot = slot<String>()
+        verify {
+            mock.doSomething("1", capture(slot))
+        }
+
+        assertEquals("data1", slot.captured)
+    }
+
+    @Test
     fun `It allows multiple capturings of the same function using a mutableList`() {
         mock.doSomething("1", "data1")
         mock.doSomething("2", "data2")
