@@ -12,4 +12,9 @@ actual object MockKSettings {
 
     actual val stackTracesOnVerify: Boolean
         get() = js("global.io_mockk_settings_stackTracesOnVerify || false") as Boolean
+
+    actual val stackTracesAlignment: StackTracesAlignment
+        get() = stackTracesAlignmentValueOf(
+            js("global.io_mockk_settings_stackTracesAlignment || \"center\"") as String
+        )
 }

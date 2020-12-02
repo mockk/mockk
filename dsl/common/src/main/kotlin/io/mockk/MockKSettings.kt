@@ -8,4 +8,19 @@ expect object MockKSettings {
     val recordPrivateCalls: Boolean
 
     val stackTracesOnVerify: Boolean
+
+    val stackTracesAlignment: StackTracesAlignment
+}
+
+enum class StackTracesAlignment {
+    LEFT,
+    CENTER;
+}
+
+fun stackTracesAlignmentValueOf(property: String): StackTracesAlignment {
+    return try {
+        enumValueOf(property.toUpperCase())
+    } catch (e: IllegalArgumentException) {
+        StackTracesAlignment.CENTER
+    }
 }

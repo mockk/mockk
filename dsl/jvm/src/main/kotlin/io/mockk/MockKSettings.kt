@@ -30,6 +30,9 @@ actual object MockKSettings {
     actual val stackTracesOnVerify: Boolean
         get() = booleanProperty("stackTracesOnVerify", "true")
 
+    actual val stackTracesAlignment: StackTracesAlignment
+        get() = stackTracesAlignmentValueOf(properties.getProperty("stackTracesAlignment", "center"))
+
 
     fun setRelaxed(value: Boolean) {
         properties.setProperty("relaxed", value.toString());
@@ -41,5 +44,9 @@ actual object MockKSettings {
 
     fun setRecordPrivateCalls(value: Boolean) {
         properties.setProperty("recordPrivateCalls", value.toString());
+    }
+
+    fun setStackTracesAlignment(value: String) {
+        properties.setProperty("stackTracesAlignment", value)
     }
 }
