@@ -1060,7 +1060,7 @@ stackTracesOnVerify=true|false
 stackTracesAlignment=left|center
 ```
 
-Where `stackTracesAlignment` determines whether to align the stack traces displayed when showing recorded calls to the center (default) or to the left (more coherent with usual JVM stackTraces).
+Where `stackTracesAlignment` determines whether to align the stack traces displayed when showing recorded calls to the center (default) or to the left (more consistent with usual JVM stackTraces).
 
 ## DSL tables
 
