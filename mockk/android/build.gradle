@@ -52,8 +52,15 @@ dependencies {
     implementation project(":mockk-agent-api")
 
     testImplementation 'junit:junit:4.13.1'
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
+    testImplementation('org.robolectric:robolectric:4.4') {
+        exclude group: 'androidx.annotation', module: 'annotation'
+    }
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
+        exclude group: "junit", module: "junit"
+    }
+    testImplementation project(":mockk-jvm")
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
+        exclude group: 'androidx.annotation', module: 'annotation'
     })
     androidTestImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"

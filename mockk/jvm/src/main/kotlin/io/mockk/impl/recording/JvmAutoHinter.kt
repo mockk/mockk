@@ -11,7 +11,8 @@ class JvmAutoHinter : AutoHinter() {
         callRecorder: MockKGateway.CallRecorder,
         i: Int,
         n: Int,
-        block: () -> T
+        block: () -> T,
+        blockClass: KClass<*>
     ) {
         var callsPassed = -1
         while (true) {
@@ -32,7 +33,7 @@ class JvmAutoHinter : AutoHinter() {
                 callRecorder.discardLastCallRound()
 
                 callsPassed = nCalls
-                val cls = Class.forName(clsName).kotlin
+                val cls = Class.forName(clsName, true, blockClass.java.classLoader).kotlin
 
                 log.trace { "Auto hint for $nCalls-th call: $cls" }
                 childTypes[nCalls] = cls
