@@ -34,7 +34,7 @@ class RecordedBlockEvaluatorTest {
         val mockBlock: MockKMatcherScope.() -> Unit = { counter++ }
 
         every { callRecorder.estimateCallRounds() } returns estimateCallRounds
-        every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke(), this::class) } just Runs
+        every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
         evaluator.record(scope, mockBlock, null)
 
@@ -56,7 +56,7 @@ class RecordedBlockEvaluatorTest {
         val coMockBlock: suspend MockKMatcherScope.() -> Unit = { counter++ }
 
         every { callRecorder.estimateCallRounds() } returns estimateCallRounds
-        every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke(), this::class) } just Runs
+        every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
         evaluator.record(scope, null, coMockBlock)
 
@@ -66,7 +66,7 @@ class RecordedBlockEvaluatorTest {
     @Test
     fun givenNoBlocksWhenEveryEvaluatorIsCalledThenExceptionIsThrown() {
         try {
-            every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke(), this::class) } just Runs
+            every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
             evaluator.record<Unit, MockKMatcherScope>(scope, null, null)
             fail("No blocks provided. Exception should be thrown")

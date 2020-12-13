@@ -10,7 +10,7 @@ class AutoHinterTest {
     val block = mockk<() -> Unit>(relaxed = true)
 
     internal fun givenRecorderWhenAutoHinterIsCalledShouldDeclareNextRoundAndCallBlock() {
-        autoHinter.autoHint(recorder, 0, 0, block, block::class)
+        autoHinter.autoHint(recorder, 0, 0, block)
 
         verify { recorder.round(0, 0) }
         verify { block.invoke() }

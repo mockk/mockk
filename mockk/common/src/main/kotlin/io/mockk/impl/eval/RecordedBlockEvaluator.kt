@@ -25,8 +25,7 @@ abstract class RecordedBlockEvaluator(
             } else if (coMockBlock != null) {
                 { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } } to coMockBlock::class
             } else {
-                val newBlock = { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
-                newBlock to newBlock::class
+                { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") } to null
             }
 
             val blockWithRethrow = enhanceWithRethrow(block, callRecorderInstance::isLastCallReturnsNothing)

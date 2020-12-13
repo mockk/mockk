@@ -9,7 +9,7 @@ open class AutoHinter {
         i: Int,
         n: Int,
         block: () -> T,
-        blockClass: KClass<*>
+        blockClass: KClass<*>? = null
     ) {
         callRecorder.round(i, n)
         block()

@@ -12,7 +12,7 @@ class JvmAutoHinter : AutoHinter() {
         i: Int,
         n: Int,
         block: () -> T,
-        blockClass: KClass<*>
+        blockClass: KClass<*>?
     ) {
         var callsPassed = -1
         while (true) {
@@ -33,7 +33,9 @@ class JvmAutoHinter : AutoHinter() {
                 callRecorder.discardLastCallRound()
 
                 callsPassed = nCalls
-                val cls = Class.forName(clsName, true, blockClass.java.classLoader).kotlin
+                val cls = (blockClass?.let { Class.forName(clsName, true, it.java.classLoader) }
+                    ?: run { Class.forName(clsName) })
+                    .kotlin
 
                 log.trace { "Auto hint for $nCalls-th call: $cls" }
                 childTypes[nCalls] = cls
