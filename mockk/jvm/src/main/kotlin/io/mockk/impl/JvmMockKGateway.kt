@@ -93,9 +93,10 @@ class JvmMockKGateway : MockKGateway {
     )
 
     override val mockTypeChecker = JvmMockTypeChecker(
-        stubRepo,
-        constructorMockFactory::isMock
-    )
+        stubRepo
+    ) {
+        constructorMockFactory.isMock(it)
+    }
 
     override fun verifier(params: VerificationParameters): CallVerifier {
         val ordering = params.ordering
