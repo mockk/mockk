@@ -53,6 +53,8 @@ Table of contents:
  
 ### Japanese guides and articles
  - [Documentation translation to Japanese](https://qiita.com/yasuX/items/d3cfc9853c53dfaee222)
+ 
+### Chinese guides and articles
  - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
  - [MockK 功能介紹：mockk, every, Annotation, verify](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-2-4-4be059331110)
  - [MockK 功能介紹：Relaxed Mocks, 再談 Verify, Capture](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-3-4-79b40fb73964)
