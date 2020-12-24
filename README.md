@@ -37,6 +37,7 @@ Table of contents:
 {:toc}
 
 ## Examples, guides & articles
+ - [Unraveling MockK's "black magic" / MockKの「黒魔術」を解明する</a> (JP, but readable through chrome translator)](https://zenn.dev/oboenikui/articles/af44c158f9fa35)
  - [Mockk Guidebook](https://notwoods.github.io/mockk-guidebook/)
  - [“Kotlin Unit Testing with Mockk” by Marco Cattaneo](https://link.medium.com/ObtQ4eBfg5) 
  - [(Video) Use verify in MockK to validate function calls on mocked object](https://www.youtube.com/watch?v=J7_4WrImJPk)
