@@ -11,3 +11,9 @@ apply from: "${gradles}/upload.gradle"
 dependencies {
     api project(path: ':mockk-agent-api')
 }
+
+compileKotlin {
+    kotlinOptions {
+        apiVersion = '1.3'
+    }
+}

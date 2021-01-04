@@ -11,6 +11,12 @@ apply from: "${gradles}/upload.gradle"
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+compileKotlinCommon {
+    kotlinOptions {
+        apiVersion = '1.3'
+    }
+}
+
 jar {
 }
 

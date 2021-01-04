@@ -2,6 +2,7 @@ ext {
     mavenName = 'MockK common'
     mavenDescription = 'Common(JS and Java) MockK module'
 }
+
 apply from: "${gradles}/common-module.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 apply from: "${gradles}/upload.gradle"
@@ -11,4 +12,10 @@ targetCompatibility = 1.8
 
 dependencies {
     api project(":mockk-dsl")
+}
+
+compileKotlinCommon {
+    kotlinOptions {
+        apiVersion = '1.3'
+    }
 }
