@@ -39,6 +39,11 @@ afterEvaluate {
                             name = 'Oleksii Pylypenko'
                             email = 'oleksiy.pylypenko@gmail.com'
                         }
+                        developer {
+                            id = 'Raibaz'
+                            name = 'Mattia Tommasone'
+                            email = 'raibaz@gmail.com'
+                        }
                     }
 
                     licenses {
