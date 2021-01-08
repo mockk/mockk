@@ -17,5 +17,6 @@ dependencies {
 compileKotlinCommon {
     kotlinOptions {
         apiVersion = '1.3'
+        languageVersion = '1.3'
     }
 }
