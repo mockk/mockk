@@ -1,6 +1,4 @@
 buildscript {
-    ext.kotlin_version = '1.4.20'
-    ext.kotlin_gradle_version = '1.4.20'
     ext.android_gradle_version = '3.1.2'
     ext.coroutines_version = '0.27.0-eap13'
     ext.junit_jupiter_version = '5.6.2'
