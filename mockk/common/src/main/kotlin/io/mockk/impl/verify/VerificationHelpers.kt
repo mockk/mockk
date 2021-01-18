@@ -4,6 +4,7 @@ import io.mockk.Invocation
 import io.mockk.MockKSettings
 import io.mockk.RecordedCall
 import io.mockk.StackElement
+import io.mockk.StackTracesAlignment
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.StubRepository
 
@@ -39,11 +40,24 @@ object VerificationHelpers {
         val maxMethodLen = columnSize { methodName }
         val maxThirdColumn = columnSize { fileLine() }
 
+        val lineFormatter: (StackElement) -> String = if(MockKSettings.stackTracesAlignment == StackTracesAlignment.CENTER) {
+            {
+                spaces(prefix) +
+                    columnRight(it.className, maxClassNameLen) + "." +
+                    columnLeft(it.methodName, maxMethodLen) + " " +
+                    columnLeft(it.fileLine(), maxThirdColumn)
+            }
+        } else {
+            {
+                spaces(prefix) +
+                    it.className + "." +
+                    it.methodName + " " +
+                    it.fileLine()
+            }
+        }
+
         return stackTrace.joinToString("\n") {
-            spaces(prefix) +
-                columnRight(it.className, maxClassNameLen) + "." +
-                columnLeft(it.methodName, maxMethodLen) + " " +
-                columnLeft(it.fileLine(), maxThirdColumn)
+            lineFormatter(it)
         }.substring(prefix)
     }
 

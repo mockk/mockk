@@ -1054,14 +1054,17 @@ inline fun <reified T : List<E>, E : Any> MockKMatcherScope.matchListWithoutOrde
 To adjust parameters globally, there is a possibility to specify a few settings in a resource file.
 
 How to use: 
- 1. Create a `io/mockk/settings.properties` file in the resources.
+ 1. Create a `io/mockk/settings.properties` file in `src/main/resources`.
  2. Put one of following options:
 ```properties
 relaxed=true|false
 relaxUnitFun=true|false
 recordPrivateCalls=true|false
 stackTracesOnVerify=true|false
+stackTracesAlignment=left|center
 ```
+
+Where `stackTracesAlignment` determines whether to align the stack traces displayed when showing recorded calls to the center (default) or to the left (more consistent with usual JVM stackTraces).
 
 ## DSL tables
 
