@@ -508,7 +508,7 @@ object MockKDsl {
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)
-                .cancelPut(it, cancellation)
+                .putIfNotThere(it, cancellation)
         }
     }
 
@@ -517,6 +517,16 @@ object MockKDsl {
      */
     inline fun internalUnmockkConstructor(vararg classes: KClass<*>) {
         classes.forEach {
+            MockKGateway.implementation().constructorMockFactory.clear(
+                    it,
+                    MockKGateway.ClearOptions(
+                            answers = true,
+                            recordedCalls = true,
+                            childMocks = true,
+                            verificationMarks = true,
+                            exclusionRules = true
+                    )
+            )
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)
                 .cancel(it)
@@ -2252,6 +2262,13 @@ object MockKCancellationRegistry {
             val map = mapTl.value
             map.remove(key)?.invoke()
             map[key] = newCancellation
+        }
+
+        fun putIfNotThere(key: Any, newCancellation: MockKCancellation) {
+            val map = mapTl.value
+            if (!map.containsKey(key)) {
+                map[key] = newCancellation
+            }
         }
 
         fun cancelAll() {
