@@ -16,7 +16,7 @@ import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAM
 
 @SuppressWarnings({"unused", "UnusedAssignment"})
 public class JvmMockKProxyAdvice extends BaseAdvice {
-    public JvmMockKProxyAdvice(Map<Object, MockKInvocationHandler> handlers) {
+    public JvmMockKProxyAdvice(MockHandlerMap handlers) {
         super(handlers);
     }
 
@@ -41,7 +41,8 @@ public class JvmMockKProxyAdvice extends BaseAdvice {
         }
 
         JvmMockKDispatcher dispatcher = JvmMockKDispatcher.get(id, self);
-        if (dispatcher == null) {
+
+        if (dispatcher == null || !dispatcher.isMock(self)) {
             return null;
         }
 

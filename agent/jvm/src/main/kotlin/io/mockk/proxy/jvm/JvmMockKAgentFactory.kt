@@ -2,8 +2,8 @@ package io.mockk.proxy.jvm
 
 import io.mockk.proxy.*
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
+import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.BootJarLoader
-import io.mockk.proxy.jvm.dispatcher.JvmMockKWeakMap
 import io.mockk.proxy.jvm.transformation.InliningClassTransformer
 import io.mockk.proxy.jvm.transformation.JvmInlineInstrumentation
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
@@ -13,7 +13,6 @@ import net.bytebuddy.agent.ByteBuddyAgent
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.scaffold.TypeValidation
 import java.lang.instrument.Instrumentation
-import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
 class JvmMockKAgentFactory : MockKAgentFactory {
@@ -64,9 +63,9 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     byteBuddy
                 )
 
-                val handlers = handlerMap(jvmInstrumentation != null)
-                val staticHandlers = handlerMap(jvmInstrumentation != null)
-                val constructorHandlers = handlerMap(jvmInstrumentation != null)
+                val handlers = MockHandlerMap.create(jvmInstrumentation != null)
+                val staticHandlers = MockHandlerMap.create(jvmInstrumentation != null)
+                val constructorHandlers = MockHandlerMap.create(jvmInstrumentation != null)
 
                 val specMap = ClassTransformationSpecMap()
 
@@ -120,12 +119,6 @@ class JvmMockKAgentFactory : MockKAgentFactory {
 
                 )
             }
-
-            private fun handlerMap(hasInstrumentation: Boolean) =
-                if (hasInstrumentation)
-                    JvmMockKWeakMap<Any, MockKInvocationHandler>()
-                else
-                    Collections.synchronizedMap(mutableMapOf<Any, MockKInvocationHandler>())
         }
         Initializer().init()
     }

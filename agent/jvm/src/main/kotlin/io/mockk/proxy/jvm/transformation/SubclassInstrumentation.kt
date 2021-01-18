@@ -5,6 +5,7 @@ import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.ClassLoadingStrategyChooser
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
+import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.TypeCache
@@ -19,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 internal class SubclassInstrumentation(
     private val log: MockKAgentLogger,
-    private val handlers: Map<Any, MockKInvocationHandler>,
+    private val handlers: MockHandlerMap,
     private val byteBuddy: ByteBuddy
 ) {
     private val bootstrapMonitor = Any()
