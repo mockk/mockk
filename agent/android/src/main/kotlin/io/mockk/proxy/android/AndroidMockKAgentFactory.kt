@@ -82,27 +82,31 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
 
             // Set up exemption for blacklisted APIs to allow mocking on SDK objects with hidden methods.
             // https://android-developers.googleblog.com/2018/02/improving-stability-by-reducing-usage.html
-            try {
-                val vmRuntimeClass = Class.forName(vmRuntimeClassName)
-                val getDeclaredMethod = Class::class.java.getDeclaredMethod(
-                        getDeclaredMethodMethodName,
-                        String::class.java,
-                        arrayOf<Class<*>>()::class.java
-                ) as Method
-                val getRuntime = getDeclaredMethod(
-                        vmRuntimeClass,
-                        getRuntimeMethodName,
-                        null
-                ) as Method
-                val setHiddenApiExemptions = getDeclaredMethod(
-                        vmRuntimeClass,
-                        setHiddenApiExemptionsMethodName,
-                        arrayOf(arrayOf<String>()::class.java)
-                ) as Method
+            //
+            // From API 30, this workaround no longer works.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                try {
+                    val vmRuntimeClass = Class.forName(vmRuntimeClassName)
+                    val getDeclaredMethod = Class::class.java.getDeclaredMethod(
+                            getDeclaredMethodMethodName,
+                            String::class.java,
+                            arrayOf<Class<*>>()::class.java
+                    ) as Method
+                    val getRuntime = getDeclaredMethod(
+                            vmRuntimeClass,
+                            getRuntimeMethodName,
+                            null
+                    ) as Method
+                    val setHiddenApiExemptions = getDeclaredMethod(
+                            vmRuntimeClass,
+                            setHiddenApiExemptionsMethodName,
+                            arrayOf(arrayOf<String>()::class.java)
+                    ) as Method
 
-                setHiddenApiExemptions(getRuntime(null), arrayOf("L"))
-            } catch (ex: Exception) {
-                throw MockKAgentException("Could not set up hiddenApiExemptions")
+                    setHiddenApiExemptions(getRuntime(null), arrayOf("L"))
+                } catch (ex: Exception) {
+                    throw MockKAgentException("Could not set up hiddenApiExemptions")
+                }
             }
 
             log.debug("Android P or higher detected. Using inlining class transformer")
