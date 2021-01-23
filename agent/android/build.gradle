@@ -38,7 +38,7 @@ task packageDispatcherJar(type: Jar) {
 preBuild.dependsOn(packageDispatcherJar)
 
 android {
-    compileSdkVersion 'android-28'
+    compileSdkVersion 'android-30'
     buildToolsVersion android_build_tools_version
 
     lintOptions {
