@@ -9,7 +9,9 @@ class Issue538Test {
 
     @Test
     fun `throw exception if not mocked class is in every block`() {
-        assertFailsWith<MockKException>("Cannot use every { ... } block with not mocked class") {
+        val expectedExceptionMessage =
+            "Missing mocked calls inside every { ... } block: make sure the object inside the block is a mock"
+        assertFailsWith<MockKException>(expectedExceptionMessage) {
             val notMockedClass = NotMockedClass()
             every { notMockedClass.methodThatReturnsANumber() } returns 22
         }
