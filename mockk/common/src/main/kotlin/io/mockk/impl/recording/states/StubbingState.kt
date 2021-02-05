@@ -11,7 +11,7 @@ class StubbingState(recorder: CommonCallRecorder) : RecordingState(recorder) {
 
     private fun checkMissingCalls() {
         if (recorder.calls.isEmpty()) {
-            throw MockKException("Missing calls inside every { ... } block.")
+            throw MockKException("Cannot use every { ... } block with not mocked class")
         }
     }
 }
