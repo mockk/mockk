@@ -43,7 +43,7 @@ class AdditionalAnswerTest {
 
     @Test
     fun andReturnsLambdaAnswer() {
-        every { mock.op(any()) } returns 3 andThen { 5 }
+        every { mock.op(any()) } returns 3 andThenAnswer { 5 }
 
         assertEquals(3, mock.op(1))
         assertEquals(5, mock.op(2))
@@ -52,7 +52,7 @@ class AdditionalAnswerTest {
 
     @Test
     fun andReturnsTwoLambdasAnswer() {
-        every { mock.op(any()) } returns 3 andThen { 4 } andThen { 5 }
+        every { mock.op(any()) } returns 3 andThenAnswer  { 4 } andThenAnswer  { 5 }
 
         assertEquals(3, mock.op(1))
         assertEquals(4, mock.op(2))
@@ -133,7 +133,7 @@ class AdditionalAnswerTest {
             .andThen(7)
             .andThenAnswer(ConstantAnswer(8))
             .andThenThrows(IllegalArgumentException())
-            .andThen { 9 }
+            .andThenAnswer() { 9 }
             .coAndThen { 10 }
             .andThenThrows(IllegalStateException())
             .andThen(11)
