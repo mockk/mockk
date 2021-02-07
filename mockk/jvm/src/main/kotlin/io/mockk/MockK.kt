@@ -22,17 +22,17 @@ inline val KFunction<*>.declaringKotlinFile
 /**
  * Builds a static mock. Any mocks of this function's declaring class are cancelled before it's mocked
  */
-inline fun mockkStatic(vararg functions: KFunction<*>) =
+fun mockkStatic(vararg functions: KFunction<*>) =
         mockkStatic(*functions.map { it.declaringKotlinFile }.toTypedArray())
 
 /**
  * Cancel static mocks.
  */
-inline fun unmockkStatic(vararg functions: KFunction<*>) =
+fun unmockkStatic(vararg functions: KFunction<*>) =
         unmockkStatic(*functions.map { it.declaringKotlinFile }.toTypedArray())
 
 /**
  * Builds a static mock and unmocks it after the block has been executed.
  */
 inline fun mockkStatic(vararg functions: KFunction<*>, block: () -> Unit) =
-        mockkStatic(classes = *functions.map { it.declaringKotlinFile }.toTypedArray(), block = block)
+        mockkStatic(*functions.map { it.declaringKotlinFile }.toTypedArray(), block = block)
