@@ -8,7 +8,7 @@ android:
     - android-28
 
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 
 install:
   - yes | sdkmanager "ndk;20.0.5594570"

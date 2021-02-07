@@ -55,7 +55,7 @@ class BackingFieldTest {
             mock.intProp = any()
         } propertyType Int::class answers {
             fieldValue = value + 1
-        } andThen {
+        } andThenAnswer {
             fieldValue = value - 1
         }
 
