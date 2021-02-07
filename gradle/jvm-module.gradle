@@ -41,3 +41,9 @@ afterEvaluate {
         from "$buildDir/javadoc"
     }
 }
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
