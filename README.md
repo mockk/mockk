@@ -4,7 +4,6 @@
 [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
-[![Weekly users](https://us-central1-bot-mockk.cloudfunctions.net/bot-mockk)](https://github.com/mockk/mockk)
 [![Android](https://img.shields.io/badge/android-support-green.svg)](https://mockk.io/ANDROID)
 [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](https://mockk.io/MATRIX)
 [![Open Source Helpers](https://www.codetriage.com/mockk/mockk/badges/users.svg)](https://www.codetriage.com/mockk/mockk)
@@ -37,6 +36,7 @@ Table of contents:
 {:toc}
 
 ## Examples, guides & articles
+ - [Testing Quarkus with Kotlin, JUnit and MockK](https://www.novatec-gmbh.de/en/blog/testing-quarkus-with-kotlin-junit-and-mockk/)
  - [Unraveling MockK's black magic / MockKの「黒魔術」を解明する</a> (JP, but readable through chrome translator)](https://zenn.dev/oboenikui/articles/af44c158f9fa35)
  - [Unraveling MockK's black magic(EN, translation)](https://chao2zhang.medium.com/unraveling-mockks-black-magic-e725c61ed9dd)
  - [Mockk Guidebook](https://notwoods.github.io/mockk-guidebook/)
