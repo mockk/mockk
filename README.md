@@ -37,6 +37,7 @@ Table of contents:
 
 ## Examples, guides & articles
  - [Testing Quarkus with Kotlin, JUnit and MockK](https://www.novatec-gmbh.de/en/blog/testing-quarkus-with-kotlin-junit-and-mockk/)
+ - [MockK의 흑마술을 파헤치자!](https://sukyology.medium.com/mockk%EC%9D%98-%ED%9D%91%EB%A7%88%EC%88%A0%EC%9D%84-%ED%8C%8C%ED%97%A4%EC%B9%98%EC%9E%90-6fe907129c19)
  - [Unraveling MockK's black magic / MockKの「黒魔術」を解明する</a> (JP, but readable through chrome translator)](https://zenn.dev/oboenikui/articles/af44c158f9fa35)
  - [Unraveling MockK's black magic(EN, translation)](https://chao2zhang.medium.com/unraveling-mockks-black-magic-e725c61ed9dd)
  - [Mockk Guidebook](https://notwoods.github.io/mockk-guidebook/)
