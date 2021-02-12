@@ -7,7 +7,7 @@ apply from: "${gradles}/android-module.gradle"
 apply from: "${gradles}/upload.gradle"
 
 android {
-    compileSdkVersion 'android-28'
+    compileSdkVersion 'android-30'
     buildToolsVersion android_build_tools_version
 
     lintOptions {
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
@@ -38,7 +38,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-
 }
 
 dependencies {
