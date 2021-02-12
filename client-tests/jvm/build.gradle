@@ -29,7 +29,6 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
     testImplementation "io.mockk:mockk:latest.integration"
     // testImplementation "io.mockk:mockk:1.10.4"
 
