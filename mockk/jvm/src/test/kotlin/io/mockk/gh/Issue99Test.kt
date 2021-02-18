@@ -10,7 +10,7 @@ import kotlin.test.assertNotEquals
 
 class Issue99Test {
     @Test
-    fun `unmockStatic() unmocks static mocks`() {
+    fun unmockStatic_unmocksStaticMocks() {
         mockkStatic(Instant::class)
         every { Instant.now().toEpochMilli() } returns 123L
 

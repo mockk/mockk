@@ -21,7 +21,7 @@ class Issue323Test {
     }
 
     @Test
-    fun `withNullableArg matches and executes capture block when argument is null`() {
+    fun withNullableArgMatchesAndExecutesCaptureBlockWhenArgumentIsNull() {
         val mock = mockk<MockedClass>(relaxed = true)
         val testedClass = TestedClass(mock)
 
