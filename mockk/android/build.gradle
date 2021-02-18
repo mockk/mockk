@@ -60,6 +60,7 @@ dependencies {
     androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
         exclude group: "junit", module: "junit"
     }
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
     androidTestImplementation "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
