@@ -2,6 +2,7 @@
 
 package io.mockk.proxy.android
 
+import android.annotation.SuppressLint
 import android.os.Build
 import io.mockk.proxy.*
 import io.mockk.proxy.android.advice.Advice
@@ -107,6 +108,19 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
                 } catch (ex: Exception) {
                     throw MockKAgentException("Could not set up hiddenApiExemptions")
                 }
+            } else {
+                try {
+                    val vmDebugClass = Class.forName(vmDebugClassName)
+                    @SuppressLint("DiscouragedPrivateApi")
+                    val allowHiddenApiReflectionFrom = vmDebugClass.getDeclaredMethod(
+                            allowHiddenApiReflectionFromMethodName,
+                            Class::class.java
+                    ) as Method
+
+                    allowHiddenApiReflectionFrom(null, MethodDescriptor::class.java)
+                } catch (e: Exception) {
+                    throw MockKAgentException("Could not set up hiddenApiExemptions")
+                }
             }
 
             log.debug("Android P or higher detected. Using inlining class transformer")
@@ -169,7 +183,9 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
         private const val dispatcherClassName = "io.mockk.proxy.android.AndroidMockKDispatcher"
         private const val dispatcherJar = "dispatcher.jar"
         private const val vmRuntimeClassName = "dalvik.system.VMRuntime"
+        private const val vmDebugClassName = "dalvik.system.VMDebug"
         private const val getDeclaredMethodMethodName = "getDeclaredMethod"
+        private const val allowHiddenApiReflectionFromMethodName = "allowHiddenApiReflectionFrom"
         private const val getRuntimeMethodName = "getRuntime"
         private const val setHiddenApiExemptionsMethodName = "setHiddenApiExemptions"
     }

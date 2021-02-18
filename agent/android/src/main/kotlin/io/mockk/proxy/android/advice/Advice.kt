@@ -151,7 +151,9 @@ internal class Advice(
     }
 
     companion object {
-        private tailrec fun Class<*>.isOverridden(origin: Method): Boolean {
+        private tailrec fun Class<*>?.isOverridden(origin: Method): Boolean {
+            if (this == null) return false
+
             val method = findMethod(origin.name, origin.parameterTypes)
                     ?: return superclass.isOverridden(origin)
             return origin.declaringClass !== method.declaringClass

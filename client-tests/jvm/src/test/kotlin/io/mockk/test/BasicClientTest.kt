@@ -17,7 +17,7 @@ class BasicClientTest {
     }
 
     @Test
-    fun `a very basic client test`() {
+    fun aVeryBasicClientTest() {
         val collab = mockk<Collaborator>()
         every { collab.anotherFunction(any()) } returns "hello everyone"
 

@@ -28,7 +28,7 @@ class Issue352Test {
     }
 
     @Test
-    fun `It throws a MockkException when verifying the same function twice with slots`() {
+    fun itThrowsAMockkExceptionWhenVerifyingTheSameFunctionTwiceWithSlots() {
         mock.doSomething("1", "data1")
         mock.doSomething("2", "data2")
 
@@ -44,7 +44,7 @@ class Issue352Test {
     }
 
     @Test
-    fun `It does not throw a MockkException when there are multiple tests verifying with slots`() {
+    fun itDoesNotThrowAMockkExceptionWhenThereAreMultipleTestsVerifyingWithSlots() {
         mock.doSomething("1", "data1")
 
         val slot = slot<String>()
@@ -56,7 +56,7 @@ class Issue352Test {
     }
 
     @Test
-    fun `Another test to test the coexistence of tests with slots`() {
+    fun anotherTestToTestTheCoexistenceOfTestsWithSlots() {
         mock.doSomething("1", "data1")
 
         val slot = slot<String>()
@@ -68,7 +68,7 @@ class Issue352Test {
     }
 
     @Test
-    fun `It allows multiple capturings of the same function using a mutableList`() {
+    fun itAllowsMultipleCapturingsOfTheSameFunctionUsingAMutableList() {
         mock.doSomething("1", "data1")
         mock.doSomething("2", "data2")
 
