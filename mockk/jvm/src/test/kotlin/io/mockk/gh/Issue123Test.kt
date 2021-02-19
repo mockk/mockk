@@ -15,6 +15,8 @@ class Issue123Test {
         fun op(a: Int, b: Int) = a + b
     }
 
+    data class Op(val mock: MockCls, val a: Int, val b: Int)
+
     @MockK
     lateinit var mock1: MockCls
     @MockK
@@ -49,8 +51,6 @@ class Issue123Test {
             Thread {
                 val mocks = listOf(mock1, mock2, mock3, mock4, mock5, mock6)
                 try {
-                    data class Op(val mock: MockCls, val a: Int, val b: Int)
-
                     val ops = mutableListOf<Op>()
                     repeat(500) {
                         val mock = mocks[rnd.nextInt(mocks.size)]
