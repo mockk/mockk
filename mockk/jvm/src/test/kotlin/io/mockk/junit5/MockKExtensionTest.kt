@@ -5,9 +5,16 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
+import io.mockk.isMockKMock
+import io.mockk.mockkObject
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 enum class Direction {
     NORTH,
@@ -33,6 +40,7 @@ class Car {
     }
 }
 
+@ExtendWith(MockKExtension::class)
 class MockKExtensionTest {
     @MockK
     private lateinit var car2: Car
@@ -56,7 +64,7 @@ class MockKExtensionTest {
 
         val result = car.recordTelemetry(51, Direction.NORTH, 1.0, 2.0)
 
-        Assertions.assertEquals(Outcome.RECORDED, result)
+        assertEquals(Outcome.RECORDED, result)
     }
 
     @Test
@@ -72,29 +80,44 @@ class MockKExtensionTest {
 
         val result = car2.recordTelemetry(51, Direction.NORTH, 1.0, 2.0)
 
-        Assertions.assertEquals(Outcome.RECORDED, result)
+        assertEquals(Outcome.RECORDED, result)
     }
 
     @Test
     fun injectsValidRelaxedMockInMethods(@RelaxedMockK car: Car) {
         val result = car.relaxedTest()
 
-        Assertions.assertTrue(result is RelaxedOutcome)
+        assertTrue(result is RelaxedOutcome)
     }
 
     @Test
     fun injectsValidRelaxedMockInClass() {
         val result = relaxedCar.relaxedTest()
 
-        Assertions.assertTrue(result is RelaxedOutcome)
+        assertTrue(result is RelaxedOutcome)
     }
 
     @Test
     fun testInjectsValidSpyInClass() {
         val result = carSpy.relaxedTest()
 
-        Assertions.assertNull(result)
+        assertNull(result)
 
         verify { carSpy.relaxedTest() }
+    }
+
+    companion object {
+        object TestMock
+
+        @AfterAll
+        @JvmStatic
+        internal fun afterAll() {
+            assertFalse(isMockKMock(TestMock))
+        }
+    }
+
+    @Test
+    fun prepareAfterAllUnmockTest() {
+        mockkObject(TestMock)
     }
 }
