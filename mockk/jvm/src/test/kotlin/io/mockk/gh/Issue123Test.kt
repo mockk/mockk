@@ -3,12 +3,10 @@ package io.mockk.gh
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.junit5.MockKExtension
 import io.mockk.verify
-import org.junit.jupiter.api.extension.ExtendWith
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.Collections.synchronizedList
+import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

@@ -16,32 +16,32 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-enum class Direction {
-    NORTH,
-    SOUTH,
-    EAST,
-    WEST
-}
-
-enum class Outcome {
-    FAILURE,
-    RECORDED
-}
-
-class RelaxedOutcome
-
-class Car {
-    fun recordTelemetry(speed: Int, direction: Direction, lat: Double, long: Double): Outcome {
-        return Outcome.FAILURE
-    }
-
-    fun relaxedTest(): RelaxedOutcome? {
-        return null
-    }
-}
-
 @ExtendWith(MockKExtension::class)
 class MockKExtensionTest {
+    enum class Direction {
+        NORTH,
+        SOUTH,
+        EAST,
+        WEST
+    }
+
+    enum class Outcome {
+        FAILURE,
+        RECORDED
+    }
+
+    class RelaxedOutcome
+
+    class Car {
+        fun recordTelemetry(speed: Int, direction: Direction, lat: Double, long: Double): Outcome {
+            return Outcome.FAILURE
+        }
+
+        fun relaxedTest(): RelaxedOutcome? {
+            return null
+        }
+    }
+
     @MockK
     private lateinit var car2: Car
 
