@@ -112,12 +112,13 @@ class MockKExtensionTest {
         @AfterAll
         @JvmStatic
         internal fun afterAll() {
-            assertFalse(isMockKMock(TestMock))
+            assertFalse(isMockKMock(TestMock, objectMock = true))
         }
     }
 
     @Test
     fun prepareAfterAllUnmockTest() {
         mockkObject(TestMock)
+        assertTrue(isMockKMock(TestMock, objectMock = true))
     }
 }

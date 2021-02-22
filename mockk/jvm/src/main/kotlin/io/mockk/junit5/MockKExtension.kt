@@ -6,10 +6,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.mockkClass
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.jupiter.api.extension.ParameterContext
-import org.junit.jupiter.api.extension.ParameterResolver
-import org.junit.jupiter.api.extension.TestInstancePostProcessor
+import io.mockk.unmockkAll
+import org.junit.jupiter.api.extension.*
 import java.lang.reflect.Parameter
 
 /**
@@ -22,7 +20,7 @@ import java.lang.reflect.Parameter
  *
  * Alternatively –Djunit.extensions.autodetection.enabled=true may be placed on a command line.
  */
-class MockKExtension : TestInstancePostProcessor, ParameterResolver {
+class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCallback {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         return getMockKAnnotation(parameterContext) != null
     }
@@ -77,5 +75,9 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver {
 
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         MockKAnnotations.init(testInstance)
+    }
+
+    override fun afterEach(context: ExtensionContext?) {
+        unmockkAll()
     }
 }
