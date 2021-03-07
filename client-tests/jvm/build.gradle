@@ -51,8 +51,7 @@ dependencies {
             strictly "$kotlin_version"
         }
     }
-    testImplementation "io.mockk:mockk:latest.integration"
-    // testImplementation "io.mockk:mockk:1.10.4"
+    testImplementation "io.mockk:mockk:1.10.7-SNAPSHOT"
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
         exclude group: "junit", module: "junit"
