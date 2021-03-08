@@ -1232,6 +1232,7 @@ So this is similar to the `returnsMany` semantics.
 |`fieldValueAny`|accessor to the property backing field with `Any?` type|
 |`value`|value being set casted to same type as the property backing field|
 |`valueAny`|value being set with `Any?` type|
+|`callOriginal`|calls the original function|
 
 ### Vararg scope
 
