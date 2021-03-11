@@ -14,7 +14,10 @@ class ConstructorMockTest {
         fun getExampleProperty(): Int = exampleClass.exampleProperty
     }
 
-    class MockCls(val x: Int = 0) {
+    data class MockCls(private val x: Int = 0) {
+
+        constructor(x: String) : this(x.toInt())
+
         fun op(a: Int, b: Int) = a + b + x
 
         fun opList(a: Int, b: Int) = listOf(a, b)
@@ -104,6 +107,40 @@ class ConstructorMockTest {
         assertEquals(4, MockCls().op(1, 2))
 
         verify { MockCls().op(1, 2) }
+    }
+
+    @Test
+    fun fakeConstructor2() {
+        mockkConstructor(MockCls::class)
+
+        every { MockCls(5).op(1, 2) } returns 4
+
+        assertEquals(4, MockCls(5).op(1, 2))
+
+        verify { MockCls(5).op(1, 2) }
+    }
+
+    @Test
+    fun anyConstructed() {
+        mockkConstructor(MockCls::class)
+
+        every {
+            constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).op(any(), any())
+        } returns 23
+        every {
+            constructedWith<MockCls>(EqMatcher(6)).op(any(), any())
+        } returns 55
+        every {
+            constructedWith<MockCls>(OfTypeMatcher<Int>(Int::class)).op(any(), any())
+        } returns 35
+
+        assertEquals(23, MockCls("5").op(1, 2))
+        assertEquals(35, MockCls(5).op(1, 2))
+        assertEquals(55, MockCls(6).op(1, 2))
+
+        verify {
+            constructedWith<MockCls>(EqMatcher(6)).op(1, 2)
+        }
     }
 
     @Test

@@ -1991,6 +1991,13 @@ open class MockKMatcherScope(
 
     inline fun <reified T : Any> anyConstructed(): T =
         MockKGateway.implementation().constructorMockFactory.mockPlaceholder(T::class)
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified T : Any> constructedWith(vararg matchers: Matcher<*>): T =
+        MockKGateway.implementation().constructorMockFactory.mockPlaceholder(
+            T::class,
+            args = matchers as Array<Matcher<*>>
+        )
 }
 
 /**

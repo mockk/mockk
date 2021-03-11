@@ -1,10 +1,13 @@
 package io.mockk.impl.instantiation
 
+import io.mockk.EqMatcher
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.Matcher
 import io.mockk.MockKCancellation
 import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.ConstructorMockFactory
+import io.mockk.NullCheckMatcher
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.*
@@ -30,11 +33,12 @@ class JvmConstructorMockFactory(
 
     inner class ConstructorMock(
         val cls: KClass<*>,
-        val recordPrivateCalls: Boolean
+        val recordPrivateCalls: Boolean,
+        argsStr: String = ""
     ) {
         val cancellations = mutableListOf<MockKCancellation>()
 
-        val name = "mockkConstructor<${cls.simpleName}>()"
+        val name = "mockkConstructor<${cls.simpleName}>($argsStr)"
 
         init {
             log.trace { "Creating constructor representation mock for ${cls.toStr()}" }
@@ -64,15 +68,97 @@ class JvmConstructorMockFactory(
         }
     }
 
+    inner class ConstructorMockVariant(
+        val cls: KClass<*>,
+        private val recordPrivateCalls: Boolean
+    ) {
+        private val handlers = mutableMapOf<List<Matcher<*>>, ConstructorMock>()
+
+        private var allHandler: ConstructorMock? = null
+
+        fun getMock(args: Array<Any?>): ConstructorMock? {
+            synchronized(handlers) {
+                return handlers.entries.firstOrNull {
+                    matchArgs(args, it.key)
+                }?.value
+                    ?: allHandler
+                    ?: getConstructorMock(args.map { eqOrNull(it) }.toTypedArray())
+            }
+        }
+
+        private fun eqOrNull(it: Any?): Matcher<*> {
+            return if (it == null) {
+                NullCheckMatcher<Any>(false)
+            } else {
+                EqMatcher(it)
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun matchArgs(args: Array<Any?>, matchers: List<Matcher<*>>): Boolean {
+            if (matchers.size != args.size) {
+                return false
+            }
+
+            repeat(matchers.size) {
+                val arg = args[it]
+                val matcher = matchers[it] as Matcher<Any>
+                if (!matcher.match(arg)) {
+                    return false
+                }
+            }
+
+            return true
+        }
+
+        fun getRepresentative(args: Array<Matcher<*>>?) = getConstructorMock(args)?.representativeMock
+
+        private fun getConstructorMock(args: Array<Matcher<*>>?): ConstructorMock? {
+            return synchronized(handlers) {
+                if (args == null) {
+                    if (allHandler == null) {
+                        allHandler = ConstructorMock(cls, recordPrivateCalls)
+                    }
+                    allHandler
+                } else {
+                    handlers.getOrPut(args.toList()) {
+                        ConstructorMock(cls, recordPrivateCalls, args.joinToString(", ") { it.toStr() })
+                    }
+                }
+            }
+        }
+
+        private fun allHandlers() = (handlers.values + listOfNotNull(allHandler))
+
+        fun clear(options: MockKGateway.ClearOptions) {
+            val mocks = synchronized(handlers) {
+                allHandlers().map { it.representativeMock }
+            }.toTypedArray()
+
+            clearer.clear(mocks, options)
+        }
+
+        fun dispose() {
+            synchronized(handlers) {
+                allHandlers().forEach { it.dispose() }
+
+                allHandler = null
+                handlers.clear()
+            }
+        }
+
+        override fun toString() = "ConstructorMockVariant(${cls.toStr()})"
+    }
+
 
     inner class ConstructorInvocationHandler(val cls: KClass<*>) : MockKInvocationHandler {
-        var global = Stack<ConstructorMock>()
-        var local = ThreadLocal<Stack<ConstructorMock>>()
-        var nLocals = 0
+        private var global = Stack<ConstructorMockVariant>()
+        private var local = ThreadLocal<Stack<ConstructorMockVariant>>()
+        private var nLocals = 0
 
-        var cancelable: Cancelable<Class<*>>? = null
+        private var cancelable: Cancelable<Class<*>>? = null
 
-        val constructorMock: ConstructorMock?
+        val constructorMockVariant: ConstructorMockVariant?
             get() = local.get()?.lastOrNull() ?: global.lastOrNull()
 
         override fun invocation(
@@ -80,8 +166,8 @@ class JvmConstructorMockFactory(
             method: Method?,
             originalCall: Callable<*>?,
             args: Array<Any?>
-        ): Any? {
-            val mock = constructorMock
+        ): Any {
+            val mock = constructorMockVariant?.getMock(args)
                 ?: throw MockKException("Bad constructor mock handler for ${self::class}")
 
             log.trace { "Connecting just created object to constructor representation mock for ${cls.toStr()}" }
@@ -118,7 +204,7 @@ class JvmConstructorMockFactory(
                 cancelable = constructorProxyMaker.constructorProxy(cls.java, this)
             }
 
-            val repr = ConstructorMock(cls, recordPrivateCalls)
+            val repr = ConstructorMockVariant(cls, recordPrivateCalls)
 
             if (threadLocal) {
                 local.getOrSet { nLocals++; Stack() }.push(repr)
@@ -134,7 +220,7 @@ class JvmConstructorMockFactory(
 
         private fun doCancel(
             threadLocal: Boolean,
-            repr: ConstructorMock
+            repr: ConstructorMockVariant
         ) {
             if (threadLocal) {
                 val stack = local.get()
@@ -159,7 +245,6 @@ class JvmConstructorMockFactory(
         }
     }
 
-
     val handlers = WeakHashMap<KClass<*>, ConstructorInvocationHandler>()
 
     override fun constructorMockk(
@@ -176,27 +261,27 @@ class JvmConstructorMockFactory(
         }
     }
 
-
-    override fun <T : Any> mockPlaceholder(cls: KClass<T>) = cls.cast(
-        getMock(cls)
-            ?: throw MockKException("to use anyConstructed<T>() first build mockkConstructor<T>() and 'use' it")
+    override fun <T : Any> mockPlaceholder(cls: KClass<T>, args: Array<Matcher<*>>?): T = cls.cast(
+        getMockVariant(cls)?.getRepresentative(args)
+            ?: throw MockKException("to use anyConstructed<T>() or constructedWith<T>(...) first build mockkConstructor<T>() and 'use' it")
     )
 
+
     override fun clear(type: KClass<*>, options: MockKGateway.ClearOptions) {
-        getMock(type)?.let {
-            clearer.clear(arrayOf(it), options)
-        }
+        getMockVariant(type)?.clear(options)
     }
 
     override fun clearAll(options: MockKGateway.ClearOptions) {
         clearer.clearAll(options)
     }
 
-    fun isMock(cls: KClass<*>) = getMock(cls) != null
+    fun isMock(cls: KClass<*>) = synchronized(handlers) {
+        handlers[cls]?.constructorMockVariant != null
+    }
 
-    private fun <T : Any> getMock(cls: KClass<T>): Any? {
+    private fun <T : Any> getMockVariant(cls: KClass<T>): ConstructorMockVariant? {
         return synchronized(handlers) {
-            handlers[cls]?.constructorMock?.representativeMock
+            handlers[cls]?.constructorMockVariant
         }
     }
 }
