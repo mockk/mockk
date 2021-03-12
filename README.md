@@ -803,6 +803,13 @@ mockkStatic(Obj::extensionFunc)
 ```
 Note that this will mock the whole `pkg.FileKt` class, and not just `extensionFunc`. 
 
+This syntax also applies for extension properties:
+```kotlin
+val Obj.squareValue get() = value * value
+
+mockkStatic(Obj::squareValue)
+```
+
 If `@JvmName` is used, specify it as a class name.
 
 KHttp.kt:
