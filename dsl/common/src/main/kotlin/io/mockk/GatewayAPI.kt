@@ -92,7 +92,7 @@ interface MockKGateway {
             localToThread: Boolean
         ): () -> Unit
 
-        fun <T : Any> mockPlaceholder(cls: KClass<T>): T
+        fun <T : Any> mockPlaceholder(cls: KClass<T>, args: Array<Matcher<*>>? = null): T
 
         fun clear(type: KClass<*>, options: ClearOptions)
 

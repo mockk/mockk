@@ -20,12 +20,16 @@ abstract class RecordedBlockEvaluator(
         try {
             val callRecorderInstance = callRecorder()
 
-            val block: () -> T = if (mockBlock != null) {
-                { scope.mockBlock() }
-            } else if (coMockBlock != null) {
-                { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
-            } else {
-                { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
+            val block: () -> T = when {
+                mockBlock != null -> {
+                    { scope.mockBlock() }
+                }
+                coMockBlock != null -> {
+                    { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
+                }
+                else -> {
+                    { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
+                }
             }
 
             val blockWithRethrow = enhanceWithRethrow(block, callRecorderInstance::isLastCallReturnsNothing)
