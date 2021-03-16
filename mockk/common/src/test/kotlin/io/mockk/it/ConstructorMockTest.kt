@@ -121,7 +121,7 @@ class ConstructorMockTest {
     }
 
     @Test
-    fun anyConstructed() {
+    fun constructedWith() {
         mockkConstructor(MockCls::class)
 
         every {

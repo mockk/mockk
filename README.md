@@ -391,6 +391,38 @@ Mocking behavior of such a mock is connected to the special `prototype mock` den
 There is one instance per class of such a `prototype mock`. Call recording also happens to the `prototype mock`.
 If no behavior for the function is specified then the original function is executed.
 
+In case a class has more than one constructor, they can be mocked separately:
+
+```kotlin
+class MockCls(private val a: Int = 0) {
+  constructor(x: String) : this(x.toInt())  
+  fun add(b: Int) = a + b
+}
+
+mockkConstructor(MockCls::class)
+
+every { constructedWith<MockCls>().add(1) } returns 2
+every { 
+    constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).add(2) // Mocks the constructor taking a String
+} returns 3
+every {
+    constructedWith<MockCls>(EqMatcher(4)).add(any()) // Mocks the constructor taking an Int
+} returns 4
+
+assertEquals(2, MockCls().add(1))
+assertEquals(3, MockCls("2").add(2))
+assertEquals(4, MockCls(4).add(7))
+
+verify { 
+    constructedWith<MockCls>().add(1)
+    constructedWith<MockCls>("2").add(2)
+    constructedWith<MockCls>(EqMatcher(4)).add(7)
+}
+```
+
+Note that in this case, a `prototype mock` is created for every set of argument matchers passed to `constructedWith`.
+
+
 ### Partial argument matching
 
 You can mix both regular arguments and matchers:
