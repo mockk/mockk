@@ -40,3 +40,17 @@ jobs:
       uses: eskatos/gradle-command-action@v1
       with:
         arguments: test --stacktrace -Pkotlin.version=${{ matrix.kotlin-version }} -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+  android-instrumented-tests:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        api-level: [ 28, 29, 30 ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          script: ./gradlew connectedCheck
+
