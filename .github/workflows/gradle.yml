@@ -27,7 +27,7 @@ jobs:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-${{ matrix.java-version }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: ${{ runner.os }}-${{ matrix.java-version }}-${{ matrix.kotlin-version }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-${{ matrix.java-version }}-gradle-
     - name: Set up JDK ${{ matrix.java-version }}
@@ -47,7 +47,14 @@ jobs:
         api-level: [ 28, 29 ]
     steps:
       - uses: actions/checkout@v2
-      # - uses: actions/cache@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-${{ matrix.api-level }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.api-level }}-gradle-
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
