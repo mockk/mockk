@@ -47,7 +47,7 @@ jobs:
         api-level: [ 28, 29, 30 ]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      # - uses: actions/cache@v2
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
