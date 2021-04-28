@@ -10,7 +10,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        java-version: [8, 10, 11, 12, 13, 14, 15]
+        java-version: [8, 10, 11, 12, 13, 14, 15, 16]
         kotlin-version: [1.3.72, 1.4.30]
         kotlin-ir-enabled: [true, false]
         exclude:
