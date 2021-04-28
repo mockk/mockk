@@ -39,7 +39,6 @@ preBuild.dependsOn(packageDispatcherJar)
 
 android {
     compileSdkVersion 'android-30'
-    buildToolsVersion android_build_tools_version
 
     lintOptions {
         abortOnError false

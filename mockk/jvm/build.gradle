@@ -26,6 +26,8 @@ task sourcesJar(type: Jar) {
     from(sourceSets.main.allSource)
     from(project(':mockk-common').sourcesJar.inputs.files) {
         exclude "io/mockk/impl/InternalPlatform.kt"
+        exclude "io/mockk/impl/annotations/AdditionalInterface.kt"
+        exclude "io/mockk/MockK.kt"
     }
 }
 

@@ -23,5 +23,6 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     from(project(':mockk-dsl').sourcesJar.inputs.files) {
         exclude "io/mockk/InternalPlatformDsl.kt"
+        exclude "io/mockk/MockKSettings.kt"
     }
 }

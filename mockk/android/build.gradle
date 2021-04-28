@@ -8,7 +8,6 @@ apply from: "${gradles}/upload.gradle"
 
 android {
     compileSdkVersion 'android-28'
-    buildToolsVersion android_build_tools_version
 
     lintOptions {
         abortOnError false
