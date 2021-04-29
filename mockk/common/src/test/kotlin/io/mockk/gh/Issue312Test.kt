@@ -13,8 +13,12 @@ class Issue312Test {
 
     private val target = mockk<DefaultParam>()
 
+    /**
+     * Mocking a function with default parameter should match without specifying its
+     * parameters.
+     */
     @Test
-    fun `mocking function with default parameter should match without specifying params`() {
+    fun testAgainstDefaultParam() {
         every { target.foo() } returns STUB_STRING
 
         assertEquals(target.foo(), STUB_STRING)

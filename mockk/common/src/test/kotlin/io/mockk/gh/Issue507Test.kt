@@ -21,8 +21,13 @@ class Player(private val tracker: Tracker) {
 
 class Issue507Test {
 
+    /**
+     * A regression occurred in version 1.10.2 causing verify order to use
+     * eq() instead of any() matcher.
+     * This test exist to avoid this kind of regression in the future.
+     */
     @Test
-    fun `check against verify order`() {
+    fun checkAgainstVerifyOrder() {
         val tracker = mockk<Tracker>(relaxUnitFun = true)
         val player = Player(tracker)
 
