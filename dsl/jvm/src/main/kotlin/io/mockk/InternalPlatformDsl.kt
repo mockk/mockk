@@ -6,7 +6,11 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.Continuation
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty1
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
@@ -119,7 +123,9 @@ actual object InternalPlatformDsl {
 
             return@firstOrNull true
 
-        } ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) for dynamic call")
+        }
+            ?: throw MockKException("can't find function $methodName(${args.joinToString(", ")}) of class ${self.javaClass.name} for dynamic call.\n" +
+                    "If you were trying to verify a private function, make sure to provide type information to exactly match the functions signature.")
 
         func.javaMethod?.let { makeAccessible(it) }
         if (func.isSuspend) {
