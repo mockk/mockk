@@ -8,7 +8,7 @@ import kotlin.test.assertFailsWith
 class Issue614Test {
 
     @Test
-    fun `verifyOrder should throw AssertionError if no matching is found`() {
+    fun verifyOrderThrowAssertionErrorIfNoCallHasBeenMade() {
         val mock: Something = mockk(relaxed = true, relaxUnitFun = true)
 
         assertFailsWith<AssertionError> { verifyOrder { mock.doSomething() } }
