@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
@@ -6,7 +6,10 @@ import java.util.Locale
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Issue94Test {
+/**
+ * Test related to github issue #94
+ */
+class LocaleTest {
     @Test
     fun shouldMockLocale() {
         val foo = mockk<Foo> {
