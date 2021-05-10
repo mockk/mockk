@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -10,7 +10,10 @@ import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-class Issue123Test {
+/**
+ * Test related to github issue #123
+ */
+class ParallelTest {
     class MockCls {
         fun op(a: Int, b: Int) = a + b
     }
