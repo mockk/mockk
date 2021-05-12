@@ -84,6 +84,6 @@ class ParallelTest {
     }
 
     companion object {
-        val log = LoggerFactory.getLogger(Issue123Test::class.java)
+        val log = LoggerFactory.getLogger(ParallelTest::class.java)
     }
 }
