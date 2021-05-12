@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.junit.Test
 import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,12 +11,12 @@ import kotlin.test.assertNotEquals
 
 val Int.selfOp get() = this * this
 
-class MockStaticMethodTest {
+class StaticMockkTest {
     /**
      * github issue #92
      */
     @Test
-    fun test() {
+    fun staticMockkJavaFunction() {
         val epochSeconds = 123L
         mockkStatic(Instant::class)
         every { Instant.now().epochSecond } returns epochSeconds
