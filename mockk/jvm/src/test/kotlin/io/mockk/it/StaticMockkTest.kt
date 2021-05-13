@@ -2,13 +2,42 @@ package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
+import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 val Int.selfOp get() = this * this
 
-class StaticMockJVMTest {
+class StaticMockkTest {
+    /**
+     * github issue #92
+     */
+    @Test
+    fun staticMockkJavaFunction() {
+        val epochSeconds = 123L
+        mockkStatic(Instant::class)
+        every { Instant.now().epochSecond } returns epochSeconds
+
+        assertEquals(123L, Instant.now().epochSecond)
+    }
+
+    /**
+     * github issue #99
+     */
+    @Test
+    fun unmockStatic_unmocksStaticMocks() {
+        mockkStatic(Instant::class)
+        every { Instant.now().toEpochMilli() } returns 123L
+
+        assertEquals(123L, Instant.now().toEpochMilli())
+
+        unmockkStatic(Instant::class)
+
+        assertNotEquals(123L, Instant.now().toEpochMilli())
+    }
 
     @Test
     fun extensionFunctionStaticMock() {
@@ -77,5 +106,4 @@ class StaticMockJVMTest {
 
         verify { 5.selfOp }
     }
-
 }
