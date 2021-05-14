@@ -1,22 +1,38 @@
-package io.mockk.gh
+package io.mockk.it
 
-import io.mockk.*
+import io.mockk.MockKException
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class Issue35Test {
+/**
+ * Test class related to [Map]s mocking.
+ */
+class MapsTest {
+
     class CloudBlockBlob {
         var metadata: HashMap<String?, String?>? = null
     }
 
+    /**
+     * See issue #35
+     */
     @Test
     fun stackOverflowInHashMap() {
         val blob: CloudBlockBlob = mockk()
         val metadata: HashMap<String?, String?> = hashMapOf()
         every { blob.metadata } returns metadata
+
+        assertEquals(blob.metadata, metadata)
     }
 
+    /**
+     * See issue #35
+     */
     @Test
     fun hashmapMock() {
         val map: HashMap<String, String> = mockk()
@@ -25,13 +41,11 @@ class Issue35Test {
 
         assertFailsWith<MockKException> { map["def"] }
         assertEquals("def", map["abc"])
-        assertFailsWith<MockKException> { map.put("gh", "kl") }
-        assertEquals("nop", map.put("ghi", "klm"));
+        assertFailsWith<MockKException> { map["gh"] = "kl" }
+        assertEquals("nop", map.put("ghi", "klm"))
 
-//        verify(exactly = 0) { map["def"] }
         verify { map["abc"] }
-//        verify(exactly = 0) { map.put("gh", "kl") }
-        verify { map.put("ghi", "klm") }
+        verify { map["ghi"] = "klm" }
         unmockkAll()
     }
 }

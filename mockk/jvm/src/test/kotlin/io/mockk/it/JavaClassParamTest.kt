@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
@@ -6,9 +6,11 @@ import io.mockk.verify
 import org.junit.Test
 import kotlin.test.assertFalse
 
-
+/**
+ * Test related to github issue #29
+ */
 @Suppress("UNUSED_PARAMETER")
-class Issue29Test {
+class JavaClassParamTest {
     class MockCls {
         fun op(klass: Class<*>): Boolean = true
     }
@@ -21,4 +23,3 @@ class Issue29Test {
         verify { mock.op(any()) }
     }
 }
-

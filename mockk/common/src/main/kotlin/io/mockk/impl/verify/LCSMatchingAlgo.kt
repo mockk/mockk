@@ -49,7 +49,7 @@ class LCSMatchingAlgo(
         backTrackCalls(allCalls.size - 1, verificationSequence.size - 1)
 
         // match only if all matchers present
-        return nEdits[allCalls.size - 1][verificationSequence.size - 1] == verificationSequence.size
+        return nEdits.getOrNull(allCalls.size - 1)?.getOrNull(verificationSequence.size -1) == verificationSequence.size
     }
 
     private tailrec fun backTrackCalls(callIdx: Int, matcherIdx: Int) {
