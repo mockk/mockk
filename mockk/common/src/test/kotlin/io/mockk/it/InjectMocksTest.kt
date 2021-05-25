@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -8,7 +8,11 @@ import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class Issue47Test {
+/**
+ * See issue #47
+ */
+class InjectMocksTest {
+
     interface IFoo
 
     class Foo : IFoo {
@@ -17,7 +21,7 @@ class Issue47Test {
     }
 
     abstract class AbstractBar<T : IFoo> {
-//        @Inject
+        //        @Inject
         lateinit var foo: T
     }
 

@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockkClass
@@ -6,13 +6,17 @@ import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Issue31Test {
+class MockkClassTest {
+
     class MockCls {
         fun op(a: Int, b: Int) = a + b
     }
 
     val mock = mockkClass(MockCls::class)
 
+    /**
+     * See issue #31
+     */
     @Test
     fun exactlyZeroWithAny() {
         every { mock.op(3, 4) } returns 5

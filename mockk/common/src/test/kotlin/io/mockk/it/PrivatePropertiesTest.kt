@@ -1,30 +1,18 @@
-package io.mockk.gh
+package io.mockk.it
 
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Issue51Test {
-    data class Person(var name: String)
+class PrivatePropertiesTest {
 
-    class Team {
-        protected var person: Person = Person("Init")
-            get() = Person("Ben")
-            set(value) {
-                field = value
-            }
-
-        protected fun fn(arg: Int): Int = arg + 5
-        fun pubFn(arg: Int) = fn(arg)
-
-        var memberName: String
-            get() = person.name
-            set(value) {
-                person = Person(value)
-            }
-
-    }
-
+    /**
+     * See issue #51
+     */
     @Test
     fun testPrivateProperty() {
         val mock = spyk(Team(), recordPrivateCalls = true)
@@ -44,4 +32,23 @@ class Issue51Test {
         verify { mock invoke "fn" withArguments listOf(5) }
     }
 
+    data class Person(var name: String)
+
+    class Team {
+        protected var person: Person = Person("Init")
+            get() = Person("Ben")
+            set(value) {
+                field = value
+            }
+
+        protected fun fn(arg: Int): Int = arg + 5
+        fun pubFn(arg: Int) = fn(arg)
+
+        var memberName: String
+            get() = person.name
+            set(value) {
+                person = Person(value)
+            }
+
+    }
 }

@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
@@ -6,7 +6,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class Issue36Test {
+/**
+ * see issue #36
+ */
+class IntTest {
     abstract class Cls1<out R> {
         abstract fun op(): R
     }
