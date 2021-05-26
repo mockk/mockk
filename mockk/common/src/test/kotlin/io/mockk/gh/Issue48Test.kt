@@ -1,9 +1,10 @@
 package io.mockk.gh
 
 import io.mockk.InternalPlatformDsl
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.spyk
-import io.mockk.verify
+import io.mockk.mockk
 import kotlin.test.Test
 
 @Suppress("UNUSED_PARAMETER")
@@ -15,15 +16,17 @@ class Issue48Test {
             }
         }
 
-        private suspend fun myPrivateCall(arg1: Int) {
+        private suspend fun myPrivateCall(arg1: Int): String {
+            println("PRVRV")
+            return ""
         }
     }
 
     @Test
     fun test() {
-        val myClassSpy = spyk(MyClass())
+        val myClassSpy = spyk<MyClass>(recordPrivateCalls = true)
 
-        every { myClassSpy["myPrivateCall"](5) } returns "something"
+        // every { myClassSpy["myPrivateCall"](5) } returns "something"
 
         myClassSpy.publicCall()
 

@@ -109,9 +109,8 @@ actual object InternalPlatformDsl {
             }
 
             for ((idx, param) in it.parameters.withIndex()) {
-                val classifier = param.type.classifier
 
-                val matches = when (classifier) {
+                val matches = when (val classifier = param.type.classifier) {
                     is KClass<*> -> classifier.isInstance(params[idx])
                     is KTypeParameter -> classifier.upperBounds.anyIsInstance(params[idx])
                     else -> false
@@ -128,10 +127,10 @@ actual object InternalPlatformDsl {
                     "If you were trying to verify a private function, make sure to provide type information to exactly match the functions signature.")
 
         func.javaMethod?.let { makeAccessible(it) }
-        if (func.isSuspend) {
-            return func.call(*params, anyContinuationGen())
+        return if (func.isSuspend) {
+            func.call(*params, anyContinuationGen())
         } else {
-            return func.call(*params)
+            func.call(*params)
         }
     }
 
