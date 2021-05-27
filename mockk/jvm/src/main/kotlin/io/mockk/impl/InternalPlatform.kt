@@ -6,6 +6,8 @@ import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
+import io.mockk.proxy.jvm.advice.boxedClass
+import io.mockk.proxy.jvm.advice.boxedValue
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 import java.util.*
@@ -58,10 +60,11 @@ actual object InternalPlatform {
     actual fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
 
     actual fun packRef(arg: Any?): Any? {
-        return if (arg == null || isPassedByValue(arg::class))
-            arg
-        else
-            ref(arg)
+        return when {
+            arg == null -> null
+            isPassedByValue(arg.boxedClass()) -> arg.boxedValue()
+            else -> ref(arg)
+        }
     }
 
     actual fun prettifyRecordingException(ex: Throwable): Throwable {

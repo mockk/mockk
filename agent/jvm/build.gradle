@@ -16,6 +16,8 @@ dependencies {
 
     api "net.bytebuddy:byte-buddy:$byte_buddy_version"
     api "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
 
 task copyMockKDispatcher(type: Copy) {
