@@ -26,7 +26,7 @@ object VerificationHelpers {
 
     fun stackTrace(prefix: Int, stackTrace: List<StackElement>): String {
         fun columnSize(block: StackElement.() -> String) =
-            stackTrace.map(block).map { it.length }.max() ?: 0
+            stackTrace.map(block).map { it.length }.maxOrNull() ?: 0
 
         fun StackElement.fileLine() =
             "($fileName:$line)${if (nativeMethod) "N" else ""}"

@@ -17,13 +17,6 @@ apply plugin: 'kotlin'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-compileTestKotlin {
-    kotlinOptions {
-        apiVersion = '1.3'
-        languageVersion = '1.3'
-    }
-}
-
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'

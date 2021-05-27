@@ -13,10 +13,3 @@ targetCompatibility = JavaVersion.VERSION_1_8
 dependencies {
     api project(":mockk-dsl")
 }
-
-compileKotlinCommon {
-    kotlinOptions {
-        apiVersion = '1.3'
-        languageVersion = '1.3'
-    }
-}
