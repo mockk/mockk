@@ -1,7 +1,6 @@
 package io.mockk.it
 
 import io.mockk.*
-import io.mockk.impl.InternalPlatform
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -51,8 +50,33 @@ class CoroutinesTest {
         }
     }
 
+    /**
+     * See issue #48
+     */
+    @Test
+    fun mockPrivateCoroutineCall() {
+        val myClassSpy = spyk<MockPrivateSuspendCls>(recordPrivateCalls = true)
+
+        every { myClassSpy["myPrivateCall"](5) } returns "something"
+
+        myClassSpy.publicCall()
+
+        verify { myClassSpy["myPrivateCall"](5) }
+    }
+
     class MockCls {
         suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = a + b
         suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
+    }
+
+    class MockPrivateSuspendCls {
+        fun publicCall() {
+            InternalPlatformDsl.runCoroutine {
+                myPrivateCall(5)
+            }
+        }
+
+        private suspend fun myPrivateCall(arg1: Int) {
+        }
     }
 }

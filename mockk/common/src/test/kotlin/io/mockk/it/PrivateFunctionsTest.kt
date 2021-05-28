@@ -6,22 +6,19 @@ import kotlin.test.assertEquals
 
 @Suppress("UNUSED_PARAMETER")
 class PrivateFunctionsTest {
-    class Abc {
-        fun y() = x()
 
-        private fun x() = "abc"
-    }
+    /**
+     * See issue #70
+     */
+    @Test
+    fun mockPrivateMethodWithGeneric() {
+        val mock = spyk<GenericsCls>()
 
-    object Def {
-        fun y() = x()
+        every {
+            mock["updateItemInDb"](any<Long>(), any<String>(), any()) as Unit
+        } just Runs
 
-        private fun x() = "abc"
-    }
-
-    class MockCls {
-        fun y(a: Int, b: Int?, d: Def?) = x(a, b, d)
-
-        private fun x(a: Int, b: Int?, d: Def?) = "abc $a $b"
+        mock.pubCall()
     }
 
     @Test
@@ -78,4 +75,30 @@ class PrivateFunctionsTest {
         verify { mock["x"](any<Int>(), any<Int>(), any<Def>()) }
     }
 
+    class Abc {
+        fun y() = x()
+
+        private fun x() = "abc"
+    }
+
+    object Def {
+        fun y() = x()
+
+        private fun x() = "abc"
+    }
+
+    class MockCls {
+        fun y(a: Int, b: Int?, d: Def?) = x(a, b, d)
+
+        private fun x(a: Int, b: Int?, d: Def?) = "abc $a $b"
+    }
+
+    class GenericsCls {
+        private fun <T> updateItemInDb(id: Long, column: String, data: T) {
+        }
+
+        fun pubCall() {
+            updateItemInDb(1L, "abc", "data")
+        }
+    }
 }
