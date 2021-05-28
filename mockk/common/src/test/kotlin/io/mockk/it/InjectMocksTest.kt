@@ -21,7 +21,6 @@ class InjectMocksTest {
     }
 
     abstract class AbstractBar<T : IFoo> {
-        //        @Inject
         lateinit var foo: T
     }
 

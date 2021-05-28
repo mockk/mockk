@@ -55,7 +55,7 @@ class CoroutinesTest {
      */
     @Test
     fun mockPrivateCoroutineCall() {
-        val myClassSpy = spyk(MockPrivateSuspendCls())
+        val myClassSpy = spyk<MockPrivateSuspendCls>(recordPrivateCalls = true)
 
         every { myClassSpy["myPrivateCall"](5) } returns "something"
 
