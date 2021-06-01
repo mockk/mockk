@@ -9,7 +9,9 @@ import kotlin.reflect.jvm.isAccessible
 private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
 
 /**
- * @return boxed value of value class if this is value class, else just itself
+ * Get boxed value of any value class
+ *
+ * @return boxed value of value class, if this is value class, else just itself
  */
 fun <T : Any> T.boxedValue(): Any? {
     if (!this::class.isValueClass()) return this
@@ -23,7 +25,9 @@ fun <T : Any> T.boxedValue(): Any? {
 }
 
 /**
- * @return class of boxed value of value class if this is value class, else just class of itself
+ * Get class of boxed value of any value class
+ *
+ * @return class of boxed value, if this is value class, else just class of itself
  */
 fun <T : Any> T.boxedClass(): KClass<*> {
     if (!this::class.isValueClass()) return this::class
