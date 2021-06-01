@@ -22,6 +22,9 @@ fun <T : Any> T.boxedValue(): Any? {
     return (backingField as KProperty1<T, *>).get(this)
 }
 
+/**
+ * @return class of boxed value of value class if this is value class, else just class of itself
+ */
 fun <T : Any> T.boxedClass(): KClass<*> {
     if (!this::class.isValueClass()) return this::class
 
