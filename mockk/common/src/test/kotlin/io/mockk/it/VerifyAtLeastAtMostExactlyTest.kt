@@ -11,10 +11,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class VerifyAtLeastAtMostExactlyTest {
-    class MockCls {
-        fun op(a: Int) = a + 1
-        fun op2(a: Int, b: Int) = a + b
-    }
 
     val mock = mockk<MockCls>()
 
@@ -173,6 +169,16 @@ class VerifyAtLeastAtMostExactlyTest {
         }
     }
 
+    /**
+     * See issue #614
+     */
+    @Test
+    fun verifyOrderThrowAssertionErrorIfNoCallHasBeenMade() {
+        val mock: MockCls = mockk(relaxed = true, relaxUnitFun = true)
+
+        assertFailsWith<AssertionError> { verifyOrder { mock.op(any()) } }
+    }
+
     @Test
     fun sequence() {
         doCalls()
@@ -214,6 +220,11 @@ class VerifyAtLeastAtMostExactlyTest {
         assertEquals(3, mock.op(1))
         assertEquals(5, mock.op(1))
         assertEquals(3, mock.op2(2, 1))
+    }
+
+    class MockCls {
+        fun op(a: Int) = a + 1
+        fun op2(a: Int, b: Int) = a + b
     }
 
     interface Tracker {
