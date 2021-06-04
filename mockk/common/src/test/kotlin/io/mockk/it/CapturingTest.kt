@@ -140,6 +140,30 @@ class CapturingTest {
         assertEquals("data2", slotList[1])
     }
 
+    /**
+     * See issue #353.
+     */
+    @Test
+    fun testNullableCapture() {
+        val list = mutableListOf<String?>()
+        val test: MockNullableCls = mockk {
+            every { call(captureNullable(list)) } just Runs
+        }
+
+        val args = listOf("One", "Two", "Three", null)
+        for (arg in args) {
+            test.call(arg)
+        }
+
+        assertEquals(args, list)
+    }
+
+    class MockNullableCls {
+        fun call(unused: String?) {
+            println(unused)
+        }
+    }
+
     class Cls {
         var value = 0
     }
