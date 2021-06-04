@@ -1,7 +1,14 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.MockKException
+import io.mockk.Runs
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,6 +18,9 @@ class MatcherTest {
 
     @MockK
     lateinit var mock: MockCls
+
+    @MockK
+    private lateinit var shopService: ShopService
 
     @BeforeTest
     fun init() {
@@ -317,6 +327,34 @@ class MatcherTest {
         mock.go(C())
     }
 
+    /**
+     * See issue #510
+     */
+    @Test
+    fun anyWithLists() {
+        every {
+            shopService.buyProducts(any())
+        } returns Unit
+        val products = listOf(Product("raspberry", 2), Product("banana", 212))
+
+        shopService.buyProducts(products)
+    }
+
+    /**
+     * See issue #510
+     */
+    @Test
+    fun anyWithTwoListArgument() {
+        every {
+            shopService.addProductAndOrders(products = any(), orders = any())
+        } returns Unit
+
+        val products = listOf(Product("raspberry", 2), Product("banana", 1))
+        val orders = listOf(Order("raspber"), Order("banana"))
+
+        shopService.addProductAndOrders(products, orders) // Throws MockkException
+    }
+
     interface Wrapper
     data class IntWrapper(val data: Int) : Wrapper
 
@@ -334,5 +372,21 @@ class MatcherTest {
 
     open class B {}
     class C : B() {}
-    class A { fun go(x: B) {} }
+    class A {
+        fun go(x: B) {}
+    }
+
+    data class Product(val name: String, val price: Int)
+    data class Order(val name: String)
+
+    class ShopService {
+
+        fun buyProducts(products: List<Product>) {
+            println("You bought $products...")
+        }
+
+        fun addProductAndOrders(products: List<Product>, orders: List<Order>) {
+            println("Add $products and $orders...")
+        }
+    }
 }
