@@ -5,8 +5,10 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import io.mockk.verifyAll
 import io.mockk.verifyOrder
 import io.mockk.verifySequence
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -173,6 +175,33 @@ class VerifyTest {
 
     }
 
+    /**
+     * See issue #389.
+     */
+    @Test
+    @Ignore
+    // Temporarily ignored because it suddenly started failing only on Github actions
+    internal fun verifyUsingVerifyAll() {
+        val repositoryMock = mockk<TweetRepository>(relaxed = true)
+
+        repositoryMock.persist(Tweet(1, "first tweet"))
+        repositoryMock.persist(Tweet(2, "second tweet"))
+
+
+        verifyAll {
+            repositoryMock.persist(
+                withArg {
+                    assertEquals(it.id, 1)
+                    assertEquals(it.text, "first tweet")
+                })
+            repositoryMock.persist(
+                withArg {
+                    assertEquals(it.id, 2)
+                    assertEquals(it.text, "second tweet")
+                })
+        }
+    }
+
     class Bar {
         fun baz(foo: String) {
             println(foo)
@@ -187,5 +216,13 @@ class VerifyTest {
 
     class MockCls {
         fun op(a: Int) = a + 1
+    }
+
+    class Tweet(val id: Int, val text: String)
+
+    interface TweetRepository {
+
+        fun persist(tweet: Tweet)
+
     }
 }
