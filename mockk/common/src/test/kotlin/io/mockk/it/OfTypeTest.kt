@@ -1,11 +1,18 @@
-package io.mockk.gh
+package io.mockk.it
 
-import io.mockk.*
+import io.mockk.MockKException
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
+/**
+ * See issue 88
+ */
 @Suppress("UNUSED_PARAMETER")
-class Issue88Test {
+class OfTypeTest {
     open class B {}
     class C : B() {}
     class A { fun go(x: B) {} }
