@@ -1,13 +1,16 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.runs
+import io.mockk.verify
+import io.mockk.verifyOrder
+import io.mockk.verifySequence
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class VerifyTest {
-    class MockCls {
-        fun op(a: Int) = a + 1
-    }
 
     val mock = mockk<MockCls>()
 
@@ -152,5 +155,37 @@ class VerifyTest {
             mock.op(5)
             mock.op(7)
         }
+    }
+
+    /**
+     * See issue #109
+     */
+    @Test
+    fun verifyWithToString() {
+        val foo = mockk<Foo>()
+        val bar = mockk<Bar>()
+
+        every { bar.baz("$foo") } just runs
+
+        bar.baz("$foo")
+
+        verify(exactly = 1) { bar.baz("$foo") }
+
+    }
+
+    class Bar {
+        fun baz(foo: String) {
+            println(foo)
+        }
+    }
+
+    class Foo {
+        override fun toString(): String {
+            return "foo"
+        }
+    }
+
+    class MockCls {
+        fun op(a: Int) = a + 1
     }
 }
