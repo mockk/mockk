@@ -8,20 +8,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class MatcherTest {
-    interface Wrapper
-    data class IntWrapper(val data: Int) : Wrapper
-
-    class MockCls {
-        fun op(a: Int, b: Int): Int = a + b
-
-        fun op(a: Wrapper?, b: Wrapper?): Int {
-            return if (a is IntWrapper && b is IntWrapper) {
-                a.data + b.data
-            } else {
-                0
-            }
-        }
-    }
 
     @MockK
     lateinit var mock: MockCls
@@ -46,19 +32,19 @@ class MatcherTest {
             mock.op(IntWrapper(3), b)
         }
     }
-    
+
     @Test
     fun nEqNRefEq() {
         val a = IntWrapper(3)
         val b = IntWrapper(4)
-        
+
         every { mock.op(neq(a), nrefEq(b)) } returns 1
-        
+
         assertEquals(1, mock.op(b, a), "Answer should be one, as b != a and a != b, so both neq and nrefEq.")
         assertFailsWith<MockKException>("Should fail because a is eq to a, so neq fails") { mock.op(a, IntWrapper(4)) }
         assertFailsWith<MockKException>("Should fail because b is referencial equal tob, so nrefEq fails") { mock.op(b, b) }
         assertEquals(1, mock.op(b, IntWrapper(3)))
-        
+
         verify {
             mock.op(b, IntWrapper(3))
         }
@@ -311,4 +297,42 @@ class MatcherTest {
             mock.op(IntWrapper(7), IntWrapper(8))
         }
     }
+
+    /**
+     * See issue 88
+     */
+    @Test
+    fun ofTypeWithGenerics() {
+        val mock = mockk<A>()
+        every { mock.go(ofType<C>()) } just Runs
+        assertFailsWith(MockKException::class) { mock.go(B()) }
+
+        every { mock.go(ofType<C>()) } just Runs
+        mock.go(C())
+
+        every { mock.go(ofType()) } just Runs
+        mock.go(B())
+
+        every { mock.go(ofType()) } just Runs
+        mock.go(C())
+    }
+
+    interface Wrapper
+    data class IntWrapper(val data: Int) : Wrapper
+
+    class MockCls {
+        fun op(a: Int, b: Int): Int = a + b
+
+        fun op(a: Wrapper?, b: Wrapper?): Int {
+            return if (a is IntWrapper && b is IntWrapper) {
+                a.data + b.data
+            } else {
+                0
+            }
+        }
+    }
+
+    open class B {}
+    class C : B() {}
+    class A { fun go(x: B) {} }
 }
