@@ -1,6 +1,13 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.justRun
+import io.mockk.mockkObject
+import io.mockk.spyk
+import io.mockk.verify
+import io.mockk.verifySequence
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -65,9 +72,6 @@ class PrivateFunctionsTest {
         }
     }
 
-    /**
-     * See issue #103
-     */
     @Test
     fun privateCallsWithNullability() {
         val mock = spyk<MockCls>(recordPrivateCalls = true)
@@ -78,6 +82,9 @@ class PrivateFunctionsTest {
         verify { mock["x"](any<Int>(), any<Int>(), any<Def>()) }
     }
 
+    /**
+     * See issue #103
+     */
     @Test
     fun mockPrivateMethodThatReturnsNothing() {
         val myClass = spyk(PrivateNoReturnCls(), recordPrivateCalls = true)
@@ -88,6 +95,18 @@ class PrivateFunctionsTest {
         verify {
             myClass invokeNoArgs "myPrivateMethod"
         }
+    }
+
+    /**
+     * See issue #346
+     */
+    @Test
+    fun justRunsWithPrivateMethod() {
+        val mock = spyk<PrivateNoReturnCls>(recordPrivateCalls = true)
+
+        justRun { mock invokeNoArgs "myPrivateMethod" }
+
+        mock.myPublicMethod()
     }
 
     class PrivateNoReturnCls {
