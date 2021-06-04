@@ -65,6 +65,9 @@ class PrivateFunctionsTest {
         }
     }
 
+    /**
+     * See issue #103
+     */
     @Test
     fun privateCallsWithNullability() {
         val mock = spyk<MockCls>(recordPrivateCalls = true)
@@ -73,6 +76,28 @@ class PrivateFunctionsTest {
         assertEquals("test", mock.y(1, 2, null))
 
         verify { mock["x"](any<Int>(), any<Int>(), any<Def>()) }
+    }
+
+    @Test
+    fun mockPrivateMethodThatReturnsNothing() {
+        val myClass = spyk(PrivateNoReturnCls(), recordPrivateCalls = true)
+        every { myClass invokeNoArgs "myPrivateMethod" } returns Unit
+
+        myClass.myPublicMethod()
+
+        verify {
+            myClass invokeNoArgs "myPrivateMethod"
+        }
+    }
+
+    class PrivateNoReturnCls {
+
+        fun myPublicMethod() {
+            myPrivateMethod()
+        }
+
+        private fun myPrivateMethod() {
+        }
     }
 
     class Abc {
