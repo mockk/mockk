@@ -79,6 +79,40 @@ class SpyTest {
         assertTrue(executed[3])
     }
 
+    /**
+     * See issue #95
+     */
+    @Test
+    fun chainedCalls() {
+        val mocking = spyk(ChainedCallsCls())
+
+        every { mocking.bar(any()) } returns "FOO MOCKED"
+
+        println(mocking.bar("hello"))
+    }
+
+    @Test
+    fun chainedCalls2() {
+        val mocking = spyk(ChainedCallsCls())
+
+        every { mocking.bar2() } returns "FOO MOCKED"
+
+        println(mocking.bar2())
+    }
+
+    class ChainedCallsCls {
+
+        fun getInterface(list: List<Boolean>) = listOf(true)
+
+        fun bar(t: String, list: List<Boolean> = getInterface(listOf(false))): String {
+            return "FOO"
+        }
+
+        fun bar2(list: List<Boolean> = getInterface(listOf(false))): String {
+            return "FOO"
+        }
+    }
+
     open class BaseTestCls(val someReference: String, val executed: Array<Boolean>) {
         open fun doSomething() {
             executed[0] = true
