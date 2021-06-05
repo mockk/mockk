@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.isMockKMock
@@ -7,20 +7,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class Issue221Test {
-    interface Foo {
-        fun getTasks(): Set<Task>
+/**
+ * [Set]s related tests.
+ */
+class SetsTest {
 
-        fun getTask(): Task
-    }
-
-    interface Task {
-        fun getSubTask(): Task
-
-        fun doIt(): Int
-    }
-
-
+    /**
+     * See issue #221
+     */
     @Test
     fun returnsSetOfMocks() {
         val foo = mockk<Foo>()
@@ -36,4 +30,15 @@ class Issue221Test {
         assertTrue(isMockKMock(task2))
     }
 
+    interface Foo {
+        fun getTasks(): Set<Task>
+
+        fun getTask(): Task
+    }
+
+    interface Task {
+        fun getSubTask(): Task
+
+        fun doIt(): Int
+    }
 }

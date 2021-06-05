@@ -1,19 +1,17 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-interface DefaultParam {
-    fun foo(param: String = "default"): String
-}
-
-class Issue312Test {
+class ParametersWhitDefaultTest {
 
     private val target = mockk<DefaultParam>()
 
     /**
+     * See issue #312.
+     *
      * Mocking a function with default parameter should match without specifying its
      * parameters.
      */
@@ -26,5 +24,9 @@ class Issue312Test {
 
     private companion object {
         const val STUB_STRING = "A string"
+    }
+
+    interface DefaultParam {
+        fun foo(param: String = "default"): String
     }
 }
