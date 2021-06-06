@@ -39,7 +39,7 @@ subprojects { subProject ->
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
             jvmTarget = "1.8"
-            languageVersion = kotlin_version.replaceAll( /^([^.]+\.[^.]+).*/, '$1' )
+            apiVersion = "1.3"
             useIR = findProperty("kotlin.ir.enabled")?.toBoolean() == true
         }
     }
