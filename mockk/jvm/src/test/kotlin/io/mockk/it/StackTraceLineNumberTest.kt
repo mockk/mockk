@@ -1,6 +1,6 @@
 @file:Suppress("UNUSED_VALUE")
 
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.verify
@@ -8,7 +8,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
-class Issue102Test {
+/**
+ * Test related to github issue #102
+ */
+class StackTraceLineNumberTest {
     @Test
     fun everyLineNumberIsCorrect() {
         var stackTrace: Array<StackTraceElement>? = null
@@ -50,12 +53,12 @@ class Issue102Test {
         methodName: String
     ) {
         val actualLN = ex.stackTrace.lineNumber(
-            "io.mockk.gh.Issue102Test",
+            "io.mockk.it.StackTraceLineNumberTest",
             methodName
         )
 
         val expectedLN = stackTrace!!.lineNumber(
-            "io.mockk.gh.Issue102Test",
+            "io.mockk.it.StackTraceLineNumberTest",
             methodName
         )
 
