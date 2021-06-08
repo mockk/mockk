@@ -1,11 +1,14 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 
-class Issue69Test {
+/**
+ * Test related to github issue #69
+ */
+class VoidReturnTest {
     abstract class KafkaFuture<T> {
         abstract operator fun get(timeout: Long, unit: TimeUnit): T
     }
@@ -16,5 +19,4 @@ class Issue69Test {
         every { kafkaFuture.get(any(), any()) } returns mockk()
         kafkaFuture.get(10, TimeUnit.MILLISECONDS)
     }
-
 }
