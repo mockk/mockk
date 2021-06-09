@@ -9,7 +9,7 @@ class ValueClassTest {
     private val mock = mockk<DummyService>()
 
     @Test
-    fun `value class object as return value`() {
+    fun valueClassObjectAsReturnValue() {
         every { mock.requestValue() } returns DummyValue(42)
 
         assertEquals(DummyValue(42), mock.requestValue())
@@ -18,7 +18,7 @@ class ValueClassTest {
     }
 
     @Test
-    fun `value class object as function argument and return value`() {
+    fun valueClassObjectAsFunctionArgumentAndReturnValue() {
         every { mock.processValue(DummyValue(1)) } returns DummyValue(42)
 
         assertEquals(DummyValue(42), mock.processValue(DummyValue(1)))
@@ -27,7 +27,7 @@ class ValueClassTest {
     }
 
     @Test
-    fun `value class object as function argument and answer value`() {
+    fun valueClassObjectAsFunctionArgumentAndAnswerValue() {
         every { mock.processValue(DummyValue(1)) } answers { DummyValue(42) }
 
         assertEquals(DummyValue(42), mock.processValue(DummyValue(1)))
@@ -36,7 +36,7 @@ class ValueClassTest {
     }
 
     @Test
-    fun `any value class matcher as function argument and value class object as return value`() {
+    fun anyValueClassMatcherAsFunctionArgumentAndValueClassObjectAsReturnValue() {
         every { mock.processValue(any()) } returns DummyValue(42)
 
         assertEquals(DummyValue(42), mock.processValue(DummyValue(1)))
