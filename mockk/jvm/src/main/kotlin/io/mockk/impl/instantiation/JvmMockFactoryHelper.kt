@@ -4,9 +4,12 @@ import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
 import io.mockk.proxy.MockKInvocationHandler
+import java.lang.Class
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.WildcardType
 import java.util.concurrent.Callable
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
@@ -133,7 +136,15 @@ object JvmMockFactoryHelper {
 
         val isFnCall = Function::class.java.isAssignableFrom(declaringClass)
 
-        val returnType = kotlinFunc?.returnType as? KClass<*> ?: returnType.kotlin
+        val lastParam = getGenericParameterTypes().lastOrNull() as? ParameterizedType
+        val returnType: KClass<*> = when (isSuspend && lastParam != null) {
+            true -> {
+                val typeArg = lastParam.getActualTypeArguments().first() as WildcardType
+                val bound = typeArg.lowerBounds.first() as Class<*>
+                bound.kotlin
+            }
+            false -> kotlinFunc?.returnType as? KClass<*> ?: returnType.kotlin
+        }
 
         val result = MethodDescription(
             name,
