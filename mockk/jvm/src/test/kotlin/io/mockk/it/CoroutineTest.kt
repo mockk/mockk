@@ -1,13 +1,15 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Issue288Test {
+class CoroutineTest {
+    /**
+     * github issue #288
+     */
     @Test
     fun suspendFnMocking(): Unit {
         val call = mockk<suspend () -> Int>()
