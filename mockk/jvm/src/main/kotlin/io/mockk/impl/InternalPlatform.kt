@@ -1,13 +1,9 @@
 package io.mockk.impl
 
-import io.mockk.InternalPlatformDsl
-import io.mockk.MockKException
-import io.mockk.StackElement
+import io.mockk.*
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
-import io.mockk.proxy.jvm.advice.boxedClass
-import io.mockk.proxy.jvm.advice.boxedValue
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 import java.util.*

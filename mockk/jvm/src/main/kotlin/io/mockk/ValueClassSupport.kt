@@ -1,4 +1,4 @@
-package io.mockk.proxy.jvm.advice
+package io.mockk
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
@@ -58,7 +58,7 @@ private fun <T : Any> KClass<T>.valueField(): KProperty1<out T, *> {
     } as KProperty1<out T, *>
 }
 
-fun <T : Any> KClass<T>.isValueClass() = try {
+private fun <T : Any> KClass<T>.isValueClass() = try {
     this.isValue
 } catch (_: UnsupportedOperationException) {
     false
