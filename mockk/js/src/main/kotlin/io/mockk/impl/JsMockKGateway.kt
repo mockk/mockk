@@ -34,7 +34,7 @@ class JsMockKGateway : MockKGateway {
     override val mockFactory: MockFactory = JsMockFactory(
         stubRepo,
         instantiator,
-        StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeToString)
+        StubGatewayAccess({ callRecorder }, { anyValueGenerator }, stubRepo, safeToString)
     )
 
     override val clearer = CommonClearer(stubRepo, safeToString)
@@ -89,7 +89,7 @@ class JsMockKGateway : MockKGateway {
         instantiator,
         signatureValueGenerator,
         mockFactory,
-        anyValueGenerator,
+        { anyValueGenerator },
         safeToString,
         callRecorderFactories,
         { recorder -> callRecorderFactories.answeringState(recorder) },

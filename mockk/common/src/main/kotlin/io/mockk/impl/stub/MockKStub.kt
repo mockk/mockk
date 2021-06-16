@@ -83,7 +83,7 @@ open class MockKStub(
         return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
             if (shouldRelax(invocation)) {
                 if (invocation.method.returnsUnit) return Unit
-                return gatewayAccess.anyValueGenerator.anyValue(
+                return gatewayAccess.anyValueGenerator().anyValue(
                     invocation.method.returnType,
                     invocation.method.returnTypeNullable
                 ) {

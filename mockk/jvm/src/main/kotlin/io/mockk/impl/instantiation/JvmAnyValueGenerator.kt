@@ -2,7 +2,7 @@ package io.mockk.impl.instantiation
 
 import kotlin.reflect.KClass
 
-class JvmAnyValueGenerator(
+open class JvmAnyValueGenerator(
     private val voidInstance: Any
 ) : AnyValueGenerator() {
 

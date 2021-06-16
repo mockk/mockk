@@ -17,7 +17,7 @@ class CommonCallRecorder(
     val instantiator: AbstractInstantiator,
     val signatureValueGenerator: SignatureValueGenerator,
     val mockFactory: MockFactory,
-    val anyValueGenerator: AnyValueGenerator,
+    val anyValueGenerator: () -> AnyValueGenerator,
     val safeToString: SafeToString,
     val factories: CallRecorderFactories,
     val initialState: (CommonCallRecorder) -> CallRecordingState,

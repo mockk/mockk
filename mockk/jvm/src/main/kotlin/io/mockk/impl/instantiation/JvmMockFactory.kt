@@ -51,7 +51,7 @@ class JvmMockFactory(
                                 "This can help if it's last call in the chain"
                     }
 
-                    gatewayAccess.anyValueGenerator.anyValue(cls, isNullable = false) {
+                    gatewayAccess.anyValueGenerator().anyValue(cls, isNullable = false) {
                         instantiator.instantiate(cls)
                     } as T
                 }

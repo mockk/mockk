@@ -55,11 +55,16 @@ class JvmMockKGateway : MockKGateway {
         instanceFactoryRegistryIntrnl
     )
 
-    val anyValueGenerator = JvmAnyValueGenerator(instantiator.instantiate(Void::class))
+    val anyValueGeneratorProvider: () -> AnyValueGenerator = {
+        if (anyValueGenerator == null) {
+            anyValueGenerator = anyValueGeneratorFactory.invoke(instantiator.instantiate(Void::class))
+        }
+        anyValueGenerator!!
+    }
     val signatureValueGenerator = JvmSignatureValueGenerator(Random())
 
 
-    val gatewayAccess = StubGatewayAccess({ callRecorder }, anyValueGenerator, stubRepo, safeToString)
+    val gatewayAccess = StubGatewayAccess({ callRecorder }, anyValueGeneratorProvider, stubRepo, safeToString)
 
     override val mockFactory: AbstractMockFactory = JvmMockFactory(
         agentFactory.proxyMaker,
@@ -137,7 +142,7 @@ class JvmMockKGateway : MockKGateway {
             instantiator,
             signatureValueGenerator,
             mockFactory,
-            anyValueGenerator,
+            anyValueGeneratorProvider,
             safeToString,
             callRecorderFactories,
             { recorder -> callRecorderFactories.answeringState(recorder) },
@@ -169,6 +174,14 @@ class JvmMockKGateway : MockKGateway {
                         "Java version = ${System.getProperty("java.version")}. "
             }
         }
+
+        private var anyValueGenerator: AnyValueGenerator? = null
+        var anyValueGeneratorFactory: (voidInstance: Any) -> JvmAnyValueGenerator =
+            { voidInstance -> JvmAnyValueGenerator(voidInstance) }
+            set(value) {
+                anyValueGenerator = null
+                field = value
+            }
 
         val defaultImplementation = JvmMockKGateway()
         val defaultImplementationBuilder = { defaultImplementation }
