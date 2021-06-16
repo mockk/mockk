@@ -85,4 +85,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     androidTestImplementation 'junit:junit:4.13.1'
+
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
