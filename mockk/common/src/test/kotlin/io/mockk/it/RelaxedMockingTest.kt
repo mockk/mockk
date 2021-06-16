@@ -51,5 +51,12 @@ class RelaxedMockingTest {
         assertEquals(2, slot.captured)
     }
 
+    @Test
+    fun testRelaxedFunction() {
+        val block = mockk<() -> Unit>(relaxed = true)
+        block()
+        verify { block.invoke() }
+    }
+
     private fun mockCls() = mockk<MockCls>(relaxUnitFun = true)
 }

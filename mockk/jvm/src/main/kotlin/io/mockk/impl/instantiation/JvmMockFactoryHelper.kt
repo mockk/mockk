@@ -9,10 +9,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.concurrent.Callable
 import kotlin.coroutines.Continuation
-import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KParameter
-import kotlin.reflect.KType
+import kotlin.reflect.*
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
@@ -35,15 +32,28 @@ object JvmMockFactoryHelper {
             }
     }
 
+    private fun findBackingField(clazz: KClass<*>, method: Method): KProperty1<*, *>? = runCatching {
+        /**
+         * `runCatching()` is used to avoid crashes when analyzing unsupported types as
+         * top-file extension function resulting into
+         * `Packages and file facades are not yet supported in Kotlin reflection.`
+         *
+         * Also, the functional types are unsupported, we skip them early.
+         */
+
+        if (Function::class.java.isAssignableFrom(clazz.java)) {
+            return null
+        }
+
+        return clazz.memberProperties.firstOrNull {
+            it.getter.javaMethod == method ||
+                    (it is KMutableProperty<*> && it.setter.javaMethod == method)
+        }
+    }.getOrNull()
 
     private fun findBackingField(self: Any, method: Method): BackingFieldValueProvider {
         return {
-            val property = self::class.memberProperties.firstOrNull {
-                it.getter.javaMethod == method ||
-                        (it is KMutableProperty<*> && it.setter.javaMethod == method)
-            }
-
-
+            val property = findBackingField(self::class, method)
             property?.javaField?.let { field ->
                 BackingFieldValue(
                     property.name,
@@ -136,6 +146,7 @@ object JvmMockFactoryHelper {
         val isFnCall = Function::class.java.isAssignableFrom(declaringClass)
 
         val kotlinReturnType = kotlinFunc?.returnType
+            ?: findBackingField(declaringClass.kotlin, this)?.returnType
         val returnType: KClass<*> = when (kotlinReturnType) {
             is KType -> kotlinReturnType.classifier as? KClass<*> ?: returnType.kotlin
             is KClass<*> -> kotlinReturnType
@@ -147,10 +158,12 @@ object JvmMockFactoryHelper {
         } else {
             returnType
         }
+        val returnTypeNullable = kotlinReturnType?.isMarkedNullable ?: false
 
         val result = MethodDescription(
             name,
             androidCompatibleReturnType,
+            returnTypeNullable,
             returnTypeIsUnit,
             returnTypeIsNothing,
             isSuspend,

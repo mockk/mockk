@@ -87,6 +87,7 @@ internal class StubProxyHandler(
                 false,
                 false,
                 false,
+                false,
                 cls,
                 listOf(),
                 -1,
@@ -109,6 +110,7 @@ internal class StubProxyHandler(
             MethodDescription(
                 "apply",
                 Any::class,
+                false,
                 false,
                 false,
                 false,

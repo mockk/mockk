@@ -3600,6 +3600,7 @@ data class Call(
 data class MethodDescription(
     val name: String,
     val returnType: KClass<*>,
+    val returnTypeNullable: Boolean,
     val returnsUnit: Boolean,
     val returnsNothing: Boolean,
     val isSuspend: Boolean,
