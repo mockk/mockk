@@ -4,17 +4,15 @@ import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
 import io.mockk.proxy.MockKInvocationHandler
-import java.lang.Class
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.WildcardType
 import java.util.concurrent.Callable
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KParameter
+import kotlin.reflect.KType
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
@@ -27,7 +25,8 @@ object JvmMockFactoryHelper {
 
                 stub.handleInvocation(
                     self,
-                    method.toDescription(), {
+                    method.toDescription(),
+                    {
                         handleOriginalCall(originalCall, method)
                     },
                     args,
@@ -136,19 +135,22 @@ object JvmMockFactoryHelper {
 
         val isFnCall = Function::class.java.isAssignableFrom(declaringClass)
 
-        val lastParam = getGenericParameterTypes().lastOrNull() as? ParameterizedType
-        val returnType: KClass<*> = when (isSuspend && lastParam != null) {
-            true -> {
-                val typeArg = lastParam.getActualTypeArguments().first() as WildcardType
-                val bound = typeArg.lowerBounds.first() as Class<*>
-                bound.kotlin
-            }
-            false -> kotlinFunc?.returnType as? KClass<*> ?: returnType.kotlin
+        val kotlinReturnType = kotlinFunc?.returnType
+        val returnType: KClass<*> = when (kotlinReturnType) {
+            is KType -> kotlinReturnType.classifier as? KClass<*> ?: returnType.kotlin
+            is KClass<*> -> kotlinReturnType
+            else -> returnType.kotlin
+        }.boxedClass()
+
+        val androidCompatibleReturnType = if (returnType.qualifiedName in androidUnsupportedTypes) {
+            this@toDescription.returnType.kotlin
+        } else {
+            returnType
         }
 
         val result = MethodDescription(
             name,
-            returnType,
+            androidCompatibleReturnType,
             returnTypeIsUnit,
             returnTypeIsNothing,
             isSuspend,
@@ -164,6 +166,20 @@ object JvmMockFactoryHelper {
 
         return result
     }
+
+    /**
+     * These types have to be resolved to kotlin.Array on Android to work properly.
+     */
+    private val androidUnsupportedTypes = setOf(
+        "kotlin.BooleanArray",
+        "kotlin.ByteArray",
+        "kotlin.ShortArray",
+        "kotlin.CharArray",
+        "kotlin.IntArray",
+        "kotlin.LongArray",
+        "kotlin.FloatArray",
+        "kotlin.DoubleArray"
+    )
 
     fun Method.isHashCode() = name == "hashCode" && parameterTypes.isEmpty()
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java

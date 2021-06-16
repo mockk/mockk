@@ -30,10 +30,19 @@ fun <T : Any> T.boxedValue(): Any? {
  * @return class of boxed value, if this is value class, else just class of itself
  */
 fun <T : Any> T.boxedClass(): KClass<*> {
-    if (!this::class.isValueClass()) return this::class
+    return this::class.boxedClass()
+}
+
+/**
+ * Get the KClass of boxed value if this is a value class.
+ *
+ * @return class of boxed value, if this is value class, else just class of itself
+ */
+fun KClass<*>.boxedClass(): KClass<*> {
+    if (!this.isValueClass()) return this
 
     // get backing field
-    val backingField = this::class.valueField()
+    val backingField = this.valueField()
 
     // get boxed value
     return backingField.returnType.classifier as KClass<*>
