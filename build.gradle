@@ -36,11 +36,10 @@ subprojects { subProject ->
         jcenter()
     }
 
-
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
             jvmTarget = "1.8"
-            languageVersion = "1.3"
+            apiVersion = "1.3"
             useIR = findProperty("kotlin.ir.enabled")?.toBoolean() == true
         }
     }

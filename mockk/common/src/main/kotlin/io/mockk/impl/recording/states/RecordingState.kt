@@ -139,6 +139,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
      *
      * Max 40 calls looks like reasonable compromise
      */
+    @Suppress("DEPRECATION_ERROR")
     override fun estimateCallRounds(): Int {
         val regularArguments = builder().signedCalls
             .flatMap { it.args }
