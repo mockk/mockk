@@ -64,7 +64,7 @@ class MockInjector(
     private fun matchParameter(param: KParameter): Any? {
         return lookupValueByName(param.name, param.type.classifier)
             ?: lookupValueByType(param.type.classifier)
-            ?: if (!param.isOptional) throw MockKException("Parameter unmatched: $param") else null
+            ?: if (param.isOptional) null else throw MockKException("Parameter unmatched: $param")
     }
 
     private fun tryMatchingParameters(parameters: List<KParameter>): Boolean {
