@@ -349,6 +349,25 @@ class MockInjectorTest {
     }
 
     @Test
+    fun constructorWithDefaultArgumentInjection() {
+        class InjectTarget(param1: MockCls, param2: MockCls = MockCls())
+
+        class InjectDeclaration {
+            val param1 = mockk<MockCls>()
+        }
+
+        val declaration = InjectDeclaration()
+
+        val instance = inject(
+            InjectTarget::class,
+            InjectionLookupType.BY_NAME,
+            declaration
+        )
+
+        assertNotNull(instance)
+    }
+
+    @Test
     fun simplePropertyInjection() {
         class InjectTarget {
             lateinit var property: MockCls
