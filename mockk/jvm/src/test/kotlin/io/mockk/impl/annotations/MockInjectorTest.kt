@@ -350,7 +350,26 @@ class MockInjectorTest {
 
     @Test
     fun constructorWithDefaultArgumentInjection() {
-        class InjectTarget(param1: MockCls, param2: MockCls = MockCls())
+        class InjectTarget(param1: MockIf, param2: MockCls = MockCls())
+
+        class InjectDeclaration {
+            val param1 = mockk<MockIf>()
+        }
+
+        val declaration = InjectDeclaration()
+
+        val instance = inject(
+            InjectTarget::class,
+            InjectionLookupType.BOTH,
+            declaration
+        )
+
+        assertNotNull(instance)
+    }
+
+    @Test
+    fun matchingDefaultArgumentConstructorInjection() {
+        class InjectTarget(param1: MockCls = MockCls())
 
         class InjectDeclaration {
             val param1 = mockk<MockCls>()
@@ -360,7 +379,7 @@ class MockInjectorTest {
 
         val instance = inject(
             InjectTarget::class,
-            InjectionLookupType.BY_NAME,
+            InjectionLookupType.BOTH,
             declaration
         )
 
