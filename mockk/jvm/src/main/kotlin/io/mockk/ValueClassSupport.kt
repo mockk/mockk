@@ -69,7 +69,7 @@ private fun <T : Any> KClass<T>.valueField(): KProperty1<out T, *> {
 
 private fun <T : Any> KClass<T>.isValueClass() = try {
     this.isValue
-} catch (_: UnsupportedOperationException) {
+} catch (_: Throwable) {
     false
 }
 
