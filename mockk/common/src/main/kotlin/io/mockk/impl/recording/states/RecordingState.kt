@@ -45,7 +45,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
         val signatureValue = recorder.signatureValueGenerator.signatureValue(cls) {
-            recorder.anyValueGenerator.anyValue(cls) {
+            recorder.anyValueGenerator().anyValue(cls, isNullable = false) {
                 recorder.instantiator.instantiate(cls)
             } as T
         }
@@ -67,7 +67,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
             if (invocation.method.isToString()) {
                 recorder.stubRepo[invocation.self]?.toStr() ?: ""
             } else {
-                recorder.anyValueGenerator.anyValue(retType) {
+                recorder.anyValueGenerator().anyValue(retType, invocation.method.returnTypeNullable) {
                     isTemporaryMock = true
                     recorder.mockFactory.temporaryMock(retType)
                 }

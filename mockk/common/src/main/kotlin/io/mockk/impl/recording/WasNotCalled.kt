@@ -6,6 +6,7 @@ object WasNotCalled {
     val method = MethodDescription(
         "wasNot Called",
         Unit::class,
+        false,
         true,
         false,
         false,

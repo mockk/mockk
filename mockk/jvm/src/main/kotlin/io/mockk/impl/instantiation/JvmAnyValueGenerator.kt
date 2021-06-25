@@ -2,11 +2,11 @@ package io.mockk.impl.instantiation
 
 import kotlin.reflect.KClass
 
-class JvmAnyValueGenerator(
+open class JvmAnyValueGenerator(
     private val voidInstance: Any
 ) : AnyValueGenerator() {
 
-    override fun anyValue(cls: KClass<*>, orInstantiateVia: () -> Any?): Any? {
+    override fun anyValue(cls: KClass<*>, isNullable: Boolean, orInstantiateVia: () -> Any?): Any? {
         return when (cls) {
             Void.TYPE.kotlin -> voidInstance
             Void::class -> voidInstance
@@ -28,7 +28,7 @@ class JvmAnyValueGenerator(
             java.util.HashMap::class -> HashMap<Any, Any>()
             java.util.HashSet::class -> HashSet<Any>()
 
-            else -> super.anyValue(cls) {
+            else -> super.anyValue(cls, isNullable) {
                 if (cls.java.isArray) {
                     java.lang.reflect.Array.newInstance(cls.java.componentType, 0)
                 } else {

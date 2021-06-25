@@ -7,7 +7,7 @@ import io.mockk.impl.log.SafeToString
 
 data class StubGatewayAccess(
     val callRecorder: () -> CallRecorder,
-    val anyValueGenerator: AnyValueGenerator,
+    val anyValueGenerator: () -> AnyValueGenerator,
     val stubRepository: StubRepository,
     val safeToString: SafeToString,
     val mockFactory: MockKGateway.MockFactory? = null
