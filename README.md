@@ -439,11 +439,11 @@ every {
   )
 } returns Outcome.RECORDED
 
-obj.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142)
+car.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142)
 
-verify { obj.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142) }
+verify { car.recordTelemetry(60, Direction.NORTH, 51.1377382, 17.0257142) }
 
-confirmVerified(obj)
+confirmVerified(car)
 ```
 
 ### Chained calls
@@ -523,7 +523,7 @@ val slot = slot<Double>()
 val list = mutableListOf<Double>()
 
 every {
-  obj.recordTelemetry(
+  car.recordTelemetry(
     speed = capture(slot), // makes mock match call with any value for `speed` and record it in a slot
     direction = Direction.NORTH // makes mock and capturing only match calls with specific `direction`. Use `any()` to match calls with any `direction`
   )
@@ -535,7 +535,7 @@ every {
 
 
 every {
-  obj.recordTelemetry(
+  car.recordTelemetry(
     speed = capture(list),
     direction = Direction.SOUTH
   )
@@ -545,12 +545,12 @@ every {
   Outcome.RECORDED
 }
 
-obj.recordTelemetry(speed = 15, direction = Direction.NORTH) // prints 15
-obj.recordTelemetry(speed = 16, direction = Direction.SOUTH) // prints 16
+car.recordTelemetry(speed = 15, direction = Direction.NORTH) // prints 15
+car.recordTelemetry(speed = 16, direction = Direction.SOUTH) // prints 16
 
-verify(exactly = 2) { obj.recordTelemetry(speed = or(15, 16), direction = any()) }
+verify(exactly = 2) { car.recordTelemetry(speed = or(15, 16), direction = any()) }
 
-confirmVerified(obj)
+confirmVerified(car)
 ```
 
 ### Verification atLeast, atMost or exactly times
