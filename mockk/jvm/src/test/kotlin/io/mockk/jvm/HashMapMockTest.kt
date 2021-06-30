@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 
 class HashMapMockTest {
     @Test
-    @Disabled("fails on jdk 16")
     fun concurrentHashMap_shouldBeSpied_Successfully() {
         val map = spyk(ConcurrentHashMap<String, String>())
         assertDoesNotThrow { map.put("key", "value")  }
