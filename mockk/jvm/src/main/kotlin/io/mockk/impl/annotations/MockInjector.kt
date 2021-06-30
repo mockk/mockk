@@ -44,7 +44,10 @@ class MockInjector(
     }
 
     private fun injectViaConstructor(firstMatching: KFunction<Any>): Any {
-        return firstMatching.call(*matchParameters(firstMatching.valueParameters))
+        return firstMatching.valueParameters
+            .associateWith { matchParameter(it) }
+            .filterNot { it.value == null }
+            .let { firstMatching.callBy(it) }
     }
 
     private fun findMatchingConstructor(type: KClass<*>): KFunction<Any>? {
@@ -58,21 +61,18 @@ class MockInjector(
             .firstOrNull { tryMatchingParameters(it.valueParameters) }
     }
 
-    private fun matchParameters(parameters: List<KParameter>): Array<Any> {
-        return parameters.map { param ->
-            lookupValueByName(param.name, param.type.classifier)
-                    ?: lookupValueByType(param.type.classifier)
-                    ?: throw MockKException("Parameter unmatched: $param")
-        }.toTypedArray()
+    private fun matchParameter(param: KParameter): Any? {
+        return lookupValueByName(param.name, param.type.classifier)
+            ?: lookupValueByType(param.type.classifier)
+            ?: if (param.isOptional) null else throw MockKException("Parameter unmatched: $param")
     }
 
     private fun tryMatchingParameters(parameters: List<KParameter>): Boolean {
-        return !parameters
-            .map { param ->
-                lookupValueByName(param.name, param.type.classifier)
-                        ?: lookupValueByType(param.type.classifier)
-            }
-            .any { it == null }
+        return parameters.all { param ->
+            lookupValueByName(param.name, param.type.classifier) != null
+                    || lookupValueByType(param.type.classifier) != null
+                    || param.isOptional
+        }
     }
 
     private fun lookupValueByName(name: String?, type: KClassifier?): Any? {
