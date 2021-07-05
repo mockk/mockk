@@ -1,11 +1,14 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.MockKException
 import io.mockk.every
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
-class Issue538Test {
+/**
+ * Test related to github issue #538
+ */
+class ThrowExceptionOnNonMockedClassTest {
 
     @Test
     fun `throw exception if not mocked class is in every block`() {
@@ -20,4 +23,5 @@ class Issue538Test {
     private class NotMockedClass {
         fun methodThatReturnsANumber() = 55
     }
+
 }
