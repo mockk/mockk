@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.impl.annotations.AdditionalInterface
 import io.mockk.impl.annotations.MockK
@@ -8,14 +8,17 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertNotNull
 
-class Issue445Test {
+/**
+ * Test related to github issue #445
+ */
+class MockKExtensionOnNestedClassTest {
     open class Foo
 
     @Nested
     @ExtendWith(MockKExtension::class)
     inner class InjectMockInNestedTest(
-            @MockK private val foo: Foo,
-            @MockK @AdditionalInterface(Runnable::class) private val bar: Foo) {
+        @MockK private val foo: Foo,
+        @MockK @AdditionalInterface(Runnable::class) private val bar: Foo) {
 
         @Test
         fun shouldHaveInjectMock() {
@@ -24,4 +27,3 @@ class Issue445Test {
     }
 
 }
-
