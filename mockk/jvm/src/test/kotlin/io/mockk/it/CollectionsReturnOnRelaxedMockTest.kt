@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.RelaxedMockK
@@ -7,31 +7,34 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class ReturningCollections {
-    fun getList(): List<Any> {
-        return listOf()
-    }
-    fun getMap(): Map<Any, Any> {
-        return mapOf()
-    }
-    fun getSet(): Set<Any> {
-        return setOf()
-    }
-    fun getArrayList(): ArrayList<Any> {
-        return arrayListOf()
-    }
-    fun getHashMap(): HashMap<Any, Any> {
-        return hashMapOf()
-    }
-    fun getHashSet(): HashSet<Any> {
-        return hashSetOf()
-    }
-}
+/**
+ * Test related to github issue #386
+ */
+class CollectionsReturnOnRelaxedMockTest {
 
-class Issue386Test {
+    class ReturningCollections {
+        fun getList(): List<Any> {
+            return listOf()
+        }
+        fun getMap(): Map<Any, Any> {
+            return mapOf()
+        }
+        fun getSet(): Set<Any> {
+            return setOf()
+        }
+        fun getArrayList(): ArrayList<Any> {
+            return arrayListOf()
+        }
+        fun getHashMap(): HashMap<Any, Any> {
+            return hashMapOf()
+        }
+        fun getHashSet(): HashSet<Any> {
+            return hashSetOf()
+        }
+    }
 
     @RelaxedMockK
-    private lateinit var returningCollections : ReturningCollections
+    private lateinit var returningCollections: ReturningCollections
 
     @Before
     fun setup() {
@@ -79,5 +82,6 @@ class Issue386Test {
         assertEquals(0, hashset.size)
         assertTrue(hashset.isEmpty())
     }
+
 
 }
