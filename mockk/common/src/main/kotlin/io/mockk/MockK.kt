@@ -99,6 +99,13 @@ fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = Mock
 }
 
 /**
+ * Alias for [every].
+ */
+fun <T> given(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
+    MockKDsl.internalEvery(stubBlock)
+}
+
+/**
  * Stub block to return Unit result. Part of DSL.
  *
  * Used to define what behaviour is going to be mocked.
@@ -113,6 +120,13 @@ fun justRun(stubBlock: MockKMatcherScope.() -> Unit) = every(stubBlock) just Run
  * @see [every]
  */
 fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
+    MockKDsl.internalCoEvery(stubBlock)
+}
+
+/**
+ * Alias for [coEvery].
+ */
+fun <T> coGiven(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
     MockKDsl.internalCoEvery(stubBlock)
 }
 
@@ -150,6 +164,21 @@ fun verify(
 }
 
 /**
+ * Alias for [verify].
+ */
+fun then(
+    ordering: Ordering = Ordering.UNORDERED,
+    inverse: Boolean = false,
+    atLeast: Int = 1,
+    atMost: Int = Int.MAX_VALUE,
+    exactly: Int = -1,
+    timeout: Long = 0,
+    verifyBlock: MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
+    MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
+}
+
+/**
  * Verifies that calls were made inside a coroutine.
  *
  * @param ordering how the verification should be ordered
@@ -164,6 +193,29 @@ fun verify(
  * @see [verify]
  */
 fun coVerify(
+    ordering: Ordering = Ordering.UNORDERED,
+    inverse: Boolean = false,
+    atLeast: Int = 1,
+    atMost: Int = Int.MAX_VALUE,
+    exactly: Int = -1,
+    timeout: Long = 0,
+    verifyBlock: suspend MockKVerificationScope.() -> Unit
+) = MockK.useImpl {
+    MockKDsl.internalCoVerify(
+        ordering,
+        inverse,
+        atLeast,
+        atMost,
+        exactly,
+        timeout,
+        verifyBlock
+    )
+}
+
+/**
+ * Alias for [coVerify].
+ */
+fun coThen(
     ordering: Ordering = Ordering.UNORDERED,
     inverse: Boolean = false,
     atLeast: Int = 1,

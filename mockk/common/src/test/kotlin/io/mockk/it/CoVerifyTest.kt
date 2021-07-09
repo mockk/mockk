@@ -155,4 +155,23 @@ class CoVerifyTest {
             mock.op(7)
         }
     }
+
+    @Test
+    fun checkAlias() {
+        coGiven { mock.op(5) } returns 1
+        coGiven { mock.op(6) } returns 2
+        coGiven { mock.op(7) } returns 3
+
+        InternalPlatformDsl.runCoroutine {
+            assertEquals(1, mock.op(5))
+            assertEquals(2, mock.op(6))
+            assertEquals(3, mock.op(7))
+        }
+
+        coThen {
+            mock.op(5)
+            mock.op(6)
+            mock.op(7)
+        }
+    }
 }

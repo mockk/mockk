@@ -1,9 +1,11 @@
 package io.mockk.it
 
 import io.mockk.every
+import io.mockk.given
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.then
 import io.mockk.verify
 import io.mockk.verifyAll
 import io.mockk.verifyOrder
@@ -173,6 +175,23 @@ class VerifyTest {
 
         verify(exactly = 1) { bar.baz("$foo") }
 
+    }
+
+    @Test
+    fun checkAlias() {
+        given { mock.op(5) } returns 1
+        given { mock.op(6) } returns 2
+        given { mock.op(7) } returns 3
+
+        assertEquals(1, mock.op(5))
+        assertEquals(2, mock.op(6))
+        assertEquals(3, mock.op(7))
+
+        then {
+            mock.op(5)
+            mock.op(6)
+            mock.op(7)
+        }
     }
 
     /**
