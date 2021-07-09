@@ -14,7 +14,6 @@ buildscript {
     repositories {
         mavenCentral()
         google()
-        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
@@ -31,9 +30,7 @@ subprojects { subProject ->
 
     repositories {
         mavenCentral()
-        maven { url = "https://dl.bintray.com/linkedin/maven/" }
         google()
-        jcenter()
     }
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
