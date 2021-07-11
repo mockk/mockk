@@ -180,8 +180,9 @@
                 }
                 r += stat.prob
             }
-            console.log(r, dice);
-            statItem = stats[stats.length - 1];
+            if (!statItem) {
+                statItem = stats[stats.length - 1];
+            }
 
             var city = statItem.city;
             var country = statItem.country;
