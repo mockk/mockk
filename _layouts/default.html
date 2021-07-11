@@ -170,7 +170,19 @@
         var stats = [];
 
         function showNextMessage() {
-            var statItem = stats[Math.floor(Math.random() * stats.length)];
+            var dice = Math.random();
+
+            var r = 0;
+            var statItem;
+            for (statItem of stats) {
+                if (r >= dice) {
+                    break;
+                }
+                r += stat.prob
+            }
+            console.log(r, dice);
+            statItem = stats[stats.length - 1];
+
             var city = statItem.city;
             var country = statItem.country;
             var users = statItem.users;
@@ -208,8 +220,18 @@
                             continue;
                         }
 
-                        stats.push({city: city, country: country, users: users});
+                        stats.push({city: city, country: country, users: users, prob: Math.log2(users + 15)});
                     }
+                    var sum = 0;
+                    for (stat of stats) {
+                        sum += stat.prob;
+                        console.log(stat.prob);
+                    }
+                    for (stat of stats) {
+                        stat.prob /= sum;
+                        console.log(stat.prob);
+                    }
+
                     showNextMessage();
                 })
                 .catch(console.error);
