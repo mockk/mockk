@@ -189,7 +189,7 @@
                         return Promise.resolve(result);
                     }
                 })
-                .then(it => it.json())
+                .then(it => it.text())
                 .then(data => {
                     for (var row of data.split("\n")) {
                         var arr = row.split("\t");
