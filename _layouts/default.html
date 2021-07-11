@@ -176,7 +176,7 @@
             var users = statItem.users;
 
             var messageElement = document.getElementById("message");
-            messageElement.innerHTML = "Hello from " + city + " (" + country + "), " + users + " MockK users reside there. Place a flag <a href=''>here</a>(small flash mob)! <a href='javascript: return showNextMessage();'/>Next...</a>";
+            messageElement.innerHTML = "Hello from " + city + ", " + country + ". " + users + " MockK users reside there. Place a flag <a href=''>here</a>(small flash mob)! <a href='javascript: return showNextMessage();'/>Next...</a>";
             return false;
         }
 
@@ -216,7 +216,7 @@
         }
     </script>
 </head>
-<body onload="handlePageLoad">
+<body onload="handlePageLoad()">
 <section class="page-header">
     <h1 class="project-name"><a href="/">{{ site.title | default: site.github.repository_name }}</a></h1>
     <h2 class="project-tagline">{{ site.tag_line | site.description | default: site.github.project_tagline }}</h2>
