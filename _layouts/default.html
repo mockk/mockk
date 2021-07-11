@@ -186,7 +186,7 @@
                     if (result.status !== 200) {
                         return Promise.reject("failed to fetch stats");
                     } else {
-                        return Promise.resolve();
+                        return Promise.resolve(result);
                     }
                 })
                 .then(it => it.json())
