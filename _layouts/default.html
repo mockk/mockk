@@ -221,7 +221,7 @@
                             continue;
                         }
 
-                        stats.push({city: city, country: country, users: users, prob: Math.log2(users + 1)});
+                        stats.push({city: city, country: country, users: users, prob: users});
                     }
                     var sum = 0;
                     for (stat of stats) {
