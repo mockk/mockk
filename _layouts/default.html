@@ -193,9 +193,12 @@
                 .then(data => {
                     for (var row of data.split("\n")) {
                         var arr = row.split("\t");
-                        const city = arr[0];
-                        const country = arr[1];
-                        const users = parseInt(arr[2]);
+                        if (arr.length !== 3) {
+                            continue;
+                        }
+                        var city = arr[0];
+                        var country = arr[1];
+                        var users = parseInt(arr[2]);
 
                         if (city.indexOf("(not set)") !== -1) {
                             continue;
@@ -209,7 +212,7 @@
                     }
                     showNextMessage();
                 })
-                .catch(msg => console.error(msg));
+                .catch(console.error);
         }
     </script>
 </head>
