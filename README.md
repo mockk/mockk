@@ -180,8 +180,8 @@ Check the `lookupType` parameter for customization.
 Properties are injected even if `private` is applied. Constructors for injection are selected from the biggest 
 number of arguments to lowest.
 
-`@InjectMockKs` by default is injecting only `lateinit var`s or `var`s that are not assigned. 
-To change this, use `overrideValues = true`. This would assign the value even if it is already somehow initialized.
+`@InjectMockKs` by default injects only `lateinit var`s or `var`s that are not assigned. 
+To change this, use `overrideValues = true`. This would assign the value even if it is already initialized somehow.
 To inject `val`s, use `injectImmutable = true`. For a shorter notation use `@OverrideMockKs` which does the same as 
 `@InjectMockKs` by default, but turns these two flags on.
 
@@ -222,24 +222,24 @@ fun calculateAddsValues1(@MockK car1: Car, @RelaxedMockK car2: Car) {
 
 ### Spy
 
-Spies allow to mix mocks and real objects.
+Spies allow you to mix mocks and real objects.
 
 ```kotlin
-val car = spyk(Car()) // or spyk<Car>() to call default constructor
+val car = spyk(Car()) // or spyk<Car>() to call the default constructor
 
-car.drive(Direction.NORTH) // returns whatever real function of Car returns
+car.drive(Direction.NORTH) // returns whatever the real function of Car returns
 
 verify { car.drive(Direction.NORTH) }
 
 confirmVerified(car)
 ```
 
-Note: the spy object is a copy of a passed object.
+Note: the spy object is a copy of the passed object.
 
 ### Relaxed mock
 
 A `relaxed mock` is the mock that returns some simple value for all functions. 
-This allows to skip specifying behavior for each case, while still allowing to stub things you need.
+This allows you to skip specifying behavior for each case, while still stubbing things you need.
 For reference types, chained mocks are returned.
 
 ```kotlin
@@ -253,7 +253,7 @@ confirmVerified(car)
 ```
 
 Note: relaxed mocking is working badly with generic return types. A class cast exception is usually thrown in this case.
-Opt for stubbing manually in case of a generic return type.
+Opt for stubbing manually in the case of a generic return type.
 
 Workaround:
 
@@ -268,18 +268,18 @@ func()
 
 ### Mock relaxed for functions returning Unit
 
-In case you would like `Unit` returning functions to be relaxed, you can use `relaxUnitFun = true` as an argument to the `mockk` function, 
+If you want `Unit`-returning functions to be relaxed, you can use `relaxUnitFun = true` as an argument to the `mockk` function, 
 `@MockK`annotation or `MockKAnnotations.init` function.
 
 Function:
 ```kotlin
-mockk<MockCls>(relaxUnitFun = true)
+mockk<ClassBeingMocked>(relaxUnitFun = true)
 ```
 
 Annotation:
 ```kotlin
 @MockK(relaxUnitFun = true)
-lateinit var mock1: RurfMockCls
+lateinit var mock1: ClassBeingMocked
 init {
     MockKAnnotations.init(this)
 }
@@ -288,7 +288,7 @@ init {
 MockKAnnotations.init:
 ```kotlin
 @MockK
-lateinit var mock2: RurfMockCls
+lateinit var mock2: ClassBeingMocked
 init {
     MockKAnnotations.init(this, relaxUnitFun = true)
 }
@@ -296,20 +296,20 @@ init {
 
 ### Object mocks
 
-Objects can be transformed to mocks in the following way:
+Objects can be turned into mocks in the following way:
 
 ```kotlin
-object MockObj {
+object ObjBeingMocked {
   fun add(a: Int, b: Int) = a + b
 }
 
-mockkObject(MockObj) // applies mocking to an Object
+mockkObject(ObjBeingMocked) // applies mocking to an Object
 
-assertEquals(3, MockObj.add(1, 2))
+assertEquals(3, ObjBeingMocked.add(1, 2))
 
-every { MockObj.add(1, 2) } returns 55
+every { ObjBeingMocked.add(1, 2) } returns 55
 
-assertEquals(55, MockObj.add(1, 2))
+assertEquals(55, ObjBeingMocked.add(1, 2))
 ```
 
 To revert back, use `unmockkAll` or `unmockkObject`:
@@ -317,30 +317,30 @@ To revert back, use `unmockkAll` or `unmockkObject`:
 ```kotlin
 @Before
 fun beforeTests() {
-    mockkObject(MockObj)
+    mockkObject(ObjBeingMocked)
     every { MockObj.add(1,2) } returns 55
 }
 
 @Test
 fun willUseMockBehaviour() {
-    assertEquals(55, MockObj.add(1,2))
+    assertEquals(55, ObjBeingMocked.add(1,2))
 }
 
 @After
 fun afterTests() {
     unmockkAll()
-    // or unmockkObject(MockObj)
+    // or unmockkObject(ObjBeingMocked)
 }
 ```
 
-Despite the Kotlin language limits, you can create new instances of objects if required by testing logic:
+Despite the Kotlin language restrictions, you can create new instances of objects if required by testing logic:
 ```kotlin
 val newObjectMock = mockk<MockObj>()
 ```
 
 ### Class mock
 
-Sometimes you need a mock of arbitrary class. Use `mockkClass` in those cases.
+Sometimes you need a mock of an arbitrary class. Use `mockkClass` in those cases.
 
 ```kotlin
 val car = mockkClass(Car::class)
@@ -386,12 +386,12 @@ assertEquals(4, MockCls().add(1, 2)) // note new object is created
 verify { anyConstructed<MockCls>().add(1, 2) }
 ```
 
-The basic idea is that just after the constructor of the mocked class is executed (any of them), objects become a `constructed mock`.
-Mocking behavior of such a mock is connected to the special `prototype mock` denoted by `anyConstructed<MockCls>()`.
-There is one instance per class of such a `prototype mock`. Call recording also happens to the `prototype mock`.
-If no behavior for the function is specified then the original function is executed.
+The basic idea is that just after the constructor of the mocked class is executed (any of them), objects become a `constructed mock`.  
+Mocking behavior of such a mock is connected to the special `prototype mock` denoted by `anyConstructed<MockCls>()`.  
+There is one instance per class of such a `prototype mock`. Call recording also happens to the `prototype mock`.  
+If no behavior for the function is specified, then the original function is executed.  
 
-In case a class has more than one constructor, they can be mocked separately:
+In case a class has more than one constructor, each can be mocked separately:
 
 ```kotlin
 class MockCls(private val a: Int = 0) {
@@ -403,10 +403,10 @@ mockkConstructor(MockCls::class)
 
 every { constructedWith<MockCls>().add(1) } returns 2
 every { 
-    constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).add(2) // Mocks the constructor taking a String
+    constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).add(2) // Mocks the constructor which takes a String
 } returns 3
 every {
-    constructedWith<MockCls>(EqMatcher(4)).add(any()) // Mocks the constructor taking an Int
+    constructedWith<MockCls>(EqMatcher(4)).add(any()) // Mocks the constructor which takes an Int
 } returns 4
 
 assertEquals(2, MockCls().add(1))
@@ -463,10 +463,10 @@ verify { car.door(DoorType.FRONT_LEFT).windowState() }
 confirmVerified(car)
 ```
 
-Note: in case the function's return type is generic then the information about the actual type is gone.
-To make chained calls work, additional information is required.
-Most of the time the framework will catch the cast exception and do `autohinting`.
-In the case it is explicitly required, use `hint` before making the next call.
+Note: if the function's return type is generic then the information about the actual type is gone.  
+To make chained calls work, additional information is required.  
+Most of the time the framework will catch the cast exception and do `autohinting`.  
+In the case it is explicitly required, use `hint` before making the next call.  
 
 ```kotlin
 every { obj.op2(1, 2).hint(Int::class).op1(3, 4) } returns 5
@@ -524,7 +524,7 @@ val list = mutableListOf<Double>()
 
 every {
   car.recordTelemetry(
-    speed = capture(slot), // makes mock match call with any value for `speed` and record it in a slot
+    speed = capture(slot), // makes mock match calls with any value for `speed` and record it in a slot
     direction = Direction.NORTH // makes mock and capturing only match calls with specific `direction`. Use `any()` to match calls with any `direction`
   )
 } answers {
@@ -579,7 +579,7 @@ confirmVerified(car)
 * `verifyAll` verifies that all calls happened without checking their order.
 * `verifySequence` verifies that the calls happened in a specified sequence.
 * `verifyOrder` verifies that calls happened in a specific order.
-* `wasNot Called` verifies that the mock or the list of mocks was not called at all.
+* `wasNot Called` verifies that the mock (or the list of mocks) was not called at all.
 
 ```kotlin
 class MockedClass {
@@ -633,11 +633,11 @@ To double check that all calls were verified by `verify...` constructs, you can 
 confirmVerified(mock1, mock2)
 ```
 
-It does not make much sense to use it for `verifySequence` and `verifyAll` as these verification methods already exhaustively cover all calls with verification.
+It doesn't make much sense to use it for `verifySequence` and `verifyAll`, as these verification methods already exhaustively cover all calls with verification.
 
-It will throw an exception in case there are some calls left without verification.
+It will throw an exception if there are some calls left without verification.
 
-Some calls may be skipped from such confirmation, check the next section for more details.
+Some calls can be excluded from this confirmation, check the next section for more details.
 
 ```
 val car = mockk<Car>()
@@ -658,13 +658,13 @@ confirmVerified(car) // makes sure all calls were covered with verification
 
 ### Recording exclusions
 
-To exclude some not so important calls from being recorded you can use `excludeRecords`:
+To exclude unimportant calls from being recorded, you can use `excludeRecords`:
 
 ```
 excludeRecords { mock.operation(any(), 5) }
 ```
 
-All matching calls will be excluded from recording. This may be useful in case you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
+All matching calls will be excluded from recording. This may be useful if you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
 
 ```
 val car = mockk<Car>()
@@ -701,11 +701,11 @@ mockk<MockCls> {
 }
 ```
 
-This will wait until one of two following states: either verification is passed or timeout is reached.
+This will wait until one of two following states: either verification is passed or the timeout is reached.
 
 ### Returning Unit
 
-If the function is returning `Unit` you can use the `justRun` construct:
+If a function returns `Unit`, you can use the `justRun` construct:
 
 ```kotlin
 class MockedClass {
@@ -729,7 +729,7 @@ verify {
 }
 ```
 
-Another ways to write `justRun { obj.sum(any(), 3) }` is:
+Other ways to write `justRun { obj.sum(any(), 3) }`:
  - `every { obj.sum(any(), 3) } just Runs`
  - `every { obj.sum(any(), 3) } returns Unit`
  - `every { obj.sum(any(), 3) } answers { Unit }`
@@ -777,14 +777,13 @@ coVerify { car.drive(Direction.NORTH) }
 ```
 ### Extension functions
 
-There are three cases of extension function:
+There are three types of extension function in Kotlin:
 
-* class wide
-* object wide
-* module wide
+* class-wide
+* object-wide
+* module-wide
 
-In case of an object or a class, you can mock extension functions just by creating a
-regular `mockk`:
+For an object or a class, you can mock extension functions just by creating a regular `mockk`:
 
 ```kotlin
 data class Obj(val value: Int)
@@ -806,8 +805,8 @@ with(mockk<Ext>()) {
 }
 ```
 
-To mock module wide extension functions you need to
-build `mockkStatic(...)` with as argument the module's class name.
+To mock module-wide extension functions you need to
+build `mockkStatic(...)` with the module's class name as an argument.
 For example "pkg.FileKt" for module `File.kt` in the `pkg` package.
 
 ```kotlin
@@ -829,7 +828,7 @@ verify {
 }
 ```
 
-On `jvm` environments you can replace the class name with a function reference:
+In `jvm` environments you can replace the class name with a function reference:
 ```kotlin
 mockkStatic(Obj::extensionFunc)
 ```
@@ -858,7 +857,7 @@ mockkStatic("khttp.KHttp")
 ```
 
 Sometimes you need to know a little bit more to mock an extension function. 
-For example `File.endsWith()` extension function has a totally unpredictable `classname`:
+For example the extension function `File.endsWith()` has a totally unpredictable `classname`:
 ```kotlin
    mockkStatic("kotlin.io.FilesKt__UtilsKt")
    every { File("abc").endsWith(any<String>()) } returns true
@@ -869,7 +868,7 @@ Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR arc
 
 ### Varargs
 
-From version 1.9.1 more extended vararg handling is possible:
+From version 1.9.1, more extended vararg handling is possible:
 
 ```kotlin
     interface ClsWithManyMany {
@@ -907,7 +906,7 @@ From version 1.9.1 more extended vararg handling is possible:
 
 ### Private functions mocking / dynamic calls
 
-In case you have a need to mock private functions, you can do it via a dynamic call.
+IF you need to mock private functions, you can do it via a dynamic call.
 ```kotlin
 class Car {
     fun drive() = accelerate()
@@ -927,7 +926,7 @@ verifySequence {
 }
 ```
 
-In case you want private calls to be verified, you should create a `spyk` with `recordPrivateCalls = true`
+If you want to verify private calls, you should create a `spyk` with `recordPrivateCalls = true`
 
 Additionally, a more verbose syntax allows you to get and set properties, combined with the same dynamic calls:
 
@@ -946,7 +945,7 @@ verify { mock invoke "openDoor" withArguments listOf("left", "rear") }
 
 ### Property backing fields
 
-You can access the backing fields via `fieldValue` and use `value` for value being set.
+You can access the backing fields via `fieldValue` and use `value` for the value being set.
 
 Note: in the examples below, we use `propertyType` to specify the type of the `fieldValue`.
 This is needed because it is possible to capture the type automatically for the getter.
@@ -1006,12 +1005,12 @@ every { quit(1) } throws Exception("this is a test")
 
 ### Clearing vs Unmocking
 
-* clear - deletes internal state of objects associated with mock resulting in empty object
+* clear - deletes the internal state of objects associated with a mock, resulting in an empty object
 * unmock - re-assigns transformation of classes back to original state prior to mock
 
 ## Matcher extensibility
 
-A very simple way is to create new matchers by attaching a function 
+A very simple way to create new matchers is by attaching a function 
 to `MockKMatcherScope` or `MockKVerificationScope` and using the `match` function:
 
 ```
@@ -1020,7 +1019,7 @@ to `MockKMatcherScope` or `MockKVerificationScope` and using the `match` functio
     }
 ```
 
-Also, it is possible to create more advanced matchers by implementing the `Matcher` interface. 
+It's also possible to create more advanced matchers by implementing the `Matcher` interface. 
 
 ### Custom matchers
 
@@ -1091,11 +1090,11 @@ inline fun <reified T : List<E>, E : Any> MockKMatcherScope.matchListWithoutOrde
 
 ## Settings file
 
-To adjust parameters globally, there is a possibility to specify a few settings in a resource file.
+To adjust parameters globally, there are a few settings you can specify in a resource file.
 
 How to use: 
  1. Create a `io/mockk/settings.properties` file in `src/main/resources`.
- 2. Put one of following options:
+ 2. Put any of the following options:
 ```properties
 relaxed=true|false
 relaxUnitFun=true|false
@@ -1104,7 +1103,8 @@ stackTracesOnVerify=true|false
 stackTracesAlignment=left|center
 ```
 
-Where `stackTracesAlignment` determines whether to align the stack traces displayed when showing recorded calls to the center (default) or to the left (more consistent with usual JVM stackTraces).
+`stackTracesAlignment` determines whether to align the stack traces to the center (default),
+ or to the left (more consistent with usual JVM stackTraces).
 
 ## DSL tables
 
@@ -1133,13 +1133,13 @@ Here are a few tables to help you master the DSL.
 |`clearMocks`|clears specified mocks|
 |`registerInstanceFactory`|allows you to redefine the way of instantiation for certain object|
 |`mockkClass`|builds a regular mock by passing the class as parameter|
-|`mockkObject`|makes an object an object mock or clears it if was already transformed|
-|`unmockkObject`|makes an object mock back to a regular object|
-|`mockkStatic`|makes a static mock out of a class or clears it if it was already transformed|
-|`unmockkStatic`|makes a static mock back to a regular class|
+|`mockkObject`|turns an object into an object mock, or clears it if was already transformed|
+|`unmockkObject`|turns an object mock back into a regular object|
+|`mockkStatic`|makes a static mock out of a class, or clears it if it was already transformed|
+|`unmockkStatic`|turns a static mock back into a regular class|
 |`clearStaticMockk`|clears a static mock|
-|`mockkConstructor`|makes a constructor mock out of a class or clears it if it was already transformed|
-|`unmockkConstructor`|makes a constructor mock back to a regular class|
+|`mockkConstructor`|makes a constructor mock out of a class, or clears it if it was already transformed|
+|`unmockkConstructor`|turns a constructor mock back into a regular class|
 |`clearConstructorMockk`|clears the constructor mock|
 |`unmockkAll`|unmocks object, static and constructor mocks|
 |`clearAllMocks`|clears regular, object, static and constructor mocks|
@@ -1162,7 +1162,7 @@ By default, simple arguments are matched using `eq()`
 |`coMatchNullable { it?.startsWith("string") }`|matches nullable value via the passed coroutine predicate|
 |`eq(value)`|matches if the value is equal to the provided value via the `deepEquals` function|
 |`eq(value, inverse=true)`|matches if the value is not equal to the provided value via the `deepEquals` function|
-|`neq(value)`|matches if the value is not equal to the provided value via `deepEquals` function|
+|`neq(value)`|matches if the value is not equal to the provided value via the `deepEquals` function|
 |`refEq(value)`|matches if the value is equal to the provided value via reference comparison|
 |`refEq(value, inverse=true)`|matches if the value is not equal to the provided value via reference comparison||
 |`nrefEq(value)`|matches if the value is not equal to the provided value via reference comparison||
@@ -1184,11 +1184,11 @@ By default, simple arguments are matched using `eq()`
 |`coInvoke(...)`|calls a matched argument for a coroutine|
 |`hint(cls)`|hints the next return type in case it's gotten erased|
 |`anyVararg()`|matches any elements in a vararg|
-|`varargAny(matcher)`|matches if any element is matching the matcher|
-|`varargAll(matcher)`|matches if all elements are matching the matcher|
+|`varargAny(matcher)`|matches if any element matches the matcher|
+|`varargAll(matcher)`|matches if all elements match the matcher|
 |`any...Vararg()`|matches any elements in vararg (specific to primitive type)|
-|`varargAny...(matcher)`|matches if any element is matching the matcher (specific to the primitive type)|
-|`varargAll...(matcher)`|matches if all elements are matching the matcher (specific to the primitive type)|
+|`varargAny...(matcher)`|matches if any element matches the matcher (specific to the primitive type)|
+|`varargAll...(matcher)`|matches if all elements match the matcher (specific to the primitive type)|
 
 A few special matchers available in verification mode only:
 
@@ -1228,8 +1228,8 @@ An Answer can be followed up by one or more additional answers.
 |`answers answerObj`|specify that the matched call answers with an Answer object|
 |`answers { nothing }`|specify that the matched call answers null|
 |`just Runs`|specify that the matched call is returning Unit (returns null)|
-|`propertyType Class`|specify the type of backing field accessor|
-|`nullablePropertyType Class`|specify the type of backing field accessor as a nullable type|
+|`propertyType Class`|specify the type of the backing field accessor|
+|`nullablePropertyType Class`|specify the type of the backing field accessor as a nullable type|
 
 
 ### Additional answer(s)
@@ -1240,7 +1240,7 @@ So this is similar to the `returnsMany` semantics.
 |Additional answer|Description|
 |------------------|-----------|
 |`andThen value`|specify that the matched call returns one specified value|
-|`andThenMany list`|specify that the matched call returns value from the list, returning each time next element|
+|`andThenMany list`|specify that the matched call returns a value from the list, with subsequent calls returning the next element|
 |`andThenThrows ex`|specify that the matched call throws an exception|
 |`andThen { code }`|specify that the matched call answers with a code block scoped with `answer scope`|
 |`coAndThen { code }`|specify that the matched call answers with a coroutine code block with `answer scope`|
@@ -1256,9 +1256,9 @@ So this is similar to the `returnsMany` semantics.
 |`matcher`|contains information regarding the matcher used to match the invocation|
 |`self`|reference to the object invocation made|
 |`method`|reference to the function invocation made|
-|`args`|reference to the arguments of invocation|
-|`nArgs`|number of invocation argument|
-|`arg(n)`|n-th argument|
+|`args`|reference to the invocation arguments|
+|`nArgs`|number of invocation arguments|
+|`arg(n)`|nth argument|
 |`firstArg()`|first argument|
 |`secondArg()`|second argument|
 |`thirdArg()`|third argument|
@@ -1266,19 +1266,19 @@ So this is similar to the `returnsMany` semantics.
 |`captured()`|the last element in the list for convenience when capturing to a list|
 |`lambda<...>().invoke()`|call the captured lambda|
 |`coroutine<...>().coInvoke()`|call the captured coroutine|
-|`nothing`|null value for returning nothing as an answer|
+|`nothing`|null value for returning `nothing` as an answer|
 |`fieldValue`|accessor to the property backing field|
 |`fieldValueAny`|accessor to the property backing field with `Any?` type|
-|`value`|value being set casted to same type as the property backing field|
-|`valueAny`|value being set with `Any?` type|
+|`value`|value being set, cast to the same type as the property backing field|
+|`valueAny`|value being set, with `Any?` type|
 |`callOriginal`|calls the original function|
 
 ### Vararg scope
 
 |Parameter|Description|
 |---------|-----------|
-|`position`|the position of an argument in vararg array|
-|`nArgs`|overall count of arguments in vararg array|
+|`position`|the position of an argument in a vararg array|
+|`nArgs`|overall count of arguments in a vararg array|
 
 ## Funding
 
