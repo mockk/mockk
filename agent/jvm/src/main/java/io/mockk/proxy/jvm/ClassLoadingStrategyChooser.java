@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import net.bytebuddy.dynamic.loading.ClassInjector;
@@ -31,7 +32,10 @@ public class ClassLoadingStrategyChooser {
     public static <T> ClassLoadingStrategy<ClassLoader> chooseClassLoadingStrategy(Class<T> type) {
         try {
             final ClassLoadingStrategy<ClassLoader> strategy;
-            if (!type.getName().startsWith("java.") && ClassInjector.UsingLookup.isAvailable()
+            if (!type.getName().startsWith("java.") &&
+                    ClassInjector.UsingLookup.isAvailable() &&
+                    // based on https://github.com/jmock-developers/jmock-library/issues/127
+                    type.getClassLoader() == ClassLoadingStrategyChooser.class.getClassLoader()
                 && PRIVATE_LOOKUP_IN != null && LOOKUP != null) {
                 Object privateLookup = PRIVATE_LOOKUP_IN.invoke(null, type, LOOKUP);
                 strategy = ClassLoadingStrategy.UsingLookup.of(privateLookup);
