@@ -1221,6 +1221,7 @@ An Answer can be followed up by one or more additional answers.
 |Answer|Description|
 |------|-----------|
 |`returns value`|specify that the matched call returns a specified value|
+|`returnsArgument`|specify that the matched call returns a specified argument|
 |`returnsMany list`|specify that the matched call returns a value from the list, with subsequent calls returning the next element|
 |`throws ex`|specify that the matched call throws an exception|
 |`answers { code }`|specify that the matched call answers with a code block scoped with `answer scope`|
