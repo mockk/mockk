@@ -62,16 +62,16 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
     override fun call(invocation: Invocation): Any? {
         val retType = recorder.childHinter.nextChildType { invocation.method.returnType }
         var isTemporaryMock = false
-
-        val retValue =
-            if (invocation.method.isToString()) {
-                recorder.stubRepo[invocation.self]?.toStr() ?: ""
-            } else {
-                recorder.anyValueGenerator().anyValue(retType, invocation.method.returnTypeNullable) {
-                    isTemporaryMock = true
-                    recorder.mockFactory.temporaryMock(retType)
-                }
-            }
+        val temporaryMock: () -> Any = {
+            isTemporaryMock = true
+            recorder.mockFactory.temporaryMock(retType)
+        }
+        val retValue = when {
+            invocation.method.isToString() -> recorder.stubRepo[invocation.self]?.toStr() ?: ""
+            retType in CollectionTypes -> temporaryMock()
+            else -> recorder.anyValueGenerator()
+                .anyValue(retType, invocation.method.returnTypeNullable, orInstantiateVia = temporaryMock)
+        }
 
         if (retValue == null) {
             isTemporaryMock = false
@@ -191,4 +191,14 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
     private fun builder(): CallRoundBuilder = callRoundBuilder
         ?: throw MockKException("Call builder is not initialized. Bad state")
 
+    private companion object {
+        private val CollectionTypes = listOf(
+            List::class,
+            Map::class,
+            Set::class,
+            ArrayList::class,
+            HashMap::class,
+            HashSet::class
+        )
+    }
 }
