@@ -96,13 +96,19 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
 <td>
-    <pre>testImplementation "io.mockk:mockk:{version}"</pre>
+<pre>
+testImplementation "io.mockk:mockk:{version}"
+testImplementation "io.mockk:mockk-agent-jvm:{version}"
+</pre>
 </td>
 </tr>
 <tr>
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
 <td>
-    <pre>androidTestImplementation "io.mockk:mockk-android:{version}"</pre>
+<pre>
+androidTestImplementation "io.mockk:mockk-android:{version}"
+androidTestImplementation "io.mockk:mockk-agent-jvm:{version}"
+</pre>
 </td>
 </tr>
 <tr>
