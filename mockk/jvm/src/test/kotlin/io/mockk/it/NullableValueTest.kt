@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Suppress("UNUSED_PARAMETER")
-class NullableValueGeneratorTest {
+class NullableValueTest {
     class NullableValueGenerator(
         voidInstance: Any
     ) : JvmAnyValueGenerator(voidInstance) {
