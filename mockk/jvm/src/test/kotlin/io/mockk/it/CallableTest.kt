@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.CapturingSlot
 import io.mockk.every
@@ -8,7 +8,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import kotlin.test.Test
 
-class Issue229Test {
+/**
+ * github issue #229
+ */
+class CallableTest {
     @Test
     fun test() {
         val taskCaptor = CapturingSlot<Callable<Boolean>>().apply {
@@ -20,7 +23,6 @@ class Issue229Test {
                 CompletableFuture.completedFuture(taskCaptor.captured.call())
             }
         }
-
 
         asyncTaskExecutor.submit(Callable<Boolean> { true })
     }
