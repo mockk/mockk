@@ -272,7 +272,7 @@ every { func() } returns Car() // or you can return mockk() for example
 func()
 ```
 
-### Real partial (relaxed) mock
+### Partial mocking
 
 Sometimes, you need to stub some functions, but still call the real method on others, or on specific arguments.
 This is possible by passing `callOriginal()` to `answers`, which works for both relaxed and non-relaxed mocks.
