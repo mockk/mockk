@@ -1,10 +1,13 @@
+plugins {
+    id("mpp-jvm")
+}
+
 ext {
     mavenName = 'MockK Common Agent classes'
     mavenDescription = 'Common classes for agents'
 }
 
 apply from: "${gradles}/jacoco.gradle"
-apply from: "${gradles}/jvm-module.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 apply from: "${gradles}/upload.gradle"
 

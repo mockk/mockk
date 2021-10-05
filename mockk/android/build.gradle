@@ -1,9 +1,11 @@
+plugins {
+    id("mpp-android")
+}
+
 ext {
     mavenName = 'MockK Android'
     mavenDescription = 'mocking library for Kotlin (Android instrumented test)'
 }
-apply plugin: 'com.android.library'
-apply from: "${gradles}/android-module.gradle"
 apply from: "${gradles}/upload.gradle"
 
 android {

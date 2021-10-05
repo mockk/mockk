@@ -1,10 +1,13 @@
+plugins {
+    id("mpp-jvm")
+}
+
 ext {
     mavenName = 'MockK Java Agent'
     mavenDescription = 'MockK inline mocking agent'
 }
 
 apply from: "${gradles}/jacoco.gradle"
-apply from: "${gradles}/jvm-module.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 apply from: "${gradles}/upload.gradle"
 
