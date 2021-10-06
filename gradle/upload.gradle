@@ -13,7 +13,10 @@ afterEvaluate {
                     }
                 } else if (components.findByName("release") != null) {
                     from components["release"]
-                    artifact androidSourcesJar
+                    artifact tasks.register("androidSourcesJar", Jar.class) {
+                            archiveClassifier.set("sources")
+                            from android.sourceSets.main.java.srcDirs
+                        }
                     try {
                         artifact tasks['javadocJar']
                     } catch (UnknownTaskException ignored) {

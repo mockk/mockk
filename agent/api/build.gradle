@@ -1,9 +1,12 @@
+plugins {
+    id("mpp-jvm")
+}
+
 ext {
     mavenName = 'MockK Java Agent API'
     mavenDescription = 'API to build MockK agents'
 }
 
 apply from: "${gradles}/jacoco.gradle"
-apply from: "${gradles}/jvm-module.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 apply from: "${gradles}/upload.gradle"

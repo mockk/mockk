@@ -1,10 +1,12 @@
+plugins {
+    id("mpp-android")
+}
+
 ext {
     mavenName = 'MockK Android Agent'
     mavenDescription = 'Android instrumented testing MockK inline mocking agent'
 }
 
-apply plugin: 'com.android.library'
-apply from: "${gradles}/android-module.gradle"
 apply from: "${gradles}/upload.gradle"
 
 def dispatcherApkResPath = file("$buildDir/generated/dispatcher-apk")

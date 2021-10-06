@@ -1,6 +1,16 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 apply(from = "gradle/detect-android-sdk.gradle")
 
 rootProject.name = "mockk-root"
+includeBuild("plugins/dependencies")
+includeBuild("plugins/configuration")
 
 include("mockk-jvm")
 include("mockk-common")

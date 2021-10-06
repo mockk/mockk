@@ -1,10 +1,13 @@
+plugins {
+    id("mpp-jvm")
+}
+
 ext {
     mavenName = 'Java MockK DSL'
     mavenDescription = 'Java MockK DSL providing API for MockK implementation'
 }
 
 apply from: "${gradles}/jacoco.gradle"
-apply from: "${gradles}/jvm-module.gradle"
 apply from: "${gradles}/upload.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 
