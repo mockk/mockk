@@ -2099,6 +2099,9 @@ class MockKStubScope<T, B>(
 
     fun returnsMany(vararg values: T) = returnsMany(values.toList())
 
+    /**
+     * Returns the nth argument of what has been called.
+     */
     @Suppress("UNCHECKED_CAST")
     infix fun returnsArgument(n: Int): MockKAdditionalAnswerScope<T, B> =
         this answers { invocation.args[n] as T }
