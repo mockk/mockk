@@ -1,9 +1,12 @@
+plugins {
+    id("mpp-common")
+}
+
 ext {
     mavenName = 'MockK DSL common'
     mavenDescription = 'Common(JS and Java) MockK DSL providing API for MockK implementation'
 }
 
-apply from: "${gradles}/common-module.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 apply from: "${gradles}/upload.gradle"
 

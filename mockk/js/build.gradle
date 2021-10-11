@@ -1,10 +1,6 @@
-buildscript {
-    repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-    dependencies {
-        classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
-    }
+plugins {
+    id("mpp-js")
+    id("com.moowork.node") version "1.2.0"
 }
 
 ext {
@@ -12,11 +8,9 @@ ext {
     mavenDescription = 'mocking library for Kotlin (JS)'
 }
 
-apply from: "${gradles}/js-module.gradle"
 apply from: "${gradles}/additional-archives.gradle"
 apply from: "${gradles}/upload.gradle"
 
-apply plugin: 'com.moowork.node'
 
 dependencies {
     expectedBy project(":mockk-common")

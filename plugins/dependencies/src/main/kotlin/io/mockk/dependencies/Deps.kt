@@ -23,7 +23,12 @@ object Deps {
         const val junitVintageEngine = "org.junit.vintage:junit-vintage-engine:${Versions.junitVintage}"
 
         fun kotlinStdLib(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-stdlib:$version"
+        fun kotlinStdLibJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-stdlib-js:$version"
+        fun kotlinTestCommon(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-common:$version"
+        fun kotlinTestCommonAnnotations(version: String = Versions.kotlinDefault) =
+            "org.jetbrains.kotlin:kotlin-test-annotations-common:$version"
         fun kotlinTestJunit(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-junit:$version"
+        fun kotlinTestJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-js:$version"
     }
 
     object Plugins {
