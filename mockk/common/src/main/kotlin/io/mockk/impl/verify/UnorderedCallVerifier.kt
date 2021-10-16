@@ -105,17 +105,20 @@ open class UnorderedCallVerifier(
                         VerificationResult.Failure(
                             "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls" +
                                     "\nCall: " + allCallsForMock.first() +
-                                    "\nStack trace:\n" +
-                                    stackTrace(0, allCallsForMock.first().callStack())
-
+                                    if (MockKSettings.stackTracesOnVerify)
+                                        "\nStack trace:\n" + stackTrace(0, allCallsForMock.first().callStack())
+                                    else
+                                        ""
                         )
                     }
                 } else {
                     VerificationResult.Failure(safeToString.exec {
                         "$callIdxMsg. Only one matching call to ${stub.toStr()}/${matcher.method.toStr()} happened, but arguments are not matching:\n" +
                                 describeArgumentDifference(matcher, onlyCall) +
-                                "\nStack trace:\n" +
-                                stackTrace(0, allCallsForMock.first().callStack())
+                                if (MockKSettings.stackTracesOnVerify)
+                                    "\nStack trace:\n" + stackTrace(0, allCallsForMock.first().callStack())
+                                else
+                                    ""
                     })
                 }
             }
