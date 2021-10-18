@@ -26,9 +26,17 @@ dependencies {
 
 gradlePlugin {
     plugins {
+        register("mpp-common") {
+            id = "mpp-common"
+            implementationClass = "io.mockk.configuration.CommonConfigurationPlugin"
+        }
         register("mpp-android") {
             id = "mpp-android"
             implementationClass = "io.mockk.configuration.AndroidConfigurationPlugin"
+        }
+        register("mpp-js") {
+            id = "mpp-js"
+            implementationClass = "io.mockk.configuration.JsConfigurationPlugin"
         }
         register("mpp-jvm") {
             id = "mpp-jvm"
