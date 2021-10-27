@@ -1,15 +1,19 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.*
 import kotlin.test.Ignore
 import kotlin.test.Test
 
 @Ignore
-class Issue223Test {
+class CapturingGenericArgumentsTest {
     interface Foo<in T> {
         fun bar(value: T)
     }
 
+    /**
+     * Unable to capture arguments passed to generic functions.
+     * Verifies issue #223.
+     */
     @Test
     fun test() {
         val mock = createMock<Int>()

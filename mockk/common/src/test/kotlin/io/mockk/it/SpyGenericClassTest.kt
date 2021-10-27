@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.mockk
 import io.mockk.spyk
@@ -7,7 +7,21 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @Ignore
-class Issue81Test {
+class SpyGenericClassTest {
+    /**
+     * I want to use spyk for class with generic. It produces StackOverflowError.
+     * Issue is bridge method handling.
+     *
+     * Verifies issue #81.
+     */
+    @Test
+    fun bridgeMethods() {
+        val view = mockk<SomeView>()
+        val childClazz = spyk(ChildClazz(), recordPrivateCalls = true)
+        childClazz.foobar(view)
+        assertEquals(true, childClazz.called)
+    }
+
     private interface ParentView
 
     private interface SomeView : ParentView
@@ -29,14 +43,5 @@ class Issue81Test {
             super.foobar(view)
             called = true
         }
-    }
-
-
-    @Test
-    fun bridgeMethods(){
-        val view = mockk<SomeView>()
-        val childClazz = spyk(ChildClazz(), recordPrivateCalls = true)
-        childClazz.foobar(view)
-        assertEquals(true ,childClazz.called)
     }
 }
