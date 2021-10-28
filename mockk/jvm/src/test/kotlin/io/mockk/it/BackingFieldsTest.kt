@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
@@ -6,7 +6,11 @@ import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Issue149Test {
+/**
+ * Creating stubs for backing fields visible by reflection.
+ * Verifies issue #149.
+ */
+class BackingFieldsTest {
     class MockCls {
         val ret: Int = 5
     }

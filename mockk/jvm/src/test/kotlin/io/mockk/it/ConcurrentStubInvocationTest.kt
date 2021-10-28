@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
@@ -8,7 +8,11 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import kotlin.test.assertEquals
 
-class Issue159Test {
+/**
+ * Executing stubbed methods concurrently sometimes returns wrong value.
+ * Verifies issue #159.
+ */
+class ConcurrentStubInvocationTest {
     @Test
     fun testConcurrentGetMany() {
         val numValues = 10000

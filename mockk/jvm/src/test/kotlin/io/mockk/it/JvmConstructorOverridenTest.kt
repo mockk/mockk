@@ -1,12 +1,16 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.Test
 
+/**
+ * The mocked ::class.java constructor is overriden in the JVM.
+ * Verifies issue #129.
+ */
 @Suppress("UNUSED_VARIABLE")
-class Issue129Test {
+class JvmConstructorOverridenTest {
     @Test
     fun testConstructorGetParametersMocked() {
         var parameters = DataClass::class.java.constructors[0].parameters
