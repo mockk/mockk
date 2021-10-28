@@ -6,18 +6,18 @@ import kotlin.test.Test
 
 @Ignore
 class CapturingGenericArgumentsTest {
-    interface Foo<in T> {
-        fun bar(value: T)
-    }
-
     /**
      * Unable to capture arguments passed to generic functions.
      * Verifies issue #223.
      */
     @Test
-    fun test() {
+    fun captureGenericArgument() {
         val mock = createMock<Int>()
         mock.tryBar(3)
+    }
+
+    interface Foo<in T> {
+        fun bar(value: T)
     }
 
     inline fun <reified T : Any> createMock(): Foo<Any> {
