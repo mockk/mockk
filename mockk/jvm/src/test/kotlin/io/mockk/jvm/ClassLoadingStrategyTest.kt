@@ -5,11 +5,15 @@ import io.mockk.mockk
 import org.junit.Test
 import javax.sql.DataSource
 
-class Issue280 {
+/**
+ * ClassLoadingStrategy error while mocking javax.sql.DataSource.
+ * Verifies issue #280.
+ */
+class ClassLoadingStrategyTest {
     private val dataSource = mockk<DataSource>()
 
     @Test
-    fun test() {
+    fun testDataSource() {
         every { dataSource.getConnection(any(), any()) } returns null
     }
 }

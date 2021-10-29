@@ -1,4 +1,4 @@
-package io.mockk.gh
+package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
@@ -9,14 +9,18 @@ import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Issue259Test {
+/**
+ * Verifications fail with Missing calls inside verify { ... } block.
+ * Verifies issue #259.
+ */
+class RaceConditionInMockCreationTest {
 
     class TestCls {
         fun fn() = "abc"
     }
 
     @Test
-    fun test() {
+    fun testRaceCondition() {
         val n = 10
         val cyclicBarrier = CyclicBarrier(n)
         val latch = CountDownLatch(n)
