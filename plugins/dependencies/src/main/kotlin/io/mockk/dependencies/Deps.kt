@@ -13,6 +13,8 @@ object Deps {
         const val logback = "1.2.3"
         const val junitJupiter = "5.6.2"
         const val junitVintage = "5.6.2"
+        const val objenesis = "3.1"
+        const val bytebuddy = "1.11.5"
     }
 
     object Libs {
@@ -21,6 +23,9 @@ object Deps {
         const val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitJupiter}"
         const val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitJupiter}"
         const val junitVintageEngine = "org.junit.vintage:junit-vintage-engine:${Versions.junitVintage}"
+        const val objenesis = "org.objenesis:objenesis:${Versions.objenesis}"
+        const val bytebuddy = "net.bytebuddy:byte-buddy:${Versions.bytebuddy}"
+        const val bytebuddyAgent = "net.bytebuddy:byte-buddy-agent:${Versions.bytebuddy}"
 
         fun kotlinStdLib(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-stdlib:$version"
         fun kotlinStdLibJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-stdlib-js:$version"
@@ -29,6 +34,7 @@ object Deps {
             "org.jetbrains.kotlin:kotlin-test-annotations-common:$version"
         fun kotlinTestJunit(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-junit:$version"
         fun kotlinTestJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-js:$version"
+        fun kotlinReflect(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-reflect:$version"
     }
 
     object Plugins {
