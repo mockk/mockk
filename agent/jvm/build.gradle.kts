@@ -1,3 +1,6 @@
+import io.mockk.dependencies.Deps
+import io.mockk.dependencies.kotlinVersion
+
 plugins {
     id("mpp-jvm")
 }
@@ -10,32 +13,33 @@ apply(from = "${rootProject.extensions.extraProperties["gradles"]}/additional-ar
 apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle")
 
 dependencies {
-    api(project(':mockk-agent-api'))
-    api(project(':mockk-agent-common'))
+    api(project(":mockk-agent-api"))
+    api(project(":mockk-agent-common"))
 
     api(Deps.Libs.objenesis)
     api(Deps.Libs.bytebuddy)
     api(Deps.Libs.bytebuddyAgent)
 
-    implementation(Deps.Plugins.kotlinReflect(kotlinVersion()))
+    implementation(Deps.Libs.kotlinReflect(version = kotlinVersion()))
 }
 
 val copyMockKDispatcher = tasks.register<Copy>("copyMockKDispatcher") {
     dependsOn(tasks.compileJava)
     dependsOn(tasks.compileKotlin)
-    from("${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher")
-    include("JvmMockKDispatcher.class")
-    include("JvmMockKWeakMap.class")
-    include("JvmMockKWeakMap\$StrongKey.class")
-    include("JvmMockKWeakMap\$WeakKey.class")
-    into("${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher")
+    from("${sourceSets["main"].java.classesDirectory}/io/mockk/proxy/jvm/dispatcher") {
+        include("JvmMockKDispatcher.class")
+        include("JvmMockKWeakMap.class")
+        include("JvmMockKWeakMap\$StrongKey.class")
+        include("JvmMockKWeakMap\$WeakKey.class")
+    }
+    into("${sourceSets["main"].java.classesDirectory}/io/mockk/proxy/jvm/dispatcher")
     rename {
         it.replace(".class", ".clazz")
     }
 }
 
 tasks.named("classes").configure {
-    dependsOn(copyMockKDispatcher)}
+    dependsOn(copyMockKDispatcher)
 }
 
 tasks.jar {
