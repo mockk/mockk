@@ -34,8 +34,8 @@ val copyMockKDispatcher = tasks.register<Copy>("copyMockKDispatcher") {
     }
 }
 
-task.build {
-    dependsOn(copyMockKDispatcher)
+tasks.named("classes").configure {
+    dependsOn(copyMockKDispatcher)}
 }
 
 tasks.jar {
