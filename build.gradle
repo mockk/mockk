@@ -8,7 +8,7 @@ buildscript {
     ext.objenesis_android_version = '2.6'
     ext.junit_jupiter_version = '5.6.2'
     ext.junit_vintage_version = '5.6.2'
-    ext.dokka_version = '1.4.20'
+    ext.dokka_version = '1.5.30'
     ext.gradles = project.projectDir.toString() + "/gradle"
 
     repositories {
