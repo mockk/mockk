@@ -32,7 +32,7 @@ include("mockk-dsl")
 include("mockk-dsl-jvm")
 // include 'mockk-dsl-js'
 
-include("mockk-client-tests-jvm")
+// include("mockk-client-tests-jvm")
 
 project(":mockk-jvm").projectDir = file("mockk/jvm")
 project(":mockk-common").projectDir = file("mockk/common")
@@ -51,7 +51,7 @@ project(":mockk-dsl").projectDir = file("dsl/common")
 project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
 // project(":mockk-dsl-js").projectDir = file("dsl/js")
 
-project(":mockk-client-tests-jvm").projectDir = file("client-tests/jvm")
+// project(":mockk-client-tests-jvm").projectDir = file("client-tests/jvm")
 
 // very weird hack to make it working in IDE and stay compatible with naming
 if (gradle.startParameter.taskNames.contains("publish")) {
