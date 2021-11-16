@@ -226,6 +226,11 @@ fun calculateAddsValues1(@MockK car1: Car, @RelaxedMockK car2: Car) {
 }
 ```
 
+Finally, this extension will call `unmockkAll` in a `@AfterAll` callback, ensuring your test environment is clean after
+each test class execution.
+You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting 
+the `mockk.junit.extension.keepmocks=true` property
+
 ### Spy
 
 Spies allow you to mix mocks and real objects.

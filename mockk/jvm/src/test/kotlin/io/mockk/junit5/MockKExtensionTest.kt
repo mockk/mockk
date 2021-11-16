@@ -1,18 +1,15 @@
 @file:Suppress("UNUSED_PARAMETER")
+
 package io.mockk.junit5
 
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
-import io.mockk.isMockKMock
-import io.mockk.mockkObject
 import io.mockk.verify
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -55,10 +52,10 @@ class MockKExtensionTest {
     fun injectsValidMockInMethods(@MockK car: Car) {
         every {
             car.recordTelemetry(
-                    speed = more(50),
-                    direction = Direction.NORTH,
-                    lat = any(),
-                    long = any()
+                speed = more(50),
+                direction = Direction.NORTH,
+                lat = any(),
+                long = any()
             )
         } returns Outcome.RECORDED
 
@@ -71,10 +68,10 @@ class MockKExtensionTest {
     fun injectsValidMockInClass() {
         every {
             car2.recordTelemetry(
-                    speed = more(50),
-                    direction = Direction.NORTH,
-                    lat = any(),
-                    long = any()
+                speed = more(50),
+                direction = Direction.NORTH,
+                lat = any(),
+                long = any()
             )
         } returns Outcome.RECORDED
 
@@ -106,19 +103,4 @@ class MockKExtensionTest {
         verify { carSpy.relaxedTest() }
     }
 
-    companion object {
-        object TestMock
-
-        @AfterAll
-        @JvmStatic
-        internal fun afterAll() {
-            assertFalse(isMockKMock(TestMock, objectMock = true))
-        }
-    }
-
-    @Test
-    fun prepareAfterAllUnmockTest() {
-        mockkObject(TestMock)
-        assertTrue(isMockKMock(TestMock, objectMock = true))
-    }
 }
