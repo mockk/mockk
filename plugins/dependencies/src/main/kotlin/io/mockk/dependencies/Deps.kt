@@ -9,6 +9,7 @@ object Deps {
         const val androidTools = "4.1.1"
         const val dokka = "1.5.30"
         const val kotlinDefault = "1.3.72"
+        const val coroutines = "1.3.3"
         const val slfj = "1.7.26"
         const val logback = "1.2.3"
         const val junitJupiter = "5.6.2"
@@ -29,6 +30,8 @@ object Deps {
             "org.jetbrains.kotlin:kotlin-test-annotations-common:$version"
         fun kotlinTestJunit(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-junit:$version"
         fun kotlinTestJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-js:$version"
+        fun kotlinReflect(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-reflect:$version"
+        fun kotlinCoroutinesCore(version: String = Versions.coroutines) = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
     }
 
     object Plugins {
