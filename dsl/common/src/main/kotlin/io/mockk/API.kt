@@ -2158,6 +2158,12 @@ class MockKAdditionalAnswerScope<T, B>(
 
     infix fun coAndThen(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
         andThenAnswer(CoFunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
+
+    /**
+     * Part of DSL. Answer placeholder for Unit returning functions.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    infix fun andThenJust(runs: Runs) = andThenAnswer(ConstantAnswer(Unit))
 }
 
 
