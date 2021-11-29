@@ -1277,6 +1277,7 @@ So this is similar to the `returnsMany` semantics.
 |`coAndThen { code }`|specify that the matched call answers with a coroutine code block with `answer scope`|
 |`andThenAnswer answerObj`|specify that the matched call answers with an Answer object|
 |`andThen { nothing }`|specify that the matched call answers null|
+|`andThenJust Runs`|specify that the matched call is returning Unit (available since v1.12.2)|
 
 ### Answer scope
 
