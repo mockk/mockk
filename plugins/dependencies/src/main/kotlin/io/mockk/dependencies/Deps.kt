@@ -32,6 +32,7 @@ object Deps {
         fun kotlinTestJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-js:$version"
         fun kotlinReflect(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-reflect:$version"
         fun kotlinCoroutinesCore(version: String = Versions.coroutines) = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
+        fun kotlinCoroutinesCoreJs(version: String = Versions.coroutines) = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$version"
     }
 
     object Plugins {
