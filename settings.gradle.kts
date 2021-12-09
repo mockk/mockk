@@ -14,6 +14,7 @@ includeBuild("plugins/configuration")
 
 include("mockk-jvm")
 include("mockk-common")
+include("mockk-performance")
 //include 'mockk-js'
 
 val hasAndroidSdk = extra["hasAndroidSdk"]
@@ -42,6 +43,7 @@ if (hasAndroidSdk == true) project(":mockk-android").projectDir = file("mockk/an
 project(":mockk-agent-api").projectDir = file("agent/api")
 project(":mockk-agent-common").projectDir = file("agent/common")
 project(":mockk-agent-jvm").projectDir = file("agent/jvm")
+project(":mockk-performance").projectDir = file("mockk/performance")
 if (hasAndroidSdk == true) {
     project(":mockk-agent-android").projectDir = file("agent/android")
     project(":mockk-agent-android-dispatcher").projectDir = file("agent/android/dispatcher")
