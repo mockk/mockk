@@ -53,8 +53,8 @@ dependencies {
         exclude(group = "junit", module = "junit")
     }
 
-    testImplementation("org.slf4j:slf4j-api:1.7.26")
-    testImplementation("ch.qos.logback:logback-classic:1.2.3")
+    testImplementation("org.slf4j:slf4j-api:1.7.32")
+    testImplementation("ch.qos.logback:logback-classic:1.2.9")
 
     compileOnly("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
