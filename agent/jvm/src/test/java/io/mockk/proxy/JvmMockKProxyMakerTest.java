@@ -54,7 +54,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openClassProxy() throws Exception {
+    public void openClassProxy() {
         A proxy = makeProxy(A.class);
 
         proxy.a();
@@ -64,7 +64,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openClassCallOriginalProxy() throws Exception {
+    public void openClassCallOriginalProxy() {
         handler.callOriginal = true;
         A proxy = makeProxy(A.class);
 
@@ -81,7 +81,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void finalClassProxy() throws Exception {
+    public void finalClassProxy() {
         B proxy = makeProxy(B.class);
 
         proxy.a();
@@ -91,7 +91,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void finalClassCallOriginalProxy() throws Exception {
+    public void finalClassCallOriginalProxy() {
         handler.callOriginal = true;
         B proxy = makeProxy(B.class);
 
@@ -106,7 +106,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void interfaceProxy() throws Exception {
+    public void interfaceProxy() {
         C proxy = makeProxy(C.class);
 
         proxy.a();
@@ -120,7 +120,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void abstractClassProxy() throws Exception {
+    public void abstractClassProxy() {
         D proxy = makeProxy(D.class);
 
         proxy.a();
@@ -137,7 +137,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openSubClassProxy1() throws Exception {
+    public void openSubClassProxy1() {
         E1 proxy = makeProxy(E1.class);
 
         proxy.a();
@@ -148,7 +148,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openSubClassCallOriginalProxy1() throws Exception {
+    public void openSubClassCallOriginalProxy1() {
         handler.callOriginal = true;
         E1 proxy = makeProxy(E1.class);
 
@@ -166,7 +166,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openSubClassProxy2() throws Exception {
+    public void openSubClassProxy2() {
         E2 proxy = makeProxy(E2.class);
 
         proxy.a();
@@ -177,7 +177,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openSubClassCallOriginalProxy2() throws Exception {
+    public void openSubClassCallOriginalProxy2() {
         handler.callOriginal = true;
         E2 proxy = makeProxy(E2.class);
 
@@ -200,7 +200,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openSubClassProxy3() throws Exception {
+    public void openSubClassProxy3() {
         E3 proxy = makeProxy(E3.class);
 
         proxy.a();
@@ -212,7 +212,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openSubClassCallOriginalProxy3() throws Exception {
+    public void openSubClassCallOriginalProxy3() {
         handler.callOriginal = true;
         E3 proxy = makeProxy(E3.class);
 
@@ -248,7 +248,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openComplexSubClassProxy() throws Exception {
+    public void openComplexSubClassProxy() {
         G proxy = makeProxy(G.class);
 
         proxy.a();
@@ -262,7 +262,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void openComplexSubClassCallOriginalProxy() throws Exception {
+    public void openComplexSubClassCallOriginalProxy() {
         handler.callOriginal = true;
         G proxy = makeProxy(G.class);
 
@@ -300,7 +300,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void finalComplexSubClassProxy() throws Exception {
+    public void finalComplexSubClassProxy() {
         G1 proxy = makeProxy(G1.class);
 
         proxy.a();
@@ -314,7 +314,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void finalComplexSubClassCallOriginalProxy() throws Exception {
+    public void finalComplexSubClassCallOriginalProxy() {
         handler.callOriginal = true;
         G1 proxy = makeProxy(G1.class);
 
@@ -335,7 +335,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void staticProxy() throws Exception {
+    public void staticProxy() {
         staticMaker.staticProxy(H.class, handler);
 
         H.a();
@@ -345,7 +345,7 @@ public class JvmMockKProxyMakerTest {
     }
 
     @Test
-    public void staticCallOriginalProxy() throws Exception {
+    public void staticCallOriginalProxy() {
         handler.callOriginal = true;
         staticMaker.staticProxy(H.class, handler);
 
