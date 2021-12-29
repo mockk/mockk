@@ -12,8 +12,8 @@ object Deps {
         const val coroutines = "1.3.3"
         const val slfj = "1.7.32"
         const val logback = "1.2.9"
-        const val junitJupiter = "5.6.2"
-        const val junitVintage = "5.6.2"
+        const val junitJupiter = "5.8.2"
+        const val junitVintage = "5.8.2"
     }
 
     object Libs {
