@@ -103,10 +103,6 @@ actual object InternalPlatform {
     actual fun <T : Any> copyFields(to: T, from: T) {
         fun copy(to: Any, from: Any, cls: Class<*>) {
             for (field in cls.declaredFields) {
-                if (Modifier.isTransient(field.modifiers)) {
-                    continue
-                }
-
                 if (Modifier.isStatic(field.modifiers)) {
                     continue
                 }
