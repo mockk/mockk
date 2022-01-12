@@ -16,7 +16,7 @@ jobs:
         exclude:
           - kotlin-version: 1.4.32
             java-version: 16
-          - kotlin.version: 1.4.32
+          - kotlin-version: 1.4.32
             java-version: 17
       # in case one JDK fails, we still want to see results from others
       fail-fast: false
