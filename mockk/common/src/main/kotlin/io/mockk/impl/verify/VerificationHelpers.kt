@@ -27,7 +27,7 @@ object VerificationHelpers {
     fun stackTrace(prefix: Int, stackTrace: List<StackElement>): String {
         @Suppress("DEPRECATION_ERROR")
         fun columnSize(block: StackElement.() -> String) =
-            stackTrace.map(block).map { it.length }.max() ?: 0
+            stackTrace.map(block).map { it.length }.maxOfOrNull { it } ?: 0
 
         fun StackElement.fileLine() =
             "($fileName:$line)${if (nativeMethod) "N" else ""}"

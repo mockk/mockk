@@ -8,7 +8,7 @@ object Deps {
     object Versions {
         const val androidTools = "4.1.1"
         const val dokka = "1.6.0"
-        const val kotlinDefault = "1.3.72"
+        const val kotlinDefault = "1.6.0"
         const val coroutines = "1.3.3"
         const val slfj = "1.7.32"
         const val logback = "1.2.10"
