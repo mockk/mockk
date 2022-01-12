@@ -37,15 +37,10 @@ include("mockk-dsl-jvm")
 project(":mockk-jvm").projectDir = file("mockk/jvm")
 project(":mockk-common").projectDir = file("mockk/common")
 //project(":mockk-js").projectDir = file("mockk/js")
-if (hasAndroidSdk == true) project(":mockk-android").projectDir = file("mockk/android")
 
 project(":mockk-agent-api").projectDir = file("agent/api")
 project(":mockk-agent-common").projectDir = file("agent/common")
 project(":mockk-agent-jvm").projectDir = file("agent/jvm")
-if (hasAndroidSdk == true) {
-    project(":mockk-agent-android").projectDir = file("agent/android")
-    project(":mockk-agent-android-dispatcher").projectDir = file("agent/android/dispatcher")
-}
 
 project(":mockk-dsl").projectDir = file("dsl/common")
 project(":mockk-dsl-jvm").projectDir = file("dsl/jvm")
