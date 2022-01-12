@@ -40,7 +40,7 @@ task packageDispatcherJar(type: Jar) {
 preBuild.dependsOn(packageDispatcherJar)
 
 android {
-    compileSdkVersion 'android-30'
+    compileSdkVersion 'android-31'
 
     lintOptions {
         abortOnError false
@@ -60,7 +60,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 31
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"

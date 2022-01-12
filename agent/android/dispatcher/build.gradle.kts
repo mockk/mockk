@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.ir.backend.js.compile
+
 plugins {
     id("com.android.application")
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdkVersion = "android-31"
 
     android {
         lintOptions {
@@ -17,8 +19,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion(21)
-        targetSdkVersion(28)
+        minSdk = 21
+        targetSdk = 31
         applicationId = "com.android.dexmaker.mockito.inline.dispatcher"
     }
 
