@@ -179,9 +179,7 @@ class VerifyTest {
      * See issue #389.
      */
     @Test
-    @Ignore
-    // Temporarily ignored because it suddenly started failing only on Github actions
-    internal fun verifyUsingVerifyAll() {
+    internal fun verifyUsingVerifyAllAndWithArg() {
         val repositoryMock = mockk<TweetRepository>(relaxed = true)
 
         repositoryMock.persist(Tweet(1, "first tweet"))
