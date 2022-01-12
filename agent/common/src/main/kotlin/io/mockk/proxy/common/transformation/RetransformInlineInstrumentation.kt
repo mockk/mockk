@@ -3,7 +3,7 @@ package io.mockk.proxy.common.transformation
 import io.mockk.proxy.MockKAgentLogger
 import java.lang.instrument.UnmodifiableClassException
 
-abstract class RetransformInlineInstrumnetation(
+abstract class RetransformInlineInstrumentation(
     protected val log: MockKAgentLogger,
     private val specMap: ClassTransformationSpecMap
 ) : InlineInstrumentation {
