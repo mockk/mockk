@@ -4,6 +4,7 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Disabled
 
 /**
  * The mocked ::class.java constructor is overriden in the JVM.
@@ -15,8 +16,8 @@ class JvmConstructorOverridenTest {
     fun testConstructorGetParametersMocked() {
         var parameters = DataClass::class.java.constructors[0].parameters
 
-        assert(parameters.map { it.name }.contains("name"))
-        assert(parameters.map { it.name }.contains("age"))
+        assert(parameters.map { it.type }.contains(String::class.java))
+        assert(parameters.map { it.type }.contains(Int::class.java))
 
         // inject a mockk object to alter native constructor.getParameters
         val instance: DataClass = mockk()
@@ -26,8 +27,8 @@ class JvmConstructorOverridenTest {
 
         parameters = DataClass::class.java.constructors[0].parameters
 
-        assert(parameters.map { it.name }.contains("name"))
-        assert(parameters.map { it.name }.contains("age"))
+        assert(parameters.map { it.type }.contains(String::class.java))
+        assert(parameters.map { it.type }.contains(Int::class.java))
     }
 
     @Test

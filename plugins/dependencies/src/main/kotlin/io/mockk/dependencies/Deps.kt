@@ -7,14 +7,15 @@ fun Project.kotlinVersion() = findProperty("kotlin.version")?.toString() ?: Deps
 object Deps {
     object Versions {
         const val androidTools = "4.1.1"
-        const val dokka = "1.4.20"
-        const val kotlinDefault = "1.3.72"
-        const val slfj = "1.7.26"
-        const val logback = "1.2.3"
-        const val junitJupiter = "5.6.2"
-        const val junitVintage = "5.6.2"
         const val objenesis = "3.1"
         const val bytebuddy = "1.11.5"
+        const val dokka = "1.6.0"
+        const val kotlinDefault = "1.6.0"
+        const val coroutines = "1.3.3"
+        const val slfj = "1.7.32"
+        const val logback = "1.2.10"
+        const val junitJupiter = "5.8.2"
+        const val junitVintage = "5.8.2"
     }
 
     object Libs {
@@ -35,6 +36,8 @@ object Deps {
         fun kotlinTestJunit(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-junit:$version"
         fun kotlinTestJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-js:$version"
         fun kotlinReflect(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-reflect:$version"
+        fun kotlinCoroutinesCore(version: String = Versions.coroutines) = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
+        fun kotlinCoroutinesCoreJs(version: String = Versions.coroutines) = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$version"
     }
 
     object Plugins {

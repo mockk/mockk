@@ -145,7 +145,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
             .flatMap { it.args }
             .filterNotNull()
             .map(this::typeEstimation)
-            .max() ?: 1
+            .maxOfOrNull { it } ?: 1
 
         val varargArguments = builder().signedCalls
             .mapNotNull {
@@ -155,7 +155,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
                     null
                 }
             }.map(this::varArgTypeEstimation)
-            .max() ?: 1
+            .maxOfOrNull { it } ?: 1
 
         return max(regularArguments, varargArguments)
     }

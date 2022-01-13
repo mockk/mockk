@@ -21,7 +21,7 @@ class JsConfigurationPlugin : Plugin<Project> {
                 sourceSets["test"].dependencies {
                     implementation(Deps.Libs.kotlinTestJs(kotlinVersion()))
                 }
-                target {
+                js {
                     compilations.all {
                         kotlinOptions {
                             moduleKind = "commonjs"

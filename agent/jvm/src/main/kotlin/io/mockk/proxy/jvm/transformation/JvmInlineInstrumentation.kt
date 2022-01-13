@@ -2,14 +2,14 @@ package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
-import io.mockk.proxy.common.transformation.RetransformInlineInstrumnetation
+import io.mockk.proxy.common.transformation.RetransformInlineInstrumentation
 import java.lang.instrument.Instrumentation
 
 internal class JvmInlineInstrumentation(
     log: MockKAgentLogger,
     specMap: ClassTransformationSpecMap,
     private val instrumentation: Instrumentation
-) : RetransformInlineInstrumnetation(log, specMap) {
+) : RetransformInlineInstrumentation(log, specMap) {
 
     override fun retransform(classesToTransform: Collection<Class<*>>) {
         val classesAbleTransform = classesToTransform.filter {

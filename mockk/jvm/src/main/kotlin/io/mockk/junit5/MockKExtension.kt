@@ -8,19 +8,26 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.mockkClass
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.extension.*
+import java.lang.annotation.Inherited
+import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Parameter
+import java.util.Optional
 
 /**
  * JUnit5 extension.
  *
  * Parameters can use [MockK] and [RelaxedMockK].
  * Class properties can use [MockK], [RelaxedMockK] and [SpyK]
+ * [unmockkAll] will be called after test class execution (*)
  *
  * Usage: declare @ExtendWith(MockKExtension.class) on a test class
  *
  * Alternatively –Djunit.extensions.autodetection.enabled=true may be placed on a command line.
+ *
+ * (*) [unmockkAll] default behavior can be disabled by adding [KeepMocks] to your test class or method or
+ * –Dmockk.junit.extension.keepmocks=true on a command line
  */
-class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCallback {
+class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCallback {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         return getMockKAnnotation(parameterContext) != null
     }
@@ -68,16 +75,39 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
     }
 
     private fun moreInterfaces(parameter: ParameterContext) =
-            parameter.findAnnotation(AdditionalInterface::class.java)
-                    .map { it.type }
-                    .map { arrayOf(it) }
-                    .orElseGet { emptyArray() }
+        parameter.findAnnotation(AdditionalInterface::class.java)
+            .map { it.type }
+            .map { arrayOf(it) }
+            .orElseGet { emptyArray() }
 
     override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
         MockKAnnotations.init(testInstance)
     }
 
-    override fun afterEach(context: ExtensionContext?) {
-        unmockkAll()
+    override fun afterAll(context: ExtensionContext) {
+        if (!context.keepMocks) {
+            unmockkAll()
+        }
     }
+
+    private val ExtensionContext.keepMocks: Boolean
+        get() = testClass.keepMocks || testMethod.keepMocks ||
+                getConfigurationParameter(KEEP_MOCKS_PROPERTY).map { it.toBoolean() }.orElse(false)
+
+    private val Optional<out AnnotatedElement>.keepMocks
+        get() = map { it.getAnnotation(KeepMocks::class.java) != null }
+            .orElse(false)
+
+    /***
+     * Prevent calling [unmockkAll] after each test execution
+     */
+    @Inherited
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+    annotation class KeepMocks
+
+    companion object {
+        const val KEEP_MOCKS_PROPERTY = "mockk.junit.extension.keepmocks"
+    }
+
 }

@@ -6,6 +6,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
+import io.mockk.*
 
 /**
  * Exception thrown by library
@@ -2159,6 +2160,12 @@ class MockKAdditionalAnswerScope<T, B>(
     infix fun coAndThen(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
         andThenAnswer(CoFunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 }
+
+/**
+ * Part of DSL. Answer placeholder for Unit returning functions.
+ */
+@Suppress("UNUSED_PARAMETER")
+infix fun MockKAdditionalAnswerScope<Unit, Unit>.andThenJust(runs: Runs) = andThenAnswer(ConstantAnswer(Unit))
 
 
 internal fun <T> List<T>.allConst() = this.map { ConstantAnswer(it) }
