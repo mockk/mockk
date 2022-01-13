@@ -10,7 +10,7 @@ jobs:
   tests:
     strategy:
       matrix:
-        java-version: [11, 12, 13, 14, 15]
+        java-version: [11, 12, 13, 14, 15, 16, 17]
         kotlin-version: [1.4.32, 1.5.31, 1.6.0]
         kotlin-ir-enabled: [true, false]
       # in case one JDK fails, we still want to see results from others

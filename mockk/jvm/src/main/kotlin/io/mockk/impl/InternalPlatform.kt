@@ -10,8 +10,9 @@ import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
-import java.util.*
+import java.util.Collections
 import java.util.Collections.synchronizedList
+import java.util.Locale
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
