@@ -13,4 +13,4 @@ local.properties
 /cloud-badge/credentials.json
 /cloud-badge/node_modules/
 /cloud-badge/package-lock.json
-
+.java-version
