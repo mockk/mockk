@@ -59,11 +59,7 @@ data class FunctionMatcher<in T : Any>(
         return if(arg == null) {
             false
         } else {
-            try {
-                matchingFunc(arg)
-            } catch (a: AssertionError) {
-                false
-            }
+            matchingFunc(arg)
         }
     }
 
