@@ -33,10 +33,9 @@ public class ClassLoadingStrategyChooser {
         try {
             final ClassLoadingStrategy<ClassLoader> strategy;
             if (!type.getName().startsWith("java.") &&
+                !type.getName().startsWith("javax.") &&
                     ClassInjector.UsingLookup.isAvailable() &&
-                    // based on https://github.com/jmock-developers/jmock-library/issues/127
-                    type.getClassLoader() == ClassLoadingStrategyChooser.class.getClassLoader()
-                && PRIVATE_LOOKUP_IN != null && LOOKUP != null) {
+                PRIVATE_LOOKUP_IN != null && LOOKUP != null) {
                 Object privateLookup = PRIVATE_LOOKUP_IN.invoke(null, type, LOOKUP);
                 strategy = ClassLoadingStrategy.UsingLookup.of(privateLookup);
             } else if (ClassInjector.UsingReflection.isAvailable()) {
