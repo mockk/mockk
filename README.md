@@ -21,7 +21,7 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
 
  * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
 
- ### Quarkus support
+### Quarkus support
 
  * [quarkus-mockk](https://github.com/quarkiverse/quarkus-mockk) adds support for mocking beans in Quarkus. Documentation can be found [here](https://quarkiverse.github.io/quarkiverse-docs/quarkus-mockk/dev/index.html)
 
