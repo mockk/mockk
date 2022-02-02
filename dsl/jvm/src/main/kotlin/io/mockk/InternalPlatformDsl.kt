@@ -7,10 +7,12 @@ import java.lang.reflect.Method
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
+import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
@@ -100,7 +102,7 @@ actual object InternalPlatformDsl {
         anyContinuationGen: () -> Continuation<*>
     ): Any? {
         val params = arrayOf(self, *args)
-        val func = self::class.functions.firstOrNull {
+        val func = self::class.allAncestorFunctions().firstOrNull {
             if (it.name != methodName) {
                 return@firstOrNull false
             }
@@ -132,6 +134,11 @@ actual object InternalPlatformDsl {
         } else {
             func.call(*params)
         }
+    }
+
+    private fun KClass<*>.allAncestorFunctions(): Sequence<KFunction<*>> {
+        return (sequenceOf(this) + this.allSuperclasses.asSequence())
+            .flatMap { it.functions }
     }
 
     private fun List<KType>.anyIsInstance(value: Any?): Boolean {
