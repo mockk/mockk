@@ -963,7 +963,7 @@ Additionally, a more verbose syntax allows you to get and set properties, combin
 val mock = spyk(Team(), recordPrivateCalls = true)
 
 every { mock getProperty "speed" } returns 33
-every { mock setProperty "acceleration" value less(5) } just runs
+every { mock setProperty "acceleration" value less(5) } just Runs
 justRun { mock invokeNoArgs "privateMethod" }
 every { mock invoke "openDoor" withArguments listOf("left", "rear") } returns "OK"
 
