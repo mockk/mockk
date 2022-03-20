@@ -112,14 +112,18 @@ open class UnorderedCallVerifier(
                         )
                     }
                 } else {
-                    VerificationResult.Failure(safeToString.exec {
-                        "$callIdxMsg. Only one matching call to ${stub.toStr()}/${matcher.method.toStr()} happened, but arguments are not matching:\n" +
+                    if (0 in min..max) {
+                        VerificationResult.OK(listOf())
+                    } else {
+                        VerificationResult.Failure(safeToString.exec {
+                            "$callIdxMsg. Only one matching call to ${stub.toStr()}/${matcher.method.toStr()} happened, but arguments are not matching:\n" +
                                 describeArgumentDifference(matcher, onlyCall) +
                                 if (MockKSettings.stackTracesOnVerify)
                                     "\nStack trace:\n" + stackTrace(0, allCallsForMock.first().callStack())
                                 else
                                     ""
-                    })
+                        })
+                    }
                 }
             }
             else -> {

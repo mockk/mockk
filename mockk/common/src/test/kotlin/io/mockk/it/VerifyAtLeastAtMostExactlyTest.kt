@@ -192,6 +192,14 @@ class VerifyAtLeastAtMostExactlyTest {
         }
     }
 
+    @Test
+    fun atLeastNever() {
+        every { mock.op(0) } returns 1
+        mock.op(0)
+
+        verify(atLeast = 0) { mock.op(2) }
+    }
+
     fun doCalls() {
         every { mock.op(0) } throws RuntimeException("test")
         every { mock.op(1) } returnsMany listOf(1, 2, 3)
