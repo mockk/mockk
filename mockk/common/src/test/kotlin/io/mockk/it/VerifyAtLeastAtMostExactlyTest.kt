@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.Called
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -192,6 +193,31 @@ class VerifyAtLeastAtMostExactlyTest {
         }
     }
 
+    @Test
+    fun atLeastNever() {
+        every { mock.op(0) } returns 1
+        mock.op(0)
+
+        verify(atLeast = 0) { mock.op(2) }
+    }
+
+    @Test
+    fun atLeastNeverAtMostOnce() {
+        listOf(
+            { every { mock.op(any()) } returns 0 },
+            { every { mock.op(any()) } returns 1 }
+        ).forEach { condition ->
+            clearAllMocks()
+            every { mock.op2(any(), any()) } returns 5
+            condition()
+
+            doCalls3()
+
+            verify(atLeast = 0, atMost = 1) { mock.op(1) }
+            verify(exactly = 1) { mock.op2(3, 4) }
+        }
+    }
+
     fun doCalls() {
         every { mock.op(0) } throws RuntimeException("test")
         every { mock.op(1) } returnsMany listOf(1, 2, 3)
@@ -220,6 +246,19 @@ class VerifyAtLeastAtMostExactlyTest {
         assertEquals(3, mock.op(1))
         assertEquals(5, mock.op(1))
         assertEquals(3, mock.op2(2, 1))
+    }
+
+    fun doCalls3() {
+        if (doCalls4()) {
+            mock.op2(3,4)
+        }
+    }
+
+    fun doCalls4(): Boolean {
+        if (mock.op(0) == 0 || mock.op(1) == 1) {
+            return true
+        }
+        return false
     }
 
     class MockCls {
