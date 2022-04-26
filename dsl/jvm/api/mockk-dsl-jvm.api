@@ -1,0 +1,1084 @@
+public final class io/mockk/APIKt {
+	public static final fun andThenJust (Lio/mockk/MockKAdditionalAnswerScope;Lio/mockk/Runs;)Lio/mockk/MockKAdditionalAnswerScope;
+	public static final fun checkEquals (Lio/mockk/MockKAssertScope;Ljava/lang/Object;)V
+	public static final fun checkEquals (Lio/mockk/MockKAssertScope;Ljava/lang/String;Ljava/lang/Object;)V
+	public static final fun internalSubstitute (Ljava/lang/Object;Ljava/util/Map;)Ljava/lang/Object;
+	public static final fun internalSubstitute (Ljava/util/List;Ljava/util/Map;)Ljava/util/List;
+	public static final fun just (Lio/mockk/MockKStubScope;Lio/mockk/Runs;)Lio/mockk/MockKAdditionalAnswerScope;
+	public static final fun use (Lio/mockk/Deregisterable;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun use (Lio/mockk/MockKUnmockKScope;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+}
+
+public final class io/mockk/AllAnyMatcher : io/mockk/Matcher {
+	public fun <init> ()V
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/AndOrMatcher : io/mockk/CapturingMatcher, io/mockk/CompositeMatcher, io/mockk/Matcher {
+	public fun <init> (ZLjava/lang/Object;Ljava/lang/Object;)V
+	public fun capture (Ljava/lang/Object;)V
+	public final fun component1 ()Z
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Ljava/lang/Object;
+	public final fun copy (ZLjava/lang/Object;Ljava/lang/Object;)Lio/mockk/AndOrMatcher;
+	public static synthetic fun copy$default (Lio/mockk/AndOrMatcher;ZLjava/lang/Object;Ljava/lang/Object;ILjava/lang/Object;)Lio/mockk/AndOrMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnd ()Z
+	public final fun getFirst ()Ljava/lang/Object;
+	public fun getOperandValues ()Ljava/util/List;
+	public final fun getSecond ()Ljava/lang/Object;
+	public fun getSubMatchers ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun setSubMatchers (Ljava/util/List;)V
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/Answer {
+	public abstract fun answer (Lio/mockk/Call;)Ljava/lang/Object;
+	public abstract fun coAnswer (Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/mockk/Answer$DefaultImpls {
+	public static fun coAnswer (Lio/mockk/Answer;Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/mockk/ArrayMatcher : io/mockk/CapturingMatcher, io/mockk/Matcher {
+	public fun <init> (Ljava/util/List;)V
+	public fun capture (Ljava/lang/Object;)V
+	public final fun copy (Ljava/util/List;)Lio/mockk/ArrayMatcher;
+	public static synthetic fun copy$default (Lio/mockk/ArrayMatcher;Ljava/util/List;ILjava/lang/Object;)Lio/mockk/ArrayMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/ArrayMatcher;
+	public synthetic fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/BackingFieldValue {
+	public fun <init> (Ljava/lang/String;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V
+	public final fun getGetter ()Lkotlin/jvm/functions/Function0;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getSetter ()Lkotlin/jvm/functions/Function1;
+}
+
+public final class io/mockk/Call {
+	public fun <init> (Lkotlin/reflect/KClass;Lio/mockk/Invocation;Lio/mockk/InvocationMatcher;Lkotlin/jvm/functions/Function0;)V
+	public final fun component1 ()Lkotlin/reflect/KClass;
+	public final fun component2 ()Lio/mockk/Invocation;
+	public final fun component3 ()Lio/mockk/InvocationMatcher;
+	public final fun component4 ()Lkotlin/jvm/functions/Function0;
+	public final fun copy (Lkotlin/reflect/KClass;Lio/mockk/Invocation;Lio/mockk/InvocationMatcher;Lkotlin/jvm/functions/Function0;)Lio/mockk/Call;
+	public static synthetic fun copy$default (Lio/mockk/Call;Lkotlin/reflect/KClass;Lio/mockk/Invocation;Lio/mockk/InvocationMatcher;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lio/mockk/Call;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFieldValueProvider ()Lkotlin/jvm/functions/Function0;
+	public final fun getInvocation ()Lio/mockk/Invocation;
+	public final fun getMatcher ()Lio/mockk/InvocationMatcher;
+	public final fun getRetType ()Lkotlin/reflect/KClass;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/Called {
+	public static final field INSTANCE Lio/mockk/Called;
+}
+
+public final class io/mockk/CaptureMatcher : io/mockk/CapturingMatcher, io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Ljava/util/List;Lkotlin/reflect/KClass;)V
+	public fun capture (Ljava/lang/Object;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun copy (Ljava/util/List;Lkotlin/reflect/KClass;)Lio/mockk/CaptureMatcher;
+	public static synthetic fun copy$default (Lio/mockk/CaptureMatcher;Ljava/util/List;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/CaptureMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun equivalent ()Lio/mockk/Matcher;
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getCaptureList ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/CaptureNullableMatcher : io/mockk/CapturingMatcher, io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Ljava/util/List;Lkotlin/reflect/KClass;)V
+	public fun capture (Ljava/lang/Object;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun copy (Ljava/util/List;Lkotlin/reflect/KClass;)Lio/mockk/CaptureNullableMatcher;
+	public static synthetic fun copy$default (Lio/mockk/CaptureNullableMatcher;Ljava/util/List;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/CaptureNullableMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun equivalent ()Lio/mockk/Matcher;
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getCaptureList ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/CapturingMatcher {
+	public abstract fun capture (Ljava/lang/Object;)V
+}
+
+public final class io/mockk/CapturingSlot {
+	public field captured Ljava/lang/Object;
+	public fun <init> ()V
+	public final fun clear ()V
+	public final fun getCaptured ()Ljava/lang/Object;
+	public final fun isCaptured ()Z
+	public final fun isNull ()Z
+	public final fun setCaptured (Ljava/lang/Object;)V
+	public final fun setCaptured (Z)V
+	public final fun setNull (Z)V
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/CapturingSlotMatcher : io/mockk/CapturingMatcher, io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;)V
+	public fun capture (Ljava/lang/Object;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Lio/mockk/CapturingSlot;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun copy (Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;)Lio/mockk/CapturingSlotMatcher;
+	public static synthetic fun copy$default (Lio/mockk/CapturingSlotMatcher;Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/CapturingSlotMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun equivalent ()Lio/mockk/Matcher;
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getCaptureSlot ()Lio/mockk/CapturingSlot;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/CoFunctionAnswer : io/mockk/Answer {
+	public static final field Companion Lio/mockk/CoFunctionAnswer$Companion;
+	public fun <init> (Lkotlin/jvm/functions/Function2;)V
+	public fun answer (Lio/mockk/Call;)Ljava/lang/Object;
+	public fun coAnswer (Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun component1 ()Lkotlin/jvm/functions/Function2;
+	public final fun copy (Lkotlin/jvm/functions/Function2;)Lio/mockk/CoFunctionAnswer;
+	public static synthetic fun copy$default (Lio/mockk/CoFunctionAnswer;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lio/mockk/CoFunctionAnswer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnswerFunc ()Lkotlin/jvm/functions/Function2;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/CoFunctionAnswer$Companion {
+}
+
+public final class io/mockk/ComparingMatcher : io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Ljava/lang/Comparable;ILkotlin/reflect/KClass;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Ljava/lang/Comparable;
+	public final fun component2 ()I
+	public final fun component3 ()Lkotlin/reflect/KClass;
+	public final fun copy (Ljava/lang/Comparable;ILkotlin/reflect/KClass;)Lio/mockk/ComparingMatcher;
+	public static synthetic fun copy$default (Lio/mockk/ComparingMatcher;Ljava/lang/Comparable;ILkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/ComparingMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getCmpFunc ()I
+	public final fun getValue ()Ljava/lang/Comparable;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Comparable;)Z
+	public synthetic fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/ComparingMatcher;
+	public synthetic fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/CompositeMatcher {
+	public abstract fun getOperandValues ()Ljava/util/List;
+	public abstract fun getSubMatchers ()Ljava/util/List;
+	public abstract fun setSubMatchers (Ljava/util/List;)V
+}
+
+public final class io/mockk/ConstantAnswer : io/mockk/Answer {
+	public fun <init> (Ljava/lang/Object;)V
+	public fun answer (Lio/mockk/Call;)Ljava/lang/Object;
+	public fun coAnswer (Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lio/mockk/ConstantAnswer;
+	public static synthetic fun copy$default (Lio/mockk/ConstantAnswer;Ljava/lang/Object;ILjava/lang/Object;)Lio/mockk/ConstantAnswer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConstantValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/ConstantMatcher : io/mockk/Matcher {
+	public fun <init> (Z)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lio/mockk/ConstantMatcher;
+	public static synthetic fun copy$default (Lio/mockk/ConstantMatcher;ZILjava/lang/Object;)Lio/mockk/ConstantMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConstValue ()Z
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/CoroutineCall {
+	public abstract fun callWithContinuation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/Deregisterable {
+	public abstract fun deregister ()V
+}
+
+public final class io/mockk/EqMatcher : io/mockk/Matcher {
+	public fun <init> (Ljava/lang/Object;ZZ)V
+	public synthetic fun <init> (Ljava/lang/Object;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component2 ()Z
+	public final fun component3 ()Z
+	public final fun copy (Ljava/lang/Object;ZZ)Lio/mockk/EqMatcher;
+	public static synthetic fun copy$default (Lio/mockk/EqMatcher;Ljava/lang/Object;ZZILjava/lang/Object;)Lio/mockk/EqMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInverse ()Z
+	public final fun getRef ()Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/EqMatcher;
+	public synthetic fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/EquivalentMatcher {
+	public abstract fun equivalent ()Lio/mockk/Matcher;
+}
+
+public final class io/mockk/FunctionAnswer : io/mockk/Answer {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public fun answer (Lio/mockk/Call;)Ljava/lang/Object;
+	public fun coAnswer (Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun component1 ()Lkotlin/jvm/functions/Function1;
+	public final fun copy (Lkotlin/jvm/functions/Function1;)Lio/mockk/FunctionAnswer;
+	public static synthetic fun copy$default (Lio/mockk/FunctionAnswer;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/mockk/FunctionAnswer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnswerFunc ()Lkotlin/jvm/functions/Function1;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/FunctionMatcher : io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Lkotlin/jvm/functions/Function1;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)Lio/mockk/FunctionMatcher;
+	public static synthetic fun copy$default (Lio/mockk/FunctionMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/FunctionMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun equivalent ()Lio/mockk/Matcher;
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getMatchingFunc ()Lkotlin/jvm/functions/Function1;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/FunctionWithNullableArgMatcher : io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Lkotlin/jvm/functions/Function1;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)Lio/mockk/FunctionWithNullableArgMatcher;
+	public static synthetic fun copy$default (Lio/mockk/FunctionWithNullableArgMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/FunctionWithNullableArgMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun equivalent ()Lio/mockk/Matcher;
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getMatchingFunc ()Lkotlin/jvm/functions/Function1;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/InternalCounter {
+	public abstract fun getValue ()J
+	public abstract fun increment ()J
+}
+
+public final class io/mockk/InternalPlatformDsl {
+	public static final field INSTANCE Lio/mockk/InternalPlatformDsl;
+	public final fun classForName (Ljava/lang/String;)Ljava/lang/Object;
+	public final fun coroutineCall (Lkotlin/jvm/functions/Function1;)Lio/mockk/CoroutineCall;
+	public final fun counter ()Lio/mockk/InternalCounter;
+	public final fun deepEquals (Ljava/lang/Object;Ljava/lang/Object;)Z
+	public final fun dynamicCall (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public final fun dynamicGet (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun dynamicSet (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun dynamicSetField (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;)V
+	public final fun identityHashCode (Ljava/lang/Object;)I
+	public final fun makeAccessible (Ljava/lang/reflect/AccessibleObject;)V
+	public final fun runCoroutine (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun threadLocal (Lkotlin/jvm/functions/Function0;)Lio/mockk/InternalRef;
+	public final fun toArray (Ljava/lang/Object;)[Ljava/lang/Object;
+	public final fun toStr (Ljava/lang/Object;)Ljava/lang/String;
+	public final fun unboxChar (Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/InternalRef {
+	public abstract fun getValue ()Ljava/lang/Object;
+}
+
+public final class io/mockk/Invocation {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/Object;Lio/mockk/MethodDescription;Ljava/util/List;JLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Lio/mockk/MethodDescription;
+	public final fun component4 ()Ljava/util/List;
+	public final fun component5 ()J
+	public final fun component6 ()Lkotlin/jvm/functions/Function0;
+	public final fun component7 ()Lkotlin/jvm/functions/Function0;
+	public final fun component8 ()Lkotlin/jvm/functions/Function0;
+	public final fun copy (Ljava/lang/Object;Ljava/lang/Object;Lio/mockk/MethodDescription;Ljava/util/List;JLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)Lio/mockk/Invocation;
+	public static synthetic fun copy$default (Lio/mockk/Invocation;Ljava/lang/Object;Ljava/lang/Object;Lio/mockk/MethodDescription;Ljava/util/List;JLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lio/mockk/Invocation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArgs ()Ljava/util/List;
+	public final fun getCallStack ()Lkotlin/jvm/functions/Function0;
+	public final fun getFieldValueProvider ()Lkotlin/jvm/functions/Function0;
+	public final fun getMethod ()Lio/mockk/MethodDescription;
+	public final fun getOriginalCall ()Lkotlin/jvm/functions/Function0;
+	public final fun getSelf ()Ljava/lang/Object;
+	public final fun getStub ()Ljava/lang/Object;
+	public final fun getTimestamp ()J
+	public fun hashCode ()I
+	public final fun substitute (Ljava/util/Map;)Lio/mockk/Invocation;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/InvocationMatcher {
+	public fun <init> (Ljava/lang/Object;Lio/mockk/MethodDescription;Ljava/util/List;Z)V
+	public final fun captureAnswer (Lio/mockk/Invocation;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Lio/mockk/MethodDescription;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Z
+	public final fun copy (Ljava/lang/Object;Lio/mockk/MethodDescription;Ljava/util/List;Z)Lio/mockk/InvocationMatcher;
+	public static synthetic fun copy$default (Lio/mockk/InvocationMatcher;Ljava/lang/Object;Lio/mockk/MethodDescription;Ljava/util/List;ZILjava/lang/Object;)Lio/mockk/InvocationMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllAny ()Z
+	public final fun getArgs ()Ljava/util/List;
+	public final fun getMethod ()Lio/mockk/MethodDescription;
+	public final fun getSelf ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public final fun match (Lio/mockk/Invocation;)Z
+	public final fun substitute (Ljava/util/Map;)Lio/mockk/InvocationMatcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/InvokeMatcher : io/mockk/EquivalentMatcher, io/mockk/Matcher {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public fun equivalent ()Lio/mockk/Matcher;
+	public final fun getBlock ()Lkotlin/jvm/functions/Function1;
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/JvmCoroutineCall : io/mockk/CoroutineCall {
+	public static final field Companion Lio/mockk/JvmCoroutineCall$Companion;
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public final fun callCoroutine (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun callWithContinuation (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/mockk/JvmCoroutineCall$Companion {
+	public final fun getCallMethod ()Ljava/lang/reflect/Method;
+}
+
+public abstract interface class io/mockk/ManyAnswerable : io/mockk/Answer {
+	public abstract fun getFlatAnswers ()Ljava/util/List;
+	public abstract fun getHasMore ()Z
+}
+
+public final class io/mockk/ManyAnswerable$DefaultImpls {
+	public static fun coAnswer (Lio/mockk/ManyAnswerable;Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class io/mockk/ManyAnswersAnswer : io/mockk/ManyAnswerable {
+	public fun <init> (Ljava/util/List;)V
+	public fun answer (Lio/mockk/Call;)Ljava/lang/Object;
+	public fun coAnswer (Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lio/mockk/ManyAnswersAnswer;
+	public static synthetic fun copy$default (Lio/mockk/ManyAnswersAnswer;Ljava/util/List;ILjava/lang/Object;)Lio/mockk/ManyAnswersAnswer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnswers ()Ljava/util/List;
+	public fun getFlatAnswers ()Ljava/util/List;
+	public fun getHasMore ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/Matcher {
+	public abstract fun match (Ljava/lang/Object;)Z
+	public abstract fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+}
+
+public final class io/mockk/Matcher$DefaultImpls {
+	public static fun substitute (Lio/mockk/Matcher;Ljava/util/Map;)Lio/mockk/Matcher;
+}
+
+public final class io/mockk/MatchersKt {
+	public static final fun captureSubMatchers (Lio/mockk/CompositeMatcher;Ljava/lang/Object;)V
+}
+
+public final class io/mockk/MethodDescription {
+	public fun <init> (Ljava/lang/String;Lkotlin/reflect/KClass;ZZZZZLkotlin/reflect/KClass;Ljava/util/List;IZ)V
+	public final fun argToStr (Lkotlin/reflect/KClass;)Ljava/lang/String;
+	public final fun argsToStr ()Ljava/lang/String;
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()I
+	public final fun component11 ()Z
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun component3 ()Z
+	public final fun component4 ()Z
+	public final fun component5 ()Z
+	public final fun component6 ()Z
+	public final fun component7 ()Z
+	public final fun component8 ()Lkotlin/reflect/KClass;
+	public final fun component9 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;Lkotlin/reflect/KClass;ZZZZZLkotlin/reflect/KClass;Ljava/util/List;IZ)Lio/mockk/MethodDescription;
+	public static synthetic fun copy$default (Lio/mockk/MethodDescription;Ljava/lang/String;Lkotlin/reflect/KClass;ZZZZZLkotlin/reflect/KClass;Ljava/util/List;IZILjava/lang/Object;)Lio/mockk/MethodDescription;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeclaringClass ()Lkotlin/reflect/KClass;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getParamTypes ()Ljava/util/List;
+	public final fun getPrivateCall ()Z
+	public final fun getReturnType ()Lkotlin/reflect/KClass;
+	public final fun getReturnTypeNullable ()Z
+	public final fun getReturnsNothing ()Z
+	public final fun getReturnsUnit ()Z
+	public final fun getVarArgsArg ()I
+	public fun hashCode ()I
+	public final fun isEquals ()Z
+	public final fun isFnCall ()Z
+	public final fun isHashCode ()Z
+	public final fun isSuspend ()Z
+	public final fun isToString ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/MockKAdditionalAnswerScope {
+	public fun <init> (Lio/mockk/MockKGateway$AnswerOpportunity;Lio/mockk/MockKGateway$CallRecorder;Lio/mockk/CapturingSlot;)V
+	public final fun andThen (Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun andThen (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun andThenAnswer (Lio/mockk/Answer;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun andThenAnswer (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun andThenMany (Ljava/util/List;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun andThenMany ([Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun andThenThrows (Ljava/lang/Throwable;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun coAndThen (Lkotlin/jvm/functions/Function3;)Lio/mockk/MockKAdditionalAnswerScope;
+}
+
+public final class io/mockk/MockKAnswerScope {
+	public fun <init> (Lio/mockk/CapturingSlot;Lio/mockk/Call;)V
+	public final fun callOriginal ()Ljava/lang/Object;
+	public final fun captured (Ljava/util/List;)Ljava/lang/Object;
+	public final fun getArgs ()Ljava/util/List;
+	public final fun getCall ()Lio/mockk/Call;
+	public final fun getFieldValue ()Ljava/lang/Object;
+	public final fun getFieldValueAny ()Ljava/lang/Object;
+	public final fun getInvocation ()Lio/mockk/Invocation;
+	public final fun getMatcher ()Lio/mockk/InvocationMatcher;
+	public final fun getMethod ()Lio/mockk/MethodDescription;
+	public final fun getNArgs ()I
+	public final fun getNothing ()Ljava/lang/Void;
+	public final fun getSelf ()Ljava/lang/Object;
+	public final fun getValue ()Ljava/lang/Object;
+	public final fun getValueAny ()Ljava/lang/Object;
+	public final fun setFieldValue (Ljava/lang/Object;)V
+	public final fun setFieldValueAny (Ljava/lang/Object;)V
+}
+
+public final class io/mockk/MockKAssertScope {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun getActual ()Ljava/lang/Object;
+}
+
+public final class io/mockk/MockKCancellationRegistry {
+	public static final field INSTANCE Lio/mockk/MockKCancellationRegistry;
+	public final fun cancelAll ()V
+	public final fun popCancellation ()Lkotlin/jvm/functions/Function0;
+	public final fun pushCancellation (Lkotlin/jvm/functions/Function0;)Z
+	public final fun subRegistry (Lio/mockk/MockKCancellationRegistry$Type;)Lio/mockk/MockKCancellationRegistry$RegistryPerType;
+}
+
+public final class io/mockk/MockKCancellationRegistry$RegistryPerType {
+	public fun <init> ()V
+	public final fun cancel (Ljava/lang/Object;)V
+	public final fun cancelAll ()V
+	public final fun cancelPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)V
+	public final fun putIfNotThere (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)V
+}
+
+public final class io/mockk/MockKCancellationRegistry$Type : java/lang/Enum {
+	public static final field CONSTRUCTOR Lio/mockk/MockKCancellationRegistry$Type;
+	public static final field OBJECT Lio/mockk/MockKCancellationRegistry$Type;
+	public static final field STATIC Lio/mockk/MockKCancellationRegistry$Type;
+	public static fun valueOf (Ljava/lang/String;)Lio/mockk/MockKCancellationRegistry$Type;
+	public static fun values ()[Lio/mockk/MockKCancellationRegistry$Type;
+}
+
+public final class io/mockk/MockKConstructorScope : io/mockk/MockKUnmockKScope {
+	public fun <init> (Lkotlin/reflect/KClass;ZZ)V
+	public fun clear (ZZZZZ)V
+	public final fun getLocalToThread ()Z
+	public final fun getRecordPrivateCalls ()Z
+	public final fun getType ()Lkotlin/reflect/KClass;
+}
+
+public final class io/mockk/MockKDsl {
+	public static final field INSTANCE Lio/mockk/MockKDsl;
+	public final fun internalCheckExactlyAtMostAtLeast (IIILio/mockk/Ordering;)V
+	public final fun internalClearAllMocks (ZZZZZZZZZ)V
+	public static synthetic fun internalClearAllMocks$default (Lio/mockk/MockKDsl;ZZZZZZZZZILjava/lang/Object;)V
+	public final fun internalClearConstructorMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
+	public static synthetic fun internalClearConstructorMockk$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZZZZILjava/lang/Object;)V
+	public final fun internalClearMocks (Ljava/lang/Object;[Ljava/lang/Object;ZZZZZ)V
+	public static synthetic fun internalClearMocks$default (Lio/mockk/MockKDsl;Ljava/lang/Object;[Ljava/lang/Object;ZZZZZILjava/lang/Object;)V
+	public final fun internalClearObjectMockk ([Ljava/lang/Object;ZZZZZ)V
+	public static synthetic fun internalClearObjectMockk$default (Lio/mockk/MockKDsl;[Ljava/lang/Object;ZZZZZILjava/lang/Object;)V
+	public final fun internalClearStaticMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
+	public static synthetic fun internalClearStaticMockk$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZZZZILjava/lang/Object;)V
+	public final fun internalCoEvery (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+	public final fun internalCoExcludeRecords (ZLkotlin/jvm/functions/Function2;)V
+	public static synthetic fun internalCoExcludeRecords$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun internalCoVerify (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;)V
+	public static synthetic fun internalCoVerify$default (Lio/mockk/MockKDsl;Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun internalCoVerifyAll (ZLkotlin/jvm/functions/Function2;)V
+	public static synthetic fun internalCoVerifyAll$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun internalCoVerifyOrder (ZLkotlin/jvm/functions/Function2;)V
+	public static synthetic fun internalCoVerifyOrder$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun internalCoVerifySequence (ZLkotlin/jvm/functions/Function2;)V
+	public static synthetic fun internalCoVerifySequence$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun internalConfirmVerified ([Ljava/lang/Object;)V
+	public final fun internalEvery (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKStubScope;
+	public final fun internalExcludeRecords (ZLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun internalExcludeRecords$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun internalInitAnnotatedMocks (Ljava/util/List;ZZZ)V
+	public static synthetic fun internalInitAnnotatedMocks$default (Lio/mockk/MockKDsl;Ljava/util/List;ZZZILjava/lang/Object;)V
+	public final fun internalIsMockKMock (Ljava/lang/Object;ZZZZZ)Z
+	public static synthetic fun internalIsMockKMock$default (Lio/mockk/MockKDsl;Ljava/lang/Object;ZZZZZILjava/lang/Object;)Z
+	public final fun internalMockkClass (Lkotlin/reflect/KClass;Ljava/lang/String;Z[Lkotlin/reflect/KClass;ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun internalMockkClass$default (Lio/mockk/MockKDsl;Lkotlin/reflect/KClass;Ljava/lang/String;Z[Lkotlin/reflect/KClass;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun internalMockkConstructor ([Lkotlin/reflect/KClass;ZZ)V
+	public static synthetic fun internalMockkConstructor$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZILjava/lang/Object;)V
+	public final fun internalMockkObject ([Ljava/lang/Object;Z)V
+	public static synthetic fun internalMockkObject$default (Lio/mockk/MockKDsl;[Ljava/lang/Object;ZILjava/lang/Object;)V
+	public final fun internalMockkStatic ([Lkotlin/reflect/KClass;)V
+	public final fun internalObjectMockk ([Ljava/lang/Object;Z)Lio/mockk/MockKObjectScope;
+	public static synthetic fun internalObjectMockk$default (Lio/mockk/MockKDsl;[Ljava/lang/Object;ZILjava/lang/Object;)Lio/mockk/MockKObjectScope;
+	public final fun internalSpyk (Ljava/lang/Object;Ljava/lang/String;[Lkotlin/reflect/KClass;ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static synthetic fun internalSpyk$default (Lio/mockk/MockKDsl;Ljava/lang/Object;Ljava/lang/String;[Lkotlin/reflect/KClass;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun internalStaticMockk ([Lkotlin/reflect/KClass;)Lio/mockk/MockKStaticScope;
+	public final fun internalUnmockkAll ()V
+	public final fun internalUnmockkConstructor ([Lkotlin/reflect/KClass;)V
+	public final fun internalUnmockkObject ([Ljava/lang/Object;)V
+	public final fun internalUnmockkStatic ([Lkotlin/reflect/KClass;)V
+	public final fun internalVerify (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun internalVerify$default (Lio/mockk/MockKDsl;Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun internalVerifyAll (ZLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun internalVerifyAll$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun internalVerifyOrder (ZLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun internalVerifyOrder$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun internalVerifySequence (ZLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun internalVerifySequence$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
+public final class io/mockk/MockKException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public abstract interface class io/mockk/MockKGateway {
+	public static final field Companion Lio/mockk/MockKGateway$Companion;
+	public abstract fun getCallRecorder ()Lio/mockk/MockKGateway$CallRecorder;
+	public abstract fun getClearer ()Lio/mockk/MockKGateway$Clearer;
+	public abstract fun getConstructorMockFactory ()Lio/mockk/MockKGateway$ConstructorMockFactory;
+	public abstract fun getExcluder ()Lio/mockk/MockKGateway$Excluder;
+	public abstract fun getInstanceFactoryRegistry ()Lio/mockk/MockKGateway$InstanceFactoryRegistry;
+	public abstract fun getMockFactory ()Lio/mockk/MockKGateway$MockFactory;
+	public abstract fun getMockInitializer ()Lio/mockk/MockKGateway$MockInitializer;
+	public abstract fun getMockTypeChecker ()Lio/mockk/MockKGateway$MockTypeChecker;
+	public abstract fun getObjectMockFactory ()Lio/mockk/MockKGateway$ObjectMockFactory;
+	public abstract fun getStaticMockFactory ()Lio/mockk/MockKGateway$StaticMockFactory;
+	public abstract fun getStubber ()Lio/mockk/MockKGateway$Stubber;
+	public abstract fun getVerificationAcknowledger ()Lio/mockk/MockKGateway$VerificationAcknowledger;
+	public abstract fun getVerifier ()Lio/mockk/MockKGateway$Verifier;
+	public abstract fun verifier (Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/MockKGateway$CallVerifier;
+}
+
+public abstract interface class io/mockk/MockKGateway$AnswerOpportunity {
+	public abstract fun provideAnswer (Lio/mockk/Answer;)V
+}
+
+public abstract interface class io/mockk/MockKGateway$CallRecorder {
+	public abstract fun answerOpportunity ()Lio/mockk/MockKGateway$AnswerOpportunity;
+	public abstract fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
+	public abstract fun discardLastCallRound ()V
+	public abstract fun done ()V
+	public abstract fun estimateCallRounds ()I
+	public abstract fun getCalls ()Ljava/util/List;
+	public abstract fun hintNextReturnType (Lkotlin/reflect/KClass;I)V
+	public abstract fun isLastCallReturnsNothing ()Z
+	public abstract fun matcher (Lio/mockk/Matcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
+	public abstract fun nCalls ()I
+	public abstract fun reset ()V
+	public abstract fun round (II)V
+	public abstract fun startExclusion (Lio/mockk/MockKGateway$ExclusionParameters;)V
+	public abstract fun startStubbing ()V
+	public abstract fun startVerification (Lio/mockk/MockKGateway$VerificationParameters;)V
+	public abstract fun wasNotCalled (Ljava/util/List;)V
+}
+
+public final class io/mockk/MockKGateway$CallRecorder$DefaultImpls {
+	public static synthetic fun round$default (Lio/mockk/MockKGateway$CallRecorder;IIILjava/lang/Object;)V
+}
+
+public abstract interface class io/mockk/MockKGateway$CallVerifier {
+	public abstract fun captureArguments ()V
+	public abstract fun verify (Ljava/util/List;Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/MockKGateway$VerificationResult;
+}
+
+public final class io/mockk/MockKGateway$ClearOptions {
+	public fun <init> (ZZZZZ)V
+	public final fun component1 ()Z
+	public final fun component2 ()Z
+	public final fun component3 ()Z
+	public final fun component4 ()Z
+	public final fun component5 ()Z
+	public final fun copy (ZZZZZ)Lio/mockk/MockKGateway$ClearOptions;
+	public static synthetic fun copy$default (Lio/mockk/MockKGateway$ClearOptions;ZZZZZILjava/lang/Object;)Lio/mockk/MockKGateway$ClearOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAnswers ()Z
+	public final fun getChildMocks ()Z
+	public final fun getExclusionRules ()Z
+	public final fun getRecordedCalls ()Z
+	public final fun getVerificationMarks ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/MockKGateway$Clearer {
+	public abstract fun clear ([Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+}
+
+public final class io/mockk/MockKGateway$Companion {
+	public static field implementation Lkotlin/jvm/functions/Function0;
+	public final fun getImplementation ()Lkotlin/jvm/functions/Function0;
+	public final fun setImplementation (Lkotlin/jvm/functions/Function0;)V
+}
+
+public abstract interface class io/mockk/MockKGateway$ConstructorMockFactory {
+	public abstract fun clear (Lkotlin/reflect/KClass;Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun constructorMockk (Lkotlin/reflect/KClass;ZZ)Lkotlin/jvm/functions/Function0;
+	public abstract fun mockPlaceholder (Lkotlin/reflect/KClass;[Lio/mockk/Matcher;)Ljava/lang/Object;
+}
+
+public final class io/mockk/MockKGateway$ConstructorMockFactory$DefaultImpls {
+	public static synthetic fun mockPlaceholder$default (Lio/mockk/MockKGateway$ConstructorMockFactory;Lkotlin/reflect/KClass;[Lio/mockk/Matcher;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/MockKGateway$Excluder {
+	public abstract fun exclude (Lio/mockk/MockKGateway$ExclusionParameters;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
+}
+
+public final class io/mockk/MockKGateway$ExclusionParameters {
+	public fun <init> (Z)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lio/mockk/MockKGateway$ExclusionParameters;
+	public static synthetic fun copy$default (Lio/mockk/MockKGateway$ExclusionParameters;ZILjava/lang/Object;)Lio/mockk/MockKGateway$ExclusionParameters;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCurrent ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/MockKGateway$InstanceFactory {
+	public abstract fun instantiate (Lkotlin/reflect/KClass;)Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/MockKGateway$InstanceFactoryRegistry {
+	public abstract fun deregisterFactory (Lio/mockk/MockKGateway$InstanceFactory;)V
+	public abstract fun registerFactory (Lio/mockk/MockKGateway$InstanceFactory;)V
+}
+
+public abstract interface class io/mockk/MockKGateway$MockFactory {
+	public abstract fun isMock (Ljava/lang/Object;)Z
+	public abstract fun mockk (Lkotlin/reflect/KClass;Ljava/lang/String;Z[Lkotlin/reflect/KClass;Z)Ljava/lang/Object;
+	public abstract fun spyk (Lkotlin/reflect/KClass;Ljava/lang/Object;Ljava/lang/String;[Lkotlin/reflect/KClass;Z)Ljava/lang/Object;
+	public abstract fun temporaryMock (Lkotlin/reflect/KClass;)Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/MockKGateway$MockInitializer {
+	public abstract fun initAnnotatedMocks (Ljava/util/List;ZZZ)V
+}
+
+public abstract interface class io/mockk/MockKGateway$MockTypeChecker {
+	public abstract fun isConstructorMock (Ljava/lang/Object;)Z
+	public abstract fun isObjectMock (Ljava/lang/Object;)Z
+	public abstract fun isRegularMock (Ljava/lang/Object;)Z
+	public abstract fun isSpy (Ljava/lang/Object;)Z
+	public abstract fun isStaticMock (Ljava/lang/Object;)Z
+}
+
+public abstract interface class io/mockk/MockKGateway$ObjectMockFactory {
+	public abstract fun clear (Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun objectMockk (Ljava/lang/Object;Z)Lkotlin/jvm/functions/Function0;
+}
+
+public abstract interface class io/mockk/MockKGateway$StaticMockFactory {
+	public abstract fun clear (Lkotlin/reflect/KClass;Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun staticMockk (Lkotlin/reflect/KClass;)Lkotlin/jvm/functions/Function0;
+}
+
+public abstract interface class io/mockk/MockKGateway$Stubber {
+	public abstract fun every (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+}
+
+public abstract interface class io/mockk/MockKGateway$VerificationAcknowledger {
+	public abstract fun acknowledgeVerified (Ljava/lang/Object;)V
+	public abstract fun markCallVerified (Lio/mockk/Invocation;)V
+}
+
+public final class io/mockk/MockKGateway$VerificationParameters {
+	public fun <init> (Lio/mockk/Ordering;IIZJ)V
+	public final fun component1 ()Lio/mockk/Ordering;
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun component4 ()Z
+	public final fun component5 ()J
+	public final fun copy (Lio/mockk/Ordering;IIZJ)Lio/mockk/MockKGateway$VerificationParameters;
+	public static synthetic fun copy$default (Lio/mockk/MockKGateway$VerificationParameters;Lio/mockk/Ordering;IIZJILjava/lang/Object;)Lio/mockk/MockKGateway$VerificationParameters;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInverse ()Z
+	public final fun getMax ()I
+	public final fun getMin ()I
+	public final fun getOrdering ()Lio/mockk/Ordering;
+	public final fun getTimeout ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class io/mockk/MockKGateway$VerificationResult {
+	public final fun getMatches ()Z
+}
+
+public final class io/mockk/MockKGateway$VerificationResult$Failure : io/mockk/MockKGateway$VerificationResult {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lio/mockk/MockKGateway$VerificationResult$Failure;
+	public static synthetic fun copy$default (Lio/mockk/MockKGateway$VerificationResult$Failure;Ljava/lang/String;ILjava/lang/Object;)Lio/mockk/MockKGateway$VerificationResult$Failure;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/MockKGateway$VerificationResult$OK : io/mockk/MockKGateway$VerificationResult {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lio/mockk/MockKGateway$VerificationResult$OK;
+	public static synthetic fun copy$default (Lio/mockk/MockKGateway$VerificationResult$OK;Ljava/util/List;ILjava/lang/Object;)Lio/mockk/MockKGateway$VerificationResult$OK;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getVerifiedCalls ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/MockKGateway$Verifier {
+	public abstract fun verify (Lio/mockk/MockKGateway$VerificationParameters;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
+}
+
+public class io/mockk/MockKMatcherScope {
+	public fun <init> (Lio/mockk/MockKGateway$CallRecorder;Lio/mockk/CapturingSlot;)V
+	public final fun anyBooleanVararg ()[Z
+	public final fun anyByteVararg ()[B
+	public final fun anyCharVararg ()[C
+	public final fun anyDoubleVararg ()[D
+	public final fun anyFloatVararg ()[F
+	public final fun anyIntVararg ()[I
+	public final fun anyLongVararg ()[J
+	public final fun anyShortVararg ()[S
+	public final fun get (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicCall;
+	public final fun getLambda ()Lio/mockk/CapturingSlot;
+	public final fun getProperty (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun hint (Ljava/lang/Object;Lkotlin/reflect/KClass;I)Ljava/lang/Object;
+	public static synthetic fun hint$default (Lio/mockk/MockKMatcherScope;Ljava/lang/Object;Lkotlin/reflect/KClass;IILjava/lang/Object;)Ljava/lang/Object;
+	public final fun invoke (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicCallLong;
+	public final fun invokeNoArgs (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun setProperty (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicSetProperty;
+	public final fun varargAllBoolean (Lkotlin/jvm/functions/Function2;)[Z
+	public final fun varargAllByte (Lkotlin/jvm/functions/Function2;)[B
+	public final fun varargAllChar (Lkotlin/jvm/functions/Function2;)[C
+	public final fun varargAllDouble (Lkotlin/jvm/functions/Function2;)[D
+	public final fun varargAllFloat (Lkotlin/jvm/functions/Function2;)[F
+	public final fun varargAllInt (Lkotlin/jvm/functions/Function2;)[I
+	public final fun varargAllLong (Lkotlin/jvm/functions/Function2;)[J
+	public final fun varargAllShort (Lkotlin/jvm/functions/Function2;)[S
+	public final fun varargAnyBoolean (Lkotlin/jvm/functions/Function2;)[Z
+	public final fun varargAnyByte (Lkotlin/jvm/functions/Function2;)[B
+	public final fun varargAnyChar (Lkotlin/jvm/functions/Function2;)[C
+	public final fun varargAnyDouble (Lkotlin/jvm/functions/Function2;)[D
+	public final fun varargAnyFloat (Lkotlin/jvm/functions/Function2;)[F
+	public final fun varargAnyInt (Lkotlin/jvm/functions/Function2;)[I
+	public final fun varargAnyLong (Lkotlin/jvm/functions/Function2;)[J
+	public final fun varargAnyShort (Lkotlin/jvm/functions/Function2;)[S
+}
+
+public final class io/mockk/MockKMatcherScope$DynamicCall {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public final fun getAnyContinuationGen ()Lkotlin/jvm/functions/Function0;
+	public final fun getMethodName ()Ljava/lang/String;
+	public final fun getSelf ()Ljava/lang/Object;
+	public final fun invoke ([Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class io/mockk/MockKMatcherScope$DynamicCallLong {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public final fun getAnyContinuationGen ()Lkotlin/jvm/functions/Function0;
+	public final fun getMethodName ()Ljava/lang/String;
+	public final fun getSelf ()Ljava/lang/Object;
+	public final fun withArguments (Ljava/util/List;)Ljava/lang/Object;
+}
+
+public final class io/mockk/MockKMatcherScope$DynamicSetProperty {
+	public fun <init> (Ljava/lang/Object;Ljava/lang/String;)V
+	public final fun getName ()Ljava/lang/String;
+	public final fun getSelf ()Ljava/lang/Object;
+	public final fun value (Ljava/lang/Object;)V
+}
+
+public final class io/mockk/MockKMatcherScope$MockKVarargScope {
+	public fun <init> (II)V
+	public final fun getNArgs ()I
+	public final fun getPosition ()I
+}
+
+public final class io/mockk/MockKObjectScope : io/mockk/MockKUnmockKScope {
+	public fun <init> ([Ljava/lang/Object;Z)V
+	public synthetic fun <init> ([Ljava/lang/Object;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun and (Ljava/lang/Object;)Lio/mockk/MockKObjectScope;
+	public fun clear (ZZZZZ)V
+	public final fun getObjects ()[Ljava/lang/Object;
+	public final fun getRecordPrivateCalls ()Z
+}
+
+public final class io/mockk/MockKSettings {
+	public static final field INSTANCE Lio/mockk/MockKSettings;
+	public final fun getRecordPrivateCalls ()Z
+	public final fun getRelaxUnitFun ()Z
+	public final fun getRelaxed ()Z
+	public final fun getStackTracesAlignment ()Lio/mockk/StackTracesAlignment;
+	public final fun getStackTracesOnVerify ()Z
+	public final fun setRecordPrivateCalls (Z)V
+	public final fun setRelaxUnitFun (Z)V
+	public final fun setRelaxed (Z)V
+	public final fun setStackTracesAlignment (Ljava/lang/String;)V
+}
+
+public final class io/mockk/MockKSettingsKt {
+	public static final fun stackTracesAlignmentValueOf (Ljava/lang/String;)Lio/mockk/StackTracesAlignment;
+}
+
+public final class io/mockk/MockKStaticScope : io/mockk/MockKUnmockKScope {
+	public fun <init> ([Lkotlin/reflect/KClass;)V
+	public fun clear (ZZZZZ)V
+	public final fun getStaticTypes ()[Lkotlin/reflect/KClass;
+}
+
+public final class io/mockk/MockKStubScope {
+	public fun <init> (Lio/mockk/MockKGateway$AnswerOpportunity;Lio/mockk/MockKGateway$CallRecorder;Lio/mockk/CapturingSlot;)V
+	public final fun answers (Lio/mockk/Answer;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun answers (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun coAnswers (Lkotlin/jvm/functions/Function3;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun nullablePropertyType (Lkotlin/reflect/KClass;)Lio/mockk/MockKStubScope;
+	public final fun propertyType (Lkotlin/reflect/KClass;)Lio/mockk/MockKStubScope;
+	public final fun returns (Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun returnsArgument (I)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun returnsMany (Ljava/util/List;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun returnsMany ([Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun throws (Ljava/lang/Throwable;)Lio/mockk/MockKAdditionalAnswerScope;
+}
+
+public final class io/mockk/MockKUnmockKCompositeScope : io/mockk/MockKUnmockKScope {
+	public fun <init> (Lio/mockk/MockKUnmockKScope;Lio/mockk/MockKUnmockKScope;)V
+	public fun clear (ZZZZZ)V
+	public final fun getFirst ()Lio/mockk/MockKUnmockKScope;
+	public final fun getSecond ()Lio/mockk/MockKUnmockKScope;
+}
+
+public abstract class io/mockk/MockKUnmockKScope {
+	public fun <init> ()V
+	public abstract fun clear (ZZZZZ)V
+	public static synthetic fun clear$default (Lio/mockk/MockKUnmockKScope;ZZZZZILjava/lang/Object;)V
+	protected abstract fun doMock ()Lkotlin/jvm/functions/Function0;
+	public final fun mock ()V
+	public final fun plus (Lio/mockk/MockKUnmockKScope;)Lio/mockk/MockKUnmockKScope;
+	public final fun unmock ()V
+}
+
+public final class io/mockk/MockKVerificationScope : io/mockk/MockKMatcherScope {
+	public fun <init> (Lio/mockk/MockKGateway$CallRecorder;Lio/mockk/CapturingSlot;)V
+	public final fun wasNot (Ljava/lang/Object;Lio/mockk/Called;)V
+	public final fun wasNot (Ljava/util/List;Lio/mockk/Called;)V
+}
+
+public final class io/mockk/NotMatcher : io/mockk/CapturingMatcher, io/mockk/CompositeMatcher, io/mockk/Matcher {
+	public fun <init> (Ljava/lang/Object;)V
+	public fun capture (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lio/mockk/NotMatcher;
+	public static synthetic fun copy$default (Lio/mockk/NotMatcher;Ljava/lang/Object;ILjava/lang/Object;)Lio/mockk/NotMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getOperandValues ()Ljava/util/List;
+	public fun getSubMatchers ()Ljava/util/List;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun setSubMatchers (Ljava/util/List;)V
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/NullCheckMatcher : io/mockk/Matcher {
+	public fun <init> ()V
+	public fun <init> (Z)V
+	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lio/mockk/NullCheckMatcher;
+	public static synthetic fun copy$default (Lio/mockk/NullCheckMatcher;ZILjava/lang/Object;)Lio/mockk/NullCheckMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInverse ()Z
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/OfTypeMatcher : io/mockk/Matcher {
+	public fun <init> (Lkotlin/reflect/KClass;)V
+	public final fun component1 ()Lkotlin/reflect/KClass;
+	public final fun copy (Lkotlin/reflect/KClass;)Lio/mockk/OfTypeMatcher;
+	public static synthetic fun copy$default (Lio/mockk/OfTypeMatcher;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/OfTypeMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCls ()Lkotlin/reflect/KClass;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/Ordering : java/lang/Enum {
+	public static final field ALL Lio/mockk/Ordering;
+	public static final field ORDERED Lio/mockk/Ordering;
+	public static final field SEQUENCE Lio/mockk/Ordering;
+	public static final field UNORDERED Lio/mockk/Ordering;
+	public static fun valueOf (Ljava/lang/String;)Lio/mockk/Ordering;
+	public static fun values ()[Lio/mockk/Ordering;
+}
+
+public final class io/mockk/RecordedCall {
+	public fun <init> (Ljava/lang/Object;ZLkotlin/reflect/KClass;Lio/mockk/InvocationMatcher;Lio/mockk/RecordedCall;Ljava/util/List;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Z
+	public final fun component3 ()Lkotlin/reflect/KClass;
+	public final fun component4 ()Lio/mockk/InvocationMatcher;
+	public final fun component5 ()Lio/mockk/RecordedCall;
+	public final fun component6 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/Object;ZLkotlin/reflect/KClass;Lio/mockk/InvocationMatcher;Lio/mockk/RecordedCall;Ljava/util/List;)Lio/mockk/RecordedCall;
+	public static synthetic fun copy$default (Lio/mockk/RecordedCall;Ljava/lang/Object;ZLkotlin/reflect/KClass;Lio/mockk/InvocationMatcher;Lio/mockk/RecordedCall;Ljava/util/List;ILjava/lang/Object;)Lio/mockk/RecordedCall;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArgChains ()Ljava/util/List;
+	public final fun getMatcher ()Lio/mockk/InvocationMatcher;
+	public final fun getRetType ()Lkotlin/reflect/KClass;
+	public final fun getRetValue ()Ljava/lang/Object;
+	public final fun getSelfChain ()Lio/mockk/RecordedCall;
+	public fun hashCode ()I
+	public final fun isRetValueMock ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/Runs {
+	public static final field INSTANCE Lio/mockk/Runs;
+}
+
+public final class io/mockk/StackElement {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IZ)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()I
+	public final fun component5 ()Z
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IZ)Lio/mockk/StackElement;
+	public static synthetic fun copy$default (Lio/mockk/StackElement;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IZILjava/lang/Object;)Lio/mockk/StackElement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClassName ()Ljava/lang/String;
+	public final fun getFileName ()Ljava/lang/String;
+	public final fun getLine ()I
+	public final fun getMethodName ()Ljava/lang/String;
+	public final fun getNativeMethod ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/StackTracesAlignment : java/lang/Enum {
+	public static final field CENTER Lio/mockk/StackTracesAlignment;
+	public static final field LEFT Lio/mockk/StackTracesAlignment;
+	public static fun valueOf (Ljava/lang/String;)Lio/mockk/StackTracesAlignment;
+	public static fun values ()[Lio/mockk/StackTracesAlignment;
+}
+
+public final class io/mockk/ThrowingAnswer : io/mockk/Answer {
+	public fun <init> (Ljava/lang/Throwable;)V
+	public synthetic fun answer (Lio/mockk/Call;)Ljava/lang/Object;
+	public fun answer (Lio/mockk/Call;)Ljava/lang/Void;
+	public fun coAnswer (Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun component1 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/Throwable;)Lio/mockk/ThrowingAnswer;
+	public static synthetic fun copy$default (Lio/mockk/ThrowingAnswer;Ljava/lang/Throwable;ILjava/lang/Object;)Lio/mockk/ThrowingAnswer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEx ()Ljava/lang/Throwable;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class io/mockk/TypedMatcher {
+	public abstract fun checkType (Ljava/lang/Object;)Z
+	public abstract fun getArgumentType ()Lkotlin/reflect/KClass;
+}
+
+public final class io/mockk/TypedMatcher$DefaultImpls {
+	public static fun checkType (Lio/mockk/TypedMatcher;Ljava/lang/Object;)Z
+}
+
+public final class io/mockk/VarargMatcher : io/mockk/CapturingMatcher, io/mockk/Matcher {
+	public fun <init> (ZLkotlin/jvm/functions/Function2;Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (ZLkotlin/jvm/functions/Function2;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun capture (Ljava/lang/Object;)V
+	public final fun copy (ZLkotlin/jvm/functions/Function2;Ljava/util/List;Ljava/util/List;)Lio/mockk/VarargMatcher;
+	public static synthetic fun copy$default (Lio/mockk/VarargMatcher;ZLkotlin/jvm/functions/Function2;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lio/mockk/VarargMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+

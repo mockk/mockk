@@ -1,0 +1,55 @@
+public abstract interface class io/mockk/proxy/Cancelable {
+	public abstract fun cancel ()V
+	public abstract fun get ()Ljava/lang/Object;
+}
+
+public final class io/mockk/proxy/MockKAgentException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+}
+
+public abstract interface class io/mockk/proxy/MockKAgentFactory {
+	public abstract fun getConstructorProxyMaker ()Lio/mockk/proxy/MockKConstructorProxyMaker;
+	public abstract fun getInstantiator ()Lio/mockk/proxy/MockKInstantiatior;
+	public abstract fun getProxyMaker ()Lio/mockk/proxy/MockKProxyMaker;
+	public abstract fun getStaticProxyMaker ()Lio/mockk/proxy/MockKStaticProxyMaker;
+	public abstract fun init (Lio/mockk/proxy/MockKAgentLogFactory;)V
+}
+
+public abstract interface class io/mockk/proxy/MockKAgentLogFactory {
+	public static final field Companion Lio/mockk/proxy/MockKAgentLogFactory$Companion;
+	public abstract fun logger (Ljava/lang/Class;)Lio/mockk/proxy/MockKAgentLogger;
+}
+
+public final class io/mockk/proxy/MockKAgentLogFactory$Companion {
+	public final fun getSimpleConsoleLogFactory ()Lio/mockk/proxy/MockKAgentLogFactory;
+}
+
+public abstract interface class io/mockk/proxy/MockKAgentLogger {
+	public abstract fun debug (Ljava/lang/String;)V
+	public abstract fun trace (Ljava/lang/String;)V
+	public abstract fun trace (Ljava/lang/Throwable;Ljava/lang/String;)V
+	public abstract fun warn (Ljava/lang/String;)V
+	public abstract fun warn (Ljava/lang/Throwable;Ljava/lang/String;)V
+}
+
+public abstract interface class io/mockk/proxy/MockKConstructorProxyMaker {
+	public abstract fun constructorProxy (Ljava/lang/Class;Lio/mockk/proxy/MockKInvocationHandler;)Lio/mockk/proxy/Cancelable;
+}
+
+public abstract interface class io/mockk/proxy/MockKInstantiatior {
+	public abstract fun instance (Ljava/lang/Class;)Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/proxy/MockKInvocationHandler {
+	public abstract fun invocation (Ljava/lang/Object;Ljava/lang/reflect/Method;Ljava/util/concurrent/Callable;[Ljava/lang/Object;)Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/proxy/MockKProxyMaker {
+	public abstract fun proxy (Ljava/lang/Class;[Ljava/lang/Class;Lio/mockk/proxy/MockKInvocationHandler;ZLjava/lang/Object;)Lio/mockk/proxy/Cancelable;
+}
+
+public abstract interface class io/mockk/proxy/MockKStaticProxyMaker {
+	public abstract fun staticProxy (Ljava/lang/Class;Lio/mockk/proxy/MockKInvocationHandler;)Lio/mockk/proxy/Cancelable;
+}
+
