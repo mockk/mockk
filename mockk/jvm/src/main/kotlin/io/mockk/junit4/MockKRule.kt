@@ -18,7 +18,7 @@ import org.junit.runner.Description
  * ```
  * class ExampleTest {
  *   @get:Rule
- *   val mockkRule = MockkRule(this)
+ *   val mockkRule = MockKRule(this)
  *
  *   @MockK
  *   private lateinit var car: Car
@@ -31,7 +31,7 @@ import org.junit.runner.Description
  * }
  * ```
  */
-class MockkRule(private val testSubject: Any) : TestWatcher(), TestRule {
+class MockKRule(private val testSubject: Any) : TestWatcher(), TestRule {
     override fun starting(description: Description?) {
         super.starting(description)
         MockKAnnotations.init(testSubject)
