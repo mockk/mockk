@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 class MockKRuleTest {
 
     @get:Rule
-    val mockkRule = MockkRule(this)
+    val mockkRule = MockKRule(this)
 
     enum class Direction {
         NORTH,
