@@ -190,6 +190,30 @@ To change this, use `overrideValues = true`. This would assign the value even if
 To inject `val`s, use `injectImmutable = true`. For a shorter notation use `@OverrideMockKs` which does the same as 
 `@InjectMockKs` by default, but turns these two flags on.
 
+### JUnit4
+
+JUnit 4 exposes a rule-based API to allow for some automation following the test lifecycle. MockK includes a rule which uses this to set up and tear down your mocks without needing to manually call `MockKAnnotations.init(this)`. Example:
+
+```kotlin
+class CarTest {
+  @get:Rule
+  val mockkRule = MockKRule(this)
+
+  @MockK
+  lateinit var car1: Car
+
+  @RelaxedMockK
+  lateinit var car2: Car
+
+  @Test
+  fun something() {
+     every { car1.drive() } just runs
+     every { car2.changeGear(any()) } returns true
+     // etc
+  }
+}
+```
+
 #### JUnit5
 
 In JUnit5 you can use `MockKExtension` to initialize your mocks. 
