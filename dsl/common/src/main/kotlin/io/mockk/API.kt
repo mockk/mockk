@@ -269,6 +269,10 @@ object MockKDsl {
      * Checks if all recorded calls were verified.
      */
     fun internalConfirmVerified(vararg mocks: Any) {
+        if (mocks.isEmpty()) {
+            MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified()
+        }
+
         for (mock in mocks) {
             MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified(mock)
         }

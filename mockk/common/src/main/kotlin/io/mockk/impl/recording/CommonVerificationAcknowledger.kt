@@ -17,9 +17,16 @@ class CommonVerificationAcknowledger(
         (invocation.stub as? Stub)?.markCallVerified(invocation)
     }
 
+    override fun acknowledgeVerified() {
+        stubRepo.allStubs.forEach { acknowledgeVerificationHelper(it) }
+    }
+
     override fun acknowledgeVerified(mock: Any) {
         val stub = stubRepo.stubFor(mock)
+        acknowledgeVerificationHelper(stub)
+    }
 
+    private fun acknowledgeVerificationHelper(stub: Stub) {
         val allCalls = stub.allRecordedCalls().map { InternalPlatform.ref(it) }.toHashSet()
         val verifiedCalls = stub.verifiedCalls().map { InternalPlatform.ref(it) }.toHashSet()
 
@@ -30,7 +37,7 @@ class CommonVerificationAcknowledger(
                 reportNotVerified(
                     allCalls.size,
                     verifiedCalls.size,
-                    stub.allRecordedCalls() - stub.verifiedCalls()
+                    stub.allRecordedCalls() - stub.verifiedCalls().toSet()
                 )
             }
         throw AssertionError("Verification acknowledgment failed$nonVerifiedReport")

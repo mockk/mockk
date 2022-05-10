@@ -23,12 +23,12 @@ import io.mockk.proxy.MockKAgentLogFactory
 import java.util.*
 
 class JvmMockKGateway : MockKGateway {
-    val safeToString: SafeToString = SafeToString({ callRecorderTL.get() })
+    val safeToString: SafeToString = SafeToString { callRecorderTL.get() }
 
-    val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
+    private val instanceFactoryRegistryIntrnl = CommonInstanceFactoryRegistry()
     override val instanceFactoryRegistry: InstanceFactoryRegistry = instanceFactoryRegistryIntrnl
 
-    val agentFactory: MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
+    private val agentFactory: MockKAgentFactory = if (InternalPlatform.isRunningAndroidInstrumentationTest())
         InternalPlatform.loadPlugin(
             "io.mockk.proxy.android.AndroidMockKAgentFactory",
             "Android instrumented test is running, " +

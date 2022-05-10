@@ -754,6 +754,7 @@ public abstract interface class io/mockk/MockKGateway$Stubber {
 }
 
 public abstract interface class io/mockk/MockKGateway$VerificationAcknowledger {
+	public abstract fun acknowledgeVerified ()V
 	public abstract fun acknowledgeVerified (Ljava/lang/Object;)V
 	public abstract fun markCallVerified (Lio/mockk/Invocation;)V
 }

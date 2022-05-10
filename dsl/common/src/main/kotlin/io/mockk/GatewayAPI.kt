@@ -251,6 +251,8 @@ interface MockKGateway {
         fun markCallVerified(invocation: Invocation)
 
         fun acknowledgeVerified(mock: Any)
+
+        fun acknowledgeVerified()
     }
 
     interface MockTypeChecker {

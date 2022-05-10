@@ -526,5 +526,51 @@ class VerificationAcknowledgeTest {
             confirmVerified(mock)
         }
     }
+
+    @Test
+    fun confirmVerifiedAll() {
+        clearAllMocks()
+        doCalls1()
+
+        verify {
+            mock.op(5)
+            mock.op(6)
+            mock.op(7)
+        }
+
+        confirmVerified()
+    }
+
+    @Test
+    fun confirmVerifiedAllInverse() {
+        clearAllMocks()
+        doCalls1()
+
+        verify {
+            mock.op(5)
+            mock.op(6)
+        }
+
+        assertFails {
+            confirmVerified()
+        }
+    }
+
+    @Test
+    fun confirmVerifiedAllExclude() {
+        clearAllMocks()
+        excludeRecords(current = false) {
+            mock.op(7)
+        }
+
+        doCalls1()
+
+        verify {
+            mock.op(6)
+            mock.op(5)
+        }
+
+        confirmVerified()
+    }
 }
 

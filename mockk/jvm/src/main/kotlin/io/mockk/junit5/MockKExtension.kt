@@ -1,6 +1,7 @@
 package io.mockk.junit5
 
 import io.mockk.MockKAnnotations
+import io.mockk.confirmVerified
 import io.mockk.impl.annotations.AdditionalInterface
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
@@ -38,14 +39,14 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         val annotation = getMockKAnnotation(parameterContext) ?: return null
         val name = getMockName(parameterContext.parameter, annotation)
 
-        val isRelaxed = when {
-            annotation is RelaxedMockK -> true
-            annotation is MockK -> annotation.relaxed
+        val isRelaxed = when (annotation) {
+            is RelaxedMockK -> true
+            is MockK -> annotation.relaxed
             else -> false
         }
 
-        val isRelaxedUnitFun = when {
-            annotation is MockK -> annotation.relaxUnitFun
+        val isRelaxedUnitFun = when (annotation) {
+            is MockK -> annotation.relaxUnitFun
             else -> false
         }
 
@@ -88,6 +89,10 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         if (!context.keepMocks) {
             unmockkAll()
         }
+
+        if (context.confirmVerification) {
+            confirmVerified()
+        }
     }
 
     private val ExtensionContext.keepMocks: Boolean
@@ -98,6 +103,14 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         get() = map { it.getAnnotation(KeepMocks::class.java) != null }
             .orElse(false)
 
+    private val ExtensionContext.confirmVerification: Boolean
+        get() = testClass.confirmVerification ||
+                getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
+
+    private val Optional<out AnnotatedElement>.confirmVerification
+        get() = map { it.getAnnotation(ConfirmVerification::class.java) != null}
+            .orElse(false)
+
     /***
      * Prevent calling [unmockkAll] after each test execution
      */
@@ -106,8 +119,14 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
     @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
     annotation class KeepMocks
 
+    @Inherited
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.CLASS)
+    annotation class ConfirmVerification
+
     companion object {
         const val KEEP_MOCKS_PROPERTY = "mockk.junit.extension.keepmocks"
+        const val CONFIRM_VERIFICATION_PROPERTY = "mockk.junit.extension.confirmverification"
     }
 
 }

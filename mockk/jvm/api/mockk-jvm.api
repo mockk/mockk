@@ -100,7 +100,6 @@ public final class io/mockk/impl/InternalPlatform {
 public final class io/mockk/impl/JvmMockKGateway : io/mockk/MockKGateway {
 	public static final field Companion Lio/mockk/impl/JvmMockKGateway$Companion;
 	public fun <init> ()V
-	public final fun getAgentFactory ()Lio/mockk/proxy/MockKAgentFactory;
 	public final fun getAnyValueGeneratorProvider ()Lkotlin/jvm/functions/Function0;
 	public fun getCallRecorder ()Lio/mockk/MockKGateway$CallRecorder;
 	public final fun getCallRecorderFactories ()Lio/mockk/impl/recording/CallRecorderFactories;
@@ -112,7 +111,6 @@ public final class io/mockk/impl/JvmMockKGateway : io/mockk/MockKGateway {
 	public final fun getGatewayAccess ()Lio/mockk/impl/stub/StubGatewayAccess;
 	public final fun getGatewayAccessWithFactory ()Lio/mockk/impl/stub/StubGatewayAccess;
 	public fun getInstanceFactoryRegistry ()Lio/mockk/MockKGateway$InstanceFactoryRegistry;
-	public final fun getInstanceFactoryRegistryIntrnl ()Lio/mockk/impl/instantiation/CommonInstanceFactoryRegistry;
 	public final fun getInstantiator ()Lio/mockk/impl/instantiation/JvmInstantiator;
 	public synthetic fun getMockFactory ()Lio/mockk/MockKGateway$MockFactory;
 	public fun getMockFactory ()Lio/mockk/impl/instantiation/AbstractMockFactory;
@@ -733,6 +731,7 @@ public final class io/mockk/impl/recording/CommonCallRecorder$Companion {
 
 public final class io/mockk/impl/recording/CommonVerificationAcknowledger : io/mockk/MockKGateway$VerificationAcknowledger {
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/log/SafeToString;)V
+	public fun acknowledgeVerified ()V
 	public fun acknowledgeVerified (Ljava/lang/Object;)V
 	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
 	public final fun getStubRepo ()Lio/mockk/impl/stub/StubRepository;
@@ -1114,6 +1113,7 @@ public final class io/mockk/impl/verify/VerificationHelpers {
 }
 
 public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extension/AfterAllCallback, org/junit/jupiter/api/extension/ParameterResolver, org/junit/jupiter/api/extension/TestInstancePostProcessor {
+	public static final field CONFIRM_VERIFICATION_PROPERTY Ljava/lang/String;
 	public static final field Companion Lio/mockk/junit5/MockKExtension$Companion;
 	public static final field KEEP_MOCKS_PROPERTY Ljava/lang/String;
 	public fun <init> ()V
@@ -1124,6 +1124,9 @@ public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extens
 }
 
 public final class io/mockk/junit5/MockKExtension$Companion {
+}
+
+public abstract interface annotation class io/mockk/junit5/MockKExtension$ConfirmVerification : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class io/mockk/junit5/MockKExtension$KeepMocks : java/lang/annotation/Annotation {
