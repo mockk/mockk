@@ -1112,6 +1112,10 @@ public final class io/mockk/impl/verify/VerificationHelpers {
 	public final fun stackTraces (Ljava/util/List;)Ljava/lang/String;
 }
 
+public final class io/mockk/junit4/MockKRule : org/junit/rules/TestWatcher, org/junit/rules/TestRule {
+	public fun <init> (Ljava/lang/Object;)V
+}
+
 public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extension/AfterAllCallback, org/junit/jupiter/api/extension/ParameterResolver, org/junit/jupiter/api/extension/TestInstancePostProcessor {
 	public static final field CONFIRM_VERIFICATION_PROPERTY Ljava/lang/String;
 	public static final field Companion Lio/mockk/junit5/MockKExtension$Companion;
