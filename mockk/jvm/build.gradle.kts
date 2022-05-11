@@ -30,11 +30,11 @@ tasks {
     val sourcesJar by creating(Jar::class) {
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
-        from(project(":mockk-dsl").sourceSets["main"].allJava.files) {
+        /*from(project(":mockk-dsl").sourceSets["main"].allJava.files) {
             exclude("io/mockk/impl/InternalPlatform.kt")
             exclude("io/mockk/impl/annotations/AdditionalInterface.kt")
             exclude("io/mockk/MockK.kt")
-        }
+        }*/
     }
 }
 
