@@ -254,6 +254,15 @@ each test class execution.
 You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting 
 the `mockk.junit.extension.keepmocks=true` property
 
+#### Automatic verification confirmation
+
+You can make sure that all stubbed methods are actually verified by also annotating your test class with `@MockKExtension.ConfirmVerification`.
+
+This will internally call `confirmVerified` on all mocks after each test, to make sure there are no unnecessary stubbings.
+
+Please note that this behavior may not work as expected when running tests in your IDE, as it is Gradle who takes care of handling the exception being thrown when these `confirmVerified` calls fail.
+
+
 ### Spy
 
 Spies allow you to mix mocks and real objects.
