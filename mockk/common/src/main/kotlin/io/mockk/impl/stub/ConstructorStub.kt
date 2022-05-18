@@ -77,6 +77,8 @@ class ConstructorStub(
             it.substitute(revertRepresentation)
         }
 
+    override fun matcherUsages() = stub.matcherUsages()
+
     override fun clear(options: MockKGateway.ClearOptions) =
         stub.clear(options)
 

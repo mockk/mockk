@@ -1,6 +1,8 @@
 package io.mockk.it
 
 import io.mockk.*
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -36,6 +38,67 @@ class VerificationAcknowledgeTest {
         assertEquals(2, mock.op(1))
         assertEquals(3, mock.op(1))
         assertEquals(3, mock.op(1))
+    }
+
+    @Test
+    fun `checkUnnecessaryStub with single call to each stub`() {
+        doCalls1()
+        checkUnnecessaryStub(mock)
+    }
+
+    @Test
+    fun `checkUnnecessaryStub with multiple calls to some stub`() {
+        doCalls2()
+        checkUnnecessaryStub(mock)
+    }
+
+    @Test
+    fun `checkUnnecessaryStub with some used and some unused stubs`() {
+        every { mock.op(98) } returns 1
+        every { mock.op(99) } returns 2
+        doCalls1()
+        assertFailsWith<AssertionError> {
+            checkUnnecessaryStub(mock)
+        }
+            .also {
+                assertThat(
+                    it.message, equalTo(
+                        "Unnecessary stubbings detected.\n" +
+                                "Following stubbings are not used, either because there are unnecessary or because tested code doesn't call them :\n" +
+                                "\n" +
+                                "1) ${mock}.op(eq(98)))\n" +
+                                "2) ${mock}.op(eq(99)))"
+                    )
+                )
+            }
+    }
+
+    @Test
+    fun `checkUnnecessaryStubAll with single call to each stub`() {
+        doCalls1()
+        val mock2 = mockk<MockCls>()
+        every { mock2.op(98) } returns 1
+        mock2.op(98)
+        checkUnnecessaryStub()
+    }
+
+    @Test
+    fun `checkUnnecessaryStubAll with some used and some unused stubs`() {
+        doCalls1()
+        val mock2 = mockk<MockCls> { every { op(42) } returns 1 }
+        assertFailsWith<AssertionError> {
+            checkUnnecessaryStub()
+        }
+            .also {
+                assertThat(
+                    it.message, equalTo(
+                        "Unnecessary stubbings detected.\n" +
+                                "Following stubbings are not used, either because there are unnecessary or because tested code doesn't call them :\n" +
+                                "\n" +
+                                "1) ${mock2}.op(eq(42)))"
+                    )
+                )
+            }
     }
 
     @Test
