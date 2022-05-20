@@ -18,7 +18,6 @@ open class MockKStub(
     val log = gatewayAccess.safeToString(Logger<MockKStub>())
 
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
-    private val answerUsages = InternalPlatform.synchronizedMutableMap<InvocationAnswer, Int>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
     private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
     private val recordedCallsByMethod =
@@ -31,17 +30,15 @@ open class MockKStub(
     var disposeRoutine: () -> Unit = {}
 
     override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
-        val invocationAnswer = InvocationAnswer(matcher, answer)
+        val invocationAnswer = InvocationAnswer(matcher, answer, 0)
         answers.add(invocationAnswer)
-        answerUsages[invocationAnswer] = 0
     }
 
     override fun answer(invocation: Invocation): Any? {
         val invocationAndMatcher = InternalPlatform.synchronized(answers) {
             answers
-                .reversed()
-                .firstOrNull { it.matcher.match(invocation) }
-                ?.also { answerUsages[it] = answerUsages[it]!! + 1 }
+                .findLast { it.matcher.match(invocation) }
+                ?.also { it.usageCount++ }
         } ?: return defaultAnswer(invocation)
 
         return with(invocationAndMatcher) {
@@ -192,7 +189,7 @@ open class MockKStub(
 
     override fun matcherUsages(): Map<InvocationMatcher, Int> =
         InternalPlatform.synchronized(answers) {
-            answerUsages.mapKeys { it.key.matcher }
+            answers.associate { it.matcher to it.usageCount }
         }
 
     override fun toStr() = "${type.simpleName}($name)"
@@ -277,7 +274,6 @@ open class MockKStub(
     override fun clear(options: MockKGateway.ClearOptions) {
         if (options.answers) {
             this.answers.clear()
-            this.answerUsages.clear()
         }
         if (options.recordedCalls) {
             this.recordedCalls.clear()
@@ -298,7 +294,7 @@ open class MockKStub(
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
     }
 
-    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
+    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>, var usageCount: Int)
 
     protected fun Invocation.allEqMatcher() =
         InvocationMatcher(

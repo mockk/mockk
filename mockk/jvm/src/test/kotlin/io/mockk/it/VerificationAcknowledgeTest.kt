@@ -75,6 +75,7 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun `checkUnnecessaryStubAll with single call to each stub`() {
+        clearAllMocks() // ensure that previous tests haven't created unnecessary stubs
         doCalls1()
         val mock2 = mockk<MockCls>()
         every { mock2.op(98) } returns 1
@@ -84,6 +85,7 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun `checkUnnecessaryStubAll with some used and some unused stubs`() {
+        clearAllMocks() // ensure that previous tests haven't created unnecessary stubs
         doCalls1()
         val mock2 = mockk<MockCls> { every { op(42) } returns 1 }
         assertFailsWith<AssertionError> {
