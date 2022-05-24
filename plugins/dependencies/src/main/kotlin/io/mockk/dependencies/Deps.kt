@@ -6,12 +6,12 @@ fun Project.kotlinVersion() = findProperty("kotlin.version")?.toString() ?: Deps
 
 object Deps {
     object Versions {
-        const val androidTools = "4.1.1"
+        const val androidTools = "7.2.0"
         const val dokka = "1.6.21"
         const val kotlinDefault = "1.6.21"
         const val coroutines = "1.3.3"
         const val slfj = "1.7.32"
-        const val logback = "1.2.10"
+        const val logback = "1.2.11"
         const val junitJupiter = "5.8.2"
         const val junitVintage = "5.8.2"
     }

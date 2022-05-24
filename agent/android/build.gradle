@@ -83,7 +83,7 @@ dependencies {
     api project(':mockk-agent-common')
     implementation "com.linkedin.dexmaker:dexmaker:$dexmaker_version"
     implementation "org.objenesis:objenesis:$objenesis_android_version"
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.2', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     androidTestImplementation 'junit:junit:4.13.1'

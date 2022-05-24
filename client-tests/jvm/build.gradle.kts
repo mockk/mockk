@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlin_version = "1.3.72"
+        kotlin_version = "1.6.21"
     }
     repositories {
         mavenCentral()
@@ -12,7 +12,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.6.21"
 }
 
 java {
@@ -53,8 +53,8 @@ dependencies {
         exclude(group = "junit", module = "junit")
     }
 
-    testImplementation("org.slf4j:slf4j-api:1.7.32")
-    testImplementation("ch.qos.logback:logback-classic:1.2.9")
+    testImplementation("org.slf4j:slf4j-api:1.7.36")
+    testImplementation("ch.qos.logback:logback-classic:1.2.11")
 
     compileOnly("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
