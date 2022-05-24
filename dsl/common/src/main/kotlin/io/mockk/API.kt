@@ -279,6 +279,19 @@ object MockKDsl {
     }
 
     /**
+     * Checks if all recorded calls are necessary.
+     */
+    fun internalCheckUnnecessaryStub(vararg mocks: Any) {
+        if (mocks.isEmpty()) {
+            MockKGateway.implementation().verificationAcknowledger.checkUnnecessaryStub()
+        }
+
+        for (mock in mocks) {
+            MockKGateway.implementation().verificationAcknowledger.checkUnnecessaryStub(mock)
+        }
+    }
+
+    /**
      * Resets information associated with mock
      */
     inline fun internalClearMocks(

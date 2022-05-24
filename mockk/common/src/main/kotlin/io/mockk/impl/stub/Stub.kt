@@ -28,6 +28,8 @@ interface Stub : Disposable {
 
     fun verifiedCalls(): List<Invocation>
 
+    fun matcherUsages(): Map<InvocationMatcher, Int>
+
     fun clear(options: MockKGateway.ClearOptions)
 
     fun handleInvocation(

@@ -253,6 +253,10 @@ interface MockKGateway {
         fun acknowledgeVerified(mock: Any)
 
         fun acknowledgeVerified()
+
+        fun checkUnnecessaryStub(mock: Any)
+
+        fun checkUnnecessaryStub()
     }
 
     interface MockTypeChecker {

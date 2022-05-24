@@ -320,6 +320,13 @@ fun confirmVerified(vararg mocks: Any) = MockK.useImpl {
 }
 
 /**
+ * Checks if all recorded calls are necessary.
+ */
+fun checkUnnecessaryStub(vararg mocks: Any) = MockK.useImpl {
+    MockKDsl.internalCheckUnnecessaryStub(*mocks)
+}
+
+/**
  * Resets information associated with specified mocks.
  * To clear all mocks use clearAllMocks.
  */
