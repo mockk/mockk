@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion = "android-31"
+    compileSdkVersion = "android-32"
 
     android {
         lintOptions {
