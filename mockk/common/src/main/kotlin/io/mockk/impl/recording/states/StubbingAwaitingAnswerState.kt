@@ -71,5 +71,5 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
         }
     }
 
-    private fun String.toCamelCase() = if (isEmpty()) this else substring(0, 1).toLowerCase() + substring(1)
+    private fun String.toCamelCase() = if (isEmpty()) this else substring(0, 1).lowercase() + substring(1)
 }

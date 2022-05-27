@@ -60,10 +60,12 @@ class VerifyingState(
                     val callsReport = VerificationHelpers.formatCalls(outcome.verifiedCalls)
                     throw AssertionError("Inverse verification failed.\n\nVerified calls:\n$callsReport")
                 }
+                else -> {}
             }
         } else {
             when (outcome) {
                 is VerificationResult.Failure -> throw AssertionError("Verification failed: ${outcome.message}")
+                else -> {}
             }
         }
     }

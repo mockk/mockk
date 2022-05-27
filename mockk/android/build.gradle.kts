@@ -28,8 +28,7 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 31
-        versionName = "${project.version}"
+        targetSdk = 32
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments
         testInstrumentationRunnerArguments["notAnnotation"] = "io.mockk.test.SkipInstrumentedAndroidTest"

@@ -182,7 +182,7 @@ class VerificationErrorsTest {
             s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)
         ): Double {
 
-            return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.toByte() + h.toByte() +
+            return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.code.toByte() + h.code.toByte() +
                     i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
         }
     }

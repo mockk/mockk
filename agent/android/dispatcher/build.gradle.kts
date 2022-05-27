@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 31
+        targetSdk = 32
         applicationId = "com.android.dexmaker.mockito.inline.dispatcher"
     }
 
