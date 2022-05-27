@@ -262,6 +262,12 @@ This will internally call `confirmVerified` on all mocks after each test, to mak
 
 Please note that this behavior may not work as expected when running tests in your IDE, as it is Gradle who takes care of handling the exception being thrown when these `confirmVerified` calls fail.
 
+#### Automatic unnecessary stubbing check
+
+You can make sure that all stubbed methods are useful - used at least once - by also annotating your test class with `@MockKExtension.CheckUnnecessaryStub`.
+
+This will internally call `checkUnnecessaryStub` on all mocks after each test, to make sure there are no unnecessary stubbings.
+
 
 ### Spy
 
@@ -717,6 +723,18 @@ verify {
 
 confirmVerified(car) // makes sure all calls were covered with verification
 ```
+
+### Unnecessary stubbing
+
+Because clean & maintainable test code requires zero unnecessary code, you can ensure that there is no unnecessary stubs.
+
+```
+checkUnnecessaryStub(mock1, mock2)
+```
+
+It will throw an exception if there are some declared calls on the mocks that are not used by the tested code.
+This can happen if you have declared some really unnecessary stubs or if the tested code doesn't call an expected one.  
+
 
 ### Recording exclusions
 
@@ -1174,37 +1192,38 @@ Here are a few tables to help you master the DSL.
 
 ### Top level functions
 
-|Function|Description|
-|--------|-----------|
-|`mockk<T>(...)`|builds a regular mock|
-|`spyk<T>()`|builds a spy using the default constructor|
-|`spyk(obj)`|builds a spy by copying from `obj`|
-|`slot`|creates a capturing slot|
-|`every`|starts a stubbing block|
-|`coEvery`|starts a stubbing block for coroutines|
-|`verify`|starts a verification block|
-|`coVerify`|starts a verification block for coroutines|
-|`verifyAll`|starts a verification block that should include all calls|
-|`coVerifyAll`|starts a verification block that should include all calls for coroutines|
-|`verifyOrder`|starts a verification block that checks the order|
-|`coVerifyOrder`|starts a verification block that checks the order for coroutines|
-|`verifySequence`|starts a verification block that checks whether all calls were made in a specified sequence|
-|`coVerifySequence`|starts a verification block that checks whether all calls were made in a specified sequence for coroutines|
-|`excludeRecords`|exclude some calls from being recorded|
-|`confirmVerified`|confirms that all recorded calls were verified|
-|`clearMocks`|clears specified mocks|
-|`registerInstanceFactory`|allows you to redefine the way of instantiation for certain object|
-|`mockkClass`|builds a regular mock by passing the class as parameter|
-|`mockkObject`|turns an object into an object mock, or clears it if was already transformed|
-|`unmockkObject`|turns an object mock back into a regular object|
-|`mockkStatic`|makes a static mock out of a class, or clears it if it was already transformed|
-|`unmockkStatic`|turns a static mock back into a regular class|
-|`clearStaticMockk`|clears a static mock|
-|`mockkConstructor`|makes a constructor mock out of a class, or clears it if it was already transformed|
-|`unmockkConstructor`|turns a constructor mock back into a regular class|
-|`clearConstructorMockk`|clears the constructor mock|
-|`unmockkAll`|unmocks object, static and constructor mocks|
-|`clearAllMocks`|clears regular, object, static and constructor mocks|
+|Function| Description                                                                                                |
+|--------|------------------------------------------------------------------------------------------------------------|
+|`mockk<T>(...)`| builds a regular mock                                                                                      |
+|`spyk<T>()`| builds a spy using the default constructor                                                                 |
+|`spyk(obj)`| builds a spy by copying from `obj`                                                                         |
+|`slot`| creates a capturing slot                                                                                   |
+|`every`| starts a stubbing block                                                                                    |
+|`coEvery`| starts a stubbing block for coroutines                                                                     |
+|`verify`| starts a verification block                                                                                |
+|`coVerify`| starts a verification block for coroutines                                                                 |
+|`verifyAll`| starts a verification block that should include all calls                                                  |
+|`coVerifyAll`| starts a verification block that should include all calls for coroutines                                   |
+|`verifyOrder`| starts a verification block that checks the order                                                          |
+|`coVerifyOrder`| starts a verification block that checks the order for coroutines                                           |
+|`verifySequence`| starts a verification block that checks whether all calls were made in a specified sequence                |
+|`coVerifySequence`| starts a verification block that checks whether all calls were made in a specified sequence for coroutines |
+|`excludeRecords`| exclude some calls from being recorded                                                                     |
+|`confirmVerified`| confirms that all recorded calls were verified                                                             |
+|`checkUnnecessaryStub`| confirms that all recorded calls are used at least once                                                    |
+|`clearMocks`| clears specified mocks                                                                                     |
+|`registerInstanceFactory`| allows you to redefine the way of instantiation for certain object                                         |
+|`mockkClass`| builds a regular mock by passing the class as parameter                                                    |
+|`mockkObject`| turns an object into an object mock, or clears it if was already transformed                               |
+|`unmockkObject`| turns an object mock back into a regular object                                                            |
+|`mockkStatic`| makes a static mock out of a class, or clears it if it was already transformed                             |
+|`unmockkStatic`| turns a static mock back into a regular class                                                              |
+|`clearStaticMockk`| clears a static mock                                                                                       |
+|`mockkConstructor`| makes a constructor mock out of a class, or clears it if it was already transformed                        |
+|`unmockkConstructor`| turns a constructor mock back into a regular class                                                         |
+|`clearConstructorMockk`| clears the constructor mock                                                                                |
+|`unmockkAll`| unmocks object, static and constructor mocks                                                               |
+|`clearAllMocks`| clears regular, object, static and constructor mocks                                                       |
 
 
 ### Matchers

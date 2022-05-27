@@ -30,15 +30,15 @@ open class MockKStub(
     var disposeRoutine: () -> Unit = {}
 
     override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
-        val invocationAnswer = InvocationAnswer(matcher, answer)
+        val invocationAnswer = InvocationAnswer(matcher, answer, 0)
         answers.add(invocationAnswer)
     }
 
     override fun answer(invocation: Invocation): Any? {
         val invocationAndMatcher = InternalPlatform.synchronized(answers) {
             answers
-                .reversed()
-                .firstOrNull { it.matcher.match(invocation) }
+                .findLast { it.matcher.match(invocation) }
+                ?.also { it.usageCount++ }
         } ?: return defaultAnswer(invocation)
 
         return with(invocationAndMatcher) {
@@ -187,6 +187,11 @@ open class MockKStub(
         }
     }
 
+    override fun matcherUsages(): Map<InvocationMatcher, Int> =
+        InternalPlatform.synchronized(answers) {
+            answers.associate { it.matcher to it.usageCount }
+        }
+
     override fun toStr() = "${type.simpleName}($name)"
 
     override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any {
@@ -289,7 +294,7 @@ open class MockKStub(
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
     }
 
-    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>)
+    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>, var usageCount: Int)
 
     protected fun Invocation.allEqMatcher() =
         InvocationMatcher(

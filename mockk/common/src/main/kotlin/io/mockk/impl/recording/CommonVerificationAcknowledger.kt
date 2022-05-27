@@ -26,6 +26,15 @@ class CommonVerificationAcknowledger(
         acknowledgeVerificationHelper(stub)
     }
 
+    override fun checkUnnecessaryStub() {
+        stubRepo.allStubs.forEach { checkUnnecessaryStubHelper(it) }
+    }
+
+    override fun checkUnnecessaryStub(mock: Any) {
+        val stub = stubRepo.stubFor(mock)
+        checkUnnecessaryStubHelper(stub)
+    }
+
     private fun acknowledgeVerificationHelper(stub: Stub) {
         val allCalls = stub.allRecordedCalls().map { InternalPlatform.ref(it) }.toHashSet()
         val verifiedCalls = stub.verifiedCalls().map { InternalPlatform.ref(it) }.toHashSet()
@@ -55,6 +64,19 @@ class CommonVerificationAcknowledger(
                 VerificationHelpers.formatCalls(notVerified) +
                 "\n\nStack traces:\n" +
                 VerificationHelpers.stackTraces(notVerified)
+    }
+
+    private fun checkUnnecessaryStubHelper(stub: Stub) {
+        val unnecessaryMatcher = stub.matcherUsages().filterValues { it == 0 }.keys
+
+        if (unnecessaryMatcher.isEmpty()) return
+
+        val report =
+            "Unnecessary stubbings detected.\nFollowing stubbings are not used, either because there are unnecessary or because tested code doesn't call them :\n\n" +
+                    unnecessaryMatcher
+                        .mapIndexed { idx, matcher -> "${idx + 1}) $matcher" }
+                        .joinToString("\n")
+        throw AssertionError(report)
     }
 
 }

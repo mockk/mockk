@@ -1,13 +1,10 @@
 package io.mockk.junit5
 
-import io.mockk.MockKAnnotations
-import io.mockk.confirmVerified
+import io.mockk.*
 import io.mockk.impl.annotations.AdditionalInterface
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
-import io.mockk.mockkClass
-import io.mockk.unmockkAll
 import org.junit.jupiter.api.extension.*
 import java.lang.annotation.Inherited
 import java.lang.reflect.AnnotatedElement
@@ -93,6 +90,10 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         if (context.confirmVerification) {
             confirmVerified()
         }
+
+        if (context.checkUnnecessaryStub) {
+            checkUnnecessaryStub()
+        }
     }
 
     private val ExtensionContext.keepMocks: Boolean
@@ -111,6 +112,14 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         get() = map { it.getAnnotation(ConfirmVerification::class.java) != null}
             .orElse(false)
 
+    private val ExtensionContext.checkUnnecessaryStub: Boolean
+        get() = testClass.checkUnnecessaryStub ||
+                getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
+
+    private val Optional<out AnnotatedElement>.checkUnnecessaryStub
+        get() = map { it.getAnnotation(CheckUnnecessaryStub::class.java) != null}
+            .orElse(false)
+
     /***
      * Prevent calling [unmockkAll] after each test execution
      */
@@ -124,9 +133,15 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
     @Target(AnnotationTarget.CLASS)
     annotation class ConfirmVerification
 
+    @Inherited
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.CLASS)
+    annotation class CheckUnnecessaryStub
+
     companion object {
         const val KEEP_MOCKS_PROPERTY = "mockk.junit.extension.keepmocks"
         const val CONFIRM_VERIFICATION_PROPERTY = "mockk.junit.extension.confirmverification"
+        const val CHECK_UNNECESSARY_STUB_PROPERTY = "mockk.junit.extension.checkUnnecessaryStub"
     }
 
 }

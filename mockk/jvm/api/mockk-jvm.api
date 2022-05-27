@@ -1133,6 +1133,9 @@ public final class io/mockk/junit5/MockKExtension$Companion {
 public abstract interface annotation class io/mockk/junit5/MockKExtension$ConfirmVerification : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class io/mockk/junit5/MockKExtension$CheckUnnecessaryStub : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class io/mockk/junit5/MockKExtension$KeepMocks : java/lang/annotation/Annotation {
 }
 
