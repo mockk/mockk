@@ -2,4 +2,4 @@ jdk:
     - openjdk17
 install:
     - echo "Running a custom install command"
-    - ./gradlew clean :publishMavenPublicationToMavenLocal -xtest
+    - ./gradlew clean :publishMavenJavaPublicationToMavenLocal -xtest
