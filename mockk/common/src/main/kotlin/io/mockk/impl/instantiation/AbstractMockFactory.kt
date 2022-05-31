@@ -1,13 +1,11 @@
 package io.mockk.impl.instantiation
 
-import io.mockk.InternalPlatformDsl
+import io.mockk.*
 import io.mockk.InternalPlatformDsl.toStr
-import io.mockk.MockKException
-import io.mockk.MockKGateway
-import io.mockk.MockKSettings
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.*
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KClass
 
 abstract class AbstractMockFactory(
@@ -35,7 +33,7 @@ abstract class AbstractMockFactory(
         relaxed: Boolean,
         moreInterfaces: Array<out KClass<*>>,
         relaxUnitFun: Boolean
-    ): T {
+    ): Pair<T, MockKCancellation> {
         val id = newId()
         val newName = (name ?: "") + "#$id"
 
@@ -48,6 +46,7 @@ abstract class AbstractMockFactory(
             true,
             MockType.REGULAR
         )
+        stub.disposeRoutine
 
         if (moreInterfaces.isEmpty()) {
             log.debug { "Creating mockk for ${mockType.toStr()} name=$newName" }
@@ -62,7 +61,13 @@ abstract class AbstractMockFactory(
 
         stubRepository.add(proxy, stub)
 
-        return proxy
+        // stub.disposeRoutine is already set in newProxy()
+        val unmockRoutine: () -> Unit = {
+            val myStub = stubRepository.remove(proxy)
+            myStub?.dispose()
+        }
+
+        return proxy to unmockRoutine
     }
 
     override fun <T : Any> spyk(
@@ -71,7 +76,7 @@ abstract class AbstractMockFactory(
         name: String?,
         moreInterfaces: Array<out KClass<*>>,
         recordPrivateCalls: Boolean
-    ): T {
+    ): Pair<T, MockKCancellation> {
         val id = newId()
         val newName = (name ?: "") + "#$id"
 
@@ -109,7 +114,13 @@ abstract class AbstractMockFactory(
 
         stubRepository.add(proxy, stub)
 
-        return proxy
+        // stub.disposeRoutine is already set in newProxy()
+        val unmockRoutine: () -> Unit = {
+            val myStub = stubRepository.remove(proxy)
+            myStub?.dispose()
+        }
+
+        return proxy to unmockRoutine
     }
 
 

@@ -44,7 +44,7 @@ interface MockKGateway {
             relaxed: Boolean,
             moreInterfaces: Array<out KClass<*>>,
             relaxUnitFun: Boolean
-        ): T
+        ): Pair<T, MockKCancellation>
 
         fun <T : Any> spyk(
             mockType: KClass<T>?,
@@ -52,7 +52,7 @@ interface MockKGateway {
             name: String?,
             moreInterfaces: Array<out KClass<*>>,
             recordPrivateCalls: Boolean
-        ): T
+        ): Pair<T, MockKCancellation>
 
         fun temporaryMock(mockType: KClass<*>): Any
 

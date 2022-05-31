@@ -29,13 +29,16 @@ object MockKDsl {
         relaxUnitFun: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
-        val mock = MockKGateway.implementation().mockFactory.mockk(
+        val (mock, cancellation) = MockKGateway.implementation().mockFactory.mockk(
             T::class,
             name,
             relaxed,
             moreInterfaces,
             relaxUnitFun
         )
+        MockKCancellationRegistry
+            .subRegistry(MockKCancellationRegistry.Type.REGULAR)
+            .cancelPut(mock, cancellation)
         block(mock)
         return mock
     }
@@ -50,13 +53,16 @@ object MockKDsl {
         recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
-        val spy = MockKGateway.implementation().mockFactory.spyk(
+        val (spy, cancellation) = MockKGateway.implementation().mockFactory.spyk(
             null,
             objToCopy,
             name,
             moreInterfaces,
             recordPrivateCalls
         )
+        MockKCancellationRegistry
+            .subRegistry(MockKCancellationRegistry.Type.SPY)
+            .cancelPut(spy, cancellation)
         block(spy)
         return spy
     }
@@ -70,13 +76,16 @@ object MockKDsl {
         recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
-        val spy = MockKGateway.implementation().mockFactory.spyk(
+        val (spy, cancellation) = MockKGateway.implementation().mockFactory.spyk(
             T::class,
             null,
             name,
             moreInterfaces,
             recordPrivateCalls
         )
+        MockKCancellationRegistry
+            .subRegistry(MockKCancellationRegistry.Type.SPY)
+            .cancelPut(spy, cancellation)
         block(spy)
         return spy
     }
@@ -381,7 +390,7 @@ object MockKDsl {
         relaxUnitFun: Boolean = false,
         block: T.() -> Unit
     ): T {
-        val mock = MockKGateway.implementation().mockFactory.mockk(type, name, relaxed, moreInterfaces, relaxUnitFun)
+        val (mock, _) = MockKGateway.implementation().mockFactory.mockk(type, name, relaxed, moreInterfaces, relaxUnitFun)
         block(mock)
         return mock
     }
@@ -2292,7 +2301,7 @@ abstract class MockKUnmockKScope {
 typealias MockKCancellation = () -> Unit
 
 object MockKCancellationRegistry {
-    enum class Type { OBJECT, STATIC, CONSTRUCTOR }
+    enum class Type { OBJECT, STATIC, CONSTRUCTOR, REGULAR, SPY }
     class RegistryPerType {
         private val mapTl = InternalPlatformDsl.threadLocal { mutableMapOf<Any, MockKCancellation>() }
 
@@ -2324,7 +2333,9 @@ object MockKCancellationRegistry {
     private val perType = mapOf(
         Type.OBJECT to RegistryPerType(),
         Type.STATIC to RegistryPerType(),
-        Type.CONSTRUCTOR to RegistryPerType()
+        Type.CONSTRUCTOR to RegistryPerType(),
+        Type.REGULAR to RegistryPerType(),
+        Type.SPY to RegistryPerType(),
     )
 
     fun subRegistry(type: Type) = perType[type]!!
