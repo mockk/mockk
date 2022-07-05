@@ -5,10 +5,10 @@ android:
     - tools
     - platform-tools
     - build-tools-27.0.3
-    - android-28
+    - android-30
 
 jdk:
-  - oraclejdk8
+  - oraclejdk17
 
 install:
   - yes | sdkmanager "ndk;20.0.5594570"
