@@ -8,7 +8,7 @@ android:
     - android-30
 
 jdk:
-  - oraclejdk17
+  - openjdk17
 
 install:
   - yes | sdkmanager "ndk;20.0.5594570"
