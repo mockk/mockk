@@ -23,20 +23,31 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
 
-task copyMockKDispatcher(type: Copy) {
-    dependsOn compileJava
-    dependsOn compileKotlin
-    from "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher"
-    into "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher"
-    include "JvmMockKDispatcher.class"
-    include "JvmMockKWeakMap.class"
-    include "JvmMockKWeakMap\$StrongKey.class"
-    include "JvmMockKWeakMap\$WeakKey.class"
-    rename { String fileName ->
-        fileName.replace('.class', '.clazz')
+def copyMockKDispatcher =
+    tasks.register("copyMockKDispatcher", Copy) {
+        dependsOn compileJava
+        dependsOn compileKotlin
+
+        def mockKDispatcherDir =
+            sourceSets.main.java.classesDirectory
+                .map { "$it/io/mockk/proxy/jvm/dispatcher" }
+
+        from(mockKDispatcherDir) {
+            include "JvmMockKDispatcher.class"
+            include "JvmMockKWeakMap.class"
+            include "JvmMockKWeakMap\$StrongKey.class"
+            include "JvmMockKWeakMap\$WeakKey.class"
+
+            rename { String fileName ->
+                fileName.replace('.class', '.clazz')
+            }
+        }
+        into mockKDispatcherDir
     }
+
+tasks.named("classes") {
+    dependsOn copyMockKDispatcher
 }
-classes.dependsOn(copyMockKDispatcher)
 
 jar {
     exclude "io/mockk/proxy/jvm/dispatcher/JvmMockKDispatcher.class"

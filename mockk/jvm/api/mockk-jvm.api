@@ -20,6 +20,7 @@ public final class io/mockk/MockKAnnotations {
 }
 
 public final class io/mockk/MockKKt {
+	public static final fun checkUnnecessaryStub ([Ljava/lang/Object;)V
 	public static final fun clearAllMocks (ZZZZZZZ)V
 	public static synthetic fun clearAllMocks$default (ZZZZZZZILjava/lang/Object;)V
 	public static final fun clearConstructorMockk ([Lkotlin/reflect/KClass;ZZZ)V
@@ -733,6 +734,8 @@ public final class io/mockk/impl/recording/CommonVerificationAcknowledger : io/m
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/log/SafeToString;)V
 	public fun acknowledgeVerified ()V
 	public fun acknowledgeVerified (Ljava/lang/Object;)V
+	public fun checkUnnecessaryStub ()V
+	public fun checkUnnecessaryStub (Ljava/lang/Object;)V
 	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
 	public final fun getStubRepo ()Lio/mockk/impl/stub/StubRepository;
 	public fun markCallVerified (Lio/mockk/Invocation;)V
@@ -944,6 +947,7 @@ public final class io/mockk/impl/stub/ConstructorStub : io/mockk/impl/stub/Stub 
 	public fun getType ()Lkotlin/reflect/KClass;
 	public fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public fun markCallVerified (Lio/mockk/Invocation;)V
+	public fun matcherUsages ()Ljava/util/Map;
 	public fun recordCall (Lio/mockk/Invocation;)V
 	public fun stdObjectAnswer (Lio/mockk/Invocation;)Ljava/lang/Object;
 	public fun toStr ()Ljava/lang/String;
@@ -977,6 +981,7 @@ public class io/mockk/impl/stub/MockKStub : io/mockk/impl/stub/Stub {
 	public fun getType ()Lkotlin/reflect/KClass;
 	public fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public fun markCallVerified (Lio/mockk/Invocation;)V
+	public fun matcherUsages ()Ljava/util/Map;
 	public fun recordCall (Lio/mockk/Invocation;)V
 	public final fun setDisposeRoutine (Lkotlin/jvm/functions/Function0;)V
 	public final fun setHashCodeStr (Ljava/lang/String;)V
@@ -1017,6 +1022,7 @@ public abstract interface class io/mockk/impl/stub/Stub : io/mockk/impl/platform
 	public abstract fun getType ()Lkotlin/reflect/KClass;
 	public abstract fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public abstract fun markCallVerified (Lio/mockk/Invocation;)V
+	public abstract fun matcherUsages ()Ljava/util/Map;
 	public abstract fun recordCall (Lio/mockk/Invocation;)V
 	public abstract fun stdObjectAnswer (Lio/mockk/Invocation;)Ljava/lang/Object;
 	public abstract fun toStr ()Ljava/lang/String;
@@ -1117,6 +1123,7 @@ public final class io/mockk/junit4/MockKRule : org/junit/rules/TestWatcher, org/
 }
 
 public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extension/AfterAllCallback, org/junit/jupiter/api/extension/ParameterResolver, org/junit/jupiter/api/extension/TestInstancePostProcessor {
+	public static final field CHECK_UNNECESSARY_STUB_PROPERTY Ljava/lang/String;
 	public static final field CONFIRM_VERIFICATION_PROPERTY Ljava/lang/String;
 	public static final field Companion Lio/mockk/junit5/MockKExtension$Companion;
 	public static final field KEEP_MOCKS_PROPERTY Ljava/lang/String;
@@ -1127,13 +1134,13 @@ public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extens
 	public fun supportsParameter (Lorg/junit/jupiter/api/extension/ParameterContext;Lorg/junit/jupiter/api/extension/ExtensionContext;)Z
 }
 
+public abstract interface annotation class io/mockk/junit5/MockKExtension$CheckUnnecessaryStub : java/lang/annotation/Annotation {
+}
+
 public final class io/mockk/junit5/MockKExtension$Companion {
 }
 
 public abstract interface annotation class io/mockk/junit5/MockKExtension$ConfirmVerification : java/lang/annotation/Annotation {
-}
-
-public abstract interface annotation class io/mockk/junit5/MockKExtension$CheckUnnecessaryStub : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class io/mockk/junit5/MockKExtension$KeepMocks : java/lang/annotation/Annotation {
