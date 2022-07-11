@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlin_version = "1.6.21"
+        kotlin_version = "1.7.10"
     }
     repositories {
         mavenCentral()
@@ -12,7 +12,7 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
 }
 
 java {

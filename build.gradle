@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
-    ext.kotlin_gradle_version = findProperty('kotlin.version')?.toString() ?: '1.6.21'
+    ext.kotlin_gradle_version = findProperty('kotlin.version')?.toString() ?: '1.7.10'
     ext.android_gradle_version = '7.2.1'
     ext.byte_buddy_version = '1.12.10'
     ext.coroutines_version = '1.3.3'
@@ -10,13 +10,14 @@ buildscript {
     ext.objenesis_android_version = '3.2'
     ext.junit_jupiter_version = '5.6.2'
     ext.junit_vintage_version = '5.6.2'
-    ext.dokka_version = '1.6.21'
+    ext.dokka_version = '1.7.0'
     ext.gradles = project.projectDir.toString() + "/gradle"
 
     repositories {
         mavenCentral()
         google()
     }
+
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
         classpath "com.android.tools.build:gradle:$android_gradle_version"
@@ -31,8 +32,8 @@ plugins {
 subprojects { subProject ->
     group = 'io.mockk'
 
-    ext.kotlin_version = findProperty('kotlin.version')?.toString() ?: '1.6.21'
-    ext.kotlin_gradle_version = findProperty('kotlin.version')?.toString() ?: '1.6.21'
+    ext.kotlin_version = findProperty('kotlin.version')?.toString() ?: '1.7.10'
+    ext.kotlin_gradle_version = findProperty('kotlin.version')?.toString() ?: '1.7.10'
 
     repositories {
         mavenCentral()
@@ -44,7 +45,6 @@ subprojects { subProject ->
             apiVersion = "1.7"
             jvmTarget = "17"
             languageVersion = "1.7"
-            useIR = findProperty("kotlin.ir.enabled")?.toBoolean() == true
         }
     }
 }
