@@ -543,6 +543,7 @@ public final class io/mockk/MockKConstructorScope : io/mockk/MockKUnmockKScope {
 public final class io/mockk/MockKDsl {
 	public static final field INSTANCE Lio/mockk/MockKDsl;
 	public final fun internalCheckExactlyAtMostAtLeast (IIILio/mockk/Ordering;)V
+	public final fun internalCheckUnnecessaryStub ([Ljava/lang/Object;)V
 	public final fun internalClearAllMocks (ZZZZZZZZZ)V
 	public static synthetic fun internalClearAllMocks$default (Lio/mockk/MockKDsl;ZZZZZZZZZILjava/lang/Object;)V
 	public final fun internalClearConstructorMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
@@ -756,6 +757,8 @@ public abstract interface class io/mockk/MockKGateway$Stubber {
 public abstract interface class io/mockk/MockKGateway$VerificationAcknowledger {
 	public abstract fun acknowledgeVerified ()V
 	public abstract fun acknowledgeVerified (Ljava/lang/Object;)V
+	public abstract fun checkUnnecessaryStub ()V
+	public abstract fun checkUnnecessaryStub (Ljava/lang/Object;)V
 	public abstract fun markCallVerified (Lio/mockk/Invocation;)V
 }
 
