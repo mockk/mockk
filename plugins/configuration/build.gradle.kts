@@ -3,7 +3,7 @@ import io.mockk.dependencies.kotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `kotlin-dsl` version "2.4.0"
+    `kotlin-dsl` version "2.3.3"
     `java-gradle-plugin`
     id("dependencies")
 }

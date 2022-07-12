@@ -60,7 +60,6 @@ class VerifyingStateTest {
         }
     }
 
-
     @Test
     fun givenOneCalledMocksWhenRecordingDoneThrowsException() {
         setupCalls(VerificationResult.OK(listOf()))
