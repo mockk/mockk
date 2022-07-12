@@ -1,9 +1,8 @@
 import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `kotlin-dsl` version "2.3.3"
+    `kotlin-dsl`
     `java-gradle-plugin`
     id("dependencies")
 }
@@ -19,10 +18,10 @@ repositories {
 }
 
 dependencies {
-    implementation(Deps.Plugins.androidTools)
-    implementation(Deps.Plugins.dokka)
-    implementation(Deps.Plugins.kotlin(kotlinVersion()))
-    implementation("io.mockk.plugins:dependencies:SNAPSHOT")
+    implementation("com.android.tools.build:gradle:7.2.1")
+    implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.7.0")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
+    implementation("io.mockk.plugins:dependencies:_")
 }
 
 gradlePlugin {

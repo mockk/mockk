@@ -1,16 +1,13 @@
 package io.mockk.configuration
 
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
@@ -32,7 +29,7 @@ class AndroidConfigurationPlugin : Plugin<Project> {
         apply<KotlinAndroidPluginWrapper>()
         extensions.configure(KotlinAndroidProjectExtension::class) {
             sourceSets["main"].dependencies {
-                implementation(Deps.Libs.kotlinStdLib(kotlinVersion()))
+                implementation(Deps.Libs.kotlinStdLib())
             }
         }
     }

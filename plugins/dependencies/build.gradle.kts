@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `kotlin-dsl` version "2.3.3"
+    `kotlin-dsl`
     `java-gradle-plugin`
 }
 

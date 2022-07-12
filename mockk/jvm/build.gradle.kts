@@ -1,6 +1,3 @@
-import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
-
 plugins {
     id("mpp-jvm")
 }
@@ -17,12 +14,12 @@ dependencies {
     api(project(":mockk-dsl-jvm"))
     implementation(project(":mockk-agent-jvm"))
 
-    implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
-    compileOnly(Deps.Libs.kotlinCoroutinesCore())
-    compileOnly("org.slf4j:slf4j-api:1.7.36")
-    compileOnly("junit:junit:4.13.2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:_")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
+    compileOnly("org.slf4j:slf4j-api:_")
+    compileOnly(Testing.junit4)
 
-    testImplementation(Deps.Libs.kotlinCoroutinesCore())
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
 }
 
 evaluationDependsOn(":mockk-common")

@@ -6,13 +6,13 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:$kotlin_version")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:_")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:_")
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.7.10"
+    kotlin("jvm")
 }
 
 java {
@@ -32,20 +32,20 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+    implementation(Kotlin.stdlib)
+    implementation(Kotlin.stdlib.common)
+    implementation("org.jetbrains.kotlin:kotlin-reflect:_")
     testImplementation(project(":mockk-jvm"))
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
+    testImplementation(Kotlin.test.junit) {
         exclude(group = "junit", module = "junit")
     }
 
-    testImplementation("org.slf4j:slf4j-api:1.7.36")
-    testImplementation("ch.qos.logback:logback-classic:1.2.11")
+    testImplementation("org.slf4j:slf4j-api:_")
+    testImplementation("ch.qos.logback:logback-classic:_")
 
-    compileOnly("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version")
-    testImplementation("org.junit.vintage:junit-vintage-engine:$junit_vintage_version")
+    compileOnly(Testing.junit.jupiter.api)
+    testImplementation(Testing.junit.jupiter.api)
+    testImplementation(Testing.junit.jupiter.engine)
+    testImplementation("org.junit.vintage:junit-vintage-engine:_")
 }

@@ -6,6 +6,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("de.fayard.refreshVersions") version "0.40.2"
+}
+
 apply(from = "gradle/detect-android-sdk.gradle")
 
 rootProject.name = "mockk-root"

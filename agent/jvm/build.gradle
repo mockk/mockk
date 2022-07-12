@@ -15,12 +15,12 @@ dependencies {
     api project(':mockk-agent-api')
     api project(':mockk-agent-common')
 
-    api "org.objenesis:objenesis:$objenesis_version"
+    api "org.objenesis:objenesis:_"
 
-    api "net.bytebuddy:byte-buddy:$byte_buddy_version"
-    api "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+    api "net.bytebuddy:byte-buddy:_"
+    api "net.bytebuddy:byte-buddy-agent:_"
 
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:_"
 }
 
 def copyMockKDispatcher =

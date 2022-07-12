@@ -1,6 +1,3 @@
-import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
-
 plugins {
     id("mpp-jvm")
 }
@@ -14,8 +11,8 @@ apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle
 
 dependencies {
     expectedBy(project(":mockk-dsl"))
-    implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
-    compileOnly(Deps.Libs.kotlinCoroutinesCore())
+    implementation("org.jetbrains.kotlin:kotlin-reflect:_")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
 }
 
 evaluationDependsOn(":mockk-dsl")

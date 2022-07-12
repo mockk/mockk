@@ -1,7 +1,6 @@
 package io.mockk.configuration
 
 import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -16,10 +15,10 @@ class JsConfigurationPlugin : Plugin<Project> {
             apply<KotlinPlatformJsPlugin>()
             extensions.configure(KotlinJsProjectExtension::class) {
                 sourceSets["main"].dependencies {
-                    compileOnly(Deps.Libs.kotlinStdLibJs(kotlinVersion()))
+                    compileOnly(Deps.Libs.kotlinStdLibJs())
                 }
                 sourceSets["test"].dependencies {
-                    implementation(Deps.Libs.kotlinTestJs(kotlinVersion()))
+                    implementation(Deps.Libs.kotlinTestJs())
                 }
                 js {
                     compilations.all {

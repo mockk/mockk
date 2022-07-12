@@ -1,5 +1,4 @@
 import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
 
 plugins {
     id("mpp-android")
@@ -55,16 +54,16 @@ dependencies {
     implementation(project(":mockk-agent-android"))
     implementation(project(":mockk-agent-api"))
 
-    testImplementation("junit:junit:4.13.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0") {
+    testImplementation(Testing.junit4)
+    androidTestImplementation("androidx.test.espresso:espresso-core:_") {
         exclude(group = "com.android.support", module = "support-annotations")
     }
-    androidTestImplementation(Deps.Libs.kotlinReflect(kotlinVersion()))
-    androidTestImplementation(Deps.Libs.kotlinCoroutinesCore())
-    androidTestImplementation(Deps.Libs.kotlinTestJunit()) {
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-reflect:_")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:_")
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:_") {
         exclude(group = "junit", module = "junit")
     }
-    androidTestImplementation("androidx.test:rules:1.4.0")
+    androidTestImplementation(AndroidX.test.rules)
 
     androidTestImplementation(Deps.Libs.junitJupiterApi)
     androidTestImplementation(Deps.Libs.junitJupiterEngine)

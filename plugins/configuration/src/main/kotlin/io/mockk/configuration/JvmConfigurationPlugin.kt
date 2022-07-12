@@ -1,14 +1,12 @@
 package io.mockk.configuration
 
 import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
@@ -35,12 +33,12 @@ class JvmConfigurationPlugin : Plugin<Project> {
         apply<KotlinPlatformJvmPlugin>()
         extensions.configure(KotlinJvmProjectExtension::class) {
             sourceSets["main"].dependencies {
-                implementation(Deps.Libs.kotlinStdLib(kotlinVersion()))
-                implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
+                implementation(Deps.Libs.kotlinStdLib())
+                implementation(Deps.Libs.kotlinReflect())
                 compileOnly(Deps.Libs.junitJupiterApi)
             }
             sourceSets["test"].dependencies {
-                implementation(Deps.Libs.kotlinTestJunit(kotlinVersion())) {
+                implementation(Deps.Libs.kotlinTestJunit()) {
                     exclude(group = "junit", module = "junit")
                 }
                 implementation(Deps.Libs.slfj)

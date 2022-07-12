@@ -1,7 +1,6 @@
 package io.mockk.configuration
 
 import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -16,12 +15,12 @@ class CommonConfigurationPlugin : Plugin<Project> {
             apply<KotlinPlatformCommonPlugin>()
             extensions.configure(KotlinCommonProjectExtension::class) {
                 sourceSets["main"].dependencies {
-                    implementation(Deps.Libs.kotlinStdLib(kotlinVersion()))
-                    implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
+                    implementation(Deps.Libs.kotlinStdLib())
+                    implementation(Deps.Libs.kotlinReflect())
                 }
                 sourceSets["test"].dependencies {
-                    implementation(Deps.Libs.kotlinTestCommon(kotlinVersion()))
-                    implementation(Deps.Libs.kotlinTestCommonAnnotations(kotlinVersion()))
+                    implementation(Deps.Libs.kotlinTestCommon())
+                    implementation(Deps.Libs.kotlinTestCommonAnnotations())
                 }
             }
         }

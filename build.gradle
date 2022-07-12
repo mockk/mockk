@@ -17,14 +17,14 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
-        classpath "com.android.tools.build:gradle:$android_gradle_version"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:_"
+        classpath Android.tools.build.gradlePlugin
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:_"
     }
 }
 
 plugins {
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.10.0"
+    id("org.jetbrains.kotlinx.binary-compatibility-validator")
 }
 
 subprojects { subProject ->
