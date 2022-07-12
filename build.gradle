@@ -25,6 +25,7 @@ buildscript {
 
 plugins {
     id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    id("maven-publish")
 }
 
 subprojects { subProject ->
@@ -43,6 +44,20 @@ subprojects { subProject ->
             apiVersion = "1.7"
             jvmTarget = "17"
             languageVersion = "1.7"
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.github.hduerkop'
+            artifactId = 'mockk'
+            version = "1.13.0-SNAPSHOT"
+
+            pom {
+                description = 'mocking library for Kotlin'
+            }
         }
     }
 }
