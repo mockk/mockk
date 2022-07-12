@@ -32,21 +32,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib") {
-        version {
-            strictly("$kotlin_version")
-        }
-    }
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-common") {
-        version {
-            strictly("$kotlin_version")
-        }
-    }
-    implementation("org.jetbrains.kotlin:kotlin-reflect") {
-        version {
-            strictly("$kotlin_version")
-        }
-    }
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
     testImplementation(project(":mockk-jvm"))
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {

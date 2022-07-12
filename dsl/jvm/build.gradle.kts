@@ -34,5 +34,3 @@ tasks {
         add("archives", sourcesJar)
     }
 }
-
-
