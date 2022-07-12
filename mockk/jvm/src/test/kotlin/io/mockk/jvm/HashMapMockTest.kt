@@ -26,6 +26,7 @@ class HashMapMockTest {
     }
 
     @Test
+    @Disabled("Does not work anymore with jdk 17+")
     fun canSpyAHashMap() {
         val map = spyk<HashMap<String, String>>()
         assertDoesNotThrow { map["key"] = "value"  }

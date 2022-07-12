@@ -19,8 +19,8 @@ dependencies {
 
     implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
     compileOnly(Deps.Libs.kotlinCoroutinesCore())
-    compileOnly("org.slf4j:slf4j-api:1.7.26")
-    compileOnly("junit:junit:4.13.1")
+    compileOnly("org.slf4j:slf4j-api:1.7.36")
+    compileOnly("junit:junit:4.13.2")
 
     testImplementation(Deps.Libs.kotlinCoroutinesCore())
 }

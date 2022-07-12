@@ -8,6 +8,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
@@ -35,6 +36,7 @@ class JvmConfigurationPlugin : Plugin<Project> {
         extensions.configure(KotlinJvmProjectExtension::class) {
             sourceSets["main"].dependencies {
                 implementation(Deps.Libs.kotlinStdLib(kotlinVersion()))
+                implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
                 compileOnly(Deps.Libs.junitJupiterApi)
             }
             sourceSets["test"].dependencies {
@@ -52,8 +54,8 @@ class JvmConfigurationPlugin : Plugin<Project> {
 
     private fun Project.configureJavaPlugin() {
         extensions.configure(JavaPluginExtension::class) {
-            sourceCompatibility = JavaVersion.VERSION_1_8
-            targetCompatibility = JavaVersion.VERSION_1_8
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
         }
         tasks {
             named<Test>("test") {

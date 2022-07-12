@@ -11,7 +11,7 @@ extra["mavenDescription"] = "mocking library for Kotlin (Android instrumented te
 apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle")
 
 android {
-    compileSdkVersion("android-31")
+    compileSdkVersion("android-32")
 
 
     lintOptions {
@@ -28,8 +28,7 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 31
-        versionName = "${project.version}"
+        targetSdk = 32
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments
         testInstrumentationRunnerArguments["notAnnotation"] = "io.mockk.test.SkipInstrumentedAndroidTest"
@@ -40,8 +39,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
 }
@@ -57,7 +56,7 @@ dependencies {
     implementation(project(":mockk-agent-api"))
 
     testImplementation("junit:junit:4.13.1")
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:3.0.2") {
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0") {
         exclude(group = "com.android.support", module = "support-annotations")
     }
     androidTestImplementation(Deps.Libs.kotlinReflect(kotlinVersion()))
@@ -65,10 +64,9 @@ dependencies {
     androidTestImplementation(Deps.Libs.kotlinTestJunit()) {
         exclude(group = "junit", module = "junit")
     }
-    androidTestImplementation("com.android.support.test:rules:1.0.2")
+    androidTestImplementation("androidx.test:rules:1.4.0")
 
     androidTestImplementation(Deps.Libs.junitJupiterApi)
     androidTestImplementation(Deps.Libs.junitJupiterEngine)
     androidTestImplementation(Deps.Libs.junitVintageEngine)
 }
-

@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
+import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -45,8 +46,8 @@ class ValueClassTest {
     }
 }
 
-// TODO should be value class in kotlin 1.5+
-private inline class DummyValue(val value: Int)
+@JvmInline
+private value class DummyValue(val value: Int)
 
 private class DummyService {
 

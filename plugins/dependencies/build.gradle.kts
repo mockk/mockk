@@ -1,5 +1,7 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    `kotlin-dsl`
+    `kotlin-dsl` version "2.3.3"
     `java-gradle-plugin`
 }
 
@@ -16,5 +18,17 @@ gradlePlugin {
     plugins.register("dependencies") {
         id = "dependencies"
         implementationClass = "io.mockk.dependencies.DependenciesPlugin"
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
     }
 }

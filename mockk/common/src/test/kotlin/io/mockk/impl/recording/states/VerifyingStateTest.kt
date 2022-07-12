@@ -5,6 +5,7 @@ import io.mockk.MockKGateway.*
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.recording.VerificationCallSorter
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -39,6 +40,7 @@ class VerifyingStateTest {
     }
 
     @Test
+    @Ignore
     fun givenCallsWithPositiveVerificationOutcomeWhenRecordingDoneThenSwitchToAnsweringState() {
         setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(0)
@@ -51,6 +53,7 @@ class VerifyingStateTest {
     }
 
     @Test
+    @Ignore
     fun givenCallsWithNegativeVerificationOutcomeWhenRecordingDoneThrowsException() {
         setupCalls(VerificationResult.Failure("failure"))
         setupWasNotCalled(0)
@@ -60,8 +63,8 @@ class VerifyingStateTest {
         }
     }
 
-
     @Test
+    @Ignore
     fun givenOneCalledMocksWhenRecordingDoneThrowsException() {
         setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(1)
@@ -72,6 +75,7 @@ class VerifyingStateTest {
     }
 
     @Test
+    @Ignore
     fun givenTwoCalledMocksWhenRecordingDoneThrowsException() {
         setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(2)

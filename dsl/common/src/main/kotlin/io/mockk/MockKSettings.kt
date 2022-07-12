@@ -19,7 +19,7 @@ enum class StackTracesAlignment {
 
 fun stackTracesAlignmentValueOf(property: String): StackTracesAlignment {
     return try {
-        enumValueOf(property.toUpperCase())
+        enumValueOf(property.uppercase())
     } catch (e: IllegalArgumentException) {
         StackTracesAlignment.CENTER
     }
