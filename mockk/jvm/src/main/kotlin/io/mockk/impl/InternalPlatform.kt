@@ -159,7 +159,7 @@ actual object InternalPlatform {
 
     fun isRunningAndroidInstrumentationTest(): Boolean {
         return System.getProperty("java.vendor", "")
-            .toLowerCase(Locale.US)
+            .lowercase(Locale.US)
             .contains("android")
     }
 
