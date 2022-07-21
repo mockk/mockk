@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.2999579"
-     inkscape:cx="85.001557"
-     inkscape:cy="94.132159"
+     inkscape:cx="85.436346"
+     inkscape:cy="94.132158"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -58,46 +58,43 @@
      id="layer1"
      transform="translate(-63.497518,-64.382512)">
     <g
-       id="g26"
+       id="g17"
        transform="translate(-4.0491861,0.83018881)">
-      <g
-         id="g17">
-        <circle
-           style="fill:#00ff00;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path32-8-7-9"
-           cx="92.426079"
-           cy="83.552322"
-           r="14.16981" />
-        <circle
-           style="fill:#0000ff;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path32-8-7"
-           cx="89.173157"
-           cy="83.552322"
-           r="14.16981" />
-        <circle
-           style="fill:#ff6600;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path32-8"
-           cx="82.667328"
-           cy="83.552322"
-           r="14.16981" />
-        <circle
-           style="fill:#ff00ff;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path32-8-3"
-           cx="85.920242"
-           cy="83.552322"
-           r="14.16981" />
-      </g>
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-         x="79.392128"
-         y="87.782227"
-         id="text892"><tspan
-           sodipodi:role="line"
-           x="79.392128"
-           y="87.782227"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:Axis;-inkscape-font-specification:Axis;fill:#ffffff;stroke-width:0.264583"
-           id="tspan1417">K</tspan></text>
+      <circle
+         style="fill:#00ff00;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path32-8-7-9"
+         cx="92.426079"
+         cy="83.552322"
+         r="14.16981" />
+      <circle
+         style="fill:#0000ff;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path32-8-7"
+         cx="89.173157"
+         cy="83.552322"
+         r="14.16981" />
+      <circle
+         style="fill:#ff6600;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path32-8"
+         cx="82.667328"
+         cy="83.552322"
+         r="14.16981" />
+      <circle
+         style="fill:#ff00ff;fill-opacity:0.501961;stroke:none;stroke-width:1.3;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path32-8-3"
+         cx="85.920242"
+         cy="83.552322"
+         r="14.16981" />
     </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="77.507355"
+       y="88.96862"
+       id="text892"><tspan
+         sodipodi:role="line"
+         x="77.507355"
+         y="88.96862"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14.1111px;font-family:Axis;-inkscape-font-specification:Axis;fill:#ffffff;stroke-width:0.264583"
+         id="tspan1417">K</tspan></text>
   </g>
 </svg>
