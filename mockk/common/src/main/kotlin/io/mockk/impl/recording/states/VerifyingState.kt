@@ -54,18 +54,13 @@ class VerifyingState(
     }
 
     private fun failIfNotPassed(outcome: VerificationResult, inverse: Boolean) {
-        if (inverse) {
-            when (outcome) {
-                is VerificationResult.OK -> {
-                    val callsReport = VerificationHelpers.formatCalls(outcome.verifiedCalls)
-                    throw AssertionError("Inverse verification failed.\n\nVerified calls:\n$callsReport")
-                }
-                is VerificationResult.Failure -> {}
+        when (outcome) {
+            is VerificationResult.OK -> if (inverse) {
+                val callsReport = VerificationHelpers.formatCalls(outcome.verifiedCalls)
+                throw AssertionError("Inverse verification failed.\n\nVerified calls:\n$callsReport")
             }
-        } else {
-            when (outcome) {
-                is VerificationResult.Failure -> throw AssertionError("Verification failed: ${outcome.message}")
-                is VerificationResult.OK -> {}
+            is VerificationResult.Failure -> if (!inverse) {
+                throw AssertionError("Verification failed: ${outcome.message}")
             }
         }
     }
@@ -97,9 +92,7 @@ class VerifyingState(
                 })
             } else {
                 throw AssertionError(recorder.safeExec {
-                    "Verification failed: ${
-                        calledStubs.map { it.toStr() }.joinToString(", ")
-                    } should not be called:\n" +
+                    "Verification failed: ${calledStubs.joinToString(", ") { it.toStr() }} should not be called:\n" +
                         calledStubs.flatMap { it.allRecordedCalls() }.joinToString("\n")
                 })
             }
