@@ -138,7 +138,7 @@ class PermanentMocker(
             args.isEmpty()
         ) {
             return prefix +
-                    methodName[3].toLowerCase() +
+                    methodName[3].lowercase() +
                     methodName.substring(4)
         }
 
