@@ -92,14 +92,11 @@ class VerifyingState(
             if (calledStubs.size == 1) {
                 val calledStub = calledStubs[0]
                 throw AssertionError(recorder.safeExec {
-                    "Verification failed: ${calledStub.toStr()} should not be called:\n" +
-                        calledStub.allRecordedCalls().joinToString("\n")
+                    "Verification failed: ${calledStub.toStr()} should not be called:\n" + calledStub.allRecordedCalls().joinToString("\n")
                 })
             } else {
                 throw AssertionError(recorder.safeExec {
-                    "Verification failed: ${
-                        calledStubs.map { it.toStr() }.joinToString(", ")
-                    } should not be called:\n" +
+                    "Verification failed: ${calledStubs.joinToString(", ") { it.toStr() }} should not be called:\n" +
                         calledStubs.flatMap { it.allRecordedCalls() }.joinToString("\n")
                 })
             }
