@@ -46,7 +46,7 @@ actual object InternalPlatformDsl {
                 kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
                 is Continuation<*> -> "continuation {}"
                 is KClass<*> -> this.simpleName ?: "<null name class>"
-                is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
+                is Method -> name + "(" + parameterTypes.joinToString { it.simpleName } + ")"
                 is Function<*> -> "lambda {}"
                 else -> toString()
             }
@@ -243,7 +243,7 @@ actual object InternalPlatformDsl {
 
 class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T> {
     companion object {
-        val callMethod = JvmCoroutineCall::class.java.getMethod("callCoroutine", Continuation::class.java)
+        val callMethod: Method = JvmCoroutineCall::class.java.getMethod("callCoroutine", Continuation::class.java)
     }
 
     suspend fun callCoroutine() = lambda()
@@ -258,8 +258,7 @@ class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T
     }
 }
 
-// TODO this is copy-pasted from ValueClassSupport
-//      I will try to move that class so it's available here
+// TODO this is from ValueClassSupport.kt - try and refactor to avoid copy-pasting
 
 private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
 
