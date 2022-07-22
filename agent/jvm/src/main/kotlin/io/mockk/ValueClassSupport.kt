@@ -72,14 +72,3 @@ private fun <T : Any> KClass<T>.isValueClass() = try {
 } catch (_: Throwable) {
     false
 }
-
-/**
- * POLYFILL for kotlin version < 1.5
- * will be shadowed by implementation in kotlin SDK 1.5+
- *
- * @return true if this is an inline class, else false
- */
-private val <T : Any> KClass<T>.isValue: Boolean
-    get() = !isData &&
-            primaryConstructor?.parameters?.size == 1 &&
-            java.declaredMethods.any { it.name == "box-impl" }
