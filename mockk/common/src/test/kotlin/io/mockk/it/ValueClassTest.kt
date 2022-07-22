@@ -58,7 +58,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO I had this working at one point... commenting it out now to see if the tests pass on CI/CD
     fun `slot for value class`() {
         val mock = mockk<ValueServiceDummy>(relaxed = true)
         val slot = slot<ValueDummy>()
