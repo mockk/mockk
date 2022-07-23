@@ -52,7 +52,7 @@ expect object InternalPlatformDsl {
      * However, if `T` is a `value class`es (of type [cls]) it will construct a new instance of the
      * class, and set [arg] as the value.
      */
-    actual fun <T : Any> boxCast(
+     fun <T : Any> boxCast(
         cls: KClass<*>,
         arg: Any,
     ): T
