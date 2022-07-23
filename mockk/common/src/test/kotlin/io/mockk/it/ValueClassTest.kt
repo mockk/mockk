@@ -85,6 +85,7 @@ class ValueClassTest {
         assertEquals(givenResult, result)
     }
 
+    /** https://github.com/mockk/mockk/issues/729 */
     @Test
     fun `verify function with UInt return can be stubbed`() {
         val mock = mockk<DummyService> {
@@ -94,6 +95,19 @@ class ValueClassTest {
         val result = mock.getUInt()
 
         assertEquals(999u, result)
+    }
+
+    /** https://github.com/mockk/mockk/issues/729 */
+    @Test
+    fun `verify extension function with UInt return can be stubbed`() {
+
+        val fn = mockk<String.() -> UInt>()
+
+        every { "string".fn() } returns 777u
+
+        val result = "string".fn()
+
+        assertEquals(777u, result)
     }
 }
 
