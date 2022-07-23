@@ -1,5 +1,6 @@
 package io.mockk
 
+import io.mockk.ValueClassSupportDsl.boxedClass
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -217,15 +218,7 @@ actual object InternalPlatformDsl {
 
     actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall<T>(lambda)
 
-    actual fun unboxClass(cls: KClass<*>): KClass<*> {
-        if (!cls.isValue) return cls
-
-        // get backing field
-        val backingField = cls.valueField()
-
-        // get boxed value
-        return backingField.returnType.classifier as KClass<*>
-    }
+    actual fun unboxClass(cls: KClass<*>): KClass<*> = cls.boxedClass()
 
     @Suppress("UNCHECKED_CAST")
     actual fun <T : Any> boxCast(
@@ -256,26 +249,4 @@ class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T
             throw ex.targetException
         }
     }
-}
-
-// TODO this is from ValueClassSupport.kt - try and refactor to avoid copy-pasting
-
-private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
-
-private fun <T : Any> KClass<T>.valueField(): KProperty1<out T, *> {
-    @Suppress("UNCHECKED_CAST")
-    return valueClassFieldCache.getOrPut(this) {
-        require(isValue) { "$this is not a value class" }
-
-        // value classes always have a primary constructor...
-        val constructor = primaryConstructor!!.apply { isAccessible = true }
-        // ...and exactly one constructor parameter
-        val constructorParameter = constructor.parameters.first()
-        // ...with a backing field
-        val backingField = declaredMemberProperties
-            .first { it.name == constructorParameter.name }
-            .apply { isAccessible = true }
-
-        backingField
-    } as KProperty1<out T, *>
 }

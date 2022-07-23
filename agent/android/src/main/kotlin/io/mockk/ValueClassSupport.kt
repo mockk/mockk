@@ -6,6 +6,9 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
+// TODO this class is copy-pasted and should be de-duplicated
+//      see https://github.com/mockk/mockk/issues/857
+
 private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
 
 /**
