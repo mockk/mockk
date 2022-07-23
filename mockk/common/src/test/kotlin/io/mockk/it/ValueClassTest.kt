@@ -1,6 +1,9 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlin.jvm.JvmInline
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -81,6 +84,17 @@ class ValueClassTest {
 
         assertEquals(givenResult, result)
     }
+
+    @Test
+    fun `verify function with UInt return can be stubbed`() {
+        val mock = mockk<DummyService> {
+            every { getUInt() } returns 999u
+        }
+
+        val result = mock.getUInt()
+
+        assertEquals(999u, result)
+    }
 }
 
 @JvmInline
@@ -88,9 +102,11 @@ value class DummyValue(val value: Int)
 
 class DummyService {
 
-    fun requestValue()  = DummyValue(0)
+    fun requestValue() = DummyValue(0)
 
-    fun processValue(value: DummyValue)  = DummyValue(0)
+    fun processValue(value: DummyValue) = DummyValue(0)
+
+    fun getUInt(): UInt = 123u
 }
 
 @JvmInline
