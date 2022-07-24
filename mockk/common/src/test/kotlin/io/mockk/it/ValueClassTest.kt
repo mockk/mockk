@@ -14,33 +14,115 @@ class ValueClassTest {
     private val dummyValueWrapperArg get() = DummyValueWrapper(DummyValue(42))
     private val dummyValueWrapperReturn get() = DummyValueWrapper(DummyValue(99))
 
-    private val dummyValueInnerArg get() = DummyValue(101)
-    private val dummyValueInnerReturn get() = DummyValue(202)
+    private val dummyValueClassArg get() = DummyValue(101)
+    private val dummyValueClassReturn get() = DummyValue(202)
 
-    //<editor-fold desc="arg=Value Class, return=Wrapper">
+    //<editor-fold desc="arg=Value Class, return=ValueClass">
     @Test
-    fun `arg is ValueClass, returns Wrapper`() {
+    fun `arg is ValueClass, returns ValueClass`() {
         val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(dummyValueInnerArg) } returns dummyValueWrapperReturn
+            every { argValueClassReturnValueClass(dummyValueClassArg) } returns dummyValueClassReturn
         }
 
-        assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueInnerArg))
+        assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
-        verify { mock.argValueClassReturnWrapper(dummyValueInnerArg) }
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
     }
 
     @Test
+    fun `arg is any(ValueClass), returns ValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(any()) } returns dummyValueClassReturn
+        }
+
+        assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
+    fun `arg is slot(ValueClass), returns ValueClass`() {
+        val slot = slot<DummyValue>()
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(capture(slot)) } returns dummyValueClassReturn
+        }
+
+        val result = mock.argValueClassReturnValueClass(dummyValueClassArg)
+
+        assertEquals(dummyValueClassReturn, result)
+
+        assertEquals(dummyValueClassArg, slot.captured)
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
+    fun `arg is ValueClass, answers ValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(dummyValueClassArg) } answers { dummyValueClassReturn }
+        }
+
+        assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
+    fun `arg is any(ValueClass), answers ValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(any()) } answers { dummyValueClassReturn }
+        }
+
+        assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
+    fun `arg is slot(ValueClass), answers ValueClass`() {
+        val slot = slot<DummyValue>()
+
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(capture(slot)) } answers { dummyValueClassReturn }
+        }
+
+        val result = mock.argValueClassReturnValueClass(dummyValueClassArg)
+
+        assertEquals(dummyValueClassReturn, result)
+
+        assertEquals(dummyValueClassArg, slot.captured)
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="arg=Value Class, return=Wrapper">
+    @Test
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is ValueClass, returns Wrapper`() {
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnWrapper(dummyValueClassArg) } returns dummyValueWrapperReturn
+        }
+
+        assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueClassArg))
+
+        verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
+    }
+
+    @Test
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(ValueClass), returns Wrapper`() {
         val mock = mockk<DummyService> {
             every { argValueClassReturnWrapper(any()) } returns dummyValueWrapperReturn
         }
 
-        assertEquals(dummyValueWrapperArg, mock.argValueClassReturnWrapper(dummyValueInnerArg))
+        assertEquals(dummyValueWrapperArg, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
-        verify { mock.argValueClassReturnWrapper(dummyValueInnerArg) }
+        verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
     }
 
     @Test
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(ValueClass), returns Wrapper`() {
         val slot = slot<DummyValue>()
 
@@ -48,38 +130,41 @@ class ValueClassTest {
             every { argValueClassReturnWrapper(capture(slot)) } returns dummyValueWrapperReturn
         }
 
-        val result = mock.argValueClassReturnWrapper(dummyValueInnerArg)
+        val result = mock.argValueClassReturnWrapper(dummyValueClassArg)
 
         assertEquals(dummyValueWrapperReturn, result)
 
-        assertEquals(dummyValueInnerArg, slot.captured)
+        assertEquals(dummyValueClassArg, slot.captured)
 
-        verify { mock.argValueClassReturnWrapper(dummyValueInnerArg) }
+        verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
     }
 
     @Test
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is ValueClass, answers Wrapper`() {
         val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(dummyValueInnerArg) } answers { dummyValueWrapperReturn }
+            every { argValueClassReturnWrapper(dummyValueClassArg) } answers { dummyValueWrapperReturn }
         }
 
-        assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueInnerArg))
+        assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
-        verify { mock.argValueClassReturnWrapper(dummyValueInnerArg) }
+        verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
     }
 
     @Test
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(ValueClass), answers Wrapper`() {
         val mock = mockk<DummyService> {
             every { argValueClassReturnWrapper(any()) } answers { dummyValueWrapperReturn }
         }
 
-        assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueInnerArg))
+        assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
-        verify { mock.argValueClassReturnWrapper(dummyValueInnerArg) }
+        verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
     }
 
     @Test
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(ValueClass), answers Wrapper`() {
         val slot = slot<DummyValue>()
 
@@ -87,128 +172,52 @@ class ValueClassTest {
             every { argValueClassReturnWrapper(capture(slot)) } answers { dummyValueWrapperReturn }
         }
 
-        val result = mock.argValueClassReturnWrapper(dummyValueInnerArg)
+        val result = mock.argValueClassReturnWrapper(dummyValueClassArg)
 
         assertEquals(dummyValueWrapperReturn, result)
 
-        assertEquals(dummyValueInnerArg, slot.captured)
+        assertEquals(dummyValueClassArg, slot.captured)
 
-        verify { mock.argValueClassReturnWrapper(dummyValueInnerArg) }
-    }
-    //</editor-fold>
-
-    //<editor-fold desc="arg=Value Class, return=ValueClass">
-    @Test
-    fun `arg is ValueClass, returns Inner`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(dummyValueInnerArg) } returns dummyValueInnerReturn
-        }
-
-        assertEquals(dummyValueInnerReturn, mock.argValueClassReturnValueClass(dummyValueInnerArg))
-
-        verify { mock.argValueClassReturnValueClass(dummyValueInnerArg) }
-    }
-
-    @Test
-    fun `arg is any(ValueClass), returns Inner`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(any()) } returns dummyValueInnerReturn
-        }
-
-        assertEquals(dummyValueInnerReturn, mock.argValueClassReturnValueClass(dummyValueInnerArg))
-
-        verify { mock.argValueClassReturnValueClass(dummyValueInnerArg) }
-    }
-
-    @Test
-    fun `arg is slot(ValueClass), returns Inner`() {
-        val slot = slot<DummyValue>()
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(capture(slot)) } returns dummyValueInnerReturn
-        }
-
-        val result = mock.argValueClassReturnValueClass(dummyValueInnerArg)
-
-        assertEquals(dummyValueInnerReturn, result)
-
-        assertEquals(dummyValueInnerArg, slot.captured)
-
-        verify { mock.argValueClassReturnValueClass(dummyValueInnerArg) }
-    }
-
-    @Test
-    fun `arg is ValueClass, answers Inner`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(dummyValueInnerArg) } answers { dummyValueInnerReturn }
-        }
-
-        assertEquals(dummyValueInnerReturn, mock.argValueClassReturnValueClass(dummyValueInnerArg))
-
-        verify { mock.argValueClassReturnValueClass(dummyValueInnerArg) }
-    }
-
-    @Test
-    fun `arg is any(ValueClass), answers Inner`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(any()) } answers { dummyValueInnerReturn }
-        }
-
-        assertEquals(dummyValueInnerReturn, mock.argValueClassReturnValueClass(dummyValueInnerArg))
-
-        verify { mock.argValueClassReturnValueClass(dummyValueInnerArg) }
-    }
-
-    @Test
-    fun `arg is slot(ValueClass), answers Inner`() {
-        val slot = slot<DummyValue>()
-
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(capture(slot)) } answers { dummyValueInnerReturn }
-        }
-
-        val result = mock.argValueClassReturnValueClass(dummyValueInnerArg)
-
-        assertEquals(dummyValueInnerReturn, result)
-
-        assertEquals(dummyValueInnerArg, slot.captured)
-
-        verify { mock.argValueClassReturnValueClass(dummyValueInnerArg) }
+        verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
     }
     //</editor-fold>
 
     //<editor-fold desc="arg=Wrapper, return=ValueClass">
     @Test
-    fun `arg is Outer, returns Inner`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is Wrapper, returns ValueClass`() {
         val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(dummyValueWrapperArg) } returns dummyValueInnerReturn
+            every { argWrapperReturnValueClass(dummyValueWrapperArg) } returns dummyValueClassReturn
         }
 
-        assertEquals(dummyValueInnerReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
+        assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
         verify { mock.argWrapperReturnValueClass(dummyValueWrapperArg) }
     }
 
     @Test
-    fun `arg is any(Outer), returns Inner`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is any(Wrapper), returns ValueClass`() {
         val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(any()) } returns dummyValueInnerReturn
+            every { argWrapperReturnValueClass(any()) } returns dummyValueClassReturn
         }
 
-        assertEquals(dummyValueInnerReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
+        assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
         verify { mock.argWrapperReturnValueClass(dummyValueWrapperArg) }
     }
 
     @Test
-    fun `arg is slot(Outer), returns Inner`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is slot(Wrapper), returns ValueClass`() {
         val slot = slot<DummyValueWrapper>()
         val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(capture(slot)) } returns dummyValueInnerReturn
+            every { argWrapperReturnValueClass(capture(slot)) } returns dummyValueClassReturn
         }
 
         val result = mock.argWrapperReturnValueClass(dummyValueWrapperArg)
 
-        assertEquals(dummyValueInnerReturn, result)
+        assertEquals(dummyValueClassReturn, result)
 
         assertEquals(dummyValueWrapperArg, slot.captured)
 
@@ -216,38 +225,41 @@ class ValueClassTest {
     }
 
     @Test
-    fun `arg is Outer, answers Inner`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is Wrapper, answers ValueClass`() {
         val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(dummyValueWrapperArg) } answers { dummyValueInnerReturn }
+            every { argWrapperReturnValueClass(dummyValueWrapperArg) } answers { dummyValueClassReturn }
         }
 
-        assertEquals(dummyValueInnerReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
+        assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
         verify { mock.argWrapperReturnValueClass(dummyValueWrapperArg) }
     }
 
     @Test
-    fun `arg is any(Outer), answers Inner`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is any(Wrapper), answers ValueClass`() {
         val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(any()) } answers { dummyValueInnerReturn }
+            every { argWrapperReturnValueClass(any()) } answers { dummyValueClassReturn }
         }
 
-        assertEquals(dummyValueInnerReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
+        assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
         verify { mock.argWrapperReturnValueClass(dummyValueWrapperArg) }
     }
 
     @Test
-    fun `arg is slot(Outer), answers Inner`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is slot(Wrapper), answers ValueClass`() {
         val slot = slot<DummyValueWrapper>()
 
         val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(capture(slot)) } answers { dummyValueInnerReturn }
+            every { argWrapperReturnValueClass(capture(slot)) } answers { dummyValueClassReturn }
         }
 
         val result = mock.argWrapperReturnValueClass(dummyValueWrapperArg)
 
-        assertEquals(dummyValueInnerReturn, result)
+        assertEquals(dummyValueClassReturn, result)
 
         assertEquals(dummyValueWrapperArg, slot.captured)
 
@@ -257,7 +269,8 @@ class ValueClassTest {
 
     //<editor-fold desc="arg=Wrapper, return=Wrapper">
     @Test
-    fun `arg is Outer, returns Wrapper`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is Wrapper, returns Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(dummyValueWrapperArg) } returns dummyValueWrapperReturn
         }
@@ -268,7 +281,8 @@ class ValueClassTest {
     }
 
     @Test
-    fun `arg is any(Outer), returns Wrapper`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is any(Wrapper), returns Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(any()) } returns dummyValueWrapperReturn
         }
@@ -279,7 +293,8 @@ class ValueClassTest {
     }
 
     @Test
-    fun `arg is slot(Outer), returns Wrapper`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is slot(Wrapper), returns Wrapper`() {
         val slot = slot<DummyValueWrapper>()
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(capture(slot)) } returns dummyValueWrapperReturn
@@ -295,7 +310,8 @@ class ValueClassTest {
     }
 
     @Test
-    fun `arg is Outer, answers Wrapper`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is Wrapper, answers Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(dummyValueWrapperArg) } answers { dummyValueWrapperReturn }
         }
@@ -306,7 +322,8 @@ class ValueClassTest {
     }
 
     @Test
-    fun `arg is any(Outer), answers Wrapper`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is any(Wrapper), answers Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(any()) } answers { dummyValueWrapperReturn }
         }
@@ -317,7 +334,8 @@ class ValueClassTest {
     }
 
     @Test
-    fun `arg is slot(Outer), answers Wrapper`() {
+    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
+    fun `arg is slot(Wrapper), answers Wrapper`() {
         val slot = slot<DummyValueWrapper>()
 
         val mock = mockk<DummyService> {
@@ -364,14 +382,14 @@ class ValueClassTest {
     //<editor-fold desc="extension function on String">
     @Test
     @Ignore // TODO fix infinite loop
-    fun `receiver is String, return is Inner`() {
+    fun `receiver is String, return is ValueClass`() {
         val fn = mockk<String.() -> DummyValue>()
 
-        every { "string".fn() } returns dummyValueInnerReturn
+        every { "string".fn() } returns dummyValueClassReturn
 
         val result = "string".fn()
 
-        assertEquals(dummyValueInnerReturn, result)
+        assertEquals(dummyValueClassReturn, result)
     }
 
     @Test
@@ -387,10 +405,10 @@ class ValueClassTest {
     }
     //</editor-fold>
 
-    //<editor-fold desc="extension function on Outer">
+    //<editor-fold desc="extension function on Wrapper">
     @Test
     @Ignore // TODO fix infinite loop
-    fun `receiver is Outer, return is Wrapper`() {
+    fun `receiver is Wrapper, return is Wrapper`() {
         val fn = mockk<DummyValueWrapper.() -> DummyValueWrapper>()
 
         every { dummyValueWrapperArg.fn() } returns dummyValueWrapperArg
@@ -402,19 +420,19 @@ class ValueClassTest {
 
     @Test
     @Ignore // TODO fix infinite loop
-    fun `receiver is Outer, return is Inner`() {
+    fun `receiver is Wrapper, return is ValueClass`() {
         val fn = mockk<DummyValueWrapper.() -> DummyValue>()
 
-        every { dummyValueWrapperArg.fn() } returns dummyValueInnerReturn
+        every { dummyValueWrapperArg.fn() } returns dummyValueClassReturn
 
         val result = dummyValueWrapperArg.fn()
 
-        assertEquals(dummyValueInnerArg, result)
+        assertEquals(dummyValueClassArg, result)
     }
 
     @Test
     @Ignore // TODO fix infinite loop
-    fun `receiver is Outer, return is String`() {
+    fun `receiver is Wrapper, return is String`() {
         val fn = mockk<DummyValueWrapper.() -> String>()
 
         every { dummyValueWrapperArg.fn() } returns "example"
@@ -425,45 +443,44 @@ class ValueClassTest {
     }
     //</editor-fold>
 
-    //<editor-fold desc="extension function on Inner">
+    //<editor-fold desc="extension function on ValueClass">
     @Test
     @Ignore // TODO fix infinite loop
-    fun `receiver is Inner, return is Wrapper`() {
+    fun `receiver is ValueClass, return is Wrapper`() {
         val fn = mockk<DummyValue.() -> DummyValueWrapper>()
 
-        every { dummyValueInnerArg.fn() } returns dummyValueWrapperReturn
+        every { dummyValueClassArg.fn() } returns dummyValueWrapperReturn
 
-        val result = dummyValueInnerArg.fn()
+        val result = dummyValueClassArg.fn()
 
         assertEquals(dummyValueWrapperArg, result)
     }
 
     @Test
     @Ignore // TODO fix infinite loop
-    fun `receiver is Inner, return is Inner`() {
+    fun `receiver is ValueClass, return is ValueClass`() {
         val fn = mockk<DummyValue.() -> DummyValue>()
 
-        every { dummyValueInnerArg.fn() } returns dummyValueInnerReturn
+        every { dummyValueClassArg.fn() } returns dummyValueClassReturn
 
-        val result = dummyValueInnerArg.fn()
+        val result = dummyValueClassArg.fn()
 
-        assertEquals(dummyValueInnerReturn, result)
+        assertEquals(dummyValueClassReturn, result)
     }
 
     @Test
     @Ignore // TODO fix infinite loop
-    fun `receiver is Inner, return is String`() {
+    fun `receiver is ValueClass, return is String`() {
         val fn = mockk<DummyValue.() -> String>()
 
-        every { dummyValueInnerArg.fn() } returns "example"
+        every { dummyValueClassArg.fn() } returns "example"
 
-        val result = dummyValueInnerArg.fn()
+        val result = dummyValueClassArg.fn()
 
         assertEquals("example", result)
     }
     //</editor-fold>
     //</editor-fold>
-
 
     companion object {
 
@@ -475,16 +492,16 @@ class ValueClassTest {
 
         class DummyService {
 
-            fun argWrapperReturnWrapper(outer: DummyValueWrapper): DummyValueWrapper =
+            fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper =
                 DummyValueWrapper(DummyValue(0))
 
-            fun argWrapperReturnValueClass(outer: DummyValueWrapper): DummyValue =
+            fun argWrapperReturnValueClass(wrapper: DummyValueWrapper): DummyValue =
                 DummyValue(0)
 
-            fun argValueClassReturnWrapper(inner: DummyValue): DummyValueWrapper =
-                DummyValueWrapper(inner)
+            fun argValueClassReturnWrapper(valueClass: DummyValue): DummyValueWrapper =
+                DummyValueWrapper(valueClass)
 
-            fun argValueClassReturnValueClass(inner: DummyValue): DummyValue =
+            fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue =
                 DummyValue(0)
 
 
