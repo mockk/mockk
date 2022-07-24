@@ -48,6 +48,6 @@ subprojects { subProject ->
     }
 
     tasks.withType(Test).configureEach {
-        timeout.set(Duration.ofMinutes(2))
+        timeout.set(Duration.ofMinutes(5))
     }
 }
