@@ -3,75 +3,34 @@ package io.mockk
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
-// TODO this class is copy-pasted and should be de-duplicated
-//      see https://github.com/mockk/mockk/issues/857
-
-private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
-
 /**
- * Get boxed value of any value class
- *
- * @return boxed value of value class, if this is value class, else just itself
+ * Underlying property value of a **`value class`** or self
  */
-fun <T : Any> T.boxedValue(): Any? {
-    if (!this::class.isValueClass()) return this
-
-    // get backing field
-    val backingField = this::class.valueField()
-
-    // get boxed value
+val <T : Any> T.boxedValue: Any?
     @Suppress("UNCHECKED_CAST")
-    return (backingField as KProperty1<T, *>).get(this)
-}
+    get() = if (!this::class.isValue_safe) this
+    else (this::class as KClass<T>).boxedProperty.get(this)
 
 /**
- * Get class of boxed value of any value class
- *
- * @return class of boxed value, if this is value class, else just class of itself
+ * Underlying property class of a **`value class`** or self
  */
-fun <T : Any> T.boxedClass(): KClass<*> {
-    return this::class.boxedClass()
-}
+val KClass<*>.boxedClass: KClass<*>
+    get() = if (!this.isValue_safe) this
+    else this.boxedProperty.returnType.classifier as KClass<*>
 
 /**
- * Get the KClass of boxed value if this is a value class.
- *
- * @return class of boxed value, if this is value class, else just class of itself
+ * Underlying property of a **`value class`**
  */
-fun KClass<*>.boxedClass(): KClass<*> {
-    if (!this.isValueClass()) return this
+private val <T : Any> KClass<T>.boxedProperty: KProperty1<T, *>
+    get() = if (!this.isValue_safe) throw UnsupportedOperationException("$this is not a value class")
+    // value classes always have exactly one property
+    else this.declaredMemberProperties.first().apply { isAccessible = true }
 
-    // get backing field
-    val backingField = this.valueField()
-
-    // get boxed value
-    return backingField.returnType.classifier as KClass<*>
-}
-
-
-private fun <T : Any> KClass<T>.valueField(): KProperty1<out T, *> {
-    @Suppress("UNCHECKED_CAST")
-    return valueClassFieldCache.getOrPut(this) {
-        require(isValue) { "$this is not a value class" }
-
-        // value classes always have a primary constructor...
-        val constructor = primaryConstructor!!
-        // ...and exactly one constructor parameter
-        val constructorParameter = constructor.parameters.first()
-        // ...with a backing field
-        val backingField = declaredMemberProperties
-            .first { it.name == constructorParameter.name }
-            .apply { isAccessible = true }
-
-        backingField
-    } as KProperty1<out T, *>
-}
-
-private fun <T : Any> KClass<T>.isValueClass() = try {
-    this.isValue
-} catch (_: Throwable) {
-    false
-}
+private val <T : Any> KClass<T>.isValue_safe: Boolean
+    get() = try {
+        this.isValue
+    } catch (_: UnsupportedOperationException) {
+        false
+    }
