@@ -49,10 +49,10 @@ expect object InternalPlatformDsl {
     /**
      * Normally this simply casts [arg] to `T`
      *
-     * However, if `T` is a `value class`es (of type [cls]) it will construct a new instance of the
-     * class, and set [arg] as the value.
+     * However, if `T` is a `value class` (of type [cls]) this will construct a new instance of the
+     * value class, and set [arg] as the value.
      */
-    actual fun <T : Any> boxCast(
+     fun <T : Any> boxCast(
         cls: KClass<*>,
         arg: Any,
     ): T

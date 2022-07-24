@@ -9,7 +9,7 @@ import kotlin.reflect.jvm.isAccessible
 /**
  * Provides value class support in the `mockk-dsl-jvm` subproject.
  *
- * This is marked as internal so that it won't clash with the another class in `mockk-agent-jvm`.
+ * This is marked as internal so that it won't clash with the other class in `mockk-agent-jvm`.
  *
  * TODO this class is copy-pasted and should be de-duplicated, see https://github.com/mockk/mockk/issues/857
  */
