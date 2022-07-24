@@ -19,7 +19,7 @@ internal class Interceptor(
             method
         )
         return handler.invocation(self, method, callOriginalMethod, arguments)
-            ?.boxedValue() // unbox value class objects
+            ?.boxedValue // unbox value class objects
     }
 
 }
