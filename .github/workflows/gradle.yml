@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     strategy:
@@ -16,11 +20,6 @@ jobs:
       # in case one JDK fails, we still want to see results from others
       fail-fast: false
     runs-on: ubuntu-latest
-
-    concurrency:
-      group: ${{ github.ref }}
-      cancel-in-progress: true
-
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -41,6 +40,7 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: test --stacktrace -Pkotlin.version=${{ matrix.kotlin-version }} -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+
   android-instrumented-tests:
     runs-on: macos-latest
     strategy:
