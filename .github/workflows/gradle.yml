@@ -18,25 +18,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-${{ matrix.java-version }}-${{ matrix.kotlin-version }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ matrix.java-version }}-gradle-
-    - name: Set up JDK ${{ matrix.java-version }}
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java-version }}
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Run tests with Gradle
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: test --stacktrace -Pkotlin.version=${{ matrix.kotlin-version }} -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-${{ matrix.java-version }}-${{ matrix.kotlin-version }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.java-version }}-gradle-
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java-version }}
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Run tests with Gradle
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: test --stacktrace -Pkotlin.version=${{ matrix.kotlin-version }} -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
   android-instrumented-tests:
     runs-on: macos-latest
     strategy:
@@ -61,4 +61,3 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
-
