@@ -17,6 +17,10 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
