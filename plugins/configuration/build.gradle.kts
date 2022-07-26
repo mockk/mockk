@@ -3,7 +3,7 @@ import io.mockk.dependencies.kotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `kotlin-dsl` version "2.3.3"
+    `kotlin-dsl` version
     `java-gradle-plugin`
     id("dependencies")
 }
@@ -46,15 +46,8 @@ gradlePlugin {
     }
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
     }
 }
