@@ -40,7 +40,6 @@ class VerifyingStateTest {
     }
 
     @Test
-    @Ignore
     fun givenCallsWithPositiveVerificationOutcomeWhenRecordingDoneThenSwitchToAnsweringState() {
         setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(0)
@@ -53,7 +52,6 @@ class VerifyingStateTest {
     }
 
     @Test
-    @Ignore
     fun givenCallsWithNegativeVerificationOutcomeWhenRecordingDoneThrowsException() {
         setupCalls(VerificationResult.Failure("failure"))
         setupWasNotCalled(0)
@@ -64,7 +62,6 @@ class VerifyingStateTest {
     }
 
     @Test
-    @Ignore
     fun givenOneCalledMocksWhenRecordingDoneThrowsException() {
         setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(1)
@@ -75,7 +72,6 @@ class VerifyingStateTest {
     }
 
     @Test
-    @Ignore
     fun givenTwoCalledMocksWhenRecordingDoneThrowsException() {
         setupCalls(VerificationResult.OK(listOf()))
         setupWasNotCalled(2)
