@@ -1,3 +1,5 @@
+import java.time.Duration
+
 buildscript {
     ext.kotlin_gradle_version = findProperty('kotlin.version')?.toString() ?: '1.6.0'
     ext.android_gradle_version = '7.0.0'
@@ -43,5 +45,9 @@ subprojects { subProject ->
             apiVersion = "1.5"
             languageVersion = "1.5"
         }
+    }
+
+    tasks.withType(Test).configureEach {
+        timeout.set(Duration.ofMinutes(5))
     }
 }

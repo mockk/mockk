@@ -140,17 +140,16 @@ data class CaptureNullableMatcher<T : Any>(
  */
 data class CapturingSlotMatcher<T : Any>(
     val captureSlot: CapturingSlot<T>,
-    override val argumentType: KClass<*>
+    override val argumentType: KClass<*>,
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
 
-    @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
         if (arg == null) {
             captureSlot.isNull = true
         } else {
             captureSlot.isNull = false
-            captureSlot.captured = arg as T
+            captureSlot.captured = InternalPlatformDsl.boxCast(argumentType, arg)
         }
         captureSlot.isCaptured = true
     }
@@ -473,4 +472,3 @@ fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
             .forEach { it.capture(arg) }
     }
 }
-
