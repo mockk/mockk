@@ -28,7 +28,7 @@ class HashMapMockTest {
     }
 
     @Test
-    @DisabledForJreRange(min = JRE.JAVA_17) // https://github.com/mockk/mockk/issues/864
+    @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "https://github.com/mockk/mockk/issues/864")
     fun canSpyAHashMap() {
         val map = spyk<HashMap<String, String>>()
         assertDoesNotThrow { map["key"] = "value" }
@@ -37,7 +37,7 @@ class HashMapMockTest {
     }
 
     @Test
-    @DisabledForJreRange(min = JRE.JAVA_16) // https://github.com/mockk/mockk/issues/864
+    @DisabledForJreRange(min = JRE.JAVA_16, disabledReason = "https://github.com/mockk/mockk/issues/864")
     fun concurrentHashMap_shouldBeSpied_Successfully() {
         val map = spyk(ConcurrentHashMap<String, String>())
         assertDoesNotThrow { map.put("key", "value") }
@@ -46,7 +46,7 @@ class HashMapMockTest {
     }
 
     @Test
-    @Disabled(value = "mocking of abstractMap don't work") // https://github.com/mockk/mockk/issues/864
+    @Disabled(value = "mocking AbstractMap doesn't work https://github.com/mockk/mockk/issues/864")
     fun abstractMap_shouldBeMocked_SuccessFully() {
         val map = mockk<AbstractMap<String, String>>()
         assertDoesNotThrow { map["key"] }
