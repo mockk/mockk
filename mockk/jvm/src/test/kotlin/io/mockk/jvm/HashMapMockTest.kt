@@ -3,7 +3,6 @@ package io.mockk.jvm
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
-import org.junit.jupiter.api.*
 import io.mockk.verify
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.test.assertEquals
@@ -32,17 +31,16 @@ class HashMapMockTest {
     @DisabledForJreRange(max = JRE.JAVA_17)
     fun canSpyAHashMap() {
         val map = spyk<HashMap<String, String>>()
-        assertDoesNotThrow { map["key"] = "value"  }
+        assertDoesNotThrow { map["key"] = "value" }
 
         verify(exactly = 1) { map["key"] = "value" }
     }
 
     @Test
-//    @DisabledForJreRange(max = JRE.JAVA_16)
-//    @Disabled("Does not work anymore with jdk 16+")
+    @DisabledForJreRange(max = JRE.JAVA_16)
     fun concurrentHashMap_shouldBeSpied_Successfully() {
         val map = spyk(ConcurrentHashMap<String, String>())
-        assertDoesNotThrow { map.put("key", "value")  }
+        assertDoesNotThrow { map.put("key", "value") }
 
         verify(exactly = 1) { map["key"] = "value" }
     }
