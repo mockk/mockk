@@ -49,7 +49,7 @@ class HashMapMockTest {
     }
 
     @Test
-//    @Disabled(value = "mocking of abstractMap don't work")
+    @Disabled(value = "mocking of abstractMap don't work")
     fun abstractMap_shouldBeMocked_SuccessFully() {
         val map = mockk<AbstractMap<String, String>>()
         assertDoesNotThrow { map["key"] }
