@@ -11,7 +11,7 @@ extra["mavenDescription"] = "mocking library for Kotlin (Android instrumented te
 apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle")
 
 android {
-    compileSdkVersion("android-32")
+    compileSdkVersion("android-31")
 
 
     lintOptions {
@@ -27,7 +27,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 26
         targetSdk = 32
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments
