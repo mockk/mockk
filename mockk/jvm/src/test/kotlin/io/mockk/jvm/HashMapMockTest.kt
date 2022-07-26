@@ -29,8 +29,7 @@ class HashMapMockTest {
     }
 
     @Test
-//    @DisabledForJreRange(max = JRE.JAVA_17)
-//    @Disabled("Does not work anymore with jdk 17+")
+    @DisabledForJreRange(max = JRE.JAVA_17)
     fun canSpyAHashMap() {
         val map = spyk<HashMap<String, String>>()
         assertDoesNotThrow { map["key"] = "value"  }
