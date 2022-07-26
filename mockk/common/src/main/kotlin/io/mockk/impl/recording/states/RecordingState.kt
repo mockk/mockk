@@ -42,15 +42,17 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
         recorder.calls.addAll(detector.calls)
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
-        val signatureValue = recorder.signatureValueGenerator.signatureValue(cls) {
-            recorder.anyValueGenerator().anyValue(cls, isNullable = false) {
-                recorder.instantiator.instantiate(cls)
-            } as T
-        }
+        val signatureValue = recorder.signatureValueGenerator.signatureValue(
+            cls,
+            recorder.anyValueGenerator,
+            recorder.instantiator,
+        )
 
-        builder().addMatcher(matcher, InternalPlatform.packRef(signatureValue)!!)
+        val packRef: Any = InternalPlatform.packRef(signatureValue)
+            ?: error("null packRef for $cls signature $signatureValue")
+
+        builder().addMatcher(matcher, packRef)
 
         return signatureValue
     }

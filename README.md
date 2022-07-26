@@ -1,7 +1,7 @@
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) 
-[![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)
+[![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](https://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Android](https://img.shields.io/badge/android-support-green.svg)](https://mockk.io/ANDROID)
@@ -1397,7 +1397,7 @@ This project exists thanks to all the people who contribute.
 To ask questions, please use Stack Overflow or Gitter.
 
 * Chat/Gitter: [https://gitter.im/mockk-io/Lobby](https://gitter.im/mockk-io/Lobby)
-* Stack Overflow: [http://stackoverflow.com/questions/tagged/mockk](http://stackoverflow.com/questions/tagged/mockk)
+* Stack Overflow: [http://stackoverflow.com/questions/tagged/mockk](https://stackoverflow.com/questions/tagged/mockk)
 
 To report bugs, please use the GitHub project.
 

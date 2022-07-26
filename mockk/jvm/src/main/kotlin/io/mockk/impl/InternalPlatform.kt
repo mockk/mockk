@@ -63,7 +63,7 @@ actual object InternalPlatform {
     actual fun packRef(arg: Any?): Any? {
         return when {
             arg == null -> null
-            isPassedByValue(arg.boxedClass()) -> arg.boxedValue()
+            isPassedByValue(arg::class.boxedClass) -> arg.boxedValue
             else -> ref(arg)
         }
     }

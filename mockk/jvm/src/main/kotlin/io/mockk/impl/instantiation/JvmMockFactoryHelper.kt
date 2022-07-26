@@ -151,7 +151,7 @@ object JvmMockFactoryHelper {
             is KType -> kotlinReturnType.classifier as? KClass<*> ?: returnType.kotlin
             is KClass<*> -> kotlinReturnType
             else -> returnType.kotlin
-        }.boxedClass()
+        }.boxedClass
 
         val androidCompatibleReturnType = if (returnType.qualifiedName in androidUnsupportedTypes) {
             this@toDescription.returnType.kotlin
