@@ -51,7 +51,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        api-level: [ 26, 28, 29, 32 ]
+        api-level: [ 26, 28, 29 ]
       fail-fast: false # in case one API-level fails, we still want to see results from others
     timeout-minutes: 30
     steps:
@@ -89,11 +89,14 @@ jobs:
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
+          disable-animations: true
           script: echo "Generated AVD snapshot for caching."
 
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
           script: ./gradlew connectedCheck
