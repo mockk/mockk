@@ -54,8 +54,8 @@ class JvmConfigurationPlugin : Plugin<Project> {
 
     private fun Project.configureJavaPlugin() {
         extensions.configure(JavaPluginExtension::class) {
-            sourceCompatibility = JavaVersion.VERSION_17
-            targetCompatibility = JavaVersion.VERSION_17
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
         }
         tasks {
             named<Test>("test") {
