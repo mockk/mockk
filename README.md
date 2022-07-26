@@ -27,7 +27,7 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
 
 ### Kotlin version support
 
-From version 1.13.0 MockK supports Kotlin 1.6.21 and higher
+From version 1.13.0 MockK supports Kotlin 1.4 and higher
 
 ### Known issues
  
