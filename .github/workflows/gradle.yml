@@ -6,64 +6,75 @@ on:
   pull_request:
     branches: [ master ]
 
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
 jobs:
   tests:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [11, 12, 13, 14, 15, 16, 17]
-        kotlin-version: [1.4.32, 1.5.31, 1.6.0]
-        kotlin-ir-enabled: [true, false]
-        exclude:
-          - kotlin-version: 1.4.32
-            java-version: 16
-          - kotlin-version: 1.4.32
-            java-version: 17
+        java-version: [ 11, 17, 18 ] # test LTS versions, and the newest
+        kotlin-version: [ 1.5.31, 1.6.21, 1.7.10 ]
+        kotlin-ir-enabled: [ true, false ]
       # in case one JDK fails, we still want to see results from others
       fail-fast: false
-    runs-on: ubuntu-latest
-
+    timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-${{ matrix.java-version }}-${{ matrix.kotlin-version }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ matrix.java-version }}-gradle-
-    - name: Set up JDK ${{ matrix.java-version }}
-      uses: actions/setup-java@v1
-      with:
-        java-version: ${{ matrix.java-version }}
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Run tests with Gradle
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: test --stacktrace -Pkotlin.version=${{ matrix.kotlin-version }} -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+      - uses: actions/checkout@v2
+
+      - name: Setup Gradle Dependencies Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+
+      - name: Setup Gradle Wrapper Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java-version }}
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Run tests with Gradle
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: test --stacktrace -Pkotlin.version=${{ matrix.kotlin-version }} -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+
   android-instrumented-tests:
     runs-on: macos-latest
     strategy:
       matrix:
         api-level: [ 28, 29 ]
+    timeout-minutes: 30
     steps:
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '11'
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+
+      - name: Setup Gradle Dependencies Cache
+        uses: actions/cache@v3
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-${{ matrix.api-level }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.api-level }}-gradle-
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+
+      - name: Setup Gradle Wrapper Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
-

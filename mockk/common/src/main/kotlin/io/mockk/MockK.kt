@@ -342,7 +342,7 @@ fun clearMocks(
     MockK.useImpl {
         MockKDsl.internalClearMocks(
             firstMock = firstMock,
-            mocks = *mocks,
+            mocks = mocks,
             answers = answers,
             recordedCalls = recordedCalls,
             childMocks = childMocks,

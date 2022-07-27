@@ -3557,11 +3557,13 @@ interface TypedMatcher {
     val argumentType: KClass<*>
 
     fun checkType(arg: Any?): Boolean {
-        if (argumentType.simpleName === null) {
-            return true
+        return when {
+            argumentType.simpleName === null -> true
+            else -> {
+                val unboxedClass = InternalPlatformDsl.unboxClass(argumentType)
+                return unboxedClass.isInstance(arg)
+            }
         }
-
-        return argumentType.isInstance(arg)
     }
 }
 

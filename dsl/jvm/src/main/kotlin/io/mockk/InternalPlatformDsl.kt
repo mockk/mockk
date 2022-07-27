@@ -1,6 +1,6 @@
 package io.mockk
 
-import kotlinx.coroutines.runBlocking
+import io.mockk.ValueClassSupportDsl.boxedClass
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -13,10 +13,13 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.allSuperclasses
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
+import kotlinx.coroutines.runBlocking
 
 actual object InternalPlatformDsl {
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
@@ -44,7 +47,7 @@ actual object InternalPlatformDsl {
                 kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED -> "SUSPEND_MARKER"
                 is Continuation<*> -> "continuation {}"
                 is KClass<*> -> this.simpleName ?: "<null name class>"
-                is Method -> name + "(" + parameterTypes.map { it.simpleName }.joinToString() + ")"
+                is Method -> name + "(" + parameterTypes.joinToString { it.simpleName } + ")"
                 is Function<*> -> "lambda {}"
                 else -> toString()
             }
@@ -214,11 +217,26 @@ actual object InternalPlatformDsl {
     }
 
     actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall<T>(lambda)
+
+    actual fun unboxClass(cls: KClass<*>): KClass<*> = cls.boxedClass
+
+    @Suppress("UNCHECKED_CAST")
+    actual fun <T : Any> boxCast(
+        cls: KClass<*>,
+        arg: Any,
+    ): T {
+        return if (cls.isValue) {
+            val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
+            constructor.call(arg) as T
+        } else {
+            arg as T
+        }
+    }
 }
 
 class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T> {
     companion object {
-        val callMethod = JvmCoroutineCall::class.java.getMethod("callCoroutine", Continuation::class.java)
+        val callMethod: Method = JvmCoroutineCall::class.java.getMethod("callCoroutine", Continuation::class.java)
     }
 
     suspend fun callCoroutine() = lambda()
