@@ -1,9 +1,6 @@
 package io.mockk.it
 
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import kotlin.jvm.JvmInline
 import kotlin.test.Ignore
 import kotlin.test.Test

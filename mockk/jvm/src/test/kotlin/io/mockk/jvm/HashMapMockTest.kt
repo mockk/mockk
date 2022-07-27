@@ -9,6 +9,8 @@ import kotlin.test.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.condition.DisabledForJreRange
+import org.junit.jupiter.api.condition.JRE
 
 class HashMapMockTest {
 
@@ -26,28 +28,29 @@ class HashMapMockTest {
     }
 
     @Test
+    @DisabledForJreRange(min = JRE.JAVA_17, disabledReason = "https://github.com/mockk/mockk/issues/864")
     fun canSpyAHashMap() {
         val map = spyk<HashMap<String, String>>()
-        assertDoesNotThrow { map["key"] = "value"  }
+        assertDoesNotThrow { map["key"] = "value" }
 
         verify(exactly = 1) { map["key"] = "value" }
     }
 
     @Test
-    @Disabled("Does not work anymore with jdk 16+")
+    @DisabledForJreRange(min = JRE.JAVA_16, disabledReason = "https://github.com/mockk/mockk/issues/864")
     fun concurrentHashMap_shouldBeSpied_Successfully() {
         val map = spyk(ConcurrentHashMap<String, String>())
-        assertDoesNotThrow { map.put("key", "value")  }
+        assertDoesNotThrow { map.put("key", "value") }
 
-        verify(exactly = 1) { map.put("key", "value") }
+        verify(exactly = 1) { map["key"] = "value" }
     }
 
     @Test
-    @Disabled(value = "mocking of abstractMap don't work")
+    @Disabled(value = "mocking AbstractMap doesn't work https://github.com/mockk/mockk/issues/864")
     fun abstractMap_shouldBeMocked_SuccessFully() {
         val map = mockk<AbstractMap<String, String>>()
-        assertDoesNotThrow { map.get("key")  }
+        assertDoesNotThrow { map["key"] }
 
-        verify(exactly = 1) { map.get("key") }
+        verify(exactly = 1) { map["key"] }
     }
 }

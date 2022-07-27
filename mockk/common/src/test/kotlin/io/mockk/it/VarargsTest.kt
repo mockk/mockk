@@ -901,7 +901,7 @@ class VarargsTest {
         fun intWrapperOp(a: Int, vararg b: IntWrapper, c: Int, d: Int = 6) = b.map { it.value }.sum() + a
         fun booleanOp(a: Int, vararg b: Boolean, c: Int, d: Int = 6) = b.map { if (it) 1 else 0 }.sum() + a
         fun byteOp(a: Int, vararg b: Byte, c: Int, d: Int = 6) = b.sum() + a
-        fun charOp(a: Int, vararg b: Char, c: Int, d: Int = 6) = b.map { it.toInt() }.sum() + a
+        fun charOp(a: Int, vararg b: Char, c: Int, d: Int = 6) = b.map { it.code }.sum() + a
         fun shortOp(a: Int, vararg b: Short, c: Int, d: Int = 6) = b.sum() + a
         fun intOp(a: Int, vararg b: Int, c: Int, d: Int = 6) = b.sum() + a
         fun longOp(a: Int, vararg b: Long, c: Int, d: Int = 6) = b.sum() + a

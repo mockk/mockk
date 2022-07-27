@@ -17,6 +17,7 @@ class CommonConfigurationPlugin : Plugin<Project> {
             extensions.configure(KotlinCommonProjectExtension::class) {
                 sourceSets["main"].dependencies {
                     implementation(Deps.Libs.kotlinStdLib(kotlinVersion()))
+                    implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
                 }
                 sourceSets["test"].dependencies {
                     implementation(Deps.Libs.kotlinTestCommon(kotlinVersion()))
