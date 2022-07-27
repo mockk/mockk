@@ -1,5 +1,6 @@
 import io.mockk.dependencies.Deps
 import io.mockk.dependencies.kotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
@@ -42,5 +43,11 @@ gradlePlugin {
             id = "mpp-jvm"
             implementationClass = "io.mockk.configuration.JvmConfigurationPlugin"
         }
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
     }
 }

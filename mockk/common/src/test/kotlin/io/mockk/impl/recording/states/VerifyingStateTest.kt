@@ -5,6 +5,7 @@ import io.mockk.MockKGateway.*
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.recording.VerificationCallSorter
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -59,7 +60,6 @@ class VerifyingStateTest {
             state.recordingDone()
         }
     }
-
 
     @Test
     fun givenOneCalledMocksWhenRecordingDoneThrowsException() {

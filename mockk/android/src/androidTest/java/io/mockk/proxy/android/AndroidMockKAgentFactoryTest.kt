@@ -1,7 +1,7 @@
 package io.mockk.proxy.android
 
-import android.support.test.rule.ActivityTestRule
 import android.widget.FrameLayout
+import androidx.test.rule.ActivityTestRule
 import io.mockk.debug.TestActivity
 import io.mockk.mockk
 import org.junit.Rule

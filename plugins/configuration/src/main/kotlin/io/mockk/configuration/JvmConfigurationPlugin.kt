@@ -35,6 +35,7 @@ class JvmConfigurationPlugin : Plugin<Project> {
         extensions.configure(KotlinJvmProjectExtension::class) {
             sourceSets["main"].dependencies {
                 implementation(Deps.Libs.kotlinStdLib(kotlinVersion()))
+                implementation(Deps.Libs.kotlinReflect(kotlinVersion()))
                 compileOnly(Deps.Libs.junitJupiterApi)
             }
             sourceSets["test"].dependencies {

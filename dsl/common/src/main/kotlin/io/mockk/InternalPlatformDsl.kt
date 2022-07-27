@@ -66,7 +66,6 @@ interface InternalRef<T> {
     val value: T
 }
 
-
 interface InternalCounter {
     val value: Long
 
