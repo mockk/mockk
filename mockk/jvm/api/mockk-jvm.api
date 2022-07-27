@@ -756,7 +756,7 @@ public final class io/mockk/impl/recording/JvmAutoHinter$Companion {
 public final class io/mockk/impl/recording/JvmSignatureValueGenerator : io/mockk/impl/recording/SignatureValueGenerator {
 	public fun <init> (Ljava/util/Random;)V
 	public final fun getRnd ()Ljava/util/Random;
-	public fun signatureValue (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun signatureValue (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;Lio/mockk/impl/instantiation/AbstractInstantiator;)Ljava/lang/Object;
 }
 
 public final class io/mockk/impl/recording/PermanentMocker {
@@ -778,7 +778,7 @@ public final class io/mockk/impl/recording/SignatureMatcherDetector {
 }
 
 public abstract interface class io/mockk/impl/recording/SignatureValueGenerator {
-	public abstract fun signatureValue (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public abstract fun signatureValue (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;Lio/mockk/impl/instantiation/AbstractInstantiator;)Ljava/lang/Object;
 }
 
 public final class io/mockk/impl/recording/SignedCall {

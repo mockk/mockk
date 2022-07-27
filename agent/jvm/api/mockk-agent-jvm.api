@@ -1,7 +1,6 @@
 public final class io/mockk/ValueClassSupportKt {
-	public static final fun boxedClass (Ljava/lang/Object;)Lkotlin/reflect/KClass;
-	public static final fun boxedClass (Lkotlin/reflect/KClass;)Lkotlin/reflect/KClass;
-	public static final fun boxedValue (Ljava/lang/Object;)Ljava/lang/Object;
+	public static final fun getBoxedClass (Lkotlin/reflect/KClass;)Lkotlin/reflect/KClass;
+	public static final fun getBoxedValue (Ljava/lang/Object;)Ljava/lang/Object;
 }
 
 public class io/mockk/proxy/jvm/ClassLoadingStrategyChooser {
