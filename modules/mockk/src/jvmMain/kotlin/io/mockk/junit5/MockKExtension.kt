@@ -20,10 +20,10 @@ import java.util.Optional
  *
  * Usage: declare @ExtendWith(MockKExtension.class) on a test class
  *
- * Alternatively –Djunit.extensions.autodetection.enabled=true may be placed on a command line.
+ * Alternatively `–Djunit.extensions.autodetection.enabled=true` may be placed on a command line.
  *
  * (*) [unmockkAll] default behavior can be disabled by adding [KeepMocks] to your test class or method or
- * –Dmockk.junit.extension.keepmocks=true on a command line
+ * `–Dmockk.junit.extension.keepmocks=true` on a command line
  */
 class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCallback {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
