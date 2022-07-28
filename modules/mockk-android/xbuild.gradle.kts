@@ -1,3 +1,5 @@
+import buildsrc.config.Deps
+
 plugins {
     buildsrc.convention.`kotlin-android`
 }
@@ -10,18 +12,26 @@ val dexmakerVersion = "2.28.1"
 
 
 dependencies {
-    api(project(":modules:mockk-agent-api"))
-    api(project(":modules:mockk-agent"))
-    implementation("com.linkedin.dexmaker:dexmaker:$dexmakerVersion")
-    implementation("org.objenesis:objenesis:$objenesisVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-//    , {
-//        exclude group: 'com.android.support', module: 'support-annotations'
-//    })
-    androidTestImplementation("junit:junit:4.13.1")
+//    api(project(":${mockKProject.name}")) {
+//        exclude(group = "io.mockk", module = "mockk-agent-jvm")
+//    }
+    implementation(project(":modules:mockk-agent-android"))
+    implementation(project(":modules:mockk-agent-api"))
 
-//    implementation ("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
-    implementation(kotlin("reflect"))
+    testImplementation("junit:junit:4.13.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0") {
+        exclude(group = "com.android.support", module = "support-annotations")
+    }
+    androidTestImplementation(kotlin("reflect"))
+    androidTestImplementation(Deps.Libs.kotlinCoroutinesCore())
+    androidTestImplementation(Deps.Libs.kotlinTestJunit()) {
+        exclude(group = "junit", module = "junit")
+    }
+    androidTestImplementation("androidx.test:rules:1.4.0")
+
+    androidTestImplementation(Deps.Libs.junitJupiterApi)
+    androidTestImplementation(Deps.Libs.junitJupiterEngine)
+    androidTestImplementation(Deps.Libs.junitVintageEngine)
 }
 
 

@@ -1,5 +1,5 @@
 plugins {
-    id("mpp-android")
+    id("buildsrc.convention.kotlin-android")
 }
 
 ext {
@@ -7,15 +7,15 @@ ext {
     mavenDescription = 'Android instrumented testing MockK inline mocking agent'
 }
 
-apply from: "${gradles}/upload.gradle"
+//apply from: "${gradles}/upload.gradle"
 
 def dispatcherApkResPath = file("$buildDir/generated/dispatcher-apk")
 def dispatcherDexResPath = file("$buildDir/generated/dispatcher-dex")
 def dispatcherJarResPath = file("$buildDir/generated/dispatcher-jar")
-def apkReleaseDispatcherPath = new File(project(':mockk-agent-android-dispatcher').buildDir, "outputs/apk/release")
+def apkReleaseDispatcherPath = new File(project(':modules:mockk-agent-android-dispatcher').buildDir, "outputs/apk/release")
 
 task copyDispatcherApk(type: Copy) {
-    dependsOn ':mockk-agent-android-dispatcher:assembleRelease'
+    dependsOn ':modules:mockk-agent-android-dispatcher:assembleRelease'
     from apkReleaseDispatcherPath
     into dispatcherApkResPath
     include '*.apk'
@@ -40,13 +40,13 @@ task packageDispatcherJar(type: Jar) {
 preBuild.dependsOn(packageDispatcherJar)
 
 android {
-    compileSdkVersion 'android-32'
+//    compileSdkVersion 'android-32'
 
-    lintOptions {
-        abortOnError false
-        disable 'InvalidPackage'
-        warning 'NewApi'
-    }
+//    lintOptions {
+//        abortOnError false
+//        disable 'InvalidPackage'
+//        warning 'NewApi'
+//    }
 
     sourceSets {
         main.resources.srcDirs += dispatcherJarResPath
@@ -54,16 +54,18 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
-    packagingOptions {
-        exclude 'META-INF/main.kotlin_module'
-    }
+//    packagingOptions {
+//        exclude 'META-INF/main.kotlin_module'
+//    }
 
     defaultConfig {
-        minSdkVersion 26
-        targetSdkVersion 32
+//        minSdkVersion 26
+//        targetSdkVersion 32
         versionName project['version']
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument "notAnnotation", "io.mockk.test.SkipInstrumentedAndroidTest"
+
+//        applicationId "io.mockk.android.agent"
 
         ndk {
             abiFilters "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
@@ -77,16 +79,21 @@ android {
     }
 }
 
+ext.kotlin_version = "1.7.10"
+ext.byteBuddyVersion = "1.12.10"
+ext.objenesisVersion = "3.2"
+ext.dexmakerVersion = "2.28.1"
+ext.objenesis_android_version = "3.2"
 
 dependencies {
-    api project(':mockk-agent-api')
-    api project(':mockk-agent-common')
-    implementation "com.linkedin.dexmaker:dexmaker:$dexmaker_version"
-    implementation "org.objenesis:objenesis:$objenesis_android_version"
+    api(project(":modules:mockk-agent-api"))
+    api(project(":modules:mockk-agent"))
+    implementation( "com.linkedin.dexmaker:dexmaker:$dexmakerVersion")
+    implementation( "org.objenesis:objenesis:$objenesis_android_version")
     androidTestImplementation('androidx.test.espresso:espresso-core:3.4.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    androidTestImplementation 'junit:junit:4.13.1'
+    androidTestImplementation('junit:junit:4.13.1')
 
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
 }

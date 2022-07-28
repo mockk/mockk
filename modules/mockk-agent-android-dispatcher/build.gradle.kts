@@ -1,5 +1,5 @@
 plugins {
-    buildsrc.convention.`android-library`
+    buildsrc.convention.`android-application`
     id("com.android.application")
 }
 

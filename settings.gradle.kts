@@ -23,6 +23,7 @@ if (androidSdkDetected == true) {
     include(
         ":modules:mockk-agent-android",
         ":modules:mockk-agent-android-dispatcher",
+        ":modules:mockk-android",
     )
 }
 

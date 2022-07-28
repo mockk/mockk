@@ -1,7 +1,7 @@
 package buildsrc.convention
 
 plugins {
-    id("com.android.library")
+    id("com.android.application")
 
     id("buildsrc.convention.base")
 }

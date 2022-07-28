@@ -1,23 +1,23 @@
-import io.mockk.dependencies.Deps
-import io.mockk.dependencies.kotlinVersion
+import buildsrc.config.Deps
+import buildsrc.config.kotlinVersion
 
 plugins {
-    id("mpp-android")
+    buildsrc.convention.`kotlin-android`
 }
 
 extra["mavenName"] = "MockK Android"
-extra["mavenDescription"] = "mocking library for Kotlin (Android instrumented test)"
+description = "mocking library for Kotlin (Android instrumented test)"
 
-apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle")
+//apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle")
 
 android {
     compileSdkVersion("android-31")
 
 
-    lintOptions {
-        isAbortOnError = false
-        disable("InvalidPackage")
-        warning("NewApi")
+    lint {
+        abortOnError = false
+        disable += "InvalidPackage"
+        warning += "NewApi"
     }
 
     packagingOptions {
@@ -30,7 +30,6 @@ android {
         minSdk = 26
         targetSdk = 32
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments
         testInstrumentationRunnerArguments["notAnnotation"] = "io.mockk.test.SkipInstrumentedAndroidTest"
     }
 
@@ -46,14 +45,17 @@ android {
 }
 
 // very weird hack to make it working in IDE (check settings.gradle)
-val mockKProject = findProject(":mockk-jvm")?.project ?: project(":mockk")
+//val mockKProject = findProject(":mockk-jvm")?.project ?: project(":mockk")
 
 dependencies {
-    api(project(":${mockKProject.name}")) {
-        exclude(group = "io.mockk", module = "mockk-agent-jvm")
-    }
-    implementation(project(":mockk-agent-android"))
-    implementation(project(":mockk-agent-api"))
+//    api(project(":${mockKProject.name}")) {
+//        exclude(group = "io.mockk", module = "mockk-agent-jvm")
+//    }
+    implementation(projects.modules.mockkAgentApi)
+    implementation(projects.modules.mockkAgent)
+    implementation(projects.modules.mockkAgentAndroid)
+//    implementation(project(":modules:mockk-agent-android"))
+//    implementation(project(":modules:mockk-agent-api"))
 
     testImplementation("junit:junit:4.13.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0") {
