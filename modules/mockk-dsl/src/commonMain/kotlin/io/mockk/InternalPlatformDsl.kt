@@ -44,7 +44,7 @@ expect object InternalPlatformDsl {
      *
      * @return [KClass] of boxed value, if this is `value class`, else [cls].
      */
-    fun unboxClass(cls: KClass<*>): KClass<*>
+    internal fun unboxClass(cls: KClass<*>): KClass<*>
 
     /**
      * Normally this simply casts [arg] to `T`
@@ -52,7 +52,7 @@ expect object InternalPlatformDsl {
      * However, if `T` is a `value class` (of type [cls]) this will construct a new instance of the
      * value class, and set [arg] as the value.
      */
-     fun <T : Any> boxCast(
+     internal fun <T : Any> boxCast(
         cls: KClass<*>,
         arg: Any,
     ): T
