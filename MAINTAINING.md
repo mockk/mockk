@@ -27,4 +27,3 @@
  - [ ] push to github
  - [ ] create github release based on tag and describe changes there
  - [ ] announce on reddit/kotlinlang/potentially at "announcement place" on mockk.io
- 

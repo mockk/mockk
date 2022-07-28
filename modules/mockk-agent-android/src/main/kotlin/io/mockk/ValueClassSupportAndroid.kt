@@ -3,7 +3,6 @@ package io.mockk
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
 // TODO this class is copy-pasted and should be de-duplicated

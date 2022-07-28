@@ -17,6 +17,15 @@ include(
     ":modules:mockk-dsl",
 )
 
+val androidSdkDetected: Boolean? by extra
+
+if (androidSdkDetected == true) {
+    include(
+        ":modules:mockk-agent-android",
+        ":modules:mockk-agent-android-dispatcher",
+    )
+}
+
 //include("mockk-jvm")
 //include("mockk-common")
 ////include 'mockk-js'

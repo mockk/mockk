@@ -1,16 +1,19 @@
-import org.jetbrains.kotlin.ir.backend.js.compile
+package buildsrc.convention
 
 plugins {
     id("com.android.application")
+
+    id("buildsrc.convention.base")
 }
 
 android {
     compileSdkVersion = "android-32"
 
     android {
-        lintOptions {
-            disable("InvalidPackage")
-            warning("NewApi")
+        lint {
+            abortOnError = false
+            disable += "InvalidPackage"
+            warning += "NewApi"
         }
 
         packagingOptions {

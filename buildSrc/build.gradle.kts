@@ -27,6 +27,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinPluginVersion"))
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinPluginVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-allopen")
 
 
     implementation("com.android.tools.build:gradle:$androidGradle")
