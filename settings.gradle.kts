@@ -3,17 +3,13 @@ rootProject.name = "mockk-root"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 apply(from = "./buildSrc/repositories.settings.gradle.kts")
+apply(from = "./buildSrc/android-sdk-detector.settings.gradle.kts")
 
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 }
 
-apply(from = "gradle/detect-android-sdk.gradle")
-//
-//includeBuild("plugins/dependencies")
-//includeBuild("plugins/configuration")
-//
 //include("mockk-jvm")
 //include("mockk-common")
 ////include 'mockk-js'
