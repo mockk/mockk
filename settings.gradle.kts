@@ -12,6 +12,7 @@ dependencyResolutionManagement {
 
 include(
     ":modules:mockk",
+    ":modules:mockk-agent-api",
     ":modules:mockk-agent",
     ":modules:mockk-dsl",
 )

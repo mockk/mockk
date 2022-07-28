@@ -19,6 +19,7 @@ object Deps {
     object Libs {
         const val slfj = "org.slf4j:slf4j-api:${Versions.slfj}"
         const val logback = "ch.qos.logback:logback-classic:${Versions.logback}"
+        const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"
         const val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitJupiter}"
         const val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitJupiter}"
         const val junitVintageEngine = "org.junit.vintage:junit-vintage-engine:${Versions.junitVintage}"
