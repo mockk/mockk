@@ -10,6 +10,12 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 }
 
+include(
+    ":modules:mockk",
+    ":modules:mockk-agent",
+    ":modules:mockk-dsl",
+)
+
 //include("mockk-jvm")
 //include("mockk-common")
 ////include 'mockk-js'
