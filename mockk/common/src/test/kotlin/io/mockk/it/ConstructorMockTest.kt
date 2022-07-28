@@ -9,11 +9,6 @@ class ConstructorMockTest {
         val exampleProperty: Int = 1
     }
 
-    object ExampleObject {
-        private val exampleClass = ExampleClass()
-        fun getExampleProperty(): Int = exampleClass.exampleProperty
-    }
-
     data class MockCls(private val x: Int = 0) {
 
         constructor(x: String) : this(x.toInt())
@@ -31,16 +26,21 @@ class ConstructorMockTest {
 
         every { anyConstructed<ExampleClass>().exampleProperty } returns 0
 
-        assertEquals(0, ExampleObject.getExampleProperty())
+        assertEquals(0, ExampleClass().exampleProperty)
     }
 
     @Test
-    fun test2() {
+    fun unmockkAllTest() {
+        mockkConstructor(ExampleClass::class)
         mockkConstructor(ExampleClass::class)
 
         every { anyConstructed<ExampleClass>().exampleProperty } returns 0
 
-        assertEquals(0, ExampleObject.getExampleProperty())
+        assertEquals(0, ExampleClass().exampleProperty)
+
+        unmockkAll()
+
+        assertEquals(1, ExampleClass().exampleProperty)
     }
 
     @Test
