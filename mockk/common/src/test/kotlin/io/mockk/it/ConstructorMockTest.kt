@@ -3,6 +3,7 @@ package io.mockk.it
 import io.mockk.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class ConstructorMockTest {
     class ExampleClass {
@@ -40,7 +41,13 @@ class ConstructorMockTest {
 
         unmockkAll()
 
+        // mockkConstructor called multiple times, but unmockkAll should still be able to unmock it
         assertEquals(1, ExampleClass().exampleProperty)
+
+        // Constructor not mocked -> MockkException
+        assertFailsWith<MockKException> {
+            every { anyConstructed<ExampleClass>().exampleProperty } returns 0
+        }
     }
 
     @Test
@@ -140,6 +147,48 @@ class ConstructorMockTest {
 
         verify {
             constructedWith<MockCls>(EqMatcher(6)).op(1, 2)
+        }
+    }
+
+    @Test
+    fun unmockkAllconstructedWith() {
+        mockkConstructor(MockCls::class)
+        mockkConstructor(MockCls::class)
+
+        val checkConstructedWith = { a: Int, b: Int, c: Int ->
+            every {
+                constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).op(any(), any())
+            } returns a
+            every {
+                constructedWith<MockCls>(EqMatcher(6)).op(any(), any())
+            } returns b
+            every {
+                constructedWith<MockCls>(OfTypeMatcher<Int>(Int::class)).op(any(), any())
+            } returns c
+
+            assertEquals(a, MockCls("5").op(1, 2))
+            assertEquals(b, MockCls(6).op(1, 2))
+            assertEquals(c, MockCls(5).op(1, 2))
+        }
+
+        checkConstructedWith(23, 55, 35)
+
+        // New mockkConstructor -> we can still mock as expected
+        mockkConstructor(MockCls::class)
+        checkConstructedWith(44, 101, 42)
+
+        // mockkConstructor was called multiple times, but we can still unmock it via unmockkAll
+        unmockkAll()
+
+        assertEquals(8, MockCls("5").op(1, 2))
+        assertEquals(8, MockCls(5).op(1, 2))
+        assertEquals(9, MockCls(6).op(1, 2))
+
+        // Constructor not mocked anymore -> MockkException expected
+        assertFailsWith<MockKException> {
+            every {
+                constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).op(any(), any())
+            } returns 23
         }
     }
 
