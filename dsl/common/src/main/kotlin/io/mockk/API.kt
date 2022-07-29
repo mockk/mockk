@@ -526,7 +526,7 @@ object MockKDsl {
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)
-                .putIfNotThere(it, cancellation)
+                .cancelPut(it, cancellation)
         }
     }
 
@@ -2300,13 +2300,6 @@ object MockKCancellationRegistry {
             val map = mapTl.value
             map.remove(key)?.invoke()
             map[key] = newCancellation
-        }
-
-        fun putIfNotThere(key: Any, newCancellation: MockKCancellation) {
-            val map = mapTl.value
-            if (!map.containsKey(key)) {
-                map[key] = newCancellation
-            }
         }
 
         fun cancelAll() {
