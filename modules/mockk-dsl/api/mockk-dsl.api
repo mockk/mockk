@@ -311,6 +311,7 @@ public abstract interface class io/mockk/InternalCounter {
 
 public final class io/mockk/InternalPlatformDsl {
 	public static final field INSTANCE Lio/mockk/InternalPlatformDsl;
+	public final fun boxCast (Lkotlin/reflect/KClass;Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun classForName (Ljava/lang/String;)Ljava/lang/Object;
 	public final fun coroutineCall (Lkotlin/jvm/functions/Function1;)Lio/mockk/CoroutineCall;
 	public final fun counter ()Lio/mockk/InternalCounter;

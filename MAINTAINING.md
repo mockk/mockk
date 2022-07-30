@@ -15,7 +15,8 @@
  - [ ] commit it
  - [ ] tag it
  - [ ] redirect release process to oss.sonatype by removing the `localrepo` property in gradle.properties
- - [ ] release from Gradle
+ - [ ] set `org.gradle.parallel=true` in `gradle.properties`: apparently, sonatype does not like parallel builds
+ - [ ] release from Gradle with `gradle publish`
  - [ ] goto oss.sonatype
  - [ ] find io.mockk repo
  - [ ] check state of dependencies (are sizes okay), maybe download one
