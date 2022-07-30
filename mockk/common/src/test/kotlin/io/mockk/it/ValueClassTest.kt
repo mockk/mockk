@@ -476,13 +476,27 @@ class ValueClassTest {
 
         assertEquals("example", result)
     }
-    //</editor-fold>
-    //</editor-fold>
+
+    @Test
+    fun `result value`() {
+        val givenResult = DummyValue(42)
+
+        val mock = mockk<DummyService> {
+            every { returnValueClass() } returns givenResult
+        }
+
+        val result = mock.returnValueClass()
+
+        assertEquals(givenResult, result)
+    }
 
     companion object {
 
         @JvmInline
-        value class DummyValue(val value: Int)
+        value class DummyValue(val value: Int) {
+            // field without backing field
+            val text: String get() = value.toString()
+        }
 
         @JvmInline
         value class DummyValueWrapper(val value: DummyValue)
@@ -501,6 +515,8 @@ class ValueClassTest {
             fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue =
                 DummyValue(0)
 
+            fun returnValueClass(): DummyValue =
+                DummyValue(0)
 
             fun argNoneReturnsUInt(): UInt = 123u
         }

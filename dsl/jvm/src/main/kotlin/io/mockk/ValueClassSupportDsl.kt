@@ -4,6 +4,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaField
 
 /**
  * Provides value class support in the `mockk-dsl-jvm` subproject.
@@ -50,10 +51,10 @@ internal object ValueClassSupportDsl {
         get() = if (!this.isValue_safe) {
             throw UnsupportedOperationException("$this is not a value class")
         } else {
-            // value classes always have exactly one property
             @Suppress("UNCHECKED_CAST")
             valueClassFieldCache.getOrPut(this) {
-                this.declaredMemberProperties.first().apply { isAccessible = true }
+                // value classes always have exactly one property with a backing field
+                this.declaredMemberProperties.first { it.javaField != null }.apply { isAccessible = true }
             } as KProperty1<T, *>
         }
 

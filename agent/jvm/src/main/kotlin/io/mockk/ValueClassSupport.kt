@@ -3,8 +3,8 @@ package io.mockk
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.javaField
 
 // TODO this class is copy-pasted and should be de-duplicated
 //      see https://github.com/mockk/mockk/issues/857
@@ -45,10 +45,10 @@ private val <T : Any> KClass<T>.boxedProperty: KProperty1<T, *>
     get() = if (!this.isValue_safe) {
         throw UnsupportedOperationException("$this is not a value class")
     } else {
-        // value classes always have exactly one property
         @Suppress("UNCHECKED_CAST")
         valueClassFieldCache.getOrPut(this) {
-            this.declaredMemberProperties.first().apply { isAccessible = true }
+            // value classes always have exactly one property with a backing field
+            this.declaredMemberProperties.first { it.javaField != null }.apply { isAccessible = true }
         } as KProperty1<T, *>
     }
 
