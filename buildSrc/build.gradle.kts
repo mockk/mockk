@@ -32,7 +32,6 @@ dependencies {
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka")
 
     implementation("org.jetbrains.kotlinx:binary-compatibility-validator:$binaryCompatibilityValidator")
-//    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable")
 }
 
 tasks.withType<KotlinCompile>().configureEach {
