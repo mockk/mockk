@@ -311,7 +311,6 @@ public abstract interface class io/mockk/InternalCounter {
 
 public final class io/mockk/InternalPlatformDsl {
 	public static final field INSTANCE Lio/mockk/InternalPlatformDsl;
-	public final fun boxCast (Lkotlin/reflect/KClass;Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun classForName (Ljava/lang/String;)Ljava/lang/Object;
 	public final fun coroutineCall (Lkotlin/jvm/functions/Function1;)Lio/mockk/CoroutineCall;
 	public final fun counter ()Lio/mockk/InternalCounter;
@@ -524,7 +523,6 @@ public final class io/mockk/MockKCancellationRegistry$RegistryPerType {
 	public final fun cancel (Ljava/lang/Object;)V
 	public final fun cancelAll ()V
 	public final fun cancelPut (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)V
-	public final fun putIfNotThere (Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)V
 }
 
 public final class io/mockk/MockKCancellationRegistry$Type : java/lang/Enum {
