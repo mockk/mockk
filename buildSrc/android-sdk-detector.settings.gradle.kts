@@ -20,9 +20,10 @@ val sdkDirFile: java.io.File? = listOf(
             ?.takeIf { it.exists() }
     }.find { it.isDirectory }
 
-var androidSdkDetected: Boolean by extra(sdkDirFile != null)
+var androidSdkDetected: Boolean by extra
 
-if (androidSdkDetected) {
+if (sdkDirFile != null) {
+    androidSdkDetected = true
     logger.lifecycle("[android-sdk-detector] Android SDK detected: ${sdkDirFile.canonicalPath}")
 
     if (
@@ -34,6 +35,7 @@ if (androidSdkDetected) {
         props.setProperty(sdkDirProperty, path)
     }
 } else {
+    androidSdkDetected = false
     logger.lifecycle(
         """
            | [WARNING] Skipping build of Android related modules because Android SDK has not been found!
