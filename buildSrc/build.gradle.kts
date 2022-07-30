@@ -2,11 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "1.6.21"
-    // Gradle uses an embedded Kotlin with version 1.4
+    kotlin("jvm") version embeddedKotlinVersion
+    // Gradle uses an embedded Kotlin. This doesn't affect the version of Kotlin used to build MockK.
     // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
-    // but it's safe to use 1.6.21, as long as the language level is set to 1.4
-    // (the kotlin-dsl plugin does this).
 
     idea
 }
@@ -20,8 +18,6 @@ val kotlinxCoroutines = "1.6.4"
 val dexMaker = "2.28.1"
 val objenesis = "3.2"
 val objenesisAndroid = "3.2"
-//val junitJupiter = "5.8.2"
-//val junitVintage = "5.8.2"
 val dokka = "1.7.10"
 val binaryCompatibilityValidator = "0.11.0"
 
