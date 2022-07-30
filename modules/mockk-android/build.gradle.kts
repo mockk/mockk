@@ -30,18 +30,10 @@ android {
     }
 }
 
-// very weird hack to make it working in IDE (check settings.gradle)
-//val mockKProject = findProject(":mockk-jvm")?.project ?: project(":mockk")
-
 dependencies {
-//    api(project(":${mockKProject.name}")) {
-//        exclude(group = "io.mockk", module = "mockk-agent-jvm")
-//    }
     implementation(projects.modules.mockkAgentApi)
     implementation(projects.modules.mockkAgent)
     implementation(projects.modules.mockkAgentAndroid)
-//    implementation(project(":modules:mockk-agent-android"))
-//    implementation(project(":modules:mockk-agent-api"))
 
     testImplementation("junit:junit:${Deps.Versions.junit4}")
     androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}") {

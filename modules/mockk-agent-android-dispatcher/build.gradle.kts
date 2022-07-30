@@ -14,17 +14,6 @@ android {
     }
 }
 
-//val androidApplicationPackageProvider by configurations.registering {
-//    description = "Provide an Android APK"
-//    asProvider()
-//    androidApplicationPackageAttributes(objects)
-//
-//    outgoing.artifact(
-//        tasks.provider<PackageApplication>("packageRelease")
-//            .map { task -> task.outputDirectory }
-//    )
-//}
-
 val androidClassesDexProvider by configurations.registering {
     description = "Provide an Android classes.dex"
     asProvider()
