@@ -31,8 +31,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.modules.mockk)
     implementation(projects.modules.mockkAgentApi)
-    implementation(projects.modules.mockkAgent)
     implementation(projects.modules.mockkAgentAndroid)
 
     testImplementation("junit:junit:${Deps.Versions.junit4}")
