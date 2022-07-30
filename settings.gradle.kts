@@ -15,6 +15,8 @@ include(
     ":modules:mockk-agent-api",
     ":modules:mockk-agent",
     ":modules:mockk-dsl",
+
+    ":modules:client-tests",
 )
 
 val androidSdkDetected: Boolean? by extra

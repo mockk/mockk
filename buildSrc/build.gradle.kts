@@ -7,6 +7,8 @@ plugins {
     // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
     // but it's safe to use 1.6.21, as long as the language level is set to 1.4
     // (the kotlin-dsl plugin does this).
+
+    idea
 }
 
 // set the versions of Gradle plugins that the subprojects will use here
@@ -50,5 +52,12 @@ kotlin {
 
     kotlinDslPluginOptions {
         jvmTarget.set("1.8")
+    }
+}
+
+idea {
+    module {
+        isDownloadSources = true
+        isDownloadJavadoc = true
     }
 }

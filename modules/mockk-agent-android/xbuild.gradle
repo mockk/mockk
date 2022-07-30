@@ -1,5 +1,5 @@
 plugins {
-    id("buildsrc.convention.kotlin-android")
+    id("buildsrc.convention.android-library")
 }
 
 ext {
@@ -40,13 +40,6 @@ task packageDispatcherJar(type: Jar) {
 preBuild.dependsOn(packageDispatcherJar)
 
 android {
-//    compileSdkVersion 'android-32'
-
-//    lintOptions {
-//        abortOnError false
-//        disable 'InvalidPackage'
-//        warning 'NewApi'
-//    }
 
     sourceSets {
         main.resources.srcDirs += dispatcherJarResPath

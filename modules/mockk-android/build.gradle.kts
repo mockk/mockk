@@ -2,7 +2,7 @@ import buildsrc.config.Deps
 import buildsrc.config.kotlinVersion
 
 plugins {
-    buildsrc.convention.`kotlin-android`
+    buildsrc.convention.`android-library`
 }
 
 extra["mavenName"] = "MockK Android"
@@ -10,25 +10,17 @@ description = "mocking library for Kotlin (Android instrumented test)"
 
 //apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle")
 
+@Suppress("UnstableApiUsage")
 android {
-    compileSdkVersion("android-31")
-
-
-    lint {
-        abortOnError = false
-        disable += "InvalidPackage"
-        warning += "NewApi"
-    }
 
     packagingOptions {
-        exclude("META-INF/main.kotlin_module")
-        exclude("META-INF/LICENSE.md")
-        exclude("META-INF/LICENSE-notice.md")
+        resources {
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+        }
     }
 
     defaultConfig {
-        minSdk = 26
-        targetSdk = 32
         testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["notAnnotation"] = "io.mockk.test.SkipInstrumentedAndroidTest"
     }
@@ -36,12 +28,6 @@ android {
     sourceSets {
         getByName("androidTest").assets.srcDirs("$projectDir/common/src/test/kotlin")
     }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
 }
 
 // very weird hack to make it working in IDE (check settings.gradle)
@@ -57,16 +43,16 @@ dependencies {
 //    implementation(project(":modules:mockk-agent-android"))
 //    implementation(project(":modules:mockk-agent-api"))
 
-    testImplementation("junit:junit:4.13.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0") {
+    testImplementation("junit:junit:${Deps.Versions.junit4}")
+    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}") {
         exclude(group = "com.android.support", module = "support-annotations")
     }
-    androidTestImplementation(Deps.Libs.kotlinReflect(kotlinVersion()))
+    androidTestImplementation(Deps.Libs.kotlinReflect())
     androidTestImplementation(Deps.Libs.kotlinCoroutinesCore())
     androidTestImplementation(Deps.Libs.kotlinTestJunit()) {
         exclude(group = "junit", module = "junit")
     }
-    androidTestImplementation("androidx.test:rules:1.4.0")
+    androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
 
     androidTestImplementation(Deps.Libs.junitJupiterApi)
     androidTestImplementation(Deps.Libs.junitJupiterEngine)

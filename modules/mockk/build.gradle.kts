@@ -10,7 +10,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(projects.modules.mockkDsl)
+                api(projects.modules.mockkDsl)
                 implementation(projects.modules.mockkAgent)
                 implementation(projects.modules.mockkAgentApi)
 
@@ -26,9 +26,9 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                implementation("org.slf4j:slf4j-api:1.7.36")
-                implementation("junit:junit:4.13.2")
+                implementation(buildsrc.config.Deps.Libs.slfj)
 
+                implementation(buildsrc.config.Deps.Libs.junit4)
                 implementation(buildsrc.config.Deps.Libs.junitJupiter)
             }
         }

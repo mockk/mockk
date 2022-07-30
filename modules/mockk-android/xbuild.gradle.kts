@@ -18,7 +18,7 @@ dependencies {
     implementation(project(":modules:mockk-agent-android"))
     implementation(project(":modules:mockk-agent-api"))
 
-    testImplementation("junit:junit:4.13.1")
+    testImplementation(buildsrc.config.Deps.Libs.junit4)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0") {
         exclude(group = "com.android.support", module = "support-annotations")
     }

@@ -3,11 +3,21 @@ package buildsrc.convention
 plugins {
     id("com.android.application")
 
+    kotlin("android")
+    kotlin("kapt")
+    kotlin("plugin.allopen")
+
+    id("org.jetbrains.dokka")
+
     id("buildsrc.convention.base")
 }
 
 android {
     compileSdkVersion = "android-32"
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 
     lint {
         abortOnError = false
@@ -16,7 +26,9 @@ android {
     }
 
     packagingOptions {
-        exclude("META-INF/main.kotlin_module")
+        resources {
+            excludes += "META-INF/main.kotlin_module"
+        }
     }
 
     defaultConfig {
