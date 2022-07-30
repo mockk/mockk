@@ -326,6 +326,7 @@ public final class io/mockk/InternalPlatformDsl {
 	public final fun toArray (Ljava/lang/Object;)[Ljava/lang/Object;
 	public final fun toStr (Ljava/lang/Object;)Ljava/lang/String;
 	public final fun unboxChar (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun unboxClass (Lkotlin/reflect/KClass;)Lkotlin/reflect/KClass;
 }
 
 public abstract interface class io/mockk/InternalRef {
@@ -492,6 +493,7 @@ public final class io/mockk/MockKAnswerScope {
 	public final fun getFieldValue ()Ljava/lang/Object;
 	public final fun getFieldValueAny ()Ljava/lang/Object;
 	public final fun getInvocation ()Lio/mockk/Invocation;
+	public final fun getLambda ()Lio/mockk/CapturingSlot;
 	public final fun getMatcher ()Lio/mockk/InvocationMatcher;
 	public final fun getMethod ()Lio/mockk/MethodDescription;
 	public final fun getNArgs ()I
@@ -822,6 +824,7 @@ public class io/mockk/MockKMatcherScope {
 	public final fun anyLongVararg ()[J
 	public final fun anyShortVararg ()[S
 	public final fun get (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicCall;
+	public final fun getCallRecorder ()Lio/mockk/MockKGateway$CallRecorder;
 	public final fun getLambda ()Lio/mockk/CapturingSlot;
 	public final fun getProperty (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
 	public final fun hint (Ljava/lang/Object;Lkotlin/reflect/KClass;I)Ljava/lang/Object;
