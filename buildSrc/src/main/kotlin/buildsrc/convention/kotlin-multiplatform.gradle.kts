@@ -18,3 +18,8 @@ kotlin {
         }
     }
 }
+
+val javadocJar by tasks.registering(Jar::class) {
+    from(tasks.dokkaHtml)
+    archiveClassifier.set("javadoc")
+}

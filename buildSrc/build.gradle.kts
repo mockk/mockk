@@ -13,11 +13,7 @@ plugins {
 val kotlinPluginVersion: String = "1.7.10"
 
 val androidGradle = "7.2.1"
-val byteBuddy = "1.12.10"
-val kotlinxCoroutines = "1.6.4"
-val dexMaker = "2.28.1"
-val objenesis = "3.2"
-val objenesisAndroid = "3.2"
+val kotlinxKover = "0.5.1"
 val dokka = "1.7.10"
 val binaryCompatibilityValidator = "0.11.0"
 
@@ -27,6 +23,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-allopen")
 
+    implementation("org.jetbrains.kotlinx:kover:$kotlinxKover")
 
     implementation("com.android.tools.build:gradle:$androidGradle")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka")

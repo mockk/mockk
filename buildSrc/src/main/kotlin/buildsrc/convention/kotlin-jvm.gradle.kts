@@ -1,6 +1,5 @@
 package buildsrc.convention
 
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -11,12 +10,7 @@ plugins {
     id("buildsrc.convention.base")
 }
 
-dependencies {
-//    testImplementation(Deps.jUnit)
-//    testImplementation(Deps.strikt)
-//    testImplementation(Deps.Mockk.mockk)
-//    testImplementation(Deps.Mockk.dslJvm)
-}
+// note: all subprojects are currently Kotlin Multiplatform, so this convention plugin is unused
 
 kotlin {
     jvmToolchain {
@@ -42,15 +36,6 @@ tasks.withType<KotlinCompile>().configureEach {
     }
 }
 
-//tasks.withType<Test>().configureEach {
-//    useJUnitPlatform()
-//    systemProperties = mapOf(
-//        "junit.jupiter.execution.parallel.enabled" to true,
-//        "junit.jupiter.execution.parallel.mode.default" to "concurrent",
-//        "junit.jupiter.execution.parallel.mode.classes.default" to "concurrent"
-//    )
-//}
-
-//tasks.named<Jar>("javadocJar") {
-//    from(tasks.dokkaJavadoc)
-//}
+tasks.named<Jar>("javadocJar") {
+    from(tasks.dokkaJavadoc)
+}

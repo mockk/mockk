@@ -3,6 +3,8 @@ import buildsrc.config.asConsumer
 
 plugins {
     buildsrc.convention.`android-library`
+
+    buildsrc.convention.`mockk-publishing`
 }
 
 description = "Android instrumented testing MockK inline mocking agent"

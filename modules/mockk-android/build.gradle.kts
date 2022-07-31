@@ -1,8 +1,9 @@
 import buildsrc.config.Deps
-import buildsrc.config.kotlinVersion
 
 plugins {
     buildsrc.convention.`android-library`
+
+    buildsrc.convention.`mockk-publishing`
 }
 
 extra["mavenName"] = "MockK Android"

@@ -1,5 +1,7 @@
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
+
+    buildsrc.convention.`mockk-publishing`
 }
 
 kotlin {

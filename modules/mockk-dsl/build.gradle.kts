@@ -2,6 +2,8 @@ import buildsrc.config.Deps
 
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
+
+    buildsrc.convention.`mockk-publishing`
 }
 
 description = "MockK DSL providing API for MockK implementation"

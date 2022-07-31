@@ -1,6 +1,12 @@
+import buildsrc.config.excludeGeneratedGradleDslAccessors
+
 plugins {
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    base
+    org.jetbrains.kotlinx.`binary-compatibility-validator`
+    org.jetbrains.kotlinx.kover
     idea
+
+    // note: plugin versions are set in ./buildSrc/build.gradle.kts
 }
 
 group = "io.mockk"
@@ -14,5 +20,11 @@ idea {
     module {
         isDownloadSources = true
         isDownloadJavadoc = true
+
+        excludeGeneratedGradleDslAccessors(layout)
+        excludeDirs = excludeDirs + layout.files(
+            ".idea",
+            "gradle/wrapper",
+        )
     }
 }

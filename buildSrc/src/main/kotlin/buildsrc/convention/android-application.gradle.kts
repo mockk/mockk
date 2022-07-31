@@ -1,5 +1,7 @@
 package buildsrc.convention
 
+import org.gradle.jvm.tasks.Jar
+
 plugins {
     id("com.android.application")
 
@@ -40,4 +42,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+
+val javadocJar by tasks.registering(Jar::class) {
+    from(tasks.dokkaJavadoc)
+    archiveClassifier.set("javadoc")
 }
