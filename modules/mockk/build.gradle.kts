@@ -4,6 +4,11 @@ plugins {
     buildsrc.convention.`mockk-publishing`
 }
 
+description = "Mocking library for Kotlin"
+
+val mavenName: String by extra("MockK")
+val mavenDescription: String by extra("${project.description}")
+
 kotlin {
     jvm {
         withJava()

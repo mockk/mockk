@@ -6,6 +6,9 @@ plugins {
 
 description = "API to build MockK agents"
 
+val mavenName: String by extra("MockK Agent API")
+val mavenDescription: String by extra("${project.description}")
+
 kotlin {
     jvm()
 

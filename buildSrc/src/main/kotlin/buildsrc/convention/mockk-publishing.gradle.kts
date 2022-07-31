@@ -2,7 +2,6 @@ package buildsrc.convention
 
 import buildsrc.config.createMockKPom
 import buildsrc.config.credentialsAction
-import org.gradle.api.tasks.bundling.Jar
 
 
 plugins {
@@ -38,9 +37,12 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
     mustRunAfter(tasks.withType<Sign>())
 
     doLast {
-        logger.lifecycle("[${this.name}] ${project.group}:${project.name}:${project.version}")
+        logger.lifecycle("[task: ${name}] ${publication.groupId}:${publication.artifactId}:${publication.version}")
     }
 }
+
+val mavenName: String by project.extra
+val mavenDescription: String by project.extra
 
 publishing {
     repositories {
@@ -50,7 +52,10 @@ publishing {
         }
     }
     publications.withType<MavenPublication>().configureEach {
-        createMockKPom()
+        createMockKPom {
+            name.set(provider { mavenName })
+            description.set(provider { mavenDescription })
+        }
 
         artifact(tasks.provider<Jar>("javadocJar"))
 

@@ -6,6 +6,9 @@ plugins {
 
 description = "MockK inline mocking agent"
 
+val mavenName: String by extra("MockK")
+val mavenDescription: String by extra("${project.description}")
+
 val byteBuddyVersion = "1.12.10"
 val objenesisVersion = "3.2"
 

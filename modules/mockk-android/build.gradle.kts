@@ -6,14 +6,13 @@ plugins {
     buildsrc.convention.`mockk-publishing`
 }
 
-extra["mavenName"] = "MockK Android"
-description = "mocking library for Kotlin (Android instrumented test)"
+description = "Mocking library for Kotlin (Android instrumented test)"
 
-//apply(from = "${rootProject.extensions.extraProperties["gradles"]}/upload.gradle")
+val mavenName: String by extra("MockK Android")
+val mavenDescription: String by extra("${project.description}")
 
 @Suppress("UnstableApiUsage")
 android {
-
     packagingOptions {
         resources {
             excludes += "META-INF/LICENSE.md"

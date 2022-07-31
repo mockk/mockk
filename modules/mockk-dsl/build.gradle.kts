@@ -8,6 +8,9 @@ plugins {
 
 description = "MockK DSL providing API for MockK implementation"
 
+val mavenName: String by extra("MockK DSL")
+val mavenDescription: String by extra("${project.description}")
+
 kotlin {
     jvm()
 
