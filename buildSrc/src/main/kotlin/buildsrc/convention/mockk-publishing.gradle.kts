@@ -43,12 +43,13 @@ tasks.withType<AbstractPublishToMaven>().configureEach {
 
 val mavenName: String by project.extra
 val mavenDescription: String by project.extra
+val localrepo: String by project
 
 publishing {
     repositories {
         // publish to local dir, for testing
-        maven(rootProject.layout.buildDirectory.dir("maven-internal")) {
-            name = "LocalProjectDir"
+        maven(rootProject.layout.projectDirectory.dir(localrepo)) {
+            name = "LocalRepo"
         }
     }
     publications.withType<MavenPublication>().configureEach {
