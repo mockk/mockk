@@ -65,7 +65,7 @@ publishing {
 
 signing {
     if (signingKeyId.isPresent() && signingKey.isPresent() && signingPassword.isPresent()) {
-        logger.lifecycle("[${project.displayName}] Signing is enabled")
+        logger.debug("[${project.displayName}] Signing is enabled")
         useInMemoryPgpKeys(signingKeyId.get(), signingKey.get(), signingPassword.get())
     }
 }
