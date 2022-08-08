@@ -1,10 +1,6 @@
 package io.mockk.proxy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import io.mockk.proxy.jvm.JvmMockKAgentFactory;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -14,11 +10,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import io.mockk.proxy.jvm.JvmMockKAgentFactory;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("unchecked")
 public class JvmMockKProxyMakerTest {
@@ -30,7 +26,7 @@ public class JvmMockKProxyMakerTest {
     ListAppendingHandler handler;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Arrays.fill(executed, false);
         handler = new ListAppendingHandler();
@@ -59,7 +55,7 @@ public class JvmMockKProxyMakerTest {
 
         proxy.a();
 
-        assertFalse(executed[0]);
+        Assertions.assertFalse(executed[0]);
         checkProxyHandlerCalled(1, proxy, "a");
     }
 
@@ -408,9 +404,9 @@ public class JvmMockKProxyMakerTest {
         }
 
         assertEquals(
-                "Amount of calls differ. Calls:\n" + sb.toString(),
                 nTimes,
-                handler.calls.size()
+                handler.calls.size(),
+                "Amount of calls differ. Calls:\n" + sb
         );
         Call call = handler.calls.get(0);
         assertSame(proxy, call.self);

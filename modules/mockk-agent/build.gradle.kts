@@ -1,3 +1,5 @@
+import buildsrc.config.Deps
+
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
 
@@ -9,8 +11,8 @@ description = "MockK inline mocking agent"
 val mavenName: String by extra("MockK")
 val mavenDescription: String by extra("${project.description}")
 
-val byteBuddyVersion = "1.12.10"
-val objenesisVersion = "3.2"
+val byteBuddyVersion = Deps.Versions.byteBuddy
+val objenesisVersion = Deps.Versions.objenesis
 
 kotlin {
     jvm {
@@ -26,12 +28,11 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(kotlin("test-junit5"))
             }
         }
         val jvmMain by getting {
             dependencies {
-//                api (project(":mockk-agent-common"))
-
                 api("org.objenesis:objenesis:$objenesisVersion")
 
                 api("net.bytebuddy:byte-buddy:$byteBuddyVersion")
@@ -40,8 +41,7 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                implementation(buildsrc.config.Deps.Libs.junitJupiter)
-                implementation(buildsrc.config.Deps.Libs.junitVintageEngine)
+                implementation(Deps.Libs.junitJupiter)
             }
         }
     }

@@ -39,14 +39,13 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}") {
         exclude(group = "com.android.support", module = "support-annotations")
     }
-    androidTestImplementation(Deps.Libs.kotlinReflect())
-    androidTestImplementation(Deps.Libs.kotlinCoroutinesCore())
-    androidTestImplementation(Deps.Libs.kotlinTestJunit()) {
-        exclude(group = "junit", module = "junit")
-    }
+    androidTestImplementation(kotlin("reflect"))
+
+    implementation(platform(Deps.Libs.kotlinCoroutinesBom))
+    implementation(Deps.Libs.kotlinCoroutinesCore)
+
     androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
 
-    androidTestImplementation(Deps.Libs.junitJupiterApi)
-    androidTestImplementation(Deps.Libs.junitJupiterEngine)
+    androidTestImplementation(Deps.Libs.junitJupiter)
     androidTestImplementation(Deps.Libs.junitVintageEngine)
 }

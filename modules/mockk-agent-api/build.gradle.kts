@@ -1,3 +1,5 @@
+import buildsrc.config.Deps
+
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
 
@@ -19,6 +21,7 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
+                implementation(kotlin("test"))
             }
         }
         val jvmMain by getting {
@@ -27,6 +30,8 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
+                implementation(kotlin("test-junit5"))
+                implementation(Deps.Libs.junitJupiter)
             }
         }
     }

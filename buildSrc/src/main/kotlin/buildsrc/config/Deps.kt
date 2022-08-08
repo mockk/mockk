@@ -26,27 +26,20 @@ object Deps {
     object Libs {
         const val slfj = "org.slf4j:slf4j-api:${Versions.slfj}"
         const val logback = "ch.qos.logback:logback-classic:${Versions.logback}"
+
+        const val kotlinBom = "org.jetbrains.kotlin:kotlin-bom:${Versions.kotlinDefault}"
+        const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect"
+
         const val junit4 = "junit:junit:${Versions.junit4}"
         const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"
         const val junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junitJupiter}"
         const val junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junitJupiter}"
-        const val junitVintageEngine = "org.junit.vintage:junit-vintage-engine:${Versions.junitVintage}"
+        const val junitVintageEngine = "org.junit.vintage:junit-vintage-engine:${Versions.junitJupiter}"
 
-        fun kotlinStdLib(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-stdlib:$version"
-        fun kotlinStdLibJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-stdlib-js:$version"
-        fun kotlinTestCommon(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-common:$version"
-        fun kotlinTestCommonAnnotations(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-annotations-common:$version"
-        fun kotlinTestJunit(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-junit:$version"
-        fun kotlinTestJs(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-test-js:$version"
-        fun kotlinReflect(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-reflect:$version"
-        fun kotlinCoroutinesCore(version: String = Versions.coroutines) = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version"
-        fun kotlinCoroutinesCoreJs(version: String = Versions.coroutines) = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$version"
-    }
+        const val kotlinTest = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlinDefault}"
+        const val kotlinTestJunit5 = "org.jetbrains.kotlin:kotlin-test-junit5:${Versions.kotlinDefault}"
 
-    object Plugins {
-        const val androidTools = "com.android.tools.build:gradle:${Versions.androidTools}"
-        const val dokka = "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
-
-        fun kotlin(version: String = Versions.kotlinDefault) = "org.jetbrains.kotlin:kotlin-gradle-plugin:$version"
+        const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
+        const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     }
 }

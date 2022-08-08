@@ -17,12 +17,14 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(Deps.Libs.kotlinCoroutinesCore())
+                implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
+                implementation(Deps.Libs.kotlinCoroutinesCore)
                 implementation(kotlin("reflect"))
             }
         }
         val commonTest by getting {
             dependencies {
+                implementation(kotlin("test"))
             }
         }
         val jvmMain by getting {
@@ -31,6 +33,8 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
+                implementation(kotlin("test-junit5"))
+                implementation(Deps.Libs.junitJupiter)
             }
         }
     }
