@@ -12,9 +12,11 @@ plugins {
 
 // note: all subprojects are currently Kotlin Multiplatform, so this convention plugin is unused
 
+val toolchainJavaVersion = providers.gradleProperty("toolchainJavaVersion")
+
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of("8"))
+        languageVersion.set(JavaLanguageVersion.of(toolchainJavaVersion.get()))
     }
 }
 
@@ -38,4 +40,12 @@ tasks.withType<KotlinCompile>().configureEach {
 
 tasks.named<Jar>("javadocJar") {
     from(tasks.dokkaJavadoc)
+}
+
+val testToolchainJavaVersion = providers.gradleProperty("testToolchainJavaVersion")
+
+tasks.withType<Test>().configureEach {
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(testToolchainJavaVersion.get()))
+    })
 }
