@@ -15,25 +15,22 @@ val javaToolchainMainVersion = javaLanguageVersion("javaToolchainMainVersion")
 val javaToolchainTestVersion = javaLanguageVersion("javaToolchainTestVersion")
 
 
-// The Java Toolchain compiler that should be used to compile *main* code
+// The Java Toolchains that will compile/launch *main* code
 val javaToolchainMainCompiler: Provider<JavaCompiler> =
     javaToolchains.compilerFor {
         languageVersion.set(javaToolchainMainVersion)
     }
-
 val javaToolchainMainLauncher: Provider<JavaLauncher> =
     javaToolchains.launcherFor {
         languageVersion.set(javaToolchainMainVersion)
     }
 
 
-// The Java Toolchain that should be used to compile *test* code
+// The Java Toolchains that wil compile/launch *test* code
 val javaToolchainTestCompiler: Provider<JavaCompiler> =
     javaToolchains.compilerFor {
         languageVersion.set(javaToolchainTestVersion)
     }
-
-
 val javaToolchainTestLauncher: Provider<JavaLauncher> =
     javaToolchains.launcherFor {
         languageVersion.set(javaToolchainTestVersion)
@@ -60,7 +57,6 @@ plugins.withType<JavaBasePlugin>().configureEach {
         .configureEach {
             javaCompiler.set(javaToolchainMainCompiler)
         }
-
     tasks.withType<JavaCompile>()
         .matching { it.name.contains("test", ignoreCase = true) }
         .configureEach {
