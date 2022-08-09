@@ -44,14 +44,13 @@ jobs:
 
       - name: Run tests with Gradle
         uses: eskatos/gradle-command-action@v1
-        env:
-          ORG_GRADLE_PROJECT_testToolchainJavaVersion: ${{ matrix.java-version }}
         with:
           arguments: |
             test 
             --stacktrace 
             -Pkotlin.version=${{ matrix.kotlin-version }} 
             -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+            -PtestToolchainJavaVersion=${{ matrix.java-version }}
 
   android-instrumented-tests:
     runs-on: macos-latest
