@@ -50,7 +50,7 @@ jobs:
             --stacktrace 
             -Pkotlin.version=${{ matrix.kotlin-version }} 
             -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
-            -PtestToolchainJavaVersion=${{ matrix.java-version }}
+            -PjavaToolchainTestVersion=${{ matrix.java-version }}
 
   android-instrumented-tests:
     runs-on: macos-latest

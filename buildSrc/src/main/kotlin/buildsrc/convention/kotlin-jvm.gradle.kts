@@ -8,17 +8,10 @@ plugins {
     id("org.jetbrains.dokka")
 
     id("buildsrc.convention.base")
+    id("buildsrc.convention.toolchain-jvm")
 }
 
 // note: all subprojects are currently Kotlin Multiplatform, so this convention plugin is unused
-
-val toolchainJavaVersion = providers.gradleProperty("toolchainJavaVersion")
-
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(toolchainJavaVersion.get()))
-    }
-}
 
 java {
     withJavadocJar()
@@ -31,7 +24,6 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.apply {
-        jvmTarget = "1.8"
         freeCompilerArgs += listOf("-Xjsr305=strict")
         apiVersion = "1.5"
         languageVersion = "1.7"
@@ -40,12 +32,4 @@ tasks.withType<KotlinCompile>().configureEach {
 
 tasks.named<Jar>("javadocJar") {
     from(tasks.dokkaJavadoc)
-}
-
-val testToolchainJavaVersion = providers.gradleProperty("testToolchainJavaVersion")
-
-tasks.withType<Test>().configureEach {
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(testToolchainJavaVersion.get()))
-    })
 }
