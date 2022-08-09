@@ -46,6 +46,8 @@ dependencies {
 
     androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
 
+    androidTestImplementation(kotlin("test"))
+    androidTestImplementation(kotlin("test-junit"))
     androidTestImplementation(Deps.Libs.junitJupiter)
     androidTestImplementation(Deps.Libs.junitVintageEngine)
 }
