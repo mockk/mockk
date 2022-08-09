@@ -3,12 +3,14 @@ package io.mockk.it
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.Test
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
 
 class SealedInterfaceTest {
 
     @Test
+    @Ignore("Fails on JDK17+ https://github.com/mockk/mockk/issues/832")
     fun serviceReturnsSealedClassImpl() {
         val factory = mockk<Factory> {
             every { create() } returns Leaf(1)
@@ -20,6 +22,7 @@ class SealedInterfaceTest {
     }
 
     @Test
+    @Ignore("Fails on JDK17+ https://github.com/mockk/mockk/issues/832")
     fun serviceAnswersSealedClassImpl() {
         val factory = mockk<Factory> {
             every { create() } answers { Leaf(1) }
