@@ -1,0 +1,18 @@
+public class io/mockk/proxy/android/AndroidMockKDispatcher {
+	public static fun get (Ljava/lang/String;Ljava/lang/Object;)Lio/mockk/proxy/android/AndroidMockKDispatcher;
+	public fun getOrigin (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/reflect/Method;
+	public fun handle (Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/util/concurrent/Callable;
+	public fun handleConstructor (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)Ljava/util/concurrent/Callable;
+	public fun isMock (Ljava/lang/Object;)Z
+	public static fun set (Ljava/lang/String;Ljava/lang/Object;)V
+}
+
+public final class io/mockk/proxy/android/dispatcher/BuildConfig {
+	public static final field APPLICATION_ID Ljava/lang/String;
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field VERSION_CODE I
+	public static final field VERSION_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
