@@ -8,15 +8,14 @@
  - [ ] make sure all required PRs are merged
  - [ ] run test-suite in Gradle
  - [ ] run test-suite from Android Studio or IntelliJ from emulator (Android Instrumented tests)
- - [ ] release to local maven repo by running `gradle publish` with the `localrepo` gradle property set
+ - [ ] release to local maven repo by running `gradle publish` with the `localrepo` repository uncommented in `mockk-publishing.gradle.kts`
  - [ ] do quick testing with this local maven repo: basics, if documentation is loading, if all dependencies are fine
  - [ ] change version to RELEASE version (i.e. remove -SNAPSHOT from version)
  - [ ] bump if needed major or minor (resetting everything afterwards)
  - [ ] commit it
  - [ ] tag it
- - [ ] redirect release process to oss.sonatype by removing the `localrepo` property in gradle.properties
- - [ ] set `org.gradle.parallel=true` in `gradle.properties`: apparently, sonatype does not like parallel builds
- - [ ] release from Gradle with `gradle publish`
+ - [ ] redirect release process to oss.sonatype by uncommenting the sonatype repository in `mockk-publishing.gradle.kts`
+ - [ ] release from Gradle with `gradle publish -Dorg.gradle.parallel=false` (apparently, sonatype does not like parallel builds)
  - [ ] goto oss.sonatype
  - [ ] find io.mockk repo
  - [ ] check state of dependencies (are sizes okay), maybe download one

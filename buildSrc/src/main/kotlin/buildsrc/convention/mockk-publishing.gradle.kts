@@ -14,9 +14,9 @@ val sonatypeRepositoryCredentials: Provider<Action<PasswordCredentials>> =
 
 val sonatypeRepositoryReleaseUrl: Provider<String> = provider {
     if (version.toString().endsWith("SNAPSHOT")) {
-        "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        "https://oss.sonatype.org/content/repositories/snapshots/"
     } else {
-        "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     }
 }
 
@@ -28,6 +28,10 @@ val signingPassword: Provider<String> =
     providers.gradleProperty("signing.password")
 val signingSecretKeyRingFile: Provider<String> =
     providers.gradleProperty("signing.secretKeyRingFile")
+val ossrhUsername: Provider<String> =
+    providers.gradleProperty("ossrhUsername")
+val ossrhPassword: Provider<String> =
+    providers.gradleProperty("ossrhPassword")
 
 
 tasks.withType<AbstractPublishToMaven>().configureEach {
@@ -51,6 +55,14 @@ publishing {
         maven(rootProject.layout.projectDirectory.dir(localrepo)) {
             name = "LocalRepo"
         }
+
+        /*maven {
+            url = uri(sonatypeRepositoryReleaseUrl)
+            credentials {
+                username = ossrhUsername.get()
+                password = ossrhPassword.get()
+            }
+        }*/
     }
     publications.withType<MavenPublication>().configureEach {
         createMockKPom {
