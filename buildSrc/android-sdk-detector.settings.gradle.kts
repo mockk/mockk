@@ -33,6 +33,7 @@ if (sdkDirFile != null) {
     ) {
         val path = sdkDirFile.canonicalPath
         props.setProperty(sdkDirProperty, path)
+        logger.info("updated $sdkDirProperty in $path")
     }
 } else {
     androidSdkDetected = false
