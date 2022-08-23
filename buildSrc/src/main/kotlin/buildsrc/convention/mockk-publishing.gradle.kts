@@ -80,7 +80,7 @@ publishing {
             description.set(provider { mavenDescription })
         }
 
-        artifact(tasks.provider<Task>("javadocJar"))
+        artifact(tasks.provider<Jar>("javadocJar"))
 
         signing.sign(this)
     }
