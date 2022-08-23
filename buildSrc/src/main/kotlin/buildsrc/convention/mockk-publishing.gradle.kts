@@ -22,8 +22,6 @@ val sonatypeRepositoryReleaseUrl: Provider<String> = provider {
 
 val signingKeyId: Provider<String> =
     providers.gradleProperty("signing.keyId")
-val signingKey: Provider<String> =
-    providers.gradleProperty("signing.key")
 val signingPassword: Provider<String> =
     providers.gradleProperty("signing.password")
 val signingSecretKeyRingFile: Provider<String> =
@@ -82,16 +80,16 @@ publishing {
 
         artifact(tasks.provider<Jar>("javadocJar"))
 
-        if (signingKeyId.isPresent() && signingKey.isPresent() && signingPassword.isPresent()) {
+        if (signingKeyId.isPresent() && signingSecretKeyRingFile.isPresent() && signingPassword.isPresent()) {
             signing.sign(this)
         }
+
     }
 }
 
 signing {
-    if (signingKeyId.isPresent() && signingKey.isPresent() && signingPassword.isPresent()) {
+    if (signingKeyId.isPresent() && signingSecretKeyRingFile.isPresent() && signingPassword.isPresent()) {
         logger.debug("[${project.displayName}] Signing is enabled")
-        useInMemoryPgpKeys(signingKeyId.get(), signingKey.get(), signingPassword.get())
     }
 }
 
