@@ -72,7 +72,9 @@ publishing {
 
         artifact(tasks.provider<Jar>("javadocJar"))
 
-        signing.sign(this)
+        if (signingKeyId.isPresent() && signingKey.isPresent() && signingPassword.isPresent()) {
+            signing.sign(this)
+        }
     }
 }
 
