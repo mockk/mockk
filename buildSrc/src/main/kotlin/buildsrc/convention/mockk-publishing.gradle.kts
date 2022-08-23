@@ -64,13 +64,23 @@ publishing {
             }
         }*/
     }
+    // Configure for Android libraries
+    publications {
+        if (project.extensions.findByName("android") != null) {
+            register<MavenPublication>("release") {
+                afterEvaluate {
+                    from(components["release"])
+                }
+            }
+        }
+    }
     publications.withType<MavenPublication>().configureEach {
         createMockKPom {
             name.set(provider { mavenName })
             description.set(provider { mavenDescription })
         }
 
-        artifact(tasks.provider<Jar>("javadocJar"))
+        artifact(tasks.provider<Task>("javadocJar"))
 
         signing.sign(this)
     }
