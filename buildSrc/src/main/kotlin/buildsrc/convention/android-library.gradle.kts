@@ -1,7 +1,5 @@
 package buildsrc.convention
 
-import org.gradle.jvm.tasks.Jar
-
 plugins {
     id("com.android.library")
 

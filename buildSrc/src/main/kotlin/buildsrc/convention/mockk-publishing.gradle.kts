@@ -64,6 +64,16 @@ publishing {
             }
         }*/
     }
+    // Configure for Android libraries
+    publications {
+        if (project.extensions.findByName("android") != null) {
+            register<MavenPublication>("release") {
+                afterEvaluate {
+                    from(components["release"])
+                }
+            }
+        }
+    }
     publications.withType<MavenPublication>().configureEach {
         createMockKPom {
             name.set(provider { mavenName })
