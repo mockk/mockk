@@ -23,7 +23,7 @@ android {
     sourceSets {
         named("main").configure {
             resources {
-                srcDirs(dispatcherJarResPath)
+                srcDirs({ packageDispatcherJar.map { it.destinationDirectory } })
             }
         }
     }
@@ -60,13 +60,11 @@ dependencies {
     androidClassesDex(projects.modules.mockkAgentAndroidDispatcher)
 }
 
-val dispatcherJarResPath: Provider<Directory> = layout.buildDirectory.dir("generated/dispatcher-jar")
-
 val packageDispatcherJar by tasks.registering(Jar::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
     from(androidClassesDex.asFileTree)
     archiveFileName.set("dispatcher.jar")
-    destinationDirectory.set(dispatcherJarResPath)
+    destinationDirectory.set(temporaryDir)
 }
 
 tasks.preBuild {
