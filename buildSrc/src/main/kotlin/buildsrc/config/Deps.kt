@@ -46,7 +46,3 @@ object Deps {
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     }
 }
-
-
-val JavaVersion.versionName : String
-    get() = this.toString()
