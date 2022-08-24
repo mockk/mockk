@@ -12,6 +12,8 @@ description = "Android instrumented testing MockK inline mocking agent"
 val mavenName: String by extra("MockK Android Agent")
 val mavenDescription: String by extra("${project.description}")
 
+val dispatcherJarResPath: Provider<Directory> = layout.buildDirectory.dir("generated/dispatcher-jar")
+
 @Suppress("UnstableApiUsage")
 android {
     externalNativeBuild {
@@ -59,8 +61,6 @@ dependencies {
 
     androidClassesDex(projects.modules.mockkAgentAndroidDispatcher)
 }
-
-val dispatcherJarResPath: Provider<Directory> = layout.buildDirectory.dir("generated/dispatcher-jar")
 
 val packageDispatcherJar by tasks.registering(Jar::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
