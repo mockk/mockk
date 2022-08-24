@@ -1,11 +1,14 @@
 package buildsrc.config
 
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 
 fun Project.kotlinVersion() = findProperty("kotlin.version")?.toString() ?: Deps.Versions.kotlinDefault
 
 object Deps {
     object Versions {
+          val jvmTarget = JavaVersion.VERSION_1_8
+
         const val androidTools = "7.2.1"
         const val dokka = "1.7.10"
         const val kotlinDefault = "1.7.10"
@@ -43,3 +46,7 @@ object Deps {
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     }
 }
+
+
+val JavaVersion.versionName : String
+    get() = this.toString()
