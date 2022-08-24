@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 26
+        minSdk = 23
         targetSdk = 32
     }
 
