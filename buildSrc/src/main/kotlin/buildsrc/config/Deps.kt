@@ -21,6 +21,8 @@ object Deps {
         const val dexmaker = "2.28.1"
         const val androidxEspresso = "3.4.0"
         const val androidxTestRules = "1.4.0"
+        const val androidxTestRunner = "1.4.0"
+        const val androidxTestExtJunit = "1.1.3"
     }
 
     object Libs {
