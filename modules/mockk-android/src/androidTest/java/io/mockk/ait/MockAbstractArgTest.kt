@@ -1,7 +1,9 @@
 package io.mockk.ait
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.runner.RunWith
 import kotlin.test.Test
 
 abstract class MyAbstractClass
@@ -14,6 +16,7 @@ interface IMockableInterface {
     fun doSomethingWithString(s: String)
 }
 
+@RunWith(AndroidJUnit4::class)
 class MockAbstractArgTest {
 
     @Test

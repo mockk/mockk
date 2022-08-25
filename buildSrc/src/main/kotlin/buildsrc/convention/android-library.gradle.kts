@@ -37,7 +37,6 @@ android {
         minSdk = 26
         targetSdk = 32
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["notAnnotation"] = "io.mockk.test.SkipInstrumentedAndroidTest"
     }
 
     testOptions {

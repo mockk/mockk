@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,7 +15,10 @@ import java.util.concurrent.Callable;
 
 import static org.junit.Assert.*;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 @SuppressWarnings("Duplicates")
+@RunWith(AndroidJUnit4.class)
 public class AndroidMockKProxyMakerTest {
 
     static boolean[] executed = new boolean[10];
