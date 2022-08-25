@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 8, 11, 17, 18 ] # test LTS versions, and the newest
+        java-version: [ 11, 17, 18 ] # test LTS versions, and the newest
         kotlin-version: [ 1.5.31, 1.6.21, 1.7.10 ]
         kotlin-ir-enabled: [ true, false ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
