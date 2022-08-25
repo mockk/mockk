@@ -31,9 +31,9 @@ android {
 }
 
 dependencies {
-    implementation(projects.modules.mockk)
-    implementation(projects.modules.mockkAgentApi)
-    implementation(projects.modules.mockkAgentAndroid)
+    api(projects.modules.mockk)
+    api(projects.modules.mockkAgentApi)
+    api(projects.modules.mockkAgentAndroid)
 
     testImplementation("junit:junit:${Deps.Versions.junit4}")
     androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}") {
