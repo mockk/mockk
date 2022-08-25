@@ -41,9 +41,6 @@ dependencies {
     }
     androidTestImplementation(kotlin("reflect"))
 
-    implementation(platform(Deps.Libs.kotlinCoroutinesBom))
-    implementation(Deps.Libs.kotlinCoroutinesCore)
-
     androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
 
     androidTestImplementation(kotlin("test"))
