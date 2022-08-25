@@ -2,9 +2,9 @@ This is a performance testing setup for `mockk` using [JMH](https://github.com/o
 
 ### How to run
 
-There are 2 ways to execute the benchmark code
+There are two ways to execute the benchmark code
 
-Basic with Gradle
+#### 1. Basic with Gradle
 
 ```shell
 ./gradlew benchmark
@@ -12,7 +12,7 @@ Basic with Gradle
 
 It will use default configuration set in  [build.gradle.kts](build.gradle.kts) and print out the results
 
-#### Advanced with JMH binary
+#### 2. Advanced with JMH binary
 
 If you want access to more JMH features you can
 
