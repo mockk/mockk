@@ -31,8 +31,6 @@ android {
     }
 
     defaultConfig {
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["notAnnotation"] = "io.mockk.test.SkipInstrumentedAndroidTest"
         ndk {
             abiFilters += setOf("armeabi-v7a", "x86", "x86_64", "arm64-v8a")
         }
@@ -52,12 +50,6 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation("com.linkedin.dexmaker:dexmaker:${buildsrc.config.Deps.Versions.dexmaker}")
     implementation("org.objenesis:objenesis:${buildsrc.config.Deps.Versions.objenesis}")
-
-    androidTestImplementation("androidx.test.espresso:espresso-core:${buildsrc.config.Deps.Versions.androidxEspresso}") {
-        exclude("com.android.support:support-annotations")
-    }
-
-    androidTestImplementation(kotlin("test"))
 
     androidClassesDex(projects.modules.mockkAgentAndroidDispatcher)
 }
