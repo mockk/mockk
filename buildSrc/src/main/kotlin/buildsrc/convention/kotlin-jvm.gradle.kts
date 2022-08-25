@@ -12,8 +12,6 @@ plugins {
     id("buildsrc.convention.toolchain-jvm")
 }
 
-// note: all subprojects are currently Kotlin Multiplatform, so this convention plugin is unused
-
 java {
     withJavadocJar()
     withSourcesJar()
