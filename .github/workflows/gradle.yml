@@ -56,7 +56,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        api-level: [ 23, 29 ] # minSdk is set to 23 in the buildSrc convention plugins.
+        api-level: [ 21, 29 ] # The minSdk and targetSdk versions set for MockK Android projects
       fail-fast: false # in case one API-level fails, we still want to see results from others
     timeout-minutes: 30
     steps:
