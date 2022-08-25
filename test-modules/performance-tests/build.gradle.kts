@@ -1,3 +1,4 @@
+import buildsrc.config.Deps
 import kotlinx.benchmark.gradle.JvmBenchmarkTarget
 import kotlinx.benchmark.gradle.benchmark
 
@@ -8,7 +9,8 @@ plugins {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.5")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation(platform(Deps.Libs.kotlinCoroutinesBom))
+    implementation(Deps.Libs.kotlinCoroutinesCore)
     implementation(projects.modules.mockk)
 }
 
