@@ -1,5 +1,6 @@
 package buildsrc.convention
 
+import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -25,6 +26,7 @@ tasks.withType<JavaCompile>().configureEach {
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.apply {
         freeCompilerArgs += listOf("-Xjsr305=strict")
+        jvmTarget = Deps.Versions.jvmTarget.toString()
         apiVersion = "1.5"
         languageVersion = "1.7"
     }

@@ -1,5 +1,7 @@
 package buildsrc.convention
 
+import buildsrc.config.Deps
+
 plugins {
     id("com.android.library")
 
@@ -16,7 +18,7 @@ android {
     compileSdkVersion = "android-32"
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = Deps.Versions.jvmTarget.toString()
     }
 
     lint {
@@ -37,8 +39,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = Deps.Versions.jvmTarget
+        targetCompatibility = Deps.Versions.jvmTarget
     }
 }
 
