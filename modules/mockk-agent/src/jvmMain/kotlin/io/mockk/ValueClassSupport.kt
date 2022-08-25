@@ -3,6 +3,7 @@ package io.mockk
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
@@ -61,5 +62,7 @@ private val <T : Any> KClass<T>.isValue_safe: Boolean
     get() = try {
         this.isValue
     } catch (_: UnsupportedOperationException) {
+        false
+    } catch (_: KotlinReflectionInternalError) {
         false
     }
