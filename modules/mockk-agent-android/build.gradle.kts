@@ -12,8 +12,6 @@ description = "Android instrumented testing MockK inline mocking agent"
 val mavenName: String by extra("MockK Android Agent")
 val mavenDescription: String by extra("${project.description}")
 
-val dispatcherJarResPath: Provider<Directory> = layout.buildDirectory.dir("generated/dispatcher-jar")
-
 @Suppress("UnstableApiUsage")
 android {
     externalNativeBuild {
