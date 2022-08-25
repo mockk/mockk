@@ -17,9 +17,9 @@ dependencies {
 benchmark {
     configurations {
         named("main") {
-            iterationTime = 60
+            iterationTime = 10
             iterationTimeUnit = "sec"
-            iterations = 2
+            iterations = 3
             warmups = 1
         }
     }
