@@ -11,6 +11,18 @@ import org.openjdk.jmh.infra.Blackhole
 open class JmhTest {
 
     @Benchmark
+    fun noMockOrStub(blackhole: Blackhole) {
+        val mockedClass = MockedClass()
+        blackhole.consume(mockedClass)
+    }
+
+    @Benchmark
+    fun simpleMock(blackhole: Blackhole) {
+        val mockedClass: MockedClass = mockk()
+        blackhole.consume(mockedClass)
+    }
+
+    @Benchmark
     fun simpleMockAndStub(blackhole: Blackhole) {
         val mockedClass: MockedClass = mockk()
         every { mockedClass.mockedFun() } returns "Hello, mockk!"
