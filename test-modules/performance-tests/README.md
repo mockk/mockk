@@ -28,4 +28,4 @@ From there you can run JMH with all the JMH-specific configuration options form 
 java -jar ./build/benchmarks/main/jars/performance-tests-main-jmh-<version>.jar -w 1 -i 2 -r 60s -prof jfr
 ```
 
-which will attach the JFR profiler (not possible with `kontlinx-benchmark` executed from Gradle)
+which will attach the JFR profiler (not possible with `kotlinx-benchmark` executed from Gradle)
