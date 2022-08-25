@@ -25,7 +25,7 @@ to build the `.jar` file containing the benchmark code. It will be saved to `./b
 From there you can run JMH with all the JMH-specific configuration options form CLI (even on different machine).
 
 ```shell
-java -jar ./build/benchmarks/main/jars/mockk-performance-main-jmh-<version>.jar -w 1 -i 2 -r 60s  -prof jfr
+java -jar ./build/benchmarks/main/jars/performance-tests-main-jmh-<version>.jar -w 1 -i 2 -r 60s -prof jfr
 ```
 
 which will attach the JFR profiler (not possible with `kontlinx-benchmark` executed from Gradle)
