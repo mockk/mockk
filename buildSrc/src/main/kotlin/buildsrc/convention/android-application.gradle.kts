@@ -1,7 +1,6 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
-import org.gradle.jvm.tasks.Jar
 
 plugins {
     id("com.android.application")
