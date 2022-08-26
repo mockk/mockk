@@ -1,5 +1,6 @@
 package buildsrc.convention
 
+import buildsrc.config.Deps
 import org.gradle.jvm.tasks.Jar
 
 plugins {
@@ -18,7 +19,7 @@ android {
     compileSdkVersion = "android-32"
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = Deps.Versions.jvmTarget.toString()
     }
 
     lint {
@@ -34,13 +35,13 @@ android {
     }
 
     defaultConfig {
-        minSdk = 26
+        minSdk = 21
         targetSdk = 32
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = Deps.Versions.jvmTarget
+        targetCompatibility = Deps.Versions.jvmTarget
     }
 }
 

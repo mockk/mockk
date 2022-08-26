@@ -1,5 +1,6 @@
 package buildsrc.convention
 
+import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
@@ -21,6 +22,11 @@ kotlin {
         }
     }
     targets.withType<KotlinJvmTarget>().configureEach {
+        compilations.configureEach {
+            kotlinOptions {
+                jvmTarget = Deps.Versions.jvmTarget.toString()
+            }
+        }
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
