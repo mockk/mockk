@@ -20,8 +20,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(projects.modules.mockkDsl)
-                implementation(projects.modules.mockkAgent)
-                implementation(projects.modules.mockkAgentApi)
+                api(projects.modules.mockkAgent)
+                api(projects.modules.mockkAgentApi)
 
                 implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
                 implementation(Deps.Libs.kotlinCoroutinesCore)

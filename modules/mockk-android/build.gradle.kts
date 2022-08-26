@@ -21,10 +21,7 @@ android {
 }
 
 dependencies {
-    implementation(projects.modules.mockk)
-    implementation(projects.modules.mockkAgentApi)
-    implementation(projects.modules.mockkAgentAndroid)
-
-    implementation(platform(Deps.Libs.kotlinCoroutinesBom))
-    implementation(Deps.Libs.kotlinCoroutinesCore)
+    api(projects.modules.mockk)
+    api(projects.modules.mockkAgentApi)
+    api(projects.modules.mockkAgentAndroid)
 }
