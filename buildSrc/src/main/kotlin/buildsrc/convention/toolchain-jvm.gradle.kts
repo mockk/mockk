@@ -1,11 +1,25 @@
 package buildsrc.convention
 
+import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.UsesKotlinJavaToolchain
 
 
 description = "Set JavaToolchain for compiling main and test code"
 
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
+    sourceCompatibility = Deps.Versions.jvmTarget.toString()
+    targetCompatibility = Deps.Versions.jvmTarget.toString()
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = Deps.Versions.jvmTarget.toString()
+    }
+}
 
 // Retrieve the JavaToolchainService extension
 val javaToolchains: JavaToolchainService = extensions.getByType()
