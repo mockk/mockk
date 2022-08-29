@@ -1,14 +1,9 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
-import org.gradle.jvm.tasks.Jar
 
 plugins {
     id("com.android.application")
-
-    kotlin("android")
-    kotlin("kapt")
-    kotlin("plugin.allopen")
 
     id("org.jetbrains.dokka")
 
@@ -17,10 +12,6 @@ plugins {
 
 android {
     compileSdkVersion = "android-32"
-
-    kotlinOptions {
-        jvmTarget = Deps.Versions.jvmTarget.toString()
-    }
 
     lint {
         abortOnError = false

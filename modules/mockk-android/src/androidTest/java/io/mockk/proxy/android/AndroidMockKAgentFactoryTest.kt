@@ -1,17 +1,13 @@
 package io.mockk.proxy.android
 
 import android.widget.FrameLayout
-import androidx.test.rule.ActivityTestRule
-import io.mockk.debug.TestActivity
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.mockk
-import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class AndroidMockKAgentFactoryTest {
-
-    @Rule
-    @JvmField
-    val rule = ActivityTestRule(TestActivity::class.java)
 
     /**
      * This tests that the hidden api logic in [AndroidMockKAgentFactory] works. Otherwise, we would fail when mocking
