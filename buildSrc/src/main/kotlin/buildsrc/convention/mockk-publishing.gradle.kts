@@ -12,13 +12,7 @@ plugins {
 val sonatypeRepositoryCredentials: Provider<Action<PasswordCredentials>> =
     providers.credentialsAction("ossrh")
 
-val sonatypeRepositoryReleaseUrl: Provider<String> = provider {
-    if (version.toString().endsWith("SNAPSHOT")) {
-        "https://oss.sonatype.org/content/repositories/snapshots/"
-    } else {
-        "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    }
-}
+val isSnapshotVersion: Provider<Boolean> = provider { version.toString().endsWith("SNAPSHOT") }
 
 val signingKeyId: Provider<String> =
     providers.gradleProperty("signing.keyId")
@@ -47,21 +41,35 @@ val mavenName: String by project.extra
 val mavenDescription: String by project.extra
 val localrepo: String by project
 
-publishing {
+extensions.getByType<PublishingExtension>().apply {
+//publishing {
     repositories {
         // publish to local dir, for testing
         maven(rootProject.layout.projectDirectory.dir(localrepo)) {
             name = "LocalRepo"
         }
 
-        /*maven {
-            url = uri(sonatypeRepositoryReleaseUrl)
-            credentials {
-                username = ossrhUsername.get()
-                password = ossrhPassword.get()
+        if (ossrhUsername.isPresent && ossrhPassword.isPresent) {
+            maven("https://oss.sonatype.org/content/repositories/snapshots/") {
+                name = "SonartypeStaging"
+                credentials {
+                    username = ossrhUsername.get()
+                    password = ossrhPassword.get()
+                }
             }
-        }*/
+
+            if (!isSnapshotVersion.get()) {
+                maven("https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    name = "SonatypeProduction"
+                    credentials {
+                        username = ossrhUsername.get()
+                        password = ossrhPassword.get()
+                    }
+                }
+            }
+        }
     }
+
     // Configure for Android libraries
     publications {
         if (project.extensions.findByName("android") != null) {
@@ -72,6 +80,7 @@ publishing {
             }
         }
     }
+
     publications.withType<MavenPublication>().configureEach {
         createMockKPom {
             name.set(provider { mavenName })
@@ -83,7 +92,6 @@ publishing {
         if (signingKeyId.isPresent && signingSecretKeyRingFile.isPresent && signingPassword.isPresent) {
             signing.sign(this)
         }
-
     }
 }
 
