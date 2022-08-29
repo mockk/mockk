@@ -22,11 +22,6 @@ kotlin {
         }
     }
     targets.withType<KotlinJvmTarget>().configureEach {
-        compilations.configureEach {
-            kotlinOptions {
-                jvmTarget = Deps.Versions.jvmTarget.toString()
-            }
-        }
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
