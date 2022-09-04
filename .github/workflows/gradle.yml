@@ -38,10 +38,10 @@ jobs:
       - name: Run tests with Gradle
         run: >
           ./gradlew check
-            --stacktrace
-            -Pkotlin.version=${{ matrix.kotlin-version }}
-            -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
-            -PjavaToolchainTestVersion=${{ matrix.java-version }}
+          --stacktrace
+          -Pkotlin.version=${{ matrix.kotlin-version }}
+          -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+          -PjavaToolchainTestVersion=${{ matrix.java-version }}
 
   android-instrumented-tests:
     runs-on: macos-latest
