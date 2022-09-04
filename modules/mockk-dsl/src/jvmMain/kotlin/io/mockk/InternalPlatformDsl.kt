@@ -1,6 +1,6 @@
 package io.mockk
 
-import io.mockk.ValueClassSupportDsl.boxedClass
+import io.mockk.platform.ValueClassSupport.boxedClass
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -13,7 +13,6 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.allSuperclasses
-import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor

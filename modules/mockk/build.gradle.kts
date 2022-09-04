@@ -22,6 +22,7 @@ kotlin {
                 api(projects.modules.mockkDsl)
                 api(projects.modules.mockkAgent)
                 api(projects.modules.mockkAgentApi)
+                api(projects.modules.mockkPlatformTools)
 
                 implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
                 implementation(Deps.Libs.kotlinCoroutinesCore)

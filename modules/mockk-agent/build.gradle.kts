@@ -24,6 +24,7 @@ kotlin {
             dependencies {
                 api(projects.modules.mockkAgentApi)
                 implementation(kotlin("reflect"))
+                implementation(projects.modules.mockkPlatformTools)
             }
         }
         val commonTest by getting {

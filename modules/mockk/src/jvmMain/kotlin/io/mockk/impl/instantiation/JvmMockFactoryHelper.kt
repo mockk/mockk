@@ -1,6 +1,8 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.*
+import io.mockk.platform.ValueClassSupport.boxedValue
+import io.mockk.platform.ValueClassSupport.boxedClass
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
 import io.mockk.proxy.MockKInvocationHandler

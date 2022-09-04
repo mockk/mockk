@@ -3,8 +3,8 @@ package io.mockk.impl
 import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
 import io.mockk.StackElement
-import io.mockk.boxedClass
-import io.mockk.boxedValue
+import io.mockk.platform.ValueClassSupport.boxedValue
+import io.mockk.platform.ValueClassSupport.boxedClass
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
