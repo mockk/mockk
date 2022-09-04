@@ -36,9 +36,9 @@ jobs:
       - name: Publish to SonatypeStaging
         uses: eskatos/gradle-command-action@v1
         env:
-          ORG_GRADLE_PROJECT_signing.keyId: ${{ secrets.GRADLE_SIGNING_KEY_ID }}
-          ORG_GRADLE_PROJECT_signing.password: ${{ secrets.GRADLE_SIGNING_PASSWORD }}
-          ORG_GRADLE_PROJECT_signing.secretKeyRingFile: ${{ secrets.GRADLE_SIGNING_SECRET_KEY_RING_FILE }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.GRADLE_SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GRADLE_SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingSecretKeyRingFile: ${{ secrets.GRADLE_SIGNING_SECRET_KEY_RING_FILE }}
           ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSS_SONATYPE_USERNAME }}
           ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSS_SONATYPE_PASSWORD }}
         with:

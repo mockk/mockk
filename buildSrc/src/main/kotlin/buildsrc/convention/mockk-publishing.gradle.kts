@@ -15,11 +15,11 @@ val sonatypeRepositoryCredentials: Provider<Action<PasswordCredentials>> =
 val isSnapshotVersion: Provider<Boolean> = provider { version.toString().endsWith("SNAPSHOT") }
 
 val signingKeyId: Provider<String> =
-    providers.gradleProperty("signing.keyId")
+    providers.gradleProperty("signingKeyId")
 val signingPassword: Provider<String> =
-    providers.gradleProperty("signing.password")
+    providers.gradleProperty("signingPassword")
 val signingSecretKeyRingFile: Provider<String> =
-    providers.gradleProperty("signing.secretKeyRingFile")
+    providers.gradleProperty("signingSecretKeyRingFile")
 val ossrhUsername: Provider<String> =
     providers.gradleProperty("ossrhUsername")
 val ossrhPassword: Provider<String> =
