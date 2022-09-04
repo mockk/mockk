@@ -24,6 +24,10 @@ class ObjenesisInstantiator(
         if (cls == Any::class.java) {
             @Suppress("UNCHECKED_CAST")
             return Any() as T
+        } else if (cls.isSealed) {
+            cls.permittedSubclasses.firstNotNullOfOrNull { subCls ->
+                runCatching { instance(subCls) }.getOrNull()
+            } ?: error("could not find subclass for sealed class $cls")
         } else if (!Modifier.isFinal(cls.modifiers)) {
             try {
                 val instance = instantiateViaProxy(cls)
