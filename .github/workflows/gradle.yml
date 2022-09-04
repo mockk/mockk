@@ -83,4 +83,7 @@ jobs:
           script: echo "Generated AVD snapshot for caching."
 
       - name: run tests
-        run: ./gradlew connectedCheck
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          script: ./gradlew connectedCheck
