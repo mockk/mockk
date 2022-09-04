@@ -36,7 +36,7 @@ jobs:
           cache-read-only: false
 
       - name: Run tests with Gradle
-        run: |
+        run: >
           ./gradlew check
             --stacktrace
             -Pkotlin.version=${{ matrix.kotlin-version }}
@@ -83,9 +83,4 @@ jobs:
           script: echo "Generated AVD snapshot for caching."
 
       - name: run tests
-        run: |
-          ./gradlew connectedCheck
-            --stacktrace
-            -Pkotlin.version=${{ matrix.kotlin-version }}
-            -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
-            -PjavaToolchainTestVersion=${{ matrix.java-version }}
+        run: ./gradlew connectedCheck
