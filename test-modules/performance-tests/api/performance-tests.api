@@ -1,0 +1,12 @@
+public class io/mockk/performance/JmhTest {
+	public fun <init> ()V
+	public final fun noMockOrStub (Lorg/openjdk/jmh/infra/Blackhole;)V
+	public final fun simpleMock (Lorg/openjdk/jmh/infra/Blackhole;)V
+	public final fun simpleMockAndStub (Lorg/openjdk/jmh/infra/Blackhole;)V
+}
+
+public final class io/mockk/performance/JmhTest$MockedClass {
+	public fun <init> ()V
+	public final fun mockedFun ()Ljava/lang/String;
+}
+
