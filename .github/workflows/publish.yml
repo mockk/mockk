@@ -1,7 +1,7 @@
 name: Publishing
 
 on:
-  # Run when 'All tests' has finished on master branch
+  # Only publish when 'All tests' has finished on master branch
   workflow_run:
     workflows: [ All tests ]
     branches: [ master ]
