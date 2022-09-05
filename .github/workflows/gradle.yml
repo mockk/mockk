@@ -24,33 +24,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Gradle Dependencies Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
-
-      - name: Setup Gradle Wrapper Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
-
       - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: ${{ matrix.java-version }}
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
       - name: Run tests with Gradle
-        uses: eskatos/gradle-command-action@v1
-        with:
-          arguments: |
-            test 
-            --stacktrace 
-            -Pkotlin.version=${{ matrix.kotlin-version }} 
-            -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
-            -PjavaToolchainTestVersion=${{ matrix.java-version }}
+        run: >
+          ./gradlew check
+          --stacktrace
+          -Pkotlin.version=${{ matrix.kotlin-version }}
+          -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
+          -PjavaToolchainTestVersion=${{ matrix.java-version }}
 
   android-instrumented-tests:
     runs-on: macos-latest
@@ -67,17 +56,8 @@ jobs:
           distribution: adopt
           java-version: 11
 
-      - name: Setup Gradle Dependencies Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
-
-      - name: Setup Gradle Wrapper Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
       - name: AVD cache
         uses: actions/cache@v3
