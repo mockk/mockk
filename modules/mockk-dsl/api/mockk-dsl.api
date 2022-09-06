@@ -326,7 +326,6 @@ public final class io/mockk/InternalPlatformDsl {
 	public final fun toArray (Ljava/lang/Object;)[Ljava/lang/Object;
 	public final fun toStr (Ljava/lang/Object;)Ljava/lang/String;
 	public final fun unboxChar (Ljava/lang/Object;)Ljava/lang/Object;
-	public final fun unboxClass (Lkotlin/reflect/KClass;)Lkotlin/reflect/KClass;
 }
 
 public abstract interface class io/mockk/InternalRef {

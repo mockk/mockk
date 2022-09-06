@@ -1,5 +1,5 @@
-public final class io/mockk/platform/ValueClassSupport {
-	public static final field INSTANCE Lio/mockk/platform/ValueClassSupport;
+public final class io/mockk/core/ValueClassSupport {
+	public static final field INSTANCE Lio/mockk/core/ValueClassSupport;
 	public final fun getBoxedClass (Lkotlin/reflect/KClass;)Lkotlin/reflect/KClass;
 	public final fun getBoxedValue (Ljava/lang/Object;)Ljava/lang/Object;
 }
