@@ -2,7 +2,6 @@ package io.mockk
 
 import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.InternalPlatformDsl.toStr
-import io.mockk.platform.ValueClassSupport
 import kotlin.math.min
 import kotlin.reflect.KClass
 
@@ -150,7 +149,7 @@ data class CapturingSlotMatcher<T : Any>(
             captureSlot.isNull = true
         } else {
             captureSlot.isNull = false
-            captureSlot.captured = ValueClassSupport.boxCast(argumentType, arg)
+            captureSlot.captured = InternalPlatformDsl.boxCast(argumentType, arg)
         }
         captureSlot.isCaptured = true
     }
