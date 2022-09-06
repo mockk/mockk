@@ -3,16 +3,15 @@ package io.mockk.impl
 import io.mockk.InternalPlatformDsl
 import io.mockk.MockKException
 import io.mockk.StackElement
-import io.mockk.boxedClass
-import io.mockk.boxedValue
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
+import io.mockk.core.ValueClassSupport.boxedClass
+import io.mockk.core.ValueClassSupport.boxedValue
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
-import java.util.Collections
+import java.util.*
 import java.util.Collections.synchronizedList
-import java.util.Locale
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
@@ -83,6 +82,7 @@ actual object InternalPlatform {
                                     "test {\n" +
                                     "   jvmArgs '-XX:-OmitStackTraceInFastThrow'\n" +
                                     "}"
+
                         else -> "Class cast exception happened.\n" +
                                 "Probably type information was erased.\n" +
                                 "In this case use `hint` before call to specify " +

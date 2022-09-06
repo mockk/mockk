@@ -1,9 +1,9 @@
 package io.mockk.impl.recording
 
-import io.mockk.InternalPlatformDsl
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
-import java.util.Random
+import io.mockk.core.ValueClassSupport.boxedClass
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.primaryConstructor
@@ -17,7 +17,7 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
     ): T {
 
         if (cls.isValue) {
-            val valueCls = InternalPlatformDsl.unboxClass(cls)
+            val valueCls = cls.boxedClass
             val valueSig = signatureValue(valueCls, anyValueGeneratorProvider, instantiator)
 
             val constructor = cls.primaryConstructor!!.apply { isAccessible = true }

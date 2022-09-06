@@ -3,6 +3,7 @@ package io.mockk.impl.instantiation
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
+import io.mockk.core.ValueClassSupport.boxedClass
 import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -127,6 +128,7 @@ object JvmMockFactoryHelper {
         val returnTypeIsUnit = when {
             kotlinFunc != null ->
                 kotlinFunc.returnType.toString() == "kotlin.Unit"
+
             else ->
                 returnType == Void.TYPE
         }

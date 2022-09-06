@@ -5,7 +5,7 @@
 
 package io.mockk.proxy.android.advice
 
-import io.mockk.boxedValue
+import io.mockk.core.ValueClassSupport.boxedValue
 import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.android.AndroidMockKMap
 import io.mockk.proxy.android.MethodDescriptor

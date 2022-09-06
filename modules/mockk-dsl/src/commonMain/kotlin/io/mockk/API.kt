@@ -4,9 +4,9 @@ package io.mockk
 
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
+import io.mockk.core.ValueClassSupport.boxedClass
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
-import io.mockk.*
 
 /**
  * Exception thrown by library
@@ -536,14 +536,14 @@ object MockKDsl {
     inline fun internalUnmockkConstructor(vararg classes: KClass<*>) {
         classes.forEach {
             MockKGateway.implementation().constructorMockFactory.clear(
-                    it,
-                    MockKGateway.ClearOptions(
-                            answers = true,
-                            recordedCalls = true,
-                            childMocks = true,
-                            verificationMarks = true,
-                            exclusionRules = true
-                    )
+                it,
+                MockKGateway.ClearOptions(
+                    answers = true,
+                    recordedCalls = true,
+                    childMocks = true,
+                    verificationMarks = true,
+                    exclusionRules = true
+                )
             )
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)
@@ -3553,7 +3553,7 @@ interface TypedMatcher {
         return when {
             argumentType.simpleName === null -> true
             else -> {
-                val unboxedClass = InternalPlatformDsl.unboxClass(argumentType)
+                val unboxedClass = argumentType.boxedClass
                 return unboxedClass.isInstance(arg)
             }
         }

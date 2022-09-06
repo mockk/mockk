@@ -38,21 +38,12 @@ expect object InternalPlatformDsl {
     fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T>
 
     /**
-     * Get the [KClass] of the single value that a `value class` contains.
-     *
-     * The result might also be a value class! So check recursively, if necessary.
-     *
-     * @return [KClass] of boxed value, if this is `value class`, else [cls].
-     */
-    internal fun unboxClass(cls: KClass<*>): KClass<*>
-
-    /**
      * Normally this simply casts [arg] to `T`
      *
      * However, if `T` is a `value class` (of type [cls]) this will construct a new instance of the
      * value class, and set [arg] as the value.
      */
-     internal fun <T : Any> boxCast(
+    internal fun <T : Any> boxCast(
         cls: KClass<*>,
         arg: Any,
     ): T

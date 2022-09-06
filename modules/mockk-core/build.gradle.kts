@@ -6,9 +6,9 @@ plugins {
     buildsrc.convention.`mockk-publishing`
 }
 
-description = "MockK DSL providing API for MockK implementation"
+description = "MockK functionality that is used by other MockK modules"
 
-val mavenName: String by extra("MockK DSL")
+val mavenName: String by extra("MockK Core")
 val mavenDescription: String by extra("${project.description}")
 
 kotlin {
@@ -17,10 +17,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
-                implementation(Deps.Libs.kotlinCoroutinesCore)
-                implementation(kotlin("reflect"))
-                implementation(projects.modules.mockkCore)
             }
         }
         val commonTest by getting {
@@ -30,6 +26,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation(kotlin("reflect"))
             }
         }
         val jvmTest by getting {

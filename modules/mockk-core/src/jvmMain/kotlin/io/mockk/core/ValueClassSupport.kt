@@ -1,26 +1,21 @@
-package io.mockk
+package io.mockk.core
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
-/**
- * Provides value class support in the `mockk-dsl-jvm` subproject.
- *
- * This is marked as internal so that it won't clash with the other class in `mockk-agent-jvm`.
- *
- * TODO this class is copy-pasted and should be de-duplicated, see https://github.com/mockk/mockk/issues/857
- */
-internal object ValueClassSupportDsl {
+
+actual object ValueClassSupport {
 
     /**
      * Underlying property value of a **`value class`** or self.
      *
      * The type of the return might also be a `value class`!
      */
-    val <T : Any> T.boxedValue: Any?
+    actual val <T : Any> T.boxedValue: Any?
         @Suppress("UNCHECKED_CAST")
         get() = if (!this::class.isValue_safe) {
             this
@@ -33,7 +28,7 @@ internal object ValueClassSupportDsl {
      *
      * The returned class might also be a `value class`!
      */
-    val KClass<*>.boxedClass: KClass<*>
+    actual val KClass<*>.boxedClass: KClass<*>
         get() = if (!this.isValue_safe) {
             this
         } else {
@@ -69,4 +64,5 @@ internal object ValueClassSupportDsl {
         } catch (_: UnsupportedOperationException) {
             false
         }
+
 }
