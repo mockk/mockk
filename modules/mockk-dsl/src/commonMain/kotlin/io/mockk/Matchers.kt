@@ -2,6 +2,7 @@ package io.mockk
 
 import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.platform.ValueClassSupport
 import kotlin.math.min
 import kotlin.reflect.KClass
 
@@ -56,7 +57,7 @@ data class FunctionMatcher<in T : Any>(
     override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     override fun match(arg: T?): Boolean {
-        return if(arg == null) {
+        return if (arg == null) {
             false
         } else {
             try {
@@ -79,7 +80,7 @@ data class FunctionWithNullableArgMatcher<in T : Any>(
     override fun match(arg: T?): Boolean = matchingFunc(arg)
 
     override fun checkType(arg: Any?): Boolean {
-        if(arg == null) {
+        if (arg == null) {
             return true
         }
 
@@ -125,7 +126,7 @@ data class CaptureNullableMatcher<T : Any>(
     override fun match(arg: T?): Boolean = true
 
     override fun checkType(arg: Any?): Boolean {
-        if(arg == null) {
+        if (arg == null) {
             return true
         }
 
@@ -149,7 +150,7 @@ data class CapturingSlotMatcher<T : Any>(
             captureSlot.isNull = true
         } else {
             captureSlot.isNull = false
-            captureSlot.captured = InternalPlatformDsl.boxCast(argumentType, arg)
+            captureSlot.captured = ValueClassSupport.boxCast(argumentType, arg)
         }
         captureSlot.isCaptured = true
     }

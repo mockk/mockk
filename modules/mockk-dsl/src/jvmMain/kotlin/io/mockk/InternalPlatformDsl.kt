@@ -215,20 +215,6 @@ actual object InternalPlatformDsl {
 
     actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall<T>(lambda)
 
-    actual fun unboxClass(cls: KClass<*>): KClass<*> = cls.boxedClass
-
-    @Suppress("UNCHECKED_CAST")
-    internal actual fun <T : Any> boxCast(
-        cls: KClass<*>,
-        arg: Any,
-    ): T {
-        return if (cls.isValue) {
-            val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
-            constructor.call(arg) as T
-        } else {
-            arg as T
-        }
-    }
 }
 
 class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T> {

@@ -3,6 +3,7 @@ package io.mockk.platform
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
@@ -63,4 +64,17 @@ actual object ValueClassSupport {
         } catch (_: UnsupportedOperationException) {
             false
         }
+
+    @Suppress("UNCHECKED_CAST")
+    actual fun <T : Any> boxCast(
+        cls: KClass<*>,
+        arg: Any,
+    ): T {
+        return if (cls.isValue) {
+            val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
+            constructor.call(arg) as T
+        } else {
+            arg as T
+        }
+    }
 }
