@@ -14,7 +14,7 @@ include(
     ":modules:mockk",
     ":modules:mockk-agent-api",
     ":modules:mockk-agent",
-    ":modules:mockk-platform-tools",
+    ":modules:mockk-core",
     ":modules:mockk-dsl",
 
     ":test-modules:client-tests",

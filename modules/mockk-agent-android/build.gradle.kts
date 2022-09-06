@@ -45,7 +45,7 @@ dependencies {
     api(projects.modules.mockkAgentApi)
     api(projects.modules.mockkAgent)
 
-    implementation(projects.modules.mockkPlatformTools)
+    implementation(projects.modules.mockkCore)
 
     implementation(kotlin("reflect"))
     implementation("com.linkedin.dexmaker:dexmaker:${buildsrc.config.Deps.Versions.dexmaker}")

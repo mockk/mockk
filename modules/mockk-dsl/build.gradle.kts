@@ -20,7 +20,7 @@ kotlin {
                 implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
                 implementation(Deps.Libs.kotlinCoroutinesCore)
                 implementation(kotlin("reflect"))
-                implementation(projects.modules.mockkPlatformTools)
+                implementation(projects.modules.mockkCore)
             }
         }
         val commonTest by getting {

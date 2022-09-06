@@ -6,9 +6,9 @@ plugins {
     buildsrc.convention.`mockk-publishing`
 }
 
-description = "MockK tools that are used by other MockK modules"
+description = "MockK functionality that is used by other MockK modules"
 
-val mavenName: String by extra("MockK Platform Tools")
+val mavenName: String by extra("MockK Core")
 val mavenDescription: String by extra("${project.description}")
 
 kotlin {
