@@ -3,7 +3,7 @@ package io.mockk.impl.instantiation
 import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
-import io.mockk.platform.ValueClassSupport.boxedClass
+import io.mockk.core.ValueClassSupport.boxedClass
 import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method

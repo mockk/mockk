@@ -1,4 +1,4 @@
-package io.mockk.platform
+package io.mockk.core
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1

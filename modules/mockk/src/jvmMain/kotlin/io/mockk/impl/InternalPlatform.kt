@@ -6,8 +6,8 @@ import io.mockk.StackElement
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
-import io.mockk.platform.ValueClassSupport.boxedClass
-import io.mockk.platform.ValueClassSupport.boxedValue
+import io.mockk.core.ValueClassSupport.boxedClass
+import io.mockk.core.ValueClassSupport.boxedValue
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 import java.util.*

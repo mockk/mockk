@@ -4,7 +4,7 @@ package io.mockk
 
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
-import io.mockk.platform.ValueClassSupport.boxedClass
+import io.mockk.core.ValueClassSupport.boxedClass
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 

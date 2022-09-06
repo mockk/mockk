@@ -1,6 +1,6 @@
 package io.mockk.proxy.jvm.advice
 
-import io.mockk.platform.ValueClassSupport.boxedValue
+import io.mockk.core.ValueClassSupport.boxedValue
 import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.Method
 import java.util.concurrent.Callable
