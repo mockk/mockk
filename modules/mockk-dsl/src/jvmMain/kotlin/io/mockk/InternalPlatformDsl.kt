@@ -215,7 +215,7 @@ actual object InternalPlatformDsl {
     actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall<T>(lambda)
 
     @Suppress("UNCHECKED_CAST")
-    actual fun <T : Any> boxCast(
+    internal actual fun <T : Any> boxCast(
         cls: KClass<*>,
         arg: Any,
     ): T {
