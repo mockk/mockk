@@ -105,6 +105,12 @@ internal class ProxyMaker(
         } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null) {
             log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
             clazz
+        } else if (clazz.kotlin.isSealed) {
+            log.trace("Taking instance of subclass of $clazz because it is sealed.")
+            clazz.kotlin.sealedSubclasses.firstNotNullOfOrNull {
+                @Suppress("UNCHECKED_CAST")
+                subclass(it.java, interfaces) as Class<T>
+            } ?: error("Unable to create proxy for sealed class $clazz, available subclasses: ${clazz.kotlin.sealedSubclasses}")
         } else {
             log.trace(
                 "Building subclass proxy for $clazz with " +
@@ -143,7 +149,7 @@ internal class ProxyMaker(
             val defaultConstructor = cls.getDeclaredConstructor()
             try {
                 defaultConstructor.isAccessible = true
-            } catch (ex: Exception) {
+            } catch (ignored: Exception) {
                 // skip
             }
 
