@@ -3,6 +3,7 @@ package io.mockk.core
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 
 class ValueClassSupportTest {
@@ -14,7 +15,9 @@ class ValueClassSupportTest {
             every { func() } returns JavaEnum.A
         }
 
-        mock.func() // throws KotlinReflectionInternalError
+        val result = mock.func() // check this doesn't throw KotlinReflectionInternalError
+
+        assertEquals(JavaEnum.A, result)
     }
 
 }
