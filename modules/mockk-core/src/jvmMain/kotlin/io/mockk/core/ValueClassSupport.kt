@@ -6,6 +6,7 @@ import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 
 
 actual object ValueClassSupport {
@@ -61,6 +62,8 @@ actual object ValueClassSupport {
     private val <T : Any> KClass<T>.isValue_safe: Boolean
         get() = try {
             this.isValue
+        } catch (_: KotlinReflectionInternalError) {
+            false
         } catch (_: UnsupportedOperationException) {
             false
         }
