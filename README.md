@@ -71,38 +71,43 @@ Table of contents:
 
 All you need to get started is just to add a dependency to `MockK` library.
 
-#### Gradle/maven dependency
+#### Gradle/Maven dependency
+
 <table>
 <thead><tr><th>Approach</th><th>Instruction</th></tr></thead>
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testImplementation "io.mockk:mockk:{version}"</pre>
-    </td>
+<pre>
+testImplementation "io.mockk:mockk:${mockkVersion}"
+</pre>
+</td>
 </tr>
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/> (Kotlin DSL)</td>
-<td>
-    <pre>testImplementation("io.mockk:mockk-jvm:{version}")</pre>
-    </td>
+ <td>
+  <pre>testImplementation("io.mockk:mockk:${mockkVersion}")</pre>
+ </td>
 </tr>
 <tr>
 <td><img src="doc/maven.png" alt="Maven"/></td>
 <td>
-<pre>&lt;dependency&gt;
-    &lt;groupId&gt;io.mockk&lt;/groupId&gt;
-    &lt;artifactId&gt;mockk-jvm&lt;/artifactId&gt;
-    &lt;version&gt;{version}&lt;/version&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</pre>
-    </td>
+<pre>
+ &lt;dependency&gt;
+     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
+     &lt;artifactId&gt;mockk-jvm&lt;/artifactId&gt;
+     &lt;version&gt;${mockkVersion}&lt;/version&gt;
+     &lt;scope&gt;test&lt;/scope&gt;
+ &lt;/dependency&gt;
+</pre>
+</td>
 </tr>
 <tr>
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
 <td>
 <pre>
-testImplementation "io.mockk:mockk-android:{version}"
-testImplementation "io.mockk:mockk-agent-jvm:{version}"
+testImplementation "io.mockk:mockk-android:${mockkVersion}"
+testImplementation "io.mockk:mockk-agent:${mockkVersion}"
 </pre>
 </td>
 </tr>
@@ -110,15 +115,9 @@ testImplementation "io.mockk:mockk-agent-jvm:{version}"
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
 <td>
 <pre>
-androidTestImplementation "io.mockk:mockk-android:{version}"
-androidTestImplementation "io.mockk:mockk-agent-jvm:{version}"
+androidTestImplementation "io.mockk:mockk-android:${mockkVersion}"
+androidTestImplementation "io.mockk:mockk-agent:${mockkVersion}"
 </pre>
-</td>
-</tr>
-<tr>
-<td>Common multiplatform</td>
-<td>
-    <pre>testImplementation "io.mockk:mockk-common:{version}"</pre>
 </td>
 </tr>
 </table>
