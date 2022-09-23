@@ -78,13 +78,15 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testImplementation "io.mockk:mockk:${mockkVersion}"</pre>
-    </td>
+<pre>
+testImplementation "io.mockk:mockk:${mockkVersion}"
+</pre>
+</td>
 </tr>
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/> (Kotlin DSL)</td>
  <td>
-     <pre>testImplementation("io.mockk:mockk:${mockkVersion}")</pre>
+  <pre>testImplementation("io.mockk:mockk:${mockkVersion}")</pre>
  </td>
 </tr>
 <tr>
@@ -94,7 +96,7 @@ All you need to get started is just to add a dependency to `MockK` library.
  &lt;dependency&gt;
      &lt;groupId&gt;io.mockk&lt;/groupId&gt;
      &lt;artifactId&gt;mockk-jvm&lt;/artifactId&gt;
-     &lt;version&gt;${mockkVersion}&lt;/version&gt;
+     &lt;version&gt;${mockkVersion}&lt;/version&gt;
      &lt;scope&gt;test&lt;/scope&gt;
  &lt;/dependency&gt;
 </pre>
