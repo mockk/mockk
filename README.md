@@ -83,7 +83,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/> (Kotlin DSL)</td>
 <td>
-    <pre>testImplementation("io.mockk:mockk:{version}")</pre>
+    <pre>testImplementation("io.mockk:mockk-jvm:{version}")</pre>
     </td>
 </tr>
 <tr>
@@ -91,7 +91,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <td>
 <pre>&lt;dependency&gt;
     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
-    &lt;artifactId&gt;mockk&lt;/artifactId&gt;
+    &lt;artifactId&gt;mockk-jvm&lt;/artifactId&gt;
     &lt;version&gt;{version}&lt;/version&gt;
     &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</pre>
@@ -101,7 +101,7 @@ All you need to get started is just to add a dependency to `MockK` library.
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
 <td>
 <pre>
-testImplementation "io.mockk:mockk:{version}"
+testImplementation "io.mockk:mockk-android:{version}"
 testImplementation "io.mockk:mockk-agent-jvm:{version}"
 </pre>
 </td>
