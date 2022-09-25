@@ -33,6 +33,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
+                implementation(Deps.Libs.kotlinCoroutinesTest)
             }
         }
         val jvmMain by getting {

@@ -125,6 +125,14 @@ fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T,
 fun coJustRun(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubBlock) just Runs
 
 /**
+ * Stub block to never return. Part of DSL.
+ *
+ * Used to define what behaviour is going to be mocked.
+ * @see [coJustRun]
+ */
+fun coJustAwait(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubBlock) just Awaits
+
+/**
  * Verifies that calls were made in the past. Part of DSL
  *
  * @param ordering how the verification should be ordered

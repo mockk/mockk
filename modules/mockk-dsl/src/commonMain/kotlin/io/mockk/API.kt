@@ -5,6 +5,7 @@ package io.mockk
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
 import io.mockk.core.ValueClassSupport.boxedClass
+import kotlinx.coroutines.awaitCancellation
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
@@ -2097,6 +2098,12 @@ object Runs
 typealias runs = Runs
 
 /**
+ * Part of DSL. Object to represent phrase "just Awaits"
+ */
+object Awaits
+typealias awaits = Awaits
+
+/**
  * Stub scope. Part of DSL
  *
  * Allows to specify function result
@@ -2147,6 +2154,12 @@ class MockKStubScope<T, B>(
 infix fun MockKStubScope<Unit, Unit>.just(runs: Runs) = answers(ConstantAnswer(Unit))
 
 /**
+ * Part of DSL. Answer placeholder for never returning suspend functions.
+ */
+@Suppress("UNUSED_PARAMETER")
+infix fun <T, B> MockKStubScope<T, B>.just(awaits: Awaits) = coAnswers { awaitCancellation() }
+
+/**
  * Scope to chain additional answers to reply. Part of DSL
  */
 class MockKAdditionalAnswerScope<T, B>(
@@ -2184,6 +2197,11 @@ class MockKAdditionalAnswerScope<T, B>(
 @Suppress("UNUSED_PARAMETER")
 infix fun MockKAdditionalAnswerScope<Unit, Unit>.andThenJust(runs: Runs) = andThenAnswer(ConstantAnswer(Unit))
 
+/**
+ * Part of DSL. Answer placeholder for never returning functions.
+ */
+@Suppress("UNUSED_PARAMETER")
+infix fun <T, B> MockKAdditionalAnswerScope<T, B>.andThenJust(awaits: Awaits) = coAndThen { awaitCancellation() }
 
 internal fun <T> List<T>.allConst() = this.map { ConstantAnswer(it) }
 
