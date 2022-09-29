@@ -30,6 +30,28 @@ class SealedClassTest {
         assertEquals(Leaf(1), result)
     }
 
+    @Test
+    fun serviceReturnsSealedClassImplWithAnyMatcher() {
+        val factory = mockk<Factory> {
+            every { copy(any()) } returns Leaf(1)
+        }
+
+        val result = factory.create()
+
+        assertEquals(Leaf(1), result)
+    }
+
+    @Test
+    fun serviceAnswersSealedClassImplWithAnyMatcher() {
+        val factory = mockk<Factory> {
+            every { copy(any()) } answers { Leaf(1) }
+        }
+
+        val result = factory.create()
+
+        assertEquals(Leaf(1), result)
+    }
+
     companion object {
 
         sealed class Node
@@ -39,10 +61,12 @@ class SealedClassTest {
 
         interface Factory {
             fun create(): Node
+            fun copy(node: Node): Node
         }
 
         class FactoryImpl : Factory {
             override fun create(): Node = Root(0)
+            override fun copy(node: Node): Node = node
         }
 
     }
