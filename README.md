@@ -696,7 +696,7 @@ confirmVerified(obj)
 
 To double check that all calls were verified by `verify...` constructs, you can use `confirmVerified`:
 
-```
+```kotlin
 confirmVerified(mock1, mock2)
 ```
 
@@ -706,7 +706,7 @@ It will throw an exception if there are some calls left without verification.
 
 Some calls can be excluded from this confirmation, check the next section for more details.
 
-```
+```kotlin
 val car = mockk<Car>()
 
 every { car.drive(Direction.NORTH) } returns Outcome.OK
@@ -727,7 +727,7 @@ confirmVerified(car) // makes sure all calls were covered with verification
 
 Because clean & maintainable test code requires zero unnecessary code, you can ensure that there is no unnecessary stubs.
 
-```
+```kotlin
 checkUnnecessaryStub(mock1, mock2)
 ```
 
@@ -739,13 +739,13 @@ This can happen if you have declared some really unnecessary stubs or if the tes
 
 To exclude unimportant calls from being recorded, you can use `excludeRecords`:
 
-```
+```kotlin
 excludeRecords { mock.operation(any(), 5) }
 ```
 
 All matching calls will be excluded from recording. This may be useful if you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
 
-```
+```kotlin
 val car = mockk<Car>()
 
 every { car.drive(Direction.NORTH) } returns Outcome.OK
@@ -923,7 +923,7 @@ mockkStatic(Obj::squareValue)
 If `@JvmName` is used, specify it as a class name.
 
 KHttp.kt:
-```
+```kotlin
 @file:JvmName("KHttp")
 
 package khttp
@@ -931,16 +931,16 @@ package khttp
 ```
 
 Testing code:
-```
+```kotlin
 mockkStatic("khttp.KHttp")
 ```
 
 Sometimes you need to know a little bit more to mock an extension function. 
 For example the extension function `File.endsWith()` has a totally unpredictable `classname`:
 ```kotlin
-   mockkStatic("kotlin.io.FilesKt__UtilsKt")
-   every { File("abc").endsWith(any<String>()) } returns true
-   println(File("abc").endsWith("abc"))
+mockkStatic("kotlin.io.FilesKt__UtilsKt")
+every { File("abc").endsWith(any<String>()) } returns true
+println(File("abc").endsWith("abc"))
 ```
 This is standard Kotlin behaviour that may be unpredictable.
 Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR archive to detect such names.
@@ -950,37 +950,37 @@ Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR arc
 From version 1.9.1, more extended vararg handling is possible:
 
 ```kotlin
-    interface ClsWithManyMany {
-        fun manyMany(vararg x: Any): Int
-    }
+interface ClsWithManyMany {
+    fun manyMany(vararg x: Any): Int
+}
 
-    val obj = mockk<ClsWithManyMany>()
+val obj = mockk<ClsWithManyMany>()
 
-    every { obj.manyMany(5, 6, *varargAll { it == 7 }) } returns 3
+every { obj.manyMany(5, 6, *varargAll { it == 7 }) } returns 3
 
-    println(obj.manyMany(5, 6, 7)) // 3
-    println(obj.manyMany(5, 6, 7, 7)) // 3
-    println(obj.manyMany(5, 6, 7, 7, 7)) // 3
+println(obj.manyMany(5, 6, 7)) // 3
+println(obj.manyMany(5, 6, 7, 7)) // 3
+println(obj.manyMany(5, 6, 7, 7, 7)) // 3
 
-    every { obj.manyMany(5, 6, *anyVararg(), 7) } returns 4
+every { obj.manyMany(5, 6, *anyVararg(), 7) } returns 4
 
-    println(obj.manyMany(5, 6, 1, 7)) // 4
-    println(obj.manyMany(5, 6, 2, 3, 7)) // 4
-    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 4
+println(obj.manyMany(5, 6, 1, 7)) // 4
+println(obj.manyMany(5, 6, 2, 3, 7)) // 4
+println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 4
 
-    every { obj.manyMany(5, 6, *varargAny { nArgs > 5 }, 7) } returns 5
+every { obj.manyMany(5, 6, *varargAny { nArgs > 5 }, 7) } returns 5
 
-    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 5
-    println(obj.manyMany(5, 6, 4, 5, 6, 7, 7)) // 5
+println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 5
+println(obj.manyMany(5, 6, 4, 5, 6, 7, 7)) // 5
 
-    every {
-        obj.manyMany(5, 6, *varargAny {
-            if (position < 3) it == 3 else it == 4
-        }, 7)
-    } returns 6
-    
-    println(obj.manyMany(5, 6, 3, 4, 7)) // 6
-    println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
+every {
+    obj.manyMany(5, 6, *varargAny {
+        if (position < 3) it == 3 else it == 4
+    }, 7)
+} returns 6
+
+println(obj.manyMany(5, 6, 3, 4, 7)) // 6
+println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
 ```
 
 ### Private functions mocking / dynamic calls
@@ -1092,10 +1092,10 @@ every { quit(1) } throws Exception("this is a test")
 A very simple way to create new matchers is by attaching a function 
 to `MockKMatcherScope` or `MockKVerificationScope` and using the `match` function:
 
-```
-    fun MockKMatcherScope.seqEq(seq: Sequence<String>) = match<Sequence<String>> {
-        it.toList() == seq.toList()
-    }
+```kotlin
+fun MockKMatcherScope.seqEq(seq: Sequence<String>) = match<Sequence<String>> {
+    it.toList() == seq.toList()
+}
 ```
 
 It's also possible to create more advanced matchers by implementing the `Matcher` interface. 
@@ -1105,7 +1105,6 @@ It's also possible to create more advanced matchers by implementing the `Matcher
 Example of a custom matcher that compares list without order:
 
 ```kotlin 
-
 @Test
 fun test() {
     class MockCls {
@@ -1164,7 +1163,6 @@ inline fun <reified T : List<E>, E : Any> MockKMatcherScope.matchListWithoutOrde
     vararg items: E,
     refEq: Boolean = true
 ): T = match(ListWithoutOrderMatcher(listOf(*items), refEq))
-
 ```
 
 ## Settings file
