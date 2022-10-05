@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 11, 17, 18 ] # test LTS versions, and the newest
-        kotlin-version: [ 1.5.31, 1.6.21, 1.7.20-RC ]
+        kotlin-version: [ 1.5.31, 1.6.21, 1.7.20 ]
         kotlin-ir-enabled: [ true, false ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
     timeout-minutes: 30
