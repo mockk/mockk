@@ -854,6 +854,25 @@ car.drive(Direction.NORTH) // returns OK
 
 coVerify { car.drive(Direction.NORTH) }
 ```
+
+And to simulate a never returning `suspend` function, you can use `coJustAwait`:
+
+```kotlin
+runTest {
+    val car = mockk<Car>()
+
+    coJustAwait { car.drive(any()) } // car.drive(...) will never return
+
+    val job = launch(UnconfinedTestDispatcher()) {
+        car.drive(Direction.NORTH)
+    }
+
+    coVerify { car.drive(Direction.NORTH) }
+
+    job.cancelAndJoin() // Don't forget to cancel the job
+}
+```
+
 ### Extension functions
 
 There are three types of extension function in Kotlin:
@@ -1307,6 +1326,7 @@ An Answer can be followed up by one or more additional answers.
 |`answers answerObj`|specify that the matched call answers with an Answer object|
 |`answers { nothing }`|specify that the matched call answers null|
 |`just Runs`|specify that the matched call is returning Unit (returns null)|
+|`just Awaits`|specify that the matched call never returns (available since v1.13.3)|
 |`propertyType Class`|specify the type of the backing field accessor|
 |`nullablePropertyType Class`|specify the type of the backing field accessor as a nullable type|
 
@@ -1326,6 +1346,7 @@ So this is similar to the `returnsMany` semantics.
 |`andThenAnswer answerObj`|specify that the matched call answers with an Answer object|
 |`andThen { nothing }`|specify that the matched call answers null|
 |`andThenJust Runs`|specify that the matched call is returning Unit (available since v1.12.2)|
+|`andThenJust Awaits`|specify that the matched call is never returning (available since v1.13.3)|
 
 ### Answer scope
 
