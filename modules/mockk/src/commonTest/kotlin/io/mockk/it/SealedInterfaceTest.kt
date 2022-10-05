@@ -33,10 +33,6 @@ class SealedInterfaceTest {
     }
 
     @Test
-    @DisabledForJreRange(
-        min = JRE.JAVA_17,
-        disabledReason = "https://github.com/mockk/mockk/issues/934"
-    )
     fun serviceTakesSealedInterfaceAsInput() {
         val formattedNode = "Formatted node"
         val factory = mockk<Factory> {
