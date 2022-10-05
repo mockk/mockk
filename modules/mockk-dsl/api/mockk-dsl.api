@@ -1,9 +1,11 @@
 public final class io/mockk/APIKt {
+	public static final fun andThenJust (Lio/mockk/MockKAdditionalAnswerScope;Lio/mockk/Awaits;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun andThenJust (Lio/mockk/MockKAdditionalAnswerScope;Lio/mockk/Runs;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun checkEquals (Lio/mockk/MockKAssertScope;Ljava/lang/Object;)V
 	public static final fun checkEquals (Lio/mockk/MockKAssertScope;Ljava/lang/String;Ljava/lang/Object;)V
 	public static final fun internalSubstitute (Ljava/lang/Object;Ljava/util/Map;)Ljava/lang/Object;
 	public static final fun internalSubstitute (Ljava/util/List;Ljava/util/Map;)Ljava/util/List;
+	public static final fun just (Lio/mockk/MockKStubScope;Lio/mockk/Awaits;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun just (Lio/mockk/MockKStubScope;Lio/mockk/Runs;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun use (Lio/mockk/Deregisterable;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun use (Lio/mockk/MockKUnmockKScope;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
@@ -57,6 +59,10 @@ public final class io/mockk/ArrayMatcher : io/mockk/CapturingMatcher, io/mockk/M
 	public fun substitute (Ljava/util/Map;)Lio/mockk/ArrayMatcher;
 	public synthetic fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class io/mockk/Awaits {
+	public static final field INSTANCE Lio/mockk/Awaits;
 }
 
 public final class io/mockk/BackingFieldValue {

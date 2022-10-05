@@ -32,6 +32,7 @@ public final class io/mockk/MockKKt {
 	public static final fun coEvery (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
 	public static final fun coExcludeRecords (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun coExcludeRecords$default (ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public static final fun coJustAwait (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun coJustRun (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun coVerify (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun coVerify$default (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
