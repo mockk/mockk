@@ -4,22 +4,23 @@ import io.mockk.every
 import io.mockk.invoke
 import io.mockk.mockk
 import io.mockk.verify
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class LambdaTest {
-    val mock = mockk<MockCls>()
+    private val mock = mockk<MockCls>()
 
-    fun lambdaTest() {
+    @Test
+    fun simpleLambdaTest() {
         every {
             mock.lambdaOp(1, captureLambda())
         } answers { 1 - lambda<() -> Int>().invoke() }
 
-        assertEquals(-4, mock.lambdaOp(1, { 5 }))
+        assertEquals(-4, mock.lambdaOp(1) { 5 })
 
         verify {
             mock.lambdaOp(1, any())
         }
-
     }
 
     class MockCls {
