@@ -55,7 +55,9 @@ open class UnorderedCallVerifier(
         val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = stub.allRecordedCalls(matcher.method)
 
-        if(allCallsForMockMethod.size > 1 && matcher.args.any { it is CapturingSlotMatcher<*> }) {
+        val matchedCalls = allCallsForMockMethod.filter(matcher::match)
+
+        if(matchedCalls.size > 1 && matcher.args.any { it is CapturingSlotMatcher<*> }) {
             val msg = "$matcher execution is being verified more than once and its arguments are being captured with a slot.\n" +
                 "This will store only the argument of the last invocation in the slot.\n" +
                 "If you want to store all the arguments, use a mutableList to capture arguments."
@@ -63,7 +65,7 @@ open class UnorderedCallVerifier(
         }
 
         val result = if (min == 0 && max == 0) {
-            if (!allCallsForMockMethod.any(matcher::match)) {
+            if (matchedCalls.isEmpty()) {
                 VerificationResult.OK(listOf())
             } else {
                 VerificationResult.Failure(
@@ -127,7 +129,6 @@ open class UnorderedCallVerifier(
                 }
             }
             else -> {
-                val matchedCalls = allCallsForMockMethod.filter(matcher::match)
                 val n = matchedCalls.count()
                 if (n in min..max) {
                     VerificationResult.OK(matchedCalls)
@@ -162,7 +163,7 @@ open class UnorderedCallVerifier(
         }
 
         captureBlocks.add {
-            for (call in allCallsForMockMethod) {
+            for (call in matchedCalls) {
                 matcher.captureAnswer(call)
             }
         }

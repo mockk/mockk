@@ -85,8 +85,8 @@ class CapturingTest {
 
         assertFailsWith<MockKException> {
             verify {
-                mock.doSomething("1", capture(dataSlotId1))
-                mock.doSomething("2", capture(dataSlotId2))
+                mock.doSomething(any(), capture(dataSlotId1))
+                mock.doSomething(any(), capture(dataSlotId2))
             }
         }
     }
@@ -136,6 +136,8 @@ class CapturingTest {
             mock.doSomething("2", capture(slotList))
         }
 
+        // Each capture should have happened once because of different matchers for `id` argument
+        assertEquals(slotList.size, 2)
         assertEquals("data1", slotList[0])
         assertEquals("data2", slotList[1])
     }
@@ -156,6 +158,23 @@ class CapturingTest {
         }
 
         assertEquals(args, list)
+    }
+
+    @Test
+    fun itDoesNotThrowAMockkExceptionWhenVerifyingTheSameFunctionTwiceWithSlotsWithDifferentMatchers() {
+        mock.doSomething("1", "data1")
+        mock.doSomething("2", "data2")
+
+        val dataSlotId1 = slot<String>()
+        val dataSlotId2 = slot<String>()
+
+        verify {
+            mock.doSomething("1", capture(dataSlotId1))
+            mock.doSomething("2", capture(dataSlotId2))
+        }
+
+        assertEquals("data1", dataSlotId1.captured)
+        assertEquals("data2", dataSlotId2.captured)
     }
 
     class MockNullableCls {
