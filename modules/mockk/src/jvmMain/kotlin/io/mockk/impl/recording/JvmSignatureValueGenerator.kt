@@ -24,24 +24,34 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
             return constructor.call(valueSig)
         }
 
-        return cls.cast(
-            when (cls) {
-                java.lang.Boolean::class -> rnd.nextBoolean()
-                java.lang.Byte::class -> rnd.nextInt().toByte()
-                java.lang.Short::class -> rnd.nextInt().toShort()
-                java.lang.Character::class -> rnd.nextInt().toChar()
-                java.lang.Integer::class -> rnd.nextInt()
-                java.lang.Long::class -> rnd.nextLong()
-                java.lang.Float::class -> rnd.nextFloat()
-                java.lang.Double::class -> rnd.nextDouble()
-                java.lang.String::class -> rnd.nextLong().toString(16)
+        return cls.cast(instantiate(cls, anyValueGeneratorProvider, instantiator))
+    }
 
-                else ->
-                    @Suppress("UNCHECKED_CAST")
-                    anyValueGeneratorProvider().anyValue(cls, isNullable = false) {
-                        instantiator.instantiate(cls)
-                    } as T
+    private fun <T : Any> instantiate(
+        cls: KClass<T>,
+        anyValueGeneratorProvider: () -> AnyValueGenerator,
+        instantiator: AbstractInstantiator
+    ): Any = when (cls) {
+        Boolean::class -> rnd.nextBoolean()
+        Byte::class -> rnd.nextInt().toByte()
+        Short::class -> rnd.nextInt().toShort()
+        Character::class -> rnd.nextInt().toChar()
+        Integer::class -> rnd.nextInt()
+        Long::class -> rnd.nextLong()
+        Float::class -> rnd.nextFloat()
+        Double::class -> rnd.nextDouble()
+        String::class -> rnd.nextLong().toString(16)
+
+        else ->
+            if (cls.isSealed) {
+                cls.sealedSubclasses.firstNotNullOfOrNull {
+                    instantiate(it, anyValueGeneratorProvider, instantiator)
+                } ?: error("Unable to create proxy for sealed class $cls, available subclasses: ${cls.sealedSubclasses}")
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                anyValueGeneratorProvider().anyValue(cls, isNullable = false) {
+                    instantiator.instantiate(cls)
+                } as T
             }
-        )
     }
 }

@@ -2,6 +2,8 @@ package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.jupiter.api.condition.DisabledForJreRange
+import org.junit.jupiter.api.condition.JRE
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -30,6 +32,18 @@ class SealedInterfaceTest {
         assertEquals(Leaf(1), result)
     }
 
+    @Test
+    fun serviceTakesSealedInterfaceAsInput() {
+        val formattedNode = "Formatted node"
+        val factory = mockk<Factory> {
+            every { format(any()) } answers { formattedNode }
+        }
+
+        val result = factory.format(Root(0))
+
+        assertEquals(formattedNode, result)
+    }
+
     companion object {
 
         sealed interface Node
@@ -39,10 +53,14 @@ class SealedInterfaceTest {
 
         interface Factory {
             fun create(): Node
+
+            fun format(node: Node): String
         }
 
         class FactoryImpl : Factory {
             override fun create(): Node = Root(0)
+
+            override fun format(node: Node): String = node.toString()
         }
 
     }
