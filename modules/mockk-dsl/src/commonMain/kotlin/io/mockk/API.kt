@@ -2133,6 +2133,9 @@ class MockKStubScope<T, B>(
 
     infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
 
+    infix fun throwsMany(exList: List<Throwable>): MockKAdditionalAnswerScope<T, B> =
+        this answers (ManyAnswersAnswer(exList.map { ThrowingAnswer(it) }))
+
     infix fun answers(answer: MockKAnswerScope<T, B>.(Call) -> T) =
         answers(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
 
