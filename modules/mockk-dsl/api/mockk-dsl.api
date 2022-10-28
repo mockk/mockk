@@ -486,6 +486,7 @@ public final class io/mockk/MockKAdditionalAnswerScope {
 	public final fun andThenMany (Ljava/util/List;)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun andThenMany ([Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun andThenThrows (Ljava/lang/Throwable;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun andThenThrowsMany (Ljava/util/List;)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun coAndThen (Lkotlin/jvm/functions/Function3;)Lio/mockk/MockKAdditionalAnswerScope;
 }
 
@@ -927,6 +928,7 @@ public final class io/mockk/MockKStubScope {
 	public final fun returnsMany (Ljava/util/List;)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun returnsMany ([Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun throws (Ljava/lang/Throwable;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun throwsMany (Ljava/util/List;)Lio/mockk/MockKAdditionalAnswerScope;
 }
 
 public final class io/mockk/MockKUnmockKCompositeScope : io/mockk/MockKUnmockKScope {
