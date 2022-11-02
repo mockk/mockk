@@ -700,28 +700,92 @@ open class MockKMatcherScope(
     inline fun <reified T : Any> matchNullable(noinline matcher: (T?) -> Boolean): T =
         match(FunctionWithNullableArgMatcher(matcher, T::class))
 
+    /**
+     * Matches if the value is equal to the provided [value] via the `deepEquals` function.
+     *
+     * If matchers are being used, the eq argument matcher must be used to match literal values.
+     * When no matchers are used, literal arguments are automatically matched using eq.
+     *
+     * @sample
+     * class Calculator {
+     *   fun add(a: Int, b: Int) = a + b
+     * }
+     *
+     * val calculator = mockk<Calculator>()
+     * every { calculator.add(any(), eq(5)) } returns 44
+     * every { calculator.add(1, 2) returns 55
+     */
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
-
+    /**
+     * Matches if the value is not equal to the provided [value] via the `deepEquals` function.
+     */
     inline fun <reified T : Any> neq(value: T): T = eq(value, true)
+
+    /**
+     * Matches if the value is equal to the provided [value] via reference comparison.
+     */
     inline fun <reified T : Any> refEq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, ref = true, inverse = inverse))
-
+    /**
+     * Matches if the value is not equal to the provided [value] via reference comparison.
+     */
     inline fun <reified T : Any> nrefEq(value: T) = refEq(value, true)
 
+    /**
+     * Matches any argument.
+     */
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
+
     inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
+    /**
+     * Captures a non-nullable value to a [CapturingSlot].
+     *
+     * @see [io.mockk.slot] to create capturing slot.
+     * @see [captureNullable] for nullable arguments.
+     * @sample
+     * interface FileNetwork {
+     *   fun download(name: String): File
+     * }
+     *
+     * val network = mockk<FileNetwork>()
+     * val slot = slot<String>()
+     *
+     * every { network.download(capture(slot)) } returns mockk()
+     *
+     * network.download("testfile")
+     * // slot.captured is now "testfile"
+     */
     inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class))
+    /**
+     * Captures a nullable value to a [CapturingSlot].
+     *
+     * @see [io.mockk.slot] to create capturing slot.
+     * @see [capture] for non-nullable arguments.
+     */
     inline fun <reified T : Any> captureNullable(lst: MutableList<T?>): T? =
         match(CaptureNullableMatcher(lst, T::class))
 
+    /**
+     * Matches if the value is equal to the provided [value] via the `compareTo` function.
+     */
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class))
+    /**
+     * Matches if the value is more than the provided [value] via the `compareTo` function.
+     * @param andEquals matches more than or equal to
+     */
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class))
-
+    /**
+     * Matches if the value is less than the provided [value] via the `compareTo` function.
+     * @param andEquals matches less than or equal to
+     */
     inline fun <reified T : Comparable<T>> less(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) -2 else -1, T::class))
 
+    /**
+     * Matches if the value is in range via the `compareTo` function.
+     */
     inline fun <reified T : Comparable<T>> range(
         from: T,
         to: T,
@@ -729,11 +793,29 @@ open class MockKMatcherScope(
         toInclusive: Boolean = true
     ): T = and(more(from, fromInclusive), less(to, toInclusive))
 
+    /**
+     * Combines two matchers via a logical and.
+     */
     inline fun <reified T : Any> and(left: T, right: T): T = match(AndOrMatcher<T>(true, left, right))
+    /**
+     * Combines two matchers via a logical or.
+     */
     inline fun <reified T : Any> or(left: T, right: T): T = match(AndOrMatcher<T>(false, left, right))
+    /**
+     * Negates the matcher.
+     */
     inline fun <reified T : Any> not(value: T): T = match(NotMatcher<T>(value))
+
+    /**
+     * Checks if the value is null.
+     *
+     * @param inverse checks if the value is not-null instead
+     */
     inline fun <reified T : Any> isNull(inverse: Boolean = false): T = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T : Any, R : T> ofType(cls: KClass<R>): T = match(OfTypeMatcher<T>(cls))
+    /**
+     * Checks if the value belongs to the type.
+     */
     inline fun <reified T : Any> ofType(): T = match(OfTypeMatcher<T>(T::class))
 
     inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
