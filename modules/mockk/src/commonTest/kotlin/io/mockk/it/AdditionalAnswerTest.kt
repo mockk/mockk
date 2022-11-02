@@ -124,6 +124,53 @@ class AdditionalAnswerTest {
     }
 
     @Test
+    fun andThrowsMany() {
+        val exceptions = listOf(
+            IllegalArgumentException("error1"),
+            NullPointerException("error2"),
+            NoSuchElementException("error3")
+        )
+
+        every { mock.op(any()) } throwsMany exceptions
+
+        assertFailsWith(IllegalArgumentException::class) {
+            mock.op(2)
+        }
+        assertFailsWith(NullPointerException::class) {
+            mock.op(3)
+        }
+        assertFailsWith(NoSuchElementException::class) {
+            mock.op(3)
+        }
+        assertFailsWith(NoSuchElementException::class) {
+            mock.op(4)
+        }
+    }
+
+    @Test
+    fun andThenThrowsMany() {
+        val exceptions = listOf(
+            IllegalArgumentException("error1"),
+            NullPointerException("error2"),
+            NoSuchElementException("error3")
+        )
+        every { mock.op(any()) } returns 3 andThenThrowsMany exceptions andThen 2
+
+        assertEquals(3, mock.op(1))
+        assertFailsWith(IllegalArgumentException::class) {
+            mock.op(2)
+        }
+        assertFailsWith(NullPointerException::class) {
+            mock.op(3)
+        }
+        assertFailsWith(NoSuchElementException::class) {
+            mock.op(3)
+        }
+        assertEquals(2, mock.op(4))
+        assertEquals(2, mock.op(5))
+    }
+
+    @Test
     fun arbitraryLengthCheck() {
         every {
             mock.op(any())
