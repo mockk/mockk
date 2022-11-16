@@ -54,6 +54,7 @@ class AnsweringStateTest {
         assertSame(otherState, ret)
     }
 
+    @Test
     fun givenAnsweringStateWhenStartVerificationIsCalledThenSwitchedToVerificationState() {
         val params = VerificationParameters(Ordering.ALL, 1, 1, false, 0)
 
