@@ -1,10 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.lang.RuntimeException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -16,7 +13,7 @@ import kotlin.test.assertTrue
 class CoroutineTest {
 
     data class ClearMocksClass(val a: String) {
-        suspend fun a() {
+        suspend fun a() = coroutineScope {
             // logic
         }
     }

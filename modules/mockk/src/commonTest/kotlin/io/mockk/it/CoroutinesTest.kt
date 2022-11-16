@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
+import kotlinx.coroutines.coroutineScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -65,7 +66,7 @@ class CoroutinesTest {
     }
 
     class MockCls {
-        suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = a + b
+        suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = coroutineScope { a + b }
         suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
     }
 
@@ -76,7 +77,6 @@ class CoroutinesTest {
             }
         }
 
-        private suspend fun myPrivateCall(arg1: Int) {
-        }
+        private suspend fun myPrivateCall(arg1: Int): Unit = coroutineScope { }
     }
 }

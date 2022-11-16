@@ -1,12 +1,13 @@
 package io.mockk.it
 
 import io.mockk.*
+import kotlinx.coroutines.coroutineScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CoVerifyTest {
     class MockCls {
-        suspend fun op(a: Int) = a + 1
+        suspend fun op(a: Int) = coroutineScope { a + 1 }
     }
 
     val mock = mockk<MockCls>()

@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
+import kotlinx.coroutines.coroutineScope
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -192,7 +193,7 @@ class CapturingTest {
     }
 
     class CoMockCls {
-        suspend fun op(a: Int, b: Int, c: Cls) = a + b + c.value
+        suspend fun op(a: Int, b: Int, c: Cls): Int = coroutineScope { a + b + c.value }
     }
 
     open class MockedSubject {
