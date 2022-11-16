@@ -15,7 +15,6 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
     lateinit var call: RecordedCall
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
     fun detect(
         callRounds: List<CallRound>,
         callN: Int,

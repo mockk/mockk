@@ -10,7 +10,6 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@Suppress("UNUSED_PARAMETER")
 class NullableValueTest {
     class NullableValueGenerator(
         voidInstance: Any

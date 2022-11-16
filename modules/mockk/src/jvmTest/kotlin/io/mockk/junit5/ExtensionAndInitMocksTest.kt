@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_PARAMETER")
-
 package io.mockk.junit5
 
 import io.mockk.MockKAnnotations
