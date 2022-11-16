@@ -34,7 +34,7 @@ class CoroutineTest {
      * github issue #288
      */
     @Test
-    fun suspendFnMocking(): Unit {
+    fun suspendFnMocking() {
         val call = mockk<suspend () -> Int>()
         coEvery { call() } returns 5
         runBlocking { assertEquals(5, call()) }
