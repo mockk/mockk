@@ -47,7 +47,7 @@ abstract class RecordedBlockEvaluator(
                 // skip
             }
 
-            val n = callRecorderInstance.estimateCallRounds();
+            val n = callRecorderInstance.estimateCallRounds()
             for (i in 1 until n) {
                 try {
                     autoHinter.autoHint(
@@ -87,4 +87,3 @@ abstract class RecordedBlockEvaluator(
 
     protected fun initializeCoroutines() = InternalPlatformDsl.runCoroutine {}
 }
-

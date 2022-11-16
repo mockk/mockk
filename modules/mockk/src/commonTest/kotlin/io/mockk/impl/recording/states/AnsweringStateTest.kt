@@ -55,7 +55,7 @@ class AnsweringStateTest {
     }
 
     fun givenAnsweringStateWhenStartVerificationIsCalledThenSwitchedToVerificationState() {
-        val params = VerificationParameters(Ordering.ALL, 1, 1, false, 0);
+        val params = VerificationParameters(Ordering.ALL, 1, 1, false, 0)
 
         every {
             recorder.factories.verifyingState(any(), params)

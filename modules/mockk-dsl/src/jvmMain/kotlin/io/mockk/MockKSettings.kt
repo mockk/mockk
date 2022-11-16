@@ -35,15 +35,15 @@ actual object MockKSettings {
 
 
     fun setRelaxed(value: Boolean) {
-        properties.setProperty("relaxed", value.toString());
+        properties.setProperty("relaxed", value.toString())
     }
 
     fun setRelaxUnitFun(value: Boolean) {
-        properties.setProperty("relaxUnitFun", value.toString());
+        properties.setProperty("relaxUnitFun", value.toString())
     }
 
     fun setRecordPrivateCalls(value: Boolean) {
-        properties.setProperty("recordPrivateCalls", value.toString());
+        properties.setProperty("recordPrivateCalls", value.toString())
     }
 
     fun setStackTracesAlignment(value: String) {

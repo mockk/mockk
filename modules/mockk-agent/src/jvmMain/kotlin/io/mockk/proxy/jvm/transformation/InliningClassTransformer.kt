@@ -84,7 +84,7 @@ internal class InliningClassTransformer(
                     type.saveIn(storePath)
                 }
             } catch (ex: Exception) {
-                log.trace(ex, "Failed to save file to a dump");
+                log.trace(ex, "Failed to save file to a dump")
             }
 
             return type.bytes
@@ -143,6 +143,6 @@ internal class InliningClassTransformer(
         }
 
     companion object {
-        val classDumpIndex = AtomicLong();
+        val classDumpIndex = AtomicLong()
     }
 }

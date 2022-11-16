@@ -59,11 +59,11 @@ object JvmMockFactoryHelper {
                 BackingFieldValue(
                     property.name,
                     {
-                        InternalPlatformDsl.makeAccessible(field);
+                        InternalPlatformDsl.makeAccessible(field)
                         field.get(self)
                     },
                     {
-                        InternalPlatformDsl.makeAccessible(field);
+                        InternalPlatformDsl.makeAccessible(field)
                         field.set(self, it)
                     }
                 )
