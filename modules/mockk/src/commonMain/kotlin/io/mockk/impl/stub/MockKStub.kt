@@ -62,14 +62,11 @@ open class MockKStub(
         args: List<Any?>,
         otherwise: () -> Any?
     ): Any? {
-        if (method.isToString()) {
-            return toStr()
-        } else if (method.isHashCode()) {
-            return InternalPlatformDsl.identityHashCode(self)
-        } else if (method.isEquals()) {
-            return self === args[0]
-        } else {
-            return otherwise()
+        return when {
+            method.isToString() -> toStr()
+            method.isHashCode() -> InternalPlatformDsl.identityHashCode(self)
+            method.isEquals() -> self === args[0]
+            else -> otherwise()
         }
     }
 
