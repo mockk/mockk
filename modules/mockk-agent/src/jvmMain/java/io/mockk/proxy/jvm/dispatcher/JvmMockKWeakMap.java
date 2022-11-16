@@ -9,23 +9,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JvmMockKWeakMap<K, V> implements Map<K, V> {
-    private final Map<Object, V> target = new ConcurrentHashMap<Object, V>();
-    private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
+    private final Map<Object, V> target = new ConcurrentHashMap<>();
+    private final ReferenceQueue<K> queue = new ReferenceQueue<>();
 
     @SuppressWarnings("unchecked")
     public V get(Object key) {
-        return target.get(new StrongKey<K>((K) key));
+        return target.get(new StrongKey<>((K) key));
     }
 
     public V put(K key, V value) {
         expunge();
-        return target.put(new WeakKey<K>(key, queue), value);
+        return target.put(new WeakKey<>(key, queue), value);
     }
 
     @SuppressWarnings("unchecked")
     public V remove(Object key) {
         expunge();
-        return target.remove(new StrongKey<K>((K) key));
+        return target.remove(new StrongKey<>((K) key));
     }
 
 
