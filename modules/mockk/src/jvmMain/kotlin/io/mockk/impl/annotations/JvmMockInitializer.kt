@@ -174,13 +174,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         }
     }
 
-    private fun overrideName(annotationName: String, propertyName: String): String {
-        return if (annotationName.isBlank()) {
-            propertyName
-        } else {
-            annotationName
-        }
-    }
+    private fun overrideName(annotationName: String, propertyName: String): String =
+        annotationName.ifBlank { propertyName }
 
     private inline fun <reified T : Annotation> KProperty1<Any, Any>.annotated(
         target: Any,
