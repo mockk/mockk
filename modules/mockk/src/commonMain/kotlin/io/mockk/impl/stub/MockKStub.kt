@@ -299,7 +299,7 @@ open class MockKStub(
             method,
             args.map {
                 if (it == null)
-                    NullCheckMatcher<Any>()
+                    NullCheckMatcher()
                 else
                     EqMatcher(it)
             }, false
