@@ -56,7 +56,7 @@ class ProxyInvocationHandler(private val handler: MockKInvocationHandler) : Invo
 
         }
 
-        override fun call() =
+        override fun call(): Any =
             try {
                 proxy.javaClass
                     .getMethod(superMethodName(method), *method.parameterTypes)
