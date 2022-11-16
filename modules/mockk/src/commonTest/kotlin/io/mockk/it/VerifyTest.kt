@@ -5,10 +5,8 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import io.mockk.verifyAll
 import io.mockk.verifyOrder
 import io.mockk.verifySequence
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

@@ -1,7 +1,6 @@
 package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
-import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKConstructorProxyAdvice

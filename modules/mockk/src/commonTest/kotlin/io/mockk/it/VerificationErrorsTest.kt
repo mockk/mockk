@@ -1,7 +1,6 @@
 package io.mockk.it
 
 import io.mockk.*
-import io.mockk.test.SkipInstrumentedAndroidTest
 import kotlin.test.Test
 import kotlin.test.fail
 
