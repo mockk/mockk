@@ -51,11 +51,10 @@ class MockInjector(
     }
 
     private fun findMatchingConstructor(type: KClass<*>): KFunction<Any>? {
-        val sortCriteria = compareBy<KFunction<Any>>({
-            -it.parameters.size
-        }, {
-            it.parameters.map { it.type.toString() }.joinToString(",")
-        })
+        val sortCriteria = compareBy<KFunction<Any>>(
+            { -it.parameters.size },
+            { fn -> fn.parameters.joinToString(",") { it.type.toString() } }
+        )
 
         return type.constructors.sortedWith(sortCriteria)
             .firstOrNull { tryMatchingParameters(it.valueParameters) }
@@ -111,9 +110,10 @@ class MockInjector(
     }
 
     private fun <R> KFunction<R>.constructorToStr(): String {
-        return "constructor(" + parameters.map {
+        val joinedParameters = parameters.joinToString(", ") {
             (it.name ?: "<noname arg.>") + " : " + it.type + " = " + lookupToStr(it)
-        }.joinToString(", ") + ")"
+        }
+        return "constructor($joinedParameters)"
     }
 
     private fun lookupToStr(param: KParameter): String {
@@ -123,4 +123,3 @@ class MockInjector(
             .toString()
     }
 }
-
