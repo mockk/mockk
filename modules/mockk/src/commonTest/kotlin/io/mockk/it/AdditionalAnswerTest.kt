@@ -180,7 +180,7 @@ class AdditionalAnswerTest {
             .andThen(7)
             .andThenAnswer(ConstantAnswer(8))
             .andThenThrows(IllegalArgumentException())
-            .andThenAnswer() { 9 }
+            .andThenAnswer { 9 }
             .coAndThen { 10 }
             .andThenThrows(IllegalStateException())
             .andThen(11)
