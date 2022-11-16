@@ -2,6 +2,7 @@ package io.mockk.impl
 
 import io.mockk.impl.MultiNotifier.Session
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
