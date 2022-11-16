@@ -1,5 +1,7 @@
 package io.mockk.proxy.jvm.dispatcher;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -125,7 +127,7 @@ public class JvmMockKWeakMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
+    public void putAll(@NotNull Map<? extends K, ? extends V> m) {
         throw new UnsupportedOperationException("putAll");
     }
 
