@@ -41,10 +41,10 @@ kotlin {
     jvmToolchain {
         (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(11))
     }
+}
 
-    kotlinDslPluginOptions {
-        jvmTarget.set("1.8")
-    }
+kotlinDslPluginOptions {
+    jvmTarget.set("1.8")
 }
 
 idea {
