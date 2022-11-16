@@ -221,7 +221,7 @@ class ArraysTest {
         fun arrayOp(arr: Array<Double>) = arr.map { it + 1 }.toTypedArray()
 
         fun arrayOp(array: Array<Array<Any>>): Array<Array<Any>> =
-            array.map { outer -> outer.map { ((it as Int) + 1) as Any }.toTypedArray() }.toTypedArray()
+            array.map { outer -> outer.map { (it as Int) + 1 }.toTypedArray<Any>() }.toTypedArray()
 
         fun arrayOp(array: Array<IntWrapper>): Array<IntWrapper> = array.map { IntWrapper(it.data + 1) }.toTypedArray()
     }
