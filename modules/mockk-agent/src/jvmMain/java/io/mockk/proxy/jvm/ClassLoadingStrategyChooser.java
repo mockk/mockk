@@ -1,6 +1,5 @@
 package io.mockk.proxy.jvm;
 
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import net.bytebuddy.dynamic.loading.ClassInjector;
@@ -44,17 +43,11 @@ public class ClassLoadingStrategyChooser {
                 strategy = ClassLoadingStrategy.Default.WRAPPER.with(type.getProtectionDomain());
             }
             return strategy;
-        } catch (InvocationTargetException e) {
-            throw new IllegalStateException(
-                "Failed to invoke 'privateLookupIn' method from java.lang.invoke.MethodHandles$Lookup.",
-                e
-            );
-        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalAccessException e) {
             throw new IllegalStateException(
                 "Failed to invoke 'privateLookupIn' method from java.lang.invoke.MethodHandles$Lookup.",
                 e
             );
         }
     }
-
 }
