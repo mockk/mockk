@@ -13,7 +13,7 @@ class AnswersTest {
         fun lambdaOp(a: Int, b: () -> Int) = a + b()
     }
 
-    val spy = spyk(MockCls())
+    private val spy = spyk(MockCls())
 
     @Test
     fun answerFirstArg() {

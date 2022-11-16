@@ -5,8 +5,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CoroutinesTest {
-    val mock = mockk<MockCls>()
-    val spy = spyk<MockCls>()
+    private val mock = mockk<MockCls>()
+    private val spy = spyk<MockCls>()
 
     @Test
     fun simpleCoroutineCall() {
