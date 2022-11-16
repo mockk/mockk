@@ -54,7 +54,7 @@ class VerificationErrorsTest {
 
             mock.otherOp(1, 2)
 
-            verify { mock.manyArgsOp(true, false) }
+            verify { mock.manyArgsOp(a = true, b = false) }
         }
     }
 

@@ -308,11 +308,11 @@ open class MockKStub(
     override fun dispose() {
         clear(
             MockKGateway.ClearOptions(
-                true,
-                true,
-                true,
-                true,
-                true
+                answers = true,
+                recordedCalls = true,
+                childMocks = true,
+                verificationMarks = true,
+                exclusionRules = true
             )
         )
         disposeRoutine.invoke()
