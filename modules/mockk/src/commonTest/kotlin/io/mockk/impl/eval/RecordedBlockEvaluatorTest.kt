@@ -3,6 +3,7 @@ package io.mockk.impl.eval
 import io.mockk.*
 import io.mockk.MockKGateway.CallRecorder
 import io.mockk.impl.recording.AutoHinter
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.*
 
 class RecordedBlockEvaluatorTest {
@@ -65,16 +66,14 @@ class RecordedBlockEvaluatorTest {
 
     @Test
     fun givenNoBlocksWhenEveryEvaluatorIsCalledThenExceptionIsThrown() {
-        try {
+        val exception = assertThrows<MockKException> {
             every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
             evaluator.record<Unit, MockKMatcherScope>(scope, null, null)
-            fail("No blocks provided. Exception should be thrown")
-        } catch (ex: MockKException) {
-
         }
-    }
 
+        assertEquals("You should specify either 'mockBlock' or 'coMockBlock'", exception.message)
+    }
 
     @Test
     fun givenLambdaBlockWhenEveryEvaluatorIsCalledThenDoneStateIsAchieved() {
