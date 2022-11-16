@@ -224,8 +224,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     companion object {
         private fun moreInterfaces(property: KProperty1<out Any, Any?>) =
             property.annotations
-                .filter { it is AdditionalInterface }
-                .map { it as AdditionalInterface }
+                .filterIsInstance<AdditionalInterface>()
                 .map { it.type }
                 .toTypedArray()
 
