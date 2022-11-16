@@ -1,4 +1,3 @@
 package io.mockk.test
 
-class CompileTimeTest {
-}
+class CompileTimeTest

@@ -42,8 +42,7 @@ data class CoFunctionAnswer<T>(val answerFunc: suspend (Call) -> T) : Answer<T> 
 
     override fun toString(): String = "coAnswer()"
 
-    companion object {
-    }
+    companion object
 }
 
 /**

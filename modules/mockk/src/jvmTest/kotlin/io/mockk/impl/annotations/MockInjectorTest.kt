@@ -311,8 +311,7 @@ class MockInjectorTest {
 
     @Test
     fun otherNameConstructorInjection() {
-        class InjectTarget(val otherName: MockCls, val name: MockCls) {
-        }
+        class InjectTarget(val otherName: MockCls, val name: MockCls)
 
         class InjectDeclaration {
             val name = MockCls()

@@ -370,8 +370,8 @@ class MatcherTest {
         }
     }
 
-    open class B {}
-    class C : B() {}
+    open class B
+    class C : B()
     class A {
         fun go(x: B) {}
     }
