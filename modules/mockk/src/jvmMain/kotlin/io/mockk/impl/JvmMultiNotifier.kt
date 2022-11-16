@@ -7,7 +7,7 @@ import kotlin.concurrent.withLock
 
 class JvmMultiNotifier : MultiNotifier {
     val lock = ReentrantLock()
-    val condition = lock.newCondition()
+    val condition: Condition = lock.newCondition()
 
     val conditionMet = mutableSetOf<Ref>()
     val counters = mutableMapOf<Ref, Int>()
