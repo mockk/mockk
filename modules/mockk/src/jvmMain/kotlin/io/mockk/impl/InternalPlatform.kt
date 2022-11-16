@@ -74,9 +74,9 @@ actual object InternalPlatform {
                     when (ex.message) {
                         null ->
                             "Class cast exception happened.\n" +
-                                    "WARN: 'message' property in ClassCastException provided by JVM is null, autohinting is not possible. \n" +
+                                    "WARN: 'message' property in ClassCastException provided by JVM is null, auto-hinting is not possible. \n" +
                                     "This is most probably happening due to Java optimization enabled. \n" +
-                                    "You can use `hint` before call or use -XX:-OmitStackTraceInFastThrow to disable this optimization behaviour and make autohiniting work. \n" +
+                                    "You can use `hint` before call or use -XX:-OmitStackTraceInFastThrow to disable this optimization behaviour and make auto-hinting work. \n" +
                                     "For example in gradle use: \n" +
                                     "\n" +
                                     "test {\n" +
