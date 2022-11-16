@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Test related to github issue #123
+ * Test related to GitHub issue #123
  */
 class ParallelTest {
     class MockCls {
