@@ -50,14 +50,14 @@ actual object InternalPlatformDsl {
         }
 
     actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
-        return if (obj1 === obj2) {
-            true
-        } else if (obj1 == null || obj2 == null) {
-            obj1 === obj2
-        } else if (obj1.javaClass.isArray && obj2.javaClass.isArray) {
-            arrayDeepEquals(obj1, obj2)
-        } else {
-            obj1 == obj2
+        return when {
+            obj1 === obj2 -> true
+
+            obj1 == null || obj2 == null -> false
+
+            obj1.javaClass.isArray && obj2.javaClass.isArray -> arrayDeepEquals(obj1, obj2)
+
+            else -> obj1 == obj2
         }
     }
 
