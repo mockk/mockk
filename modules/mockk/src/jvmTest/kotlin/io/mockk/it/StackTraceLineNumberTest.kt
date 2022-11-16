@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 /**
- * Test related to github issue #102
+ * Test related to GitHub issue #102
  */
 class StackTraceLineNumberTest {
     @Test

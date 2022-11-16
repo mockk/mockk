@@ -50,7 +50,7 @@ class NullableValueTest {
 
 
     /**
-     * Test related to github issue #323
+     * Test related to GitHub issue #323
      */
     @Ignore("Temporarily ignored because it's failing only on travis and not anywhere else")
     @Test

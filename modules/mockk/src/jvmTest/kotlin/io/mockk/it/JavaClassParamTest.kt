@@ -7,7 +7,7 @@ import org.junit.Test
 import kotlin.test.assertFalse
 
 /**
- * Test related to github issue #29
+ * Test related to GitHub issue #29
  */
 @Suppress("UNUSED_PARAMETER")
 class JavaClassParamTest {

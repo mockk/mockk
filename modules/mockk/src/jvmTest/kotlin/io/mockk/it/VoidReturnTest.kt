@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 
 /**
- * Test related to github issue #69
+ * Test related to GitHub issue #69
  */
 class VoidReturnTest {
     abstract class KafkaFuture<T> {

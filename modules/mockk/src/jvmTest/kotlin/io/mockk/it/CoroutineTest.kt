@@ -21,7 +21,7 @@ class CoroutineTest {
         }
     }
     /**
-     * github issue #234
+     * GitHub issue #234
      */
     @Test
     fun clearMocksTest() {
@@ -31,7 +31,7 @@ class CoroutineTest {
 
 
     /**
-     * github issue #288
+     * GitHub issue #288
      */
     @Test
     fun suspendFnMocking() {
@@ -41,7 +41,7 @@ class CoroutineTest {
     }
 
     /**
-     * Begin - github issue #171
+     * Begin - GitHub issue #171
      */
     interface Executable {
         suspend fun execute(): String
@@ -195,7 +195,7 @@ class CoroutineTest {
         }
     }
     /**
-     * End - github issue #171
+     * End - GitHub issue #171
      */
 
 }

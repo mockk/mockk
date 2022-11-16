@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService
 import kotlin.test.Test
 
 /**
- * github issue #229
+ * GitHub issue #229
  */
 class CallableTest {
     @Test
