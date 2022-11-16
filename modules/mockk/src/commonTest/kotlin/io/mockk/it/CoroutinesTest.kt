@@ -27,7 +27,7 @@ class CoroutinesTest {
         }
 
         InternalPlatformDsl.runCoroutine {
-            spy.coLambdaOp(1, { 2 })
+            spy.coLambdaOp(1) { 2 }
         }
 
         coVerify {

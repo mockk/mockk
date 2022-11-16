@@ -253,9 +253,9 @@ class JvmConstructorMockFactory(
         localToThread: Boolean
     ): () -> Unit {
         return synchronized(handlers) {
-            val handler = handlers.getOrPut(cls, {
+            val handler = handlers.getOrPut(cls) {
                 ConstructorInvocationHandler(cls)
-            })
+            }
 
             handler.push(localToThread, recordPrivateCalls)
         }
