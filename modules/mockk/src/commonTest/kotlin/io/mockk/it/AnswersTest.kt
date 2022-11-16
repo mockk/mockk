@@ -94,7 +94,7 @@ class AnswersTest {
         val slot = slot<() -> Int>()
         every { spy.lambdaOp(1, capture(slot)) } answers { 2 + slot.invoke() }
 
-        assertEquals(5, spy.lambdaOp(1, { 3 }))
+        assertEquals(5, spy.lambdaOp(1) { 3 })
 
         verify { spy.lambdaOp(1, any()) }
     }
