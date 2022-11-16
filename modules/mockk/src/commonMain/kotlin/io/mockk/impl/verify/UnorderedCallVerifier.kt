@@ -35,9 +35,10 @@ open class UnorderedCallVerifier(
         val verifiedCalls = mutableSetOf<Ref>()
         for ((i, call) in verificationSequence.withIndex()) {
             val callIdxMsg = safeToString.exec { "call ${i + 1} of ${verificationSequence.size}: ${call.matcher}" }
-            val result = matchCall(call, min, max, callIdxMsg)
 
-            when (result) {
+            when (
+                val result = matchCall(call, min, max, callIdxMsg)
+            ) {
                 is VerificationResult.OK -> verifiedCalls.addAll(
                     result
                         .verifiedCalls
