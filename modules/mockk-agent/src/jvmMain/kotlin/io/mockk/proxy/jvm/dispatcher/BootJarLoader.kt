@@ -11,6 +11,7 @@ import java.util.*
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
+import kotlin.math.abs
 
 internal class BootJarLoader(
     private val log: MockKAgentLogger
@@ -77,7 +78,7 @@ internal class BootJarLoader(
         try {
             File.createTempFile("mockk_boot", ".jar")
         } catch (ex: IOException) {
-            File("mockk_boot_${Math.abs(rnd.nextLong())}.jar")
+            File("mockk_boot_${abs(rnd.nextLong())}.jar")
         }
 
     @Throws(IOException::class)
