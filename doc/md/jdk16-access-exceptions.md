@@ -1,8 +1,8 @@
 # JDK 16+ access exceptions
 
 ### Problem symptoms 
-On JDK 16 and above you may encounter InaccessibleObjectException or IllegalAccessException in following known cases:
-1. _Some_ usages of `mockkStatic` on java standard library classes, e.g. 
+On JDK 16 and above you may encounter `InaccessibleObjectException` or `IllegalAccessException` in following known cases:
+1. _Some_ usages of `mockkStatic` on Java standard library classes, e.g. 
    ```kotlin
    mockkStatic(Instant::class)
    every { Instant.now() } returns Instant.parse("2022-09-15T09:31:26.919Z")
@@ -13,7 +13,7 @@ On JDK 16 and above you may encounter InaccessibleObjectException or IllegalAcce
      module java.base does not "opens java.time" to unnamed module @4501b7af
    ```
 
-2. Spying on java standard library classes, e.g.
+2. Spying on Java standard library classes, e.g.
    ```kotlin
    val socket = Socket()
    val spy = spyk<Socket>(socket)
@@ -34,14 +34,14 @@ https://blogs.oracle.com/javamagazine/post/a-peek-into-java-17-continuing-the-dr
 Add JVM argument `--add-opens java.base/java.time=ALL-UNNAMED` _for each package_ you need  
 Description: https://docs.oracle.com/en/java/javase/16/migrate/migrating-jdk-8-later-jdk-releases.html
 
-For gradle users:
+For Gradle users:
 ```groovy
 tasks.test {
     jvmArgs("--add-opens", "java.base/java.time=ALL-UNNAMED")
 }
 ```
 
-For maven users:
+For Maven users:
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
