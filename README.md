@@ -282,7 +282,8 @@ verify { car.drive(Direction.NORTH) }
 confirmVerified(car)
 ```
 
-Note: the spy object is a copy of the passed object.
+Note 1: the spy object is a copy of the passed object.
+Note 2: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
 
 ### Relaxed mock
 
@@ -872,6 +873,8 @@ runTest {
     job.cancelAndJoin() // Don't forget to cancel the job
 }
 ```
+
+Note: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
 
 ### Extension functions
 
