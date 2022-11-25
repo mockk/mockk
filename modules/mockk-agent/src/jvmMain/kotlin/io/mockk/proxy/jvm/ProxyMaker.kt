@@ -80,15 +80,20 @@ internal class ProxyMaker(
     private fun <T : Any> inline(
         clazz: Class<T>
     ): () -> Unit {
-        val superclasses = getAllSuperclasses(clazz)
+        val resolvedClass = if (clazz.kotlin.isSealed) {
+            clazz.kotlin.sealedSubclasses.firstOrNull()?.java
+                ?: error("Unable to resolve subclass for sealed class $clazz, available subclasses: ${clazz.kotlin.sealedSubclasses}")
+        } else clazz
+
+        val superclasses = getAllSuperclasses(resolvedClass)
 
         return if (inliner != null) {
             val transformRequest = TransformationRequest(superclasses, SIMPLE)
 
             inliner.execute(transformRequest)
         } else {
-            if (!Modifier.isFinal(clazz.modifiers)) {
-                warnOnFinalMethods(clazz)
+            if (!Modifier.isFinal(resolvedClass.modifiers)) {
+                warnOnFinalMethods(resolvedClass)
             }
 
             {}

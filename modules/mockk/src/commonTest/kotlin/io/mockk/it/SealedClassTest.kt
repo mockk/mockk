@@ -44,12 +44,28 @@ class SealedClassTest {
         assertEquals(formattedNode, result)
     }
 
+    @Test
+    fun mockSealedClassAbstractMethodWithMatchers() {
+        val node = mockk<Node> {
+            every { doSomething(any()) } returns 10
+        }
+
+        assertEquals(node.doSomething(20), 10)
+    }
+
     companion object {
 
-        sealed class Node
+        sealed class Node {
+            abstract fun doSomething(arg: Any?): Int
+        }
 
-        data class Root(val id: Int) : Node()
-        data class Leaf(val id: Int) : Node()
+        data class Root(val id: Int) : Node() {
+            override fun doSomething(arg: Any?) = id
+        }
+
+        data class Leaf(val id: Int) : Node() {
+            override fun doSomething(arg: Any?) = id
+        }
 
         interface Factory {
             fun create(): Node
