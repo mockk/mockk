@@ -8,11 +8,11 @@ import kotlin.test.assertEquals
 
 class ValueClassTest {
 
-    private val dummyValueWrapperArg get() = DummyValueWrapper(DummyValue(42))
-    private val dummyValueWrapperReturn get() = DummyValueWrapper(DummyValue(99))
+    private val dummyValueWrapperArg get() = DummyValueWrapper(DummyValue(42u))
+    private val dummyValueWrapperReturn get() = DummyValueWrapper(DummyValue(99u))
 
-    private val dummyValueClassArg get() = DummyValue(101)
-    private val dummyValueClassReturn get() = DummyValue(202)
+    private val dummyValueClassArg get() = DummyValue(101u)
+    private val dummyValueClassReturn get() = DummyValue(202u)
 
     //<editor-fold desc="arg=Value Class, return=ValueClass">
     @Test
@@ -479,7 +479,7 @@ class ValueClassTest {
 
     @Test
     fun `result value`() {
-        val givenResult = DummyValue(42)
+        val givenResult = DummyValue(42u)
 
         val mock = mockk<DummyService> {
             every { returnValueClass() } returns givenResult
@@ -493,7 +493,7 @@ class ValueClassTest {
     companion object {
 
         @JvmInline
-        value class DummyValue(val value: Int) {
+        value class DummyValue(val value: UInt) {
             // field without backing field
             val text: String get() = value.toString()
         }
@@ -504,19 +504,19 @@ class ValueClassTest {
         class DummyService {
 
             fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper =
-                DummyValueWrapper(DummyValue(0))
+                DummyValueWrapper(DummyValue(0u))
 
             fun argWrapperReturnValueClass(wrapper: DummyValueWrapper): DummyValue =
-                DummyValue(0)
+                DummyValue(0u)
 
             fun argValueClassReturnWrapper(valueClass: DummyValue): DummyValueWrapper =
                 DummyValueWrapper(valueClass)
 
             fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue =
-                DummyValue(0)
+                DummyValue(0u)
 
             fun returnValueClass(): DummyValue =
-                DummyValue(0)
+                DummyValue(0u)
 
             fun argNoneReturnsUInt(): UInt = 123u
         }
