@@ -1073,7 +1073,7 @@ every {
 Adding additional behaviours via interfaces and stubbing them:
 
 ```kotlin
-val spy = spyk(System.out, moreInterfaces = *arrayOf(Runnable::class))
+val spy = spyk(System.out, moreInterfaces = arrayOf(Runnable::class))
 
 spy.println(555)
 
