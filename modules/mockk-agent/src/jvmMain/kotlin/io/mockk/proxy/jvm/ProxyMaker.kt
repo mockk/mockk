@@ -27,19 +27,23 @@ internal class ProxyMaker(
 
         throwIfNotPossibleToProxy(clazz, interfaces)
 
-        val cancellation = inline(clazz)
+        // Sometimes (e.g. in case of sealed classes) we will create the proxy for a subclass of `clazz` and not `clazz`
+        // itself.  We need to determine this early, so that the subclass will be inlined as well.
+        val actualClass = findActualClassToBeProxied(clazz)
+
+        val cancellation = inline(actualClass)
 
         val result = CancelableResult<T>(cancelBlock = cancellation)
 
         val proxyClass = try {
-            subclass(clazz, interfaces)
+            subclass(actualClass, interfaces)
         } catch (ex: Exception) {
             result.cancel()
-            throw MockKAgentException("Failed to subclass $clazz", ex)
+            throw MockKAgentException("Failed to subclass $actualClass", ex)
         }
 
         try {
-            val proxy = instantiate(clazz, proxyClass, useDefaultConstructor, instance)
+            val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance)
 
             handlers[proxy] = handler
 
@@ -95,6 +99,21 @@ internal class ProxyMaker(
         }
     }
 
+    private fun <T : Any> findActualClassToBeProxied(
+        clazz: Class<T>,
+    ): Class<T> {
+        val kClass = clazz.kotlin
+        if (!kClass.isSealed) {
+            return clazz
+        }
+
+        val subclass = kClass.sealedSubclasses.firstOrNull()?.java
+            ?: error("Unable to create proxy for sealed class $clazz, no subclasses available")
+        log.trace("Class $clazz is sealed, will use its subclass $subclass to build proxy")
+        @Suppress("UNCHECKED_CAST")
+        return findActualClassToBeProxied(subclass) as Class<T>
+    }
+
     private fun <T : Any> subclass(
         clazz: Class<T>,
         interfaces: Array<Class<*>>
@@ -105,12 +124,6 @@ internal class ProxyMaker(
         } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null) {
             log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
             clazz
-        } else if (clazz.kotlin.isSealed) {
-            log.trace("Taking instance of subclass of $clazz because it is sealed.")
-            clazz.kotlin.sealedSubclasses.firstNotNullOfOrNull {
-                @Suppress("UNCHECKED_CAST")
-                subclass(it.java, interfaces) as Class<T>
-            } ?: error("Unable to create proxy for sealed class $clazz, available subclasses: ${clazz.kotlin.sealedSubclasses}")
         } else {
             log.trace(
                 "Building subclass proxy for $clazz with " +
