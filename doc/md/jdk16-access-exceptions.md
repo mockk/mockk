@@ -1,7 +1,7 @@
 # JDK 16+ access exceptions
 
 ### Problem symptoms 
-On JDK 16 and above you may encounter `InaccessibleObjectException` or `IllegalAccessException` in following known cases:
+On JDK 16 and above you may encounter `InaccessibleObjectException` or `IllegalAccessException` in the following known cases:
 1. _Some_ usages of `mockkStatic` on Java standard library classes, e.g. 
    ```kotlin
    mockkStatic(Instant::class)
@@ -31,25 +31,29 @@ JDK 16 enforces strong encapsulation of standard modules. In practice this mean 
 https://blogs.oracle.com/javamagazine/post/a-peek-into-java-17-continuing-the-drive-to-encapsulate-the-java-runtime-internals
 
 ### Solution / workaround
-Add JVM argument `--add-opens java.base/java.time=ALL-UNNAMED` _for each package_ you need  
+Add JVM argument `--add-opens java.base/full.package.name=ALL-UNNAMED` _for each package_ you need to mock. Package name should be fully qualified.  
 Description: https://docs.oracle.com/en/java/javase/16/migrate/migrating-jdk-8-later-jdk-releases.html
 
-For Gradle users:
+Example for Gradle users:
 ```groovy
 tasks.test {
-    jvmArgs("--add-opens", "java.base/java.time=ALL-UNNAMED")
+    jvmArgs(
+        "--add-opens", "java.base/java.time=ALL-UNNAMED",
+        "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"
+    )
 }
 ```
 
-For Maven users:
+Example for Maven users:
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-surefire-plugin</artifactId>
     <configuration>
-      <argLine>
-        --add-opens java.base/java.time=ALL-UNNAMED
-      </argLine>
+        <argLine>
+            --add-opens java.base/java.time=ALL-UNNAMED
+            --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+        </argLine>
     </configuration>
 </plugin>
 ```
