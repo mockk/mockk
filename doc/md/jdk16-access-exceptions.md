@@ -26,7 +26,7 @@ On JDK 16 and above you may encounter `InaccessibleObjectException` or `IllegalA
    ```
 
 ### Problem cause
-JDK 16 enforced strong encapsulation of standard modules. In practice this means you (and your libraries) can no more get away with call like `privateMember.setAccessible(true)` to any of JDK classes.
+JDK 16 enforces strong encapsulation of standard modules. In practice this mean overriding accessibility modifiers in JDK classes (for example,  `privateMember.setAccessible(true)`) is forbidden.
 
 https://blogs.oracle.com/javamagazine/post/a-peek-into-java-17-continuing-the-drive-to-encapsulate-the-java-runtime-internals
 
