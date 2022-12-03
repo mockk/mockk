@@ -60,10 +60,14 @@ internal class InliningClassTransformer(
     override fun transform(
         loader: ClassLoader?,
         className: String,
-        classBeingRedefined: Class<*>,
+        classBeingRedefined: Class<*>?,
         protectionDomain: ProtectionDomain?,
-        classfileBuffer: ByteArray?
+        classfileBuffer: ByteArray
     ): ByteArray? {
+        if (classBeingRedefined == null) {
+            return classfileBuffer
+        }
+
         val spec = specMap[classBeingRedefined]
                 ?: return classfileBuffer
 
@@ -121,7 +125,7 @@ internal class InliningClassTransformer(
     private fun matchRestrictedMethods(desc: MethodDescription) =
         desc.declaringType.typeName + "." + desc.name in restrictedMethods
 
-    private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods? {
+    private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods {
         return Advice.withCustomMapping()
             .bind<ProxyAdviceId>(ProxyAdviceId::class.java, constructorAdvice.id)
             .to(JvmMockKConstructorProxyAdvice::class.java)
