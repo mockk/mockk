@@ -33,6 +33,7 @@ From version 1.13.0 MockK supports Kotlin 1.4 and higher
  
 * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
 * Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
+* Spies, `mockkStatic` may not work on JDK 16+; `InaccessibleObjectException`/`IllegalAccessException`: [read more here](doc/md/jdk16-access-exceptions.md)
 
 Table of contents:
 
@@ -282,7 +283,8 @@ verify { car.drive(Direction.NORTH) }
 confirmVerified(car)
 ```
 
-Note: the spy object is a copy of the passed object.
+Note 1: the spy object is a copy of the passed object.
+Note 2: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
 
 ### Relaxed mock
 
@@ -873,6 +875,8 @@ runTest {
 }
 ```
 
+Note: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
+
 ### Extension functions
 
 There are three types of extension function in Kotlin:
@@ -1070,7 +1074,7 @@ every {
 Adding additional behaviours via interfaces and stubbing them:
 
 ```kotlin
-val spy = spyk(System.out, moreInterfaces = *arrayOf(Runnable::class))
+val spy = spyk(System.out, moreInterfaces = arrayOf(Runnable::class))
 
 spy.println(555)
 

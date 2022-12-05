@@ -6,11 +6,16 @@ import kotlin.reflect.KClass
 object JvmLogging {
     fun slf4jOrJulLogging(): (KClass<*>) -> Logger {
         return try {
-            Class.forName("org.slf4j.Logger")
-            Class.forName("org.slf4j.impl.StaticLoggerBinder");
+            // If we fail to create a logger, then use Java logging.
+            Slf4jLogger(JvmLogging::class);
             { cls: KClass<*> -> Slf4jLogger(cls) }
-        } catch (ex: ClassNotFoundException) {
-            { cls: KClass<*> -> JULLogger(cls) }
+        } catch (throwable: Throwable) {
+            if (throwable is ClassNotFoundException || throwable is NoClassDefFoundError) { cls: KClass<*> ->
+                JULLogger(cls)
+            }
+            else {
+                throw throwable
+            }
         }
     }
 

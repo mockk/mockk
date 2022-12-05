@@ -19,6 +19,7 @@ include(
 
     ":test-modules:client-tests",
     ":test-modules:performance-tests",
+    ":test-modules:logger-tests",
 )
 
 val androidSdkDetected: Boolean? by extra
