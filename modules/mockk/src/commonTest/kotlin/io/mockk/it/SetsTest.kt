@@ -32,13 +32,7 @@ class SetsTest {
 
     interface Foo {
         fun getTasks(): Set<Task>
-
-        fun getTask(): Task
     }
 
-    interface Task {
-        fun getSubTask(): Task
-
-        fun doIt(): Int
-    }
+    interface Task
 }
