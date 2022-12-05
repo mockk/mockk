@@ -24,6 +24,6 @@
  - [ ] wait till it appears on Maven central
  - [ ] bump version and append -SNAPSHOT
  - [ ] commit
- - [ ] push toGitHub
+ - [ ] push to GitHub
  - [ ] create GitHub release based on tag and describe changes there
  - [ ] announce on reddit/kotlinlang/potentially at "announcement place" on mockk.io
