@@ -696,7 +696,7 @@ confirmVerified(obj)
 
 ### Verification confirmation
 
-To double check that all calls were verified by `verify...` constructs, you can use `confirmVerified`:
+To double-check that all calls were verified by `verify...` constructs, you can use `confirmVerified`:
 
 ```kotlin
 confirmVerified(mock1, mock2)
