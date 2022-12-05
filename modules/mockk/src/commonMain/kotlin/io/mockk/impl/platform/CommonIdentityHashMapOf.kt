@@ -18,7 +18,7 @@ class CommonIdentityHashMapOf<K, V> : MutableMap<K, V> {
     }
 
     override fun get(key: K): V? {
-        return map.get(ref(key))
+        return map[ref(key)]
     }
 
     override fun isEmpty(): Boolean {
