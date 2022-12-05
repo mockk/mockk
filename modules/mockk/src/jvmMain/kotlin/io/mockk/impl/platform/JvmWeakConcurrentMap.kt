@@ -4,7 +4,7 @@ import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
-class JvmWeakConcurrentMap<K, V>() : MutableMap<K, V> {
+class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
     private val map = ConcurrentHashMap<Any, V>()
     private val queue = ReferenceQueue<K>()
 
@@ -14,7 +14,11 @@ class JvmWeakConcurrentMap<K, V>() : MutableMap<K, V> {
 
     override fun put(key: K, value: V): V? {
         expunge()
-        return map.put(WeakKey(key, queue), value)
+        return if (value != null) {
+            map.put(WeakKey(key, queue), value)
+        } else {
+            null
+        }
     }
 
     override fun remove(key: K): V? {
@@ -63,11 +67,7 @@ class JvmWeakConcurrentMap<K, V>() : MutableMap<K, V> {
     }
 
     private class StrongKey<K>(private val key: K) {
-        private val hashCode: Int
-
-        init {
-            hashCode = System.identityHashCode(key)
-        }
+        private val hashCode: Int = System.identityHashCode(key)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
