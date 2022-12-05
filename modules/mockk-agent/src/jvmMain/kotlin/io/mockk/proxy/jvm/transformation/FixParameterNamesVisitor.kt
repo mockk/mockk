@@ -63,7 +63,7 @@ internal class FixParameterNamesVisitor(val type: Class<*>) :
             val filter = (when (name) {
                 CONSTRUCTOR_INTERNAL_NAME -> isConstructor()
                 else -> named<MethodDescription>(name)
-            }).and<MethodDescription>(hasDescriptor(desc))
+            }).and(hasDescriptor(desc))
 
             val methodList = typeDescription.declaredMethods.filter(filter)
 

@@ -99,9 +99,10 @@ internal class InliningClassTransformer(
         }
     }
 
+    @Suppress("RemoveExplicitTypeArguments")
     private fun simpleAdvice() =
         Advice.withCustomMapping()
-            .bind<ProxyAdviceId>(ProxyAdviceId::class.java, advice.id)
+            .bind(ProxyAdviceId::class.java, advice.id)
             .to(JvmMockKProxyAdvice::class.java)
             .on(
                 isMethod<MethodDescription>()
@@ -109,10 +110,10 @@ internal class InliningClassTransformer(
                     .and(not<MethodDescription>(isDefaultFinalizer<MethodDescription>()))
             )
 
-
+    @Suppress("RemoveExplicitTypeArguments")
     private fun staticAdvice(className: String) =
         Advice.withCustomMapping()
-            .bind<ProxyAdviceId>(ProxyAdviceId::class.java, staticProxyAdviceId(className))
+            .bind(ProxyAdviceId::class.java, staticProxyAdviceId(className))
             .to(staticProxyAdvice(className))
             .on(
                 isStatic<OfByteCodeElement>()
@@ -124,9 +125,10 @@ internal class InliningClassTransformer(
     private fun matchRestrictedMethods(desc: MethodDescription) =
         desc.declaringType.typeName + "." + desc.name in restrictedMethods
 
+    @Suppress("RemoveExplicitTypeArguments")
     private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods {
         return Advice.withCustomMapping()
-            .bind<ProxyAdviceId>(ProxyAdviceId::class.java, constructorAdvice.id)
+            .bind(ProxyAdviceId::class.java, constructorAdvice.id)
             .to(JvmMockKConstructorProxyAdvice::class.java)
             .on(isConstructor())
     }

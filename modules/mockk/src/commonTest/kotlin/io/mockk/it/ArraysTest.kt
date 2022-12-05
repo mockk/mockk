@@ -177,14 +177,14 @@ class ArraysTest {
     fun anyAnyObjectArray() {
         every {
             mock.arrayOp(Array(3) { i -> Array(3) { j -> i + j } })
-        } returns Array(3) { i -> Array<Any>(3) { j -> j - i } }
+        } returns Array(3) { i -> Array(3) { j -> j - i } }
 
         assertArrayEquals(
             Array(3) { i -> Array<Any>(3) { j -> j - i } },
-            mock.arrayOp(Array(3) { i -> Array<Any>(3) { j -> i + j } })
+            mock.arrayOp(Array(3) { i -> Array(3) { j -> i + j } })
         )
 
-        verify { mock.arrayOp(Array(3) { i -> Array<Any>(3) { j -> i + j } }) }
+        verify { mock.arrayOp(Array(3) { i -> Array(3) { j -> i + j } }) }
     }
 
     @Test

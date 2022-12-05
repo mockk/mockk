@@ -212,7 +212,7 @@ actual object InternalPlatformDsl {
         override fun increment() = atomicValue.getAndIncrement()
     }
 
-    actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall<T>(lambda)
+    actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall(lambda)
 
     @Suppress("UNCHECKED_CAST")
     internal actual fun <T : Any> boxCast(

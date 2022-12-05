@@ -24,6 +24,6 @@ class CallableTest {
             }
         }
 
-        asyncTaskExecutor.submit(Callable<Boolean> { true })
+        asyncTaskExecutor.submit(Callable { true })
     }
 }

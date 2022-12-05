@@ -21,7 +21,7 @@ class CommonCallRecorderTest {
     fun setUp() {
         initState = mockk(relaxed = true)
         hinter = mockk(relaxed = true)
-        factories = mockk<CallRecorderFactories>(relaxed = true)
+        factories = mockk(relaxed = true)
 
         val initStateFactory = mockk<(CommonCallRecorder) -> CallRecordingState>(relaxed = true)
         every { initStateFactory(any()) } returns initState
