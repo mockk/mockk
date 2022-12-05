@@ -30,10 +30,13 @@ class PrivatePropertiesTest {
 
     data class Person(var name: String)
 
-    @Suppress("ProtectedInFinal")
+    @Suppress("ProtectedInFinal", "RedundantSetter")
     class Team {
         protected var person: Person = Person("Init")
             get() = Person("Ben")
+            set(value) {
+                field = value
+            }
 
         protected fun fn(arg: Int): Int = arg + 5
 
