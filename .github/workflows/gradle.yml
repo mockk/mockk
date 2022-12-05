@@ -46,7 +46,7 @@ jobs:
         if: always()
         with:
           require_tests: false
-          report_paths: '**/build/test-results/test/TEST-*.xml'
+          report_paths: '**/build/test-results/**/TEST-*.xml'
 
 
   android-instrumented-tests:
@@ -97,4 +97,4 @@ jobs:
         if: always()
         with:
           require_tests: false
-          report_paths: '**/build/test-results/test/TEST-*.xml'
+          report_paths: '**/build/test-results/**/TEST-*.xml'
