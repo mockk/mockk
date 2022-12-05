@@ -43,7 +43,7 @@ class CoroutinesTest {
         } answers { 1 - coroutine<suspend () -> Int>().coInvoke() }
 
         InternalPlatformDsl.runCoroutine {
-            assertEquals(-4, mock.coLambdaOp(1, { 5 }))
+            assertEquals(-4, mock.coLambdaOp(1) { 5 })
         }
 
         coVerify {
