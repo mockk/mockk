@@ -1,6 +1,7 @@
 package buildsrc.convention
 
 import java.time.Duration
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     base
