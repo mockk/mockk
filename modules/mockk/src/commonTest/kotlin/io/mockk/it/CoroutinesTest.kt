@@ -77,6 +77,6 @@ class CoroutinesTest {
             }
         }
 
-        private suspend fun myPrivateCall(arg1: Int): Unit = coroutineScope { }
+        private suspend fun myPrivateCall(arg1: Int): Unit = coroutineScope { arg1.inc() }
     }
 }

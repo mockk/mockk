@@ -100,9 +100,10 @@ class SpyTest {
         println(mocking.bar2())
     }
 
+    @Suppress("UNUSED_PARAMETER")
     class ChainedCallsCls {
 
-        fun getInterface(list: List<Boolean>) = listOf(true)
+        private fun getInterface(list: List<Boolean>) = listOf(true)
 
         fun bar(t: String, list: List<Boolean> = getInterface(listOf(false))): String {
             return "FOO"
@@ -132,9 +133,13 @@ class SpyTest {
         }
 
         override fun computeSomething(a: Int): Int? {
-            executed[3] = true
-            super.computeSomething(a)
-            return 5 + a
+            return if (a == Integer.MAX_VALUE) {
+                null
+            } else {
+                executed[3] = true
+                super.computeSomething(a)
+                5 + a
+            }
         }
     }
 }
