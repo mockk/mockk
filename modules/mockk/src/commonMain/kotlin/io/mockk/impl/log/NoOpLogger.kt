@@ -1,6 +1,6 @@
 package io.mockk.impl.log
 
-class NoOpLogger() : Logger {
+class NoOpLogger : Logger {
     override fun error(msg: () -> String) {}
     override fun error(ex: Throwable, msg: () -> String) {}
     override fun warn(msg: () -> String) {}
