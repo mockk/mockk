@@ -16,4 +16,19 @@ if (project != rootProject) {
 
 tasks.withType<Test>().configureEach {
     timeout.set(Duration.ofMinutes(10))
+
+    testLogging {
+        // showCauses = true
+        // showExceptions = true
+        // showStackTraces = true
+        // showStandardStreams = true
+        events(
+            TestLogEvent.STARTED,
+            TestLogEvent.PASSED,
+            TestLogEvent.FAILED,
+            TestLogEvent.SKIPPED,
+            // TestLogEvent.STANDARD_ERROR,
+            // TestLogEvent.STANDARD_OUT,
+        )
+    }
 }
