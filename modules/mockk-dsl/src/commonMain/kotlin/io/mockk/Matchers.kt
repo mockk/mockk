@@ -96,7 +96,7 @@ data class CaptureMatcher<T : Any>(
     val captureList: MutableList<T>,
     override val argumentType: KClass<*>
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
@@ -142,7 +142,7 @@ data class CapturingSlotMatcher<T : Any>(
     val captureSlot: CapturingSlot<T>,
     override val argumentType: KClass<*>,
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     override fun capture(arg: Any?) {
         if (arg == null) {
@@ -312,7 +312,7 @@ class AllAnyMatcher<T> : Matcher<T> {
  * Invokes lambda
  */
 class InvokeMatcher<in T : Any>(val block: (T) -> Unit) : Matcher<T>, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     override fun match(arg: T?): Boolean {
         if (arg == null) {
