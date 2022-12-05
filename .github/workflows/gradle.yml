@@ -41,6 +41,14 @@ jobs:
           -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
           -PjavaToolchainTestVersion=${{ matrix.java-version }}
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          require_tests: false
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+
+
   android-instrumented-tests:
     runs-on: macos-latest
     strategy:
@@ -83,3 +91,10 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          require_tests: false
+          report_paths: '**/build/test-results/test/TEST-*.xml'
