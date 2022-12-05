@@ -41,6 +41,14 @@ jobs:
           -Pkotlin.ir.enabled=${{ matrix.kotlin-ir-enabled }}
           -PjavaToolchainTestVersion=${{ matrix.java-version }}
 
+      - name: Coverage report
+        uses: mi-kas/kover-report@v1
+        with:
+          path: "${{ github.workspace }}/build/reports/kover/merged/xml/report.xml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Code Coverage
+          update-comment: true
+
   android-instrumented-tests:
     runs-on: macos-latest
     strategy:
@@ -83,3 +91,11 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
+
+      - name: Coverage report
+        uses: mi-kas/kover-report@v1
+        with:
+          path: "${{ github.workspace }}/build/reports/kover/merged/xml/report.xml"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Code Coverage
+          update-comment: true
