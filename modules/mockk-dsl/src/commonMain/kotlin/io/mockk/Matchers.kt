@@ -469,6 +469,6 @@ data class VarargMatcher<T : Any>(
 fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
     subMatchers?.let {
         it.filterIsInstance<CapturingMatcher>()
-            .forEach { it.capture(arg) }
+            .forEach { matcher -> matcher.capture(arg) }
     }
 }
