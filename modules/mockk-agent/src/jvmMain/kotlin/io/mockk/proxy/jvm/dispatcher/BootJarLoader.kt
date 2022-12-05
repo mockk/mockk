@@ -56,15 +56,12 @@ internal class BootJarLoader(
             val boot = createTempBootFile()
             boot.deleteOnExit()
 
-            val out = JarOutputStream(FileOutputStream(boot))
-            try {
+            JarOutputStream(FileOutputStream(boot)).use { out ->
                 for (name in classNames) {
                     if (!addClass(out, name)) {
                         return null
                     }
                 }
-            } finally {
-                out.close()
             }
             return boot
         } catch (ex: IOException) {
@@ -88,7 +85,7 @@ internal class BootJarLoader(
         val classLoader = BootJarLoader::class.java.classLoader
 
         val inputStream: InputStream? = classLoader.getResourceAsStream("$fileName.clazz")
-                ?: classLoader.getResourceAsStream("$fileName.class")
+            ?: classLoader.getResourceAsStream("$fileName.class")
 
         if (inputStream == null) {
             log.trace("$fileName not found")
