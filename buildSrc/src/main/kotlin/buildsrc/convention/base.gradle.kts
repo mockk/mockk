@@ -7,8 +7,7 @@ plugins {
     base
 }
 
-description =
-    "Common build config that can be applied to any project. This should typically be language-independent."
+// Common build config that can be applied to any project. This should typically be language-independent.
 
 if (project != rootProject) {
     group = rootProject.group
