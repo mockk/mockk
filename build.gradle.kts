@@ -11,16 +11,16 @@ plugins {
 
 group = "io.mockk"
 
-apiValidation {
-    ignoredProjects += listOf(
-        projects.testModules.performanceTests.name,
-        projects.testModules.clientTests.name,
-    )
+koverMerged {
+    enable()
 }
 
-tasks.wrapper {
-    gradleVersion = "7.5.1"
-    distributionType = Wrapper.DistributionType.ALL
+apiValidation {
+    ignoredProjects += listOf(
+        projects.testModules.loggerTests.name,
+        projects.testModules.clientTests.name,
+        projects.testModules.performanceTests.name,
+    )
 }
 
 idea {

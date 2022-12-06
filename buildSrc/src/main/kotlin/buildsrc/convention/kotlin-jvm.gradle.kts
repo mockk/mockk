@@ -7,6 +7,7 @@ plugins {
     `java-library`
     kotlin("jvm")
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
     id("buildsrc.convention.toolchain-jvm")

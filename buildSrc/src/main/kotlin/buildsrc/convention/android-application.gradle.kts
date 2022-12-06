@@ -6,6 +6,7 @@ plugins {
     id("com.android.application")
 
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
 }

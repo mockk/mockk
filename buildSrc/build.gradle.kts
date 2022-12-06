@@ -2,26 +2,21 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version embeddedKotlinVersion
-    // Gradle uses an embedded Kotlin. This doesn't affect the version of Kotlin used to build MockK.
-    // https://docs.gradle.org/current/userguide/compatibility.html#kotlin
-
-    idea
 }
 
 // set the versions of Gradle plugins that the subprojects will use here
 val kotlinPluginVersion: String = "1.7.20"
 
 val androidGradle = "7.2.1"
-val kotlinxKover = "0.5.1"
+val kotlinxKover = "0.6.1"
 val dokka = "1.7.10"
 val binaryCompatibilityValidator = "0.11.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinPluginVersion"))
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinPluginVersion")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-allopen")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinPluginVersion")
+    implementation("org.jetbrains.kotlin:kotlin-allopen:$kotlinPluginVersion")
 
     implementation("org.jetbrains.kotlinx:kover:$kotlinxKover")
 
@@ -33,7 +28,7 @@ dependencies {
 
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 }
 
@@ -44,12 +39,9 @@ kotlin {
 }
 
 kotlinDslPluginOptions {
-    jvmTarget.set("1.8")
+    languageVersion.set(JavaLanguageVersion.of(11))
 }
 
-idea {
-    module {
-        isDownloadSources = true
-        isDownloadJavadoc = true
-    }
+kotlinDslPluginOptions {
+    jvmTarget.set("11")
 }
