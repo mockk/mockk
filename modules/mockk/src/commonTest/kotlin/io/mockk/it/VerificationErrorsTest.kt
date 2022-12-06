@@ -1,7 +1,6 @@
 package io.mockk.it
 
 import io.mockk.*
-import io.mockk.test.SkipInstrumentedAndroidTest
 import kotlin.test.Test
 import kotlin.test.fail
 
@@ -55,7 +54,7 @@ class VerificationErrorsTest {
 
             mock.otherOp(1, 2)
 
-            verify { mock.manyArgsOp(true, false) }
+            verify { mock.manyArgsOp(a = true, b = false) }
         }
     }
 

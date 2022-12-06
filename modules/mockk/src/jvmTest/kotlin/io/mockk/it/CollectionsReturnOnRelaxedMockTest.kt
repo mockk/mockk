@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Test related to github issue #386
+ * Test related to GitHub issue #386
  */
 class CollectionsReturnOnRelaxedMockTest {
 

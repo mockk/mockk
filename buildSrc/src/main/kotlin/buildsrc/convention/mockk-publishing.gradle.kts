@@ -80,7 +80,7 @@ publishing {
 
         artifact(tasks.provider<Jar>("javadocJar"))
 
-        if (signingKeyId.isPresent() && signingSecretKeyRingFile.isPresent() && signingPassword.isPresent()) {
+        if (signingKeyId.isPresent && signingSecretKeyRingFile.isPresent && signingPassword.isPresent) {
             signing.sign(this)
         }
 
@@ -88,7 +88,7 @@ publishing {
 }
 
 signing {
-    if (signingKeyId.isPresent() && signingSecretKeyRingFile.isPresent() && signingPassword.isPresent()) {
+    if (signingKeyId.isPresent && signingSecretKeyRingFile.isPresent && signingPassword.isPresent) {
         logger.debug("[${project.displayName}] Signing is enabled")
     }
 }

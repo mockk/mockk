@@ -4,6 +4,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.Collections.synchronizedList
 import java.util.Random
@@ -11,7 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Test related to github issue #123
+ * Test related to GitHub issue #123
  */
 class ParallelTest {
     class MockCls {
@@ -84,6 +85,6 @@ class ParallelTest {
     }
 
     companion object {
-        val log = LoggerFactory.getLogger(ParallelTest::class.java)
+        val log: Logger = LoggerFactory.getLogger(ParallelTest::class.java)
     }
 }

@@ -15,7 +15,6 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
     lateinit var call: RecordedCall
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
     fun detect(
         callRounds: List<CallRound>,
         callN: Int,
@@ -94,8 +93,9 @@ class ChainedCallDetector(safeToString: SafeToString) {
                 )
             }
 
-            val nVarArgMatchers = varArgMatchers.count { it is VarargMatcher<*> }
-            return when (nVarArgMatchers) {
+            return when (
+                varArgMatchers.count { it is VarargMatcher<*> }
+            ) {
                 0 -> ArrayMatcher<Any>(varArgMatchers.map { it } as List<Matcher<Any>>)
                 1 -> composeVarArgMatcher(varArgMatchers)
                 else -> throw MockKException("using more then one vararg VarargMatcher in one expression is not possible: $varArgMatchers")

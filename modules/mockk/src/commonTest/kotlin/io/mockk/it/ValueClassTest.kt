@@ -501,6 +501,7 @@ class ValueClassTest {
         @JvmInline
         value class DummyValueWrapper(val value: DummyValue)
 
+        @Suppress("UNUSED_PARAMETER")
         class DummyService {
 
             fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper =

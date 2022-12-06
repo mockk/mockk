@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class JvmMockKDispatcher {
-    private static final Map<Long, JvmMockKDispatcher> DISPATCHER_MAP = new ConcurrentHashMap<Long, JvmMockKDispatcher>();
+    private static final Map<Long, JvmMockKDispatcher> DISPATCHER_MAP = new ConcurrentHashMap<>();
 
     public static JvmMockKDispatcher get(long id, Object obj) {
         if (obj == DISPATCHER_MAP) {

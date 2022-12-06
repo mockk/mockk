@@ -40,7 +40,7 @@ class JvmMockFactoryHelperTest {
     }
 }
 
-@Suppress("UNUSED_PARAMETER")
+@Suppress("UNUSED_PARAMETER", "unused")
 internal class SomeClass {
     fun noArg() {}
     fun noVarArg(arg0: Unit) {}

@@ -29,7 +29,7 @@ class AbstractInstantiatorTest {
 
         every { factory.instantiate(Int::class) } returns 5
 
-        val result = instantiator.instantiateViaInstanceFactoryRegistry(Int::class, { 6 })
+        val result = instantiator.instantiateViaInstanceFactoryRegistry(Int::class) { 6 }
 
         assertEquals(5, result)
     }
@@ -40,7 +40,7 @@ class AbstractInstantiatorTest {
 
         every { factory.instantiate(String::class) } returns null
 
-        val result = instantiator.instantiateViaInstanceFactoryRegistry(String::class, { "abc" })
+        val result = instantiator.instantiateViaInstanceFactoryRegistry(String::class) { "abc" }
 
         assertEquals("abc", result)
     }

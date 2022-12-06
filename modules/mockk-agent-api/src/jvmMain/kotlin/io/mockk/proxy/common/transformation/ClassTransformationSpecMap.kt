@@ -58,7 +58,7 @@ class ClassTransformationSpecMap {
 
     fun transformationMap(request: TransformationRequest): Map<String, String> =
         specLock.withLock {
-            request.classes.map { it.simpleName to classSpecs[it].toString() }.toMap()
+            request.classes.associate { it.simpleName to classSpecs[it].toString() }
         }
 
 }

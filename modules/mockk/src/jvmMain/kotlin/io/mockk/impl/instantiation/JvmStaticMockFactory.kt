@@ -63,7 +63,7 @@ class JvmStaticMockFactory(
         type: KClass<*>,
         options: MockKGateway.ClearOptions
     ) {
-        stubRepository.get(type.java)?.clear(options)
+        stubRepository[type.java]?.clear(options)
     }
 
     override fun clearAll(
@@ -76,4 +76,3 @@ class JvmStaticMockFactory(
         val log = Logger<JvmStaticMockFactory>()
     }
 }
-

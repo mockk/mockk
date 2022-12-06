@@ -4,7 +4,6 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Disabled
 
 /**
  * The mocked ::class.java constructor is overriden in the JVM.

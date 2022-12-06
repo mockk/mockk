@@ -32,6 +32,7 @@ idea {
         excludeDirs = excludeDirs + layout.files(
             ".idea",
             "gradle/wrapper",
+            "modules/mockk-agent-android/.cxx",
         )
     }
 }

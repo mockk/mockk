@@ -1,7 +1,6 @@
 package io.mockk.impl
 
 import io.mockk.StackElement
-import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 expect object InternalPlatform {

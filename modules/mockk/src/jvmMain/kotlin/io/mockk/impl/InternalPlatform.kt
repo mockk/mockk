@@ -71,18 +71,17 @@ actual object InternalPlatform {
         return when {
             ex is ClassCastException ->
                 MockKException(
-                    when {
-                        ex.message == null ->
+                    when (ex.message) {
+                        null ->
                             "Class cast exception happened.\n" +
-                                    "WARN: 'message' property in ClassCastException provided by JVM is null, autohinting is not possible. \n" +
+                                    "WARN: 'message' property in ClassCastException provided by JVM is null, auto-hinting is not possible. \n" +
                                     "This is most probably happening due to Java optimization enabled. \n" +
-                                    "You can use `hint` before call or use -XX:-OmitStackTraceInFastThrow to disable this optimization behaviour and make autohiniting work. \n" +
+                                    "You can use `hint` before call or use -XX:-OmitStackTraceInFastThrow to disable this optimization behaviour and make auto-hinting work. \n" +
                                     "For example in gradle use: \n" +
                                     "\n" +
                                     "test {\n" +
                                     "   jvmArgs '-XX:-OmitStackTraceInFastThrow'\n" +
                                     "}"
-
                         else -> "Class cast exception happened.\n" +
                                 "Probably type information was erased.\n" +
                                 "In this case use `hint` before call to specify " +
@@ -138,7 +137,7 @@ actual object InternalPlatform {
     }
 
     actual fun weakRef(value: Any): WeakRef {
-        val weakRef = WeakReference<Any>(value)
+        val weakRef = WeakReference(value)
         return object : WeakRef {
             override val value: Any?
                 get() = weakRef.get()

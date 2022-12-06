@@ -11,6 +11,7 @@ import java.util.*
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
+import kotlin.math.abs
 
 internal class BootJarLoader(
     private val log: MockKAgentLogger
@@ -55,15 +56,12 @@ internal class BootJarLoader(
             val boot = createTempBootFile()
             boot.deleteOnExit()
 
-            val out = JarOutputStream(FileOutputStream(boot))
-            try {
+            JarOutputStream(FileOutputStream(boot)).use { out ->
                 for (name in classNames) {
                     if (!addClass(out, name)) {
                         return null
                     }
                 }
-            } finally {
-                out.close()
             }
             return boot
         } catch (ex: IOException) {
@@ -77,7 +75,7 @@ internal class BootJarLoader(
         try {
             File.createTempFile("mockk_boot", ".jar")
         } catch (ex: IOException) {
-            File("mockk_boot_${Math.abs(rnd.nextLong())}.jar")
+            File("mockk_boot_${abs(rnd.nextLong())}.jar")
         }
 
     @Throws(IOException::class)
@@ -87,7 +85,7 @@ internal class BootJarLoader(
         val classLoader = BootJarLoader::class.java.classLoader
 
         val inputStream: InputStream? = classLoader.getResourceAsStream("$fileName.clazz")
-                ?: classLoader.getResourceAsStream("$fileName.class")
+            ?: classLoader.getResourceAsStream("$fileName.class")
 
         if (inputStream == null) {
             log.trace("$fileName not found")

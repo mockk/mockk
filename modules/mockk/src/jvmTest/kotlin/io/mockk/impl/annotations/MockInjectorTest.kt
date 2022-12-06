@@ -311,8 +311,7 @@ class MockInjectorTest {
 
     @Test
     fun otherNameConstructorInjection() {
-        class InjectTarget(val otherName: MockCls, val name: MockCls) {
-        }
+        class InjectTarget(val otherName: MockCls, val name: MockCls)
 
         class InjectDeclaration {
             val name = MockCls()
@@ -496,8 +495,8 @@ class MockInjectorTest {
             InjectTarget::class,
             InjectionLookupType.BY_TYPE,
             declaration,
-            true,
-            false
+            propertyInjection = true,
+            injectImmutable = false,
         )
 
         assertNotSame(declaration.obj, instance.property)
@@ -519,9 +518,9 @@ class MockInjectorTest {
             InjectTarget::class,
             InjectionLookupType.BY_TYPE,
             declaration,
-            true,
-            true,
-            true
+            propertyInjection = true,
+            injectImmutable = true,
+            overrideValues = true,
         )
 
         assertSame(declaration.obj, instance.property)

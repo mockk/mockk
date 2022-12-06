@@ -1,6 +1,5 @@
 package buildsrc.convention
 
-import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {

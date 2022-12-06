@@ -17,7 +17,6 @@ internal object InjectionHelpers {
         return (this.getter as KProperty1.Getter<Any, Any?>)(obj)
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun KProperty1<*, *>.getAnyIfLateNull(obj: Any): Any? {
         try {
             return getAny(obj)
@@ -43,7 +42,6 @@ internal object InjectionHelpers {
     }
 
 
-    @Suppress("UNCHECKED_CAST")
     fun KProperty1<*, *>.setImmutableAny(obj: Any, value: Any?) {
         val javaField = this.javaField ?: return
         try {

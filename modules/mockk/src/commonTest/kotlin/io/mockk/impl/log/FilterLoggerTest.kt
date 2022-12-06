@@ -17,8 +17,8 @@ class FilterLoggerTest {
     @BeforeTest
     fun setUp() {
         logger = mockk(relaxed = true)
-        traceLogger = FilterLogger(logger, { LogLevel.TRACE })
-        disabledLogger = FilterLogger(logger, { LogLevel.DISABLED })
+        traceLogger = FilterLogger(logger) { LogLevel.TRACE }
+        disabledLogger = FilterLogger(logger) { LogLevel.DISABLED }
         ex = Exception()
     }
 

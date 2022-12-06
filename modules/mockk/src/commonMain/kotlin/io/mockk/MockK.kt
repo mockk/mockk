@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
  * A mock is a fake version of a class that replaces all the methods with fake implementations.
  *
  * By default, every method that you wish to mock should be stubbed using [every].
- * Otherwise, it will throw when called so you know if you forgot to mock a method.
+ * Otherwise, it will throw when called, so you know if you forgot to mock a method.
  * If [relaxed] or [relaxUnitFun] is set to true, methods will automatically be stubbed.
  *
  * @param name mock name
@@ -374,7 +374,7 @@ fun excludeRecords(
 }
 
 /**
- * Exclude calls from recording for a suspend block
+ * Exclude calls from recording for a `suspend` block
  *
  * @param current if current recorded calls should be filtered out
  * @see [excludeRecords]

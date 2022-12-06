@@ -221,7 +221,7 @@ interface MockKGateway {
         data class Failure(val message: String) : VerificationResult()
 
         val matches: Boolean
-            get() = this is VerificationResult.OK
+            get() = this is OK
     }
 
 

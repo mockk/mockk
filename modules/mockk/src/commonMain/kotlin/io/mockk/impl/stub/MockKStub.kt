@@ -62,14 +62,11 @@ open class MockKStub(
         args: List<Any?>,
         otherwise: () -> Any?
     ): Any? {
-        if (method.isToString()) {
-            return toStr()
-        } else if (method.isHashCode()) {
-            return InternalPlatformDsl.identityHashCode(self)
-        } else if (method.isEquals()) {
-            return self === args[0]
-        } else {
-            return otherwise()
+        return when {
+            method.isToString() -> toStr()
+            method.isHashCode() -> InternalPlatformDsl.identityHashCode(self)
+            method.isEquals() -> self === args[0]
+            else -> otherwise()
         }
     }
 
@@ -217,7 +214,7 @@ open class MockKStub(
             val childN = if (group.isEmpty()) 1 else group.toInt()
             "child^" + (childN + 1) + " of " + result.groupValues[3]
         } else {
-            "child of " + name
+            "child of $name"
         }
     }
 
@@ -302,7 +299,7 @@ open class MockKStub(
             method,
             args.map {
                 if (it == null)
-                    NullCheckMatcher<Any>()
+                    NullCheckMatcher()
                 else
                     EqMatcher(it)
             }, false
@@ -311,11 +308,11 @@ open class MockKStub(
     override fun dispose() {
         clear(
             MockKGateway.ClearOptions(
-                true,
-                true,
-                true,
-                true,
-                true
+                answers = true,
+                recordedCalls = true,
+                childMocks = true,
+                verificationMarks = true,
+                exclusionRules = true
             )
         )
         disposeRoutine.invoke()

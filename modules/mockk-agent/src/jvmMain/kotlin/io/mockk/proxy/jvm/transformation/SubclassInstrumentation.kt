@@ -1,7 +1,6 @@
 package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
-import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.ClassLoadingStrategyChooser
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
@@ -91,7 +90,7 @@ internal class SubclassInstrumentation(
                 type.saveIn(storePath)
             }
         } catch (ex: Exception) {
-            log.trace(ex, "Failed to save file to a dump");
+            log.trace(ex, "Failed to save file to a dump")
         }
 
         return type
@@ -102,6 +101,6 @@ internal class SubclassInstrumentation(
     private fun <T> chooseClassLoadingStrategy(clazz: Class<T>) = ClassLoadingStrategyChooser.chooseClassLoadingStrategy(clazz)
 
     companion object {
-        val classDumpIndex = AtomicLong();
+        val classDumpIndex = AtomicLong()
     }
 }

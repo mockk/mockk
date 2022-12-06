@@ -33,7 +33,7 @@ internal class ConstructorProxyMaker(
             )
         )
 
-        return CancelableResult<Class<*>>(clazz, cancellation)
+        return CancelableResult(clazz, cancellation)
             .alsoOnCancel {
                 constructorHandlers.remove(clazz)
             }

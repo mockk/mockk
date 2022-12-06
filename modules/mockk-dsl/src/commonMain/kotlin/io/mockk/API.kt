@@ -2618,7 +2618,7 @@ inline fun <T> MockKUnmockKScope.use(block: () -> T): T {
  *
  * If this values is lambda then it's possible to invoke it.
  */
-class CapturingSlot<T : Any>() {
+class CapturingSlot<T : Any> {
     var isCaptured = false
 
     var isNull = false

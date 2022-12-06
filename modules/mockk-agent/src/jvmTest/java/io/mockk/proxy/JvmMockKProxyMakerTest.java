@@ -420,7 +420,7 @@ public class JvmMockKProxyMakerTest {
 
         Object returnValue = null;
 
-        List<Call> calls = new ArrayList<Call>();
+        List<Call> calls = new ArrayList<>();
 
         @Override
         public Object invocation(Object self,

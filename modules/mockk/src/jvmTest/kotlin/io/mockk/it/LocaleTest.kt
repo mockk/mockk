@@ -7,7 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Test related to github issue #94
+ * Test related to GitHub issue #94
  */
 class LocaleTest {
     @Test

@@ -13,7 +13,7 @@ val Int.selfOp get() = this * this
 
 class StaticMockkTest {
     /**
-     * github issue #92
+     * GitHub issue #92
      */
     @Test
     fun staticMockkJavaFunction() {
@@ -25,7 +25,7 @@ class StaticMockkTest {
     }
 
     /**
-     * github issue #99
+     * GitHub issue #99
      */
     @Test
     fun unmockStatic_unmocksStaticMocks() {

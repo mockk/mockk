@@ -9,8 +9,6 @@ import io.mockk.impl.annotations.SpyK
 import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue

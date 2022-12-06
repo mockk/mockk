@@ -129,7 +129,7 @@ internal class ProxyMaker(
                 "Building subclass proxy for $clazz with " +
                         "additional interfaces ${interfaces.toList()}"
             )
-            subclasser.subclass<T>(clazz, interfaces)
+            subclasser.subclass(clazz, interfaces)
         }
     }
 
