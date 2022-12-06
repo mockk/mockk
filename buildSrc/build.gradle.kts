@@ -34,12 +34,8 @@ tasks.withType<KotlinCompile>().configureEach {
 
 kotlin {
     jvmToolchain {
-        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(11))
     }
-}
-
-kotlinDslPluginOptions {
-    languageVersion.set(JavaLanguageVersion.of(11))
 }
 
 kotlinDslPluginOptions {
