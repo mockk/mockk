@@ -1,7 +1,7 @@
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
 [![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) 
-[![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](http://search.maven.org/#search%7Cga%7C1%7Cmockk)
+[![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](https://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Android](https://img.shields.io/badge/android-support-green.svg)](https://mockk.io/ANDROID)
@@ -21,14 +21,19 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
 
  * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
 
+### Quarkus support
+
+ * [quarkus-mockk](https://github.com/quarkiverse/quarkus-mockk) adds support for mocking beans in Quarkus. Documentation can be found [here](https://quarkiverse.github.io/quarkiverse-docs/quarkus-mockk/dev/index.html)
+
 ### Kotlin version support
 
-From version 1.10.0 MockK does not support Kotlin 1.2.*
+From version 1.13.0 MockK supports Kotlin 1.4 and higher
 
 ### Known issues
  
 * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
 * Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
+* Spies, `mockkStatic` may not work on JDK 16+; `InaccessibleObjectException`/`IllegalAccessException`: [read more here](doc/md/jdk16-access-exceptions.md)
 
 Table of contents:
 
@@ -67,38 +72,43 @@ Table of contents:
 
 All you need to get started is just to add a dependency to `MockK` library.
 
-#### Gradle/maven dependency
+#### Gradle/Maven dependency
+
 <table>
 <thead><tr><th>Approach</th><th>Instruction</th></tr></thead>
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
-    <pre>testImplementation "io.mockk:mockk:{version}"</pre>
-    </td>
+<pre>
+testImplementation "io.mockk:mockk:${mockkVersion}"
+</pre>
+</td>
 </tr>
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/> (Kotlin DSL)</td>
-<td>
-    <pre>testImplementation("io.mockk:mockk:{version}")</pre>
-    </td>
+ <td>
+  <pre>testImplementation("io.mockk:mockk:${mockkVersion}")</pre>
+ </td>
 </tr>
 <tr>
 <td><img src="doc/maven.png" alt="Maven"/></td>
 <td>
-<pre>&lt;dependency&gt;
-    &lt;groupId&gt;io.mockk&lt;/groupId&gt;
-    &lt;artifactId&gt;mockk&lt;/artifactId&gt;
-    &lt;version&gt;{version}&lt;/version&gt;
-    &lt;scope&gt;test&lt;/scope&gt;
-&lt;/dependency&gt;</pre>
-    </td>
+<pre>
+ &lt;dependency&gt;
+     &lt;groupId&gt;io.mockk&lt;/groupId&gt;
+     &lt;artifactId&gt;mockk-jvm&lt;/artifactId&gt;
+     &lt;version&gt;${mockkVersion}&lt;/version&gt;
+     &lt;scope&gt;test&lt;/scope&gt;
+ &lt;/dependency&gt;
+</pre>
+</td>
 </tr>
 <tr>
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
 <td>
 <pre>
-testImplementation "io.mockk:mockk:{version}"
-testImplementation "io.mockk:mockk-agent-jvm:{version}"
+testImplementation "io.mockk:mockk-android:${mockkVersion}"
+testImplementation "io.mockk:mockk-agent:${mockkVersion}"
 </pre>
 </td>
 </tr>
@@ -106,23 +116,12 @@ testImplementation "io.mockk:mockk-agent-jvm:{version}"
 <td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
 <td>
 <pre>
-androidTestImplementation "io.mockk:mockk-android:{version}"
-androidTestImplementation "io.mockk:mockk-agent-jvm:{version}"
+androidTestImplementation "io.mockk:mockk-android:${mockkVersion}"
+androidTestImplementation "io.mockk:mockk-agent:${mockkVersion}"
 </pre>
 </td>
 </tr>
-<tr>
-<td>Common multiplatform</td>
-<td>
-    <pre>testImplementation "io.mockk:mockk-common:{version}"</pre>
-</td>
-</tr>
 </table>
-
-where `{version}` corresponds to version as below:
-
-- Kotlin 1.3+ and Coroutines 1.0+ Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/_latestVersion)
-- Kotlin 1.2 Compatible Version: [![Download](https://api.bintray.com/packages/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/images/download.svg?version=1.9.3) ](https://bintray.com/bintray/jcenter/io.mockk%3Amockk-dsl-jvm/1.9.3/link)
 
 ## DSL examples
 
@@ -191,6 +190,30 @@ To change this, use `overrideValues = true`. This would assign the value even if
 To inject `val`s, use `injectImmutable = true`. For a shorter notation use `@OverrideMockKs` which does the same as 
 `@InjectMockKs` by default, but turns these two flags on.
 
+### JUnit4
+
+JUnit 4 exposes a rule-based API to allow for some automation following the test lifecycle. MockK includes a rule which uses this to set up and tear down your mocks without needing to manually call `MockKAnnotations.init(this)`. Example:
+
+```kotlin
+class CarTest {
+  @get:Rule
+  val mockkRule = MockKRule(this)
+
+  @MockK
+  lateinit var car1: Car
+
+  @RelaxedMockK
+  lateinit var car2: Car
+
+  @Test
+  fun something() {
+     every { car1.drive() } just runs
+     every { car2.changeGear(any()) } returns true
+     // etc
+  }
+}
+```
+
 #### JUnit5
 
 In JUnit5 you can use `MockKExtension` to initialize your mocks. 
@@ -231,6 +254,21 @@ each test class execution.
 You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting 
 the `mockk.junit.extension.keepmocks=true` property
 
+#### Automatic verification confirmation
+
+You can make sure that all stubbed methods are actually verified by also annotating your test class with `@MockKExtension.ConfirmVerification`.
+
+This will internally call `confirmVerified` on all mocks after each test, to make sure there are no unnecessary stubbings.
+
+Please note that this behavior may not work as expected when running tests in your IDE, as it is Gradle who takes care of handling the exception being thrown when these `confirmVerified` calls fail.
+
+#### Automatic unnecessary stubbing check
+
+You can make sure that all stubbed methods are useful - used at least once - by also annotating your test class with `@MockKExtension.CheckUnnecessaryStub`.
+
+This will internally call `checkUnnecessaryStub` on all mocks after each test, to make sure there are no unnecessary stubbings.
+
+
 ### Spy
 
 Spies allow you to mix mocks and real objects.
@@ -245,7 +283,8 @@ verify { car.drive(Direction.NORTH) }
 confirmVerified(car)
 ```
 
-Note: the spy object is a copy of the passed object.
+Note 1: the spy object is a copy of the passed object.
+Note 2: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
 
 ### Relaxed mock
 
@@ -657,9 +696,9 @@ confirmVerified(obj)
 
 ### Verification confirmation
 
-To double check that all calls were verified by `verify...` constructs, you can use `confirmVerified`:
+To double-check that all calls were verified by `verify...` constructs, you can use `confirmVerified`:
 
-```
+```kotlin
 confirmVerified(mock1, mock2)
 ```
 
@@ -669,7 +708,7 @@ It will throw an exception if there are some calls left without verification.
 
 Some calls can be excluded from this confirmation, check the next section for more details.
 
-```
+```kotlin
 val car = mockk<Car>()
 
 every { car.drive(Direction.NORTH) } returns Outcome.OK
@@ -686,17 +725,29 @@ verify {
 confirmVerified(car) // makes sure all calls were covered with verification
 ```
 
+### Unnecessary stubbing
+
+Because clean & maintainable test code requires zero unnecessary code, you can ensure that there is no unnecessary stubs.
+
+```kotlin
+checkUnnecessaryStub(mock1, mock2)
+```
+
+It will throw an exception if there are some declared calls on the mocks that are not used by the tested code.
+This can happen if you have declared some really unnecessary stubs or if the tested code doesn't call an expected one.  
+
+
 ### Recording exclusions
 
 To exclude unimportant calls from being recorded, you can use `excludeRecords`:
 
-```
+```kotlin
 excludeRecords { mock.operation(any(), 5) }
 ```
 
 All matching calls will be excluded from recording. This may be useful if you are using exhaustive verification: `verifyAll`, `verifySequence` or `confirmVerified`.
 
-```
+```kotlin
 val car = mockk<Car>()
 
 every { car.drive(Direction.NORTH) } returns Outcome.OK
@@ -805,6 +856,27 @@ car.drive(Direction.NORTH) // returns OK
 
 coVerify { car.drive(Direction.NORTH) }
 ```
+
+And to simulate a never returning `suspend` function, you can use `coJustAwait`:
+
+```kotlin
+runTest {
+    val car = mockk<Car>()
+
+    coJustAwait { car.drive(any()) } // car.drive(...) will never return
+
+    val job = launch(UnconfinedTestDispatcher()) {
+        car.drive(Direction.NORTH)
+    }
+
+    coVerify { car.drive(Direction.NORTH) }
+
+    job.cancelAndJoin() // Don't forget to cancel the job
+}
+```
+
+Note: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
+
 ### Extension functions
 
 There are three types of extension function in Kotlin:
@@ -874,7 +946,7 @@ mockkStatic(Obj::squareValue)
 If `@JvmName` is used, specify it as a class name.
 
 KHttp.kt:
-```
+```kotlin
 @file:JvmName("KHttp")
 
 package khttp
@@ -882,16 +954,16 @@ package khttp
 ```
 
 Testing code:
-```
+```kotlin
 mockkStatic("khttp.KHttp")
 ```
 
 Sometimes you need to know a little bit more to mock an extension function. 
 For example the extension function `File.endsWith()` has a totally unpredictable `classname`:
 ```kotlin
-   mockkStatic("kotlin.io.FilesKt__UtilsKt")
-   every { File("abc").endsWith(any<String>()) } returns true
-   println(File("abc").endsWith("abc"))
+mockkStatic("kotlin.io.FilesKt__UtilsKt")
+every { File("abc").endsWith(any<String>()) } returns true
+println(File("abc").endsWith("abc"))
 ```
 This is standard Kotlin behaviour that may be unpredictable.
 Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR archive to detect such names.
@@ -901,37 +973,37 @@ Use `Tools -> Kotlin -> Show Kotlin Bytecode` or check `.class` files in JAR arc
 From version 1.9.1, more extended vararg handling is possible:
 
 ```kotlin
-    interface ClsWithManyMany {
-        fun manyMany(vararg x: Any): Int
-    }
+interface ClsWithManyMany {
+    fun manyMany(vararg x: Any): Int
+}
 
-    val obj = mockk<ClsWithManyMany>()
+val obj = mockk<ClsWithManyMany>()
 
-    every { obj.manyMany(5, 6, *varargAll { it == 7 }) } returns 3
+every { obj.manyMany(5, 6, *varargAll { it == 7 }) } returns 3
 
-    println(obj.manyMany(5, 6, 7)) // 3
-    println(obj.manyMany(5, 6, 7, 7)) // 3
-    println(obj.manyMany(5, 6, 7, 7, 7)) // 3
+println(obj.manyMany(5, 6, 7)) // 3
+println(obj.manyMany(5, 6, 7, 7)) // 3
+println(obj.manyMany(5, 6, 7, 7, 7)) // 3
 
-    every { obj.manyMany(5, 6, *anyVararg(), 7) } returns 4
+every { obj.manyMany(5, 6, *anyVararg(), 7) } returns 4
 
-    println(obj.manyMany(5, 6, 1, 7)) // 4
-    println(obj.manyMany(5, 6, 2, 3, 7)) // 4
-    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 4
+println(obj.manyMany(5, 6, 1, 7)) // 4
+println(obj.manyMany(5, 6, 2, 3, 7)) // 4
+println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 4
 
-    every { obj.manyMany(5, 6, *varargAny { nArgs > 5 }, 7) } returns 5
+every { obj.manyMany(5, 6, *varargAny { nArgs > 5 }, 7) } returns 5
 
-    println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 5
-    println(obj.manyMany(5, 6, 4, 5, 6, 7, 7)) // 5
+println(obj.manyMany(5, 6, 4, 5, 6, 7)) // 5
+println(obj.manyMany(5, 6, 4, 5, 6, 7, 7)) // 5
 
-    every {
-        obj.manyMany(5, 6, *varargAny {
-            if (position < 3) it == 3 else it == 4
-        }, 7)
-    } returns 6
-    
-    println(obj.manyMany(5, 6, 3, 4, 7)) // 6
-    println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
+every {
+    obj.manyMany(5, 6, *varargAny {
+        if (position < 3) it == 3 else it == 4
+    }, 7)
+} returns 6
+
+println(obj.manyMany(5, 6, 3, 4, 7)) // 6
+println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
 ```
 
 ### Private functions mocking / dynamic calls
@@ -1002,7 +1074,7 @@ every {
 Adding additional behaviours via interfaces and stubbing them:
 
 ```kotlin
-val spy = spyk(System.out, moreInterfaces = *arrayOf(Runnable::class))
+val spy = spyk(System.out, moreInterfaces = arrayOf(Runnable::class))
 
 spy.println(555)
 
@@ -1043,10 +1115,10 @@ every { quit(1) } throws Exception("this is a test")
 A very simple way to create new matchers is by attaching a function 
 to `MockKMatcherScope` or `MockKVerificationScope` and using the `match` function:
 
-```
-    fun MockKMatcherScope.seqEq(seq: Sequence<String>) = match<Sequence<String>> {
-        it.toList() == seq.toList()
-    }
+```kotlin
+fun MockKMatcherScope.seqEq(seq: Sequence<String>) = match<Sequence<String>> {
+    it.toList() == seq.toList()
+}
 ```
 
 It's also possible to create more advanced matchers by implementing the `Matcher` interface. 
@@ -1056,7 +1128,6 @@ It's also possible to create more advanced matchers by implementing the `Matcher
 Example of a custom matcher that compares list without order:
 
 ```kotlin 
-
 @Test
 fun test() {
     class MockCls {
@@ -1115,7 +1186,6 @@ inline fun <reified T : List<E>, E : Any> MockKMatcherScope.matchListWithoutOrde
     vararg items: E,
     refEq: Boolean = true
 ): T = match(ListWithoutOrderMatcher(listOf(*items), refEq))
-
 ```
 
 ## Settings file
@@ -1142,125 +1212,128 @@ Here are a few tables to help you master the DSL.
 
 ### Top level functions
 
-|Function|Description|
-|--------|-----------|
-|`mockk<T>(...)`|builds a regular mock|
-|`spyk<T>()`|builds a spy using the default constructor|
-|`spyk(obj)`|builds a spy by copying from `obj`|
-|`slot`|creates a capturing slot|
-|`every`|starts a stubbing block|
-|`coEvery`|starts a stubbing block for coroutines|
-|`verify`|starts a verification block|
-|`coVerify`|starts a verification block for coroutines|
-|`verifyAll`|starts a verification block that should include all calls|
-|`coVerifyAll`|starts a verification block that should include all calls for coroutines|
-|`verifyOrder`|starts a verification block that checks the order|
-|`coVerifyOrder`|starts a verification block that checks the order for coroutines|
-|`verifySequence`|starts a verification block that checks whether all calls were made in a specified sequence|
-|`coVerifySequence`|starts a verification block that checks whether all calls were made in a specified sequence for coroutines|
-|`excludeRecords`|exclude some calls from being recorded|
-|`confirmVerified`|confirms that all recorded calls were verified|
-|`clearMocks`|clears specified mocks|
-|`registerInstanceFactory`|allows you to redefine the way of instantiation for certain object|
-|`mockkClass`|builds a regular mock by passing the class as parameter|
-|`mockkObject`|turns an object into an object mock, or clears it if was already transformed|
-|`unmockkObject`|turns an object mock back into a regular object|
-|`mockkStatic`|makes a static mock out of a class, or clears it if it was already transformed|
-|`unmockkStatic`|turns a static mock back into a regular class|
-|`clearStaticMockk`|clears a static mock|
-|`mockkConstructor`|makes a constructor mock out of a class, or clears it if it was already transformed|
-|`unmockkConstructor`|turns a constructor mock back into a regular class|
-|`clearConstructorMockk`|clears the constructor mock|
-|`unmockkAll`|unmocks object, static and constructor mocks|
-|`clearAllMocks`|clears regular, object, static and constructor mocks|
+| Function                  | Description                                                                                                |
+|---------------------------|------------------------------------------------------------------------------------------------------------|
+| `mockk<T>(...)`           | builds a regular mock                                                                                      |
+| `spyk<T>()`               | builds a spy using the default constructor                                                                 |
+| `spyk(obj)`               | builds a spy by copying from `obj`                                                                         |
+| `slot`                    | creates a capturing slot                                                                                   |
+| `every`                   | starts a stubbing block                                                                                    |
+| `coEvery`                 | starts a stubbing block for coroutines                                                                     |
+| `verify`                  | starts a verification block                                                                                |
+| `coVerify`                | starts a verification block for coroutines                                                                 |
+| `verifyAll`               | starts a verification block that should include all calls                                                  |
+| `coVerifyAll`             | starts a verification block that should include all calls for coroutines                                   |
+| `verifyOrder`             | starts a verification block that checks the order                                                          |
+| `coVerifyOrder`           | starts a verification block that checks the order for coroutines                                           |
+| `verifySequence`          | starts a verification block that checks whether all calls were made in a specified sequence                |
+| `coVerifySequence`        | starts a verification block that checks whether all calls were made in a specified sequence for coroutines |
+| `excludeRecords`          | exclude some calls from being recorded                                                                     |
+| `confirmVerified`         | confirms that all recorded calls were verified                                                             |
+| `checkUnnecessaryStub`    | confirms that all recorded calls are used at least once                                                    |
+| `clearMocks`              | clears specified mocks                                                                                     |
+| `registerInstanceFactory` | allows you to redefine the way of instantiation for certain object                                         |
+| `mockkClass`              | builds a regular mock by passing the class as parameter                                                    |
+| `mockkObject`             | turns an object into an object mock, or clears it if was already transformed                               |
+| `unmockkObject`           | turns an object mock back into a regular object                                                            |
+| `mockkStatic`             | makes a static mock out of a class, or clears it if it was already transformed                             |
+| `unmockkStatic`           | turns a static mock back into a regular class                                                              |
+| `clearStaticMockk`        | clears a static mock                                                                                       |
+| `mockkConstructor`        | makes a constructor mock out of a class, or clears it if it was already transformed                        |
+| `unmockkConstructor`      | turns a constructor mock back into a regular class                                                         |
+| `clearConstructorMockk`   | clears the constructor mock                                                                                |
+| `unmockkAll`              | unmocks object, static and constructor mocks                                                               |
+| `clearAllMocks`           | clears regular, object, static and constructor mocks                                                       |
 
 
 ### Matchers
 
 By default, simple arguments are matched using `eq()`
 
-|Matcher|Description|
-|-------|-----------|
-|`any()`|matches any argument|
-|`allAny()`|special matcher that uses `any()` instead of `eq()` for matchers that are provided as simple arguments|
-|`isNull()`|checks if the value is null|
-|`isNull(inverse=true)`|checks if the value is not null|
-|`ofType(type)`|checks if the value belongs to the type|
-|`match { it.startsWith("string") }`|matches via the passed predicate|
-|`coMatch { it.startsWith("string") }`|matches via the passed coroutine predicate|
-|`matchNullable { it?.startsWith("string") }`|matches nullable value via the passed predicate|
-|`coMatchNullable { it?.startsWith("string") }`|matches nullable value via the passed coroutine predicate|
-|`eq(value)`|matches if the value is equal to the provided value via the `deepEquals` function|
-|`eq(value, inverse=true)`|matches if the value is not equal to the provided value via the `deepEquals` function|
-|`neq(value)`|matches if the value is not equal to the provided value via the `deepEquals` function|
-|`refEq(value)`|matches if the value is equal to the provided value via reference comparison|
-|`refEq(value, inverse=true)`|matches if the value is not equal to the provided value via reference comparison||
-|`nrefEq(value)`|matches if the value is not equal to the provided value via reference comparison||
-|`cmpEq(value)`|matches if the value is equal to the provided value via the `compareTo` function|
-|`less(value)`|matches if the value is less than the provided value via the `compareTo` function|
-|`more(value)`|matches if the value is more than the provided value via the `compareTo` function|
-|`less(value, andEquals=true)`|matches if the value is less than or equal to the provided value via the `compareTo` function|
-|`more(value, andEquals=true)`|matches if the value is more than or equal to the provided value via the `compareTo` function|
-|`range(from, to, fromInclusive=true, toInclusive=true)`|matches if the value is in range via the `compareTo` function|
-|`and(left, right)`|combines two matchers via a logical and|
-|`or(left, right)`|combines two matchers via a logical or|
-|`not(matcher)`|negates the matcher|
-|`capture(slot)`|captures a value to a `CapturingSlot`|
-|`capture(mutableList)`|captures a value to a list|
-|`captureNullable(mutableList)`|captures a value to a list together with null values|
-|`captureLambda()`|captures a lambda|
-|`captureCoroutine()`|captures a coroutine|
-|`invoke(...)`|calls a matched argument|
-|`coInvoke(...)`|calls a matched argument for a coroutine|
-|`hint(cls)`|hints the next return type in case it's gotten erased|
-|`anyVararg()`|matches any elements in a vararg|
-|`varargAny(matcher)`|matches if any element matches the matcher|
-|`varargAll(matcher)`|matches if all elements match the matcher|
-|`any...Vararg()`|matches any elements in vararg (specific to primitive type)|
-|`varargAny...(matcher)`|matches if any element matches the matcher (specific to the primitive type)|
-|`varargAll...(matcher)`|matches if all elements match the matcher (specific to the primitive type)|
+| Matcher                                                 | Description                                                                                            |
+|---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `any()`                                                 | matches any argument                                                                                   |
+| `allAny()`                                              | special matcher that uses `any()` instead of `eq()` for matchers that are provided as simple arguments |
+| `isNull()`                                              | checks if the value is null                                                                            |
+| `isNull(inverse=true)`                                  | checks if the value is not null                                                                        |
+| `ofType(type)`                                          | checks if the value belongs to the type                                                                |
+| `match { it.startsWith("string") }`                     | matches via the passed predicate                                                                       |
+| `coMatch { it.startsWith("string") }`                   | matches via the passed coroutine predicate                                                             |
+| `matchNullable { it?.startsWith("string") }`            | matches nullable value via the passed predicate                                                        |
+| `coMatchNullable { it?.startsWith("string") }`          | matches nullable value via the passed coroutine predicate                                              |
+| `eq(value)`                                             | matches if the value is equal to the provided value via the `deepEquals` function                      |
+| `eq(value, inverse=true)`                               | matches if the value is not equal to the provided value via the `deepEquals` function                  |
+| `neq(value)`                                            | matches if the value is not equal to the provided value via the `deepEquals` function                  |
+| `refEq(value)`                                          | matches if the value is equal to the provided value via reference comparison                           |
+| `refEq(value, inverse=true)`                            | matches if the value is not equal to the provided value via reference comparison                       ||
+| `nrefEq(value)`                                         | matches if the value is not equal to the provided value via reference comparison                       ||
+| `cmpEq(value)`                                          | matches if the value is equal to the provided value via the `compareTo` function                       |
+| `less(value)`                                           | matches if the value is less than the provided value via the `compareTo` function                      |
+| `more(value)`                                           | matches if the value is more than the provided value via the `compareTo` function                      |
+| `less(value, andEquals=true)`                           | matches if the value is less than or equal to the provided value via the `compareTo` function          |
+| `more(value, andEquals=true)`                           | matches if the value is more than or equal to the provided value via the `compareTo` function          |
+| `range(from, to, fromInclusive=true, toInclusive=true)` | matches if the value is in range via the `compareTo` function                                          |
+| `and(left, right)`                                      | combines two matchers via a logical and                                                                |
+| `or(left, right)`                                       | combines two matchers via a logical or                                                                 |
+| `not(matcher)`                                          | negates the matcher                                                                                    |
+| `capture(slot)`                                         | captures a value to a `CapturingSlot`                                                                  |
+| `capture(mutableList)`                                  | captures a value to a list                                                                             |
+| `captureNullable(mutableList)`                          | captures a value to a list together with null values                                                   |
+| `captureLambda()`                                       | captures a lambda                                                                                      |
+| `captureCoroutine()`                                    | captures a coroutine                                                                                   |
+| `invoke(...)`                                           | calls a matched argument                                                                               |
+| `coInvoke(...)`                                         | calls a matched argument for a coroutine                                                               |
+| `hint(cls)`                                             | hints the next return type in case it's gotten erased                                                  |
+| `anyVararg()`                                           | matches any elements in a vararg                                                                       |
+| `varargAny(matcher)`                                    | matches if any element matches the matcher                                                             |
+| `varargAll(matcher)`                                    | matches if all elements match the matcher                                                              |
+| `any...Vararg()`                                        | matches any elements in vararg (specific to primitive type)                                            |
+| `varargAny...(matcher)`                                 | matches if any element matches the matcher (specific to the primitive type)                            |
+| `varargAll...(matcher)`                                 | matches if all elements match the matcher (specific to the primitive type)                             |
 
 A few special matchers available in verification mode only:
 
-|Matcher|Description|
-|-------|-----------|
-|`withArg { code }`|matches any value and allows to execute some code|
-|`withNullableArg { code }`|matches any nullable value and allows to execute some code|
-|`coWithArg { code }`|matches any value and allows to execute some coroutine code|
-|`coWithNullableArg { code }`|matches any nullable value and allows to execute some coroutine code|
+| Matcher                      | Description                                                          |
+|------------------------------|----------------------------------------------------------------------|
+| `withArg { code }`           | matches any value and allows to execute some code                    |
+| `withNullableArg { code }`   | matches any nullable value and allows to execute some code           |
+| `coWithArg { code }`         | matches any value and allows to execute some coroutine code          |
+| `coWithNullableArg { code }` | matches any nullable value and allows to execute some coroutine code |
 
 ### Validators
 
-|Validator|Description|
-|---------|-----------|
-|`verify { mock.call() }`|Do unordered verification that a call was performed|
-|`verify(inverse=true) { mock.call() }`|Do unordered verification that a call was not performed|
-|`verify(atLeast=n) { mock.call() }`|Do unordered verification that a call was performed at least `n` times|
-|`verify(atMost=n) { mock.call() }`|Do unordered verification that a call was performed at most `n` times|
-|`verify(exactly=n) { mock.call() }`|Do unordered verification that a call was performed exactly `n` times|
-|`verifyAll { mock.call1(); mock.call2() }`|Do unordered verification that only the specified calls were executed for the mentioned mocks|
-|`verifyOrder { mock.call1(); mock.call2() }`|Do verification that the sequence of calls went one after another|
-|`verifySequence { mock.call1(); mock.call2() }`|Do verification that only the specified sequence of calls were executed for the mentioned mocks|
-|`verify { mock wasNot Called }`|Do verification that a mock was not called|
-|`verify { listOf(mock1, mock2) wasNot Called }`|Do verification that a list of mocks were not called|
+| Validator                                       | Description                                                                                     |
+|-------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `verify { mock.call() }`                        | Do unordered verification that a call was performed                                             |
+| `verify(inverse=true) { mock.call() }`          | Do unordered verification that a call was not performed                                         |
+| `verify(atLeast=n) { mock.call() }`             | Do unordered verification that a call was performed at least `n` times                          |
+| `verify(atMost=n) { mock.call() }`              | Do unordered verification that a call was performed at most `n` times                           |
+| `verify(exactly=n) { mock.call() }`             | Do unordered verification that a call was performed exactly `n` times                           |
+| `verifyAll { mock.call1(); mock.call2() }`      | Do unordered verification that only the specified calls were executed for the mentioned mocks   |
+| `verifyOrder { mock.call1(); mock.call2() }`    | Do verification that the sequence of calls went one after another                               |
+| `verifySequence { mock.call1(); mock.call2() }` | Do verification that only the specified sequence of calls were executed for the mentioned mocks |
+| `verify { mock wasNot Called }`                 | Do verification that a mock was not called                                                      |
+| `verify { listOf(mock1, mock2) wasNot Called }` | Do verification that a list of mocks were not called                                            |
 
 ### Answers
 
 An Answer can be followed up by one or more additional answers.
 
-|Answer|Description|
-|------|-----------|
-|`returns value`|specify that the matched call returns a specified value|
-|`returnsMany list`|specify that the matched call returns a value from the list, with subsequent calls returning the next element|
-|`returnsArgument(n)`|specify that the matched call returns the nth argument of that call|
-|`throws ex`|specify that the matched call throws an exception|
-|`answers { code }`|specify that the matched call answers with a code block scoped with `answer scope`|
-|`coAnswers { code }`|specify that the matched call answers with a coroutine code block  with `answer scope`|
-|`answers answerObj`|specify that the matched call answers with an Answer object|
-|`answers { nothing }`|specify that the matched call answers null|
-|`just Runs`|specify that the matched call is returning Unit (returns null)|
-|`propertyType Class`|specify the type of the backing field accessor|
-|`nullablePropertyType Class`|specify the type of the backing field accessor as a nullable type|
+| Answer                       | Description                                                                                                        |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `returns value`              | specify that the matched call returns a specified value                                                            |
+| `returnsMany list`           | specify that the matched call returns a value from the list, with subsequent calls returning the next element      |
+| `returnsArgument(n)`         | specify that the matched call returns the nth argument of that call                                                |
+| `throws ex`                  | specify that the matched call throws an exception                                                                  |
+| `throwsMany ex`              | specify that the matched call throws an exception from the list, with subsequent calls throwing the next exception |
+| `answers { code }`           | specify that the matched call answers with a code block scoped with `answer scope`                                 |
+| `coAnswers { code }`         | specify that the matched call answers with a coroutine code block  with `answer scope`                             |
+| `answers answerObj`          | specify that the matched call answers with an Answer object                                                        |
+| `answers { nothing }`        | specify that the matched call answers null                                                                         |
+| `just Runs`                  | specify that the matched call is returning Unit (returns null)                                                     |
+| `just Awaits`                | specify that the matched call never returns (available since v1.13.3)                                              |
+| `propertyType Class`         | specify the type of the backing field accessor                                                                     |
+| `nullablePropertyType Class` | specify the type of the backing field accessor as a nullable type                                                  |
 
 
 ### Additional answer(s)
@@ -1268,48 +1341,51 @@ An Answer can be followed up by one or more additional answers.
 A next answer is returned on each consequent call and the last value is persisted.
 So this is similar to the `returnsMany` semantics.
 
-|Additional answer|Description|
-|------------------|-----------|
-|`andThen value`|specify that the matched call returns one specified value|
-|`andThenMany list`|specify that the matched call returns a value from the list, with subsequent calls returning the next element|
-|`andThenThrows ex`|specify that the matched call throws an exception|
-|`andThen { code }`|specify that the matched call answers with a code block scoped with `answer scope`|
-|`coAndThen { code }`|specify that the matched call answers with a coroutine code block with `answer scope`|
-|`andThenAnswer answerObj`|specify that the matched call answers with an Answer object|
-|`andThen { nothing }`|specify that the matched call answers null|
+| Additional answer         | Description                                                                                                        |
+|---------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `andThen value`           | specify that the matched call returns one specified value                                                          |
+| `andThenMany list`        | specify that the matched call returns a value from the list, with subsequent calls returning the next element      |
+| `andThenThrows ex`        | specify that the matched call throws an exception                                                                  |
+| `andThenThrowsMany ex`    | specify that the matched call throws an exception from the list, with subsequent calls throwing the next exception |
+| `andThen { code }`        | specify that the matched call answers with a code block scoped with `answer scope`                                 |
+| `coAndThen { code }`      | specify that the matched call answers with a coroutine code block with `answer scope`                              |
+| `andThenAnswer answerObj` | specify that the matched call answers with an Answer object                                                        |
+| `andThen { nothing }`     | specify that the matched call answers null                                                                         |
+| `andThenJust Runs`        | specify that the matched call is returning Unit (available since v1.12.2)                                          |
+| `andThenJust Awaits`      | specify that the matched call is never returning (available since v1.13.3)                                         |
 
 ### Answer scope
 
-|Parameter|Description|
-|---------|-----------|
-|`call`|a call object that consists of an invocation and a matcher|
-|`invocation`|contains information regarding the actual function invoked|
-|`matcher`|contains information regarding the matcher used to match the invocation|
-|`self`|reference to the object invocation made|
-|`method`|reference to the function invocation made|
-|`args`|reference to the invocation arguments|
-|`nArgs`|number of invocation arguments|
-|`arg(n)`|nth argument|
-|`firstArg()`|first argument|
-|`secondArg()`|second argument|
-|`thirdArg()`|third argument|
-|`lastArg()`|last argument|
-|`captured()`|the last element in the list for convenience when capturing to a list|
-|`lambda<...>().invoke()`|call the captured lambda|
-|`coroutine<...>().coInvoke()`|call the captured coroutine|
-|`nothing`|null value for returning `nothing` as an answer|
-|`fieldValue`|accessor to the property backing field|
-|`fieldValueAny`|accessor to the property backing field with `Any?` type|
-|`value`|value being set, cast to the same type as the property backing field|
-|`valueAny`|value being set, with `Any?` type|
-|`callOriginal`|calls the original function|
+| Parameter                     | Description                                                             |
+|-------------------------------|-------------------------------------------------------------------------|
+| `call`                        | a call object that consists of an invocation and a matcher              |
+| `invocation`                  | contains information regarding the actual function invoked              |
+| `matcher`                     | contains information regarding the matcher used to match the invocation |
+| `self`                        | reference to the object invocation made                                 |
+| `method`                      | reference to the function invocation made                               |
+| `args`                        | reference to the invocation arguments                                   |
+| `nArgs`                       | number of invocation arguments                                          |
+| `arg(n)`                      | nth argument                                                            |
+| `firstArg()`                  | first argument                                                          |
+| `secondArg()`                 | second argument                                                         |
+| `thirdArg()`                  | third argument                                                          |
+| `lastArg()`                   | last argument                                                           |
+| `captured()`                  | the last element in the list for convenience when capturing to a list   |
+| `lambda<...>().invoke()`      | call the captured lambda                                                |
+| `coroutine<...>().coInvoke()` | call the captured coroutine                                             |
+| `nothing`                     | null value for returning `nothing` as an answer                         |
+| `fieldValue`                  | accessor to the property backing field                                  |
+| `fieldValueAny`               | accessor to the property backing field with `Any?` type                 |
+| `value`                       | value being set, cast to the same type as the property backing field    |
+| `valueAny`                    | value being set, with `Any?` type                                       |
+| `callOriginal`                | calls the original function                                             |
 
 ### Vararg scope
 
-|Parameter|Description|
-|---------|-----------|
-|`position`|the position of an argument in a vararg array|
-|`nArgs`|overall count of arguments in a vararg array|
+| Parameter  | Description                                   |
+|------------|-----------------------------------------------|
+| `position` | the position of an argument in a vararg array |
+| `nArgs`    | overall count of arguments in a vararg array  |
 
 ## Funding
 
@@ -1345,7 +1421,7 @@ This project exists thanks to all the people who contribute.
 To ask questions, please use Stack Overflow or Gitter.
 
 * Chat/Gitter: [https://gitter.im/mockk-io/Lobby](https://gitter.im/mockk-io/Lobby)
-* Stack Overflow: [http://stackoverflow.com/questions/tagged/mockk](http://stackoverflow.com/questions/tagged/mockk)
+* Stack Overflow: [http://stackoverflow.com/questions/tagged/mockk](https://stackoverflow.com/questions/tagged/mockk)
 
 To report bugs, please use the GitHub project.
 
