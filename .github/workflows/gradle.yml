@@ -20,6 +20,7 @@ jobs:
         kotlin-version: [ 1.5.31, 1.6.21, 1.7.21, 1.8.0-Beta ]
         kotlin-ir-enabled: [ true, false ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
+    name: java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}, IR=${{ matrix.kotlin-ir-enabled }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
@@ -47,6 +48,7 @@ jobs:
       matrix:
         api-level: [ 21, 29 ] # The minSdk and targetSdk versions set for MockK Android projects
       fail-fast: false # in case one API-level fails, we still want to see results from others
+    name: api-level=${{ matrix.api-level }}
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v3
