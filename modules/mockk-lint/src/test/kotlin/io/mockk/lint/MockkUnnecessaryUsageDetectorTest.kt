@@ -151,6 +151,35 @@ class MockkUnnecessaryUsageDetectorTest {
     }
 
     @Test
+    fun expectWarningsForValueClass(): Unit = with(ISSUE_PRIMITIVE) {
+        lint().allowMissingSdk()
+            .files(
+                kotlin(
+                    """
+                    import io.mockk.mockk
+
+                    @JvmInline
+                    value class Password(private val p: String)
+
+                    val password = mockk<Password>()
+                    """,
+                ).indented(),
+                MOCKK_STUB,
+            )
+            .issues(this)
+            .run()
+            .expectWarningCount(1)
+            .expectContains(
+                """
+                src/Password.kt:6: $severity: $explanation [$id]
+                val password = mockk<Password>()
+                               ~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
+            """.trimIndent(),
+            )
+    }
+
+    @Test
     fun expectClean() {
         lint().allowMissingSdk()
             .files(
