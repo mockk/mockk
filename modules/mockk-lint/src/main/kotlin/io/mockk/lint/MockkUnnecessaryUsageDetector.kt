@@ -20,7 +20,7 @@ import org.jetbrains.uast.UCallExpression
 import java.util.*
 
 
-class MockkUnnecessaryUsageDetector : Detector(), SourceCodeScanner {
+internal class MockkUnnecessaryUsageDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames() = listOf("mockk")
 

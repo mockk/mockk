@@ -10,7 +10,7 @@ import io.mockk.lint.MockkUnnecessaryUsageDetector.Companion.ISSUE_INTERFACE
 import io.mockk.lint.MockkUnnecessaryUsageDetector.Companion.ISSUE_PRIMITIVE
 
 @Suppress("unused")
-class LintRegistry : IssueRegistry() {
+internal class LintRegistry : IssueRegistry() {
 
     override val vendor = Vendor(
         identifier = "MockK",
