@@ -54,10 +54,10 @@ internal class MockkUnnecessaryUsageDetector : Detector(), SourceCodeScanner {
 
     companion object {
 
-        val ISSUE_DATA_CLASS = issue(id = "MockkDataClass", "a data class")
-        val ISSUE_ENUM = issue(id = "MockkEnum", "an enum")
-        val ISSUE_INTERFACE = issue(id = "MockkInterface", "an interface")
-        val ISSUE_PRIMITIVE = issue(id = "MockkPrimitive", "a primitive type")
+        val ISSUE_DATA_CLASS = issue(id = "MockkDataClass", "data class")
+        val ISSUE_ENUM = issue(id = "MockkEnum", "enum")
+        val ISSUE_INTERFACE = issue(id = "MockkInterface", "interface")
+        val ISSUE_PRIMITIVE = issue(id = "MockkPrimitive", "primitive type")
 
         private fun issue(id: String, what: String): Issue = Issue.create(
             id = id,
