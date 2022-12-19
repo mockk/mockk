@@ -66,6 +66,7 @@ internal class MockkUnnecessaryUsageDetector : Detector(), SourceCodeScanner {
             category = Category.TESTING,
             priority = 5,
             severity = Severity.WARNING,
+            enabledByDefault = false,
             implementation = Implementation(MockkUnnecessaryUsageDetector::class.java, EnumSet.of(JAVA_FILE, TEST_SOURCES)),
         )
 
