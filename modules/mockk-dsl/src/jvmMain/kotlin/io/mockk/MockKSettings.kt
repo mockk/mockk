@@ -1,6 +1,6 @@
 package io.mockk
 
-import java.util.*
+import java.util.Properties
 
 actual object MockKSettings {
     private val properties = Properties()

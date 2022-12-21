@@ -10,8 +10,9 @@ import io.mockk.core.ValueClassSupport.boxedClass
 import io.mockk.core.ValueClassSupport.boxedValue
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
-import java.util.*
+import java.util.Collections.synchronizedMap
 import java.util.Collections.synchronizedList
+import java.util.Locale
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 
@@ -57,7 +58,7 @@ actual object InternalPlatform {
         return synchronizedList(mutableListOf<T>())
     }
 
-    actual fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = Collections.synchronizedMap(hashMapOf())
+    actual fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = synchronizedMap(hashMapOf())
 
     actual fun packRef(arg: Any?): Any? {
         return when {

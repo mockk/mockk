@@ -1,7 +1,7 @@
 package io.mockk.proxy.common.transformation
 
 import io.mockk.proxy.common.transformation.TransformationType.*
-import java.util.*
+import java.util.WeakHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 

@@ -20,7 +20,7 @@ import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.*
 import io.mockk.proxy.MockKAgentFactory
 import io.mockk.proxy.MockKAgentLogFactory
-import java.util.*
+import java.util.Random
 
 class JvmMockKGateway : MockKGateway {
     val safeToString: SafeToString = SafeToString { callRecorderTL.get() }

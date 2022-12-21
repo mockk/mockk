@@ -16,7 +16,8 @@ import io.mockk.proxy.MockKConstructorProxyMaker
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.MockKProxyMaker
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Stack
+import java.util.WeakHashMap
 import java.util.concurrent.Callable
 import kotlin.concurrent.getOrSet
 import kotlin.reflect.KClass

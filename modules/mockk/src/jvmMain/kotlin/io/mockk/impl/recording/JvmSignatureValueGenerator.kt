@@ -3,7 +3,7 @@ package io.mockk.impl.recording
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
 import io.mockk.core.ValueClassSupport.boxedClass
-import java.util.*
+import java.util.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.primaryConstructor
