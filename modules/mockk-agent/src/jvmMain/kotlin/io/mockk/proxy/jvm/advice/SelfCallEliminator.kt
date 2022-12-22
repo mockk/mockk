@@ -1,7 +1,7 @@
 package io.mockk.proxy.jvm.advice
 
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Arrays
 
 internal object SelfCallEliminator {
     val selfCall = ThreadLocal<Any>()

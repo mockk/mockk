@@ -1,6 +1,6 @@
 package io.mockk.impl.instantiation
 
-import java.util.*
+import java.util.WeakHashMap
 
 class RefCounterMap<T> {
     val counter = WeakHashMap<T, Int>()
