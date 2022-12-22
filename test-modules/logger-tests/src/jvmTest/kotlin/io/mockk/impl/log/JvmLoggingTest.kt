@@ -1,7 +1,7 @@
 package io.mockk.impl.log
 
 import io.mockk.impl.log.JvmLogging.slf4jOrJulLogging
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 // This test requires a separate sub module to exclude the slf4j library.

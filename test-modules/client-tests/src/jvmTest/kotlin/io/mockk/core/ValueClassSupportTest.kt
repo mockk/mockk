@@ -2,7 +2,7 @@ package io.mockk.core
 
 import io.mockk.every
 import io.mockk.mockk
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 
