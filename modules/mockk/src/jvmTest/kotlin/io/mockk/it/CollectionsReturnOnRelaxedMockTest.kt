@@ -83,5 +83,4 @@ class CollectionsReturnOnRelaxedMockTest {
         assertTrue(hashset.isEmpty())
     }
 
-
 }
