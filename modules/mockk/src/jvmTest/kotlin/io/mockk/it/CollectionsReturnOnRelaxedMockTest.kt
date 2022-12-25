@@ -2,8 +2,8 @@ package io.mockk.it
 
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.RelaxedMockK
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -36,7 +36,7 @@ class CollectionsReturnOnRelaxedMockTest {
     @RelaxedMockK
     private lateinit var returningCollections: ReturningCollections
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this, relaxUnitFun = true)
     }
@@ -82,6 +82,5 @@ class CollectionsReturnOnRelaxedMockTest {
         assertEquals(0, hashset.size)
         assertTrue(hashset.isEmpty())
     }
-
 
 }
