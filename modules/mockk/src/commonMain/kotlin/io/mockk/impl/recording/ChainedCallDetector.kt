@@ -9,7 +9,7 @@ import io.mockk.impl.log.SafeToString
 import kotlin.coroutines.Continuation
 
 class ChainedCallDetector(safeToString: SafeToString) {
-    val log = safeToString(Logger<SignatureMatcherDetector>())
+    val log = safeToString(Logger<ChainedCallDetector>())
 
     val argMatchers = mutableListOf<Matcher<*>>()
 
