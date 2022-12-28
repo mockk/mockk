@@ -7,6 +7,7 @@ import io.mockk.proxy.common.transformation.TransformationRequest
 import io.mockk.proxy.common.transformation.TransformationType
 
 internal class ConstructorProxyMaker(
+    private val log: MockKAgentLogger,
     private val inliner: InlineInstrumentation?,
     private val constructorHandlers: MutableMap<Any, MockKInvocationHandler>
 ) : MockKConstructorProxyMaker {
