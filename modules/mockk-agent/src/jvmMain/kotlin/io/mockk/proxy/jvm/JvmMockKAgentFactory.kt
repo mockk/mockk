@@ -113,7 +113,6 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                 )
 
                 jvmConstructorProxyMaker = ConstructorProxyMaker(
-                    logFactory.logger(ConstructorProxyMaker::class.java),
                     inliner,
                     constructorHandlers
 
