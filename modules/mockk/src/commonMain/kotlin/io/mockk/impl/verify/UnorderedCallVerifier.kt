@@ -82,9 +82,7 @@ open class UnorderedCallVerifier(
             }
         } else when (allCallsForMockMethod.size) {
             0 -> {
-                if (min == 0 && max == 0) {
-                    VerificationResult.OK(listOf())
-                } else if (allCallsForMock.isEmpty()) {
+                if (allCallsForMock.isEmpty()) {
                     VerificationResult.Failure("$callIdxMsg was not called")
                 } else {
                     VerificationResult.Failure(safeToString.exec {
