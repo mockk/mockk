@@ -99,7 +99,7 @@ open class UnorderedCallVerifier(
             }
             1 -> {
                 val onlyCall = allCallsForMockMethod[0]
-                if (matcher.match(onlyCall)) {
+                if (matchedCalls.size == 1) {
                     if (1 in min..max) {
                         VerificationResult.OK(listOf(onlyCall))
                     } else {
