@@ -82,9 +82,7 @@ open class UnorderedCallVerifier(
             }
         } else when (allCallsForMockMethod.size) {
             0 -> {
-                if (min == 0 && max == 0) {
-                    VerificationResult.OK(listOf())
-                } else if (allCallsForMock.isEmpty()) {
+                if (allCallsForMock.isEmpty()) {
                     VerificationResult.Failure("$callIdxMsg was not called")
                 } else {
                     VerificationResult.Failure(safeToString.exec {
@@ -101,7 +99,7 @@ open class UnorderedCallVerifier(
             }
             1 -> {
                 val onlyCall = allCallsForMockMethod[0]
-                if (matcher.match(onlyCall)) {
+                if (matchedCalls.size == 1) {
                     if (1 in min..max) {
                         VerificationResult.OK(listOf(onlyCall))
                     } else {
