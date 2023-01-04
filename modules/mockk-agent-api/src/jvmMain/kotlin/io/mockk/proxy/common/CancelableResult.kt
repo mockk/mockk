@@ -2,16 +2,19 @@ package io.mockk.proxy.common
 
 import io.mockk.proxy.Cancelable
 import io.mockk.proxy.MockKAgentException
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class CancelableResult<T : Any>(
-    private val value: T? = null,
+    input:T?=null,
     private val cancelBlock: () -> Unit = {}
 ) : Cancelable<T> {
 
+    private val weakValue: WeakReference<T>? = input?.let { WeakReference(it) }
+
     val fired = AtomicBoolean()
 
-    override fun get() = value
+    override fun get() = weakValue?.get()
             ?: throw MockKAgentException("Value for this result is not assigned")
 
     override fun cancel() {
@@ -23,7 +26,7 @@ open class CancelableResult<T : Any>(
     fun <R : Any> withValue(value: R) = CancelableResult(value, cancelBlock)
 
     fun alsoOnCancel(block: () -> Unit) =
-        CancelableResult(value) {
+        CancelableResult(weakValue?.get()) {
             cancel()
             block()
         }

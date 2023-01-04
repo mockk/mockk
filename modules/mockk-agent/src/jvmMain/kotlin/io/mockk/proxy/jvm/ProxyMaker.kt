@@ -6,6 +6,8 @@ import io.mockk.proxy.common.transformation.InlineInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
 import io.mockk.proxy.common.transformation.TransformationType.SIMPLE
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
+import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
@@ -46,15 +48,16 @@ internal class ProxyMaker(
             val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance)
 
             handlers[proxy] = handler
-
+            val callbackRef = WeakReference(proxy)
             return result
                 .withValue(proxy)
                 .alsoOnCancel {
-                    handlers.remove(proxy)
+                    callbackRef.get()?.let {
+                        handlers.remove(it)
+                    }
                 }
         } catch (e: Exception) {
             result.cancel()
-
             throw MockKAgentException("Instantiation exception", e)
         }
     }
