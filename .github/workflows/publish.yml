@@ -36,4 +36,5 @@ jobs:
           ORG_GRADLE_PROJECT_signingSecretKeyRingFile: ${{ secrets.GRADLE_SIGNING_SECRET_KEY_RING_FILE }}
           ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSS_SONATYPE_USERNAME }}
           ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSS_SONATYPE_PASSWORD }}
-        run: ./gradlew publishToSonatypeStaging
+        run: ./gradlew publishToSonatypeStaging --no-parallel
+        # don't run in parallel - Sonatype doesn't like it
