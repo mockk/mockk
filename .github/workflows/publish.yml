@@ -29,7 +29,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Run tests with Gradle
+      - name: Publish snapshot to Sonatype
         env:
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.GRADLE_SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GRADLE_SIGNING_PASSWORD }}
