@@ -6,7 +6,7 @@ import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.BootJarLoader
 import io.mockk.proxy.jvm.transformation.InliningClassTransformer
 import io.mockk.proxy.jvm.transformation.JvmInlineInstrumentation
-import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
+import io.mockk.proxy.jvm.transformation.JvmSubclassInstrumentation
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.NamingStrategy
 import net.bytebuddy.agent.ByteBuddyAgent
@@ -91,15 +91,15 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     )
                 }
 
-                val subclasser = SubclassInstrumentation(
-                    logFactory.logger(SubclassInstrumentation::class.java),
+                val subclasser = JvmSubclassInstrumentation(
+                    logFactory.logger(JvmSubclassInstrumentation::class.java),
                     handlers,
                     byteBuddy
                 )
 
 
-                jvmProxyMaker = ProxyMaker(
-                    logFactory.logger(ProxyMaker::class.java),
+                jvmProxyMaker = io.mockk.proxy.common.ProxyMaker(
+                    logFactory.logger(io.mockk.proxy.common.ProxyMaker::class.java),
                     inliner,
                     subclasser,
                     jvmInstantiator,

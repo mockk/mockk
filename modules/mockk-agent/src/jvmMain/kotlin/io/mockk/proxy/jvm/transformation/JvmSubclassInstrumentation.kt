@@ -1,6 +1,7 @@
 package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import io.mockk.proxy.jvm.ClassLoadingStrategyChooser
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
@@ -17,11 +18,11 @@ import java.io.File
 import java.lang.Thread.currentThread
 import java.util.concurrent.atomic.AtomicLong
 
-internal class SubclassInstrumentation(
+internal class JvmSubclassInstrumentation(
     private val log: MockKAgentLogger,
     private val handlers: MockHandlerMap,
     private val byteBuddy: ByteBuddy
-) {
+): SubclassInstrumentation {
     private val bootstrapMonitor = Any()
     private val proxyClassCache = TypeCache<CacheKey>(TypeCache.Sort.WEAK)
     private lateinit var interceptor: JvmMockKProxyInterceptor
@@ -35,11 +36,10 @@ internal class SubclassInstrumentation(
             }
         }
         AdviceBuilder().build()
-
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> subclass(
+    override fun <T> subclass(
         clazz: Class<T>,
         interfaces: Array<Class<*>>
     ): Class<T> {
