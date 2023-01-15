@@ -21,6 +21,8 @@ import io.mockk.proxy.common.transformation.InlineInstrumentation
 import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
 import io.mockk.proxy.common.transformation.TransformationType
+import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.Proxy
@@ -68,11 +70,14 @@ class ProxyMaker(
 
             subclasser.setProxyHandler(proxy, handler)
             handlers[proxy] = handler
-
+            val callbackRef = WeakReference(proxy)
             return result
                 .withValue(proxy)
                 .alsoOnCancel {
-                    handlers.remove(proxy)
+                    callbackRef.get()?.let {
+                        handlers.remove(it)
+                    }
+
                 }
         } catch (e: Exception) {
             result.cancel()
