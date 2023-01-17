@@ -124,7 +124,7 @@ class JvmMockKAgentFactory : MockKAgentFactory {
     }
 
     private fun initInstrumentation(loader: BootJarLoader): Instrumentation? {
-        val instrumentation = ByteBuddyAgent.install()
+        val instrumentation: Instrumentation? = ByteBuddyAgent.install()
 
         if (instrumentation == null) {
             log.debug(
