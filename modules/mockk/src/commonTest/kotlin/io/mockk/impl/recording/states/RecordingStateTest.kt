@@ -5,14 +5,11 @@ import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 
-@Ignore
 class RecordingStateTest {
-    lateinit var recorder: CommonCallRecorder
-    lateinit var state: RecordingState
-
+    private lateinit var recorder: CommonCallRecorder
+    private lateinit var state: RecordingState
 
     @BeforeTest
     fun setUp() {
@@ -38,8 +35,7 @@ class RecordingStateTest {
         every { recorder.factories.callRoundBuilder() } returns mockk()
         every { recorder.factories.childHinter() } returns mockk()
         every { recorder.factories.signatureMatcherDetector().detect(any()) } returns mockk()
-        every { recorder.factories.permanentMocker().mock(any()) } returns mockk()
-
+        every { recorder.factories.permanentMocker().mock(any()) } returns mockk(relaxed = true)
 
         state.round(1, 1)
 
