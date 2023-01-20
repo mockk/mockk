@@ -1,6 +1,7 @@
 package io.mockk.proxy.jvm
 
 import io.mockk.proxy.*
+import io.mockk.proxy.common.ProxyMaker
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.BootJarLoader
@@ -98,8 +99,8 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                 )
 
 
-                jvmProxyMaker = io.mockk.proxy.common.ProxyMaker(
-                    logFactory.logger(io.mockk.proxy.common.ProxyMaker::class.java),
+                jvmProxyMaker = ProxyMaker(
+                    logFactory.logger(ProxyMaker::class.java),
                     inliner,
                     subclasser,
                     jvmInstantiator,
