@@ -87,7 +87,9 @@ open class MockKStub(
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
             } else {
-                throw MockKException("no answer found for: ${gatewayAccess.safeToString.exec { invocation.toString() }}")
+                val configuredAnswers = answers.map { it.matcher.toString() }.joinToString(separator = "\n") { it }
+                throw MockKException("no answer found for: ${gatewayAccess.safeToString.exec { invocation.toString() }}" +
+                        " between the configured answers: ($configuredAnswers)")
             }
         }
     }
