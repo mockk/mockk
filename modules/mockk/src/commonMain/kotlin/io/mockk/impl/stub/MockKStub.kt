@@ -87,7 +87,7 @@ open class MockKStub(
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
             } else {
-                throw MockKException("no answer found for: ${gatewayAccess.safeToString.exec { invocation.toString() }}")
+                throw MockKException("no mock found for: ${gatewayAccess.safeToString.exec { invocation.toString() }}")
             }
         }
     }
