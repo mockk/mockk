@@ -88,8 +88,8 @@ open class MockKStub(
                 }
             } else {
                 val configuredAnswers = answers.map { it.matcher.toString() }.joinToString(separator = "\n") { it }
-                throw MockKException("no answer found for: ${gatewayAccess.safeToString.exec { invocation.toString() }}" +
-                        " between the configured answers: ($configuredAnswers)")
+                throw MockKException("no answer found for ${gatewayAccess.safeToString.exec { invocation.toString() }}" +
+                        " among the configured answers: ($configuredAnswers)")
             }
         }
     }

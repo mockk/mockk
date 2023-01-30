@@ -11,7 +11,7 @@ class MockKStubTest {
     @Test
     fun givenAMockkStubWithAnswerConfiguredWhenCallingItWithOtherParametersThenTheExceptionContainsConfiguredAnswers() {
         val mock: DummyClass = mockk()
-        val expectedMessage = "no answer found for: $mock.function(3) between the configured answers: ($mock.function(eq(2))))"
+        val expectedMessage = "no answer found for $mock.function(3) among the configured answers: ($mock.function(eq(2))))"
 
         every {
             mock.function(2)
@@ -27,7 +27,7 @@ class MockKStubTest {
     @Test
     fun givenAMockkStubWithAnswersConfiguredWhenCallingItWithOtherParametersThenTheExceptionContainsConfiguredAnswers() {
         val mock: DummyClass = mockk()
-        val expectedMessage = """no answer found for: $mock.function(3) between the configured answers: ($mock.function(eq(2)))
+        val expectedMessage = """no answer found for $mock.function(3) among the configured answers: ($mock.function(eq(2)))
 $mock.function(eq(5))))"""
 
         every {
