@@ -18,8 +18,11 @@ internal class Interceptor(
             self,
             method
         )
-        return handler.invocation(self, method, callOriginalMethod, arguments)
-            ?.boxedValue // unbox value class objects
+
+        return when (val result = handler.invocation(self, method, callOriginalMethod, arguments)) {
+            is Result<*> -> result
+            else -> result?.boxedValue
+        }
     }
 
 }
