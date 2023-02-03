@@ -40,11 +40,11 @@ class ProxyMaker(
         instance: Any?
     ): Cancelable<T> {
 
-        throwIfNotPossibleToProxy(clazz, interfaces)
-
         // Sometimes (e.g. in case of sealed classes) we will create the proxy for a subclass of `clazz` and not `clazz`
         // itself.  We need to determine this early, so that the subclass will be inlined as well.
         val actualClass = findActualClassToBeProxied(clazz)
+
+        throwIfNotPossibleToProxy(actualClass, interfaces)
 
         val cancellation = inline(actualClass)
 
