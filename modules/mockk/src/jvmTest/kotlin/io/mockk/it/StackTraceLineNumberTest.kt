@@ -4,7 +4,7 @@ package io.mockk.it
 
 import io.mockk.every
 import io.mockk.verify
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
 

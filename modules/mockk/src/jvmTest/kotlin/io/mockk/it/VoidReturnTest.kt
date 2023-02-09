@@ -3,7 +3,7 @@ package io.mockk.it
 import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.TimeUnit
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 /**
  * Test related to GitHub issue #69

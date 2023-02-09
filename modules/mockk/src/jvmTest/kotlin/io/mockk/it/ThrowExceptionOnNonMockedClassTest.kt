@@ -2,7 +2,7 @@ package io.mockk.it
 
 import io.mockk.MockKException
 import io.mockk.every
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 /**
