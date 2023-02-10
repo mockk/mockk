@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class JvmLoggingTest {
 
     @Test
-    fun `verify slf4j logging used when slf4j is present in classpath`() {
+    fun `verify slf4j logging used when slf4j is present in classpath `() {
         val logFactory = slf4jOrJulLogging()
         val logger = logFactory(Object::class)
         assertEquals(Slf4jLogger::class, logger::class)
