@@ -78,6 +78,8 @@ public class JvmMockKProxyMakerTest {
     public void garbageCollectedProxy() {
         handler.callOriginal = true;
         Cancelable<A> cancelableProxy = makeCancelableProxy(A.class);
+
+        // Make sure that calling GC before `.get` does not cause an exception
         System.gc();
 
         A proxy = cancelableProxy.get();
