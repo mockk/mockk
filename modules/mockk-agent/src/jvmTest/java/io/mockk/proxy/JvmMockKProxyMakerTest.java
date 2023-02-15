@@ -80,10 +80,11 @@ public class JvmMockKProxyMakerTest {
         Cancelable<A> cancelableProxy = makeCancelableProxy(A.class);
         System.gc();
 
-        cancelableProxy.get().a();
+        A proxy = cancelableProxy.get();
+        proxy.a();
 
         assertTrue(executed[0]);
-        checkProxyHandlerCalled(1, cancelableProxy, "a");
+        checkProxyHandlerCalled(1, proxy, "a");
 
     }
 
