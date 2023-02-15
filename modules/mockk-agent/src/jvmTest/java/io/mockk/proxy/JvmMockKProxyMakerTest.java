@@ -49,6 +49,10 @@ public class JvmMockKProxyMakerTest {
         return maker.proxy(cls, new Class[0], handler, false, null).get();
     }
 
+    private <T> Cancelable<T> makeCancelableProxy(Class<T> cls) {
+        return maker.proxy(cls, new Class[0], handler, false, null);
+    }
+
     @Test
     public void openClassProxy() {
         A proxy = makeProxy(A.class);
@@ -68,6 +72,19 @@ public class JvmMockKProxyMakerTest {
 
         assertTrue(executed[0]);
         checkProxyHandlerCalled(1, proxy, "a");
+    }
+
+    @Test
+    public void garbageCollectedProxy() {
+        handler.callOriginal = true;
+        Cancelable<A> cancelableProxy = makeCancelableProxy(A.class);
+        System.gc();
+
+        cancelableProxy.get().a();
+
+        assertTrue(executed[0]);
+        checkProxyHandlerCalled(1, cancelableProxy, "a");
+
     }
 
     static final class B {
