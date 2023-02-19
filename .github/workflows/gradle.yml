@@ -34,11 +34,12 @@ jobs:
         uses: gradle/gradle-build-action@v2.4.2
 
       - name: Run tests with Gradle
+        env:
+          ORG_GRADLE_PROJECT_io_mockk_kotlin_version: ${{ matrix.kotlin-version }}
+          ORG_GRADLE_PROJECT_io_mockk_java_toolchain_test_version: ${{ matrix.java-version }}
         run: >
           ./gradlew check
           --stacktrace
-          -Pkotlin.version=${{ matrix.kotlin-version }}
-          -PjavaToolchainTestVersion=${{ matrix.java-version }}
 
   android-instrumented-tests:
     runs-on: macos-latest
