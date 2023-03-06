@@ -877,6 +877,24 @@ runTest {
 
 Note: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
 
+### Top Level functions
+
+Kotlin lets you declare functions that don’t belong to any class or object, called top-level functions. These calls are translated to static methods in `jvm` environments, and a special Java class is generated to hold the functions. These top-level functions can be mocked using `mockkStatic`. You just need to import the function and pass a reference as the argument:
+
+```kotlin
+import com.cars.buildCar
+
+val testCar = Car()
+mockkStatic(::buildCar)
+every { buildCar() } returns testCar
+
+assertEquals(testCar, buildCar())
+
+verify { buildCar() }
+```
+
+Mocking a function doesn't affect other functions declared in the same file.
+
 ### Extension functions
 
 There are three types of extension function in Kotlin:
