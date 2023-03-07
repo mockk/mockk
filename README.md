@@ -381,13 +381,13 @@ every { ObjBeingMocked.add(1, 2) } returns 55
 assertEquals(55, ObjBeingMocked.add(1, 2))
 ```
 
-To revert back, use `unmockkAll` or `unmockkObject`:
+To revert back, use `unmockkObject` or `unmockkAll` (more destructive: cancels object, static and constructor mocks)
 
 ```kotlin
 @Before
 fun beforeTests() {
     mockkObject(ObjBeingMocked)
-    every { MockObj.add(1,2) } returns 55
+    every { ObjBeingMocked.add(1,2) } returns 55
 }
 
 @Test
@@ -397,14 +397,14 @@ fun willUseMockBehaviour() {
 
 @After
 fun afterTests() {
-    unmockkAll()
-    // or unmockkObject(ObjBeingMocked)
+    unmockkObject(ObjBeingMocked)
+    // or unmockkAll()
 }
 ```
 
 Despite the Kotlin language restrictions, you can create new instances of objects if required by testing logic:
 ```kotlin
-val newObjectMock = mockk<MockObj>()
+val newObjectMock = mockk<ObjBeingMocked>()
 ```
 
 ### Class mock
