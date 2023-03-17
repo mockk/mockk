@@ -893,7 +893,7 @@ assertEquals(testCar, buildCar())
 verify { buildCar() }
 ```
 
-Mocking a function doesn't affect other functions declared in the same file.
+Mocking a function will clear any existing mocks of other functions declared in the same file, equivalent to calling `clearStaticMockk` on the generated enclosing class.
 
 ### Extension functions
 
