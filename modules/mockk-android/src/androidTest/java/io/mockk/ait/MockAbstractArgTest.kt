@@ -6,8 +6,6 @@ import io.mockk.verify
 import org.junit.runner.RunWith
 import kotlin.test.Test
 
-abstract class MyAbstractClass
-
 interface IOtherInterface {}
 
 interface IMockableInterface {
