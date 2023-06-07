@@ -67,8 +67,8 @@ Table of contents:
  - [MockK 功能介紹：Relaxed Mocks, 再談 Verify, Capture](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-3-4-79b40fb73964)
  - [如何測試 Static Method, Singleton](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-4-4-f82443848a3a)
 
-### Korea guides and articles
- - [Documentation translation to Korea](https://www.devkuma.com/docs/kotlin/mockk/)
+### Korean guides and articles
+ - [Documentation translation to Korean](https://www.devkuma.com/docs/kotlin/mockk/)
 
 
 ## Installation
