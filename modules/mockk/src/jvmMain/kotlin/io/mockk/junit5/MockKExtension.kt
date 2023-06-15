@@ -94,6 +94,8 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         if (context.checkUnnecessaryStub) {
             checkUnnecessaryStub()
         }
+
+        clearAllMocks()
     }
 
     private val ExtensionContext.keepMocks: Boolean
