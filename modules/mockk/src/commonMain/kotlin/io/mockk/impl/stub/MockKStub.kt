@@ -76,8 +76,8 @@ open class MockKStub(
         }
     }
 
-    protected open fun defaultAnswer(invocation: Invocation): Any? {
-        return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
+    protected open fun defaultAnswer(invocation: Invocation): Any? =
+        stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
             if (shouldRelax(invocation)) {
                 if (invocation.method.returnsUnit) return Unit
                 return gatewayAccess.anyValueGenerator().anyValue(
@@ -92,7 +92,6 @@ open class MockKStub(
                         " among the configured answers: ($configuredAnswers)")
             }
         }
-    }
 
     private fun shouldRelax(invocation: Invocation) = when {
         relaxed -> true
