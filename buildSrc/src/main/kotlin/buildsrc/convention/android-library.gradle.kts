@@ -1,6 +1,7 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.library")
@@ -18,10 +19,6 @@ plugins {
 android {
     namespace = "io.mockk"
     compileSdk = Deps.Versions.compileSdk
-
-    kotlinOptions {
-        jvmTarget = Deps.Versions.jvmTarget.toString()
-    }
 
     lint {
         abortOnError = false
@@ -48,6 +45,12 @@ android {
     compileOptions {
         sourceCompatibility = Deps.Versions.jvmTarget
         targetCompatibility = Deps.Versions.jvmTarget
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = Deps.Versions.jvmTarget.toString()
     }
 }
 

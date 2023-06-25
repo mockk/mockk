@@ -1,6 +1,7 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
@@ -35,6 +36,12 @@ android {
     compileOptions {
         sourceCompatibility = Deps.Versions.jvmTarget
         targetCompatibility = Deps.Versions.jvmTarget
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = Deps.Versions.jvmTarget.toString()
     }
 }
 

@@ -7,7 +7,7 @@ fun Project.kotlinVersion() = findProperty("kotlin.version")?.toString() ?: Deps
 
 object Deps {
     object Versions {
-        val jvmTarget = JavaVersion.VERSION_1_8
+        val jvmTarget = JavaVersion.VERSION_11
 
         const val androidTools = "7.2.1"
         const val dokka = "1.7.10"
