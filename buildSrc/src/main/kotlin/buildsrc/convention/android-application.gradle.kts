@@ -12,7 +12,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion = "android-32"
+    namespace = "io.mockk"
+    compileSdk = Deps.Versions.compileSdk
 
     lint {
         abortOnError = false
@@ -27,8 +28,8 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 32
+        minSdk = Deps.Versions.minSdk
+        targetSdk = Deps.Versions.targetSdk
     }
 
     compileOptions {

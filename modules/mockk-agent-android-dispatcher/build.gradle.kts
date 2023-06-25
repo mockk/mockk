@@ -8,6 +8,7 @@ plugins {
 
 @Suppress("UnstableApiUsage")
 android {
+    namespace = "io.mockk.proxy.android.dispatcher"
     defaultConfig {
         applicationId = "com.android.dexmaker.mockito.inline.dispatcher"
         versionCode = 1

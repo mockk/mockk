@@ -16,7 +16,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion = "android-32"
+    namespace = "io.mockk"
+    compileSdk = Deps.Versions.compileSdk
 
     kotlinOptions {
         jvmTarget = Deps.Versions.jvmTarget.toString()
@@ -35,8 +36,8 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 32
+        minSdk = Deps.Versions.minSdk
+        targetSdk = Deps.Versions.targetSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -52,9 +53,7 @@ android {
 
 dependencies {
     testImplementation("junit:junit:${Deps.Versions.junit4}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}") {
-        exclude("com.android.support:support-annotations")
-    }
+    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}")
 
     androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
     androidTestImplementation("androidx.test:runner:${Deps.Versions.androidxTestRunner}")
