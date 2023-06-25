@@ -10,7 +10,7 @@ val mavenName: String by extra("MockK Android")
 val mavenDescription: String by extra("${project.description}")
 
 android {
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/LICENSE-notice.md"

@@ -22,7 +22,7 @@ android {
         warning += "NewApi"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/main.kotlin_module"
         }
