@@ -64,6 +64,7 @@ dependencies {
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(kotlin("test-junit"))
+    androidTestUtil("androidx.test:orchestrator:${Deps.Versions.androidxOrchestrator}")
 }
 
 val javadocJar by tasks.registering(Jar::class) {
