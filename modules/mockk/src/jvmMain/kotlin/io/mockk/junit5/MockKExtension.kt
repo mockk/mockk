@@ -2,14 +2,18 @@ package io.mockk.junit5
 
 import io.mockk.*
 import io.mockk.impl.annotations.AdditionalInterface
+import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
 import org.junit.jupiter.api.extension.*
 import java.lang.annotation.Inherited
 import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Parameter
 import java.util.Optional
+import kotlin.reflect.KClass
+import kotlin.reflect.jvm.javaConstructor
 
 /**
  * JUnit5 extension.
@@ -26,6 +30,8 @@ import java.util.Optional
  * `–Dmockk.junit.extension.keepmocks=true` on a command line
  */
 class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCallback {
+    private val cache = mutableMapOf<KClass<out Any>, Any>()
+
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         return getMockKAnnotation(parameterContext) != null
     }
@@ -36,28 +42,48 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         val annotation = getMockKAnnotation(parameterContext) ?: return null
         val name = getMockName(parameterContext.parameter, annotation)
 
-        val isRelaxed = when (annotation) {
-            is RelaxedMockK -> true
-            is MockK -> annotation.relaxed
-            else -> false
-        }
+        return when (annotation) {
+            is InjectMockKs -> tryConstructClass(type)
+            is SpyK -> spyk(
+                tryConstructClass(type),
+                name,
+                *moreInterfaces(parameterContext),
+                recordPrivateCalls = annotation.recordPrivateCalls
+            )
+            is MockK, is RelaxedMockK -> {
+                mockkClass(
+                    type,
+                    name,
+                    (annotation as? MockK)?.relaxed ?: true,
+                    *moreInterfaces(parameterContext),
+                    relaxUnitFun = (annotation as? MockK)?.relaxUnitFun ?: false,
+                )
+            }
+            else -> null
+        }?.also { cache[type] = it }
+    }
 
-        val isRelaxedUnitFun = when (annotation) {
-            is MockK -> annotation.relaxUnitFun
-            else -> false
-        }
-
-        return mockkClass(
-            type,
-            name,
-            isRelaxed,
-            *moreInterfaces(parameterContext),
-            relaxUnitFun = isRelaxedUnitFun
+    private fun tryConstructClass(type: KClass<out Any>): Any = try {
+        val ctor = type.constructors.first()
+        val args = ctor.javaConstructor?.parameters
+            ?.map { cache[it.type.kotlin] }
+            ?.toTypedArray()
+            ?: emptyArray()
+        ctor.call(*args)
+    } catch (ex: InvocationTargetException) {
+        // Current JUnit5 implementation resolves test constructor parameters one-by-one in order of declaration.
+        // This means that any parameter can only access preceding arguments and only those can be used to
+        // construct non-mock class instance. Breaking this order will cause NPE at test class initialization.
+        // Same limitation also applies to spies as their use original class implementation under hood.
+        throw MockKException(
+            "Unable to instantiate class ${type.simpleName}. " +
+                    "Please ensure that all dependencies needed by class are defined before it in test class constructor. " +
+                    "Already registered mocks: ${cache.values}", ex
         )
     }
 
     private fun getMockKAnnotation(parameter: ParameterContext): Any? {
-        return sequenceOf(MockK::class, RelaxedMockK::class)
+        return sequenceOf(MockK::class, RelaxedMockK::class, SpyK::class, InjectMockKs::class)
             .map { parameter.findAnnotation(it.java) }
             .firstOrNull { it.isPresent }
             ?.get()
@@ -67,6 +93,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         return when {
             annotation is MockK -> annotation.name
             annotation is RelaxedMockK -> annotation.name
+            annotation is SpyK -> annotation.name
             parameter.isNamePresent -> parameter.name
             else -> null
         }
