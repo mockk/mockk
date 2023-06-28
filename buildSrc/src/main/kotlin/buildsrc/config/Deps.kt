@@ -21,7 +21,7 @@ object Deps {
 
         const val byteBuddy = "1.12.20"
         const val objenesis = "3.3"
-        const val dexmaker = "2.28.1"
+        const val dexmaker = "2.28.3"
         const val androidxEspresso = "3.4.0"
         const val androidxTestRules = "1.4.0"
         const val androidxTestRunner = "1.4.0"
