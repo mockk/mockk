@@ -26,8 +26,8 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
         log.trace { "Processing call #$callN: ${zeroCall.method.toStr()}" }
 
-        fun buildMatcher(isStart: Boolean, zeroCallValue: Any?, matcherBySignature: Matcher<*>?): Matcher<*> {
-            return if (matcherBySignature == null) {
+        fun buildMatcher(isStart: Boolean, zeroCallValue: Any?, matcherBySignature: Matcher<*>?): Matcher<*> =
+            if (matcherBySignature == null) {
                 if (allAny)
                     ConstantMatcher(true)
                 else {
@@ -41,7 +41,6 @@ class ChainedCallDetector(safeToString: SafeToString) {
                     matcherBySignature
                 }
             }
-        }
 
         fun regularArgument(nArgument: Int): Matcher<*> {
             val signature = callInAllRounds.map {
