@@ -114,15 +114,18 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
             unmockkAll()
         }
 
-        if (context.confirmVerification) {
-            confirmVerified()
-        }
+        try {
+            if (context.confirmVerification) {
+                confirmVerified()
+            }
 
-        if (context.checkUnnecessaryStub) {
-            checkUnnecessaryStub()
+            if (context.checkUnnecessaryStub) {
+                checkUnnecessaryStub()
+            }
+        } finally {
+            // Clear all mocks after missed verifications or unnecessary stubs. Solves Issue #963.
+            clearAllMocks()
         }
-
-        clearAllMocks()
     }
 
     private val ExtensionContext.keepMocks: Boolean
