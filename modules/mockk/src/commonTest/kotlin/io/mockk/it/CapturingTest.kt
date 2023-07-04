@@ -6,6 +6,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class CapturingTest {
 
@@ -28,6 +29,32 @@ class CapturingTest {
         assertEquals(55, slot.captured.value)
 
         verify { mock.op(1, 2, any()) }
+    }
+
+    @Test
+    fun `CapturingSlot can capture nullable value`() {
+        val mock = mockk<MockCls>()
+
+        val slot = CapturingSlot<Cls?>()
+        every { mock.nullableOp(1, 2, captureNullable(slot)) } returns 22
+
+        assertEquals(22, mock.nullableOp(1, 2, null))
+        assertNull(slot.captured?.value)
+
+        verify { mock.nullableOp(1, 2, null) }
+    }
+
+    @Test
+    fun `slot can capture nullable value`() {
+        val mock = mockk<MockCls>()
+
+        val slot = slot<Cls?>()
+        every { mock.nullableOp(1, 2, captureNullable(slot)) } returns 22
+
+        assertEquals(22, mock.nullableOp(1, 2, null))
+        assertNull(slot.captured?.value)
+
+        verify { mock.nullableOp(1, 2, null) }
     }
 
     @Test
@@ -190,6 +217,9 @@ class CapturingTest {
 
     class MockCls {
         fun op(a: Int, b: Int, c: Cls) = a + b + c.value
+        fun nullableOp(a: Int, b: Int, c: Cls?): Int {
+            return a + b + (c?.value ?: 9)
+        }
     }
 
     class CoMockCls {

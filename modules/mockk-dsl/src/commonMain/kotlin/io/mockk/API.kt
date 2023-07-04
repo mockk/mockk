@@ -85,7 +85,7 @@ object MockKDsl {
     /**
      * Creates new capturing slot
      */
-    inline fun <reified T : Any> internalSlot() = CapturingSlot<T>()
+    inline fun <reified T : Any?> internalSlot() = CapturingSlot<T>()
 
     /**
      * Starts a block of stubbing. Part of DSL.
@@ -757,8 +757,28 @@ open class MockKMatcherScope(
      * // slot.captured is now "testfile"
      */
     inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class))
+
     /**
      * Captures a nullable value to a [CapturingSlot].
+     *
+     * @see [io.mockk.slot] to create capturing slot.
+     * @sample
+     * interface FileNetwork {
+     *   fun download(name: String): File
+     * }
+     *
+     * val network = mockk<FileNetwork>()
+     * val slot = slot<String?>()
+     *
+     * every { network.download(captureNullable(slot)) } returns mockk()
+     *
+     * network.download("testfile")
+     * // slot.captured is now "testfile"
+     */
+    inline fun <reified T : Any> captureNullable(lst: CapturingSlot<T?>): T? = match(CapturingNullableSlotMatcher(lst, T::class))
+
+    /**
+     * Captures a nullable value to a [MutableList].
      *
      * @see [io.mockk.slot] to create capturing slot.
      * @see [capture] for non-nullable arguments.
@@ -2618,20 +2638,78 @@ inline fun <T> MockKUnmockKScope.use(block: () -> T): T {
  *
  * If this values is lambda then it's possible to invoke it.
  */
-class CapturingSlot<T : Any> {
-    var isCaptured = false
+class CapturingSlot<T : Any?> {
+    /**
+     * Hold captured value - [CapturedValue.NotYetCaptured] after initialization.
+     * Once value is captured, then changes into [CapturedValue.Value]
+     */
+    private var capturedValue: CapturedValue<T> = CapturedValue.NotYetCaptured.singleton()
 
-    var isNull = false
+    /**
+     * @return true after value is captured. Before capture and in init state false is returned
+     */
+    val isCaptured
+        get() = capturedValue is CapturedValue.Value
 
-    lateinit var captured: T
+    /**
+     * Return true only in case, that null is captured.
+     * For init state (not yet captured) returns false.
+     */
+    val isNull
+        get() = when(val value = capturedValue) {
+            is CapturedValue.Value -> value.value == null
+            is CapturedValue.NotYetCaptured -> false
+        }
+
+    /**
+     * Provide captured value if possible -> has to be captured.
+     *
+     * @throws IllegalStateException before value is captured
+     * @return captured value
+     */
+    var captured: T
+        get() {
+            return when (val value = capturedValue) {
+                is CapturedValue.NotYetCaptured -> throw IllegalStateException("Value not yet captured.")
+                is CapturedValue.Value<T> -> value.value
+            }
+        }
+        set(value: T) {
+            capturedValue = CapturedValue.Value.of(value)
+        }
 
     fun clear() {
-        isCaptured = false
-        isNull = false
+        capturedValue = CapturedValue.NotYetCaptured.singleton()
     }
 
     override fun toString(): String =
         "slot(${if (isCaptured) "captured=${if (isNull) "null" else captured.toStr()}" else ""})"
+
+    private sealed interface CapturedValue<T : Any?> {
+
+        class NotYetCaptured<T> : CapturedValue<T> {
+            companion object {
+                private val singleton = NotYetCaptured<Any?>()
+
+                @Suppress("UNCHECKED_CAST")
+                fun <T> singleton() = singleton as NotYetCaptured<T>
+            }
+        }
+
+        /**
+         * Hold captured value. Nullable or non null one.
+         */
+        class Value<T> private constructor(val value: T) : CapturedValue<T> {
+            companion object {
+                private val nullValue = Value<Any?>(null)
+
+                @Suppress("UNCHECKED_CAST")
+                fun <T> nullValue() = nullValue as Value<T>
+
+                fun <T> of(value: T): Value<T> = if (value == null) nullValue<T>() else Value(value)
+            }
+        }
+    }
 }
 
 inline fun <reified T : () -> R, R> CapturingSlot<T>.invoke() = captured.invoke()
