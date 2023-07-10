@@ -1209,6 +1209,24 @@ inline fun <reified T : List<E>, E : Any> MockKMatcherScope.matchListWithoutOrde
 ): T = match(ListWithoutOrderMatcher(listOf(*items), refEq))
 ```
 
+### Reflection matchers
+
+Example using reflection to mock all methods on a builder-style object
+
+```kotlin
+val builderFunctions = MyBuilder::class.memberFunctions.filter { it.returnType.classifier == MyBuilder::class }
+val builderMock = mockk<MyBuilder> {
+  builderFunctions.forEach { func ->
+    every {
+      val params = listOf<Any?>(builderMock) + func.parameters.drop(1).map { any(it.type.classifier as KClass<Any>) }
+      func.call(*params.toTypedArray())
+    } answers { 
+      this@mockk
+    }
+  }
+}
+```
+
 ## Settings file
 
 To adjust parameters globally, there are a few settings you can specify in a resource file.
@@ -1274,6 +1292,7 @@ By default, simple arguments are matched using `eq()`
 | Matcher                                                 | Description                                                                                            |
 |---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | `any()`                                                 | matches any argument                                                                                   |
+| `any(Class)`                                            | matches any argument of the give Class (for reflective mocking)                                        |
 | `allAny()`                                              | special matcher that uses `any()` instead of `eq()` for matchers that are provided as simple arguments |
 | `isNull()`                                              | checks if the value is null                                                                            |
 | `isNull(inverse=true)`                                  | checks if the value is not null                                                                        |
