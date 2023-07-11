@@ -690,6 +690,9 @@ open class MockKMatcherScope(
     val lambda: CapturingSlot<Function<*>>
 ) {
 
+    fun <T: Any> match(matcher: Matcher<T>, kclass: KClass<T>): T {
+        return callRecorder.matcher(matcher, kclass)
+    }
     inline fun <reified T : Any> match(matcher: Matcher<T>): T {
         return callRecorder.matcher(matcher, T::class)
     }
@@ -732,6 +735,10 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> nrefEq(value: T) = refEq(value, true)
 
+    /**
+     * Matches any argument given a [KClass]
+     */
+    fun <T: Any> any(classifier: KClass<T>): T = match(ConstantMatcher(true), classifier)
     /**
      * Matches any argument.
      */
