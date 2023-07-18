@@ -520,7 +520,7 @@ inline fun mockkStatic(vararg classes: String) = MockK.useImpl {
 }
 
 /**
- * Cancel static mocks.
+ * Clears static mocks.
  */
 inline fun clearStaticMockk(
     vararg classes: KClass<*>,
