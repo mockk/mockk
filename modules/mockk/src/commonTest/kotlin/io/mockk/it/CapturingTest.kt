@@ -58,6 +58,19 @@ class CapturingTest {
     }
 
     @Test
+    fun `captureNullable can capture non null value`() {
+        val mock = mockk<MockCls>()
+
+        val slot = slot<Cls?>()
+        every { mock.nullableOp(1, 2, captureNullable(slot)) } returns 22
+        val toBeCaptured = Cls()
+        assertEquals(22, mock.nullableOp(1, 2, toBeCaptured))
+        assertEquals(slot.captured?.value, toBeCaptured.value)
+
+        verify { mock.nullableOp(1, 2, toBeCaptured) }
+    }
+
+    @Test
     fun captureListSlot() {
         val mock = mockk<MockCls>()
 

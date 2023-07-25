@@ -586,41 +586,59 @@ val addressBook = mockk<AddressBook> {
 
 ### Capturing
 
-You can capture an argument to a `CapturingSlot` or `MutableList`:
+You can capture an argument to a `CapturingSlot` or `MutableList`. 
+
+`CapturingSlot` is usually created via factory method `slot<T : Any?>()` and is possible to capture nullable and non nullable types.
+`MutableList` is intended for capturing multiple values during testing.
 
 ```kotlin
-val car = mockk<Car>()
+enum class Direction { NORTH, SOUTH }
+enum class RecordingOutcome { RECORDED }
+enum class RoadType { HIGHWAY }
+class Car {
+    fun recordTelemetry(speed: Double, direction: Direction, roadType: RoadType?): RecordingOutcome {
+        TODO("not implement for showcase")
+    }
+}
 
-val slot = slot<Double>()
+val car = mockk<Car>()
+// allow to capture parameter with non nullable type `Double`
+val speedSlot = slot<Double>()
+// allow to capture parameter with nullable type `RoadType`
+val roadTypeSlot = slot<RoadType?>()
 val list = mutableListOf<Double>()
 
 every {
-  car.recordTelemetry(
-    speed = capture(slot), // makes mock match calls with any value for `speed` and record it in a slot
-    direction = Direction.NORTH // makes mock and capturing only match calls with specific `direction`. Use `any()` to match calls with any `direction`
-  )
+    car.recordTelemetry(
+        speed = capture(speedSlot), // makes mock match calls with any value for `speed` and record it in a slot
+        direction = Direction.NORTH, // makes mock and capturing only match calls with specific `direction`. Use `any()` to match calls with any `direction`
+        roadType = captureNullable(roadTypeSlot), // makes mock match calls with any value for `roadType` and record it in a slot
+    )
 } answers {
-  println(slot.captured)
+    println("Speed: ${speedSlot.captured}, roadType: ${roadTypeSlot.captured}")
 
-  Outcome.RECORDED
+    RecordingOutcome.RECORDED
 }
-
 
 every {
-  car.recordTelemetry(
-    speed = capture(list),
-    direction = Direction.SOUTH
-  )
+    car.recordTelemetry(
+        speed = capture(list),
+        direction = Direction.SOUTH,
+        roadType = captureNullable(roadTypeSlot),
+    )
 } answers {
-  println(list)
+    println("Speed: ${list}, roadType: ${roadTypeSlot.captured}")
 
-  Outcome.RECORDED
+    RecordingOutcome.RECORDED
 }
 
-car.recordTelemetry(speed = 15, direction = Direction.NORTH) // prints 15
-car.recordTelemetry(speed = 16, direction = Direction.SOUTH) // prints 16
+car.recordTelemetry(speed = 15.0, direction = Direction.NORTH, null) // prints Speed: 15.0, roadType: null
+car.recordTelemetry(speed = 16.0, direction = Direction.SOUTH, RoadType.HIGHWAY) // prints Speed: [16.0], roadType: HIGHWAY
 
-verify(exactly = 2) { car.recordTelemetry(speed = or(15, 16), direction = any()) }
+verifyOrder {
+    car.recordTelemetry(speed = or(15.0, 16.0), direction = any(), roadType = null)
+    car.recordTelemetry(speed = 16.0, direction = any(), roadType = RoadType.HIGHWAY)
+}
 
 confirmVerified(car)
 ```
@@ -1297,7 +1315,8 @@ By default, simple arguments are matched using `eq()`
 | `and(left, right)`                                      | combines two matchers via a logical and                                                                |
 | `or(left, right)`                                       | combines two matchers via a logical or                                                                 |
 | `not(matcher)`                                          | negates the matcher                                                                                    |
-| `capture(slot)`                                         | captures a value to a `CapturingSlot`                                                                  |
+| `capture(slot)`                                         | captures a Non Nullable value to a `CapturingSlot`                                                     |
+| `captureNullable(slot)`                                 | captures a Nullable value to a `CapturingSlot`                                                         |
 | `capture(mutableList)`                                  | captures a value to a list                                                                             |
 | `captureNullable(mutableList)`                          | captures a value to a list together with null values                                                   |
 | `captureLambda()`                                       | captures a lambda                                                                                      |
