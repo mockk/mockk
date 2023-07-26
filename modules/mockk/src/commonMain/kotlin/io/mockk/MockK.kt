@@ -119,7 +119,7 @@ inline fun <reified T : Any> spyk(
  * network.download("testfile")
  * // slot.captured is now "testfile"
  */
-inline fun <reified T : Any> slot() = MockK.useImpl {
+inline fun <reified T : Any?> slot() = MockK.useImpl {
     MockKDsl.internalSlot<T>()
 }
 
