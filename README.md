@@ -1384,7 +1384,7 @@ An Answer can be followed up by one or more additional answers.
 | `returnsMany list`           | specify that the matched call returns a value from the list, with subsequent calls returning the next element      |
 | `returnsArgument(n)`         | specify that the matched call returns the nth argument of that call                                                |
 | `throws ex`                  | specify that the matched call throws an exception                                                                  |
-| `throwsMany ex`              | specify that the matched call throws an exception from the list, with subsequent calls throwing the next exception |
+| `throwsMany list`            | specify that the matched call throws an exception from the list, with subsequent calls throwing the next exception |
 | `answers { code }`           | specify that the matched call answers with a code block scoped with `answer scope`                                 |
 | `coAnswers { code }`         | specify that the matched call answers with a coroutine code block  with `answer scope`                             |
 | `answers answerObj`          | specify that the matched call answers with an Answer object                                                        |
