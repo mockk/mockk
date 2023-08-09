@@ -22,6 +22,7 @@ import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import io.mockk.proxy.common.transformation.TransformationType
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.lang.reflect.Proxy
 
 class ProxyMaker(
     private val log: MockKAgentLogger,
@@ -40,6 +41,16 @@ class ProxyMaker(
     ): Cancelable<T> {
 
         throwIfNotPossibleToProxy(clazz, interfaces)
+
+        if (clazz.isInterface) {
+            val proxyInstance = Proxy.newProxyInstance(
+                clazz.classLoader,
+                interfaces + clazz,
+                ProxyInvocationHandler(handler)
+            )
+
+            return CancelableResult(clazz.cast(proxyInstance))
+        }
 
         // Sometimes (e.g. in case of sealed classes) we will create the proxy for a subclass of `clazz` and not `clazz`
         // itself.  We need to determine this early, so that the subclass will be inlined as well.
