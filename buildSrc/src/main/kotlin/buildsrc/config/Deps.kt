@@ -26,6 +26,7 @@ object Deps {
         const val androidxTestRules = "1.4.0"
         const val androidxTestRunner = "1.4.0"
         const val androidxTestExtJunit = "1.1.3"
+        const val androidxTestOrchestrator = "1.4.2"
     }
 
     object Libs {
