@@ -45,8 +45,11 @@ class MockInjector(
 
     private fun injectViaConstructor(firstMatching: KFunction<Any>): Any {
         return firstMatching.valueParameters
-            .associateWith { matchParameter(it) }
-            .filterNot { it.value == null }
+            .fold(mutableMapOf<KParameter, Any>()) { acc, cur ->
+                acc.apply {
+                    matchParameter(cur)?.let { this[cur] = it }
+                }
+            }
             .let { firstMatching.callBy(it) }
     }
 
