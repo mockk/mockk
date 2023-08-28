@@ -78,6 +78,8 @@ verify { car.drive(Direction.NORTH) }
 confirmVerified(car)
 ```
 
+See the "Features" section below for more detailed examples.
+
 ### Spring support
 
  * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
