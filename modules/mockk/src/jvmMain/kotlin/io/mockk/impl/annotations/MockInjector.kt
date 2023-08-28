@@ -15,7 +15,7 @@ class MockInjector(
     val injectImmutable: Boolean,
     val overrideValues: Boolean
 ) {
-    companion object {
+    private companion object {
         private val sortCriteria = compareBy<KFunction<Any>>(
             { -it.parameters.size },
             { fn -> fn.parameters.joinToString(",") { it.type.toString() } }
