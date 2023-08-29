@@ -24,7 +24,7 @@ internal class JvmInlineInstrumentation(
         }
 
         if (classesAbleTransform.isNotEmpty()) {
-            log.trace("Retransforming $classesAbleTransform")
+            log.trace("Retransforming classes ${classesAbleTransform.joinToString { it.name }}")
             instrumentation.retransformClasses(*classesAbleTransform)
         }
     }
