@@ -412,7 +412,7 @@ object MockKDsl {
         objects.forEach {
             val cancellation = factory.objectMockk(it, recordPrivateCalls)
 
-            internalClearMocks(it)
+            internalClearMocks(it, emptyArray())
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.OBJECT)
@@ -466,7 +466,7 @@ object MockKDsl {
         classes.forEach {
             val cancellation = factory.staticMockk(it)
 
-            internalClearStaticMockk(it)
+            internalClearStaticMockk(arrayOf(it))
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.STATIC)
@@ -523,7 +523,7 @@ object MockKDsl {
         classes.forEach {
             val cancellation = factory.constructorMockk(it, recordPrivateCalls, localToThread)
 
-            internalClearConstructorMockk(it)
+            internalClearConstructorMockk(arrayOf(it))
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)

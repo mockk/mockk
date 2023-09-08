@@ -42,7 +42,7 @@ inline fun <reified T : Any> mockk(
     MockKDsl.internalMockk(
         name,
         relaxed,
-        *moreInterfaces,
+        moreInterfaces,
         relaxUnitFun = relaxUnitFun,
         block = block
     )
@@ -67,7 +67,7 @@ inline fun <reified T : Any> spyk(
 ): T = MockK.useImpl {
     MockKDsl.internalSpyk(
         name,
-        *moreInterfaces,
+        moreInterfaces,
         recordPrivateCalls = recordPrivateCalls,
         block = block
     )
@@ -94,7 +94,7 @@ inline fun <reified T : Any> spyk(
     MockKDsl.internalSpyk(
         objToCopy,
         name,
-        *moreInterfaces,
+        moreInterfaces,
         recordPrivateCalls = recordPrivateCalls,
         block = block
     )
@@ -390,14 +390,14 @@ fun coExcludeRecords(
  * Checks if all recorded calls were verified.
  */
 fun confirmVerified(vararg mocks: Any) = MockK.useImpl {
-    MockKDsl.internalConfirmVerified(*mocks)
+    MockKDsl.internalConfirmVerified(mocks)
 }
 
 /**
  * Checks if all recorded calls are necessary.
  */
 fun checkUnnecessaryStub(vararg mocks: Any) = MockK.useImpl {
-    MockKDsl.internalCheckUnnecessaryStub(*mocks)
+    MockKDsl.internalCheckUnnecessaryStub(mocks)
 }
 
 /**
@@ -457,7 +457,7 @@ inline fun <T : Any> mockkClass(
         type,
         name,
         relaxed,
-        *moreInterfaces,
+        moreInterfaces,
         relaxUnitFun = relaxUnitFun,
         block = block
     )
@@ -479,14 +479,14 @@ inline fun <T : Any> mockkClass(
  * @see [unmockkObject] To manually cancel mock
  */
 inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) = MockK.useImpl {
-    MockKDsl.internalMockkObject(*objects, recordPrivateCalls = recordPrivateCalls)
+    MockKDsl.internalMockkObject(objects, recordPrivateCalls = recordPrivateCalls)
 }
 
 /**
  * Cancel object mocks.
  */
 inline fun unmockkObject(vararg objects: Any) = MockK.useImpl {
-    MockKDsl.internalUnmockkObject(*objects)
+    MockKDsl.internalUnmockkObject(objects)
 }
 
 /**
@@ -507,7 +507,7 @@ inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false,
  * @see [unmockkStatic] To manually cancel mock
  */
 inline fun mockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
-    MockKDsl.internalMockkStatic(*classes)
+    MockKDsl.internalMockkStatic(classes)
 }
 
 /**
@@ -516,7 +516,7 @@ inline fun mockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
  * @see [unmockkStatic] To manually cancel mock
  */
 inline fun mockkStatic(vararg classes: String) = MockK.useImpl {
-    MockKDsl.internalMockkStatic(*classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
+    MockKDsl.internalMockkStatic(classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
 }
 
 /**
@@ -529,7 +529,7 @@ inline fun clearStaticMockk(
     childMocks: Boolean = true
 ) = MockK.useImpl {
     MockKDsl.internalClearStaticMockk(
-        *classes,
+        classes,
         answers = answers,
         recordedCalls = recordedCalls,
         childMocks = childMocks
@@ -540,14 +540,14 @@ inline fun clearStaticMockk(
  * Cancel static mocks.
  */
 inline fun unmockkStatic(vararg classes: KClass<*>) = MockK.useImpl {
-    MockKDsl.internalUnmockkStatic(*classes)
+    MockKDsl.internalUnmockkStatic(classes)
 }
 
 /**
  * Cancel static mocks.
  */
 inline fun unmockkStatic(vararg classes: String) = MockK.useImpl {
-    MockKDsl.internalUnmockkStatic(*classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
+    MockKDsl.internalUnmockkStatic(classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
 }
 
 /**
@@ -597,7 +597,7 @@ inline fun mockkConstructor(
     localToThread: Boolean = false
 ) = MockK.useImpl {
     MockKDsl.internalMockkConstructor(
-        *classes,
+        classes,
         recordPrivateCalls = recordPrivateCalls,
         localToThread = localToThread
     )
@@ -607,7 +607,7 @@ inline fun mockkConstructor(
  * Cancel constructor mocks.
  */
 inline fun unmockkConstructor(vararg classes: KClass<*>) = MockK.useImpl {
-    MockKDsl.internalUnmockkConstructor(*classes)
+    MockKDsl.internalUnmockkConstructor(classes)
 }
 
 /**
@@ -637,7 +637,7 @@ inline fun clearConstructorMockk(
     childMocks: Boolean = true
 ) = MockK.useImpl {
     MockKDsl.internalClearConstructorMockk(
-        *classes,
+        classes,
         answers = answers,
         recordedCalls = recordedCalls,
         childMocks = childMocks
