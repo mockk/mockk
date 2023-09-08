@@ -26,7 +26,7 @@ object MockKDsl {
     inline fun <reified T : Any> internalMockk(
         name: String? = null,
         relaxed: Boolean = false,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         relaxUnitFun: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
@@ -47,7 +47,7 @@ object MockKDsl {
     inline fun <T : Any> internalSpyk(
         objToCopy: T,
         name: String? = null,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
@@ -67,7 +67,7 @@ object MockKDsl {
      */
     inline fun <reified T : Any> internalSpyk(
         name: String? = null,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
@@ -269,7 +269,7 @@ object MockKDsl {
     /**
      * Checks if all recorded calls were verified.
      */
-    fun internalConfirmVerified(vararg mocks: Any) {
+    fun internalConfirmVerified(mocks: Array<out Any>) {
         if (mocks.isEmpty()) {
             MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified()
         }
@@ -282,7 +282,7 @@ object MockKDsl {
     /**
      * Checks if all recorded calls are necessary.
      */
-    fun internalCheckUnnecessaryStub(vararg mocks: Any) {
+    fun internalCheckUnnecessaryStub(mocks: Array<out Any>) {
         if (mocks.isEmpty()) {
             MockKGateway.implementation().verificationAcknowledger.checkUnnecessaryStub()
         }
@@ -297,7 +297,7 @@ object MockKDsl {
      */
     inline fun internalClearMocks(
         firstMock: Any,
-        vararg mocks: Any,
+        mocks: Array<out Any>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
@@ -354,7 +354,7 @@ object MockKDsl {
     /**
      * Declares static mockk. Deprecated
      */
-    inline fun internalStaticMockk(vararg kClass: KClass<out Any>) = MockKStaticScope(*kClass)
+    inline fun internalStaticMockk(kClass: Array<KClass<*>>) = MockKStaticScope(*kClass)
 
     /**
      * Declares object mockk. Deprecated
@@ -378,7 +378,7 @@ object MockKDsl {
         type: KClass<T>,
         name: String?,
         relaxed: Boolean,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         relaxUnitFun: Boolean = false,
         block: T.() -> Unit
     ): T {
@@ -406,7 +406,7 @@ object MockKDsl {
     /**
      * Object mockk
      */
-    inline fun internalMockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) {
+    inline fun internalMockkObject(objects: Array<out Any>, recordPrivateCalls: Boolean = false) {
         val factory = MockKGateway.implementation().objectMockFactory
 
         objects.forEach {
@@ -424,7 +424,7 @@ object MockKDsl {
     /**
      * Cancel object mocks.
      */
-    inline fun internalUnmockkObject(vararg objects: Any) {
+    inline fun internalUnmockkObject(objects: Array<out Any>) {
         objects.forEach {
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.OBJECT)
@@ -436,7 +436,7 @@ object MockKDsl {
      * Clear object mocks.
      */
     inline fun internalClearObjectMockk(
-        vararg objects: Any,
+        objects: Array<out Any>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
@@ -460,7 +460,7 @@ object MockKDsl {
     /**
      * Static mockk
      */
-    inline fun internalMockkStatic(vararg classes: KClass<*>) {
+    inline fun internalMockkStatic(classes: Array<out KClass<*>>) {
         val factory = MockKGateway.implementation().staticMockFactory
 
         classes.forEach {
@@ -477,7 +477,7 @@ object MockKDsl {
     /**
      * Cancel static mocks.
      */
-    inline fun internalUnmockkStatic(vararg classes: KClass<*>) {
+    inline fun internalUnmockkStatic(classes: Array<out KClass<*>>) {
         classes.forEach {
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.STATIC)
@@ -489,7 +489,7 @@ object MockKDsl {
      * Clear static mocks.
      */
     inline fun internalClearStaticMockk(
-        vararg classes: KClass<*>,
+        classes: Array<out KClass<*>>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
@@ -514,7 +514,7 @@ object MockKDsl {
      * Constructor mockk
      */
     inline fun internalMockkConstructor(
-        vararg classes: KClass<*>,
+        classes: Array<out KClass<*>>,
         recordPrivateCalls: Boolean = false,
         localToThread: Boolean = true
     ) {
@@ -534,7 +534,7 @@ object MockKDsl {
     /**
      * Cancel constructor mocks.
      */
-    inline fun internalUnmockkConstructor(vararg classes: KClass<*>) {
+    inline fun internalUnmockkConstructor(classes: Array<out KClass<*>>) {
         classes.forEach {
             MockKGateway.implementation().constructorMockFactory.clear(
                 it,
@@ -556,7 +556,7 @@ object MockKDsl {
      * Clear constructor mocks.
      */
     inline fun internalClearConstructorMockk(
-        vararg classes: KClass<*>,
+        classes: Array<out KClass<*>>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
