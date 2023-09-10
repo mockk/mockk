@@ -125,6 +125,7 @@ public abstract class io/mockk/proxy/common/transformation/RetransformInlineInst
 }
 
 public abstract interface class io/mockk/proxy/common/transformation/SubclassInstrumentation {
+	public abstract fun setProxyHandler (Ljava/lang/Object;Lio/mockk/proxy/MockKInvocationHandler;)V
 	public abstract fun subclass (Ljava/lang/Class;[Ljava/lang/Class;)Ljava/lang/Class;
 }
 
