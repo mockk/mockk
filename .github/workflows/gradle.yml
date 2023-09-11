@@ -46,7 +46,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        api-level: [ 29, 31 ] # The minSdk and targetSdk versions set for MockK Android projects
+        api-level: [ 21, 29 ] # The minSdk and targetSdk versions set for MockK Android projects
       fail-fast: false # in case one API-level fails, we still want to see results from others
     name: "[api-level=${{ matrix.api-level }}]"
     timeout-minutes: 30
