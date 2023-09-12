@@ -11,10 +11,6 @@ plugins {
 
 group = "io.mockk"
 
-koverMerged {
-    enable()
-}
-
 apiValidation {
     ignoredProjects += listOf(
         projects.testModules.loggerTests.name,
@@ -35,4 +31,14 @@ idea {
             "modules/mockk-agent-android/.cxx",
         )
     }
+}
+
+dependencies {
+    kover(projects.modules.mockk)
+    kover(projects.modules.mockkAgent)
+    kover(projects.modules.mockkAndroid)
+    kover(projects.modules.mockkAgentAndroid)
+    kover(projects.testModules.loggerTests)
+    kover(projects.testModules.clientTests)
+    kover(projects.testModules.performanceTests)
 }
