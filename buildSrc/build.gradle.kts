@@ -9,7 +9,7 @@ val kotlinPluginVersion: String = "1.8.20"
 
 val androidGradle = "8.1.1"
 val kotlinxKover = "0.6.1"
-val dokka = "1.7.10"
+val dokka = "1.9.0"
 val binaryCompatibilityValidator = "0.11.0"
 
 dependencies {
