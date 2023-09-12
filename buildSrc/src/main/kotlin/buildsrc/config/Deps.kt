@@ -9,7 +9,6 @@ object Deps {
     object Versions {
         val jvmTarget = JavaVersion.VERSION_11
 
-        const val androidTools = "7.2.1"
         const val dokka = "1.7.10"
         const val kotlinDefault = "1.8.20"
         const val coroutines = "1.6.4"
