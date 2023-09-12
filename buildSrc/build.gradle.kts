@@ -8,7 +8,7 @@ plugins {
 val kotlinPluginVersion: String = "1.9.10"
 
 val androidGradle = "8.1.1"
-val kotlinxKover = "0.6.1"
+val kotlinxKover = "0.7.3"
 val dokka = "1.7.10"
 val binaryCompatibilityValidator = "0.13.2"
 
@@ -18,7 +18,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinPluginVersion")
     implementation("org.jetbrains.kotlin:kotlin-allopen:$kotlinPluginVersion")
 
-    implementation("org.jetbrains.kotlinx:kover:$kotlinxKover")
+    implementation("org.jetbrains.kotlinx.kover:org.jetbrains.kotlinx.kover.gradle.plugin:$kotlinxKover")
 
     implementation("com.android.tools.build:gradle:$androidGradle")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka")
