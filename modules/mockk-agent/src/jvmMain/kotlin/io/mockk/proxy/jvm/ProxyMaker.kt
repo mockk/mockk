@@ -1,37 +1,22 @@
-/*
- * Copyright (C) 2017 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package io.mockk.proxy.common
+package io.mockk.proxy.jvm
 
 import io.mockk.proxy.*
+import io.mockk.proxy.common.CancelableResult
 import io.mockk.proxy.common.transformation.InlineInstrumentation
-import io.mockk.proxy.common.transformation.SubclassInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
-import io.mockk.proxy.common.transformation.TransformationType
+import io.mockk.proxy.common.transformation.TransformationType.SIMPLE
+import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-import java.lang.reflect.Proxy
 
-class ProxyMaker(
+internal class ProxyMaker(
     private val log: MockKAgentLogger,
     private val inliner: InlineInstrumentation?,
     private val subclasser: SubclassInstrumentation,
     private val instantiator: MockKInstantiatior,
     private val handlers: MutableMap<Any, MockKInvocationHandler>
 ) : MockKProxyMaker {
+
     override fun <T : Any> proxy(
         clazz: Class<T>,
         interfaces: Array<Class<*>>,
@@ -42,31 +27,24 @@ class ProxyMaker(
 
         throwIfNotPossibleToProxy(clazz, interfaces)
 
-        if (clazz.isInterface) {
-            val proxyInstance = Proxy.newProxyInstance(
-                clazz.classLoader,
-                interfaces + clazz,
-                ProxyInvocationHandler(handler)
-            )
+        // Sometimes (e.g. in case of sealed classes) we will create the proxy for a subclass of `clazz` and not `clazz`
+        // itself.  We need to determine this early, so that the subclass will be inlined as well.
+        val actualClass = findActualClassToBeProxied(clazz)
 
-            return CancelableResult(clazz.cast(proxyInstance))
-        }
-
-        val cancellation = inline(clazz)
+        val cancellation = inline(actualClass)
 
         val result = CancelableResult<T>(cancelBlock = cancellation)
 
         val proxyClass = try {
-            subclass(clazz, interfaces)
+            subclass(actualClass, interfaces)
         } catch (ex: Exception) {
             result.cancel()
-            throw MockKAgentException("Failed to subclass $clazz", ex)
+            throw MockKAgentException("Failed to subclass $actualClass", ex)
         }
 
         try {
-            val proxy = instantiate(clazz, proxyClass, useDefaultConstructor, instance)
+            val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance)
 
-            subclasser.setProxyHandler(proxy, handler)
             handlers[proxy] = handler
             return result
                 .withValue(proxy)
@@ -75,7 +53,6 @@ class ProxyMaker(
                 }
         } catch (e: Exception) {
             result.cancel()
-
             throw MockKAgentException("Instantiation exception", e)
         }
     }
@@ -108,11 +85,7 @@ class ProxyMaker(
         val superclasses = getAllSuperclasses(clazz)
 
         return if (inliner != null) {
-            val transformRequest =
-                TransformationRequest(
-                    superclasses,
-                    TransformationType.SIMPLE
-                )
+            val transformRequest = TransformationRequest(superclasses, SIMPLE)
 
             inliner.execute(transformRequest)
         } else {
@@ -124,12 +97,30 @@ class ProxyMaker(
         }
     }
 
+    private fun <T : Any> findActualClassToBeProxied(
+        clazz: Class<T>,
+    ): Class<T> {
+        val kClass = clazz.kotlin
+        if (!kClass.isSealed) {
+            return clazz
+        }
+
+        val subclass = kClass.sealedSubclasses.firstOrNull()?.java
+            ?: error("Unable to create proxy for sealed class $clazz, no subclasses available")
+        log.trace("Class $clazz is sealed, will use its subclass $subclass to build proxy")
+        @Suppress("UNCHECKED_CAST")
+        return findActualClassToBeProxied(subclass) as Class<T>
+    }
+
     private fun <T : Any> subclass(
         clazz: Class<T>,
         interfaces: Array<Class<*>>
     ): Class<T> {
         return if (Modifier.isFinal(clazz.modifiers)) {
             log.trace("Taking instance of $clazz itself because it is final.")
+            clazz
+        } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null) {
+            log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
             clazz
         } else {
             log.trace(
@@ -169,7 +160,7 @@ class ProxyMaker(
             val defaultConstructor = cls.getDeclaredConstructor()
             try {
                 defaultConstructor.isAccessible = true
-            } catch (_: Exception) {
+            } catch (ignored: Exception) {
                 // skip
             }
 
@@ -194,6 +185,7 @@ class ProxyMaker(
 
 
     companion object {
+
         private val notMockableClasses = setOf(
             Class::class.java,
             Boolean::class.java,

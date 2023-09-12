@@ -1,6 +1,5 @@
 ![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
 
-[![Gitter](https://badges.gitter.im/mockk-io/Lobby.svg)](https://gitter.im/mockk-io/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) 
 [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](https://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
@@ -8,67 +7,7 @@
 [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](https://mockk.io/MATRIX)
 [![Open Source Helpers](https://www.codetriage.com/mockk/mockk/badges/users.svg)](https://www.codetriage.com/mockk/mockk)
 
-### Kotlin Academy articles <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
-
-Check the series of articles "Mocking is not rocket science" at [Kt. Academy](https://blog.kotlin-academy.com) describing MockK from the very basics of mocking up to description of all advanced features.
-
- - [Basics](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-basics-ae55d0aadf2b)
- - [Expected behavior and behavior verification](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-expected-behavior-and-behavior-verification-3862dd0e0f03)
- - [MockK features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-features-e5d55d735a98)
- - [MockK advanced features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-advanced-features-42277e5983b5)
-
-### Spring support
-
- * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
-
-### Quarkus support
-
- * [quarkus-mockk](https://github.com/quarkiverse/quarkus-mockk) adds support for mocking beans in Quarkus. Documentation can be found [here](https://quarkiverse.github.io/quarkiverse-docs/quarkus-mockk/dev/index.html)
-
-### Kotlin version support
-
-From version 1.13.0 MockK supports Kotlin 1.4 and higher
-
-### Known issues
- 
-* PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
-* Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
-* Spies, `mockkStatic` may not work on JDK 16+; `InaccessibleObjectException`/`IllegalAccessException`: [read more here](doc/md/jdk16-access-exceptions.md)
-
-Table of contents:
-
-* auto-gen TOC:
-{:toc}
-
-## Examples, guides & articles
- - [Testing Quarkus with Kotlin, JUnit and MockK](https://www.novatec-gmbh.de/en/blog/testing-quarkus-with-kotlin-junit-and-mockk/)
- - [MockK의 흑마술을 파헤치자! (KO)](https://sukyology.medium.com/mockk%EC%9D%98-%ED%9D%91%EB%A7%88%EC%88%A0%EC%9D%84-%ED%8C%8C%ED%97%A4%EC%B9%98%EC%9E%90-6fe907129c19)
- - [Unraveling MockK's black magic / MockKの「黒魔術」を解明する (JP, but readable through chrome translator)](https://zenn.dev/oboenikui/articles/af44c158f9fa35)
- - [Unraveling MockK's black magic(EN, translation)](https://chao2zhang.medium.com/unraveling-mockks-black-magic-e725c61ed9dd)
- - [Mockk Guidebook](https://notwoods.github.io/mockk-guidebook/)
- - [“Kotlin Unit Testing with Mockk” by Marco Cattaneo](https://link.medium.com/ObtQ4eBfg5) 
- - [(Video) Use verify in MockK to validate function calls on mocked object](https://www.youtube.com/watch?v=J7_4WrImJPk)
- - [Testing With MockK paid course on raywenderlich.com](https://www.raywenderlich.com/5443751-testing-with-mockk)
- - TDD for Android video tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay    
- - [(Video)Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development](https://www.youtube.com/watch?v=h8_LZn1DFDI)
- - [MockK: intentions as of Nov 2018](https://medium.com/@oleksiypylypenko/mockk-intentions-dbe378106a6b)
- - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
- - [kotlin-fullstack-sample uses MockK](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
- - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
- - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
- - [Mocking in Kotlin with MockK - Yannick De Turck](https://ordina-jworks.github.io/testing/2018/02/05/Writing-tests-in-Kotlin-with-MockK.html)
- 
-### Japanese guides and articles
- - [Documentation translation to Japanese](https://qiita.com/yasuX/items/d3cfc9853c53dfaee222)
- 
-### Chinese guides and articles
- - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
- - [MockK 功能介紹：mockk, every, Annotation, verify](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-2-4-4be059331110)
- - [MockK 功能介紹：Relaxed Mocks, 再談 Verify, Capture](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-3-4-79b40fb73964)
- - [如何測試 Static Method, Singleton](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-4-4-f82443848a3a)
- 
- 
-## Installation
+## Getting started
 
 All you need to get started is just to add a dependency to `MockK` library.
 
@@ -138,6 +77,73 @@ verify { car.drive(Direction.NORTH) }
 
 confirmVerified(car)
 ```
+
+See the "Features" section below for more detailed examples.
+
+### Spring support
+
+ * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
+
+### Quarkus support
+
+ * [quarkus-mockk](https://github.com/quarkiverse/quarkus-mockk) adds support for mocking beans in Quarkus. Documentation can be found [here](https://quarkiverse.github.io/quarkiverse-docs/quarkus-mockk/dev/index.html)
+
+### Kotlin version support
+
+From version 1.13.0 MockK supports Kotlin 1.4 and higher
+
+### Known issues
+ 
+* PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
+* Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
+* Spies, `mockkStatic` may not work on JDK 16+; `InaccessibleObjectException`/`IllegalAccessException`: [read more here](doc/md/jdk16-access-exceptions.md)
+* Using a spy with a suspending function [will give unexpected test results](https://github.com/mockk/mockk/issues/554)
+
+Table of contents:
+
+* auto-gen TOC:
+{:toc}
+
+## Examples, guides & articles
+
+### Kotlin Academy articles <img src="https://cdn-images-1.medium.com/letterbox/47/47/50/50/1*FUXqI88mttV_kV8aTrKjOg.png?source=logoAvatar-1f9f77b4b3d1---e57b304801ef" width="20px" />
+
+Check the series of articles "Mocking is not rocket science" at [Kt. Academy](https://blog.kotlin-academy.com) describing MockK from the very basics of mocking up to description of all advanced features.
+
+ - [Basics](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-basics-ae55d0aadf2b)
+ - [Expected behavior and behavior verification](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-expected-behavior-and-behavior-verification-3862dd0e0f03)
+ - [MockK features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-features-e5d55d735a98)
+ - [MockK advanced features](https://blog.kotlin-academy.com/mocking-is-not-rocket-science-mockk-advanced-features-42277e5983b5)
+
+ - [Testing Quarkus with Kotlin, JUnit and MockK](https://www.novatec-gmbh.de/en/blog/testing-quarkus-with-kotlin-junit-and-mockk/)
+ - [Unraveling MockK's black magic(EN, translation)](https://chao2zhang.medium.com/unraveling-mockks-black-magic-e725c61ed9dd)
+ - [Mockk Guidebook](https://notwoods.github.io/mockk-guidebook/)
+ - [“Kotlin Unit Testing with Mockk” by Marco Cattaneo](https://link.medium.com/ObtQ4eBfg5) 
+ - [(Video) Use verify in MockK to validate function calls on mocked object](https://www.youtube.com/watch?v=J7_4WrImJPk)
+ - [Testing With MockK paid course on raywenderlich.com](https://www.raywenderlich.com/5443751-testing-with-mockk)
+ - TDD for Android video tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay    
+ - [(Video)Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development](https://www.youtube.com/watch?v=h8_LZn1DFDI)
+ - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
+ - [kotlin-fullstack-sample uses MockK](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
+ - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
+ - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
+ - [Mocking in Kotlin with MockK - Yannick De Turck](https://ordina-jworks.github.io/testing/2018/02/05/Writing-tests-in-Kotlin-with-MockK.html)
+ 
+### Japanese guides and articles
+ - [Documentation translation to Japanese](https://qiita.com/yasuX/items/d3cfc9853c53dfaee222)
+ - [Unraveling MockK's black magic / MockKの「黒魔術」を解明する (JP, but readable through chrome translator)](https://zenn.dev/oboenikui/articles/af44c158f9fa35)
+ 
+### Chinese guides and articles
+ - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
+ - [MockK 功能介紹：mockk, every, Annotation, verify](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-2-4-4be059331110)
+ - [MockK 功能介紹：Relaxed Mocks, 再談 Verify, Capture](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-3-4-79b40fb73964)
+ - [如何測試 Static Method, Singleton](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-4-4-f82443848a3a)
+
+### Korean guides and articles
+ - [Documentation translation to Korean](https://www.devkuma.com/docs/kotlin/mockk/)
+ - [MockK의 흑마술을 파헤치자!](https://sukyology.medium.com/mockk%EC%9D%98-%ED%9D%91%EB%A7%88%EC%88%A0%EC%9D%84-%ED%8C%8C%ED%97%A4%EC%B9%98%EC%9E%90-6fe907129c19)
+
+## Features
 
 ### Annotations
 
@@ -583,41 +589,59 @@ val addressBook = mockk<AddressBook> {
 
 ### Capturing
 
-You can capture an argument to a `CapturingSlot` or `MutableList`:
+You can capture an argument to a `CapturingSlot` or `MutableList`. 
+
+`CapturingSlot` is usually created via factory method `slot<T : Any?>()` and is possible to capture nullable and non nullable types.
+`MutableList` is intended for capturing multiple values during testing.
 
 ```kotlin
-val car = mockk<Car>()
+enum class Direction { NORTH, SOUTH }
+enum class RecordingOutcome { RECORDED }
+enum class RoadType { HIGHWAY }
+class Car {
+    fun recordTelemetry(speed: Double, direction: Direction, roadType: RoadType?): RecordingOutcome {
+        TODO("not implement for showcase")
+    }
+}
 
-val slot = slot<Double>()
+val car = mockk<Car>()
+// allow to capture parameter with non nullable type `Double`
+val speedSlot = slot<Double>()
+// allow to capture parameter with nullable type `RoadType`
+val roadTypeSlot = slot<RoadType?>()
 val list = mutableListOf<Double>()
 
 every {
-  car.recordTelemetry(
-    speed = capture(slot), // makes mock match calls with any value for `speed` and record it in a slot
-    direction = Direction.NORTH // makes mock and capturing only match calls with specific `direction`. Use `any()` to match calls with any `direction`
-  )
+    car.recordTelemetry(
+        speed = capture(speedSlot), // makes mock match calls with any value for `speed` and record it in a slot
+        direction = Direction.NORTH, // makes mock and capturing only match calls with specific `direction`. Use `any()` to match calls with any `direction`
+        roadType = captureNullable(roadTypeSlot), // makes mock match calls with any value for `roadType` and record it in a slot
+    )
 } answers {
-  println(slot.captured)
+    println("Speed: ${speedSlot.captured}, roadType: ${roadTypeSlot.captured}")
 
-  Outcome.RECORDED
+    RecordingOutcome.RECORDED
 }
-
 
 every {
-  car.recordTelemetry(
-    speed = capture(list),
-    direction = Direction.SOUTH
-  )
+    car.recordTelemetry(
+        speed = capture(list),
+        direction = Direction.SOUTH,
+        roadType = captureNullable(roadTypeSlot),
+    )
 } answers {
-  println(list)
+    println("Speed: ${list}, roadType: ${roadTypeSlot.captured}")
 
-  Outcome.RECORDED
+    RecordingOutcome.RECORDED
 }
 
-car.recordTelemetry(speed = 15, direction = Direction.NORTH) // prints 15
-car.recordTelemetry(speed = 16, direction = Direction.SOUTH) // prints 16
+car.recordTelemetry(speed = 15.0, direction = Direction.NORTH, null) // prints Speed: 15.0, roadType: null
+car.recordTelemetry(speed = 16.0, direction = Direction.SOUTH, RoadType.HIGHWAY) // prints Speed: [16.0], roadType: HIGHWAY
 
-verify(exactly = 2) { car.recordTelemetry(speed = or(15, 16), direction = any()) }
+verifyOrder {
+    car.recordTelemetry(speed = or(15.0, 16.0), direction = any(), roadType = null)
+    car.recordTelemetry(speed = 16.0, direction = any(), roadType = RoadType.HIGHWAY)
+}
 
 confirmVerified(car)
 ```
@@ -1206,6 +1230,24 @@ inline fun <reified T : List<E>, E : Any> MockKMatcherScope.matchListWithoutOrde
 ): T = match(ListWithoutOrderMatcher(listOf(*items), refEq))
 ```
 
+### Reflection matchers
+
+Example using reflection to mock all methods on a builder-style object
+
+```kotlin
+val builderFunctions = MyBuilder::class.memberFunctions.filter { it.returnType.classifier == MyBuilder::class }
+val builderMock = mockk<MyBuilder> {
+  builderFunctions.forEach { func ->
+    every {
+      val params = listOf<Any?>(builderMock) + func.parameters.drop(1).map { any(it.type.classifier as KClass<Any>) }
+      func.call(*params.toTypedArray())
+    } answers { 
+      this@mockk
+    }
+  }
+}
+```
+
 ## Settings file
 
 To adjust parameters globally, there are a few settings you can specify in a resource file.
@@ -1271,6 +1313,7 @@ By default, simple arguments are matched using `eq()`
 | Matcher                                                 | Description                                                                                            |
 |---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | `any()`                                                 | matches any argument                                                                                   |
+| `any(Class)`                                            | matches any argument of the give Class (for reflective mocking)                                        |
 | `allAny()`                                              | special matcher that uses `any()` instead of `eq()` for matchers that are provided as simple arguments |
 | `isNull()`                                              | checks if the value is null                                                                            |
 | `isNull(inverse=true)`                                  | checks if the value is not null                                                                        |
@@ -1294,7 +1337,8 @@ By default, simple arguments are matched using `eq()`
 | `and(left, right)`                                      | combines two matchers via a logical and                                                                |
 | `or(left, right)`                                       | combines two matchers via a logical or                                                                 |
 | `not(matcher)`                                          | negates the matcher                                                                                    |
-| `capture(slot)`                                         | captures a value to a `CapturingSlot`                                                                  |
+| `capture(slot)`                                         | captures a Non Nullable value to a `CapturingSlot`                                                     |
+| `captureNullable(slot)`                                 | captures a Nullable value to a `CapturingSlot`                                                         |
 | `capture(mutableList)`                                  | captures a value to a list                                                                             |
 | `captureNullable(mutableList)`                          | captures a value to a list together with null values                                                   |
 | `captureLambda()`                                       | captures a lambda                                                                                      |
@@ -1343,7 +1387,7 @@ An Answer can be followed up by one or more additional answers.
 | `returnsMany list`           | specify that the matched call returns a value from the list, with subsequent calls returning the next element      |
 | `returnsArgument(n)`         | specify that the matched call returns the nth argument of that call                                                |
 | `throws ex`                  | specify that the matched call throws an exception                                                                  |
-| `throwsMany ex`              | specify that the matched call throws an exception from the list, with subsequent calls throwing the next exception |
+| `throwsMany list`            | specify that the matched call throws an exception from the list, with subsequent calls throwing the next exception |
 | `answers { code }`           | specify that the matched call answers with a code block scoped with `answer scope`                                 |
 | `coAnswers { code }`         | specify that the matched call answers with a coroutine code block  with `answer scope`                             |
 | `answers answerObj`          | specify that the matched call answers with an Answer object                                                        |

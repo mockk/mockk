@@ -61,6 +61,7 @@ dependencies {
     androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
     androidTestImplementation("androidx.test:runner:${Deps.Versions.androidxTestRunner}")
     androidTestImplementation("androidx.test.ext:junit-ktx:${Deps.Versions.androidxTestExtJunit}")
+    androidTestUtil("androidx.test:orchestrator:${Deps.Versions.androidxTestOrchestrator}")
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(kotlin("test-junit"))

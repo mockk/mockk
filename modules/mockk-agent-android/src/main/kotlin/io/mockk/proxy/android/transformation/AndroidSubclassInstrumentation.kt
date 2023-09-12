@@ -74,4 +74,11 @@ internal class AndroidSubclassInstrumentation(
 
         return abstractMethods.map { it.originalMethod }.toTypedArray()
     }
+
+    override fun setProxyHandler(proxy: Any, handler: MockKInvocationHandler) {
+        if (ProxyBuilder.isProxyClass(proxy::class.java)) {
+            ProxyBuilder.setInvocationHandler(proxy, ProxyInvocationHandler(handler))
+        }
+    }
+
 }

@@ -119,7 +119,7 @@ inline fun <reified T : Any> spyk(
  * network.download("testfile")
  * // slot.captured is now "testfile"
  */
-inline fun <reified T : Any> slot() = MockK.useImpl {
+inline fun <reified T : Any?> slot() = MockK.useImpl {
     MockKDsl.internalSlot<T>()
 }
 
@@ -520,7 +520,7 @@ inline fun mockkStatic(vararg classes: String) = MockK.useImpl {
 }
 
 /**
- * Cancel static mocks.
+ * Clears static mocks.
  */
 inline fun clearStaticMockk(
     vararg classes: KClass<*>,

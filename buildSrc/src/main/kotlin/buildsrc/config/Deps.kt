@@ -21,12 +21,13 @@ object Deps {
 
         const val byteBuddy = "1.12.20"
         const val objenesis = "3.3"
-        const val dexmaker = "2.28.1"
+        const val dexmaker = "2.28.3"
         const val androidxEspresso = "3.5.1"
         const val androidxOrchestrator = "1.4.2"
         const val androidxTestRules = "1.5.0"
         const val androidxTestRunner = "1.5.2"
         const val androidxTestExtJunit = "1.1.5"
+        const val androidxTestOrchestrator = "1.4.2"
 
         const val compileSdk = 34
         const val targetSdk = 34

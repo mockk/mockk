@@ -133,16 +133,31 @@ public abstract interface class io/mockk/CapturingMatcher {
 	public abstract fun capture (Ljava/lang/Object;)V
 }
 
+public final class io/mockk/CapturingNullableSlotMatcher : io/mockk/CapturingMatcher, io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;)V
+	public fun capture (Ljava/lang/Object;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Lio/mockk/CapturingSlot;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun copy (Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;)Lio/mockk/CapturingNullableSlotMatcher;
+	public static synthetic fun copy$default (Lio/mockk/CapturingNullableSlotMatcher;Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/CapturingNullableSlotMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun equivalent ()Lio/mockk/Matcher;
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getCaptureSlot ()Lio/mockk/CapturingSlot;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class io/mockk/CapturingSlot {
-	public field captured Ljava/lang/Object;
 	public fun <init> ()V
 	public final fun clear ()V
 	public final fun getCaptured ()Ljava/lang/Object;
 	public final fun isCaptured ()Z
 	public final fun isNull ()Z
 	public final fun setCaptured (Ljava/lang/Object;)V
-	public final fun setCaptured (Z)V
-	public final fun setNull (Z)V
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -820,6 +835,7 @@ public abstract interface class io/mockk/MockKGateway$Verifier {
 
 public class io/mockk/MockKMatcherScope {
 	public fun <init> (Lio/mockk/MockKGateway$CallRecorder;Lio/mockk/CapturingSlot;)V
+	public final fun any (Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public final fun anyBooleanVararg ()[Z
 	public final fun anyByteVararg ()[B
 	public final fun anyCharVararg ()[C
@@ -836,6 +852,7 @@ public class io/mockk/MockKMatcherScope {
 	public static synthetic fun hint$default (Lio/mockk/MockKMatcherScope;Ljava/lang/Object;Lkotlin/reflect/KClass;IILjava/lang/Object;)Ljava/lang/Object;
 	public final fun invoke (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicCallLong;
 	public final fun invokeNoArgs (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun match (Lio/mockk/Matcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public final fun setProperty (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicSetProperty;
 	public final fun varargAllBoolean (Lkotlin/jvm/functions/Function2;)[Z
 	public final fun varargAllByte (Lkotlin/jvm/functions/Function2;)[B
