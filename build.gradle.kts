@@ -11,10 +11,6 @@ plugins {
 
 group = "io.mockk"
 
-koverMerged {
-    enable()
-}
-
 apiValidation {
     ignoredProjects += listOf(
         projects.testModules.loggerTests.name,
