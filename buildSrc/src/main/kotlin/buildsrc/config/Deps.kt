@@ -7,7 +7,7 @@ fun Project.kotlinVersion() = findProperty("kotlin.version")?.toString() ?: Deps
 
 object Deps {
     object Versions {
-        val jvmTarget = JavaVersion.VERSION_1_8
+        val jvmTarget = JavaVersion.VERSION_11
 
         const val androidTools = "7.2.1"
         const val dokka = "1.7.10"
@@ -22,11 +22,16 @@ object Deps {
         const val byteBuddy = "1.12.20"
         const val objenesis = "3.3"
         const val dexmaker = "2.28.3"
-        const val androidxEspresso = "3.4.0"
-        const val androidxTestRules = "1.4.0"
-        const val androidxTestRunner = "1.4.0"
-        const val androidxTestExtJunit = "1.1.3"
+        const val androidxEspresso = "3.5.1"
+        const val androidxOrchestrator = "1.4.2"
+        const val androidxTestRules = "1.5.0"
+        const val androidxTestRunner = "1.5.2"
+        const val androidxTestExtJunit = "1.1.5"
         const val androidxTestOrchestrator = "1.4.2"
+
+        const val compileSdk = 34
+        const val targetSdk = 34
+        const val minSdk = 21
     }
 
     object Libs {

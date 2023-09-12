@@ -42,10 +42,3 @@ public class io/mockk/proxy/android/AndroidMockKMap : java/lang/ref/ReferenceQue
 	public fun values ()Ljava/util/Collection;
 }
 
-public final class io/mockk/proxy/android/BuildConfig {
-	public static final field BUILD_TYPE Ljava/lang/String;
-	public static final field DEBUG Z
-	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
-	public fun <init> ()V
-}
-

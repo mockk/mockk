@@ -1,6 +1,7 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.library")
@@ -16,11 +17,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion = "android-32"
-
-    kotlinOptions {
-        jvmTarget = Deps.Versions.jvmTarget.toString()
-    }
+    namespace = "io.mockk"
+    compileSdk = Deps.Versions.compileSdk
 
     lint {
         abortOnError = false
@@ -28,15 +26,15 @@ android {
         warning += "NewApi"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/main.kotlin_module"
         }
     }
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 32
+        minSdk = Deps.Versions.minSdk
+        targetSdk = Deps.Versions.targetSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -50,11 +48,15 @@ android {
     }
 }
 
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = Deps.Versions.jvmTarget.toString()
+    }
+}
+
 dependencies {
     testImplementation("junit:junit:${Deps.Versions.junit4}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}") {
-        exclude("com.android.support:support-annotations")
-    }
+    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}")
 
     androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
     androidTestImplementation("androidx.test:runner:${Deps.Versions.androidxTestRunner}")
@@ -63,6 +65,7 @@ dependencies {
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(kotlin("test-junit"))
+    androidTestUtil("androidx.test:orchestrator:${Deps.Versions.androidxOrchestrator}")
 }
 
 val javadocJar by tasks.registering(Jar::class) {

@@ -1,6 +1,7 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("com.android.application")
@@ -12,7 +13,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion = "android-32"
+    namespace = "io.mockk"
+    compileSdk = Deps.Versions.compileSdk
 
     lint {
         abortOnError = false
@@ -20,20 +22,26 @@ android {
         warning += "NewApi"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/main.kotlin_module"
         }
     }
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 32
+        minSdk = Deps.Versions.minSdk
+        targetSdk = Deps.Versions.targetSdk
     }
 
     compileOptions {
         sourceCompatibility = Deps.Versions.jvmTarget
         targetCompatibility = Deps.Versions.jvmTarget
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = Deps.Versions.jvmTarget.toString()
     }
 }
 
