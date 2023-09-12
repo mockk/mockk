@@ -43,3 +43,8 @@ kotlin {
         }
     }
 }
+
+tasks.withType<Test> {
+    // Forward the expected Kotlin version to unit tests
+    environment("kotlin.version", kotlinVersion())
+}
