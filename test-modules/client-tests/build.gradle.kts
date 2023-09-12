@@ -1,3 +1,5 @@
+import buildsrc.config.kotlinVersion
+
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
 }
@@ -10,10 +12,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(dependencies.platform(kotlin("bom")))
+                implementation(enforcedPlatform(kotlin("bom", version = kotlinVersion())))
                 implementation(kotlin("reflect"))
 
-                implementation(dependencies.platform(buildsrc.config.Deps.Libs.kotlinCoroutinesBom))
+                implementation(platform(buildsrc.config.Deps.Libs.kotlinCoroutinesBom))
                 implementation(buildsrc.config.Deps.Libs.kotlinCoroutinesCore)
             }
         }
@@ -40,4 +42,9 @@ kotlin {
             }
         }
     }
+}
+
+tasks.withType<Test> {
+    // Forward the expected Kotlin version to unit tests
+    environment("kotlin.version", kotlinVersion())
 }
