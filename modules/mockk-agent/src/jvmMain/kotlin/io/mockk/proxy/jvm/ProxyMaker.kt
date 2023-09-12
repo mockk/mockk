@@ -93,7 +93,7 @@ internal class ProxyMaker(
                 warnOnFinalMethods(clazz)
             }
 
-            {}
+            { /* No-op */ }
         }
     }
 

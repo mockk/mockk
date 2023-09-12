@@ -120,7 +120,7 @@ class ProxyMaker(
                 warnOnFinalMethods(clazz)
             }
 
-            {}
+            { /* No-op */ }
         }
     }
 
@@ -169,7 +169,7 @@ class ProxyMaker(
             val defaultConstructor = cls.getDeclaredConstructor()
             try {
                 defaultConstructor.isAccessible = true
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 // skip
             }
 
