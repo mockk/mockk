@@ -11,7 +11,7 @@ object Deps {
 
         const val androidTools = "7.2.1"
         const val dokka = "1.7.10"
-        const val kotlinDefault = "1.8.20"
+        const val kotlinDefault = "1.9.10"
         const val coroutines = "1.6.4"
         const val slfj = "2.0.5"
         const val logback = "1.4.5"
