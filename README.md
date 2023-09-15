@@ -1,4 +1,7 @@
-![mockk](doc/logo-site.png) ![kotlin](doc/kotlin-logo.png)
+<div align="center">
+    <img src="doc/logo-site.png" width="400" align="center" alt="drawing"/>
+    <img src="doc/kotlin-logo.svg" width="400" align="center" alt="drawing"/>
+</div>
 
 [![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](https://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
