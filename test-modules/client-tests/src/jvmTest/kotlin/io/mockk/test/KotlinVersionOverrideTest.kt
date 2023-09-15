@@ -7,8 +7,8 @@ class KotlinVersionOverrideTest {
 
     @Test
     fun `ensure Kotlin version is correctly handled`() = assertEquals(
-        actual = System.getenv("kotlin.version").orEmpty(),
-        expected = KotlinVersion.CURRENT.toString(),
+        expected = System.getenv("kotlin.version").orEmpty(),
+        actual = KotlinVersion.CURRENT.toString(),
     )
 
 }
