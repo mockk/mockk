@@ -25,8 +25,8 @@ tasks.withType<KotlinCompile>().configureEach {
 val javaToolchains: JavaToolchainService = extensions.getByType()
 
 
-val javaToolchainMainVersion = javaLanguageVersion("javaToolchainMainVersion")
-val javaToolchainTestVersion = javaLanguageVersion("javaToolchainTestVersion")
+val javaToolchainMainVersion = javaLanguageVersion("io_mockk_java_toolchain_main_version")
+val javaToolchainTestVersion = javaLanguageVersion("io_mockk_java_toolchain_test_version")
 
 
 // The Java Toolchains that will compile/launch *main* code

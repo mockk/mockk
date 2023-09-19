@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `kotlin-dsl`
 }
@@ -24,20 +22,4 @@ dependencies {
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka")
 
     implementation("org.jetbrains.kotlinx:binary-compatibility-validator:$binaryCompatibilityValidator")
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-    }
-}
-
-kotlinDslPluginOptions {
-    jvmTarget.set("11")
 }

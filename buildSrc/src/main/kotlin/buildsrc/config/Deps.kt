@@ -3,7 +3,9 @@ package buildsrc.config
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 
-fun Project.kotlinVersion() = findProperty("kotlin.version")?.toString() ?: Deps.Versions.kotlinDefault
+fun Project.kotlinVersion(): String =
+    providers.gradleProperty("io_mockk_kotlin_version")
+        .getOrElse(Deps.Versions.kotlinDefault)
 
 object Deps {
     object Versions {
