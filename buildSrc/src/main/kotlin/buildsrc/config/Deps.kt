@@ -9,7 +9,7 @@ fun Project.kotlinVersion(): String =
 
 object Deps {
     object Versions {
-        val jvmTarget = JavaVersion.VERSION_11
+        val jvmTarget = JavaVersion.VERSION_1_8
 
         const val dokka = "1.9.0"
         const val kotlinDefault = "1.9.10"
