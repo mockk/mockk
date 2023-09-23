@@ -7,7 +7,6 @@ plugins {
     id("com.android.library")
 
     kotlin("android")
-    kotlin("kapt")
     kotlin("plugin.allopen")
 
     id("org.jetbrains.dokka")
@@ -66,12 +65,6 @@ dependencies {
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(kotlin("test-junit"))
     androidTestUtil("androidx.test:orchestrator:${Deps.Versions.androidxOrchestrator}")
-}
-
-// Fix: Task 'dokkaJavadoc' uses this output of task 'kaptReleaseKotlin' without declaring an explicit or implicit dependency.
-tasks.dokkaJavadoc.configure {
-    mustRunAfter(tasks.named("kaptDebugKotlin"))
-    mustRunAfter(tasks.named("kaptReleaseKotlin"))
 }
 
 val javadocJar by tasks.registering(Jar::class) {
