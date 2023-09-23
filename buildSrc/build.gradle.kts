@@ -14,7 +14,6 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinPluginVersion"))
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinPluginVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinPluginVersion")
-    implementation("org.jetbrains.kotlin:kotlin-allopen:$kotlinPluginVersion")
 
     implementation("org.jetbrains.kotlinx.kover:org.jetbrains.kotlinx.kover.gradle.plugin:$kotlinxKover")
 
