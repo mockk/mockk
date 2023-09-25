@@ -7,7 +7,6 @@ plugins {
     id("com.android.library")
 
     kotlin("android")
-    kotlin("plugin.allopen")
 
     id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
