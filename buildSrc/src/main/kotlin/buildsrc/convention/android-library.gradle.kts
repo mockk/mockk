@@ -8,7 +8,6 @@ plugins {
 
     kotlin("android")
     kotlin("kapt")
-    kotlin("plugin.allopen")
 
     id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
