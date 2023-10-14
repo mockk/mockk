@@ -1155,6 +1155,24 @@ every { quit(1) } throws Exception("this is a test")
 * clear - deletes the internal state of objects associated with a mock, resulting in an empty object
 * unmock - re-assigns transformation of classes back to original state prior to mock
 
+### Scoped mock
+
+Scoped mock is a mock that unmocks it after the block has been executed.
+You can use `mockkObject`, `mockkStatic` and `mockkConstructor` functions.
+
+```kotlin
+object ObjBeingMocked {
+ fun add(a: Int, b: Int) = a + b
+}
+
+// ObjeBeingMocked will be reverted back after this scope.
+mockkObject(ObjBeingMocked) {
+ assertEquals(3, ObjBeingMocked.add(1, 2))
+ every { ObjBeingMocked.add(1, 2) } returns 55
+ assertEquals(55, ObjBeingMocked.add(1, 2))
+}
+```
+
 ## Matcher extensibility
 
 A very simple way to create new matchers is by attaching a function 
