@@ -1,6 +1,8 @@
 package io.mockk.it
 
 import io.mockk.*
+import org.junit.jupiter.api.assertTimeoutPreemptively
+import java.time.Duration
 import kotlin.jvm.JvmInline
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -488,6 +490,17 @@ class ValueClassTest {
         val result = mock.returnValueClass()
 
         assertEquals(givenResult, result)
+    }
+
+    @Test
+    fun `ensure no infinite recursion when mocking fun that returns value class`() {
+        val f: () -> DummyValue = mockk()
+
+        assertTimeoutPreemptively(Duration.ofMillis(500L)) {
+            runCatching {
+                every { f.invoke() } returns DummyValue(42)
+            }
+        }
     }
 
     companion object {
