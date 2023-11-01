@@ -15,7 +15,6 @@ plugins {
 }
 
 android {
-    namespace = "io.mockk"
     compileSdk = Deps.Versions.compileSdk
 
     lint {
