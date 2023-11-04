@@ -1165,7 +1165,7 @@ object ObjBeingMocked {
  fun add(a: Int, b: Int) = a + b
 }
 
-// Should dbe "ObjeBeingMocked will be unmocked after this scope."
+// Should be "ObjBeingMocked will be unmocked after this scope"
 mockkObject(ObjBeingMocked) {
  assertEquals(3, ObjBeingMocked.add(1, 2))
  every { ObjBeingMocked.add(1, 2) } returns 55
