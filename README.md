@@ -1157,7 +1157,7 @@ every { quit(1) } throws Exception("this is a test")
 
 ### Scoped mocks
 
-A Scoped mock is a mock that automatically unmocks itself after the code block passed as a parameter has been executed
+A Scoped mock is a mock that automatically unmocks itself after the code block passed as a parameter has been executed.
 You can use the `mockkObject`, `mockkStatic` and `mockkConstructor` functions.
 
 ```kotlin
@@ -1165,7 +1165,7 @@ object ObjBeingMocked {
  fun add(a: Int, b: Int) = a + b
 }
 
-// Should be "ObjBeingMocked will be unmocked after this scope"
+// ObjBeingMocked will be unmocked after this scope
 mockkObject(ObjBeingMocked) {
  assertEquals(3, ObjBeingMocked.add(1, 2))
  every { ObjBeingMocked.add(1, 2) } returns 55
