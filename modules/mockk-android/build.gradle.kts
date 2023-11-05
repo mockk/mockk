@@ -10,6 +10,7 @@ val mavenName: String by extra("MockK Android")
 val mavenDescription: String by extra("${project.description}")
 
 android {
+    namespace = "io.mockk.android"
     packaging {
         resources {
             excludes += "META-INF/LICENSE.md"
