@@ -3,6 +3,7 @@ package io.mockk.it
 import io.mockk.*
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
+import java.util.UUID
 import kotlin.jvm.JvmInline
 import kotlin.test.Ignore
 import kotlin.test.Test
@@ -14,7 +15,9 @@ class ValueClassTest {
     private val dummyValueWrapperReturn get() = DummyValueWrapper(DummyValue(99))
 
     private val dummyValueClassArg get() = DummyValue(101)
+    private val dummyComplexValueClassArg get() = ComplexValue(UUID.fromString("4d19b22c-7754-4c55-ba4d-f80109708a1f"))
     private val dummyValueClassReturn get() = DummyValue(202)
+    private val dummyComplexValueClassReturn get() = ComplexValue(UUID.fromString("25581db2-4cdb-48cd-a6c9-e087aee31f0b"))
 
     //<editor-fold desc="arg=Value Class, return=ValueClass">
     @Test
@@ -92,6 +95,85 @@ class ValueClassTest {
         assertEquals(dummyValueClassArg, slot.captured)
 
         verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="arg=Complex Value Class, return=ComplexValueClass">
+    @Test
+    fun `arg is ComplexValueClass, returns ComplexValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } returns dummyComplexValueClassReturn
+        }
+
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
+
+        verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
+    }
+
+    @Test
+    fun `arg is any(ComplexValueClass), returns ComplexValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argComplexValueClassReturnComplexValueClass(any()) } returns dummyComplexValueClassReturn
+        }
+
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
+
+        verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
+    }
+
+    @Test
+    fun `arg is slot(ComplexValueClass), returns ComplexValueClass`() {
+        val slot = slot<ComplexValue>()
+        val mock = mockk<DummyService> {
+            every { argComplexValueClassReturnComplexValueClass(capture(slot)) } returns dummyComplexValueClassReturn
+        }
+
+        val result = mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
+
+        assertEquals(dummyComplexValueClassReturn, result)
+
+        assertEquals(dummyComplexValueClassArg, slot.captured)
+
+        verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
+    }
+
+    @Test
+    fun `arg is ComplexValueClass, answers ComplexValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } answers { dummyComplexValueClassReturn }
+        }
+
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
+
+        verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
+    }
+
+    @Test
+    fun `arg is any(ComplexValueClass), answers ComplexValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argComplexValueClassReturnComplexValueClass(any()) } answers { dummyComplexValueClassReturn }
+        }
+
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
+
+        verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
+    }
+
+    @Test
+    fun `arg is slot(ComplexValueClass), answers ComplexValueClass`() {
+        val slot = slot<ComplexValue>()
+
+        val mock = mockk<DummyService> {
+            every { argComplexValueClassReturnComplexValueClass(capture(slot)) } answers { dummyComplexValueClassReturn }
+        }
+
+        val result = mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
+
+        assertEquals(dummyComplexValueClassReturn, result)
+
+        assertEquals(dummyComplexValueClassArg, slot.captured)
+
+        verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
     }
     //</editor-fold>
 
@@ -512,6 +594,11 @@ class ValueClassTest {
         }
 
         @JvmInline
+        value class ComplexValue(val value: UUID) {
+            val text: String get() = value.toString()
+        }
+
+        @JvmInline
         value class DummyValueWrapper(val value: DummyValue)
 
         @Suppress("UNUSED_PARAMETER")
@@ -528,6 +615,9 @@ class ValueClassTest {
 
             fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue =
                 DummyValue(0)
+
+            fun argComplexValueClassReturnComplexValueClass(complexValue: ComplexValue): ComplexValue =
+                ComplexValue(UUID.fromString("7dea337b-ce0b-4e25-9788-79e708aadc33"))
 
             fun returnValueClass(): DummyValue =
                 DummyValue(0)
