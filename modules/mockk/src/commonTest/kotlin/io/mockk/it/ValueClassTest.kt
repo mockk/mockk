@@ -179,7 +179,6 @@ class ValueClassTest {
 
     //<editor-fold desc="arg=Value Class, return=Wrapper">
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is ValueClass, returns Wrapper`() {
         val mock = mockk<DummyService> {
             every { argValueClassReturnWrapper(dummyValueClassArg) } returns dummyValueWrapperReturn
@@ -203,7 +202,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(ValueClass), returns Wrapper`() {
         val slot = slot<DummyValue>()
 
@@ -221,7 +219,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is ValueClass, answers Wrapper`() {
         val mock = mockk<DummyService> {
             every { argValueClassReturnWrapper(dummyValueClassArg) } answers { dummyValueWrapperReturn }
@@ -233,7 +230,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(ValueClass), answers Wrapper`() {
         val mock = mockk<DummyService> {
             every { argValueClassReturnWrapper(any()) } answers { dummyValueWrapperReturn }
@@ -245,7 +241,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(ValueClass), answers Wrapper`() {
         val slot = slot<DummyValue>()
 
@@ -265,7 +260,6 @@ class ValueClassTest {
 
     //<editor-fold desc="arg=Wrapper, return=ValueClass">
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is Wrapper, returns ValueClass`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnValueClass(dummyValueWrapperArg) } returns dummyValueClassReturn
@@ -306,7 +300,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is Wrapper, answers ValueClass`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnValueClass(dummyValueWrapperArg) } answers { dummyValueClassReturn }
@@ -350,7 +343,6 @@ class ValueClassTest {
 
     //<editor-fold desc="arg=Wrapper, return=Wrapper">
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is Wrapper, returns Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(dummyValueWrapperArg) } returns dummyValueWrapperReturn
@@ -391,7 +383,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is Wrapper, answers Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(dummyValueWrapperArg) } answers { dummyValueWrapperReturn }
@@ -512,7 +503,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO fix infinite loop
     fun `receiver is Wrapper, return is String`() {
         val fn = mockk<DummyValueWrapper.() -> String>()
 
@@ -550,7 +540,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO fix infinite loop
     fun `receiver is ValueClass, return is String`() {
         val fn = mockk<DummyValue.() -> String>()
 

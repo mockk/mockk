@@ -20,7 +20,7 @@ actual object ValueClassSupport {
         get() = if (!this::class.isValue_safe) {
             this
         } else {
-            (this::class as KClass<T>).boxedProperty.get(this)
+            (this::class as KClass<T>).boxedProperty.get(this)?.boxedValue
         }
 
     /**
