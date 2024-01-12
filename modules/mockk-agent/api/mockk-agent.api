@@ -137,3 +137,11 @@ public class io/mockk/proxy/jvm/dispatcher/JvmMockKWeakMap : java/util/Map {
 	public fun values ()Ljava/util/Collection;
 }
 
+public final class io/mockk/proxy/jvm/util/DefaultInterfaceMethodResolver {
+	public static final field Companion Lio/mockk/proxy/jvm/util/DefaultInterfaceMethodResolver$Companion;
+	public fun <init> ()V
+}
+
+public final class io/mockk/proxy/jvm/util/DefaultInterfaceMethodResolver$Companion {
+}
+
