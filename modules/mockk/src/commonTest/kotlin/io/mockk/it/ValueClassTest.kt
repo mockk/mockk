@@ -585,6 +585,23 @@ class ValueClassTest {
         }
     }
 
+    @Test
+    fun `spy class returning value class not boxed due to cast to another type`() {
+        val f = spyk<DummyService>()
+        val result = f.returnValueClassNotInlined() as DummyValue
+
+        assertEquals(DummyValue(0), result)
+    }
+
+    @Test
+    fun `mock class returning value class not boxed due to cast to another type`() {
+        val f = mockk<DummyService>()
+        every { f.returnValueClassNotInlined() } returns DummyValue(3)
+        val result = f.returnValueClassNotInlined() as DummyValue
+
+        assertEquals(DummyValue(3), result)
+    }
+
     companion object {
 
         @JvmInline
@@ -621,6 +638,9 @@ class ValueClassTest {
 
             fun returnValueClass(): DummyValue =
                 DummyValue(0)
+
+            // Note the value class is not inlined in this case due to being cast to another type
+            fun returnValueClassNotInlined(): Any = DummyValue(0)
 
             fun argNoneReturnsUInt(): UInt = 123u
         }
