@@ -29,7 +29,7 @@ import kotlin.reflect.jvm.javaConstructor
  * (*) [unmockkAll] default behavior can be disabled by adding [KeepMocks] to your test class or method or
  * `–Dmockk.junit.extension.keepmocks=true` on a command line
  */
-class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCallback {
+open class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCallback {
     private val cache = mutableMapOf<KClass<out Any>, Any>()
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
