@@ -2,6 +2,7 @@
 
 package io.mockk
 
+import java.util.function.Consumer
 import kotlin.reflect.KClass
 
 /**
@@ -45,6 +46,25 @@ inline fun <reified T : Any> mockk(
         moreInterfaces,
         relaxUnitFun = relaxUnitFun,
         block = block
+    )
+}
+
+@JvmOverloads
+fun <T : Any> mockk(
+    mockType: Class<T>,
+    name: String? = null,
+    relaxed: Boolean = false,
+    vararg moreInterfaces: Class<*>,
+    relaxUnitFun: Boolean = false,
+    block: Consumer<T> = Consumer {  }
+): T = MockK.useImpl {
+    MockKDsl.internalMockk(
+        mockType,
+        name,
+        relaxed,
+        moreInterfaces,
+        relaxUnitFun = relaxUnitFun,
+        block = block,
     )
 }
 
@@ -216,6 +236,19 @@ fun verify(
     verifyBlock: MockKVerificationScope.() -> Unit
 ) = MockK.useImpl {
     MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
+}
+
+@JvmOverloads
+fun verify(
+    ordering: Ordering = Ordering.UNORDERED,
+    inverse: Boolean = false,
+    atLeast: Int = 1,
+    atMost: Int = Int.MAX_VALUE,
+    exactly: Int = -1,
+    timeout: Long = 0,
+    verifyBlock: Consumer<MockKVerificationScope>,
+) = MockK.useImpl {
+    MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock::accept)
 }
 
 /**
