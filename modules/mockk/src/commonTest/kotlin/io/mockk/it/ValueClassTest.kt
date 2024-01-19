@@ -59,6 +59,22 @@ class ValueClassTest {
     }
 
     @Test
+    fun `arg is MutableList(ValueClass), returns ValueClass`() {
+        val slot = mutableListOf<DummyValue>()
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(capture(slot)) } returns dummyValueClassReturn
+        }
+
+        val result = mock.argValueClassReturnValueClass(dummyValueClassArg)
+
+        assertEquals(dummyValueClassReturn, result)
+
+        assertEquals(dummyValueClassArg, slot.single())
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
     fun `arg is ValueClass, answers ValueClass`() {
         val mock = mockk<DummyService> {
             every { argValueClassReturnValueClass(dummyValueClassArg) } answers { dummyValueClassReturn }

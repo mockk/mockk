@@ -98,9 +98,10 @@ data class CaptureMatcher<T : Any>(
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
-    @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
-        captureList.add(arg as T)
+        if (arg != null) {
+            captureList.add(InternalPlatformDsl.boxCast(argumentType, arg))
+        }
     }
 
     override fun match(arg: T?): Boolean = true
