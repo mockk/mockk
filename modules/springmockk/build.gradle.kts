@@ -3,23 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.time.Duration
 
 plugins {
-    buildsrc.convention.`kotlin-jvm`
+    buildsrc.convention.`kotlin-jvm-spring`
     buildsrc.convention.`mockk-publishing`
+
 }
 
 description = "MockBean and SpyBean, but for MockK instead of Mockito"
-
-tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_17.toString()
-    targetCompatibility = JavaVersion.VERSION_17.toString()
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
-}
-
 
 tasks {
     test {

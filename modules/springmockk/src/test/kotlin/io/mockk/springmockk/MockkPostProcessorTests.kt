@@ -65,7 +65,7 @@ class MockkPostProcessorTests {
         val factoryBeanDefinition = RootBeanDefinition(TestFactoryBean::class.java)
         factoryBeanDefinition.setAttribute(
             FactoryBean.OBJECT_TYPE_ATTRIBUTE,
-            SomeInterface::class.java.name
+            SomeInterface::class.java
         )
         context.registerBeanDefinition("beanToBeMocked", factoryBeanDefinition)
         context.register(MockedFactoryBean::class.java)

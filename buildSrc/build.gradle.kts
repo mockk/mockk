@@ -17,6 +17,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinPluginVersion")
 
     implementation("org.jetbrains.kotlinx.kover:org.jetbrains.kotlinx.kover.gradle.plugin:$kotlinxKover")
+    implementation("org.jetbrains.kotlin.plugin.spring:org.jetbrains.kotlin.plugin.spring.gradle.plugin:$kotlinPluginVersion")
 
     implementation("com.android.tools.build:gradle:$androidGradle")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka")
