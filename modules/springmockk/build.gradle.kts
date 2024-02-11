@@ -5,10 +5,22 @@ import java.time.Duration
 plugins {
     buildsrc.convention.`kotlin-jvm-spring`
     buildsrc.convention.`mockk-publishing`
-
 }
 
 description = "MockBean and SpyBean, but for MockK instead of Mockito"
+
+val mavenName: String by extra("MockK springmockk")
+val mavenDescription: String by extra("${project.description}")
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate {
+                from(components["java"])
+            }
+        }
+    }
+}
 
 tasks {
     test {
