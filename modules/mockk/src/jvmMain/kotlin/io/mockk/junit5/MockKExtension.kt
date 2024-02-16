@@ -124,7 +124,9 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
             }
         } finally {
             // Clear all mocks after missed verifications or unnecessary stubs. Solves Issue #963.
-            clearAllMocks()
+            if (!context.keepMocks || context.requireParallelTesting) {
+                clearAllMocks()
+            }
         }
     }
 
@@ -152,6 +154,13 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         get() = map { it.getAnnotation(CheckUnnecessaryStub::class.java) != null}
             .orElse(false)
 
+    private val ExtensionContext.requireParallelTesting: Boolean
+        get() = getConfigurationParameter(REQUIRE_PARALLEL_TESTING).map { it.toBoolean() }.orElse(false)
+
+    private val Optional<out AnnotatedElement>.requireParallelTesting
+        get() = map { it.getAnnotation(RequireParallelTesting::class.java) != null }
+            .orElse(false)
+
     /***
      * Prevent calling [unmockkAll] after each test execution
      */
@@ -170,10 +179,19 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
     @Target(AnnotationTarget.CLASS)
     annotation class CheckUnnecessaryStub
 
+    /***
+     * Require parallel testing by disabling the clearAllMocks call after each test execution; it is not thread-safe.
+     */
+    @Inherited
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.CLASS)
+    annotation class RequireParallelTesting
+
     companion object {
         const val KEEP_MOCKS_PROPERTY = "mockk.junit.extension.keepmocks"
         const val CONFIRM_VERIFICATION_PROPERTY = "mockk.junit.extension.confirmverification"
         const val CHECK_UNNECESSARY_STUB_PROPERTY = "mockk.junit.extension.checkUnnecessaryStub"
+        const val REQUIRE_PARALLEL_TESTING = "mockk.junit.extension.requireParallelTesting"
     }
 
 }

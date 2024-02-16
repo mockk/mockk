@@ -258,10 +258,14 @@ fun calculateAddsValues1(@MockK car1: Car, @RelaxedMockK car2: Car) {
 }
 ```
 
-Finally, this extension will call `unmockkAll` in a `@AfterAll` callback, ensuring your test environment is clean after
+Finally, this extension will call `unmockkAll` and `clearAllMocks` in a `@AfterAll` callback, ensuring your test environment is clean after
 each test class execution.
 You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting 
-the `mockk.junit.extension.keepmocks=true` property
+the `mockk.junit.extension.keepmocks=true` property.
+(Since v1.13.11)
+Alternatively, since `clearAllMocks` is not thread-safe, if you need to run test in parallel you can add the 
+`MockKExtension.RequireParallelTesting` annotation to your class or set the `mockk.junit.extension.requireParallelTesting=true`
+property to disable calling it in the `@AfterAll` callback.
 
 #### Automatic verification confirmation
 
