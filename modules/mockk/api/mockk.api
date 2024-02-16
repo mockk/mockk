@@ -1128,6 +1128,7 @@ public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extens
 	public static final field CONFIRM_VERIFICATION_PROPERTY Ljava/lang/String;
 	public static final field Companion Lio/mockk/junit5/MockKExtension$Companion;
 	public static final field KEEP_MOCKS_PROPERTY Ljava/lang/String;
+	public static final field REQUIRE_PARALLEL_TESTING Ljava/lang/String;
 	public fun <init> ()V
 	public fun afterAll (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
 	public fun postProcessTestInstance (Ljava/lang/Object;Lorg/junit/jupiter/api/extension/ExtensionContext;)V
@@ -1145,5 +1146,8 @@ public abstract interface annotation class io/mockk/junit5/MockKExtension$Confir
 }
 
 public abstract interface annotation class io/mockk/junit5/MockKExtension$KeepMocks : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class io/mockk/junit5/MockKExtension$RequireParallelTesting : java/lang/annotation/Annotation {
 }
 
