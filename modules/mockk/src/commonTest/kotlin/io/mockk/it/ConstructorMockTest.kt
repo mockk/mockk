@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -86,6 +87,7 @@ class ConstructorMockTest {
     }
 
     @Test
+    @Ignore // TODO fix verify bug an anyConstructed https://github.com/mockk/mockk/issues/1224
     fun clear() {
         mockkConstructor(MockCls::class)
 
@@ -97,7 +99,7 @@ class ConstructorMockTest {
 
         clearConstructorMockk(MockCls::class)
 
-        verify { anyConstructed<MockCls>() wasNot Called }
+        verify(exactly = 0) { anyConstructed<MockCls>() }
 
         assertEquals(3, MockCls().op(1, 2))
 

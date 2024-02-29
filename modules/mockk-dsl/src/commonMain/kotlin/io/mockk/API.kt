@@ -2166,6 +2166,18 @@ class MockKVerificationScope(
 
     @Suppress("UNUSED_PARAMETER")
     infix fun List<Any>.wasNot(called: Called) {
+        if (!all {
+                MockKDsl.internalIsMockKMock(
+                    mock = it,
+                    regular = true,
+                    spy = true,
+                    objectMock = true,
+                    staticMock = true,
+                    constructorMock = true
+                )
+            }) {
+            throw MockKException("was not can only be called on a mocked object")
+        }
         callRecorder.wasNotCalled(this)
     }
 }
