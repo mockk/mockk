@@ -111,7 +111,7 @@ actual object ValueClassSupport {
             false
         } catch (_: UnsupportedOperationException) {
             false
-        } catch (e: AbstractMethodError) {
+        } catch (_: AbstractMethodError) {
             false
         }
 }

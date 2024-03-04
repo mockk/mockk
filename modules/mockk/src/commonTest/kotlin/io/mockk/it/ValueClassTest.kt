@@ -135,10 +135,7 @@ class ValueClassTest {
             every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } returns dummyComplexValueClassReturn
         }
 
-        assertEquals(
-            dummyComplexValueClassReturn,
-            mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
-        )
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
         verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
     }
@@ -149,10 +146,7 @@ class ValueClassTest {
             every { argComplexValueClassReturnComplexValueClass(any()) } returns dummyComplexValueClassReturn
         }
 
-        assertEquals(
-            dummyComplexValueClassReturn,
-            mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
-        )
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
         verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
     }
@@ -179,10 +173,7 @@ class ValueClassTest {
             every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } answers { dummyComplexValueClassReturn }
         }
 
-        assertEquals(
-            dummyComplexValueClassReturn,
-            mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
-        )
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
         verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
     }
@@ -193,10 +184,7 @@ class ValueClassTest {
             every { argComplexValueClassReturnComplexValueClass(any()) } answers { dummyComplexValueClassReturn }
         }
 
-        assertEquals(
-            dummyComplexValueClassReturn,
-            mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
-        )
+        assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
         verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
     }
