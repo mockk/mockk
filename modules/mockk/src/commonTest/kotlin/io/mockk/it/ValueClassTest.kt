@@ -1,10 +1,13 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.spyk
+import io.mockk.verify
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
 import java.util.UUID
-import kotlin.jvm.JvmInline
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,6 +32,17 @@ class ValueClassTest {
         assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
         verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
+    fun `field is ValueClass, returns ValueClass`() {
+        val mock = mockk<DummyService> {
+            every { valueClassField } returns dummyValueClassReturn
+        }
+
+        assertEquals(dummyValueClassReturn, mock.valueClassField)
+
+        verify { mock.valueClassField }
     }
 
     @Test
@@ -625,6 +639,7 @@ class ValueClassTest {
 
         @Suppress("UNUSED_PARAMETER")
         class DummyService {
+            val valueClassField = DummyValue(0)
 
             fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper =
                 DummyValueWrapper(DummyValue(0))
