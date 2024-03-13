@@ -378,6 +378,20 @@ fun coVerifySequence(
 }
 
 /**
+ * Verifies that calls and their count. Coroutine version
+ *
+ * @see verifyCount
+ * @see coVerify
+ * @see coVerifyOrder
+ * @see coVerifyAll
+ * @see coVerifySequence
+ *
+ */
+fun coVerifyCount(verifyBlock: MockKCallCountCoVerificationScope.() -> Unit) = MockK.useImpl {
+    MockKCallCountCoVerificationScope().verifyBlock()
+}
+
+/**
  * Exclude calls from recording
  *
  * @param current if current recorded calls should be filtered out
