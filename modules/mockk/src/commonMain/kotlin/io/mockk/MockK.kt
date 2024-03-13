@@ -331,6 +331,7 @@ fun verifyCount(verifyBlock: MockKCallCountVerificationScope.() -> Unit) = MockK
  * @see coVerify
  * @see coVerifyOrder
  * @see coVerifySequence
+ * @see coVerifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -349,6 +350,7 @@ fun coVerifyAll(
  * @see coVerify
  * @see coVerifyAll
  * @see coVerifySequence
+ * @see coVerifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -367,6 +369,7 @@ fun coVerifyOrder(
  * @see coVerify
  * @see coVerifyOrder
  * @see coVerifyAll
+ * @see coVerifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
