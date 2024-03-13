@@ -5,6 +5,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifyCount
 import io.mockk.verifyOrder
 import io.mockk.verifySequence
 import kotlin.test.Test
@@ -194,6 +195,17 @@ class VerifyAtLeastAtMostExactlyTest {
     }
 
     @Test
+    fun count() {
+        doCalls()
+
+        verifyCount {
+            1 * { mock.op(0) }
+            4 * { mock.op(1) }
+            0 * { mock.op(2) }
+        }
+    }
+
+    @Test
     fun atLeastNeverAtAll() {
         every { mock.op(0) } returns 1
 
@@ -225,7 +237,7 @@ class VerifyAtLeastAtMostExactlyTest {
         }
     }
 
-    fun doCalls() {
+    private fun doCalls() {
         every { mock.op(0) } throws RuntimeException("test")
         every { mock.op(1) } returnsMany listOf(1, 2, 3)
 
@@ -239,7 +251,7 @@ class VerifyAtLeastAtMostExactlyTest {
         assertEquals(3, mock.op(1))
     }
 
-    fun doCalls2() {
+    private fun doCalls2() {
         every { mock.op(0) } throws RuntimeException("test")
         every { mock.op(1) } returnsMany listOf(1, 2, 3) andThen 5
         every { mock.op2(2, 1) } returns 3
@@ -255,17 +267,14 @@ class VerifyAtLeastAtMostExactlyTest {
         assertEquals(3, mock.op2(2, 1))
     }
 
-    fun doCalls3() {
+    private fun doCalls3() {
         if (doCalls4()) {
-            mock.op2(3,4)
+            mock.op2(3, 4)
         }
     }
 
-    fun doCalls4(): Boolean {
-        if (mock.op(0) == 0 || mock.op(1) == 1) {
-            return true
-        }
-        return false
+    private fun doCalls4(): Boolean {
+        return mock.op(0) == 0 || mock.op(1) == 1
     }
 
     class MockCls {

@@ -5,6 +5,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import io.mockk.verifyCount
 import io.mockk.verifyOrder
 import io.mockk.verifySequence
 import kotlin.test.Test
@@ -14,7 +15,7 @@ class VerifyTest {
 
     val mock = mockk<MockCls>()
 
-    fun doCalls() {
+    private fun doCalls() {
         every { mock.op(5) } returns 1
         every { mock.op(6) } returns 2
         every { mock.op(7) } returns 3
@@ -154,6 +155,20 @@ class VerifyTest {
             mock.op(6)
             mock.op(5)
             mock.op(7)
+        }
+    }
+
+    @Test
+    fun verifyCount() {
+        doCalls()
+
+        verifyCount {
+            0 * { mock.op(4) } // not called
+            1 * { mock.op(5) } // called
+            (0..Int.MAX_VALUE) * { mock.op(6) } // called
+            (1..1) * { mock.op(7) } // called
+            (0..0) * { mock.op(8) } // not called
+            (0..1) * { mock.op(9) } // not called
         }
     }
 
