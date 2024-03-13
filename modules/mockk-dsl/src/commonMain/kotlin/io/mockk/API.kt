@@ -2183,6 +2183,27 @@ class MockKVerificationScope(
 }
 
 /**
+ * Part of DSL. Additional operations for call count verification scope.
+ */
+class MockKCallCountVerificationScope {
+    operator fun Int.times(verifyBlock: MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this, max = this, inverse = false, timeout = 0),
+            verifyBlock,
+            null
+        )
+    }
+
+    operator fun IntRange.times(verifyBlock: MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this.first, max = this.last, inverse = false, timeout = 0),
+            verifyBlock,
+            null
+        )
+    }
+}
+
+/**
  * Part of DSL. Object to represent phrase "wasNot Called"
  */
 object Called
