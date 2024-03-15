@@ -674,6 +674,26 @@ verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) } // means no
 confirmVerified(car)
 ```
 
+Or you can use `verifyCount`:
+
+```kotlin
+
+val car = mockk<Car>(relaxed = true)
+
+car.accelerate(fromSpeed = 10, toSpeed = 20)
+car.accelerate(fromSpeed = 10, toSpeed = 30)
+car.accelerate(fromSpeed = 20, toSpeed = 30)
+
+// all pass
+verifyCount { 
+    (3..5) * { car.accelerate(allAny(), allAny()) } // same as verify(atLeast = 3, atMost = 5) { car.accelerate(allAny(), allAny()) }
+    1 * { car.accelerate(fromSpeed = 10, toSpeed = 20) } // same as verify(exactly = 1) { car.accelerate(fromSpeed = 10, toSpeed = 20) }
+    0 * { car.accelerate(fromSpeed = 30, toSpeed = 10) } // same as verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) }
+}
+
+confirmVerified(car)
+```
+
 ### Verification order
 
 * `verifyAll` verifies that all calls happened without checking their order.
