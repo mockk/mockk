@@ -1,12 +1,23 @@
 package io.mockk.it
 
-import io.mockk.*
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.jupiter.api.Test
+import io.mockk.Called
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
+import io.mockk.clearMocks
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.excludeRecords
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyCount
+import io.mockk.verifyOrder
+import io.mockk.verifySequence
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Test
 
 class VerificationAcknowledgeTest {
     class MockCls {
@@ -15,7 +26,7 @@ class VerificationAcknowledgeTest {
 
     val mock = mockk<MockCls>()
 
-    fun doCalls1() {
+    private fun doCalls1() {
         every { mock.op(5) } returns 1
         every { mock.op(6) } returns 2
         every { mock.op(7) } returns 3
@@ -26,7 +37,7 @@ class VerificationAcknowledgeTest {
     }
 
 
-    fun doCalls2() {
+    private fun doCalls2() {
         every { mock.op(0) } throws RuntimeException("test")
         every { mock.op(1) } returnsMany listOf(1, 2, 3)
 
@@ -312,6 +323,33 @@ class VerificationAcknowledgeTest {
             mock.op(6)
             mock.op(5)
             mock.op(7)
+        }
+
+        assertFails {
+            confirmVerified(mock)
+        }
+    }
+
+    @Test
+    fun verifyCount() {
+        doCalls1()
+
+        verifyCount {
+            1 * { mock.op(6) }
+            1 * { mock.op(5) }
+            1 * { mock.op(7) }
+        }
+
+        confirmVerified(mock)
+    }
+
+    @Test
+    fun verifyCount2() {
+        doCalls1()
+
+        verifyCount {
+            1 * { mock.op(6) }
+            1 * { mock.op(5) }
         }
 
         assertFails {

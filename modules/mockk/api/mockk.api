@@ -38,6 +38,7 @@ public final class io/mockk/MockKKt {
 	public static synthetic fun coVerify$default (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public static final fun coVerifyAll (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun coVerifyAll$default (ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public static final fun coVerifyCount (Lkotlin/jvm/functions/Function1;)V
 	public static final fun coVerifyOrder (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun coVerifyOrder$default (ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public static final fun coVerifySequence (ZLkotlin/jvm/functions/Function2;)V
@@ -72,6 +73,7 @@ public final class io/mockk/MockKKt {
 	public static synthetic fun verify$default (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static final fun verifyAll (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun verifyAll$default (ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun verifyCount (Lkotlin/jvm/functions/Function1;)V
 	public static final fun verifyOrder (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun verifyOrder$default (ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static final fun verifySequence (ZLkotlin/jvm/functions/Function1;)V

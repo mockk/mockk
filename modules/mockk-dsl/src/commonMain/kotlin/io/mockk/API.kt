@@ -690,9 +690,10 @@ open class MockKMatcherScope(
     val lambda: CapturingSlot<Function<*>>
 ) {
 
-    fun <T: Any> match(matcher: Matcher<T>, kclass: KClass<T>): T {
+    fun <T : Any> match(matcher: Matcher<T>, kclass: KClass<T>): T {
         return callRecorder.matcher(matcher, kclass)
     }
+
     inline fun <reified T : Any> match(matcher: Matcher<T>): T {
         return callRecorder.matcher(matcher, T::class)
     }
@@ -720,6 +721,7 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
+
     /**
      * Matches if the value is not equal to the provided [value] via the `deepEquals` function.
      */
@@ -730,6 +732,7 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> refEq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, ref = true, inverse = inverse))
+
     /**
      * Matches if the value is not equal to the provided [value] via reference comparison.
      */
@@ -738,13 +741,15 @@ open class MockKMatcherScope(
     /**
      * Matches any argument given a [KClass]
      */
-    fun <T: Any> any(classifier: KClass<T>): T = match(ConstantMatcher(true), classifier)
+    fun <T : Any> any(classifier: KClass<T>): T = match(ConstantMatcher(true), classifier)
+
     /**
      * Matches any argument.
      */
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
 
     inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
+
     /**
      * Captures a non-nullable value to a [CapturingSlot].
      *
@@ -782,7 +787,8 @@ open class MockKMatcherScope(
      * network.download("testfile")
      * // slot.captured is now "testfile"
      */
-    inline fun <reified T : Any> captureNullable(lst: CapturingSlot<T?>): T? = match(CapturingNullableSlotMatcher(lst, T::class))
+    inline fun <reified T : Any> captureNullable(lst: CapturingSlot<T?>): T? =
+        match(CapturingNullableSlotMatcher(lst, T::class))
 
     /**
      * Captures a nullable value to a [MutableList].
@@ -797,12 +803,14 @@ open class MockKMatcherScope(
      * Matches if the value is equal to the provided [value] via the `compareTo` function.
      */
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class))
+
     /**
      * Matches if the value is more than the provided [value] via the `compareTo` function.
      * @param andEquals matches more than or equal to
      */
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class))
+
     /**
      * Matches if the value is less than the provided [value] via the `compareTo` function.
      * @param andEquals matches less than or equal to
@@ -824,10 +832,12 @@ open class MockKMatcherScope(
      * Combines two matchers via a logical and.
      */
     inline fun <reified T : Any> and(left: T, right: T): T = match(AndOrMatcher<T>(true, left, right))
+
     /**
      * Combines two matchers via a logical or.
      */
     inline fun <reified T : Any> or(left: T, right: T): T = match(AndOrMatcher<T>(false, left, right))
+
     /**
      * Negates the matcher.
      */
@@ -840,6 +850,7 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> isNull(inverse: Boolean = false): T = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T : Any, R : T> ofType(cls: KClass<R>): T = match(OfTypeMatcher<T>(cls))
+
     /**
      * Checks if the value belongs to the type.
      */
@@ -2183,6 +2194,48 @@ class MockKVerificationScope(
 }
 
 /**
+ * Part of DSL. Additional operations for call count verification scope.
+ */
+class MockKCallCountVerificationScope {
+    operator fun Int.times(verifyBlock: MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this, max = this, inverse = false, timeout = 0),
+            verifyBlock,
+            null
+        )
+    }
+
+    operator fun IntRange.times(verifyBlock: MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this.first, max = this.last, inverse = false, timeout = 0),
+            verifyBlock,
+            null
+        )
+    }
+}
+
+/**
+ * Part of DSL. Additional operations for coroutine call count verification scope.
+ */
+class MockKCallCountCoVerificationScope {
+    operator fun Int.times(verifyBlock: suspend MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this, max = this, inverse = false, timeout = 0),
+            null,
+            verifyBlock
+        )
+    }
+
+    operator fun IntRange.times(verifyBlock: suspend MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this.first, max = this.last, inverse = false, timeout = 0),
+            null,
+            verifyBlock
+        )
+    }
+}
+
+/**
  * Part of DSL. Object to represent phrase "wasNot Called"
  */
 object Called
@@ -2675,7 +2728,7 @@ class CapturingSlot<T : Any?> {
      * For init state (not yet captured) returns false.
      */
     val isNull
-        get() = when(val value = capturedValue) {
+        get() = when (val value = capturedValue) {
             is CapturedValue.Value -> value.value == null
             is CapturedValue.NotYetCaptured -> false
         }
