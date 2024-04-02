@@ -124,7 +124,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
             }
         } finally {
             // Clear all mocks after missed verifications or unnecessary stubs. Solves Issue #963.
-            if (!context.keepMocks || context.requireParallelTesting) {
+            if (!context.keepMocks && !context.requireParallelTesting) {
                 clearAllMocks()
             }
         }
