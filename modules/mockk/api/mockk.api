@@ -1,4 +1,6 @@
 public final class io/mockk/JVMMockKKt {
+	public static final fun clearStaticMockk ([Lkotlin/reflect/KFunction;)V
+	public static final fun clearStaticMockk ([Lkotlin/reflect/KProperty;)V
 	public static final fun getDeclaringKotlinFile (Lkotlin/reflect/KFunction;)Lkotlin/reflect/KClass;
 	public static final fun mockkStatic ([Lkotlin/reflect/KFunction;)V
 	public static final fun mockkStatic ([Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function0;)V
