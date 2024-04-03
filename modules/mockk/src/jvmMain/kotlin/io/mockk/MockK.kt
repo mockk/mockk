@@ -45,6 +45,18 @@ fun unmockkStatic(vararg functions: KProperty<*>) =
     unmockkStatic(*functions.map(KProperty<*>::getter).toTypedArray())
 
 /**
+ * Clear static mocks.
+ */
+fun clearStaticMockk(vararg functions: KFunction<*>) =
+    clearStaticMockk(*functions.map { it.declaringKotlinFile }.toTypedArray())
+
+/**
+ * Clear static mocks.
+ */
+fun clearStaticMockk(vararg functions: KProperty<*>) =
+    clearStaticMockk(*functions.map(KProperty<*>::getter).toTypedArray())
+
+/**
  * Builds a static mock and unmocks it after the block has been executed.
  */
 inline fun mockkStatic(vararg functions: KFunction<*>, block: () -> Unit) =

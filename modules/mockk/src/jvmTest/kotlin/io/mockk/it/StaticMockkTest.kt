@@ -1,5 +1,6 @@
 package io.mockk.it
 
+import io.mockk.clearStaticMockk
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
@@ -74,6 +75,19 @@ class StaticMockkTest {
     }
 
     @Test
+    fun extensionFunctionClearStaticMock() {
+        mockkStatic(Int::op)
+
+        every { 5 op 6 } returns 2
+
+        assertEquals(2, 5 op 6)
+
+        clearStaticMockk(Int::op)
+
+        verify(exactly = 0) { 5 op 6 }
+    }
+
+    @Test
     fun extensionPropertyStaticMock() {
         mockkStatic(Int::selfOp)
 
@@ -105,5 +119,18 @@ class StaticMockkTest {
         assertEquals(3, 5.selfOp)
 
         verify { 5.selfOp }
+    }
+
+    @Test
+    fun extensionPropertyClearStaticMock() {
+        mockkStatic(Int::selfOp)
+
+        every { 5.selfOp } returns 2
+
+        assertEquals(2, 5.selfOp)
+
+        clearStaticMockk(Int::selfOp)
+
+        verify(exactly = 0) { 5.selfOp }
     }
 }
