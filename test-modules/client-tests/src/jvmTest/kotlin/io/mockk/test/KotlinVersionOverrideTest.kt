@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 class KotlinVersionOverrideTest {
 
-    @Test @kotlin.test.Ignore("2.0.0-Beta5 is reported as 2.0.0")
+    @Test @kotlin.test.Ignore("2.0.0-RC1 is reported as 2.0.0")
     fun `ensure Kotlin version is correctly handled`() = assertEquals(
         expected = System.getenv("kotlin.version").orEmpty(),
         actual = KotlinVersion.CURRENT.toString(),
