@@ -624,7 +624,7 @@ class ValueClassTest {
     }
 
     @Test
-    fun `spy class returning value class not boxed due to suspend function`() {
+    fun `spy class returning value class boxed due to suspend function`() {
         val f = spyk<DummyService>()
         val result = runBlocking { f.returnValueClassSuspendNotInlined() }
 
@@ -632,12 +632,29 @@ class ValueClassTest {
     }
 
     @Test
-    fun `mock class returning value class not boxed due to suspend function`() {
+    fun `mock class returning value class boxed due to suspend function`() {
         val f = mockk<DummyService>()
         coEvery { f.returnValueClassSuspendNotInlined() } returns DummyValue(3)
         val result = runBlocking { f.returnValueClassSuspendNotInlined() }
 
         assertEquals(DummyValue(3), result)
+    }
+
+    @Test
+    fun `spy class returning complex value class not boxed due to suspend function`() {
+        val f = spyk<DummyService>()
+        val result = runBlocking { f.returnComplexValueClassSuspendInlined() }
+
+        assertEquals(ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3")), result)
+    }
+
+    @Test
+    fun `mock class returning complex value class not boxed due to suspend function`() {
+        val f = mockk<DummyService>()
+        coEvery { f.returnComplexValueClassSuspendInlined() } returns ComplexValue(UUID.fromString("bca61f8d-ba4d-475f-8dc6-08b943836998"))
+        val result = runBlocking { f.returnComplexValueClassSuspendInlined() }
+
+        assertEquals(ComplexValue(UUID.fromString("bca61f8d-ba4d-475f-8dc6-08b943836998")), result)
     }
 
     companion object {
@@ -683,6 +700,10 @@ class ValueClassTest {
 
             @Suppress("RedundantSuspendModifier")
             suspend fun returnValueClassSuspendNotInlined(): DummyValue = DummyValue(0)
+
+            @Suppress("RedundantSuspendModifier")
+            suspend fun returnComplexValueClassSuspendInlined(): ComplexValue =
+                ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
 
             fun argNoneReturnsUInt(): UInt = 123u
         }
