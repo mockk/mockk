@@ -1,10 +1,12 @@
 package io.mockk.it
 
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
 import java.util.UUID
@@ -621,6 +623,23 @@ class ValueClassTest {
         assertEquals(DummyValue(3), result)
     }
 
+    @Test
+    fun `spy class returning value class not boxed due to suspend function`() {
+        val f = spyk<DummyService>()
+        val result = runBlocking { f.returnValueClassSuspendNotInlined() }
+
+        assertEquals(DummyValue(0), result)
+    }
+
+    @Test
+    fun `mock class returning value class not boxed due to suspend function`() {
+        val f = mockk<DummyService>()
+        coEvery { f.returnValueClassSuspendNotInlined() } returns DummyValue(3)
+        val result = runBlocking { f.returnValueClassSuspendNotInlined() }
+
+        assertEquals(DummyValue(3), result)
+    }
+
     companion object {
 
         @JvmInline
@@ -661,6 +680,9 @@ class ValueClassTest {
 
             // Note the value class is not inlined in this case due to being cast to another type
             fun returnValueClassNotInlined(): Any = DummyValue(0)
+
+            @Suppress("RedundantSuspendModifier")
+            suspend fun returnValueClassSuspendNotInlined(): DummyValue = DummyValue(0)
 
             fun argNoneReturnsUInt(): UInt = 123u
         }
