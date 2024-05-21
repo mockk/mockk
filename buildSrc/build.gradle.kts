@@ -3,7 +3,7 @@ plugins {
 }
 
 // set the versions of Gradle plugins that the subprojects will use here
-val kotlinPluginVersion: String = "2.0.0-RC3"
+val kotlinPluginVersion: String = "2.0.0"
 
 val androidGradle = "8.1.1"
 val kotlinxKover = "0.7.3"
