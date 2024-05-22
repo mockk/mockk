@@ -1,9 +1,15 @@
 package io.mockk.it
 
-import io.mockk.*
-import kotlinx.coroutines.coroutineScope
+import io.mockk.InternalPlatformDsl
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.coVerifyCount
+import io.mockk.coVerifyOrder
+import io.mockk.coVerifySequence
+import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.coroutineScope
 
 class CoVerifyTest {
     class MockCls {
@@ -12,7 +18,7 @@ class CoVerifyTest {
 
     val mock = mockk<MockCls>()
 
-    fun doCalls() {
+    private fun doCalls() {
         coEvery { mock.op(5) } returns 1
         coEvery { mock.op(6) } returns 2
         coEvery { mock.op(7) } returns 3
@@ -154,6 +160,20 @@ class CoVerifyTest {
             mock.op(6)
             mock.op(5)
             mock.op(7)
+        }
+    }
+
+    @Test
+    fun verifyCount() {
+        doCalls()
+
+        coVerifyCount {
+            0 * { mock.op(4) } // not called
+            1 * { mock.op(5) } // called
+            (0..Int.MAX_VALUE) * { mock.op(6) } // called
+            (1..1) * { mock.op(7) } // called
+            (0..0) * { mock.op(8) } // not called
+            (0..1) * { mock.op(9) } // not called
         }
     }
 }

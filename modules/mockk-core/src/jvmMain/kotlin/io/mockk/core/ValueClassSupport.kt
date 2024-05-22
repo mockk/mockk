@@ -1,14 +1,60 @@
 package io.mockk.core
 
+import java.lang.reflect.Method
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
-import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
-
+import kotlin.reflect.jvm.javaGetter
+import kotlin.reflect.jvm.kotlinFunction
 
 actual object ValueClassSupport {
+
+    /**
+     * Unboxes the underlying property value of a **`value class`** or self, as long the unboxed value is appropriate
+     * for the given method's return type.
+     *
+     * @see boxedValue
+     */
+    actual fun <T : Any> T.maybeUnboxValueForMethodReturn(method: Method): Any? {
+        val resultType = this::class
+        if (!resultType.isValue_safe) {
+            return this
+        }
+        val kFunction = method.kotlinFunction
+        if (kFunction != null) {
+            // Only unbox a value class if the method's return type is actually the type of the inlined property.
+            // For example, in a normal case where a value class `Foo` with underlying `Int` property is inlined:
+            //   method.returnType == int (the actual representation of inlined property on JVM)
+            //   method.kotlinFunction.returnType.classifier == Foo
+            val expectedReturnType = kFunction.returnType.classifier
+            return if (resultType == expectedReturnType) {
+                this.boxedValue
+            } else {
+                this
+            }
+        }
+        // It is possible that the method is a getter for a property, in which case we can check the property's return
+        // type in kotlin.
+        val kProperty = findMatchingPropertyWithJavaGetter(method)
+        if (kProperty == null) {
+            return this
+        } else {
+            val expectedReturnType = kProperty.returnType.classifier
+            return if (resultType == expectedReturnType) {
+                this.boxedValue
+            } else {
+                this
+            }
+        }
+    }
+
+    private fun findMatchingPropertyWithJavaGetter(method: Method): KProperty<*>? {
+        return method.declaringClass.kotlin.declaredMemberProperties.find { it.javaGetter == method }
+    }
 
     /**
      * Underlying property value of a **`value class`** or self.
@@ -20,7 +66,7 @@ actual object ValueClassSupport {
         get() = if (!this::class.isValue_safe) {
             this
         } else {
-            (this::class as KClass<T>).boxedProperty.get(this)
+            (this::class as KClass<T>).boxedProperty.get(this)?.boxedValue
         }
 
     /**
@@ -68,5 +114,4 @@ actual object ValueClassSupport {
         } catch (_: AbstractMethodError) {
             false
         }
-
 }

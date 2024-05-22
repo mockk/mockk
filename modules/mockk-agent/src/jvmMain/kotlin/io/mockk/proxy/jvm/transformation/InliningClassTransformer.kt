@@ -108,6 +108,7 @@ internal class InliningClassTransformer(
                 isMethod<MethodDescription>()
                     .and(not<OfByteCodeElement>(isStatic<OfByteCodeElement>()))
                     .and(not<MethodDescription>(isDefaultFinalizer<MethodDescription>()))
+                    .and(not<MethodDescription>(this::matchValueClassGetValueMethod))
             )
 
     @Suppress("RemoveExplicitTypeArguments")
@@ -124,6 +125,15 @@ internal class InliningClassTransformer(
 
     private fun matchRestrictedMethods(desc: MethodDescription) =
         desc.declaringType.typeName + "." + desc.name in restrictedMethods
+
+    private fun matchValueClassGetValueMethod(desc: MethodDescription): Boolean {
+        return isFinal<MethodDescription>()
+            .and(isDeclaredBy(isAnnotatedWith(JvmInline::class.java)))
+            .and(named("getValue"))
+            .and(isPublic())
+            .and(takesNoArguments())
+            .matches(desc)
+    }
 
     @Suppress("RemoveExplicitTypeArguments")
     private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods {

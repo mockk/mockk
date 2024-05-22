@@ -6,6 +6,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.verifyCount
 import io.mockk.verifyOrder
 import io.mockk.verifySequence
 import kotlin.test.Test
@@ -73,6 +74,24 @@ class CaptureSubclassVerificationTest {
         verifySequence {
             service.method(any())
             service.method(capture(slot))
+        }
+        assertTrue(slot.isCaptured)
+        assertIs<Subclass2>(slot.captured)
+    }
+
+    @Test
+    fun `test count`() {
+        val service = mockk<Service> {
+            every { method(any()) } just Runs
+        }
+
+        service.method(Subclass1())
+        service.method(Subclass2())
+
+        val slot = slot<Subclass2>()
+        verifyCount {
+            2 * { service.method(any()) }
+            1 * { service.method(capture(slot)) }
         }
         assertTrue(slot.isCaptured)
         assertIs<Subclass2>(slot.captured)

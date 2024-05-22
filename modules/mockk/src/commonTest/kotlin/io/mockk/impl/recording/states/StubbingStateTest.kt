@@ -25,9 +25,7 @@ class StubbingStateTest {
             state.recordingDone()
         }
 
-        verify {
-            recorder.factories.stubbingAwaitingAnswerState wasNot Called
-        }
+        verify(exactly = 0) { recorder.factories.stubbingAwaitingAnswerState(any()) }
     }
 
     @Test

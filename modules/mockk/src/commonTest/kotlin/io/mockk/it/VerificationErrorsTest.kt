@@ -135,7 +135,7 @@ class VerificationErrorsTest {
     }
 
     @Test
-    fun callsNotMatchinVerificationSequence() {
+    fun callsNotMatchingVerificationSequence() {
         expectVerificationError("calls are not exactly matching verification sequence", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 

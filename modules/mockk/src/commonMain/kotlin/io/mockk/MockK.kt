@@ -261,6 +261,7 @@ fun coVerify(
  * @see verify
  * @see verifyOrder
  * @see verifySequence
+ * @see verifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -278,6 +279,7 @@ fun verifyAll(
  * @see verify
  * @see verifyAll
  * @see verifySequence
+ * @see verifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -295,6 +297,7 @@ fun verifyOrder(
  * @see verify
  * @see verifyOrder
  * @see verifyAll
+ * @see verifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -306,6 +309,20 @@ fun verifySequence(
 }
 
 /**
+ * Verifies that calls and their count
+ *
+ * @see coVerifyCount Coroutine version
+ * @see verify
+ * @see verifyOrder
+ * @see verifyAll
+ * @see verifySequence
+ *
+ */
+fun verifyCount(verifyBlock: MockKCallCountVerificationScope.() -> Unit) = MockK.useImpl {
+    MockKCallCountVerificationScope().verifyBlock()
+}
+
+/**
  * Verifies that all calls inside [verifyBlock] happened. **Does not** verify any order. Coroutine version
  *
  * If ordering is important, use [coVerifyOrder]
@@ -314,6 +331,7 @@ fun verifySequence(
  * @see coVerify
  * @see coVerifyOrder
  * @see coVerifySequence
+ * @see coVerifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -332,6 +350,7 @@ fun coVerifyAll(
  * @see coVerify
  * @see coVerifyAll
  * @see coVerifySequence
+ * @see coVerifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -350,6 +369,7 @@ fun coVerifyOrder(
  * @see coVerify
  * @see coVerifyOrder
  * @see coVerifyAll
+ * @see coVerifyCount
  *
  * @param inverse when true, the verification will check that the behaviour specified did **not** happen
  */
@@ -358,6 +378,20 @@ fun coVerifySequence(
     verifyBlock: suspend MockKVerificationScope.() -> Unit
 ) = MockK.useImpl {
     MockKDsl.internalCoVerifySequence(inverse, verifyBlock)
+}
+
+/**
+ * Verifies that calls and their count. Coroutine version
+ *
+ * @see verifyCount
+ * @see coVerify
+ * @see coVerifyOrder
+ * @see coVerifyAll
+ * @see coVerifySequence
+ *
+ */
+fun coVerifyCount(verifyBlock: MockKCallCountCoVerificationScope.() -> Unit) = MockK.useImpl {
+    MockKCallCountCoVerificationScope().verifyBlock()
 }
 
 /**

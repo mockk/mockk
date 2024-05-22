@@ -531,6 +531,18 @@ public final class io/mockk/MockKAssertScope {
 	public final fun getActual ()Ljava/lang/Object;
 }
 
+public final class io/mockk/MockKCallCountCoVerificationScope {
+	public fun <init> ()V
+	public final fun times (ILkotlin/jvm/functions/Function2;)V
+	public final fun times (Lkotlin/ranges/IntRange;Lkotlin/jvm/functions/Function2;)V
+}
+
+public final class io/mockk/MockKCallCountVerificationScope {
+	public fun <init> ()V
+	public final fun times (ILkotlin/jvm/functions/Function1;)V
+	public final fun times (Lkotlin/ranges/IntRange;Lkotlin/jvm/functions/Function1;)V
+}
+
 public final class io/mockk/MockKCancellationRegistry {
 	public static final field INSTANCE Lio/mockk/MockKCancellationRegistry;
 	public final fun cancelAll ()V

@@ -41,10 +41,10 @@ jobs:
           -Pio_mockk_java_toolchain_test_version=${{ matrix.java-version }}
 
   android-instrumented-tests:
-    runs-on: macos-latest
+    runs-on: macos-12
     strategy:
       matrix:
-        api-level: [ 29 ] # Relevant SDK versions to test for MockK Android projects
+        api-level: [ 30 ] # Relevant SDK versions to test for MockK Android projects
       fail-fast: false # in case one API-level fails, we still want to see results from others
     name: "[api-level=${{ matrix.api-level }}]"
     timeout-minutes: 30
@@ -59,6 +59,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
+      - name: Set AVD Architecture Based on API Level
+        run: echo "ARCH=$(if [ ${{ matrix.api-level }} -eq 27 ]; then echo 'x86'; else echo 'x86_64'; fi)" >> $GITHUB_ENV
+
       - name: AVD cache
         uses: actions/cache@v3
         id: avd-cache
@@ -72,14 +75,18 @@ jobs:
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
+          arch: ${{ env.ARCH }}
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
           script: echo "Generated AVD snapshot for caching."
+          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
 
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
+          arch: ${{ env.ARCH }}
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
+          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160

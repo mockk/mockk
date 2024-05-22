@@ -2,5 +2,6 @@ public final class io/mockk/core/ValueClassSupport {
 	public static final field INSTANCE Lio/mockk/core/ValueClassSupport;
 	public final fun getBoxedClass (Lkotlin/reflect/KClass;)Lkotlin/reflect/KClass;
 	public final fun getBoxedValue (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun maybeUnboxValueForMethodReturn (Ljava/lang/Object;Ljava/lang/reflect/Method;)Ljava/lang/Object;
 }
 

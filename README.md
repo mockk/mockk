@@ -258,10 +258,14 @@ fun calculateAddsValues1(@MockK car1: Car, @RelaxedMockK car2: Car) {
 }
 ```
 
-Finally, this extension will call `unmockkAll` in a `@AfterAll` callback, ensuring your test environment is clean after
+Finally, this extension will call `unmockkAll` and `clearAllMocks` in a `@AfterAll` callback, ensuring your test environment is clean after
 each test class execution.
 You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting 
-the `mockk.junit.extension.keepmocks=true` property
+the `mockk.junit.extension.keepmocks=true` property.
+(Since v1.13.11)
+Alternatively, since `clearAllMocks` is not thread-safe, if you need to run test in parallel you can add the 
+`MockKExtension.RequireParallelTesting` annotation to your class or set the `mockk.junit.extension.requireParallelTesting=true`
+property to disable calling it in the `@AfterAll` callback.
 
 #### Automatic verification confirmation
 
@@ -666,6 +670,26 @@ verify(atLeast = 3) { car.accelerate(allAny()) }
 verify(atMost  = 2) { car.accelerate(fromSpeed = 10, toSpeed = or(20, 30)) }
 verify(exactly = 1) { car.accelerate(fromSpeed = 10, toSpeed = 20) }
 verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) } // means no calls were performed
+
+confirmVerified(car)
+```
+
+Or you can use `verifyCount`:
+
+```kotlin
+
+val car = mockk<Car>(relaxed = true)
+
+car.accelerate(fromSpeed = 10, toSpeed = 20)
+car.accelerate(fromSpeed = 10, toSpeed = 30)
+car.accelerate(fromSpeed = 20, toSpeed = 30)
+
+// all pass
+verifyCount { 
+    (3..5) * { car.accelerate(allAny(), allAny()) } // same as verify(atLeast = 3, atMost = 5) { car.accelerate(allAny(), allAny()) }
+    1 * { car.accelerate(fromSpeed = 10, toSpeed = 20) } // same as verify(exactly = 1) { car.accelerate(fromSpeed = 10, toSpeed = 20) }
+    0 * { car.accelerate(fromSpeed = 30, toSpeed = 10) } // same as verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) }
+}
 
 confirmVerified(car)
 ```

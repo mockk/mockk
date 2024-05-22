@@ -36,8 +36,13 @@ idea {
 dependencies {
     kover(projects.modules.mockk)
     kover(projects.modules.mockkAgent)
-    kover(projects.modules.mockkAndroid)
-    kover(projects.modules.mockkAgentAndroid)
+    // if the android SDK is not available trying to resolve the module names will fail
+    listOf("android", "agent-android").forEach { module ->
+        rootProject.subprojects.find { it.name == "mockk-$module" }?.let {
+            kover(it)
+        }
+    }
+
     kover(projects.testModules.loggerTests)
     kover(projects.testModules.clientTests)
     kover(projects.testModules.performanceTests)
