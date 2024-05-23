@@ -31,7 +31,8 @@ actual object ValueClassSupport {
             //   method.returnType == int (the actual representation of inlined property on JVM)
             //   method.kotlinFunction.returnType.classifier == Foo
             val expectedReturnType = kFunction.returnType.classifier
-            return if (resultType == expectedReturnType) {
+            val isPrimitive = resultType.boxedClass.java.isPrimitive
+            return if (!(kFunction.isSuspend && isPrimitive) && resultType == expectedReturnType) {
                 this.boxedValue
             } else {
                 this
