@@ -9,20 +9,18 @@ import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.StubRepository
 
 object VerificationHelpers {
-    fun formatCalls(calls: List<Invocation>, verifiedCalls: List<Invocation> = listOf()): String {
-        return calls.mapIndexed { idx, call ->
+    fun formatCalls(calls: List<Invocation>, verifiedCalls: List<Invocation> = listOf()): String =
+        calls.mapIndexed { idx, call ->
             val plusSign = (if (verifiedCalls.contains(call)) "+" else "")
 
             "${idx + 1}) $plusSign$call"
         }.joinToString("\n")
-    }
 
-    fun stackTraces(calls: List<Invocation>): String {
-        return calls.mapIndexed { idx, call ->
+    fun stackTraces(calls: List<Invocation>): String =
+        calls.mapIndexed { idx, call ->
             val prefix = "${idx + 1})"
             "$prefix ${stackTrace(prefix.length + 1, call.callStack())}"
         }.joinToString("\n\n")
-    }
 
     fun stackTrace(prefix: Int, stackTrace: List<StackElement>): String {
         @Suppress("DEPRECATION_ERROR")
@@ -74,16 +72,15 @@ object VerificationHelpers {
         matchers: List<RecordedCall>,
         allCalls: List<Invocation>,
         lcs: LCSMatchingAlgo = LCSMatchingAlgo(allCalls, matchers).apply { lcs() }
-    ): String {
-        return "\n\nMatchers: \n" + formatMatchers(matchers, lcs.verifiedMatchers) +
-                "\n\nCalls:\n" +
-                formatCalls(allCalls, lcs.verifiedCalls) +
-                "\n" +
-                if (MockKSettings.stackTracesOnVerify)
-                    "\nStack traces:\n" + stackTraces(allCalls)
-                else
-                    ""
-    }
+    ): String =
+        "\n\nMatchers: \n" + formatMatchers(matchers, lcs.verifiedMatchers) +
+        "\n\nCalls:\n" +
+        formatCalls(allCalls, lcs.verifiedCalls) +
+        "\n" +
+        if (MockKSettings.stackTracesOnVerify)
+            "\nStack traces:\n" + stackTraces(allCalls)
+        else
+            ""
 
     private fun formatMatchers(matchers: List<RecordedCall>, verifiedMatchers: List<RecordedCall>) =
         matchers.joinToString("\n") {
