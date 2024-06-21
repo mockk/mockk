@@ -155,7 +155,8 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
             .orElse(false)
 
     private val ExtensionContext.requireParallelTesting: Boolean
-        get() = getConfigurationParameter(REQUIRE_PARALLEL_TESTING).map { it.toBoolean() }.orElse(false)
+        get() = testClass.requireParallelTesting ||
+                getConfigurationParameter(REQUIRE_PARALLEL_TESTING).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.requireParallelTesting
         get() = map { it.getAnnotation(RequireParallelTesting::class.java) != null }
