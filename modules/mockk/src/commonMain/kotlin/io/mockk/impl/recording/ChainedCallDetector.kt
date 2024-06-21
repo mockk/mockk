@@ -155,12 +155,11 @@ class ChainedCallDetector(safeToString: SafeToString) {
     }
 
     companion object {
-        fun eqOrNullMatcher(arg: Any?): Matcher<Any> {
-            return if (arg == null) {
+        fun eqOrNullMatcher(arg: Any?): Matcher<Any> =
+            if (arg == null) {
                 NullCheckMatcher(false)
             } else {
                 EqMatcher(arg)
             }
-        }
     }
 }
