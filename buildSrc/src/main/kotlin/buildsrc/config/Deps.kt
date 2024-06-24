@@ -16,8 +16,14 @@ object Deps {
         const val coroutines = "1.6.4"
         const val slfj = "2.0.5"
         const val logback = "1.4.5"
-        const val junitJupiter = "5.8.2"
+        const val junitJupiter = "5.10.2"
         const val junit4 = "4.13.2"
+        const val assertj = "3.25.3"
+
+        const val kotlinReflect = "1.7.21"
+
+        const val springBoot = "3.2.2"
+        const val spring = "6.1.3"
 
         const val byteBuddy = "1.14.6"
         const val objenesis = "3.3"
@@ -40,6 +46,14 @@ object Deps {
 
         const val junit4 = "junit:junit:${Versions.junit4}"
         const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"
+        const val junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junitJupiter}"
+        const val assertj = "org.assertj:assertj-core:${Versions.assertj}"
+
+        const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlinReflect}"
+
+        const val springBootTest = "org.springframework.boot:spring-boot-test:${Versions.springBoot}"
+        const val springTest = "org.springframework:spring-test:${Versions.spring}"
+        const val springContext = "org.springframework:spring-context:${Versions.spring}"
 
         const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
