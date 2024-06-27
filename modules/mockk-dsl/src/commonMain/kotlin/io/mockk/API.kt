@@ -2292,6 +2292,9 @@ class MockKStubScope<T, B>(
         return MockKAdditionalAnswerScope(answerOpportunity, callRecorder, lambda)
     }
 
+    infix fun repeatedly(times: Int): MockKRepeatedAnswerScope<T, B> =
+        MockKRepeatedAnswerScope(answerOpportunity, callRecorder, lambda, times)
+
     infix fun returns(returnValue: T) = answers(ConstantAnswer(returnValue))
 
     infix fun returnsMany(values: List<T>) = answers(ManyAnswersAnswer(values.allConst()))
@@ -2382,6 +2385,45 @@ infix fun MockKAdditionalAnswerScope<Unit, Unit>.andThenJust(runs: Runs) = andTh
  */
 @Suppress("UNUSED_PARAMETER")
 infix fun <T, B> MockKAdditionalAnswerScope<T, B>.andThenJust(awaits: Awaits) = coAndThen { awaitCancellation() }
+
+/**
+ * Scope to repeat an answer to reply. Part of DSL
+ */
+class MockKRepeatedAnswerScope<T, B>(
+    private val answerOpportunity: AnswerOpportunity<T>,
+    private val callRecorder: CallRecorder,
+    private val lambda: CapturingSlot<Function<*>>,
+    private val times: Int,
+) {
+    infix fun answers(answer: Answer<T>): MockKAdditionalAnswerScope<T, B> {
+        repeat(times) {
+            answerOpportunity.provideAnswer(answer)
+        }
+        return MockKAdditionalAnswerScope(answerOpportunity, callRecorder, lambda)
+    }
+
+    infix fun answers(answer: MockKAnswerScope<T, B>.(Call) -> T): MockKAdditionalAnswerScope<T, B> =
+        answers(FunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
+
+    infix fun returns(returnValue: T) = answers(ConstantAnswer(returnValue))
+
+    infix fun throws(ex: Throwable) = answers(ThrowingAnswer(ex))
+
+    infix fun coAnswers(answer: suspend MockKAnswerScope<T, B>.(Call) -> T) =
+        answers(CoFunctionAnswer { MockKAnswerScope<T, B>(lambda, it).answer(it) })
+}
+
+/**
+ * Part of DSL. Answer placeholder for Unit returning functions.
+ */
+@Suppress("UNUSED_PARAMETER")
+infix fun MockKRepeatedAnswerScope<Unit, Unit>.just(runs: Runs) = answers(ConstantAnswer(Unit))
+
+/**
+ * Part of DSL. Answer placeholder for never returning suspend functions.
+ */
+@Suppress("UNUSED_PARAMETER")
+infix fun <T, B> MockKRepeatedAnswerScope<T, B>.just(awaits: Awaits) = coAnswers { awaitCancellation() }
 
 internal fun <T> List<T>.allConst() = this.map { ConstantAnswer(it) }
 
