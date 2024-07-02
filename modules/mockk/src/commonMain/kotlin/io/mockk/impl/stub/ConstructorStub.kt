@@ -24,6 +24,9 @@ class ConstructorStub(
     override val type: KClass<*>
         get() = stub.type
 
+    override val threadId: Long
+        get() = stub.threadId
+
     override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) =
         stub.addAnswer(matcher.substitute(represent), answer)
 

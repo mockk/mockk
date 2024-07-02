@@ -695,7 +695,8 @@ inline fun clearAllMocks(
     regularMocks: Boolean = true,
     objectMocks: Boolean = true,
     staticMocks: Boolean = true,
-    constructorMocks: Boolean = true
+    constructorMocks: Boolean = true,
+    currentThreadOnly: Boolean = false
 ) = MockK.useImpl {
     MockKDsl.internalClearAllMocks(
         answers,
@@ -704,7 +705,8 @@ inline fun clearAllMocks(
         regularMocks,
         objectMocks,
         staticMocks,
-        constructorMocks
+        constructorMocks,
+        currentThreadOnly
     )
 }
 

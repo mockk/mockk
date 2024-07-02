@@ -10,6 +10,8 @@ interface Stub : Disposable {
 
     val type: KClass<*>
 
+    val threadId: Long
+
     fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
 
     fun answer(invocation: Invocation): Any?

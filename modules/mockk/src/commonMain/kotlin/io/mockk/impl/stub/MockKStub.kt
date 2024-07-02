@@ -17,6 +17,8 @@ open class MockKStub(
 ) : Stub {
     val log = gatewayAccess.safeToString(Logger<MockKStub>())
 
+    override val threadId: Long = Thread.currentThread().id
+
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
     private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()

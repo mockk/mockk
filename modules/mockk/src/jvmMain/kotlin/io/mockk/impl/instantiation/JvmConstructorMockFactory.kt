@@ -272,8 +272,8 @@ class JvmConstructorMockFactory(
         getMockVariant(type)?.clear(options)
     }
 
-    override fun clearAll(options: MockKGateway.ClearOptions) {
-        clearer.clearAll(options)
+    override fun clearAll(options: MockKGateway.ClearOptions, currentThreadOnly: Boolean) {
+        clearer.clearAll(options, currentThreadOnly)
     }
 
     fun isMock(cls: KClass<*>) = synchronized(handlers) {

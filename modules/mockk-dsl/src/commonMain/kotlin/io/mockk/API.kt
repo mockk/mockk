@@ -593,7 +593,8 @@ object MockKDsl {
         staticMocks: Boolean = true,
         constructorMocks: Boolean = true,
         verificationMarks: Boolean = true,
-        exclusionRules: Boolean = true
+        exclusionRules: Boolean = true,
+        currentThreadOnly: Boolean = false
     ) {
         val options = MockKGateway.ClearOptions(
             answers,
@@ -605,16 +606,16 @@ object MockKDsl {
         val implementation = MockKGateway.implementation()
 
         if (regularMocks) {
-            implementation.clearer.clearAll(options)
+            implementation.clearer.clearAll(options, currentThreadOnly)
         }
         if (objectMocks) {
-            implementation.objectMockFactory.clearAll(options)
+            implementation.objectMockFactory.clearAll(options, currentThreadOnly)
         }
         if (staticMocks) {
-            implementation.staticMockFactory.clearAll(options)
+            implementation.staticMockFactory.clearAll(options, currentThreadOnly)
         }
         if (constructorMocks) {
-            implementation.constructorMockFactory.clearAll(options)
+            implementation.constructorMockFactory.clearAll(options, currentThreadOnly)
         }
     }
 
