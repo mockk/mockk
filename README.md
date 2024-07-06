@@ -263,9 +263,10 @@ each test class execution.
 You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting 
 the `mockk.junit.extension.keepmocks=true` property.
 (Since v1.13.11)
-Alternatively, since `clearAllMocks` is not thread-safe, if you need to run test in parallel you can add the 
+Alternatively, since `clearAllMocks` by default (`currentThreadOnly=false`) is not thread-safe, if you need to run test in parallel you can add the 
 `MockKExtension.RequireParallelTesting` annotation to your class or set the `mockk.junit.extension.requireParallelTesting=true`
 property to disable calling it in the `@AfterAll` callback.
+If `clearAllMocks` is explicitly called, you can supply `clearAllMocks(currentThreadOnly = true)` so that it only clears mocks created within the same thread (since v1.13.12).
 
 #### Automatic verification confirmation
 
