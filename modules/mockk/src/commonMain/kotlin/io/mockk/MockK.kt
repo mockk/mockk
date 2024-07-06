@@ -706,7 +706,7 @@ inline fun clearAllMocks(
         objectMocks,
         staticMocks,
         constructorMocks,
-        currentThreadOnly
+        currentThreadOnly=currentThreadOnly
     )
 }
 
