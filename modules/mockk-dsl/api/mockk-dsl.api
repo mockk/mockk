@@ -578,8 +578,8 @@ public final class io/mockk/MockKDsl {
 	public static final field INSTANCE Lio/mockk/MockKDsl;
 	public final fun internalCheckExactlyAtMostAtLeast (IIILio/mockk/Ordering;)V
 	public final fun internalCheckUnnecessaryStub ([Ljava/lang/Object;)V
-	public final fun internalClearAllMocks (ZZZZZZZZZ)V
-	public static synthetic fun internalClearAllMocks$default (Lio/mockk/MockKDsl;ZZZZZZZZZILjava/lang/Object;)V
+	public final fun internalClearAllMocks (ZZZZZZZZZZ)V
+	public static synthetic fun internalClearAllMocks$default (Lio/mockk/MockKDsl;ZZZZZZZZZZILjava/lang/Object;)V
 	public final fun internalClearConstructorMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
 	public static synthetic fun internalClearConstructorMockk$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZZZZILjava/lang/Object;)V
 	public final fun internalClearMocks (Ljava/lang/Object;[Ljava/lang/Object;ZZZZZ)V
@@ -709,7 +709,7 @@ public final class io/mockk/MockKGateway$ClearOptions {
 
 public abstract interface class io/mockk/MockKGateway$Clearer {
 	public abstract fun clear ([Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 }
 
 public final class io/mockk/MockKGateway$Companion {
@@ -720,7 +720,7 @@ public final class io/mockk/MockKGateway$Companion {
 
 public abstract interface class io/mockk/MockKGateway$ConstructorMockFactory {
 	public abstract fun clear (Lkotlin/reflect/KClass;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 	public abstract fun constructorMockk (Lkotlin/reflect/KClass;ZZ)Lkotlin/jvm/functions/Function0;
 	public abstract fun mockPlaceholder (Lkotlin/reflect/KClass;[Lio/mockk/Matcher;)Ljava/lang/Object;
 }
@@ -774,13 +774,13 @@ public abstract interface class io/mockk/MockKGateway$MockTypeChecker {
 
 public abstract interface class io/mockk/MockKGateway$ObjectMockFactory {
 	public abstract fun clear (Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 	public abstract fun objectMockk (Ljava/lang/Object;Z)Lkotlin/jvm/functions/Function0;
 }
 
 public abstract interface class io/mockk/MockKGateway$StaticMockFactory {
 	public abstract fun clear (Lkotlin/reflect/KClass;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 	public abstract fun staticMockk (Lkotlin/reflect/KClass;)Lkotlin/jvm/functions/Function0;
 }
 

@@ -18,8 +18,12 @@ class CommonClearer(
         }
     }
 
-    override fun clearAll(options: MockKGateway.ClearOptions) {
+    override fun clearAll(options: MockKGateway.ClearOptions, currentThreadOnly: Boolean) {
+        val currentThreadId = Thread.currentThread().id
         stubRepository.allStubs.forEach {
+            if (currentThreadOnly && currentThreadId != it.threadId) {
+                return@forEach
+            }
             it.clear(options)
         }
     }
