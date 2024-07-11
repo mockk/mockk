@@ -6,6 +6,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
 import io.mockk.core.ValueClassSupport.boxedClass
 import kotlinx.coroutines.awaitCancellation
+import java.util.function.Consumer
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
@@ -38,6 +39,25 @@ object MockKDsl {
             relaxUnitFun
         )
         block(mock)
+        return mock
+    }
+
+    fun <T : Any> internalMockk(
+        mockType: Class<T>,
+        name: String? = null,
+        relaxed: Boolean = false,
+        moreInterfaces: Array<out Class<*>>,
+        relaxUnitFun: Boolean = false,
+        block: Consumer<T>
+    ): T {
+        val mock = MockKGateway.implementation().mockFactory.mockk(
+            mockType.kotlin,
+            name,
+            relaxed,
+            moreInterfaces.map { it.kotlin }.toTypedArray(),
+            relaxUnitFun
+        )
+        block.accept(mock)
         return mock
     }
 
