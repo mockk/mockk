@@ -13,9 +13,7 @@ class VerifyingState(
     val params: VerificationParameters
 ) : RecordingState(recorder) {
 
-    override fun wasNotCalled(list: List<Any>) {
-        addWasNotCalled(list)
-    }
+    override fun wasNotCalled(list: List<Any>) = addWasNotCalled(list)
 
     override fun recordingDone(): CallRecordingState {
         checkMissingCalls()

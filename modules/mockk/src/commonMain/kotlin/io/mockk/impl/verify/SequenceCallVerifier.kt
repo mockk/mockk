@@ -46,7 +46,5 @@ class SequenceCallVerifier(
         return VerificationResult.OK(allCalls)
     }
 
-    override fun captureArguments() {
-        captureBlocks.forEach { it() }
-    }
+    override fun captureArguments() = captureBlocks.forEach { it() }
 }

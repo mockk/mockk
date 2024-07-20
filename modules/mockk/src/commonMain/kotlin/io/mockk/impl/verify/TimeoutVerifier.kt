@@ -36,9 +36,7 @@ class TimeoutVerifier(
         }
     }
 
-    override fun captureArguments() {
-        verifierChain.captureArguments()
-    }
+    override fun captureArguments() = verifierChain.captureArguments()
 
     private fun List<RecordedCall>.allStubs(stubRepo: StubRepository) =
         this.map { InternalPlatform.ref(it.matcher.self) }
