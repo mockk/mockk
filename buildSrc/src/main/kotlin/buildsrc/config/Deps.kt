@@ -18,6 +18,7 @@ object Deps {
         const val logback = "1.4.5"
         const val junitJupiter = "5.8.2"
         const val junit4 = "4.13.2"
+        const val lint = "30.3.1"
 
         const val byteBuddy = "1.14.17"
         const val objenesis = "3.3"
@@ -44,5 +45,9 @@ object Deps {
         const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
         const val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test"
+
+        const val lintApi = "com.android.tools.lint:lint-api:${Versions.lint}"
+        const val lintChecks = "com.android.tools.lint:lint-checks:${Versions.lint}"
+        const val lintTests = "com.android.tools.lint:lint-tests:${Versions.lint}"
     }
 }
