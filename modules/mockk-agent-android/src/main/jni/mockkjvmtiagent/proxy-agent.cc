@@ -355,7 +355,8 @@ namespace io_mockk_proxy_android {
 
     static bool
     canBeTransformedConstructor(ir::EncodedMethod *method) {
-        if ((method->access_flags & kAccConstructor) != 0) {
+        if ((method->access_flags & kAccConstructor) != 0
+            && (method->access_flags & kAccStatic) == 0) {
             return true;
         }
 
