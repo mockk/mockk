@@ -749,6 +749,11 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
 
+    /**
+     * Matches any nullable argument.
+     */
+    inline fun <reified T : Any> anyNullable(): T = matchNullable { true }
+
     inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
 
     /**
