@@ -172,9 +172,7 @@ open class UnorderedCallVerifier(
         return result
     }
 
-    override fun captureArguments() {
-        captureBlocks.forEach { it() }
-    }
+    override fun captureArguments() = captureBlocks.forEach { it() }
 
     private fun atMostMsg(max: Int) = if (max == Int.MAX_VALUE) "" else " and at most $max"
 

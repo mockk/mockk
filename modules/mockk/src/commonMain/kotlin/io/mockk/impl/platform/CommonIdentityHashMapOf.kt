@@ -26,9 +26,7 @@ class CommonIdentityHashMapOf<K, V> : MutableMap<K, V> {
     override val values: MutableCollection<V>
         get() = map.values
 
-    override fun clear() {
-        map.clear()
-    }
+    override fun clear() = map.clear()
 
     override fun put(key: K, value: V): V? = map.put(ref(key), value)
 
