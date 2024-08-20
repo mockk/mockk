@@ -11,8 +11,10 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 1. Make sure all tests pass and you have a passing build for the whole project (run `./gradlew check`).
 2. Whether you are fixing a bug or introducing a new feature, please add the necessary tests.
-   It's fine to create a test named "Issue`number`Test", where `number` is the number of the GitHub issue your test 
-   is reproducing, but if you can make the extra effort to add your test coverage in an existing test group that would be great <3
+   Please avoid creating tests named "Issue`number`Test", where `number` is the number of the GitHub issue your test 
+   is reproducing; these require users to go to GitHub to understand what the code is doing. If you can, make the extra 
+   effort to add your test coverage in an existing test group, or create a new test class that clearly describes the
+   behavior you are testing.
 3. Detail the changes you are introducing in the pull request description.
 4. Remember that, at least for the time being, we don't have a full-time maintainer for the project, so it may still take
 some time :)
