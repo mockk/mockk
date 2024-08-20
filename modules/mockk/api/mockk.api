@@ -864,15 +864,10 @@ public abstract class io/mockk/impl/recording/states/CallRecordingState {
 }
 
 public final class io/mockk/impl/recording/states/ExclusionState : io/mockk/impl/recording/states/RecordingState {
-	public static final field Companion Lio/mockk/impl/recording/states/ExclusionState$Companion;
 	public fun <init> (Lio/mockk/impl/recording/CommonCallRecorder;Lio/mockk/MockKGateway$ExclusionParameters;)V
 	public final fun getParams ()Lio/mockk/MockKGateway$ExclusionParameters;
 	public fun recordingDone ()Lio/mockk/impl/recording/states/CallRecordingState;
 	public fun wasNotCalled (Ljava/util/List;)V
-}
-
-public final class io/mockk/impl/recording/states/ExclusionState$Companion {
-	public final fun getLog ()Lio/mockk/impl/log/Logger;
 }
 
 public abstract class io/mockk/impl/recording/states/RecordingState : io/mockk/impl/recording/states/CallRecordingState {
