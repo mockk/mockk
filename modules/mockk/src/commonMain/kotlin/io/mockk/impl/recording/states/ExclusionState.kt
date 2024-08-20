@@ -2,7 +2,6 @@ package io.mockk.impl.recording.states
 
 import io.mockk.MockKException
 import io.mockk.MockKGateway.ExclusionParameters
-import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 
 class ExclusionState(
@@ -34,7 +33,4 @@ class ExclusionState(
         }
     }
 
-    companion object {
-        val log = Logger<VerifyingState>()
-    }
 }
