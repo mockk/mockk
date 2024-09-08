@@ -44,7 +44,20 @@ $mock.function(eq(5))))"""
         assertEquals(expectedMessage, exception.message)
     }
 
+    @Test
+    fun testNull() {
+        val mock: DummyClass = mockk()
+
+        every {
+            mock.functionNull(anyNullable<Int?>())
+        } returns 3
+
+        mock.functionNull(null)
+    }
+
+
     class DummyClass {
         fun function(a: Int) = a
+        fun functionNull(a: Any?) = 2
     }
 }
