@@ -572,6 +572,24 @@ class ValueClassTest {
     }
 
     @Test
+    fun `function returning nullable value class not boxed due to cast to another type`() {
+        val mock = mockk<DummyService> {
+            every { nullableValueClass() } returns DummyValue(2)
+        }
+
+        assertEquals(DummyValue(2), mock.nullableValueClass())
+    }
+
+    @Test
+    fun `nullable value class field is not boxed due to cast to another type`() {
+        val mock = mockk<DummyService> {
+            every { nullableValueClassField } returns DummyValue(2)
+        }
+
+        assertEquals(DummyValue(2), mock.nullableValueClassField)
+    }
+
+    @Test
     fun `receiver is ValueClass, return is String`() {
         val fn = mockk<DummyValue.() -> String>()
 
@@ -676,6 +694,7 @@ class ValueClassTest {
         @Suppress("UNUSED_PARAMETER")
         class DummyService {
             val valueClassField = DummyValue(0)
+            val nullableValueClassField : DummyValue? = null
 
             fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper =
                 DummyValueWrapper(DummyValue(0))
@@ -706,6 +725,8 @@ class ValueClassTest {
                 ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
 
             fun argNoneReturnsUInt(): UInt = 123u
+
+            fun nullableValueClass(): DummyValue? = null
         }
     }
 }
