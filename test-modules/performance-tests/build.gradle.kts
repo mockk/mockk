@@ -4,11 +4,11 @@ import kotlinx.benchmark.gradle.benchmark
 
 plugins {
     buildsrc.convention.`kotlin-jvm`
-    id("org.jetbrains.kotlinx.benchmark") version "0.4.5"
+    id("org.jetbrains.kotlinx.benchmark") version "0.4.12"
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-benchmark-runtime:0.4.12")
     implementation(platform(Deps.Libs.kotlinCoroutinesBom))
     implementation(Deps.Libs.kotlinCoroutinesCore)
     implementation(projects.modules.mockk)
