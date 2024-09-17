@@ -50,6 +50,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                 *moreInterfaces(parameterContext),
                 recordPrivateCalls = annotation.recordPrivateCalls
             )
+
             is MockK, is RelaxedMockK -> {
                 mockkClass(
                     type,
@@ -59,6 +60,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                     relaxUnitFun = (annotation as? MockK)?.relaxUnitFun ?: false,
                 )
             }
+
             else -> null
         }?.also { cache[type] = it }
     }
@@ -143,7 +145,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                 getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.confirmVerification
-        get() = map { it.getAnnotation(ConfirmVerification::class.java) != null}
+        get() = map { it.getAnnotation(ConfirmVerification::class.java) != null }
             .orElse(false)
 
     private val ExtensionContext.checkUnnecessaryStub: Boolean
@@ -151,7 +153,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                 getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.checkUnnecessaryStub
-        get() = map { it.getAnnotation(CheckUnnecessaryStub::class.java) != null}
+        get() = map { it.getAnnotation(CheckUnnecessaryStub::class.java) != null }
             .orElse(false)
 
     private val ExtensionContext.requireParallelTesting: Boolean
@@ -194,5 +196,4 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
         const val CHECK_UNNECESSARY_STUB_PROPERTY = "mockk.junit.extension.checkUnnecessaryStub"
         const val REQUIRE_PARALLEL_TESTING = "mockk.junit.extension.requireParallelTesting"
     }
-
 }
