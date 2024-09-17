@@ -6,6 +6,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.*
 import java.lang.annotation.Inherited
 import java.lang.reflect.AnnotatedElement
@@ -16,20 +17,22 @@ import kotlin.reflect.KClass
 import kotlin.reflect.jvm.javaConstructor
 
 /**
- * JUnit5 extension.
+ * MockK JUnit5 extension.
  *
  * Parameters can use [MockK] and [RelaxedMockK].
- * Class properties can use [MockK], [RelaxedMockK] and [SpyK]
- * [unmockkAll] will be called after each test function execution (*)
+ * Class properties can use [MockK], [RelaxedMockK] and [SpyK].
  *
- * Usage: declare @ExtendWith(MockKExtension.class) on a test class
+ * [unmockkAll] will be called after each test function execution if the test lifecycle is set to
+ * [TestInstance.Lifecycle.PER_METHOD] (JUnit 5 default), or after all test functions in the test class have been
+ * executed if the test lifecycle is set to [TestInstance.Lifecycle.PER_CLASS].
+ * [unmockkAll] will not be called if the [KeepMocks] annotation is present or if the `mockk.junit.extension.keepmocks`
+ * Gradle property is set to `true`.
+ *
+ * Usage: declare `@ExtendWith(MockKExtension::class)` on a test class.
  *
  * Alternatively `–Djunit.extensions.autodetection.enabled=true` may be placed on a command line.
- *
- * (*) [unmockkAll] default behavior can be disabled by adding [KeepMocks] to your test class or method or
- * `–Dmockk.junit.extension.keepmocks=true` on a command line
  */
-class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCallback {
+class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCallback, AfterAllCallback {
     private val cache = mutableMapOf<KClass<out Any>, Any>()
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
@@ -112,6 +115,18 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
     }
 
     override fun afterEach(context: ExtensionContext) {
+        if (context.isTestInstanceLifecyclePerMethod) {
+            finish(context)
+        }
+    }
+
+    override fun afterAll(context: ExtensionContext) {
+        if (!context.isTestInstanceLifecyclePerMethod) {
+            finish(context)
+        }
+    }
+
+    private fun finish(context: ExtensionContext) {
         if (!context.keepMocks) {
             unmockkAll()
         }
@@ -131,6 +146,9 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
             }
         }
     }
+
+    private val ExtensionContext.isTestInstanceLifecyclePerMethod: Boolean
+        get() = testInstanceLifecycle.map { it == TestInstance.Lifecycle.PER_METHOD }.orElse(true)
 
     private val ExtensionContext.keepMocks: Boolean
         get() = testClass.keepMocks || testMethod.keepMocks ||
