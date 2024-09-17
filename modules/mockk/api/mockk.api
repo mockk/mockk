@@ -1125,14 +1125,14 @@ public final class io/mockk/junit4/MockKRule : org/junit/rules/TestWatcher, org/
 	public fun <init> (Ljava/lang/Object;)V
 }
 
-public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extension/AfterAllCallback, org/junit/jupiter/api/extension/ParameterResolver, org/junit/jupiter/api/extension/TestInstancePostProcessor {
+public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extension/AfterEachCallback, org/junit/jupiter/api/extension/ParameterResolver, org/junit/jupiter/api/extension/TestInstancePostProcessor {
 	public static final field CHECK_UNNECESSARY_STUB_PROPERTY Ljava/lang/String;
 	public static final field CONFIRM_VERIFICATION_PROPERTY Ljava/lang/String;
 	public static final field Companion Lio/mockk/junit5/MockKExtension$Companion;
 	public static final field KEEP_MOCKS_PROPERTY Ljava/lang/String;
 	public static final field REQUIRE_PARALLEL_TESTING Ljava/lang/String;
 	public fun <init> ()V
-	public fun afterAll (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
+	public fun afterEach (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
 	public fun postProcessTestInstance (Ljava/lang/Object;Lorg/junit/jupiter/api/extension/ExtensionContext;)V
 	public fun resolveParameter (Lorg/junit/jupiter/api/extension/ParameterContext;Lorg/junit/jupiter/api/extension/ExtensionContext;)Ljava/lang/Object;
 	public fun supportsParameter (Lorg/junit/jupiter/api/extension/ParameterContext;Lorg/junit/jupiter/api/extension/ExtensionContext;)Z
