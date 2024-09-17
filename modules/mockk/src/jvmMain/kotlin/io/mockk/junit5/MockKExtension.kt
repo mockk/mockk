@@ -20,7 +20,7 @@ import kotlin.reflect.jvm.javaConstructor
  *
  * Parameters can use [MockK] and [RelaxedMockK].
  * Class properties can use [MockK], [RelaxedMockK] and [SpyK]
- * [unmockkAll] will be called after test class execution (*)
+ * [unmockkAll] will be called after each test function execution (*)
  *
  * Usage: declare @ExtendWith(MockKExtension.class) on a test class
  *
@@ -29,7 +29,7 @@ import kotlin.reflect.jvm.javaConstructor
  * (*) [unmockkAll] default behavior can be disabled by adding [KeepMocks] to your test class or method or
  * `–Dmockk.junit.extension.keepmocks=true` on a command line
  */
-class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCallback {
+class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCallback {
     private val cache = mutableMapOf<KClass<out Any>, Any>()
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
@@ -109,7 +109,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         MockKAnnotations.init(testInstance)
     }
 
-    override fun afterAll(context: ExtensionContext) {
+    override fun afterEach(context: ExtensionContext) {
         if (!context.keepMocks) {
             unmockkAll()
         }
