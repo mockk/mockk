@@ -28,6 +28,7 @@ include(
     ":modules:mockk-agent",
     ":modules:mockk-core",
     ":modules:mockk-dsl",
+    ":modules:mockk-lint",
 
     ":test-modules:client-tests",
     ":test-modules:performance-tests",

@@ -23,4 +23,5 @@ dependencies {
     api(projects.modules.mockk)
     api(projects.modules.mockkAgentApi)
     api(projects.modules.mockkAgentAndroid)
+    lintPublish(projects.modules.mockkLint)
 }
