@@ -89,6 +89,54 @@ class VerificationErrorsTest {
     }
 
     @Test
+    fun someMatchingCallsFoundButTooMuch() {
+        expectVerificationError("4 matching calls found, but needs at least 2 and at most 3 calls", "MockCls.otherOp") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 2)
+
+            verify(atLeast = 2, atMost = 3) { mock.otherOp(1, 2) }
+        }
+    }
+
+    @Test
+    fun oneMatchingCallFoundButNeedMoreInRange() {
+        expectVerificationError("One matching call found, but needs at least 2 and at most 3 calls", "MockCls.otherOp") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+
+            verify(atLeast = 2, atMost = 3) { mock.otherOp(1, 2) }
+        }
+    }
+
+    @Test
+    fun someMatchingCallsFoundButNeedExactMatch() {
+        expectVerificationError("2 matching calls found, but needs exactly 3 calls", "MockCls.otherOp") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+            mock.otherOp(1, 2)
+
+            verify(exactly = 3) { mock.otherOp(1, 2) }
+        }
+    }
+
+    @Test
+    fun oneMatchingCallFoundButNeedExactMatch() {
+        expectVerificationError("One matching call found, but needs exactly 2 calls", "MockCls.otherOp") {
+            every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+
+            mock.otherOp(1, 2)
+
+            verify(exactly = 2) { mock.otherOp(1, 2) }
+        }
+    }
+
+    @Test
     fun callsAreNotInVerificationOrder() {
         expectVerificationError("calls are not in verification order", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
