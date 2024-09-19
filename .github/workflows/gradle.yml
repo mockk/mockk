@@ -31,7 +31,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests with Gradle
         run: >
@@ -57,7 +57,7 @@ jobs:
           java-version: 17
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set AVD Architecture Based on API Level
         run: echo "ARCH=$(if [ ${{ matrix.api-level }} -eq 27 ]; then echo 'x86'; else echo 'x86_64'; fi)" >> $GITHUB_ENV

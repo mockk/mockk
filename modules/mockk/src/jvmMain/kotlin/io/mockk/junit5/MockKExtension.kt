@@ -6,6 +6,7 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.*
 import java.lang.annotation.Inherited
 import java.lang.reflect.AnnotatedElement
@@ -16,20 +17,22 @@ import kotlin.reflect.KClass
 import kotlin.reflect.jvm.javaConstructor
 
 /**
- * JUnit5 extension.
+ * MockK JUnit5 extension.
  *
  * Parameters can use [MockK] and [RelaxedMockK].
- * Class properties can use [MockK], [RelaxedMockK] and [SpyK]
- * [unmockkAll] will be called after test class execution (*)
+ * Class properties can use [MockK], [RelaxedMockK] and [SpyK].
  *
- * Usage: declare @ExtendWith(MockKExtension.class) on a test class
+ * [unmockkAll] will be called after each test function execution if the test lifecycle is set to
+ * [TestInstance.Lifecycle.PER_METHOD] (JUnit 5 default), or after all test functions in the test class have been
+ * executed if the test lifecycle is set to [TestInstance.Lifecycle.PER_CLASS].
+ * [unmockkAll] will not be called if the [KeepMocks] annotation is present or if the `mockk.junit.extension.keepmocks`
+ * Gradle property is set to `true`.
+ *
+ * Usage: declare `@ExtendWith(MockKExtension::class)` on a test class.
  *
  * Alternatively `–Djunit.extensions.autodetection.enabled=true` may be placed on a command line.
- *
- * (*) [unmockkAll] default behavior can be disabled by adding [KeepMocks] to your test class or method or
- * `–Dmockk.junit.extension.keepmocks=true` on a command line
  */
-class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCallback {
+class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCallback, AfterAllCallback {
     private val cache = mutableMapOf<KClass<out Any>, Any>()
 
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
@@ -50,6 +53,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
                 *moreInterfaces(parameterContext),
                 recordPrivateCalls = annotation.recordPrivateCalls
             )
+
             is MockK, is RelaxedMockK -> {
                 mockkClass(
                     type,
@@ -59,6 +63,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
                     relaxUnitFun = (annotation as? MockK)?.relaxUnitFun ?: false,
                 )
             }
+
             else -> null
         }?.also { cache[type] = it }
     }
@@ -109,7 +114,19 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         MockKAnnotations.init(testInstance)
     }
 
+    override fun afterEach(context: ExtensionContext) {
+        if (context.isTestInstanceLifecyclePerMethod) {
+            finish(context)
+        }
+    }
+
     override fun afterAll(context: ExtensionContext) {
+        if (!context.isTestInstanceLifecyclePerMethod) {
+            finish(context)
+        }
+    }
+
+    private fun finish(context: ExtensionContext) {
         if (!context.keepMocks) {
             unmockkAll()
         }
@@ -130,6 +147,9 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         }
     }
 
+    private val ExtensionContext.isTestInstanceLifecyclePerMethod: Boolean
+        get() = testInstanceLifecycle.map { it == TestInstance.Lifecycle.PER_METHOD }.orElse(true)
+
     private val ExtensionContext.keepMocks: Boolean
         get() = testClass.keepMocks || testMethod.keepMocks ||
                 getConfigurationParameter(KEEP_MOCKS_PROPERTY).map { it.toBoolean() }.orElse(false)
@@ -143,7 +163,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
                 getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.confirmVerification
-        get() = map { it.getAnnotation(ConfirmVerification::class.java) != null}
+        get() = map { it.getAnnotation(ConfirmVerification::class.java) != null }
             .orElse(false)
 
     private val ExtensionContext.checkUnnecessaryStub: Boolean
@@ -151,7 +171,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
                 getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.checkUnnecessaryStub
-        get() = map { it.getAnnotation(CheckUnnecessaryStub::class.java) != null}
+        get() = map { it.getAnnotation(CheckUnnecessaryStub::class.java) != null }
             .orElse(false)
 
     private val ExtensionContext.requireParallelTesting: Boolean
@@ -194,5 +214,4 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterAllCal
         const val CHECK_UNNECESSARY_STUB_PROPERTY = "mockk.junit.extension.checkUnnecessaryStub"
         const val REQUIRE_PARALLEL_TESTING = "mockk.junit.extension.requireParallelTesting"
     }
-
 }

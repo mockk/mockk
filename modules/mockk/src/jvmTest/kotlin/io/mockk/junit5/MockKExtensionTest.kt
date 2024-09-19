@@ -102,5 +102,4 @@ class MockKExtensionTest {
 
         verify { carSpy.relaxedTest() }
     }
-
 }
