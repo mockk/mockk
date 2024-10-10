@@ -7,6 +7,7 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
 import java.util.UUID
@@ -18,6 +19,9 @@ class ValueClassTest {
 
     private val dummyValueWrapperArg get() = DummyValueWrapper(DummyValue(42))
     private val dummyValueWrapperReturn get() = DummyValueWrapper(DummyValue(99))
+    private val complexValueParam = UUID.fromString("4d19b22c-7754-4c55-ba4d-f80109708a1f")
+    private val complexValueResultArg get() = ComplexValue(complexValueParam)
+    private val complexValueResultReturn get() = Result.success(complexValueResultArg)
 
     private val dummyValueClassArg get() = DummyValue(101)
     private val dummyComplexValueClassArg get() = ComplexValue(UUID.fromString("4d19b22c-7754-4c55-ba4d-f80109708a1f"))
@@ -546,6 +550,18 @@ class ValueClassTest {
     }
     //</editor-fold>
 
+    @Test
+    fun `receiver is ComplexValue, return is Result with ComplexValue`() {
+        val service = mockk<DummyService>()
+
+        every {  service.argGenericValueClassReturnResultWrapped(complexValueResultArg) } returns complexValueResultReturn
+
+        val result = service.argGenericValueClassReturnResultWrapped(complexValueResultArg)
+
+        assertEquals(complexValueResultReturn.getOrNull()?.value, result.getOrNull()?.value)
+        assertEquals(complexValueResultReturn.getOrNull(), result.getOrNull())
+    }
+
     //<editor-fold desc="extension function on ValueClass">
     @Test
     @Ignore // TODO fix infinite loop
@@ -704,6 +720,9 @@ class ValueClassTest {
 
             fun argValueClassReturnWrapper(valueClass: DummyValue): DummyValueWrapper =
                 DummyValueWrapper(valueClass)
+
+            fun argGenericValueClassReturnResultWrapped(valueClass: ComplexValue): Result<ComplexValue> =
+                Result.success(valueClass)
 
             fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue =
                 DummyValue(0)
