@@ -924,15 +924,19 @@ public final class io/mockk/MockKObjectScope : io/mockk/MockKUnmockKScope {
 
 public final class io/mockk/MockKSettings {
 	public static final field INSTANCE Lio/mockk/MockKSettings;
+	public final fun getPreventNonMockableClassMocking ()Z
 	public final fun getRecordPrivateCalls ()Z
 	public final fun getRelaxUnitFun ()Z
 	public final fun getRelaxed ()Z
 	public final fun getStackTracesAlignment ()Lio/mockk/StackTracesAlignment;
 	public final fun getStackTracesOnVerify ()Z
+	public final fun getWarnOnNonMockableClass ()Z
+	public final fun setPreventNonMockableClassMocking (Z)V
 	public final fun setRecordPrivateCalls (Z)V
 	public final fun setRelaxUnitFun (Z)V
 	public final fun setRelaxed (Z)V
 	public final fun setStackTracesAlignment (Ljava/lang/String;)V
+	public final fun setWarnOnNonMockableClass (Z)V
 }
 
 public final class io/mockk/MockKSettingsKt {

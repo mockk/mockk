@@ -311,6 +311,7 @@ public final class io/mockk/impl/instantiation/CommonInstanceFactoryRegistry : i
 }
 
 public class io/mockk/impl/instantiation/CommonMockTypeChecker : io/mockk/MockKGateway$MockTypeChecker {
+	public static final field Companion Lio/mockk/impl/instantiation/CommonMockTypeChecker$Companion;
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lkotlin/jvm/functions/Function1;)V
 	public final fun getStubRepository ()Lio/mockk/impl/stub/StubRepository;
 	public fun isConstructorMock (Ljava/lang/Object;)Z
@@ -319,6 +320,11 @@ public class io/mockk/impl/instantiation/CommonMockTypeChecker : io/mockk/MockKG
 	public fun isRegularMock (Ljava/lang/Object;)Z
 	public fun isSpy (Ljava/lang/Object;)Z
 	public fun isStaticMock (Ljava/lang/Object;)Z
+}
+
+public final class io/mockk/impl/instantiation/CommonMockTypeChecker$Companion {
+	public final fun getNonMockableClasses ()Ljava/util/Set;
+	public final fun isNonMockableClass (Lkotlin/reflect/KClass;)Z
 }
 
 public class io/mockk/impl/instantiation/JvmAnyValueGenerator : io/mockk/impl/instantiation/AnyValueGenerator {
