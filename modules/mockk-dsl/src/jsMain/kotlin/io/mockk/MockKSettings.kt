@@ -17,4 +17,10 @@ actual object MockKSettings {
         get() = stackTracesAlignmentValueOf(
             js("global.io_mockk_settings_stackTracesAlignment || \"center\"") as String
         )
+
+    actual val warnOnNonMockableClass: Boolean
+        get() = js("global.io_mockk_settings_warnOnNonMockableClass || true") as Boolean
+
+    actual val preventNonMockableClassMocking: Boolean
+        get() = js("global.io_mockk_settings_preventNonMockableClassMocking || false") as Boolean
 }

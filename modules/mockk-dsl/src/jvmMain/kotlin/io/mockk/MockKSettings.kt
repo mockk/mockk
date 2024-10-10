@@ -33,6 +33,11 @@ actual object MockKSettings {
     actual val stackTracesAlignment: StackTracesAlignment
         get() = stackTracesAlignmentValueOf(properties.getProperty("stackTracesAlignment", "center"))
 
+    actual val warnOnNonMockableClass: Boolean
+        get() = booleanProperty("warnOnNonMockableClass", "true")
+
+    actual val preventNonMockableClassMocking: Boolean
+        get() = booleanProperty("preventNonMockableClassMocking", "false")
 
     fun setRelaxed(value: Boolean) {
         properties.setProperty("relaxed", value.toString())
@@ -48,5 +53,13 @@ actual object MockKSettings {
 
     fun setStackTracesAlignment(value: String) {
         properties.setProperty("stackTracesAlignment", value)
+    }
+
+    fun setWarnOnNonMockableClass(value: Boolean) {
+        properties.setProperty("warnOnNonMockableClass", value.toString())
+    }
+
+    fun setPreventNonMockableClassMocking(value: Boolean) {
+        properties.setProperty("preventNonMockableClassMocking", value.toString())
     }
 }

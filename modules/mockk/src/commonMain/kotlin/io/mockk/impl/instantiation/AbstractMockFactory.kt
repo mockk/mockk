@@ -39,6 +39,14 @@ abstract class AbstractMockFactory(
         val id = newId()
         val newName = (name ?: "") + "#$id"
 
+        if (CommonMockTypeChecker.isNonMockableClass(mockType)) {
+            if (MockKSettings.preventNonMockableClassMocking) {
+                throw MockKException("Attempt to mock a non-mockable class: ${mockType.simpleName}")
+            } else if (MockKSettings.warnOnNonMockableClass) {
+                log.warn { "Warning: Attempting to mock a non-mockable class: ${mockType.simpleName}" }
+            }
+        }
+
         val stub = MockKStub(
             mockType,
             newName,

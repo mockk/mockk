@@ -3,6 +3,7 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.*
+import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
@@ -11,6 +12,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.test.assertFailsWith
+import kotlin.text.contains
 
 class AbstractMockFactoryTest {
     lateinit var mockFactory: Factory
@@ -18,6 +21,7 @@ class AbstractMockFactoryTest {
     lateinit var instantiator: AbstractInstantiator
     lateinit var gatewayAccess: StubGatewayAccess
     lateinit var mock: Mock
+    lateinit var log: Logger
 
     @BeforeTest
     fun setUp() {
@@ -26,6 +30,10 @@ class AbstractMockFactoryTest {
         gatewayAccess = mockk(relaxed = true)
         mockFactory = spyk(Factory())
         mock = mockk(relaxed = true)
+        log = mockk(relaxed = true)
+        mockkObject(MockKSettings)
+        every { MockKSettings.preventNonMockableClassMocking } returns false
+        every { MockKSettings.warnOnNonMockableClass } returns true
     }
 
     @Test
@@ -91,6 +99,42 @@ class AbstractMockFactoryTest {
         val childMock = mockFactory.temporaryMock(Mock::class)
 
         assertSame(mock, childMock)
+    }
+
+    @Test
+    fun whenMockingNonMockableClassThenExceptionThrown() {
+        every {
+            MockKSettings.preventNonMockableClassMocking
+        } returns true
+
+        every {
+            mockFactory.publicNewProxy<Any>(any(), any(), any(), any(), any())
+        } returns mock
+
+        assertFailsWith<MockKException> {
+            mockFactory.mockk(System::class, null, false, arrayOf(), relaxUnitFun = false)
+        }
+    }
+
+    @Test
+    fun whenMockingNonMockableClassThenWarningLogged() {
+        every {
+            MockKSettings.preventNonMockableClassMocking
+        } returns false
+
+        every {
+            MockKSettings.warnOnNonMockableClass
+        } returns true
+
+        every {
+            mockFactory.publicNewProxy<Any>(any(), any(), any(), any(), any())
+        } returns mock
+
+        mockFactory.mockk(System::class, null, false, arrayOf(), relaxUnitFun = false)
+
+        verify {
+            log.warn(match { it().contains("Warning: Attempting to mock a non-mockable class") })
+        }
     }
 
     class Mock
