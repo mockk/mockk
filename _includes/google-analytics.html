@@ -1,9 +1,53 @@
 <!-- Global site tag (gtag.js) - Google Analytics -->
+<link rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css"/>
+
+<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"
+        data-cfasync="false"></script>
+
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  function getCookie(name) {
+      var b = document.cookie.match('(^|[^;]+)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return b ? b.pop() : '';
+  }
 
-  gtag('config', '{{ site.google_analytics }}');
+  function addAnalytics() {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '{{ site.google_analytics }}');
+  }
+
+  window.addEventListener("load", function () {
+      const cookieConsent = getCookie('cookieconsent_status');
+
+      if (cookieConsent === 'allow' || cookieConsent === '') {
+          addAnalytics();
+      }
+
+      window.cookieconsent.initialise({
+          "palette": {
+              "popup": {
+                  "background": "#efefef",
+                  "text": "#404040"
+              },
+              "button": {
+                  "background": "#8ec760",
+                  "text": "#ffffff"
+              }
+          },
+          "type": "opt-out",
+          "content": {
+              "allow": "Approve",
+              "dismiss": "Approve",
+              "deny": "Reject"
+          },
+          onStatusChange: function (status, chosenBefore) {
+              location.reload();
+          }
+      })
+  });
 </script>
