@@ -581,6 +581,65 @@ class ValueClassTest {
     }
 
     @Test
+    fun `function returning nullable complex value class, returns value class`() {
+        val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
+        val mock = mockk<DummyService> {
+            every { nullableComplexValueClass() } returns expected
+        }
+
+        assertEquals(expected, mock.nullableComplexValueClass())
+    }
+
+    @Test
+    fun `function returning nullable nested value class, returns value class`() {
+        val mock = mockk<DummyService> {
+            every { nullableNestedValueClass() } returns DummyValueWrapper(DummyValue(10))
+        }
+
+        assertEquals(DummyValueWrapper(DummyValue(10)), mock.nullableNestedValueClass())
+    }
+
+    @Test
+    fun `function returning nullable nested complex value class, returns value class`() {
+        val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
+
+        val mock = mockk<DummyService> {
+            every { nullableNestedComplexValueClass() } returns DummyComplexValueWrapper(expected)
+        }
+
+        assertEquals(DummyComplexValueWrapper(expected), mock.nullableNestedComplexValueClass())
+    }
+
+    @Test
+    fun `nullable complex value class field, returns value class`() {
+        val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
+        val mock = mockk<DummyService> {
+            every { nullableComplexValueClassField } returns expected
+        }
+
+        assertEquals(expected, mock.nullableComplexValueClassField)
+    }
+
+    @Test
+    fun `nullable nested value class field, returns value class`() {
+        val mock = mockk<DummyService> {
+            every { nullableNestedValueClassField } returns DummyValueWrapper(DummyValue(10))
+        }
+
+        assertEquals(DummyValueWrapper(DummyValue(10)), mock.nullableNestedValueClassField)
+    }
+
+    @Test
+    fun `nullable nested complex value class field, returns value class`() {
+        val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
+        val mock = mockk<DummyService> {
+            every { nullableNestedComplexValueClassField } returns DummyComplexValueWrapper(expected)
+        }
+
+        assertEquals(DummyComplexValueWrapper(expected), mock.nullableNestedComplexValueClassField)
+    }
+
+    @Test
     fun `nullable value class field is not boxed due to cast to another type`() {
         val mock = mockk<DummyService> {
             every { nullableValueClassField } returns DummyValue(2)
@@ -667,6 +726,27 @@ class ValueClassTest {
     }
 
     @Test
+    fun `mock class returning nested value class boxed due to suspend function`() {
+        val expected = DummyValueWrapper(DummyValue(3))
+        val f = mockk<DummyService>()
+        coEvery { f.returnNestedValueClassSuspendNotInlined() } returns expected
+        val result = runBlocking { f.returnNestedValueClassSuspendNotInlined() }
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `mock class returning nested complex value class not boxed due to suspend function`() {
+        val expected =
+            DummyComplexValueWrapper(ComplexValue(UUID.fromString("bca61f8d-ba4d-475f-8dc6-08b943836998")))
+        val f = mockk<DummyService>()
+        coEvery { f.returnNestedComplexValueClassSuspendNotInlined() } returns expected
+        val result = runBlocking { f.returnNestedComplexValueClassSuspendNotInlined() }
+
+        assertEquals(expected, result)
+    }
+
+    @Test
     fun `mock class returning complex value class not boxed due to suspend function`() {
         val f = mockk<DummyService>()
         coEvery { f.returnComplexValueClassSuspendInlined() } returns ComplexValue(UUID.fromString("bca61f8d-ba4d-475f-8dc6-08b943836998"))
@@ -691,10 +771,16 @@ class ValueClassTest {
         @JvmInline
         value class DummyValueWrapper(val value: DummyValue)
 
+        @JvmInline
+        value class DummyComplexValueWrapper(val value: ComplexValue)
+
         @Suppress("UNUSED_PARAMETER")
         class DummyService {
             val valueClassField = DummyValue(0)
-            val nullableValueClassField : DummyValue? = null
+            val nullableValueClassField: DummyValue? = null
+            val nullableComplexValueClassField: ComplexValue? = null
+            val nullableNestedValueClassField: DummyValueWrapper? = null
+            val nullableNestedComplexValueClassField: DummyComplexValueWrapper? = null
 
             fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper =
                 DummyValueWrapper(DummyValue(0))
@@ -724,9 +810,23 @@ class ValueClassTest {
             suspend fun returnComplexValueClassSuspendInlined(): ComplexValue =
                 ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
 
+            @Suppress("RedundantSuspendModifier")
+            suspend fun returnNestedValueClassSuspendNotInlined(): DummyValueWrapper =
+                DummyValueWrapper(DummyValue(0))
+
+            @Suppress("RedundantSuspendModifier")
+            suspend fun returnNestedComplexValueClassSuspendNotInlined(): DummyComplexValueWrapper =
+                DummyComplexValueWrapper(ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3")))
+
             fun argNoneReturnsUInt(): UInt = 123u
 
             fun nullableValueClass(): DummyValue? = null
+
+            fun nullableComplexValueClass(): ComplexValue? = null
+
+            fun nullableNestedValueClass(): DummyValueWrapper? = null
+
+            fun nullableNestedComplexValueClass(): DummyComplexValueWrapper? = null
         }
     }
 }

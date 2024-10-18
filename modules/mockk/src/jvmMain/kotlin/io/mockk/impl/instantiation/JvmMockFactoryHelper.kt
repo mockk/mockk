@@ -4,7 +4,6 @@ import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
 import io.mockk.core.ValueClassSupport.boxedClass
-import io.mockk.core.ValueClassSupport.maybeUnboxValueForMethodReturn
 import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -150,20 +149,18 @@ object JvmMockFactoryHelper {
 
         val kotlinReturnType = kotlinFunc?.returnType
             ?: findBackingField(declaringClass.kotlin, this)?.returnType
-        val returnTypeNullable = kotlinReturnType?.isMarkedNullable ?: false
-        val returnTypeClass: KClass<*> = when (kotlinReturnType) {
+        val returnType: KClass<*> = when (kotlinReturnType) {
             is KType -> kotlinReturnType.classifier as? KClass<*> ?: returnType.kotlin
             is KClass<*> -> kotlinReturnType
             else -> returnType.kotlin
-        }
-
-        val returnType = if (!returnTypeNullable) returnTypeClass.boxedClass else returnTypeClass
+        }.boxedClass
 
         val androidCompatibleReturnType = if (returnType.qualifiedName in androidUnsupportedTypes) {
             this@toDescription.returnType.kotlin
         } else {
             returnType
         }
+        val returnTypeNullable = kotlinReturnType?.isMarkedNullable ?: false
 
         val result = MethodDescription(
             name,
