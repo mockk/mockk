@@ -1,8 +1,70 @@
+import kotlin.reflect.KClass
+
+
+
+private val nonMockableClasses = listOf(
+
+  System::class,
+
+  java.io.File::class,
+
+  java.nio.file.Path::class,
+
+  // Add more classes as necessary
+
+)
+
+
+
 @file:Suppress("NOTHING_TO_INLINE")
+
+
 
 package io.mockk
 
-import kotlin.reflect.KClass
+
+
+inline fun <reified T : Any> mockk(
+
+  name: String? = null,
+
+  relaxed: Boolean = false,
+
+  vararg moreInterfaces: KClass<*>,
+
+  relaxUnitFun: Boolean = false,
+
+  block: T.() -> Unit = {}
+
+): T {
+
+  if (nonMockableClasses.contains(T::class)) {
+
+    throw IllegalArgumentException("Mocking of ${T::class.simpleName} is not allowed.")
+
+  }
+
+  return MockK.useImpl {
+
+    MockKDsl.internalMockk(
+
+      name,
+
+      relaxed,
+
+      moreInterfaces,
+
+      relaxUnitFun = relaxUnitFun,
+
+      block = block
+
+    )
+
+  }
+
+}
+
+
 
 /**
  * Builds a new mock for specified class.
