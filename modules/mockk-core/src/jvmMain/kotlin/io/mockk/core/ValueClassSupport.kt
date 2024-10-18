@@ -32,11 +32,11 @@ actual object ValueClassSupport {
             //   method.kotlinFunction.returnType.classifier == Foo
             val expectedReturnType = kFunction.returnType.classifier
             val isReturnNullable = kFunction.returnType.isMarkedNullable
-            val isPrimitive = resultType.boxedClass.java.isPrimitive
+            val isPrimitive = resultType.innermostBoxedClass.java.isPrimitive
             return if (
                 !(kFunction.isSuspend && isPrimitive) &&
                 resultType == expectedReturnType &&
-                !isReturnNullable
+                !(isReturnNullable && isPrimitive)
             ) {
                 this.boxedValue
             } else {
@@ -51,7 +51,8 @@ actual object ValueClassSupport {
         } else {
             val expectedReturnType = kProperty.returnType.classifier
             val isReturnNullable = kProperty.returnType.isMarkedNullable
-            return if (resultType == expectedReturnType && !isReturnNullable) {
+            val isPrimitive = resultType.innermostBoxedClass.java.isPrimitive
+            return if (resultType == expectedReturnType && !(isReturnNullable && isPrimitive)) {
                 this.boxedValue
             } else {
                 this
@@ -86,6 +87,19 @@ actual object ValueClassSupport {
             this
         } else {
             this.boxedProperty.returnType.classifier as KClass<*>
+        }
+
+    /**
+     * Underlying property class of a **`value class`** or self.
+     * When the value class has one or more nested value classes,
+     * the innermost boxed class is returned
+     */
+    private val KClass<*>.innermostBoxedClass: KClass<*>
+        @Suppress("RecursivePropertyAccessor")
+        get() = if (!this.isValue_safe) {
+            this
+        } else {
+            (this.boxedProperty.returnType.classifier as KClass<*>).innermostBoxedClass
         }
 
     private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
