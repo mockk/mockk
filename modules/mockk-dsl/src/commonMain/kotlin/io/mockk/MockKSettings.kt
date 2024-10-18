@@ -10,6 +10,10 @@ expect object MockKSettings {
     val stackTracesOnVerify: Boolean
 
     val stackTracesAlignment: StackTracesAlignment
+
+    val warnOnNonMockableClass: Boolean
+
+    val preventNonMockableClassMocking: Boolean
 }
 
 enum class StackTracesAlignment {
