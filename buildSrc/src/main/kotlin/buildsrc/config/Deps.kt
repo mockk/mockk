@@ -16,6 +16,7 @@ object Deps {
         const val coroutines = "1.6.4"
         const val slfj = "2.0.5"
         const val logback = "1.4.5"
+        const val jooq = "3.19.14"
         const val junitJupiter = "5.8.2"
         const val junit4 = "4.13.2"
 
@@ -37,6 +38,7 @@ object Deps {
     object Libs {
         const val slfj = "org.slf4j:slf4j-api:${Versions.slfj}"
         const val logback = "ch.qos.logback:logback-classic:${Versions.logback}"
+        const val jooq = "org.jooq:jooq:${Versions.jooq}"
 
         const val junit4 = "junit:junit:${Versions.junit4}"
         const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"

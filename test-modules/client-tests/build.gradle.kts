@@ -37,6 +37,7 @@ kotlin {
             dependencies {
                 implementation(buildsrc.config.Deps.Libs.slfj)
                 implementation(buildsrc.config.Deps.Libs.logback)
+                implementation(buildsrc.config.Deps.Libs.jooq)
 
                 implementation(buildsrc.config.Deps.Libs.junitJupiter)
             }
