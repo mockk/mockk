@@ -211,9 +211,9 @@ internal class ProxyMaker(
 
             var clazz = cls
             while (true) {
-                result.add(clazz)
                 addInterfaces(result, clazz)
                 clazz = clazz.superclass ?: break
+                result.add(clazz)
             }
 
             return result
