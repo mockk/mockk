@@ -82,7 +82,7 @@ internal class ProxyMaker(
     private fun <T : Any> inline(
         clazz: Class<T>
     ): () -> Unit {
-        val superclasses = getAllSuperclasses(clazz)
+        val superclasses = getAllSuperclassesAndItself(clazz)
 
         return if (inliner != null) {
             val transformRequest = TransformationRequest(superclasses, SIMPLE)
@@ -206,7 +206,7 @@ internal class ProxyMaker(
                 gatherAllMethods(clazz.superclass) + clazz.declaredMethods
             }
 
-        private fun getAllSuperclasses(cls: Class<*>): Set<Class<*>> {
+        private fun getAllSuperclassesAndItself(cls: Class<*>): Set<Class<*>> {
             val result = mutableSetOf<Class<*>>()
 
             var clazz = cls
