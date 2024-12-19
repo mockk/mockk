@@ -55,7 +55,7 @@ actual object ValueClassSupport {
             return if (resultType == expectedReturnType && !(isReturnNullable && isPrimitive)) {
                 this.boxedValue
             } else {
-                this
+                this.boxedValue ?: this
             }
         }
     }
