@@ -17,6 +17,7 @@ class ContainerOfOuterClass(val outerClass: OuterClass)
 
 class DefaultValueInMockedValueClassTest {
 
+    // https://github.com/mockk/mockk/issues/1330
     @Test
     fun `given nested value class when relaxed mocking is enabled then value successfully verified`() {
         // pass
