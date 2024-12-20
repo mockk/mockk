@@ -41,7 +41,7 @@ jobs:
           -Pio_mockk_java_toolchain_test_version=${{ matrix.java-version }}
 
   android-instrumented-tests:
-    runs-on: macos-15
+    runs-on: hannesa2/action-android/emulator-run-cmd@0.1.4.10
     strategy:
       matrix:
         api-level: [ 30 ] # Relevant SDK versions to test for MockK Android projects
