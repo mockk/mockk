@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 17, 19, 21 ] # test LTS versions, and the newest
-        kotlin-version: [ 1.5.31, 1.6.21, 1.7.22, 1.8.20, 1.9.10, 2.0.0 ]
+        kotlin-version: [ 1.5.31, 1.6.21, 1.7.22, 1.8.20, 1.9.10, 2.0.0, 2.1.0 ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
     name: "[java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
     timeout-minutes: 30
@@ -41,7 +41,7 @@ jobs:
           -Pio_mockk_java_toolchain_test_version=${{ matrix.java-version }}
 
   android-instrumented-tests:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         api-level: [ 30 ] # Relevant SDK versions to test for MockK Android projects
@@ -49,7 +49,14 @@ jobs:
     name: "[api-level=${{ matrix.api-level }}]"
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - uses: actions/setup-java@v3
         with:
@@ -63,7 +70,7 @@ jobs:
         run: echo "ARCH=$(if [ ${{ matrix.api-level }} -eq 27 ]; then echo 'x86'; else echo 'x86_64'; fi)" >> $GITHUB_ENV
 
       - name: AVD cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: avd-cache
         with:
           path: |
