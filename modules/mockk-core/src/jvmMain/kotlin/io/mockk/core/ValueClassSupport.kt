@@ -44,7 +44,7 @@ actual object ValueClassSupport {
             } else if (
                 (kFunction.isSuspend
                  && !(isReturnNullable || isPrimitive))
-                && (this.javaClass.toString() == expectedReturnType.toString()
+                && (this.javaClass.kotlin == expectedReturnType
                     && !unboxValueReturnTypes.contains(expectedReturnType.toString()))
             ) {
                 this.boxedValue
