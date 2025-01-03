@@ -13,6 +13,8 @@ import kotlin.reflect.jvm.kotlinFunction
 
 actual object ValueClassSupport {
 
+    private val unboxValueReturnTypes = setOf("class kotlin.Result")
+
     /**
      * Unboxes the underlying property value of a **`value class`** or self, as long the unboxed value is appropriate
      * for the given method's return type.
@@ -34,9 +36,16 @@ actual object ValueClassSupport {
             val isReturnNullable = kFunction.returnType.isMarkedNullable
             val isPrimitive = resultType.innermostBoxedClass.java.isPrimitive
             return if (
-                !(kFunction.isSuspend && isPrimitive) &&
+                !kFunction.isSuspend &&
                 resultType == expectedReturnType &&
                 !(isReturnNullable && isPrimitive)
+            ) {
+                this.boxedValue
+            } else if (
+                (kFunction.isSuspend
+                 && !(isReturnNullable || isPrimitive))
+                && (this.javaClass.toString() == expectedReturnType.toString()
+                    && !unboxValueReturnTypes.contains(expectedReturnType.toString()))
             ) {
                 this.boxedValue
             } else {
@@ -54,8 +63,10 @@ actual object ValueClassSupport {
             val isPrimitive = resultType.innermostBoxedClass.java.isPrimitive
             return if (resultType == expectedReturnType && !(isReturnNullable && isPrimitive)) {
                 this.boxedValue
+            } else if (!(isReturnNullable && isPrimitive)) {
+                this.boxedValue
             } else {
-                this.boxedValue ?: this
+                this
             }
         }
     }
