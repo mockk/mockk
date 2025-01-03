@@ -7,12 +7,15 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
 import java.util.UUID
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ValueClassTest {
 
@@ -23,6 +26,29 @@ class ValueClassTest {
     private val dummyComplexValueClassArg get() = ComplexValue(UUID.fromString("4d19b22c-7754-4c55-ba4d-f80109708a1f"))
     private val dummyValueClassReturn get() = DummyValue(202)
     private val dummyComplexValueClassReturn get() = ComplexValue(UUID.fromString("25581db2-4cdb-48cd-a6c9-e087aee31f0b"))
+
+    private interface Action<Params, ReturnType> {
+        suspend fun execute(params: Params): ReturnType
+    }
+
+    private class ResultTest : Action<Unit, Result<String>> {
+        override suspend fun execute(params: Unit): Result<String> {
+            return Result.success("some result")
+        }
+    }
+
+    @Nested
+    inner class TestWithCoEvery {
+        private val resultTest = mockk<ResultTest> {
+            coEvery { execute(Unit) } coAnswers { Result.success("abc") }
+        }
+
+        @Test
+        fun `given a test when mocking value classes with coEvery Result returns then success`() = runTest {
+            val result = resultTest.execute(Unit)
+            assertTrue(result.isSuccess)
+        }
+    }
 
     //<editor-fold desc="arg=Value Class, return=ValueClass">
     @Test
@@ -303,7 +329,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(Wrapper), returns ValueClass`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnValueClass(any()) } returns dummyValueClassReturn
@@ -343,7 +368,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(Wrapper), answers ValueClass`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnValueClass(any()) } answers { dummyValueClassReturn }
@@ -386,7 +410,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(Wrapper), returns Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(any()) } returns dummyValueWrapperReturn
@@ -426,7 +449,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(Wrapper), answers Wrapper`() {
         val mock = mockk<DummyService> {
             every { argWrapperReturnWrapper(any()) } answers { dummyValueWrapperReturn }
