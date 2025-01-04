@@ -13,7 +13,7 @@ import kotlin.reflect.jvm.kotlinFunction
 
 actual object ValueClassSupport {
 
-    private val unboxValueReturnTypes = setOf("class kotlin.Result")
+    private val unboxValueReturnTypes = setOf(Result.success("").javaClass.kotlin)
 
     /**
      * Unboxes the underlying property value of a **`value class`** or self, as long the unboxed value is appropriate
@@ -45,7 +45,7 @@ actual object ValueClassSupport {
                 (kFunction.isSuspend
                  && !(isReturnNullable || isPrimitive))
                 && (this.javaClass.kotlin == expectedReturnType
-                    && !unboxValueReturnTypes.contains(expectedReturnType.toString()))
+                    && !unboxValueReturnTypes.contains(expectedReturnType))
             ) {
                 this.boxedValue
             } else {
