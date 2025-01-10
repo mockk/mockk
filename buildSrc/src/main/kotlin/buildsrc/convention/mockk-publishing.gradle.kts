@@ -50,9 +50,9 @@ val localrepo: String by project
 publishing {
     repositories {
         // publish to local dir, for testing
-        /*maven(rootProject.layout.projectDirectory.dir(localrepo)) {
+        maven(rootProject.layout.projectDirectory.dir(localrepo)) {
             name = "LocalRepo"
-        }*/
+        }
 
         /*maven {
             url = uri(sonatypeRepositoryReleaseUrl)
