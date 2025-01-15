@@ -36,16 +36,9 @@ actual object ValueClassSupport {
             val isReturnNullable = kFunction.returnType.isMarkedNullable
             val isPrimitive = resultType.innermostBoxedClass.java.isPrimitive
             return if (
-                !kFunction.isSuspend &&
+                !(kFunction.isSuspend && isPrimitive) &&
                 resultType == expectedReturnType &&
                 !(isReturnNullable && isPrimitive)
-            ) {
-                this.boxedValue
-            } else if (
-                (kFunction.isSuspend
-                 && !(isReturnNullable || isPrimitive))
-                && (this.javaClass.kotlin == expectedReturnType
-                    && !unboxValueReturnTypes.contains(expectedReturnType))
             ) {
                 this.boxedValue
             } else {
