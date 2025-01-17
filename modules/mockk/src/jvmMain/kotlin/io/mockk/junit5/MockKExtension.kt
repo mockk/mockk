@@ -127,7 +127,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
     }
 
     private fun finish(context: ExtensionContext) {
-        if (!context.keepMocks) {
+        if (!context.keepMocks && !context.requireParallelTesting) {
             unmockkAll()
         }
 
