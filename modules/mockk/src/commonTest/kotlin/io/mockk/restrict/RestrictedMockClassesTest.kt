@@ -102,4 +102,17 @@ class RestrictedMockClassesTest {
 
         assertEquals(ex.message, "Cannot mock restricted class: java.io.File")
     }
+
+    @Test
+    fun `should throw an exception when mocking a user-defined restricted class if setting is enabled`() {
+        MockKSettings.setDisallowMockingRestrictedClasses(true)
+        val customClass = UUID::class.java
+        RestrictedMockClasses.addRestrictedType(customClass)
+
+        val ex = assertThrows<IllegalArgumentException> {
+            RestrictedMockClasses.handleRestrictedMocking(customClass)
+        }
+
+        assertEquals(ex.message, "Cannot mock restricted class: java.util.UUID")
+    }
 }
