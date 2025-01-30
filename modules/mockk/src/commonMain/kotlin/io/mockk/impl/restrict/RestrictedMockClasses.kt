@@ -1,5 +1,6 @@
 package io.mockk.impl.restrict
 
+import io.mockk.MockKSettings
 import java.io.File
 import java.nio.file.Path
 import java.util.logging.Logger
@@ -19,9 +20,13 @@ object RestrictedMockClasses {
 
     private val userDefinedRestrictedTypes = mutableSetOf<Class<*>>()
 
-    fun warnIfRestricted(clazz: Class<*>) {
+    fun handleRestrictedMocking(clazz: Class<*>) {
         if (isRestricted(clazz)) {
-            logger.warning("Warning: Attempting to mock a restricted class (${clazz.name}). This is usually a bad practice.")
+            if (MockKSettings.disallowMockingRestrictedClasses) {
+                throw IllegalArgumentException("Cannot mock restricted class: ${clazz.name}")
+            } else {
+                logger.warning("Warning: Attempting to mock a restricted class (${clazz.name}). This is usually a bad practice.")
+            }
         }
     }
 

@@ -33,6 +33,12 @@ actual object MockKSettings {
     actual val stackTracesAlignment: StackTracesAlignment
         get() = stackTracesAlignmentValueOf(properties.getProperty("stackTracesAlignment", "center"))
 
+    actual val disallowMockingRestrictedClasses: Boolean
+        get() = booleanProperty("disallowMockingRestrictedClasses", "false")
+
+    fun setDisallowMockingRestrictedClasses(value: Boolean) {
+        properties.setProperty("disallowMockingRestrictedClasses", value.toString())
+    }
 
     fun setRelaxed(value: Boolean) {
         properties.setProperty("relaxed", value.toString())

@@ -40,7 +40,7 @@ inline fun <reified T : Any> mockk(
     relaxUnitFun: Boolean = false,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
-    RestrictedMockClasses.warnIfRestricted(T::class.java)
+    RestrictedMockClasses.handleRestrictedMocking(T::class.java)
 
     MockKDsl.internalMockk(
         name,
