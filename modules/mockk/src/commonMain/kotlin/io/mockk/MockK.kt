@@ -2,6 +2,7 @@
 
 package io.mockk
 
+import io.mockk.impl.restrict.RestrictedMockClasses
 import kotlin.reflect.KClass
 
 /**
@@ -39,6 +40,8 @@ inline fun <reified T : Any> mockk(
     relaxUnitFun: Boolean = false,
     block: T.() -> Unit = {}
 ): T = MockK.useImpl {
+    RestrictedMockClasses.warnIfRestricted(T::class.java)
+
     MockKDsl.internalMockk(
         name,
         relaxed,
