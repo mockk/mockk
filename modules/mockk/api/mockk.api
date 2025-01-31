@@ -912,6 +912,15 @@ public final class io/mockk/impl/recording/states/VerifyingState$Companion {
 	public final fun getLog ()Lio/mockk/impl/log/Logger;
 }
 
+public final class io/mockk/impl/restrict/RestrictedMockClasses {
+	public static final field INSTANCE Lio/mockk/impl/restrict/RestrictedMockClasses;
+	public final fun addRestrictedType (Ljava/lang/Class;)V
+	public final fun clearUserDefinedRestrictions ()V
+	public final fun handleRestrictedMocking (Ljava/lang/Class;)V
+	public final fun isRestricted (Ljava/lang/Class;)Z
+	public final fun removeRestrictedType (Ljava/lang/Class;)V
+}
+
 public final class io/mockk/impl/stub/AnswerAnsweringOpportunity : io/mockk/Answer, io/mockk/MockKGateway$AnswerOpportunity {
 	public fun <init> (Lkotlin/jvm/functions/Function0;)V
 	public fun answer (Lio/mockk/Call;)Ljava/lang/Object;
