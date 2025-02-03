@@ -226,6 +226,18 @@ public abstract interface annotation class io/mockk/impl/annotations/MockK : jav
 	public abstract fun relaxed ()Z
 }
 
+public abstract interface annotation class io/mockk/impl/annotations/MockkRestricted : java/lang/annotation/Annotation {
+	public abstract fun mode ()Lio/mockk/impl/annotations/MockkRestrictedMode;
+	public abstract fun restricted ()[Ljava/lang/Class;
+}
+
+public final class io/mockk/impl/annotations/MockkRestrictedMode : java/lang/Enum {
+	public static final field EXCEPTION Lio/mockk/impl/annotations/MockkRestrictedMode;
+	public static final field WARN Lio/mockk/impl/annotations/MockkRestrictedMode;
+	public static fun valueOf (Ljava/lang/String;)Lio/mockk/impl/annotations/MockkRestrictedMode;
+	public static fun values ()[Lio/mockk/impl/annotations/MockkRestrictedMode;
+}
+
 public abstract interface annotation class io/mockk/impl/annotations/OverrideMockKs : java/lang/annotation/Annotation {
 	public abstract fun injectImmutable ()Z
 	public abstract fun lookupType ()Lio/mockk/impl/annotations/InjectionLookupType;
@@ -912,13 +924,17 @@ public final class io/mockk/impl/recording/states/VerifyingState$Companion {
 	public final fun getLog ()Lio/mockk/impl/log/Logger;
 }
 
+public final class io/mockk/impl/restrict/MockingRestrictedExtension : org/junit/jupiter/api/extension/BeforeEachCallback {
+	public fun <init> ()V
+	public fun beforeEach (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
+}
+
 public final class io/mockk/impl/restrict/RestrictedMockClasses {
 	public static final field INSTANCE Lio/mockk/impl/restrict/RestrictedMockClasses;
-	public final fun addRestrictedType (Ljava/lang/Class;)V
-	public final fun clearUserDefinedRestrictions ()V
 	public final fun handleRestrictedMocking (Ljava/lang/Class;)V
 	public final fun isRestricted (Ljava/lang/Class;)Z
-	public final fun removeRestrictedType (Ljava/lang/Class;)V
+	public final fun resetUserDefinedRestrictedTypes ()V
+	public final fun setUserDefinedRestrictedTypes (Ljava/util/List;)V
 }
 
 public final class io/mockk/impl/stub/AnswerAnsweringOpportunity : io/mockk/Answer, io/mockk/MockKGateway$AnswerOpportunity {
