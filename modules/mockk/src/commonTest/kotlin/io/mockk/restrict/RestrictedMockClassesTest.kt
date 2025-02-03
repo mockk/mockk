@@ -1,8 +1,14 @@
 package io.mockk.restrict
 
 import io.mockk.MockKSettings
+import io.mockk.impl.annotations.MockkRestricted
+import io.mockk.impl.annotations.MockkRestrictedMode
+import io.mockk.impl.restrict.MockingRestrictedExtension
 import io.mockk.impl.restrict.RestrictedMockClasses
+import io.mockk.mockk
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.nio.file.Path
 import java.util.*
@@ -12,9 +18,9 @@ import java.util.logging.SimpleFormatter
 import java.util.logging.StreamHandler
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@ExtendWith(MockingRestrictedExtension::class)
 class RestrictedMockClassesTest {
 
     private fun captureLogs(action: () -> Unit): String {
@@ -50,46 +56,42 @@ class RestrictedMockClassesTest {
     }
 
     @Test
-    fun `should allow adding and removing custom restricted types`() {
-        val customClass = String::class.java
-
-        RestrictedMockClasses.addRestrictedType(customClass)
-        assertTrue { RestrictedMockClasses.isRestricted(customClass) }
-
-        RestrictedMockClasses.removeRestrictedType(customClass)
-        assertFalse { RestrictedMockClasses.isRestricted(customClass) }
-    }
-
-    @Test
-    fun `should clear user-defined restricted types while keeping defaults`() {
-        val customClass = UUID::class.java
-
-        RestrictedMockClasses.addRestrictedType(customClass)
-        RestrictedMockClasses.clearUserDefinedRestrictions()
-
-        assertFalse { RestrictedMockClasses.isRestricted(customClass) }
-        assertTrue { RestrictedMockClasses.isRestricted(System::class.java) }
-    }
-
-    @Test
     fun `should log warning when attempting to mock restricted class if setting is default`() {
-        val logOutput = captureLogs {
-            RestrictedMockClasses.handleRestrictedMocking(File::class.java)
-        }
-
-        assertTrue { "Warning: Attempting to mock a restricted class (java.io.File)" in logOutput }
+        assertDoesNotThrow { mockk<File>() }
     }
 
     @Test
-    fun `should log warning when mocking restricted class if setting is disabled`() {
-        val logOutput = captureLogs {
-            RestrictedMockClasses.handleRestrictedMocking(File::class.java)
+    fun `If the annotation is not used, a warning log is recorded`() {
+        assertDoesNotThrow { mockk<File>() }
+    }
+
+    @Test
+    @MockkRestricted(mode = MockkRestrictedMode.WARN)
+    fun `WARN value of the annotation is a warning log`() {
+        assertDoesNotThrow {
+            mockk<File>()
+        }
+    }
+
+    @Test
+    @MockkRestricted(mode = MockkRestrictedMode.EXCEPTION)
+    fun `If the annotation's option is set, it should throw an IllegalArgumentException`() {
+        assertThrows<IllegalArgumentException> {
+            mockk<File>()
+        }
+    }
+
+    @Test
+    @MockkRestricted(mode = MockkRestrictedMode.EXCEPTION, restricted = [UUID::class, RestrictedMockAtomicTest.Foo::class])
+    fun `custom classes can be configured`() {
+
+        assertDoesNotThrow {
+            mockk<Date>()
         }
 
-        MockKSettings.setDisallowMockingRestrictedClasses(false)
-
-        RestrictedMockClasses.handleRestrictedMocking(File::class.java)
-        assertTrue { "Warning: Attempting to mock a restricted class (java.io.File)" in logOutput }
+        assertThrows<IllegalArgumentException> {
+            mockk<RestrictedMockAtomicTest.Foo>()
+        }
     }
 
     @Test
@@ -101,18 +103,5 @@ class RestrictedMockClassesTest {
         }
 
         assertEquals(ex.message, "Cannot mock restricted class: java.io.File")
-    }
-
-    @Test
-    fun `should throw an exception when mocking a user-defined restricted class if setting is enabled`() {
-        MockKSettings.setDisallowMockingRestrictedClasses(true)
-        val customClass = UUID::class.java
-        RestrictedMockClasses.addRestrictedType(customClass)
-
-        val ex = assertThrows<IllegalArgumentException> {
-            RestrictedMockClasses.handleRestrictedMocking(customClass)
-        }
-
-        assertEquals(ex.message, "Cannot mock restricted class: java.util.UUID")
     }
 }

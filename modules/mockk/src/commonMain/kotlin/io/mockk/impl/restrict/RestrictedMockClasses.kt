@@ -8,12 +8,10 @@ import java.util.logging.Logger
 object RestrictedMockClasses {
     private val logger = Logger.getLogger(RestrictedMockClasses::class.java.name)
 
-    private val defaultRestrictedTypes: Set<Class<*>> = setOf(
+    private val defaultRestrictedTypes: MutableSet<Class<*>> = mutableSetOf(
         System::class.java,
-
         Collection::class.java,
         Map::class.java,
-
         File::class.java,
         Path::class.java
     )
@@ -35,15 +33,12 @@ object RestrictedMockClasses {
                 userDefinedRestrictedTypes.any { it.isAssignableFrom(clazz) }
     }
 
-    fun addRestrictedType(clazz: Class<*>) {
-        userDefinedRestrictedTypes.add(clazz)
+    fun setUserDefinedRestrictedTypes(classes: List<Class<*>>) {
+        userDefinedRestrictedTypes.clear()
+        userDefinedRestrictedTypes.addAll(classes)
     }
 
-    fun removeRestrictedType(clazz: Class<*>) {
-        userDefinedRestrictedTypes.remove(clazz)
-    }
-
-    fun clearUserDefinedRestrictions() {
+    fun resetUserDefinedRestrictedTypes() {
         userDefinedRestrictedTypes.clear()
     }
 }
