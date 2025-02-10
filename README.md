@@ -1600,7 +1600,7 @@ fun `when throwExceptionOnBadMock is false should not throw exception for collec
 @Test
 fun `when throwExceptionOnBadMock is true should throw MockKException for collections`() {
     assertThrows<MockKException> {
-        mockk<List<String>>()  // Throws MockException
+        mockk<List<String>>()  // Throws MockKException
     }
 }
 ```
