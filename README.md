@@ -1123,6 +1123,8 @@ Note: in the examples below, we use `propertyType` to specify the type of the `f
 This is needed because it is possible to capture the type automatically for the getter.
 Use `nullablePropertyType` to specify a nullable type.
 
+**Note:** This is only for public fields. It is nearly impossible to mock private properties as they don't have getter methods attached. Use Java reflection to make the field accessible or use `@VisibleForTesting` annotation in the source.
+
 ```kotlin
 val mock = spyk(MockCls(), recordPrivateCalls = true)
 
