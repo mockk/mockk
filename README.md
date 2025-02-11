@@ -46,7 +46,7 @@ testImplementation "io.mockk:mockk:${mockkVersion}"
 </td>
 </tr>
 <tr>
-<td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
+<td><a href="ANDROID.html"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Unit</a></td>
 <td>
 <pre>
 testImplementation "io.mockk:mockk-android:${mockkVersion}"
@@ -55,7 +55,7 @@ testImplementation "io.mockk:mockk-agent:${mockkVersion}"
 </td>
 </tr>
 <tr>
-<td><a href="ANDROID.md"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
+<td><a href="ANDROID.html"><img align="top" src="doc/robot-small.png" height="20" alt="android"/> Instrumented</a></td>
 <td>
 <pre>
 androidTestImplementation "io.mockk:mockk-android:${mockkVersion}"
