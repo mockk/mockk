@@ -17,7 +17,6 @@ actual object MockKSettings {
             defaultValue
         )!!.toBoolean()
 
-
     actual val relaxed: Boolean
         get() = booleanProperty("relaxed", "false")
 
@@ -32,7 +31,6 @@ actual object MockKSettings {
 
     actual val stackTracesAlignment: StackTracesAlignment
         get() = stackTracesAlignmentValueOf(properties.getProperty("stackTracesAlignment", "center"))
-
 
     fun setRelaxed(value: Boolean) {
         properties.setProperty("relaxed", value.toString())

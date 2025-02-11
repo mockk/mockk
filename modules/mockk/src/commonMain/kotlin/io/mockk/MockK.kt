@@ -2,6 +2,8 @@
 
 package io.mockk
 
+import io.mockk.impl.restrict.MockkValidator
+import io.mockk.impl.restrict.RestrictMockkConfiguration
 import kotlin.reflect.KClass
 
 /**
@@ -37,8 +39,11 @@ inline fun <reified T : Any> mockk(
     relaxed: Boolean = false,
     vararg moreInterfaces: KClass<*>,
     relaxUnitFun: Boolean = false,
-    block: T.() -> Unit = {}
+    mockValidator: MockkValidator = MockkValidator(RestrictMockkConfiguration()),
+    block: T.() -> Unit = {},
 ): T = MockK.useImpl {
+    mockValidator.validateMockableClass(T::class)
+
     MockKDsl.internalMockk(
         name,
         relaxed,
@@ -467,7 +472,6 @@ inline fun <reified T : Any> registerInstanceFactory(noinline instanceFactory: (
         MockKDsl.internalRegisterInstanceFactory(instanceFactory)
     }
 
-
 /**
  * Executes block of code with registering and unregistering instance factory.
  */
@@ -706,7 +710,7 @@ inline fun clearAllMocks(
         objectMocks,
         staticMocks,
         constructorMocks,
-        currentThreadOnly=currentThreadOnly
+        currentThreadOnly = currentThreadOnly
     )
 }
 
@@ -730,7 +734,6 @@ fun isMockKMock(
         constructorMock
     )
 }
-
 
 object MockKAnnotations {
     /**
