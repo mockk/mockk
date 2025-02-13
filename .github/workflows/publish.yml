@@ -1,0 +1,40 @@
+name: Publishing
+
+on:
+  # Only publish when 'All tests' has finished on master branch
+  workflow_run:
+    workflows: [ All tests ]
+    branches: [ master ]
+    types: [ completed ]
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  publish_snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # only publish if the tests passed
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 11
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Publish snapshot to Sonatype
+        env:
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.GRADLE_SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GRADLE_SIGNING_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingSecretKeyRingFile: ${{ secrets.GRADLE_SIGNING_SECRET_KEY_RING_FILE }}
+          ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSS_SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSS_SONATYPE_PASSWORD }}
+        run: ./gradlew publishToSonatypeStaging --no-parallel
+        # don't run in parallel - Sonatype doesn't like it
