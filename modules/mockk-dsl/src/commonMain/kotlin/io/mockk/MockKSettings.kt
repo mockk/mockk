@@ -10,6 +10,8 @@ expect object MockKSettings {
     val stackTracesOnVerify: Boolean
 
     val stackTracesAlignment: StackTracesAlignment
+
+    val failOnSetBackingFieldException: Boolean
 }
 
 enum class StackTracesAlignment {
