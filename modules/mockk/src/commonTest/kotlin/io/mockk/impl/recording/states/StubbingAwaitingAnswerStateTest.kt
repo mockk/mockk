@@ -3,6 +3,9 @@ package io.mockk.impl.recording.states
 import io.mockk.*
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.AnswerAnsweringOpportunity
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.assertThrows
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -40,4 +43,29 @@ class StubbingAwaitingAnswerStateTest {
         verify { recorder.stubRepo.stubFor(obj2).addAnswer(call2.matcher, ofType(AnswerAnsweringOpportunity::class)) }
         verify { recorder.factories.answeringState(any()) }
     }
+
+    @Test
+    fun `failOnSetBackingFieldException false just runs for invalid mock`() {
+        val testContainerMock = mockk<TestContainer>()
+
+        every { testContainerMock getProperty "someInt" } returns "mockValue"
+    }
+
+    @Test
+    fun `failOnSetBackingFieldException true leads to exception for invalid mock`() {
+        try {
+            MockKSettings.setFailOnSetBackingFieldException(true)
+            val testContainerMock = mockk<TestContainer>()
+            assertThrows<IllegalArgumentException> {
+                every { testContainerMock getProperty "someInt" } returns "mockValue" }
+        } finally {
+            // We reset the settings in the end to avoid side effects for other tests
+            MockKSettings.setFailOnSetBackingFieldException(false)
+        }
+    }
+}
+
+private class TestContainer {
+    @Suppress("unused") // Accessed via reflection
+    val someInt = 5
 }

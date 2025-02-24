@@ -17,4 +17,7 @@ actual object MockKSettings {
         get() = stackTracesAlignmentValueOf(
             js("global.io_mockk_settings_stackTracesAlignment || \"center\"") as String
         )
+
+    actual val failOnSetBackingFieldException: Boolean
+        get() = js("global.io_mockk_settings_failOnSetBackingFieldException || false") as Boolean
 }

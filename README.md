@@ -1309,10 +1309,14 @@ relaxUnitFun=true|false
 recordPrivateCalls=true|false
 stackTracesOnVerify=true|false
 stackTracesAlignment=left|center
+failOnSetBackingFieldException=true|false
 ```
 
-`stackTracesAlignment` determines whether to align the stack traces to the center (default),
+* `stackTracesAlignment` determines whether to align the stack traces to the center (default),
  or to the left (more consistent with usual JVM stackTraces).
+* If `failOnSetBackingFieldException` (`false` by default) is set to `true`, tests fail if a
+ backing field could not be set. Otherwise, only the warning "Failed to set backing field" will be logged.
+ See [here](https://github.com/mockk/mockk/issues/1291) for more details.
 
 ## DSL tables
 

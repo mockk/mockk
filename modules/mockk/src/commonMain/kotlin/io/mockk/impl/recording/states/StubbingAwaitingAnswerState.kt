@@ -67,7 +67,12 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
 
             InternalPlatformDsl.dynamicSetField(mock, fieldName, ans.constantValue)
         } catch (ex: Exception) {
-            log.warn(ex) { "Failed to set backing field (skipping)" }
+            if (MockKSettings.failOnSetBackingFieldException) {
+                log.error(ex) { "Failed to set backing field"}
+               throw ex
+            } else {
+                log.warn(ex) { "Failed to set backing field (skipping)" }
+            }
         }
     }
 

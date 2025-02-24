@@ -32,6 +32,9 @@ actual object MockKSettings {
     actual val stackTracesAlignment: StackTracesAlignment
         get() = stackTracesAlignmentValueOf(properties.getProperty("stackTracesAlignment", "center"))
 
+    actual val failOnSetBackingFieldException: Boolean
+        get() = booleanProperty("failOnSetBackingFieldException", "false")
+
     fun setRelaxed(value: Boolean) {
         properties.setProperty("relaxed", value.toString())
     }
@@ -46,5 +49,9 @@ actual object MockKSettings {
 
     fun setStackTracesAlignment(value: String) {
         properties.setProperty("stackTracesAlignment", value)
+    }
+
+    fun setFailOnSetBackingFieldException(value: Boolean) {
+        properties.setProperty("failOnSetBackingFieldException", value.toString())
     }
 }
