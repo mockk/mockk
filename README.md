@@ -498,7 +498,7 @@ assertEquals(4, MockCls(4).add(7))
 
 verify { 
     constructedWith<MockCls>().add(1)
-    constructedWith<MockCls>("2").add(2)
+    constructedWith<MockCls>(EqMatcher("2")).add(2)
     constructedWith<MockCls>(EqMatcher(4)).add(7)
 }
 ```
