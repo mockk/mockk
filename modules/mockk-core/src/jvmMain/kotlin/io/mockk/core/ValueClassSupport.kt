@@ -70,6 +70,7 @@ actual object ValueClassSupport {
 
     /**
      * Underlying property value of a **`value class`** or self.
+     * Includes workaround for [Result] class
      *
      * The type of the return might also be a `value class`!
      */
@@ -78,7 +79,13 @@ actual object ValueClassSupport {
         get() = if (!this::class.isValue_safe) {
             this
         } else {
-            (this::class as KClass<T>).boxedProperty.get(this)
+            val klass = (this::class as KClass<T>)
+            val boxedProperty = klass.boxedProperty.get(this)
+            if (klass == Result::class) {
+                boxedProperty
+            } else {
+                boxedProperty?.boxedValue
+            }
         }
 
     /**
