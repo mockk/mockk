@@ -258,7 +258,9 @@ fun coVerify(
 }
 
 /**
- * Verifies that all calls inside [verifyBlock] happened. **Does not** verify any order.
+ * Verifies all the calls of the mocks specified inside [verifyBlock]. 
+ * Once a mock is specified inside [verifyBlock], all its recorded calls are expected to be verified within [verifyBlock]. Otherwise, the verification fails. 
+ * **Does not** verify any order.
  *
  * If ordering is important, use [verifyOrder].
  *
