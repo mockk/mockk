@@ -632,7 +632,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun confirmVerifiedAll() {
-        clearAllMocks()
         doCalls1()
 
         verify {
@@ -646,7 +645,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun confirmVerifiedAllInverse() {
-        clearAllMocks()
         doCalls1()
 
         verify {
@@ -661,7 +659,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun confirmVerifiedAllExclude() {
-        clearAllMocks()
         excludeRecords(current = false) {
             mock.op(7)
         }
