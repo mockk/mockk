@@ -15,6 +15,7 @@ import net.bytebuddy.asm.AsmVisitorWrapper
 import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
+import net.bytebuddy.dynamic.VisibilityBridgeStrategy
 import net.bytebuddy.matcher.ElementMatchers.*
 import java.io.File
 import java.lang.instrument.ClassFileTransformer
@@ -71,7 +72,9 @@ internal class InliningClassTransformer(
                 ?: return classfileBuffer
 
         try {
-            val builder = byteBuddy.redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
+            val builder = byteBuddy
+                .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
+                .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
                 .visit(FixParameterNamesVisitor(classBeingRedefined))
 
             val type = builder
