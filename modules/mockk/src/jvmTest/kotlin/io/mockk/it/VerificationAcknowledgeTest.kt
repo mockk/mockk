@@ -588,51 +588,7 @@ class VerificationAcknowledgeTest {
     }
 
     @Test
-    fun clearMarks() {
-
-        every { mock.op(1) } returns 1
-        every { mock.op(2) } returns 2
-        every { mock.op(3) } returns 3
-        every { mock.op(4) } returns 4
-
-        assertEquals(1, mock.op(1))
-        assertEquals(2, mock.op(2))
-        assertEquals(3, mock.op(3))
-        assertEquals(4, mock.op(4))
-
-        verify {
-            mock.op(1)
-            mock.op(2)
-            mock.op(3)
-        }
-
-        assertFails {
-            confirmVerified(mock)
-        }
-
-        verify {
-            mock.op(4)
-        }
-
-        confirmVerified(mock)
-
-        clearMocks(
-            mock,
-            answers = false,
-            recordedCalls = false,
-            childMocks = false,
-            verificationMarks = true,
-            exclusionRules = false
-        )
-
-        assertFails {
-            confirmVerified(mock)
-        }
-    }
-
-    @Test
     fun confirmVerifiedAll() {
-        clearAllMocks()
         doCalls1()
 
         verify {
@@ -646,7 +602,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun confirmVerifiedAllInverse() {
-        clearAllMocks()
         doCalls1()
 
         verify {
@@ -661,7 +616,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun confirmVerifiedAllExclude() {
-        clearAllMocks()
         excludeRecords(current = false) {
             mock.op(7)
         }

@@ -270,13 +270,27 @@ object MockKDsl {
      * Checks if all recorded calls were verified.
      */
     fun internalConfirmVerified(mocks: Array<out Any>) {
+        val verifier = MockKGateway.implementation().verificationAcknowledger
+
         if (mocks.isEmpty()) {
-            MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified()
+            verifier.acknowledgeVerified()
+        } else {
+            mocks.forEach { verifier.acknowledgeVerified(it) }
         }
 
-        for (mock in mocks) {
-            MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified(mock)
-        }
+        resetVerificationState()
+    }
+
+    private fun resetVerificationState() {
+        val options = ClearOptions(
+            answers = false,
+            recordedCalls = true,
+            childMocks = false,
+            verificationMarks = true,
+            exclusionRules = false
+        )
+
+        MockKGateway.implementation().clearer.clearAll(options, currentThreadOnly = true)
     }
 
     /**
