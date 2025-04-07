@@ -73,8 +73,7 @@ internal class InliningClassTransformer(
 
         try {
             val builder = byteBuddy
-                .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
-                .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
+                .decorate(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
                 .visit(FixParameterNamesVisitor(classBeingRedefined))
 
             val type = builder
