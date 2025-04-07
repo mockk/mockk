@@ -116,7 +116,7 @@ class JvmConstructorMockFactory(
 
         private fun getConstructorMock(args: Array<Matcher<*>>?): ConstructorMock? {
             return synchronized(handlers) {
-                if (args == null) {
+                if (args.isNullOrEmpty()) {
                     if (allHandler == null) {
                         allHandler = ConstructorMock(cls, recordPrivateCalls)
                     }

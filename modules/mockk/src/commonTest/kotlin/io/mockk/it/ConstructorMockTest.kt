@@ -153,6 +153,19 @@ class ConstructorMockTest {
     }
 
     @Test
+    fun `constructedWith() using default constructor params`() {
+        mockkConstructor(MockCls::class)
+
+        every { constructedWith<MockCls>().op(1, 3) } returns 33
+
+        assertEquals(33, MockCls().op(1, 3))
+
+        verify {
+            constructedWith<MockCls>().op(1, 3)
+        }
+    }
+
+    @Test
     fun unmockkAllconstructedWith() {
         mockkConstructor(MockCls::class)
         mockkConstructor(MockCls::class)
