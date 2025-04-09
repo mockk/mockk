@@ -411,6 +411,25 @@ public class JvmMockKProxyMakerTest {
         checkProxyHandlerCalled(1, proxy, "i", 1, 1);
     }
 
+    interface InterfaceWithDefault {
+        default void foo(Runnable d) {
+            d.run();
+        }
+    }
+
+    static public class ClassImplementingPackagePrivateInterfaceWithDefaultMethod implements InterfaceWithDefault {
+    }
+
+    @Test
+    public void classImplementingPackagePrivateInterfaceWithDefaultMethodProxy() {
+        ClassImplementingPackagePrivateInterfaceWithDefaultMethod proxy = makeProxy(ClassImplementingPackagePrivateInterfaceWithDefaultMethod.class);
+
+        proxy.foo(() -> { executed[0] = true; });
+
+        assertFalse(executed[0]);
+        checkProxyHandlerCalled(1, proxy, "foo", 1, 1);
+    }
+
     private void checkProxyHandlerCalled(int nTimes, Object proxy, String methodName) {
         checkProxyHandlerCalled(nTimes, proxy, methodName, 0, 0);
     }
