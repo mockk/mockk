@@ -1301,7 +1301,7 @@ val builderMock = mockk<MyBuilder> {
 To adjust parameters globally, there are a few settings you can specify in a resource file.
 
 How to use: 
- 1. Create a `io/mockk/settings.properties` file in `src/main/resources`.
+ 1. Create a `io/mockk/settings.properties` file in `src/test/resources`.
  2. Put any of the following options:
 ```properties
 relaxed=true|false
@@ -1554,7 +1554,7 @@ You can configure Restricted Mocking behavior using the `mockk.properties` file.
 Place the file in one of the following directories:
 
 ```plaintext
-src/main/resources/mockk.properties
+src/test/resources/mockk.properties
 ```
 
 #### 2. Configuration Options
