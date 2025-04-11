@@ -2,6 +2,7 @@ import buildsrc.config.kotlinVersion
 
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
+    jacoco
 }
 
 kotlin {
@@ -39,12 +40,25 @@ kotlin {
                 implementation(buildsrc.config.Deps.Libs.logback)
 
                 implementation(buildsrc.config.Deps.Libs.junitJupiter)
+                implementation(buildsrc.config.Deps.Libs.apacheCommons)
             }
         }
+    }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.withType<Test>())
+
+    reports {
+        html.required.set(true)
+        xml.required.set(false)
+        csv.required.set(false)
     }
 }
 
 tasks.withType<Test> {
     // Forward the expected Kotlin version to unit tests
     environment("kotlin.version", kotlinVersion())
+    useJUnitPlatform()
+    finalizedBy(tasks.getByName("jacocoTestReport"))
 }
