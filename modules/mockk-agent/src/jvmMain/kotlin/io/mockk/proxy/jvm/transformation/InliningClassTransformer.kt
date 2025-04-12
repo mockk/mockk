@@ -73,7 +73,9 @@ internal class InliningClassTransformer(
 
         try {
             val builder = byteBuddy
-                .decorate(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
+                // Work around for https://bugs.openjdk.org/browse/JDK-8136614
+                .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
+                .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
                 .visit(FixParameterNamesVisitor(classBeingRedefined))
 
             val type = builder
