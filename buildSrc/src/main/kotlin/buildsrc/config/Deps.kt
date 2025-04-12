@@ -42,8 +42,6 @@ object Deps {
         const val junit4 = "junit:junit:${Versions.junit4}"
         const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"
 
-        const val apacheCommons = "org.apache.commons:commons-lang3:${Versions.apacheCommons}"
-
         const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
         const val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test"

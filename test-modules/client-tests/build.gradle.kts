@@ -40,7 +40,6 @@ kotlin {
                 implementation(buildsrc.config.Deps.Libs.logback)
 
                 implementation(buildsrc.config.Deps.Libs.junitJupiter)
-                implementation(buildsrc.config.Deps.Libs.apacheCommons)
             }
         }
     }

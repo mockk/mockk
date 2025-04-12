@@ -1,22 +1,23 @@
 package io.mockk.impl
 
+import io.mockk.core.ClassWithStaticField
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.apache.commons.lang3.RandomStringUtils
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class MockkStaticWithInitializerTest {
     @Test
-    fun `should be able to mockk static with coverage `() {
-        mockkStatic(RandomStringUtils::class)
-        every { RandomStringUtils.secure().nextAlphanumeric(any()) } returns "x"
+    fun `should be able to mockk static a class with static fields with coverage `() {
+        mockkStatic(ClassWithStaticField::class)
+        every { ClassWithStaticField.instance().foo() } returns 12
 
-        assertEquals(RandomStringUtils.secure().nextAlphanumeric(8), "x")
+        assertEquals(12, ClassWithStaticField.instance().foo())
 
-        verify(exactly = 1) { RandomStringUtils.secure().nextAlphanumeric(8) }
-        unmockkStatic(RandomStringUtils::class)
+        verify(exactly = 1) { ClassWithStaticField.instance().foo() }
+        unmockkStatic(ClassWithStaticField::class)
+        assertEquals(10, ClassWithStaticField.instance().foo())
     }
 }
