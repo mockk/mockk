@@ -272,16 +272,19 @@ object MockKDsl {
     fun internalConfirmVerified(mocks: Array<out Any>) {
         val verifier = MockKGateway.implementation().verificationAcknowledger
 
-        if (mocks.isEmpty()) {
-            verifier.acknowledgeVerified()
-        } else {
-            mocks.forEach { verifier.acknowledgeVerified(it) }
+        try {
+            if (mocks.isEmpty()) {
+                verifier.acknowledgeVerified()
+            } else {
+                mocks.forEach { verifier.acknowledgeVerified(it) }
+            }
+        } finally {
+            resetVerificationState(mocks)
         }
-
-        resetVerificationState()
     }
 
-    private fun resetVerificationState() {
+    private fun resetVerificationState(mocks: Array<out Any>) {
+        val implementation = MockKGateway.implementation()
         val options = ClearOptions(
             answers = false,
             recordedCalls = true,
@@ -290,7 +293,11 @@ object MockKDsl {
             exclusionRules = false
         )
 
-        MockKGateway.implementation().clearer.clearAll(options, currentThreadOnly = true)
+        if (mocks.isEmpty()) {
+            implementation.clearer.clearAll(options, false)
+        } else {
+            implementation.clearer.clear(mocks, options)
+        }
     }
 
     /**
