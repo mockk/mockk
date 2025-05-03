@@ -3,8 +3,9 @@ package io.mockk.junit5
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -13,7 +14,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 class MockKExtensionWithoutRequireParallelTestingTest {
     @MockK
@@ -29,6 +32,7 @@ class MockKExtensionWithoutRequireParallelTestingTest {
         Dispatchers.resetMain()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     companion object {
         @JvmStatic
         @AfterAll

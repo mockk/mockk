@@ -11,15 +11,15 @@ object Deps {
     object Versions {
         val jvmTarget = JavaVersion.VERSION_1_8
 
-        const val dokka = "1.9.0"
+        const val dokka = "2.0.0"
         const val kotlinDefault = "2.0.0"
-        const val coroutines = "1.6.4"
-        const val slfj = "2.0.5"
-        const val logback = "1.4.5"
-        const val junitJupiter = "5.8.2"
+        const val coroutines = "1.10.1"
+        const val slfj = "2.0.17"
+        const val logback = "1.5.18"
+        const val junitJupiter = "5.12.2"
         const val junit4 = "4.13.2"
 
-        const val byteBuddy = "1.14.17"
+        const val byteBuddy = "1.17.5"
         const val objenesis = "3.3"
         const val dexmaker = "2.28.3"
         const val androidxEspresso = "3.5.1"
