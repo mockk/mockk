@@ -1,7 +1,9 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     `java-library`
@@ -22,12 +24,13 @@ tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.apply {
-        freeCompilerArgs += listOf("-Xjsr305=strict")
-        jvmTarget = Deps.Versions.jvmTarget.toString()
-        apiVersion = "1.5"
-        languageVersion = "1.7"
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
+
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        apiVersion = KotlinVersion.KOTLIN_1_6
+        languageVersion = KotlinVersion.KOTLIN_1_7
     }
 }
 

@@ -16,7 +16,7 @@ kotlin {
     targets.configureEach {
         compilations.configureEach {
             kotlinOptions {
-                apiVersion = "1.5"
+                apiVersion = "1.6"
                 languageVersion = "1.7"
             }
         }
