@@ -1,3 +1,4 @@
+import buildsrc.config.Deps
 import buildsrc.config.kotlinVersion
 
 plugins {
@@ -7,17 +8,16 @@ plugins {
 
 kotlin {
     jvm {
-        withJava()
     }
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(enforcedPlatform(kotlin("bom", version = kotlinVersion())))
+                implementation(project.dependencies.enforcedPlatform(kotlin("bom", version = kotlinVersion())))
                 implementation(kotlin("reflect"))
 
-                implementation(platform(buildsrc.config.Deps.Libs.kotlinCoroutinesBom))
-                implementation(buildsrc.config.Deps.Libs.kotlinCoroutinesCore)
+                implementation(project.dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
+                implementation(Deps.Libs.kotlinCoroutinesCore)
             }
         }
 

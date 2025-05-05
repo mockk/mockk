@@ -1,7 +1,10 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id("com.android.library")
@@ -45,9 +48,9 @@ android {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = Deps.Versions.jvmTarget.toString()
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
     }
 }
 

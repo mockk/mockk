@@ -4,7 +4,6 @@ plugins {
 
 kotlin {
     jvm {
-        withJava()
     }
 
     sourceSets {
