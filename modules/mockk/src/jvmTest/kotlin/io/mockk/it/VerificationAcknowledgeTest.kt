@@ -629,5 +629,23 @@ class VerificationAcknowledgeTest {
 
         confirmVerified()
     }
+
+    @Test
+    fun confirmVerifiedSpecificMock() {
+        val mockA = mockk<MockCls>()
+        val mockB = mockk<MockCls>()
+
+        every { mockA.op(1) } returns 1
+        every { mockB.op(2) } returns 2
+
+        mockA.op(1)
+        mockB.op(2)
+
+        verify { mockA.op(1) }
+        confirmVerified(mockA)
+
+        verify { mockB.op(2) }
+        confirmVerified(mockB)
+    }
 }
 
