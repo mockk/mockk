@@ -8,7 +8,7 @@ val kotlinPluginVersion: String = "2.1.20"
 val androidGradle = "8.9.2"
 val kotlinxKover = "0.7.3"
 val dokka = "2.0.0"
-val binaryCompatibilityValidator = "0.13.2"
+val binaryCompatibilityValidator = "0.17.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinPluginVersion"))
