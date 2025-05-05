@@ -1,5 +1,6 @@
 package buildsrc.convention
 
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
@@ -15,9 +16,9 @@ plugins {
 kotlin {
     targets.configureEach {
         compilations.configureEach {
-            kotlinOptions {
-                apiVersion = "1.6"
-                languageVersion = "1.7"
+            compilerOptions.configure {
+                apiVersion = KotlinVersion.KOTLIN_1_6
+                languageVersion = KotlinVersion.KOTLIN_1_7
             }
         }
     }
