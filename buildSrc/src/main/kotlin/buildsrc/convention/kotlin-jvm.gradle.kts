@@ -28,7 +28,7 @@ tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
         jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
 
-        freeCompilerArgs = listOf("-Xjsr305=strict")
+        freeCompilerArgs.add("-Xjsr305=strict")
         apiVersion = KotlinVersion.KOTLIN_1_6
         languageVersion = KotlinVersion.KOTLIN_1_7
     }
