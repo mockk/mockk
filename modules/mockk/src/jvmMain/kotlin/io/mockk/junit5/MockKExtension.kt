@@ -155,7 +155,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                 getConfigurationParameter(KEEP_MOCKS_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.keepMocks
-        get() = map { it.getAnnotation(KeepMocks::class.java) != null }
+        get() = map { it.hasAnnotationRecursive(KeepMocks::class.java) }
             .orElse(false)
 
     private val ExtensionContext.confirmVerification: Boolean
@@ -163,7 +163,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                 getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.confirmVerification
-        get() = map { it.getAnnotation(ConfirmVerification::class.java) != null }
+        get() = map { it.hasAnnotationRecursive(ConfirmVerification::class.java) }
             .orElse(false)
 
     private val ExtensionContext.checkUnnecessaryStub: Boolean
@@ -171,7 +171,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                 getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.checkUnnecessaryStub
-        get() = map { it.getAnnotation(CheckUnnecessaryStub::class.java) != null }
+        get() = map { it.hasAnnotationRecursive(CheckUnnecessaryStub::class.java) }
             .orElse(false)
 
     private val ExtensionContext.requireParallelTesting: Boolean
@@ -179,7 +179,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
                 getConfigurationParameter(REQUIRE_PARALLEL_TESTING).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.requireParallelTesting
-        get() = map { it.getAnnotation(RequireParallelTesting::class.java) != null }
+        get() = map { it.hasAnnotationRecursive(RequireParallelTesting::class.java) }
             .orElse(false)
 
     /***
@@ -214,4 +214,20 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
         const val CHECK_UNNECESSARY_STUB_PROPERTY = "mockk.junit.extension.checkUnnecessaryStub"
         const val REQUIRE_PARALLEL_TESTING = "mockk.junit.extension.requireParallelTesting"
     }
+}
+
+internal fun <A : Annotation> AnnotatedElement.hasAnnotationRecursive(
+    target: Class<A>,
+    visited: MutableSet<Class<out Annotation>> = mutableSetOf()
+): Boolean {
+    for (annotation in annotations) {
+        val annotationType = annotation.annotationClass.java
+
+        if (annotationType in visited) continue
+        visited.add(annotationType)
+
+        if (target.isInstance(annotation)) return true
+        if (annotationType.hasAnnotationRecursive(target, visited)) return true
+    }
+    return false
 }
