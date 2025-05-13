@@ -1,8 +1,11 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.jetbrains.kotlin.gradle.tasks.UsesKotlinJavaToolchain
 
 
@@ -15,9 +18,9 @@ tasks.withType<JavaCompile>().configureEach {
     targetCompatibility = Deps.Versions.jvmTarget.toString()
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = Deps.Versions.jvmTarget.toString()
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
     }
 }
 
