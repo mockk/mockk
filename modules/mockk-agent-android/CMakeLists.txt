@@ -31,3 +31,5 @@ add_library(mockkjvmtiagent
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -frtti -Wall -Werror -Wno-unused-parameter -Wno-shift-count-overflow -Wno-error=non-virtual-dtor -Wno-sign-compare -Wno-switch -Wno-missing-braces")
 
 target_link_libraries(mockkjvmtiagent slicer)
+
+target_link_options(mockkjvmtiagent PRIVATE "-Wl,-z,max-page-size=16384")
