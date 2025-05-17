@@ -2166,10 +2166,17 @@ class MockKVerificationScope(
     callRecorder: CallRecorder,
     lambda: CapturingSlot<Function<*>>
 ) : MockKMatcherScope(callRecorder, lambda) {
-    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
-        MockKAssertScope(it).captureBlock(it)
-        true
-    }
+    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T =
+        match(
+            FunctionMatcher(
+                {
+                    MockKAssertScope(it).captureBlock(it)
+                    true
+                },
+                T::class,
+                logAssertionError = true
+            )
+        )
 
     inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
         matchNullable {
