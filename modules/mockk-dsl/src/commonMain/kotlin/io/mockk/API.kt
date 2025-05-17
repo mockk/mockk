@@ -2179,10 +2179,16 @@ class MockKVerificationScope(
         )
 
     inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
-        matchNullable {
-            MockKAssertScope(it).captureBlock(it)
-            true
-        }
+        match(
+            FunctionWithNullableArgMatcher(
+                {
+                    MockKAssertScope(it).captureBlock(it)
+                    true
+                },
+                T::class,
+                logAssertionError = true
+            )
+        )
 
     inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
         withArg {
