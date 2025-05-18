@@ -13,7 +13,6 @@ val mavenDescription: String by extra("${project.description}")
 
 kotlin {
     jvm {
-        withJava()
     }
 
     sourceSets {
