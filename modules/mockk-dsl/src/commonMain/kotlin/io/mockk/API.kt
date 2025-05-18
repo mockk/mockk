@@ -283,7 +283,6 @@ object MockKDsl {
             }
         }
 
-
         resetVerificationState()
     }
 
