@@ -275,7 +275,12 @@ object MockKDsl {
         if (mocks.isEmpty()) {
             verifier.acknowledgeVerified()
         } else {
-            mocks.forEach { verifier.acknowledgeVerified(it) }
+            mocks.forEach {
+                when (it) {
+                    is KClass<*> -> verifier.acknowledgeVerified(it.java)
+                    else -> verifier.acknowledgeVerified(it)
+                }
+            }
         }
 
         resetVerificationState()
