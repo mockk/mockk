@@ -8,6 +8,7 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.excludeRecords
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyCount
 import io.mockk.verifyOrder
@@ -18,6 +19,7 @@ import kotlin.test.assertFailsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
+import java.time.Instant
 
 class VerificationAcknowledgeTest {
     class MockCls {
@@ -628,6 +630,19 @@ class VerificationAcknowledgeTest {
         }
 
         confirmVerified()
+    }
+
+    @Test
+    fun confirmVerifiedToWorkWithStaticMock() {
+        val epochSeconds = 123L
+        mockkStatic(Instant::class)
+        every { Instant.now().epochSecond } returns epochSeconds
+
+        assertEquals(123L, Instant.now().epochSecond)
+
+        verify(exactly = 1) { Instant.now().epochSecond  }
+
+        confirmVerified(Instant::class)
     }
 }
 
