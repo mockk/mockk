@@ -51,7 +51,8 @@ data class ConstantMatcher<in T : Any>(val constValue: Boolean) : Matcher<T> {
  */
 data class FunctionMatcher<in T : Any>(
     val matchingFunc: (T) -> Boolean,
-    override val argumentType: KClass<*>
+    override val argumentType: KClass<*>,
+    private val logAssertionError: Boolean = false,
 ) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
@@ -62,6 +63,9 @@ data class FunctionMatcher<in T : Any>(
             try {
                 matchingFunc(arg)
             } catch (a: AssertionError) {
+                if (logAssertionError) {
+                    a.printStackTrace()
+                }
                 false
             }
         }
@@ -72,11 +76,19 @@ data class FunctionMatcher<in T : Any>(
 
 data class FunctionWithNullableArgMatcher<in T : Any>(
     val matchingFunc: (T?) -> Boolean,
-    override val argumentType: KClass<*>
+    override val argumentType: KClass<*>,
+    private val logAssertionError: Boolean = false,
 ) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
-    override fun match(arg: T?): Boolean = matchingFunc(arg)
+    override fun match(arg: T?): Boolean = try {
+        matchingFunc(arg)
+    } catch (a: AssertionError) {
+        if (logAssertionError) {
+            a.printStackTrace()
+        }
+        false
+    }
 
     override fun checkType(arg: Any?): Boolean {
         if (arg == null) {
