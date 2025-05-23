@@ -3,7 +3,7 @@
     <img src="doc/kotlin-logo.svg" width="400" align="center" alt="drawing"/>
 </div>
 
-[![Relase Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](https://search.maven.org/#search%7Cga%7C1%7Cmockk)
+[![Release Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](https://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
 [![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
 [![Android](https://img.shields.io/badge/android-support-green.svg)](https://mockk.io/ANDROID)
@@ -131,6 +131,7 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
  - [DZone article](https://dzone.com/articles/new-mocking-tool-for-kotlin-an-alternative-to-java)
  - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
  - [Mocking in Kotlin with MockK - Yannick De Turck](https://ordina-jworks.github.io/testing/2018/02/05/Writing-tests-in-Kotlin-with-MockK.html)
+ - [How does MockK work internally? - Sagar Malhotra](https://proandroiddev.com/how-does-mocking-work-internally-a-deep-dive-into-mockk-internals-defecd66b815)
  
 ### Japanese guides and articles
  - [Documentation translation to Japanese](https://qiita.com/yasuX/items/d3cfc9853c53dfaee222)
