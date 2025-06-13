@@ -16,14 +16,22 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
         instantiator: AbstractInstantiator,
     ): T {
 
+        // For value classes, try the instance factory first.
+        // If the factory provides an instance, use it.
+        // Otherwise, fallback to the original behavior of constructing from the underlying boxed type.
         if (cls.isValue) {
-            val valueCls = cls.boxedClass
-            val valueSig = signatureValue(valueCls, anyValueGeneratorProvider, instantiator)
+            return instantiator.instantiateViaInstanceFactoryRegistry(cls) {
+                // This lambda is the 'orInstantiate' part.
+                // It's the original logic for handling value classes if no factory is found.
+                val valueCls = cls.boxedClass
+                val valueSig = signatureValue(valueCls, anyValueGeneratorProvider, instantiator) // Recursive call
 
-            val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
-            return constructor.call(valueSig)
+                val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
+                constructor.call(valueSig)
+            }
         }
 
+        // Original logic for non-value classes
         return cls.cast(instantiate(cls, anyValueGeneratorProvider, instantiator))
     }
 

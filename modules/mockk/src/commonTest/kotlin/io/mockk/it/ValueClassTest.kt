@@ -7,13 +7,15 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
 import java.util.UUID
+import io.mockk.registerInstanceFactory
+import org.junit.jupiter.api.assertDoesNotThrow
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ValueClassTest {
 
@@ -767,7 +769,37 @@ class ValueClassTest {
         assertEquals(ComplexValue(UUID.fromString("bca61f8d-ba4d-475f-8dc6-08b943836998")), result)
     }
 
+    @Test
+    fun `instance factory is called for value class argument with any() matcher`() {
+        var factoryCalled = false
+        registerInstanceFactory {
+            factoryCalled = true
+            println("Factory called for MyToken")
+            MyToken("MY_PREFIX::bar")
+        }
+
+        val mock = mockk<UserOfMyToken>()
+        assertDoesNotThrow("Value classes should match any() without InvocationTargetException") {
+             every { mock.useMyToken(any()) } returns Unit
+        }
+
+        // Call the method with a concrete instance.
+        mock.useMyToken(MyToken("MY_PREFIX::actualCallValue"))
+
+        assertTrue(factoryCalled, "Instance factory should have been called when `any()` is used with a value class and a factory is registered.")
+    }
+
     companion object {
+        @JvmInline
+        value class MyToken(val raw: String) {
+            init {
+                require(raw.startsWith("MY_PREFIX::")) { "Token must start with MY_PREFIX::" }
+            }
+        }
+
+        interface UserOfMyToken {
+            fun useMyToken(myToken: MyToken)
+        }
 
         @JvmInline
         value class DummyValue(val value: Int) {
