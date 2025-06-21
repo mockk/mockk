@@ -6,7 +6,7 @@ plugins {
 val kotlinPluginVersion: String = "2.1.20"
 
 val androidGradle = "8.9.2"
-val kotlinxKover = "0.7.3"
+val kotlinxKover = "0.9.1"
 val dokka = "2.0.0"
 val binaryCompatibilityValidator = "0.17.0"
 

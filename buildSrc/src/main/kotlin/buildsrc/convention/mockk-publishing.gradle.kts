@@ -54,13 +54,13 @@ publishing {
             name = "LocalRepo"
         }*/
 
-        /*maven {
+        maven {
             url = uri(sonatypeRepositoryReleaseUrl)
             credentials {
                 username = ossrhUsername.get()
                 password = ossrhPassword.get()
             }
-        }*/
+        }
     }
     // Configure for Android libraries
     publications {
