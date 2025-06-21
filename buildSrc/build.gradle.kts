@@ -9,6 +9,7 @@ val androidGradle = "8.9.2"
 val kotlinxKover = "0.9.1"
 val dokka = "2.0.0"
 val binaryCompatibilityValidator = "0.17.0"
+val jreleaserVersion = "1.17.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinPluginVersion"))
@@ -21,4 +22,7 @@ dependencies {
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka")
 
     implementation("org.jetbrains.kotlinx:binary-compatibility-validator:$binaryCompatibilityValidator")
+
+
+    implementation("org.jreleaser:jreleaser-gradle-plugin:$jreleaserVersion")
 }

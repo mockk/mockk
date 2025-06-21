@@ -3,7 +3,6 @@ package buildsrc.convention
 import buildsrc.config.createMockKPom
 import buildsrc.config.credentialsAction
 
-
 plugins {
     `maven-publish`
     signing
@@ -54,13 +53,13 @@ publishing {
             name = "LocalRepo"
         }*/
 
-        maven {
+        /*maven {
             url = uri(sonatypeRepositoryReleaseUrl)
             credentials {
                 username = ossrhUsername.get()
                 password = ossrhPassword.get()
             }
-        }
+        }*/
     }
     // Configure for Android libraries
     publications {
