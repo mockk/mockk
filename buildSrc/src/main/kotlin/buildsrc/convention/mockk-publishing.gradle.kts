@@ -55,7 +55,6 @@ publishing {
 
 jreleaser {
     gitRootSearch = true
-    //dryrun = true
     deploy {
         maven {
             mavenCentral {
@@ -66,6 +65,7 @@ jreleaser {
                     stagingRepository(layout.buildDirectory.dir("staging-deploy").get().asFile.path)
                     username = ossrhUsername
                     password = ossrhPassword
+                    maxRetries = 120
                     verifyPom.set(false)
                 }
             }
