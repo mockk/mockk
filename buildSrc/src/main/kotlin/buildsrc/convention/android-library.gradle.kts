@@ -46,6 +46,10 @@ android {
         sourceCompatibility = Deps.Versions.jvmTarget
         targetCompatibility = Deps.Versions.jvmTarget
     }
+
+    publishing {
+        singleVariant("release") {}
+    }
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {
