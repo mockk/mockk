@@ -83,6 +83,30 @@ confirmVerified(car)
 
 See the "Features" section below for more detailed examples.
 
+## BDD style (optional)
+
+For teams using Behavior-Driven Development, MockK provides BDD-style aliases:
+
+```gradle
+testImplementation "io.mockk:mockk:${mockkVersion}"
+testImplementation "io.mockk:mockk-bdd:${mockkVersion}"
+```
+
+```gradle
+androidTestImplementation "io.mockk:mockk-android:${mockkVersion}"
+androidTestImplementation "io.mockk:mockk-bdd-android:${mockkVersion}"
+```
+
+### BDD aliases
+
+| Standard MockK | BDD style |
+|----------------|-----------|
+| `every { ... }` | `given { ... }` |
+| `coEvery { ... }` | `coGiven { ... }` |
+| `verify { ... }` | `then { ... }` |
+| `coVerify { ... }` | `coThen { ... }` |
+
+
 ### Spring support
 
  * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
