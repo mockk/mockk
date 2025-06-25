@@ -1,5 +1,3 @@
-import buildsrc.config.Deps
-
 plugins {
     buildsrc.convention.`android-library`
     buildsrc.convention.`mockk-publishing`
@@ -23,6 +21,7 @@ android {
 dependencies {
     api(projects.modules.mockkAndroid)
     api(projects.modules.mockkBdd)
-    testImplementation(kotlin("test-junit5"))
-    testImplementation(Deps.Libs.junitJupiter)
+    
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+
 } 
