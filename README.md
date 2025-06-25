@@ -85,7 +85,7 @@ See the "Features" section below for more detailed examples.
 
 ## BDD style (optional)
 
-For teams using Behavior-Driven Development, MockK provides BDD-style aliases:
+For teams using Behavior-Driven Development, MockK provides BDD-style aliases
 
 ```gradle
 testImplementation "io.mockk:mockk:${mockkVersion}"
