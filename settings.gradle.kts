@@ -28,6 +28,7 @@ include(
     ":modules:mockk-agent",
     ":modules:mockk-core",
     ":modules:mockk-dsl",
+    ":modules:mockk-bdd",
 
     ":test-modules:client-tests",
     ":test-modules:performance-tests",
@@ -41,5 +42,6 @@ if (androidSdkDetected == true) {
         ":modules:mockk-agent-android",
         ":modules:mockk-agent-android-dispatcher",
         ":modules:mockk-android",
+        ":modules:mockk-bdd-android",
     )
 }
