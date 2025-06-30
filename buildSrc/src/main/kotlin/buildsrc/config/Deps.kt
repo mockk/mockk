@@ -19,7 +19,7 @@ object Deps {
         const val junitJupiter = "5.12.2"
         const val junit4 = "4.13.2"
 
-        const val byteBuddy = "1.17.5"
+        const val byteBuddy = "1.15.11"
         const val objenesis = "3.3"
         const val dexmaker = "2.28.3"
         const val androidxEspresso = "3.5.1"
