@@ -8,7 +8,7 @@
  - [ ] make sure all required PRs are merged
  - [ ] run test-suite in Gradle
  - [ ] run test-suite from Android Studio or IntelliJ from emulator (Android Instrumented tests)
- - [ ] release to local maven repo by running `gradle publish` with the `localrepo` repository uncommented in `mockk-publishing.gradle.kts`
+ - [ ] release to local maven repo by running `gradle publish`
  - [ ] do quick testing with this local maven repo: basics, if documentation is loading, if all dependencies are fine
  - [ ] change version to RELEASE version (i.e. remove -SNAPSHOT from version)
  - [ ] bump if needed major or minor (resetting everything afterwards)

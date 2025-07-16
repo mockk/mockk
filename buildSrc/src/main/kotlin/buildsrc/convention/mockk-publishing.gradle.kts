@@ -66,6 +66,7 @@ jreleaser {
                     username = ossrhUsername
                     password = ossrhPassword
                     maxRetries = 120
+                    retryDelay = 60
                     verifyPom.set(false)
                 }
             }
