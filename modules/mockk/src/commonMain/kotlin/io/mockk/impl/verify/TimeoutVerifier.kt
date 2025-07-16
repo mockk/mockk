@@ -17,10 +17,14 @@ class TimeoutVerifier(
         val stubs = verificationSequence.allStubs(stubRepo)
 
         val session = stubRepo.openRecordCallAwaitSession(stubs, params.timeout)
+        val startTime = System.currentTimeMillis()
         try {
             while (true) {
                 val result = verifierChain.verify(verificationSequence, params)
-                if (params.inverse != result.matches) {
+                // With atMost set the reaching expected result does not mean test passed
+                //  - it can fail till the end of the timeout
+                if (params.inverse != result.matches && 
+                        (params.max != Int.MAX_VALUE && (System.currentTimeMillis() - startTime < params.timeout))) {
                     return result // passed
                 }
                 if (!session.wait()) {
