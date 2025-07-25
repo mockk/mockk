@@ -2753,6 +2753,7 @@ class CapturingSlot<T : Any?> {
      * Hold captured value - [CapturedValue.NotYetCaptured] after initialization.
      * Once value is captured, then changes into [CapturedValue.Value]
      */
+    @Volatile
     private var capturedValue: CapturedValue<T> = CapturedValue.NotYetCaptured.singleton()
 
     /**
