@@ -21,6 +21,10 @@ object JvmMockFactoryHelper {
         override fun invocation(self: Any, method: Method?, originalCall: Callable<*>?, args: Array<Any?>) =
             stdFunctions(self, method!!, args) {
 
+                if (method.isKotlinInline()) {
+                    throw MockKException("Mocking Kotlin inline functions is not supported")
+                }
+
                 stub.handleInvocation(
                     self,
                     method.toDescription(),
@@ -96,6 +100,20 @@ object JvmMockFactoryHelper {
             originalMethod.call()
         } catch (ex: InvocationTargetException) {
             throw ex.cause ?: throw ex
+        }
+    }
+
+    private fun Method.isKotlinInline(): Boolean {
+        try {
+            val kotlinFunction = this.kotlinFunction
+            if (kotlinFunction != null && kotlinFunction.isInline) return true
+        } catch (_: Throwable) {
+            null
+        }
+
+        return this.declaredAnnotations.any { ann ->
+            val n = ann.annotationClass.qualifiedName ?: ann.annotationClass.java.name
+            n == "kotlin.internal.InlineOnly"
         }
     }
 
