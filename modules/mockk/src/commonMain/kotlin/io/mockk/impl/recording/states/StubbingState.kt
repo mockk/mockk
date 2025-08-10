@@ -11,7 +11,15 @@ class StubbingState(recorder: CommonCallRecorder) : RecordingState(recorder) {
 
     private fun checkMissingCalls() {
         if (recorder.calls.isEmpty()) {
-            throw MockKException("Missing mocked calls inside every { ... } block: make sure the object inside the block is a mock")
+            throw MockKException(
+                "Missing mocked calls inside every { ... } block: make sure the object inside the block is a mock " + inlineHint()
+            )
         }
     }
+
+    private fun inlineHint(): String =
+        ("\n" +
+                "Note: if you tried to stub a Kotlin inline function, it cannot be mocked. " +
+                "Inline functions are inlined at call sites, so no call is recorded. " +
+                "Extract a non-inline wrapper or mock the dependencies used inside the inline function.")
 }

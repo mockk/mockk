@@ -94,7 +94,19 @@ class SignatureMatcherDetector(
 
         processCompositeMatchers()
         if (matcherMap.isNotEmpty()) {
-            throw MockKException("Failed matching mocking signature for\n${callRounds[0].calls.joinToString("\n")}\nleft matchers: ${matcherMap.values}")
+            val base =
+                "Failed matching mocking signature for\n${callRounds[0].calls.joinToString("\n")}\nleft matchers: ${matcherMap.values}"
+
+            // If there are matchers but no recorded calls (= likely an inline mocking attempt), add a hint
+            val inlineHint =
+                if (nMatchers > 0 && nCalls == 0)
+                    "\nNote: if you tried to stub a Kotlin inline function, it cannot be mocked. " +
+                            "Inline functions are inlined at call sites, so no call is recorded. " +
+                            "Extract a non-inline wrapper or mock the dependencies used inside the inline function."
+                else
+                    ""
+
+            throw MockKException(base + inlineHint)
         }
     }
 }
