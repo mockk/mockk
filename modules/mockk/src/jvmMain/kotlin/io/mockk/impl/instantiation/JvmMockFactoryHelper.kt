@@ -12,6 +12,7 @@ import java.util.concurrent.Callable
 import kotlin.coroutines.Continuation
 import kotlin.reflect.*
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
@@ -107,8 +108,10 @@ object JvmMockFactoryHelper {
         try {
             val kotlinFunction = this.kotlinFunction
             if (kotlinFunction != null && kotlinFunction.isInline) return true
-        } catch (_: Throwable) {
-            null
+        } catch (_: KotlinReflectionInternalError) {
+            null // fall back to annotation check
+        } catch (_: UnsupportedOperationException) {
+            null // fall back to annotation check
         }
 
         return this.declaredAnnotations.any { ann ->
