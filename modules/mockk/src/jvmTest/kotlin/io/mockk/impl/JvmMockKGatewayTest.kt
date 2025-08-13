@@ -6,7 +6,6 @@ import kotlin.test.Test
 class JvmMockKGatewayTest {
     @Test
     fun whenNewGatewayInitializedNoExceptionThrown() {
-        assertTrue(false)
         JvmMockKGateway()
     }
 }
