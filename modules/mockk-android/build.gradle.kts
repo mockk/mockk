@@ -1,5 +1,3 @@
-import buildsrc.config.Deps
-
 plugins {
     buildsrc.convention.`android-library`
 
@@ -12,7 +10,8 @@ val mavenName: String by extra("MockK Android")
 val mavenDescription: String by extra("${project.description}")
 
 android {
-    packagingOptions {
+    namespace = "io.mockk.android"
+    packaging {
         resources {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/LICENSE-notice.md"

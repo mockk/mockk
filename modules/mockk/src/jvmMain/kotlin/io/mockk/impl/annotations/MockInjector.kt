@@ -15,6 +15,13 @@ class MockInjector(
     val injectImmutable: Boolean,
     val overrideValues: Boolean
 ) {
+    private companion object {
+        private val sortCriteria = compareBy<KFunction<Any>>(
+            { -it.parameters.size },
+            { fn -> fn.parameters.joinToString(",") { it.type.toString() } }
+        )
+    }
+
     fun constructorInjection(type: KClass<*>): Any {
         val firstMatching = findMatchingConstructor(type)
                 ?: throw MockKException("No matching constructors found:\n" + type.constructors.joinToString("\n") { it.constructorToStr() })
@@ -45,18 +52,15 @@ class MockInjector(
 
     private fun injectViaConstructor(firstMatching: KFunction<Any>): Any {
         return firstMatching.valueParameters
-            .associateWith { matchParameter(it) }
-            .filterNot { it.value == null }
+            .fold(mutableMapOf<KParameter, Any>()) { acc, cur ->
+                acc.apply {
+                    matchParameter(cur)?.let { this[cur] = it }
+                }
+            }
             .let { firstMatching.callBy(it) }
     }
 
     private fun findMatchingConstructor(type: KClass<*>): KFunction<Any>? {
-        val sortCriteria = compareBy<KFunction<Any>>({
-            -it.parameters.size
-        }, {
-            it.parameters.map { it.type.toString() }.joinToString(",")
-        })
-
         return type.constructors.sortedWith(sortCriteria)
             .firstOrNull { tryMatchingParameters(it.valueParameters) }
     }
@@ -111,9 +115,10 @@ class MockInjector(
     }
 
     private fun <R> KFunction<R>.constructorToStr(): String {
-        return "constructor(" + parameters.map {
+        val joinedParameters = parameters.joinToString(", ") {
             (it.name ?: "<noname arg.>") + " : " + it.type + " = " + lookupToStr(it)
-        }.joinToString(", ") + ")"
+        }
+        return "constructor($joinedParameters)"
     }
 
     private fun lookupToStr(param: KParameter): String {
@@ -123,4 +128,3 @@ class MockInjector(
             .toString()
     }
 }
-

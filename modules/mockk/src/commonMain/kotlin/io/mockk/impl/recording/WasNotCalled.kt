@@ -4,16 +4,16 @@ import io.mockk.MethodDescription
 
 object WasNotCalled {
     val method = MethodDescription(
-        "wasNot Called",
-        Unit::class,
-        false,
-        true,
-        false,
-        false,
-        false,
-        Unit::class,
-        listOf(),
-        -1,
-        false
+        name = "wasNot Called",
+        returnType = Unit::class,
+        returnTypeNullable = false,
+        returnsUnit = true,
+        returnsNothing = false,
+        isSuspend = false,
+        isFnCall = false,
+        declaringClass = Unit::class,
+        paramTypes = listOf(),
+        varArgsArg = -1,
+        privateCall = false
     )
 }

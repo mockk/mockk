@@ -14,6 +14,7 @@ val mavenDescription: String by extra("${project.description}")
 
 @Suppress("UnstableApiUsage")
 android {
+    namespace = "io.mockk.proxy.android"
     externalNativeBuild {
         cmake {
             path = file("CMakeLists.txt")

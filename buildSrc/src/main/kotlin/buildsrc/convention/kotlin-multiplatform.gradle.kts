@@ -1,12 +1,13 @@
 package buildsrc.convention
 
-import buildsrc.config.Deps
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
     kotlin("multiplatform")
 
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
     id("buildsrc.convention.toolchain-jvm")
@@ -15,9 +16,9 @@ plugins {
 kotlin {
     targets.configureEach {
         compilations.configureEach {
-            kotlinOptions {
-                apiVersion = "1.5"
-                languageVersion = "1.7"
+            compilerOptions.configure {
+                apiVersion = KotlinVersion.KOTLIN_1_6
+                languageVersion = KotlinVersion.KOTLIN_1_7
             }
         }
     }

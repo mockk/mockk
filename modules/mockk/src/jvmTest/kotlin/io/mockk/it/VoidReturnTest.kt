@@ -3,10 +3,10 @@ package io.mockk.it
 import io.mockk.every
 import io.mockk.mockk
 import java.util.concurrent.TimeUnit
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 /**
- * Test related to github issue #69
+ * Test related to GitHub issue #69
  */
 class VoidReturnTest {
     abstract class KafkaFuture<T> {
@@ -16,7 +16,7 @@ class VoidReturnTest {
     @Test
     fun test() {
         val kafkaFuture: KafkaFuture<Void> = mockk()
-        every { kafkaFuture.get(any(), any()) } returns mockk()
-        kafkaFuture.get(10, TimeUnit.MILLISECONDS)
+        every { kafkaFuture[any(), any()] } returns mockk()
+        kafkaFuture[10, TimeUnit.MILLISECONDS]
     }
 }

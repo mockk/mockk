@@ -11,12 +11,8 @@ description = "MockK inline mocking agent"
 val mavenName: String by extra("MockK")
 val mavenDescription: String by extra("${project.description}")
 
-val byteBuddyVersion = Deps.Versions.byteBuddy
-val objenesisVersion = Deps.Versions.objenesis
-
 kotlin {
     jvm {
-        withJava()
     }
 
     sourceSets {
@@ -34,10 +30,10 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                api("org.objenesis:objenesis:$objenesisVersion")
+                api("org.objenesis:objenesis:${Deps.Versions.objenesis}")
 
-                api("net.bytebuddy:byte-buddy:$byteBuddyVersion")
-                api("net.bytebuddy:byte-buddy-agent:$byteBuddyVersion")
+                api("net.bytebuddy:byte-buddy:${Deps.Versions.byteBuddy}")
+                api("net.bytebuddy:byte-buddy-agent:${Deps.Versions.byteBuddy}")
             }
         }
         val jvmTest by getting {

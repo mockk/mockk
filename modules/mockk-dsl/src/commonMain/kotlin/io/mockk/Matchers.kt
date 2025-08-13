@@ -51,7 +51,8 @@ data class ConstantMatcher<in T : Any>(val constValue: Boolean) : Matcher<T> {
  */
 data class FunctionMatcher<in T : Any>(
     val matchingFunc: (T) -> Boolean,
-    override val argumentType: KClass<*>
+    override val argumentType: KClass<*>,
+    private val logAssertionError: Boolean = false,
 ) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
@@ -62,6 +63,9 @@ data class FunctionMatcher<in T : Any>(
             try {
                 matchingFunc(arg)
             } catch (a: AssertionError) {
+                if (logAssertionError) {
+                    a.printStackTrace()
+                }
                 false
             }
         }
@@ -72,11 +76,19 @@ data class FunctionMatcher<in T : Any>(
 
 data class FunctionWithNullableArgMatcher<in T : Any>(
     val matchingFunc: (T?) -> Boolean,
-    override val argumentType: KClass<*>
+    override val argumentType: KClass<*>,
+    private val logAssertionError: Boolean = false,
 ) : Matcher<T>, TypedMatcher, EquivalentMatcher {
     override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
-    override fun match(arg: T?): Boolean = matchingFunc(arg)
+    override fun match(arg: T?): Boolean = try {
+        matchingFunc(arg)
+    } catch (a: AssertionError) {
+        if (logAssertionError) {
+            a.printStackTrace()
+        }
+        false
+    }
 
     override fun checkType(arg: Any?): Boolean {
         if (arg == null) {
@@ -96,11 +108,12 @@ data class CaptureMatcher<T : Any>(
     val captureList: MutableList<T>,
     override val argumentType: KClass<*>
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
-    @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
-        captureList.add(arg as T)
+        if (arg != null) {
+            captureList.add(InternalPlatformDsl.boxCast(argumentType, arg))
+        }
     }
 
     override fun match(arg: T?): Boolean = true
@@ -136,25 +149,52 @@ data class CaptureNullableMatcher<T : Any>(
 }
 
 /**
- * Matcher capturing one last value to the CapturingSlot
+ * Matcher capturing one last NON nullable value to the [CapturingSlot]
  */
 data class CapturingSlotMatcher<T : Any>(
     val captureSlot: CapturingSlot<T>,
     override val argumentType: KClass<*>,
 ) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     override fun capture(arg: Any?) {
-        if (arg == null) {
-            captureSlot.isNull = true
-        } else {
-            captureSlot.isNull = false
+        // does not capture null values
+        if (arg != null) {
             captureSlot.captured = InternalPlatformDsl.boxCast(argumentType, arg)
         }
-        captureSlot.isCaptured = true
     }
 
     override fun match(arg: T?): Boolean = true
+
+    override fun toString(): String = "slotCapture<${argumentType.simpleName}>()"
+}
+
+/**
+ * Matcher capturing one last nullable value to the [CapturingSlot]
+ */
+data class CapturingNullableSlotMatcher<T : Any>(
+    val captureSlot: CapturingSlot<T?>,
+    override val argumentType: KClass<*>,
+) : Matcher<T>, CapturingMatcher, TypedMatcher, EquivalentMatcher {
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
+
+    override fun capture(arg: Any?) {
+        if (arg == null) {
+            captureSlot.captured = null
+        } else {
+            captureSlot.captured = InternalPlatformDsl.boxCast(argumentType, arg)
+        }
+    }
+
+    override fun match(arg: T?): Boolean = true
+
+    override fun checkType(arg: Any?): Boolean {
+        if (arg == null) {
+            return true
+        }
+
+        return super.checkType(arg)
+    }
 
     override fun toString(): String = "slotCapture<${argumentType.simpleName}>()"
 }
@@ -312,7 +352,7 @@ class AllAnyMatcher<T> : Matcher<T> {
  * Invokes lambda
  */
 class InvokeMatcher<in T : Any>(val block: (T) -> Unit) : Matcher<T>, EquivalentMatcher {
-    override fun equivalent(): Matcher<Any> = ConstantMatcher<Any>(true)
+    override fun equivalent(): Matcher<Any> = ConstantMatcher(true)
 
     override fun match(arg: T?): Boolean {
         if (arg == null) {
@@ -469,6 +509,6 @@ data class VarargMatcher<T : Any>(
 fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
     subMatchers?.let {
         it.filterIsInstance<CapturingMatcher>()
-            .forEach { it.capture(arg) }
+            .forEach { matcher -> matcher.capture(arg) }
     }
 }

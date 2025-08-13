@@ -8,7 +8,8 @@ import net.bytebuddy.TypeCache
 import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.Modifier
-import java.util.*
+import java.util.Collections.synchronizedMap
+import java.util.WeakHashMap
 
 class ObjenesisInstantiator(
     private val log: MockKAgentLogger,
@@ -18,7 +19,7 @@ class ObjenesisInstantiator(
 
     private val typeCache = TypeCache<CacheKey>(TypeCache.Sort.WEAK)
 
-    private val instantiators = Collections.synchronizedMap(WeakHashMap<Class<*>, ObjectInstantiator<*>>())
+    private val instantiators = synchronizedMap(WeakHashMap<Class<*>, ObjectInstantiator<*>>())
 
     override fun <T> instance(cls: Class<T>): T {
         if (cls == Any::class.java) {

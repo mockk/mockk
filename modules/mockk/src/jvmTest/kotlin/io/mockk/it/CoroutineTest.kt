@@ -1,10 +1,7 @@
 package io.mockk.it
 
 import io.mockk.*
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.lang.RuntimeException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -16,12 +13,12 @@ import kotlin.test.assertTrue
 class CoroutineTest {
 
     data class ClearMocksClass(val a: String) {
-        suspend fun a() {
+        suspend fun a() = coroutineScope {
             // logic
         }
     }
     /**
-     * github issue #234
+     * GitHub issue #234
      */
     @Test
     fun clearMocksTest() {
@@ -31,17 +28,17 @@ class CoroutineTest {
 
 
     /**
-     * github issue #288
+     * GitHub issue #288
      */
     @Test
-    fun suspendFnMocking(): Unit {
+    fun suspendFnMocking() {
         val call = mockk<suspend () -> Int>()
         coEvery { call() } returns 5
         runBlocking { assertEquals(5, call()) }
     }
 
     /**
-     * Begin - github issue #171
+     * Begin - GitHub issue #171
      */
     interface Executable {
         suspend fun execute(): String
@@ -195,7 +192,7 @@ class CoroutineTest {
         }
     }
     /**
-     * End - github issue #171
+     * End - GitHub issue #171
      */
 
 }

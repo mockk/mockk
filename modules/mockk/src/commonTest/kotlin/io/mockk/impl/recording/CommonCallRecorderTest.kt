@@ -12,21 +12,19 @@ import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 class CommonCallRecorderTest {
-    lateinit var commonCallRecorder: CommonCallRecorder
-    lateinit var initState: CallRecordingState
-    lateinit var hinter: ChildHinter
-    lateinit var factories: CallRecorderFactories
+    private lateinit var commonCallRecorder: CommonCallRecorder
+    private lateinit var initState: CallRecordingState
+    private lateinit var hinter: ChildHinter
+    private lateinit var factories: CallRecorderFactories
 
     @BeforeTest
     fun setUp() {
         initState = mockk(relaxed = true)
         hinter = mockk(relaxed = true)
-        factories = mockk<CallRecorderFactories>(relaxed = true)
+        factories = mockk(relaxed = true)
 
         val initStateFactory = mockk<(CommonCallRecorder) -> CallRecordingState>(relaxed = true)
         every { initStateFactory(any()) } returns initState
-
-
 
         every { factories.childHinter() } returns hinter
         every { factories.verifyingState.invoke(any(), any()) } returns mockk()
@@ -131,5 +129,4 @@ class CommonCallRecorderTest {
         verify { commonCallRecorder.factories.safeLoggingState(any()) }
         assertTrue(blockCalled)
     }
-
 }

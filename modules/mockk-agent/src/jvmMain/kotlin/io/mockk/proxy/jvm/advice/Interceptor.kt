@@ -1,6 +1,6 @@
 package io.mockk.proxy.jvm.advice
 
-import io.mockk.core.ValueClassSupport.boxedValue
+import io.mockk.core.ValueClassSupport.maybeUnboxValueForMethodReturn
 import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.Method
 import java.util.concurrent.Callable
@@ -19,7 +19,7 @@ internal class Interceptor(
             method
         )
         return handler.invocation(self, method, callOriginalMethod, arguments)
-            ?.boxedValue // unbox value class objects
+                ?.maybeUnboxValueForMethodReturn(method)
     }
 
 }

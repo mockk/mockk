@@ -46,7 +46,6 @@ internal class ProxyMaker(
             val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance)
 
             handlers[proxy] = handler
-
             return result
                 .withValue(proxy)
                 .alsoOnCancel {
@@ -54,7 +53,6 @@ internal class ProxyMaker(
                 }
         } catch (e: Exception) {
             result.cancel()
-
             throw MockKAgentException("Instantiation exception", e)
         }
     }
@@ -95,7 +93,7 @@ internal class ProxyMaker(
                 warnOnFinalMethods(clazz)
             }
 
-            {}
+            { /* No-op */ }
         }
     }
 
@@ -129,7 +127,7 @@ internal class ProxyMaker(
                 "Building subclass proxy for $clazz with " +
                         "additional interfaces ${interfaces.toList()}"
             )
-            subclasser.subclass<T>(clazz, interfaces)
+            subclasser.subclass(clazz, interfaces)
         }
     }
 

@@ -1,11 +1,12 @@
 package io.mockk.it
 
+import io.mockk.clearStaticMockk
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import java.time.Instant
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
@@ -13,7 +14,7 @@ val Int.selfOp get() = this * this
 
 class StaticMockkTest {
     /**
-     * github issue #92
+     * GitHub issue #92
      */
     @Test
     fun staticMockkJavaFunction() {
@@ -25,7 +26,7 @@ class StaticMockkTest {
     }
 
     /**
-     * github issue #99
+     * GitHub issue #99
      */
     @Test
     fun unmockStatic_unmocksStaticMocks() {
@@ -74,6 +75,19 @@ class StaticMockkTest {
     }
 
     @Test
+    fun extensionFunctionClearStaticMock() {
+        mockkStatic(Int::op)
+
+        every { 5 op 6 } returns 2
+
+        assertEquals(2, 5 op 6)
+
+        clearStaticMockk(Int::op)
+
+        verify(exactly = 0) { 5 op 6 }
+    }
+
+    @Test
     fun extensionPropertyStaticMock() {
         mockkStatic(Int::selfOp)
 
@@ -105,5 +119,18 @@ class StaticMockkTest {
         assertEquals(3, 5.selfOp)
 
         verify { 5.selfOp }
+    }
+
+    @Test
+    fun extensionPropertyClearStaticMock() {
+        mockkStatic(Int::selfOp)
+
+        every { 5.selfOp } returns 2
+
+        assertEquals(2, 5.selfOp)
+
+        clearStaticMockk(Int::selfOp)
+
+        verify(exactly = 0) { 5.selfOp }
     }
 }

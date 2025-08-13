@@ -42,7 +42,7 @@ class CallRoundBuilder(val safeToString: SafeToString) {
                     self,
                     WasNotCalled.method,
                     listOf(),
-                    safeToString.exec { "${self} wasNot Called" }
+                    safeToString.exec { "$self wasNot Called" }
                 )
             )
         }

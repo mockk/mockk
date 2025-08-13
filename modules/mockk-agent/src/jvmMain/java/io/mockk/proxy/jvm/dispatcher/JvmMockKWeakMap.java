@@ -1,5 +1,7 @@
 package io.mockk.proxy.jvm.dispatcher;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -9,23 +11,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JvmMockKWeakMap<K, V> implements Map<K, V> {
-    private final Map<Object, V> target = new ConcurrentHashMap<Object, V>();
-    private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
+    private final Map<Object, V> target = new ConcurrentHashMap<>();
+    private final ReferenceQueue<K> queue = new ReferenceQueue<>();
 
     @SuppressWarnings("unchecked")
     public V get(Object key) {
-        return target.get(new StrongKey<K>((K) key));
+        return target.get(new StrongKey<>((K) key));
     }
 
     public V put(K key, V value) {
         expunge();
-        return target.put(new WeakKey<K>(key, queue), value);
+        return target.put(new WeakKey<>(key, queue), value);
     }
 
     @SuppressWarnings("unchecked")
     public V remove(Object key) {
         expunge();
-        return target.remove(new StrongKey<K>((K) key));
+        return target.remove(new StrongKey<>((K) key));
     }
 
 
@@ -125,7 +127,7 @@ public class JvmMockKWeakMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
+    public void putAll(@NotNull Map<? extends K, ? extends V> m) {
         throw new UnsupportedOperationException("putAll");
     }
 

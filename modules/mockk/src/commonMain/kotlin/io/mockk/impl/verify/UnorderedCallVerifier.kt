@@ -35,9 +35,10 @@ open class UnorderedCallVerifier(
         val verifiedCalls = mutableSetOf<Ref>()
         for ((i, call) in verificationSequence.withIndex()) {
             val callIdxMsg = safeToString.exec { "call ${i + 1} of ${verificationSequence.size}: ${call.matcher}" }
-            val result = matchCall(call, min, max, callIdxMsg)
 
-            when (result) {
+            when (
+                val result = matchCall(call, min, max, callIdxMsg)
+            ) {
                 is VerificationResult.OK -> verifiedCalls.addAll(
                     result
                         .verifiedCalls
@@ -57,7 +58,7 @@ open class UnorderedCallVerifier(
 
         val matchedCalls = allCallsForMockMethod.filter(matcher::match)
 
-        if(matchedCalls.size > 1 && matcher.args.any { it is CapturingSlotMatcher<*> }) {
+        if (matchedCalls.size > 1 && matcher.args.any { it is CapturingSlotMatcher<*> }) {
             val msg = "$matcher execution is being verified more than once and its arguments are being captured with a slot.\n" +
                 "This will store only the argument of the last invocation in the slot.\n" +
                 "If you want to store all the arguments, use a mutableList to capture arguments."
@@ -81,7 +82,7 @@ open class UnorderedCallVerifier(
             }
         } else when (allCallsForMockMethod.size) {
             0 -> {
-                if (min == 0 && max == 0) {
+                if (min == 0) {
                     VerificationResult.OK(listOf())
                 } else if (allCallsForMock.isEmpty()) {
                     VerificationResult.Failure("$callIdxMsg was not called")
@@ -100,12 +101,12 @@ open class UnorderedCallVerifier(
             }
             1 -> {
                 val onlyCall = allCallsForMockMethod[0]
-                if (matcher.match(onlyCall)) {
+                if (matchedCalls.size == 1) {
                     if (1 in min..max) {
                         VerificationResult.OK(listOf(onlyCall))
                     } else {
                         VerificationResult.Failure(
-                            "$callIdxMsg. One matching call found, but needs at least $min${atMostMsg(max)} calls" +
+                            "$callIdxMsg. One matching call found, but needs ${callsBoundsMsg(min, max)}" +
                                     "\nCall: " + allCallsForMock.first() +
                                     if (MockKSettings.stackTracesOnVerify)
                                         "\nStack trace:\n" + stackTrace(0, allCallsForMock.first().callStack())
@@ -147,8 +148,7 @@ open class UnorderedCallVerifier(
                             })
                     } else {
                         VerificationResult.Failure(
-                            "$callIdxMsg. $n matching calls found, " +
-                                    "but needs at least $min${atMostMsg(max)} calls" +
+                            "$callIdxMsg. $n matching calls found, but needs ${callsBoundsMsg(min, max)}" +
                                     "\nCalls:\n" +
                                     formatCalls(allCallsForMock) +
                                     "\n" +
@@ -171,11 +171,15 @@ open class UnorderedCallVerifier(
         return result
     }
 
-    override fun captureArguments() {
-        captureBlocks.forEach { it() }
-    }
+    override fun captureArguments() = captureBlocks.forEach { it() }
 
-    private fun atMostMsg(max: Int) = if (max == Int.MAX_VALUE) "" else " and at most $max"
+    private fun callsBoundsMsg(min: Int, max: Int): String {
+        return when {
+            max == Int.MAX_VALUE -> "at least $min calls"
+            min == max -> "exactly $min calls"
+            else -> "at least $min and at most $max calls"
+        }
+    }
 
     private fun describeArgumentDifference(
         matcher: InvocationMatcher,

@@ -68,7 +68,6 @@ class ProxyMaker(
 
             subclasser.setProxyHandler(proxy, handler)
             handlers[proxy] = handler
-
             return result
                 .withValue(proxy)
                 .alsoOnCancel {
@@ -121,7 +120,7 @@ class ProxyMaker(
                 warnOnFinalMethods(clazz)
             }
 
-            {}
+            { /* No-op */ }
         }
     }
 
@@ -170,7 +169,7 @@ class ProxyMaker(
             val defaultConstructor = cls.getDeclaredConstructor()
             try {
                 defaultConstructor.isAccessible = true
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 // skip
             }
 

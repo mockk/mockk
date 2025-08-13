@@ -81,9 +81,14 @@ class JvmObjectMockFactory(
     }
 
     override fun clearAll(
-        options: MockKGateway.ClearOptions
+        options: MockKGateway.ClearOptions,
+        currentThreadOnly: Boolean
     ) {
+        val currentThreadId = Thread.currentThread().id
         stubRepository.allStubs.forEach {
+            if (currentThreadOnly && currentThreadId != it.threadId) {
+                return@forEach
+            }
             it.clear(options)
         }
     }

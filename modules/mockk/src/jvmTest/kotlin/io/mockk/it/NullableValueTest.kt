@@ -10,7 +10,6 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-@Suppress("UNUSED_PARAMETER")
 class NullableValueTest {
     class NullableValueGenerator(
         voidInstance: Any
@@ -50,7 +49,7 @@ class NullableValueTest {
 
 
     /**
-     * Test related to github issue #323
+     * Test related to GitHub issue #323
      */
     @Ignore("Temporarily ignored because it's failing only on travis and not anywhere else")
     @Test

@@ -2,12 +2,13 @@ package io.mockk.impl
 
 import io.mockk.impl.MultiNotifier.Session
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 class JvmMultiNotifier : MultiNotifier {
     val lock = ReentrantLock()
-    val condition = lock.newCondition()
+    val condition: Condition = lock.newCondition()
 
     val conditionMet = mutableSetOf<Ref>()
     val counters = mutableMapOf<Ref, Int>()
@@ -58,7 +59,7 @@ class JvmMultiNotifier : MultiNotifier {
     private fun time() = System.currentTimeMillis()
 
     private fun changeCounters(keys: List<Any>, delta: Int) {
-        keys.forEach { it ->
+        keys.forEach {
             val ref = InternalPlatform.ref(it)
             val value = counters.getOrElse(ref) { 0 } + delta
             if (value == 0) {

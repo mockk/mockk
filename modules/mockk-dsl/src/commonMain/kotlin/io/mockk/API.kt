@@ -26,7 +26,7 @@ object MockKDsl {
     inline fun <reified T : Any> internalMockk(
         name: String? = null,
         relaxed: Boolean = false,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         relaxUnitFun: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
@@ -47,7 +47,7 @@ object MockKDsl {
     inline fun <T : Any> internalSpyk(
         objToCopy: T,
         name: String? = null,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
@@ -67,7 +67,7 @@ object MockKDsl {
      */
     inline fun <reified T : Any> internalSpyk(
         name: String? = null,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         recordPrivateCalls: Boolean = false,
         block: T.() -> Unit = {}
     ): T {
@@ -85,7 +85,7 @@ object MockKDsl {
     /**
      * Creates new capturing slot
      */
-    inline fun <reified T : Any> internalSlot() = CapturingSlot<T>()
+    inline fun <reified T : Any?> internalSlot() = CapturingSlot<T>()
 
     /**
      * Starts a block of stubbing. Part of DSL.
@@ -269,20 +269,39 @@ object MockKDsl {
     /**
      * Checks if all recorded calls were verified.
      */
-    fun internalConfirmVerified(vararg mocks: Any) {
+    fun internalConfirmVerified(mocks: Array<out Any>) {
+        val verifier = MockKGateway.implementation().verificationAcknowledger
+
         if (mocks.isEmpty()) {
-            MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified()
+            verifier.acknowledgeVerified()
+        } else {
+            mocks.forEach {
+                when (it) {
+                    is KClass<*> -> verifier.acknowledgeVerified(it.java)
+                    else -> verifier.acknowledgeVerified(it)
+                }
+            }
         }
 
-        for (mock in mocks) {
-            MockKGateway.implementation().verificationAcknowledger.acknowledgeVerified(mock)
-        }
+        resetVerificationState()
+    }
+
+    private fun resetVerificationState() {
+        val options = ClearOptions(
+            answers = false,
+            recordedCalls = true,
+            childMocks = false,
+            verificationMarks = true,
+            exclusionRules = false
+        )
+
+        MockKGateway.implementation().clearer.clearAll(options, currentThreadOnly = true)
     }
 
     /**
      * Checks if all recorded calls are necessary.
      */
-    fun internalCheckUnnecessaryStub(vararg mocks: Any) {
+    fun internalCheckUnnecessaryStub(mocks: Array<out Any>) {
         if (mocks.isEmpty()) {
             MockKGateway.implementation().verificationAcknowledger.checkUnnecessaryStub()
         }
@@ -297,7 +316,7 @@ object MockKDsl {
      */
     inline fun internalClearMocks(
         firstMock: Any,
-        vararg mocks: Any,
+        mocks: Array<out Any>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
@@ -354,7 +373,7 @@ object MockKDsl {
     /**
      * Declares static mockk. Deprecated
      */
-    inline fun internalStaticMockk(vararg kClass: KClass<out Any>) = MockKStaticScope(*kClass)
+    inline fun internalStaticMockk(kClass: Array<KClass<*>>) = MockKStaticScope(*kClass)
 
     /**
      * Declares object mockk. Deprecated
@@ -378,7 +397,7 @@ object MockKDsl {
         type: KClass<T>,
         name: String?,
         relaxed: Boolean,
-        vararg moreInterfaces: KClass<*>,
+        moreInterfaces: Array<out KClass<*>>,
         relaxUnitFun: Boolean = false,
         block: T.() -> Unit
     ): T {
@@ -406,13 +425,13 @@ object MockKDsl {
     /**
      * Object mockk
      */
-    inline fun internalMockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) {
+    inline fun internalMockkObject(objects: Array<out Any>, recordPrivateCalls: Boolean = false) {
         val factory = MockKGateway.implementation().objectMockFactory
 
         objects.forEach {
             val cancellation = factory.objectMockk(it, recordPrivateCalls)
 
-            internalClearMocks(it)
+            internalClearMocks(it, emptyArray())
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.OBJECT)
@@ -424,7 +443,7 @@ object MockKDsl {
     /**
      * Cancel object mocks.
      */
-    inline fun internalUnmockkObject(vararg objects: Any) {
+    inline fun internalUnmockkObject(objects: Array<out Any>) {
         objects.forEach {
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.OBJECT)
@@ -436,7 +455,7 @@ object MockKDsl {
      * Clear object mocks.
      */
     inline fun internalClearObjectMockk(
-        vararg objects: Any,
+        objects: Array<out Any>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
@@ -460,13 +479,13 @@ object MockKDsl {
     /**
      * Static mockk
      */
-    inline fun internalMockkStatic(vararg classes: KClass<*>) {
+    inline fun internalMockkStatic(classes: Array<out KClass<*>>) {
         val factory = MockKGateway.implementation().staticMockFactory
 
         classes.forEach {
             val cancellation = factory.staticMockk(it)
 
-            internalClearStaticMockk(it)
+            internalClearStaticMockk(arrayOf(it))
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.STATIC)
@@ -477,7 +496,7 @@ object MockKDsl {
     /**
      * Cancel static mocks.
      */
-    inline fun internalUnmockkStatic(vararg classes: KClass<*>) {
+    inline fun internalUnmockkStatic(classes: Array<out KClass<*>>) {
         classes.forEach {
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.STATIC)
@@ -489,7 +508,7 @@ object MockKDsl {
      * Clear static mocks.
      */
     inline fun internalClearStaticMockk(
-        vararg classes: KClass<*>,
+        classes: Array<out KClass<*>>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
@@ -514,7 +533,7 @@ object MockKDsl {
      * Constructor mockk
      */
     inline fun internalMockkConstructor(
-        vararg classes: KClass<*>,
+        classes: Array<out KClass<*>>,
         recordPrivateCalls: Boolean = false,
         localToThread: Boolean = true
     ) {
@@ -523,7 +542,7 @@ object MockKDsl {
         classes.forEach {
             val cancellation = factory.constructorMockk(it, recordPrivateCalls, localToThread)
 
-            internalClearConstructorMockk(it)
+            internalClearConstructorMockk(arrayOf(it))
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.CONSTRUCTOR)
@@ -534,7 +553,7 @@ object MockKDsl {
     /**
      * Cancel constructor mocks.
      */
-    inline fun internalUnmockkConstructor(vararg classes: KClass<*>) {
+    inline fun internalUnmockkConstructor(classes: Array<out KClass<*>>) {
         classes.forEach {
             MockKGateway.implementation().constructorMockFactory.clear(
                 it,
@@ -556,7 +575,7 @@ object MockKDsl {
      * Clear constructor mocks.
      */
     inline fun internalClearConstructorMockk(
-        vararg classes: KClass<*>,
+        classes: Array<out KClass<*>>,
         answers: Boolean = true,
         recordedCalls: Boolean = true,
         childMocks: Boolean = true,
@@ -593,7 +612,8 @@ object MockKDsl {
         staticMocks: Boolean = true,
         constructorMocks: Boolean = true,
         verificationMarks: Boolean = true,
-        exclusionRules: Boolean = true
+        exclusionRules: Boolean = true,
+        currentThreadOnly: Boolean = false
     ) {
         val options = MockKGateway.ClearOptions(
             answers,
@@ -605,16 +625,16 @@ object MockKDsl {
         val implementation = MockKGateway.implementation()
 
         if (regularMocks) {
-            implementation.clearer.clearAll(options)
+            implementation.clearer.clearAll(options, currentThreadOnly)
         }
         if (objectMocks) {
-            implementation.objectMockFactory.clearAll(options)
+            implementation.objectMockFactory.clearAll(options, currentThreadOnly)
         }
         if (staticMocks) {
-            implementation.staticMockFactory.clearAll(options)
+            implementation.staticMockFactory.clearAll(options, currentThreadOnly)
         }
         if (constructorMocks) {
-            implementation.constructorMockFactory.clearAll(options)
+            implementation.constructorMockFactory.clearAll(options, currentThreadOnly)
         }
     }
 
@@ -690,6 +710,10 @@ open class MockKMatcherScope(
     val lambda: CapturingSlot<Function<*>>
 ) {
 
+    fun <T : Any> match(matcher: Matcher<T>, kclass: KClass<T>): T {
+        return callRecorder.matcher(matcher, kclass)
+    }
+
     inline fun <reified T : Any> match(matcher: Matcher<T>): T {
         return callRecorder.matcher(matcher, T::class)
     }
@@ -717,6 +741,7 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
+
     /**
      * Matches if the value is not equal to the provided [value] via the `deepEquals` function.
      */
@@ -727,17 +752,29 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> refEq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, ref = true, inverse = inverse))
+
     /**
      * Matches if the value is not equal to the provided [value] via reference comparison.
      */
     inline fun <reified T : Any> nrefEq(value: T) = refEq(value, true)
 
     /**
+     * Matches any argument given a [KClass]
+     */
+    fun <T : Any> any(classifier: KClass<T>): T = match(ConstantMatcher(true), classifier)
+
+    /**
      * Matches any argument.
      */
     inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
 
+    /**
+     * Matches any nullable argument.
+     */
+    inline fun <reified T : Any?> anyNullable(): T = matchNullable { true }
+
     inline fun <reified T : Any> capture(lst: MutableList<T>): T = match(CaptureMatcher(lst, T::class))
+
     /**
      * Captures a non-nullable value to a [CapturingSlot].
      *
@@ -757,8 +794,29 @@ open class MockKMatcherScope(
      * // slot.captured is now "testfile"
      */
     inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class))
+
     /**
      * Captures a nullable value to a [CapturingSlot].
+     *
+     * @see [io.mockk.slot] to create capturing slot.
+     * @sample
+     * interface FileNetwork {
+     *   fun download(name: String): File
+     * }
+     *
+     * val network = mockk<FileNetwork>()
+     * val slot = slot<String?>()
+     *
+     * every { network.download(captureNullable(slot)) } returns mockk()
+     *
+     * network.download("testfile")
+     * // slot.captured is now "testfile"
+     */
+    inline fun <reified T : Any> captureNullable(lst: CapturingSlot<T?>): T? =
+        match(CapturingNullableSlotMatcher(lst, T::class))
+
+    /**
+     * Captures a nullable value to a [MutableList].
      *
      * @see [io.mockk.slot] to create capturing slot.
      * @see [capture] for non-nullable arguments.
@@ -770,12 +828,14 @@ open class MockKMatcherScope(
      * Matches if the value is equal to the provided [value] via the `compareTo` function.
      */
     inline fun <reified T : Comparable<T>> cmpEq(value: T): T = match(ComparingMatcher(value, 0, T::class))
+
     /**
      * Matches if the value is more than the provided [value] via the `compareTo` function.
      * @param andEquals matches more than or equal to
      */
     inline fun <reified T : Comparable<T>> more(value: T, andEquals: Boolean = false): T =
         match(ComparingMatcher(value, if (andEquals) 2 else 1, T::class))
+
     /**
      * Matches if the value is less than the provided [value] via the `compareTo` function.
      * @param andEquals matches less than or equal to
@@ -797,10 +857,12 @@ open class MockKMatcherScope(
      * Combines two matchers via a logical and.
      */
     inline fun <reified T : Any> and(left: T, right: T): T = match(AndOrMatcher<T>(true, left, right))
+
     /**
      * Combines two matchers via a logical or.
      */
     inline fun <reified T : Any> or(left: T, right: T): T = match(AndOrMatcher<T>(false, left, right))
+
     /**
      * Negates the matcher.
      */
@@ -813,6 +875,7 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> isNull(inverse: Boolean = false): T = match(NullCheckMatcher<T>(inverse))
     inline fun <reified T : Any, R : T> ofType(cls: KClass<R>): T = match(OfTypeMatcher<T>(cls))
+
     /**
      * Checks if the value belongs to the type.
      */
@@ -2108,16 +2171,29 @@ class MockKVerificationScope(
     callRecorder: CallRecorder,
     lambda: CapturingSlot<Function<*>>
 ) : MockKMatcherScope(callRecorder, lambda) {
-    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T = match {
-        MockKAssertScope(it).captureBlock(it)
-        true
-    }
+    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T =
+        match(
+            FunctionMatcher(
+                {
+                    MockKAssertScope(it).captureBlock(it)
+                    true
+                },
+                T::class,
+                logAssertionError = true
+            )
+        )
 
     inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
-        matchNullable {
-            MockKAssertScope(it).captureBlock(it)
-            true
-        }
+        match(
+            FunctionWithNullableArgMatcher(
+                {
+                    MockKAssertScope(it).captureBlock(it)
+                    true
+                },
+                T::class,
+                logAssertionError = true
+            )
+        )
 
     inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
         withArg {
@@ -2139,7 +2215,61 @@ class MockKVerificationScope(
 
     @Suppress("UNUSED_PARAMETER")
     infix fun List<Any>.wasNot(called: Called) {
+        if (!all {
+                MockKDsl.internalIsMockKMock(
+                    mock = it,
+                    regular = true,
+                    spy = true,
+                    objectMock = true,
+                    staticMock = true,
+                    constructorMock = true
+                )
+            }) {
+            throw MockKException("was not can only be called on a mocked object")
+        }
         callRecorder.wasNotCalled(this)
+    }
+}
+
+/**
+ * Part of DSL. Additional operations for call count verification scope.
+ */
+class MockKCallCountVerificationScope {
+    operator fun Int.times(verifyBlock: MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this, max = this, inverse = false, timeout = 0),
+            verifyBlock,
+            null
+        )
+    }
+
+    operator fun IntRange.times(verifyBlock: MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this.first, max = this.last, inverse = false, timeout = 0),
+            verifyBlock,
+            null
+        )
+    }
+}
+
+/**
+ * Part of DSL. Additional operations for coroutine call count verification scope.
+ */
+class MockKCallCountCoVerificationScope {
+    operator fun Int.times(verifyBlock: suspend MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this, max = this, inverse = false, timeout = 0),
+            null,
+            verifyBlock
+        )
+    }
+
+    operator fun IntRange.times(verifyBlock: suspend MockKVerificationScope.() -> Unit) {
+        MockKGateway.implementation().verifier.verify(
+            VerificationParameters(Ordering.UNORDERED, min = this.first, max = this.last, inverse = false, timeout = 0),
+            null,
+            verifyBlock
+        )
     }
 }
 
@@ -2618,20 +2748,79 @@ inline fun <T> MockKUnmockKScope.use(block: () -> T): T {
  *
  * If this values is lambda then it's possible to invoke it.
  */
-class CapturingSlot<T : Any>() {
-    var isCaptured = false
+class CapturingSlot<T : Any?> {
+    /**
+     * Hold captured value - [CapturedValue.NotYetCaptured] after initialization.
+     * Once value is captured, then changes into [CapturedValue.Value]
+     */
+    @Volatile
+    private var capturedValue: CapturedValue<T> = CapturedValue.NotYetCaptured.singleton()
 
-    var isNull = false
+    /**
+     * @return true after value is captured. Before capture and in init state false is returned
+     */
+    val isCaptured
+        get() = capturedValue is CapturedValue.Value
 
-    lateinit var captured: T
+    /**
+     * Return true only in case, that null is captured.
+     * For init state (not yet captured) returns false.
+     */
+    val isNull
+        get() = when (val value = capturedValue) {
+            is CapturedValue.Value -> value.value == null
+            is CapturedValue.NotYetCaptured -> false
+        }
+
+    /**
+     * Provide captured value if possible -> has to be captured.
+     *
+     * @throws IllegalStateException before value is captured
+     * @return captured value
+     */
+    var captured: T
+        get() {
+            return when (val value = capturedValue) {
+                is CapturedValue.NotYetCaptured -> throw IllegalStateException("Value not yet captured.")
+                is CapturedValue.Value<T> -> value.value
+            }
+        }
+        set(value: T) {
+            capturedValue = CapturedValue.Value.of(value)
+        }
 
     fun clear() {
-        isCaptured = false
-        isNull = false
+        capturedValue = CapturedValue.NotYetCaptured.singleton()
     }
 
     override fun toString(): String =
         "slot(${if (isCaptured) "captured=${if (isNull) "null" else captured.toStr()}" else ""})"
+
+    private sealed interface CapturedValue<T : Any?> {
+
+        class NotYetCaptured<T> : CapturedValue<T> {
+            companion object {
+                private val singleton = NotYetCaptured<Any?>()
+
+                @Suppress("UNCHECKED_CAST")
+                fun <T> singleton() = singleton as NotYetCaptured<T>
+            }
+        }
+
+        /**
+         * Hold captured value. Nullable or non null one.
+         */
+        class Value<T> private constructor(val value: T) : CapturedValue<T> {
+            companion object {
+                private val nullValue = Value<Any?>(null)
+
+                @Suppress("UNCHECKED_CAST")
+                fun <T> nullValue() = nullValue as Value<T>
+
+                fun <T> of(value: T): Value<T> = if (value == null) nullValue<T>() else Value(value)
+            }
+        }
+    }
 }
 
 inline fun <reified T : () -> R, R> CapturingSlot<T>.invoke() = captured.invoke()

@@ -4,7 +4,7 @@ package io.mockk.it
 
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 /**
  * Safe call operator throws a class cast exception on relaxed mock of suspending function.

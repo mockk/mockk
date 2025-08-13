@@ -2,11 +2,11 @@ package io.mockk.it
 
 import io.mockk.MockKException
 import io.mockk.every
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 /**
- * Test related to github issue #538
+ * Test related to GitHub issue #538
  */
 class ThrowExceptionOnNonMockedClassTest {
 

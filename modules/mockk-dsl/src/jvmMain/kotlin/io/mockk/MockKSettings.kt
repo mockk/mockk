@@ -1,6 +1,6 @@
 package io.mockk
 
-import java.util.*
+import java.util.Properties
 
 actual object MockKSettings {
     private val properties = Properties()
@@ -17,7 +17,6 @@ actual object MockKSettings {
             defaultValue
         )!!.toBoolean()
 
-
     actual val relaxed: Boolean
         get() = booleanProperty("relaxed", "false")
 
@@ -33,20 +32,26 @@ actual object MockKSettings {
     actual val stackTracesAlignment: StackTracesAlignment
         get() = stackTracesAlignmentValueOf(properties.getProperty("stackTracesAlignment", "center"))
 
+    actual val failOnSetBackingFieldException: Boolean
+        get() = booleanProperty("failOnSetBackingFieldException", "false")
 
     fun setRelaxed(value: Boolean) {
-        properties.setProperty("relaxed", value.toString());
+        properties.setProperty("relaxed", value.toString())
     }
 
     fun setRelaxUnitFun(value: Boolean) {
-        properties.setProperty("relaxUnitFun", value.toString());
+        properties.setProperty("relaxUnitFun", value.toString())
     }
 
     fun setRecordPrivateCalls(value: Boolean) {
-        properties.setProperty("recordPrivateCalls", value.toString());
+        properties.setProperty("recordPrivateCalls", value.toString())
     }
 
     fun setStackTracesAlignment(value: String) {
         properties.setProperty("stackTracesAlignment", value)
+    }
+
+    fun setFailOnSetBackingFieldException(value: Boolean) {
+        properties.setProperty("failOnSetBackingFieldException", value.toString())
     }
 }

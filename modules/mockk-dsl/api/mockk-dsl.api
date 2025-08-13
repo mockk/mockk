@@ -133,16 +133,31 @@ public abstract interface class io/mockk/CapturingMatcher {
 	public abstract fun capture (Ljava/lang/Object;)V
 }
 
+public final class io/mockk/CapturingNullableSlotMatcher : io/mockk/CapturingMatcher, io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
+	public fun <init> (Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;)V
+	public fun capture (Ljava/lang/Object;)V
+	public fun checkType (Ljava/lang/Object;)Z
+	public final fun component1 ()Lio/mockk/CapturingSlot;
+	public final fun component2 ()Lkotlin/reflect/KClass;
+	public final fun copy (Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;)Lio/mockk/CapturingNullableSlotMatcher;
+	public static synthetic fun copy$default (Lio/mockk/CapturingNullableSlotMatcher;Lio/mockk/CapturingSlot;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/CapturingNullableSlotMatcher;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun equivalent ()Lio/mockk/Matcher;
+	public fun getArgumentType ()Lkotlin/reflect/KClass;
+	public final fun getCaptureSlot ()Lio/mockk/CapturingSlot;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class io/mockk/CapturingSlot {
-	public field captured Ljava/lang/Object;
 	public fun <init> ()V
 	public final fun clear ()V
 	public final fun getCaptured ()Ljava/lang/Object;
 	public final fun isCaptured ()Z
 	public final fun isNull ()Z
 	public final fun setCaptured (Ljava/lang/Object;)V
-	public final fun setCaptured (Z)V
-	public final fun setNull (Z)V
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -277,12 +292,13 @@ public final class io/mockk/FunctionAnswer : io/mockk/Answer {
 }
 
 public final class io/mockk/FunctionMatcher : io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
-	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)V
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun checkType (Ljava/lang/Object;)Z
 	public final fun component1 ()Lkotlin/jvm/functions/Function1;
 	public final fun component2 ()Lkotlin/reflect/KClass;
-	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)Lio/mockk/FunctionMatcher;
-	public static synthetic fun copy$default (Lio/mockk/FunctionMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/FunctionMatcher;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)Lio/mockk/FunctionMatcher;
+	public static synthetic fun copy$default (Lio/mockk/FunctionMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Lio/mockk/FunctionMatcher;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun equivalent ()Lio/mockk/Matcher;
 	public fun getArgumentType ()Lkotlin/reflect/KClass;
@@ -294,12 +310,13 @@ public final class io/mockk/FunctionMatcher : io/mockk/EquivalentMatcher, io/moc
 }
 
 public final class io/mockk/FunctionWithNullableArgMatcher : io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
-	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)V
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun checkType (Ljava/lang/Object;)Z
 	public final fun component1 ()Lkotlin/jvm/functions/Function1;
 	public final fun component2 ()Lkotlin/reflect/KClass;
-	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;)Lio/mockk/FunctionWithNullableArgMatcher;
-	public static synthetic fun copy$default (Lio/mockk/FunctionWithNullableArgMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ILjava/lang/Object;)Lio/mockk/FunctionWithNullableArgMatcher;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)Lio/mockk/FunctionWithNullableArgMatcher;
+	public static synthetic fun copy$default (Lio/mockk/FunctionWithNullableArgMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Lio/mockk/FunctionWithNullableArgMatcher;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun equivalent ()Lio/mockk/Matcher;
 	public fun getArgumentType ()Lkotlin/reflect/KClass;
@@ -516,6 +533,18 @@ public final class io/mockk/MockKAssertScope {
 	public final fun getActual ()Ljava/lang/Object;
 }
 
+public final class io/mockk/MockKCallCountCoVerificationScope {
+	public fun <init> ()V
+	public final fun times (ILkotlin/jvm/functions/Function2;)V
+	public final fun times (Lkotlin/ranges/IntRange;Lkotlin/jvm/functions/Function2;)V
+}
+
+public final class io/mockk/MockKCallCountVerificationScope {
+	public fun <init> ()V
+	public final fun times (ILkotlin/jvm/functions/Function1;)V
+	public final fun times (Lkotlin/ranges/IntRange;Lkotlin/jvm/functions/Function1;)V
+}
+
 public final class io/mockk/MockKCancellationRegistry {
 	public static final field INSTANCE Lio/mockk/MockKCancellationRegistry;
 	public final fun cancelAll ()V
@@ -551,8 +580,8 @@ public final class io/mockk/MockKDsl {
 	public static final field INSTANCE Lio/mockk/MockKDsl;
 	public final fun internalCheckExactlyAtMostAtLeast (IIILio/mockk/Ordering;)V
 	public final fun internalCheckUnnecessaryStub ([Ljava/lang/Object;)V
-	public final fun internalClearAllMocks (ZZZZZZZZZ)V
-	public static synthetic fun internalClearAllMocks$default (Lio/mockk/MockKDsl;ZZZZZZZZZILjava/lang/Object;)V
+	public final fun internalClearAllMocks (ZZZZZZZZZZ)V
+	public static synthetic fun internalClearAllMocks$default (Lio/mockk/MockKDsl;ZZZZZZZZZZILjava/lang/Object;)V
 	public final fun internalClearConstructorMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
 	public static synthetic fun internalClearConstructorMockk$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZZZZILjava/lang/Object;)V
 	public final fun internalClearMocks (Ljava/lang/Object;[Ljava/lang/Object;ZZZZZ)V
@@ -682,7 +711,7 @@ public final class io/mockk/MockKGateway$ClearOptions {
 
 public abstract interface class io/mockk/MockKGateway$Clearer {
 	public abstract fun clear ([Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 }
 
 public final class io/mockk/MockKGateway$Companion {
@@ -693,7 +722,7 @@ public final class io/mockk/MockKGateway$Companion {
 
 public abstract interface class io/mockk/MockKGateway$ConstructorMockFactory {
 	public abstract fun clear (Lkotlin/reflect/KClass;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 	public abstract fun constructorMockk (Lkotlin/reflect/KClass;ZZ)Lkotlin/jvm/functions/Function0;
 	public abstract fun mockPlaceholder (Lkotlin/reflect/KClass;[Lio/mockk/Matcher;)Ljava/lang/Object;
 }
@@ -747,13 +776,13 @@ public abstract interface class io/mockk/MockKGateway$MockTypeChecker {
 
 public abstract interface class io/mockk/MockKGateway$ObjectMockFactory {
 	public abstract fun clear (Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 	public abstract fun objectMockk (Ljava/lang/Object;Z)Lkotlin/jvm/functions/Function0;
 }
 
 public abstract interface class io/mockk/MockKGateway$StaticMockFactory {
 	public abstract fun clear (Lkotlin/reflect/KClass;Lio/mockk/MockKGateway$ClearOptions;)V
-	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 	public abstract fun staticMockk (Lkotlin/reflect/KClass;)Lkotlin/jvm/functions/Function0;
 }
 
@@ -820,6 +849,7 @@ public abstract interface class io/mockk/MockKGateway$Verifier {
 
 public class io/mockk/MockKMatcherScope {
 	public fun <init> (Lio/mockk/MockKGateway$CallRecorder;Lio/mockk/CapturingSlot;)V
+	public final fun any (Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public final fun anyBooleanVararg ()[Z
 	public final fun anyByteVararg ()[B
 	public final fun anyCharVararg ()[C
@@ -836,6 +866,7 @@ public class io/mockk/MockKMatcherScope {
 	public static synthetic fun hint$default (Lio/mockk/MockKMatcherScope;Ljava/lang/Object;Lkotlin/reflect/KClass;IILjava/lang/Object;)Ljava/lang/Object;
 	public final fun invoke (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicCallLong;
 	public final fun invokeNoArgs (Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+	public final fun match (Lio/mockk/Matcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public final fun setProperty (Ljava/lang/Object;Ljava/lang/String;)Lio/mockk/MockKMatcherScope$DynamicSetProperty;
 	public final fun varargAllBoolean (Lkotlin/jvm/functions/Function2;)[Z
 	public final fun varargAllByte (Lkotlin/jvm/functions/Function2;)[B
@@ -895,11 +926,13 @@ public final class io/mockk/MockKObjectScope : io/mockk/MockKUnmockKScope {
 
 public final class io/mockk/MockKSettings {
 	public static final field INSTANCE Lio/mockk/MockKSettings;
+	public final fun getFailOnSetBackingFieldException ()Z
 	public final fun getRecordPrivateCalls ()Z
 	public final fun getRelaxUnitFun ()Z
 	public final fun getRelaxed ()Z
 	public final fun getStackTracesAlignment ()Lio/mockk/StackTracesAlignment;
 	public final fun getStackTracesOnVerify ()Z
+	public final fun setFailOnSetBackingFieldException (Z)V
 	public final fun setRecordPrivateCalls (Z)V
 	public final fun setRelaxUnitFun (Z)V
 	public final fun setRelaxed (Z)V

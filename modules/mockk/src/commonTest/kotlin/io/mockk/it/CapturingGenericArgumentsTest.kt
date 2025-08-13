@@ -1,15 +1,13 @@
 package io.mockk.it
 
-import io.mockk.*
-import kotlin.test.Ignore
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.slot
 import kotlin.test.Test
 
-@Ignore
 class CapturingGenericArgumentsTest {
-    /**
-     * Unable to capture arguments passed to generic functions.
-     * Verifies issue #223.
-     */
     @Test
     fun captureGenericArgument() {
         val mock = createMock<Int>()
@@ -20,7 +18,7 @@ class CapturingGenericArgumentsTest {
         fun bar(value: T)
     }
 
-    inline fun <reified T : Any> createMock(): Foo<Any> {
+    private inline fun <reified T : Any> createMock(): Foo<Any> {
         val slot = slot<T>()
 
         return mockk {
@@ -30,7 +28,7 @@ class CapturingGenericArgumentsTest {
         }
     }
 
-    fun <T> Foo<T>.tryBar(value: T) {
+    private fun <T> Foo<T>.tryBar(value: T) {
         bar(value)
     }
 }

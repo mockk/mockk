@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertNotNull
 
 /**
- * Test related to github issue #445
+ * Test related to GitHub issue #445
  */
 class MockKExtensionOnNestedClassTest {
     open class Foo

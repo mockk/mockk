@@ -16,55 +16,53 @@ abstract class RecordedBlockEvaluator(
         scope: S,
         mockBlock: (S.() -> T)?,
         coMockBlock: (suspend S.() -> T)?
-    ) {
-        try {
-            val callRecorderInstance = callRecorder()
+    ) = try {
+        val callRecorderInstance = callRecorder()
 
-            val block: () -> T = when {
-                mockBlock != null -> {
-                    { scope.mockBlock() }
-                }
-                coMockBlock != null -> {
-                    { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
-                }
-                else -> {
-                    { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
-                }
+        val block: () -> T = when {
+            mockBlock != null -> {
+                { scope.mockBlock() }
             }
+            coMockBlock != null -> {
+                { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
+            }
+            else -> {
+                { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
+            }
+        }
 
-            val blockWithRethrow = enhanceWithRethrow(block, callRecorderInstance::isLastCallReturnsNothing)
+        val blockWithRethrow = enhanceWithRethrow(block, callRecorderInstance::isLastCallReturnsNothing)
 
-            val autoHinter = autoHinterFactory()
+        val autoHinter = autoHinterFactory()
 
+        try {
+            autoHinter.autoHint(
+                callRecorderInstance,
+                0,
+                64,
+                blockWithRethrow
+            )
+        } catch (npe: NothingThrownNullPointerException) {
+            // skip
+        }
+
+        val n = callRecorderInstance.estimateCallRounds()
+        for (i in 1 until n) {
             try {
                 autoHinter.autoHint(
                     callRecorderInstance,
-                    0,
-                    64,
+                    i,
+                    n,
                     blockWithRethrow
                 )
             } catch (npe: NothingThrownNullPointerException) {
                 // skip
             }
-
-            val n = callRecorderInstance.estimateCallRounds();
-            for (i in 1 until n) {
-                try {
-                    autoHinter.autoHint(
-                        callRecorderInstance,
-                        i,
-                        n,
-                        blockWithRethrow
-                    )
-                } catch (npe: NothingThrownNullPointerException) {
-                    // skip
-                }
-            }
-            callRecorderInstance.round(n, n)
-            callRecorderInstance.done()
-        } catch (ex: Throwable) {
-            throw InternalPlatform.prettifyRecordingException(ex)
         }
+        callRecorderInstance.round(n, n)
+        callRecorderInstance.done()
+    } catch (ex: Throwable) {
+        throw InternalPlatform.prettifyRecordingException(ex)
     }
 
     private class NothingThrownNullPointerException : RuntimeException()
@@ -87,4 +85,3 @@ abstract class RecordedBlockEvaluator(
 
     protected fun initializeCoroutines() = InternalPlatformDsl.runCoroutine {}
 }
-

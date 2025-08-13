@@ -23,11 +23,10 @@ class SignatureMatcherDetector(
         fun checkAllSameNumberOfCalls() {
             if (callRounds.any { it.calls.size != nCalls }) {
                 throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
-                        callRounds.withIndex().map {
-                            "Round ${it.index + 1}: " + it.value.calls.map { it.invocationStr }.joinToString(
-                                ", "
-                            )
-                        }.joinToString("\n")
+                        callRounds.withIndex().joinToString("\n") { (index, value) ->
+                            val calls = value.calls.joinToString(", ") { it.invocationStr }
+                            "Round ${index + 1}: $calls"
+                        }
                 )
             }
         }
@@ -36,11 +35,10 @@ class SignatureMatcherDetector(
         fun checkAllSameNumberOfMatchers() {
             if (callRounds.any { it.matchers.size != nMatchers }) {
                 throw MockKException("every/verify {} block were run several times. Recorded matchers count differ between runs\n" +
-                        callRounds.withIndex().map {
-                            "Round ${it.index + 1}: " + it.value.matchers.map { it }.joinToString(
-                                ", "
-                            )
-                        }.joinToString("\n")
+                        callRounds.withIndex().joinToString("\n") { (index, value) ->
+                            val matchers = value.matchers.joinToString(", ") { it.toString() }
+                            "Round ${index + 1}: $matchers"
+                        }
                 )
             }
         }
@@ -78,7 +76,7 @@ class SignatureMatcherDetector(
                     log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
 
                     matcherMap.remove(signature)
-                            ?: ChainedCallDetector.eqOrNullMatcher(matcher.operandValues[nOp])
+                        ?: ChainedCallDetector.eqOrNullMatcher(matcher.operandValues[nOp])
                 } as List<Matcher<Any?>>?
             }
         }
@@ -96,8 +94,19 @@ class SignatureMatcherDetector(
 
         processCompositeMatchers()
         if (matcherMap.isNotEmpty()) {
-            throw MockKException("Failed matching mocking signature for\n${callRounds[0].calls.joinToString("\n")}\nleft matchers: ${matcherMap.values}")
+            val base =
+                "Failed matching mocking signature for\n${callRounds[0].calls.joinToString("\n")}\nleft matchers: ${matcherMap.values}"
+
+            // If there are matchers but no recorded calls (= likely an inline mocking attempt), add a hint
+            val inlineHint =
+                if (nMatchers > 0 && nCalls == 0)
+                    "\nNote: if you tried to stub a Kotlin inline function, it cannot be mocked. " +
+                            "Inline functions are inlined at call sites, so no call is recorded. " +
+                            "Extract a non-inline wrapper or mock the dependencies used inside the inline function."
+                else
+                    ""
+
+            throw MockKException(base + inlineHint)
         }
     }
 }
-

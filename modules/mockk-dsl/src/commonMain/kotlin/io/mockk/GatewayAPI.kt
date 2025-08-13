@@ -68,7 +68,7 @@ interface MockKGateway {
 
         fun clear(type: KClass<*>, options: ClearOptions)
 
-        fun clearAll(options: ClearOptions)
+        fun clearAll(options: ClearOptions, currentThreadOnly: Boolean)
     }
 
     /**
@@ -79,7 +79,7 @@ interface MockKGateway {
 
         fun clear(obj: Any, options: ClearOptions)
 
-        fun clearAll(options: ClearOptions)
+        fun clearAll(options: ClearOptions, currentThreadOnly: Boolean)
     }
 
     /**
@@ -96,7 +96,7 @@ interface MockKGateway {
 
         fun clear(type: KClass<*>, options: ClearOptions)
 
-        fun clearAll(options: ClearOptions)
+        fun clearAll(options: ClearOptions, currentThreadOnly: Boolean)
     }
 
     /**
@@ -109,7 +109,8 @@ interface MockKGateway {
         )
 
         fun clearAll(
-            options: ClearOptions
+            options: ClearOptions,
+            currentThreadOnly: Boolean
         )
     }
 
@@ -221,7 +222,7 @@ interface MockKGateway {
         data class Failure(val message: String) : VerificationResult()
 
         val matches: Boolean
-            get() = this is VerificationResult.OK
+            get() = this is OK
     }
 
 

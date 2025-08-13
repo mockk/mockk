@@ -44,6 +44,20 @@ tasks.test {
 }
 ```
 
+Example for Gradle users within an Android module:
+```groovy
+android {
+    testOptions {
+        unitTests.all {
+            jvmArgs(
+                "--add-opens", "java.base/java.time=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"
+            )
+        }
+    }
+}
+```
+
 Example for Maven users:
 ```xml
 <plugin>

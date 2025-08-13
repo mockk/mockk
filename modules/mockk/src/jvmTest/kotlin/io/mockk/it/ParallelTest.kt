@@ -4,14 +4,15 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
-import org.slf4j.LoggerFactory
+import io.mockk.impl.log.JvmLogging
+import io.mockk.impl.log.Logger
 import java.util.Collections.synchronizedList
 import java.util.Random
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Test related to github issue #123
+ * Test related to GitHub issue #123
  */
 class ParallelTest {
     class MockCls {
@@ -62,15 +63,15 @@ class ParallelTest {
                         mock.op(a, b)
                         ops.add(Op(mock, a, b))
                     }
-                    log.info("Done operations for thread {}", n)
+                    log.info { "Done operations for thread $n" }
 
                     repeat(500) {
                         val op = ops[rnd.nextInt(ops.size)]
                         verify { op.mock.op(op.a, op.b) }
                     }
-                    log.info("Done verification block for thread {}", n)
+                    log.info { "Done verification block for thread $n" }
                 } catch (ex: Exception) {
-                    log.warn("Exception for thread {}", n, ex)
+                    log.warn(ex) { "Exception for thread $n" }
                     exceptions.add(ex)
                 }
             }
@@ -84,6 +85,6 @@ class ParallelTest {
     }
 
     companion object {
-        val log = LoggerFactory.getLogger(ParallelTest::class.java)
+        val log: Logger = JvmLogging.slf4jOrJulLogging()(ParallelTest::class)
     }
 }

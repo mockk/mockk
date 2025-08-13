@@ -1,13 +1,12 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
-import io.mockk.proxy.MockKInvocationHandler;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher;
+import io.mockk.proxy.jvm.util.DefaultInterfaceMethodResolver;
 import net.bytebuddy.implementation.bind.annotation.*;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class JvmMockKProxyInterceptor extends BaseAdvice {
@@ -42,7 +41,8 @@ public class JvmMockKProxyInterceptor extends BaseAdvice {
             return null;
         }
 
-        return dispatcher.handle(self, method, args, null);
+        return dispatcher.handle(self, method, args, DefaultInterfaceMethodResolver.Companion.getDefaultImplementationOrNull$mockk_agent(self, method, args));
+
     }
 
 }

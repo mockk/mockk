@@ -1,6 +1,7 @@
 package io.mockk.impl.platform
 
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class CommonRefTest {
@@ -10,7 +11,7 @@ class CommonRefTest {
         val ref1 = CommonRef(obj)
         val ref2 = CommonRef(obj)
 
-        assertTrue(ref1 == ref2)
+        assertEquals(ref1, ref2)
     }
 
     @Test
@@ -31,7 +32,7 @@ class CommonRefTest {
         val hash1 = ref1.hashCode()
         val hash2 = ref2.hashCode()
 
-        assertTrue(hash1 == hash2)
+        assertEquals(hash1, hash2)
     }
 
     @Test
@@ -40,7 +41,7 @@ class CommonRefTest {
         val ref1 = CommonRef(obj)
         val ref2 = CommonRef(obj)
 
-        assertTrue(ref1 == ref2)
+        assertEquals(ref1, ref2)
     }
 
     @Test
@@ -61,7 +62,7 @@ class CommonRefTest {
         val hash1 = ref1.hashCode()
         val hash2 = ref2.hashCode()
 
-        assertTrue(hash1 == hash2)
+        assertEquals(hash1, hash2)
     }
 
 }

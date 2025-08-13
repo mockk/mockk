@@ -17,6 +17,8 @@ open class MockKStub(
 ) : Stub {
     val log = gatewayAccess.safeToString(Logger<MockKStub>())
 
+    override val threadId: Long = Thread.currentThread().id
+
     private val answers = InternalPlatform.synchronizedMutableList<InvocationAnswer>()
     private val childs = InternalPlatform.synchronizedMutableMap<InvocationMatcher, Any>()
     private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
@@ -62,14 +64,11 @@ open class MockKStub(
         args: List<Any?>,
         otherwise: () -> Any?
     ): Any? {
-        if (method.isToString()) {
-            return toStr()
-        } else if (method.isHashCode()) {
-            return InternalPlatformDsl.identityHashCode(self)
-        } else if (method.isEquals()) {
-            return self === args[0]
-        } else {
-            return otherwise()
+        return when {
+            method.isToString() -> toStr()
+            method.isHashCode() -> InternalPlatformDsl.identityHashCode(self)
+            method.isEquals() -> self === args[0]
+            else -> otherwise()
         }
     }
 
@@ -79,8 +78,8 @@ open class MockKStub(
         }
     }
 
-    protected open fun defaultAnswer(invocation: Invocation): Any? {
-        return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
+    protected open fun defaultAnswer(invocation: Invocation): Any? =
+        stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
             if (shouldRelax(invocation)) {
                 if (invocation.method.returnsUnit) return Unit
                 return gatewayAccess.anyValueGenerator().anyValue(
@@ -90,10 +89,11 @@ open class MockKStub(
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
             } else {
-                throw MockKException("no answer found for: ${gatewayAccess.safeToString.exec { invocation.toString() }}")
+                val configuredAnswers = answers.map { it.matcher.toString() }.joinToString(separator = "\n") { it }
+                throw MockKException("no answer found for ${gatewayAccess.safeToString.exec { invocation.toString() }}" +
+                        " among the configured answers: ($configuredAnswers)")
             }
         }
-    }
 
     private fun shouldRelax(invocation: Invocation) = when {
         relaxed -> true
@@ -217,7 +217,7 @@ open class MockKStub(
             val childN = if (group.isEmpty()) 1 else group.toInt()
             "child^" + (childN + 1) + " of " + result.groupValues[3]
         } else {
-            "child of " + name
+            "child of $name"
         }
     }
 
@@ -302,7 +302,7 @@ open class MockKStub(
             method,
             args.map {
                 if (it == null)
-                    NullCheckMatcher<Any>()
+                    NullCheckMatcher()
                 else
                     EqMatcher(it)
             }, false
@@ -311,11 +311,11 @@ open class MockKStub(
     override fun dispose() {
         clear(
             MockKGateway.ClearOptions(
-                true,
-                true,
-                true,
-                true,
-                true
+                answers = true,
+                recordedCalls = true,
+                childMocks = true,
+                verificationMarks = true,
+                exclusionRules = true
             )
         )
         disposeRoutine.invoke()

@@ -63,17 +63,23 @@ class JvmStaticMockFactory(
         type: KClass<*>,
         options: MockKGateway.ClearOptions
     ) {
-        stubRepository.get(type.java)?.clear(options)
+        stubRepository[type.java]?.clear(options)
     }
 
     override fun clearAll(
-        options: MockKGateway.ClearOptions
+        options: MockKGateway.ClearOptions,
+        currentThreadOnly: Boolean
     ) {
-        stubRepository.allStubs.forEach { it.clear(options) }
+        val currentThreadId = Thread.currentThread().id
+        stubRepository.allStubs.forEach {
+            if (currentThreadOnly && currentThreadId != it.threadId) {
+                return@forEach
+            }
+            it.clear(options)
+        }
     }
 
     companion object {
         val log = Logger<JvmStaticMockFactory>()
     }
 }
-

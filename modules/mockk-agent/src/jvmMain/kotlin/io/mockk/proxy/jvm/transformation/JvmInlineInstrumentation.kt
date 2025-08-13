@@ -17,14 +17,14 @@ internal class JvmInlineInstrumentation(
         }.toTypedArray()
 
         if (classesToTransform.size != classesAbleTransform.size) {
+            val nonInstrumentable = classesToTransform - classesAbleTransform.toSet()
             log.warn(
-                "Non instrumentable classes(skipped): " +
-                        (classesToTransform - classesAbleTransform).joinToString()
+                "Non instrumentable classes(skipped): ${nonInstrumentable.joinToString()}"
             )
         }
 
         if (classesAbleTransform.isNotEmpty()) {
-            log.trace("Retransforming $classesAbleTransform")
+            log.trace("Retransforming classes ${classesAbleTransform.joinToString { it.name }}")
             instrumentation.retransformClasses(*classesAbleTransform)
         }
     }

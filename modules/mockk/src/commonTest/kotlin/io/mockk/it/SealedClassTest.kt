@@ -2,8 +2,6 @@ package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.condition.DisabledForJreRange
-import org.junit.jupiter.api.condition.JRE
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

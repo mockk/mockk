@@ -1,12 +1,13 @@
 package io.mockk.it
 
 import io.mockk.*
+import kotlinx.coroutines.coroutineScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CoroutinesTest {
-    val mock = mockk<MockCls>()
-    val spy = spyk<MockCls>()
+    private val mock = mockk<MockCls>()
+    private val spy = spyk<MockCls>()
 
     @Test
     fun simpleCoroutineCall() {
@@ -27,7 +28,7 @@ class CoroutinesTest {
         }
 
         InternalPlatformDsl.runCoroutine {
-            spy.coLambdaOp(1, { 2 })
+            spy.coLambdaOp(1) { 2 }
         }
 
         coVerify {
@@ -42,7 +43,7 @@ class CoroutinesTest {
         } answers { 1 - coroutine<suspend () -> Int>().coInvoke() }
 
         InternalPlatformDsl.runCoroutine {
-            assertEquals(-4, mock.coLambdaOp(1, { 5 }))
+            assertEquals(-4, mock.coLambdaOp(1) { 5 })
         }
 
         coVerify {
@@ -65,7 +66,7 @@ class CoroutinesTest {
     }
 
     class MockCls {
-        suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = a + b
+        suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = coroutineScope { a + b }
         suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
     }
 
@@ -76,7 +77,6 @@ class CoroutinesTest {
             }
         }
 
-        private suspend fun myPrivateCall(arg1: Int) {
-        }
+        private suspend fun myPrivateCall(arg1: Int): Unit = coroutineScope { arg1.inc() }
     }
 }

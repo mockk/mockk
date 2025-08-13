@@ -1,7 +1,9 @@
 package io.mockk.proxy.jvm.advice
 
 import java.lang.reflect.Method
-import java.util.*
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+import java.util.Arrays
 
 internal object SelfCallEliminator {
     val selfCall = ThreadLocal<Any>()
@@ -12,7 +14,15 @@ internal object SelfCallEliminator {
     }
 
     private fun checkOverride(method1: Method, method2: Method): Boolean {
-        return method1.name == method2.name && Arrays.equals(method1.parameterTypes, method2.parameterTypes)
+        val namesMatch = method1.name == method2.name
+
+        val parameterTypesMatch = method1.parameterTypes.contentEquals(method2.parameterTypes) ||
+            (method1.parameterTypes.size == method2.parameterTypes.size &&
+                method1.parameterTypes.zip(method2.parameterTypes).all { (type1, type2) ->
+                    type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)
+                })
+
+        return namesMatch && parameterTypesMatch
     }
 
     inline fun <T> apply(self: Any, method: Method, block: () -> T): T {

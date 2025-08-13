@@ -1,12 +1,25 @@
 package io.mockk.it
 
-import io.mockk.*
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
-import kotlin.test.Test
+import io.mockk.Called
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
+import io.mockk.clearMocks
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.excludeRecords
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.verify
+import io.mockk.verifyCount
+import io.mockk.verifyOrder
+import io.mockk.verifySequence
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.jupiter.api.Test
+import java.time.Instant
 
 class VerificationAcknowledgeTest {
     class MockCls {
@@ -15,7 +28,7 @@ class VerificationAcknowledgeTest {
 
     val mock = mockk<MockCls>()
 
-    fun doCalls1() {
+    private fun doCalls1() {
         every { mock.op(5) } returns 1
         every { mock.op(6) } returns 2
         every { mock.op(7) } returns 3
@@ -26,7 +39,7 @@ class VerificationAcknowledgeTest {
     }
 
 
-    fun doCalls2() {
+    private fun doCalls2() {
         every { mock.op(0) } throws RuntimeException("test")
         every { mock.op(1) } returnsMany listOf(1, 2, 3)
 
@@ -320,6 +333,33 @@ class VerificationAcknowledgeTest {
     }
 
     @Test
+    fun verifyCount() {
+        doCalls1()
+
+        verifyCount {
+            1 * { mock.op(6) }
+            1 * { mock.op(5) }
+            1 * { mock.op(7) }
+        }
+
+        confirmVerified(mock)
+    }
+
+    @Test
+    fun verifyCount2() {
+        doCalls1()
+
+        verifyCount {
+            1 * { mock.op(6) }
+            1 * { mock.op(5) }
+        }
+
+        assertFails {
+            confirmVerified(mock)
+        }
+    }
+
+    @Test
     fun atLeast() {
         doCalls2()
 
@@ -550,51 +590,7 @@ class VerificationAcknowledgeTest {
     }
 
     @Test
-    fun clearMarks() {
-
-        every { mock.op(1) } returns 1
-        every { mock.op(2) } returns 2
-        every { mock.op(3) } returns 3
-        every { mock.op(4) } returns 4
-
-        assertEquals(1, mock.op(1))
-        assertEquals(2, mock.op(2))
-        assertEquals(3, mock.op(3))
-        assertEquals(4, mock.op(4))
-
-        verify {
-            mock.op(1)
-            mock.op(2)
-            mock.op(3)
-        }
-
-        assertFails {
-            confirmVerified(mock)
-        }
-
-        verify {
-            mock.op(4)
-        }
-
-        confirmVerified(mock)
-
-        clearMocks(
-            mock,
-            answers = false,
-            recordedCalls = false,
-            childMocks = false,
-            verificationMarks = true,
-            exclusionRules = false
-        )
-
-        assertFails {
-            confirmVerified(mock)
-        }
-    }
-
-    @Test
     fun confirmVerifiedAll() {
-        clearAllMocks()
         doCalls1()
 
         verify {
@@ -608,7 +604,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun confirmVerifiedAllInverse() {
-        clearAllMocks()
         doCalls1()
 
         verify {
@@ -623,7 +618,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun confirmVerifiedAllExclude() {
-        clearAllMocks()
         excludeRecords(current = false) {
             mock.op(7)
         }
@@ -636,6 +630,19 @@ class VerificationAcknowledgeTest {
         }
 
         confirmVerified()
+    }
+
+    @Test
+    fun confirmVerifiedToWorkWithStaticMock() {
+        val epochSeconds = 123L
+        mockkStatic(Instant::class)
+        every { Instant.now().epochSecond } returns epochSeconds
+
+        assertEquals(123L, Instant.now().epochSecond)
+
+        verify(exactly = 1) { Instant.now().epochSecond  }
+
+        confirmVerified(Instant::class)
     }
 }
 

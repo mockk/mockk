@@ -1,17 +1,20 @@
 package buildsrc.convention
 
 import buildsrc.config.Deps
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id("com.android.application")
 
     id("org.jetbrains.dokka")
+    id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
 }
 
 android {
-    compileSdkVersion = "android-32"
+    compileSdk = Deps.Versions.compileSdk
 
     lint {
         abortOnError = false
@@ -19,20 +22,26 @@ android {
         warning += "NewApi"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/main.kotlin_module"
         }
     }
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 32
+        minSdk = Deps.Versions.minSdk
+        targetSdk = Deps.Versions.targetSdk
     }
 
     compileOptions {
         sourceCompatibility = Deps.Versions.jvmTarget
         targetCompatibility = Deps.Versions.jvmTarget
+    }
+}
+
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
     }
 }
 

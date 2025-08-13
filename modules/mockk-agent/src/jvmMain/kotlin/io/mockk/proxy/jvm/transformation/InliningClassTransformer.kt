@@ -1,7 +1,6 @@
 package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
-import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKConstructorProxyAdvice
@@ -16,6 +15,7 @@ import net.bytebuddy.asm.AsmVisitorWrapper
 import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
+import net.bytebuddy.dynamic.VisibilityBridgeStrategy
 import net.bytebuddy.matcher.ElementMatchers.*
 import java.io.File
 import java.lang.instrument.ClassFileTransformer
@@ -72,7 +72,10 @@ internal class InliningClassTransformer(
                 ?: return classfileBuffer
 
         try {
-            val builder = byteBuddy.redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
+            val builder = byteBuddy
+                // Work around for https://bugs.openjdk.org/browse/JDK-8136614
+                .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
+                .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
                 .visit(FixParameterNamesVisitor(classBeingRedefined))
 
             val type = builder
@@ -89,7 +92,7 @@ internal class InliningClassTransformer(
                     type.saveIn(storePath)
                 }
             } catch (ex: Exception) {
-                log.trace(ex, "Failed to save file to a dump");
+                log.trace(ex, "Failed to save file to a dump")
             }
 
             return type.bytes
@@ -100,20 +103,22 @@ internal class InliningClassTransformer(
         }
     }
 
+    @Suppress("RemoveExplicitTypeArguments")
     private fun simpleAdvice() =
         Advice.withCustomMapping()
-            .bind<ProxyAdviceId>(ProxyAdviceId::class.java, advice.id)
+            .bind(ProxyAdviceId::class.java, advice.id)
             .to(JvmMockKProxyAdvice::class.java)
             .on(
                 isMethod<MethodDescription>()
                     .and(not<OfByteCodeElement>(isStatic<OfByteCodeElement>()))
                     .and(not<MethodDescription>(isDefaultFinalizer<MethodDescription>()))
+                    .and(not<MethodDescription>(this::matchValueClassGetValueMethod))
             )
 
-
+    @Suppress("RemoveExplicitTypeArguments")
     private fun staticAdvice(className: String) =
         Advice.withCustomMapping()
-            .bind<ProxyAdviceId>(ProxyAdviceId::class.java, staticProxyAdviceId(className))
+            .bind(ProxyAdviceId::class.java, staticProxyAdviceId(className))
             .to(staticProxyAdvice(className))
             .on(
                 isStatic<OfByteCodeElement>()
@@ -125,9 +130,19 @@ internal class InliningClassTransformer(
     private fun matchRestrictedMethods(desc: MethodDescription) =
         desc.declaringType.typeName + "." + desc.name in restrictedMethods
 
+    private fun matchValueClassGetValueMethod(desc: MethodDescription): Boolean {
+        return isFinal<MethodDescription>()
+            .and(isDeclaredBy(isAnnotatedWith(JvmInline::class.java)))
+            .and(named("getValue"))
+            .and(isPublic())
+            .and(takesNoArguments())
+            .matches(desc)
+    }
+
+    @Suppress("RemoveExplicitTypeArguments")
     private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods {
         return Advice.withCustomMapping()
-            .bind<ProxyAdviceId>(ProxyAdviceId::class.java, constructorAdvice.id)
+            .bind(ProxyAdviceId::class.java, constructorAdvice.id)
             .to(JvmMockKConstructorProxyAdvice::class.java)
             .on(isConstructor())
     }
@@ -148,6 +163,6 @@ internal class InliningClassTransformer(
         }
 
     companion object {
-        val classDumpIndex = AtomicLong();
+        val classDumpIndex = AtomicLong()
     }
 }

@@ -13,7 +13,6 @@ val mavenDescription: String by extra("${project.description}")
 
 kotlin {
     jvm {
-        withJava()
     }
 
     sourceSets {
@@ -38,7 +37,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                implementation(Deps.Libs.slfj)
+                compileOnly(Deps.Libs.slfj)
 
                 implementation(Deps.Libs.junit4)
                 implementation(Deps.Libs.junitJupiter)

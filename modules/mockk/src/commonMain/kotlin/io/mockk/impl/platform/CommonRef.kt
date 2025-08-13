@@ -11,13 +11,12 @@ class CommonRef(override val value: Any) : Ref {
         return value === other.value
     }
 
-    override fun hashCode(): Int {
+    override fun hashCode(): Int =
         if (InternalPlatform.isPassedByValue(value::class)) {
-            return value.hashCode()
+            value.hashCode()
         } else {
-            return InternalPlatformDsl.identityHashCode(value)
+            InternalPlatformDsl.identityHashCode(value)
         }
-    }
 
     override fun toString(): String = "Ref(${value::class.simpleName}@${InternalPlatform.hkd(value)})"
 }

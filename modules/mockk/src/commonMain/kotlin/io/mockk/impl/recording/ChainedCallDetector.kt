@@ -9,13 +9,12 @@ import io.mockk.impl.log.SafeToString
 import kotlin.coroutines.Continuation
 
 class ChainedCallDetector(safeToString: SafeToString) {
-    val log = safeToString(Logger<SignatureMatcherDetector>())
+    val log = safeToString(Logger<ChainedCallDetector>())
 
     val argMatchers = mutableListOf<Matcher<*>>()
 
     lateinit var call: RecordedCall
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
     fun detect(
         callRounds: List<CallRound>,
         callN: Int,
@@ -27,8 +26,8 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
         log.trace { "Processing call #$callN: ${zeroCall.method.toStr()}" }
 
-        fun buildMatcher(isStart: Boolean, zeroCallValue: Any?, matcherBySignature: Matcher<*>?): Matcher<*> {
-            return if (matcherBySignature == null) {
+        fun buildMatcher(isStart: Boolean, zeroCallValue: Any?, matcherBySignature: Matcher<*>?): Matcher<*> =
+            if (matcherBySignature == null) {
                 if (allAny)
                     ConstantMatcher(true)
                 else {
@@ -42,7 +41,6 @@ class ChainedCallDetector(safeToString: SafeToString) {
                     matcherBySignature
                 }
             }
-        }
 
         fun regularArgument(nArgument: Int): Matcher<*> {
             val signature = callInAllRounds.map {
@@ -94,8 +92,9 @@ class ChainedCallDetector(safeToString: SafeToString) {
                 )
             }
 
-            val nVarArgMatchers = varArgMatchers.count { it is VarargMatcher<*> }
-            return when (nVarArgMatchers) {
+            return when (
+                varArgMatchers.count { it is VarargMatcher<*> }
+            ) {
                 0 -> ArrayMatcher<Any>(varArgMatchers.map { it } as List<Matcher<Any>>)
                 1 -> composeVarArgMatcher(varArgMatchers)
                 else -> throw MockKException("using more then one vararg VarargMatcher in one expression is not possible: $varArgMatchers")
@@ -156,12 +155,11 @@ class ChainedCallDetector(safeToString: SafeToString) {
     }
 
     companion object {
-        fun eqOrNullMatcher(arg: Any?): Matcher<Any> {
-            return if (arg == null) {
+        fun eqOrNullMatcher(arg: Any?): Matcher<Any> =
+            if (arg == null) {
                 NullCheckMatcher(false)
             } else {
                 EqMatcher(arg)
             }
-        }
     }
 }

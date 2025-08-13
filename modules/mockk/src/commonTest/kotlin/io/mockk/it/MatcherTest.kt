@@ -370,10 +370,10 @@ class MatcherTest {
         }
     }
 
-    open class B {}
-    class C : B() {}
+    open class B
+    class C : B()
     class A {
-        fun go(x: B) {}
+        fun go(x: B) { x.toString() }
     }
 
     data class Product(val name: String, val price: Int)

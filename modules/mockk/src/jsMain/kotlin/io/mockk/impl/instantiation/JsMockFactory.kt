@@ -1,7 +1,6 @@
 package io.mockk.impl.instantiation
 
 import io.mockk.MethodDescription
-import io.mockk.impl.log.Logger
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
@@ -36,9 +35,6 @@ class JsMockFactory(
 
     }
 
-    companion object {
-        val log = Logger<JsMockFactory>()
-    }
 }
 
 internal external interface ProxyHandler {

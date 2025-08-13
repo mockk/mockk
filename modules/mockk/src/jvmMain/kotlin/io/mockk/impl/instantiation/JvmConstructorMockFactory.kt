@@ -16,7 +16,8 @@ import io.mockk.proxy.MockKConstructorProxyMaker
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.MockKProxyMaker
 import java.lang.reflect.Method
-import java.util.*
+import java.util.Stack
+import java.util.WeakHashMap
 import java.util.concurrent.Callable
 import kotlin.concurrent.getOrSet
 import kotlin.reflect.KClass
@@ -115,7 +116,7 @@ class JvmConstructorMockFactory(
 
         private fun getConstructorMock(args: Array<Matcher<*>>?): ConstructorMock? {
             return synchronized(handlers) {
-                if (args == null) {
+                if (args.isNullOrEmpty()) {
                     if (allHandler == null) {
                         allHandler = ConstructorMock(cls, recordPrivateCalls)
                     }
@@ -253,9 +254,9 @@ class JvmConstructorMockFactory(
         localToThread: Boolean
     ): () -> Unit {
         return synchronized(handlers) {
-            val handler = handlers.getOrPut(cls, {
+            val handler = handlers.getOrPut(cls) {
                 ConstructorInvocationHandler(cls)
-            })
+            }
 
             handler.push(localToThread, recordPrivateCalls)
         }
@@ -271,8 +272,8 @@ class JvmConstructorMockFactory(
         getMockVariant(type)?.clear(options)
     }
 
-    override fun clearAll(options: MockKGateway.ClearOptions) {
-        clearer.clearAll(options)
+    override fun clearAll(options: MockKGateway.ClearOptions, currentThreadOnly: Boolean) {
+        clearer.clearAll(options, currentThreadOnly)
     }
 
     fun isMock(cls: KClass<*>) = synchronized(handlers) {

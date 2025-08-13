@@ -3,11 +3,11 @@ package io.mockk.it
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
 
 /**
- * Test related to github issue #29
+ * Test related to GitHub issue #29
  */
 @Suppress("UNUSED_PARAMETER")
 class JavaClassParamTest {

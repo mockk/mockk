@@ -3,8 +3,8 @@ package io.mockk.impl.instantiation
 import kotlin.reflect.KClass
 
 open class AnyValueGenerator {
-    open fun anyValue(cls: KClass<*>, isNullable: Boolean, orInstantiateVia: () -> Any?): Any? {
-        return when (cls) {
+    open fun anyValue(cls: KClass<*>, isNullable: Boolean, orInstantiateVia: () -> Any?): Any? =
+        when (cls) {
             Boolean::class -> false
             Byte::class -> 0.toByte()
             Short::class -> 0.toShort()
@@ -33,6 +33,5 @@ open class AnyValueGenerator {
 
             else -> orInstantiateVia()
         }
-    }
 
 }

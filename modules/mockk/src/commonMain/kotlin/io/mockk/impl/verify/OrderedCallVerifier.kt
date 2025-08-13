@@ -41,8 +41,6 @@ class OrderedCallVerifier(
 
     }
 
-    override fun captureArguments() {
-        captureBlocks.forEach { it() }
-    }
+    override fun captureArguments() = captureBlocks.forEach { it() }
 
 }

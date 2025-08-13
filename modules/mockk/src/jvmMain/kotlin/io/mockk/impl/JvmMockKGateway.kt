@@ -20,7 +20,7 @@ import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.*
 import io.mockk.proxy.MockKAgentFactory
 import io.mockk.proxy.MockKAgentLogFactory
-import java.util.*
+import java.util.Random
 
 class JvmMockKGateway : MockKGateway {
     val safeToString: SafeToString = SafeToString { callRecorderTL.get() }
@@ -104,9 +104,8 @@ class JvmMockKGateway : MockKGateway {
     }
 
     override fun verifier(params: VerificationParameters): CallVerifier {
-        val ordering = params.ordering
 
-        val verifier = when (ordering) {
+        val verifier = when (params.ordering) {
             Ordering.UNORDERED -> UnorderedCallVerifier(stubRepo, safeToString)
             Ordering.ALL -> AllCallsCallVerifier(stubRepo, safeToString)
             Ordering.ORDERED -> OrderedCallVerifier(stubRepo, safeToString)

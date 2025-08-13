@@ -5,7 +5,7 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class MockkTest {
+class AnotherClientTest {
 
     class Dependency1(val value1: Int)
     class Dependency2(val value2: String)
