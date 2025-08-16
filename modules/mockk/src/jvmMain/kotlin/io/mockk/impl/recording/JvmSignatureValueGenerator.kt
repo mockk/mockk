@@ -45,7 +45,7 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
         Short::class -> rnd.nextInt().toShort()
         Character::class -> rnd.nextInt().toChar()
         Integer::class -> rnd.nextInt()
-        Long::class -> rnd.nextLong()
+        Long::class -> generateSafeLong()
         Float::class -> rnd.nextFloat()
         Double::class -> rnd.nextDouble()
         String::class -> rnd.nextLong().toString(16)
@@ -61,5 +61,28 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
                     instantiator.instantiate(cls)
                 } as T
             }
+    }
+
+    /**
+     * Generates a Long value in Duration's safe millisecond range to avoid AssertionError.
+     * Uses wider millisecond range while avoiding the denormalized range.
+     * See: https://github.com/mockk/mockk/issues/1401
+     */
+    private fun generateSafeLong(): Long {
+        return if (rnd.nextBoolean()) {
+            // Generate positive value in safe millisecond range (avoids denormalized)
+            rnd.nextLong(MAX_NANOS_IN_MILLIS + 1, MAX_MILLIS)
+        } else {
+            // Generate negative value in safe millisecond range (avoids denormalized)
+            rnd.nextLong(-MAX_MILLIS, -MAX_NANOS_IN_MILLIS)
+        }
+    }
+
+    companion object {
+        // Duration internal constants (mirrored from kotlin.time.Duration)
+        private const val NANOS_IN_MILLIS = 1_000_000L
+        private const val MAX_NANOS = Long.MAX_VALUE / 2 / NANOS_IN_MILLIS * NANOS_IN_MILLIS - 1
+        private const val MAX_MILLIS = Long.MAX_VALUE / 2
+        private const val MAX_NANOS_IN_MILLIS = MAX_NANOS / NANOS_IN_MILLIS
     }
 }
