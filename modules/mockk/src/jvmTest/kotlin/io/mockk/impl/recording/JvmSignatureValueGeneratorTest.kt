@@ -3,6 +3,7 @@ package io.mockk.impl.recording
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
 import io.mockk.impl.instantiation.CommonInstanceFactoryRegistry
+import io.mockk.impl.recording.JvmSignatureValueGenerator.Companion.MAX_NANOS_IN_MILLIS
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -31,12 +32,7 @@ class JvmSignatureValueGeneratorTest {
 
     @Test
     fun `generated Long values avoid denormalized range`() {
-        // Calculate denormalized range boundaries (same as implementation)
-        val nanosInMillis = 1_000_000L
-        val maxNanos = Long.MAX_VALUE / 2 / nanosInMillis * nanosInMillis - 1
-        val maxNanosInMillis = maxNanos / nanosInMillis
-
-        repeat(10) {
+        repeat(TEST_ITERATIONS) {
             val longValue = generator.signatureValue(
                 Long::class,
                 { mockAnyValueGenerator },
@@ -44,7 +40,7 @@ class JvmSignatureValueGeneratorTest {
             )
 
             assertTrue(
-                longValue !in -maxNanosInMillis..maxNanosInMillis,
+                longValue !in -MAX_NANOS_IN_MILLIS..MAX_NANOS_IN_MILLIS,
                 "Generated Long value $longValue is in denormalized range"
             )
         }
@@ -52,7 +48,7 @@ class JvmSignatureValueGeneratorTest {
 
     @Test
     fun `Duration creation with generated Long values does not throw AssertionError`() {
-        repeat(10) {
+        repeat(TEST_ITERATIONS) {
             val longValue = generator.signatureValue(
                 Long::class,
                 { mockAnyValueGenerator },
@@ -69,7 +65,7 @@ class JvmSignatureValueGeneratorTest {
 
     @Test
     fun `Duration value class creation succeeds`() {
-        repeat(10) {
+        repeat(TEST_ITERATIONS) {
             val duration = generator.signatureValue(
                 Duration::class,
                 { mockAnyValueGenerator },
@@ -78,5 +74,9 @@ class JvmSignatureValueGeneratorTest {
 
             assertNotNull(duration, "Duration should be created successfully")
         }
+    }
+
+    companion object {
+        private const val TEST_ITERATIONS = 1000
     }
 }

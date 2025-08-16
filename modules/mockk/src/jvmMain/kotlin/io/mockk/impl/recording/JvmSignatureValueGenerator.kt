@@ -70,19 +70,20 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
      */
     private fun generateSafeLong(): Long {
         return if (rnd.nextBoolean()) {
-            // Generate positive value in safe millisecond range (avoids denormalized)
+            // Generate positive value in safe millisecond range
             rnd.nextLong(MAX_NANOS_IN_MILLIS + 1, MAX_MILLIS)
         } else {
-            // Generate negative value in safe millisecond range (avoids denormalized)
+            // Generate negative value in safe millisecond range
             rnd.nextLong(-MAX_MILLIS, -MAX_NANOS_IN_MILLIS)
         }
     }
 
     companion object {
         // Duration internal constants (mirrored from kotlin.time.Duration)
+        // See: https://github.com/JetBrains/kotlin/blob/master/libraries/stdlib/src/kotlin/time/Duration.kt
         private const val NANOS_IN_MILLIS = 1_000_000L
         private const val MAX_NANOS = Long.MAX_VALUE / 2 / NANOS_IN_MILLIS * NANOS_IN_MILLIS - 1
         private const val MAX_MILLIS = Long.MAX_VALUE / 2
-        private const val MAX_NANOS_IN_MILLIS = MAX_NANOS / NANOS_IN_MILLIS
+        internal const val MAX_NANOS_IN_MILLIS = MAX_NANOS / NANOS_IN_MILLIS
     }
 }
