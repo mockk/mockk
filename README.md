@@ -523,12 +523,15 @@ assertEquals(4, MockCls(4).add(7))
 
 verify { 
     constructedWith<MockCls>().add(1)
-    constructedWith<MockCls>(EqMatcher("2")).add(2)
+    constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).add(2)
     constructedWith<MockCls>(EqMatcher(4)).add(7)
 }
 ```
 
 Note that in this case, a `prototype mock` is created for every set of argument matchers passed to `constructedWith`.
+This means that when verifying invocations on a `prototype mock` you have to ensure that the argument matchers used are
+the same that where used when stubbing, i.e. the matchers in the `verify` block and in the `every` block must be the
+same.
 
 
 ### Partial argument matching
