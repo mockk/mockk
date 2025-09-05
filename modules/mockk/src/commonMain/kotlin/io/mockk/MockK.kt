@@ -430,8 +430,8 @@ fun coExcludeRecords(
 /**
  * Checks if all recorded calls were verified.
  */
-fun confirmVerified(vararg mocks: Any) = MockK.useImpl {
-    MockKDsl.internalConfirmVerified(mocks)
+fun confirmVerified(vararg mocks: Any, clear: Boolean = false) = MockK.useImpl {
+    MockKDsl.internalConfirmVerified(mocks, clear = clear)
 }
 
 /**

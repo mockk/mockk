@@ -601,7 +601,7 @@ public final class io/mockk/MockKDsl {
 	public static synthetic fun internalCoVerifyOrder$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public final fun internalCoVerifySequence (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun internalCoVerifySequence$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
-	public final fun internalConfirmVerified ([Ljava/lang/Object;)V
+	public final fun internalConfirmVerified ([Ljava/lang/Object;Z)V
 	public final fun internalEvery (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKStubScope;
 	public final fun internalExcludeRecords (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun internalExcludeRecords$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V

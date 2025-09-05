@@ -26,7 +26,7 @@ class ClearMocksTest {
 
         clearMocks(spyObj, answers = true, recordedCalls = false, childMocks = false, verificationMarks = false)
 
-        confirmVerified(spyObj)
+        confirmVerified(spyObj, clear = true)
         assertEquals(2, spyObj.op(1))
         verify(exactly = 1) { spyObj.op(1) }
     }
@@ -40,7 +40,7 @@ class ClearMocksTest {
 
         clearMocks(mockObj, answers = true, recordedCalls = false, childMocks = false, verificationMarks = false)
 
-        confirmVerified(child)
+        confirmVerified(child, clear = true)
         assertEquals(3, child.op(1))
         verify(exactly = 1) { child.op(1) }
         assertSame(child, mockObj.child())
@@ -68,7 +68,7 @@ class ClearMocksTest {
 
         clearMocks(mockObj, answers = false, recordedCalls = true, childMocks = false, verificationMarks = false)
 
-        confirmVerified(child)
+        confirmVerified(child, clear = true)
         assertEquals(3, child.op(1))
         verify(exactly = 1) { child.op(1) }
         assertSame(child, mockObj.child())
@@ -121,7 +121,7 @@ class ClearMocksTest {
 
         clearMocks(mockObj, answers = false, recordedCalls = false, childMocks = false, verificationMarks = true)
 
-        confirmVerified(child)
+        confirmVerified(child, clear = true)
         assertEquals(3, child.op(1))
         verify(exactly = 1) { child.op(1) }
         assertSame(child, mockObj.child())
