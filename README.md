@@ -782,6 +782,12 @@ To double-check that all calls were verified by `verify...` constructs, you can 
 confirmVerified(mock1, mock2)
 ```
 
+Since v1.14.6 you can pass `clear = true` to also clear verification marks and recorded calls for the provided mocks after confirmation.
+
+```kotlin
+confirmVerified(mock1, mock2, clear = true)
+```
+
 It doesn't make much sense to use it for `verifySequence` and `verifyAll`, as these verification methods already exhaustively cover all calls with verification.
 
 It will throw an exception if there are some calls left without verification.
@@ -803,6 +809,7 @@ verify {
 }
 
 confirmVerified(car) // makes sure all calls were covered with verification
+confirmVerified(car, clear = true) // makes sure all calls were covered with verification and clears verification marks and recorded calls
 ```
 
 ### Unnecessary stubbing
