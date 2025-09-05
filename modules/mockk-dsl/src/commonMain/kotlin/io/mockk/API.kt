@@ -268,6 +268,8 @@ object MockKDsl {
 
     /**
      * Checks if all recorded calls were verified.
+     *
+     * @param clear if `true` verification state is cleared for the given mocks
      */
     fun internalConfirmVerified(mocks: Array<out Any>, clear: Boolean) {
         val verifier = MockKGateway.implementation().verificationAcknowledger
