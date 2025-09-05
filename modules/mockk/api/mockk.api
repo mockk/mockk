@@ -45,7 +45,8 @@ public final class io/mockk/MockKKt {
 	public static synthetic fun coVerifyOrder$default (ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public static final fun coVerifySequence (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun coVerifySequence$default (ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
-	public static final fun confirmVerified ([Ljava/lang/Object;)V
+	public static final fun confirmVerified ([Ljava/lang/Object;Z)V
+	public static synthetic fun confirmVerified$default ([Ljava/lang/Object;ZILjava/lang/Object;)V
 	public static final fun every (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKStubScope;
 	public static final fun excludeRecords (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun excludeRecords$default (ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V

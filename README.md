@@ -782,6 +782,12 @@ To double-check that all calls were verified by `verify...` constructs, you can 
 confirmVerified(mock1, mock2)
 ```
 
+Since v1.14.6 you can pass `clear = true` to also clear verification marks and recorded calls for the provided mocks after confirmation.
+
+```kotlin
+confirmVerified(mock1, mock2, clear = true)
+```
+
 It doesn't make much sense to use it for `verifySequence` and `verifyAll`, as these verification methods already exhaustively cover all calls with verification.
 
 It will throw an exception if there are some calls left without verification.
@@ -803,6 +809,7 @@ verify {
 }
 
 confirmVerified(car) // makes sure all calls were covered with verification
+confirmVerified(car, clear = true) // makes sure all calls were covered with verification and clears verification marks and recorded calls
 ```
 
 ### Unnecessary stubbing
@@ -1317,7 +1324,7 @@ val builderMock = mockk<MyBuilder> {
     every {
       val params = listOf<Any?>(builderMock) + func.parameters.drop(1).map { any(it.type.classifier as KClass<Any>) }
       func.call(*params.toTypedArray())
-    } answers { 
+    } answers {
       this@mockk
     }
   }
@@ -1328,7 +1335,7 @@ val builderMock = mockk<MyBuilder> {
 
 To adjust parameters globally, there are a few settings you can specify in a resource file.
 
-How to use: 
+How to use:
  1. Create a `io/mockk/settings.properties` file in `src/test/resources`.
  2. Put any of the following options:
 ```properties
@@ -1533,7 +1540,7 @@ So this is similar to the `returnsMany` semantics.
 
 ### Overview
 
-**Restricted Mocking** is a feature in MockK designed to **prevent the mocking of classes** that are problematic to mock.  
+**Restricted Mocking** is a feature in MockK designed to **prevent the mocking of classes** that are problematic to mock.
 These classes often indicate poor test design and can lead to **unreliable** or **misleading test results**.
 
 The primary goal is to:
@@ -1566,8 +1573,8 @@ The following classes are **restricted from being mocked by default**:
 | `java.io.File`         | File I/O classes (should be abstracted instead)                       | ✅ Yes                  |
 | `java.nio.file.Path`   | Path manipulation classes for file systems                            | ✅ Yes                  |
 
-⚠️ **Note:**  
-**All subclasses and implementations** of these classes are also restricted.  
+⚠️ **Note:**
+**All subclasses and implementations** of these classes are also restricted.
 For example:
 - `ArrayList` and `HashSet` (subtypes of `Collection`)
 - `HashMap` (subtype of `Map`)
@@ -1646,7 +1653,7 @@ fun `when throwExceptionOnBadMock is true should throw MockKException for collec
 
 ### Custom Class Restriction Example
 
-You can restrict **custom classes** from being mocked using the `mockk.properties` configuration file.  
+You can restrict **custom classes** from being mocked using the `mockk.properties` configuration file.
 This helps enforce proper testing practices even within your own codebase.
 
 #### Example 1: Mocking a Restricted Custom Class (Throws Exception)
@@ -1668,7 +1675,7 @@ class Bar {
     fun doSomething(): String = "print Bar"
 }
 
-class Baz : Bar() { 
+class Baz : Bar() {
     fun doSomething(): String = "print Baz"
 }
 ```
@@ -1694,7 +1701,7 @@ class RestrictedTest {
             mockk<Foo>()  // 🚫 This will throw an exception
         }
     }
-    
+
     @Test
     fun `should throw exception when mocking restricted class Bar`() {
         assertFailsWith<MockKException> {
