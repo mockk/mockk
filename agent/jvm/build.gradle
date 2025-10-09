@@ -1,0 +1,39 @@
+ext {
+    mavenName = 'MockK Java Agent'
+    mavenDescription = 'MockK inline mocking agent'
+}
+
+apply from: "${gradles}/jacoco.gradle"
+apply from: "${gradles}/jvm-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/additional-archives.gradle"
+
+dependencies {
+    compile project(':mockk-agent-api')
+    compile project(':mockk-agent-common')
+
+    compile "org.objenesis:objenesis:$objenesis_version"
+
+    compile "net.bytebuddy:byte-buddy:$byte_buddy_version"
+    compile "net.bytebuddy:byte-buddy-agent:$byte_buddy_version"
+}
+
+task copyMockKDispatcher(type: Copy) {
+    dependsOn compileJava
+    dependsOn compileKotlin
+    from "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher"
+    into "${sourceSets.main.java.outputDir}/io/mockk/proxy/jvm/dispatcher"
+    include "JvmMockKDispatcher.class"
+    include "JvmMockKWeakMap.class"
+    include "JvmMockKWeakMap\$StrongKey.class"
+    include "JvmMockKWeakMap\$WeakKey.class"
+    rename { String fileName ->
+        fileName.replace('.class', '.clazz')
+    }
+}
+classes.dependsOn(copyMockKDispatcher)
+
+jar {
+    exclude "io/mockk/proxy/jvm/dispatcher/JvmMockKDispatcher.class"
+    exclude "io/mockk/proxy/jvm/dispatcher/JvmMockKWeakMap*.class"
+}

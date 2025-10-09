@@ -1,0 +1,49 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${rootProject.dokka_version}"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin-platform-jvm'
+apply plugin: 'org.jetbrains.dokka'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
+dependencies {
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    testCompile("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version") {
+        exclude group: "junit", module: "junit"
+    }
+
+    testCompile 'org.slf4j:slf4j-api:1.7.25'
+    testCompile 'ch.qos.logback:logback-classic:1.2.3'
+
+    compileOnly "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version"
+    testCompile "org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version"
+    testCompile "org.junit.vintage:junit-vintage-engine:$junit_vintage_version"
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    dokkaFatJar = "org.jetbrains.dokka:dokka-fatjar:${rootProject.dokka_version}"
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
+    classifier = 'javadoc'
+    from "$buildDir/javadoc"
+}

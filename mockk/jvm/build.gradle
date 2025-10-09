@@ -1,0 +1,43 @@
+ext {
+    mavenName = "MockK"
+    mavenDescription = "mocking library for Kotlin"
+}
+
+apply from: "${gradles}/jacoco.gradle"
+apply from: "${gradles}/jvm-module.gradle"
+apply from: "${gradles}/upload-archives.gradle"
+apply from: "${gradles}/additional-archives.gradle"
+
+dependencies {
+    expectedBy project(':mockk-common')
+    compile project(':mockk-dsl-jvm')
+    compile project(":mockk-agent-jvm")
+
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compileOnly "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    compileOnly 'org.slf4j:slf4j-api:1.7.25'
+
+    testCompile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+
+    runtime project(":mockk-common")
+}
+
+//test {
+//    testLogging.showStandardStreams = true
+//    jvmArgs '-DprojectConfigScan=false'
+//}
+
+evaluationDependsOn(":mockk-common")
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+    from(project(':mockk-common').sourcesJar.inputs.files) {
+        exclude "io/mockk/impl/InternalPlatform.kt"
+    }
+}
+
+compileTestKotlin.kotlinOptions.javaParameters = true
+
+jar.baseName = 'mockk'
+javadocJar.baseName = 'mockk'
+sourcesJar.baseName = 'mockk'

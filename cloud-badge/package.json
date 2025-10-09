@@ -6,6 +6,6 @@
   "author": "Jiayu Yi <yi-jiayu@users.noreply.github.com>",
   "license": "MIT",
   "dependencies": {
-    "googleapis": "^59.0.0"
+    "googleapis": "^20.0.1"
   }
 }

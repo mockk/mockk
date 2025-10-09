@@ -1,9 +1,0 @@
-public final class io/mockk/bdd/BDDKt {
-	public static final fun coGiven (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
-	public static final fun coThen (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;)V
-	public static synthetic fun coThen$default (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
-	public static final fun given (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKStubScope;
-	public static final fun then (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function1;)V
-	public static synthetic fun then$default (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-}
-

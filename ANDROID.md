@@ -140,4 +140,4 @@ androidTestImplementation "io.mockk:mockk-android:{version}"
 
 ### Documentation
 
-Check [full documentation](https://mockk.io#markdown-toc) here
+Check [full documentation](http://mockk.io#markdown-toc) here

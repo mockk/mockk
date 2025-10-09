@@ -1,0 +1,7 @@
+apply plugin: 'signing'
+
+signing {
+    sign configurations.archives
+}
+
+signArchives.onlyIf { project.hasProperty('signing.keyId') }
