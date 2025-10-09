@@ -3,13 +3,13 @@ package io.mockk.proxy.jvm.advice
 import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import java.lang.reflect.Method
-import java.util.*
 import java.util.concurrent.Callable
+import java.util.concurrent.ThreadLocalRandom
 
 internal open class BaseAdvice(
     private val handlers: Map<Any, MockKInvocationHandler>
 ) : JvmMockKDispatcher() {
-    val id = randomGen.nextLong()
+    val id = ThreadLocalRandom.current().nextLong()
 
     override fun handler(self: Any, method: Method, arguments: Array<Any?>): Callable<*>? {
         val handler = handlers[self]
@@ -40,9 +40,5 @@ internal open class BaseAdvice(
                     ?: originalMethod
 
         return handler?.call()
-    }
-
-    companion object {
-        private val randomGen = Random()
     }
 }
