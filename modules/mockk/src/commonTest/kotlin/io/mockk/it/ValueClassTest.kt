@@ -65,6 +65,28 @@ class ValueClassTest {
     }
 
     @Test
+    fun `arg is eq(ValueClass), returns ValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(eq(dummyValueClassArg)) } returns dummyValueClassReturn
+        }
+
+        assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
+    fun `arg is refEq(ValueClass), returns ValueClass`() {
+        val mock = mockk<DummyService> {
+            every { argValueClassReturnValueClass(refEq(dummyValueClassArg)) } returns dummyValueClassReturn
+        }
+
+        assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
+
+        verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
+    }
+
+    @Test
     fun `arg is slot(ValueClass), returns ValueClass`() {
         val slot = slot<DummyValue>()
         val mock = mockk<DummyService> {

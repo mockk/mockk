@@ -2,6 +2,7 @@ package io.mockk
 
 import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.core.ValueClassSupport.boxedValue
 import kotlin.math.min
 import kotlin.reflect.KClass
 
@@ -10,16 +11,16 @@ import kotlin.reflect.KClass
  */
 data class EqMatcher<in T : Any>(private val valueArg: T, val ref: Boolean = false, val inverse: Boolean = false) :
     Matcher<T> {
-    val value = InternalPlatformDsl.unboxChar(valueArg)
+    val value = InternalPlatformDsl.unboxChar(valueArg).boxedValue
 
     override fun match(arg: T?): Boolean {
         val result = if (ref) {
-            arg === value
+            arg?.boxedValue === value
         } else {
             if (arg == null) {
                 false
             } else {
-                val unboxedArg = InternalPlatformDsl.unboxChar(arg)
+                val unboxedArg = InternalPlatformDsl.unboxChar(arg).boxedValue
                 InternalPlatformDsl.deepEquals(unboxedArg, value)
             }
         }
