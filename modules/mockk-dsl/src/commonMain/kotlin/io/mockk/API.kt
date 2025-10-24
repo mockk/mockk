@@ -2175,7 +2175,20 @@ class MockKVerificationScope(
     callRecorder: CallRecorder,
     lambda: CapturingSlot<Function<*>>
 ) : MockKMatcherScope(callRecorder, lambda) {
-    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T =
+    /**
+     * Captures argument and verifies it with provided block.
+     *
+     * @param logAllAssertionErrors if true, all assertion errors inside the captureBlock will be logged.
+     *                              This can cause multiple errors to be logged if the matcher is evaluated
+     *                              multiple times.
+     * @param captureBlock block that performs assertions on the captured argument.
+     *
+     * @return the captured argument
+     */
+    inline fun <reified T : Any> withArg(
+        logAllAssertionErrors: Boolean = true,
+        noinline captureBlock: MockKAssertScope.(T) -> Unit,
+    ): T =
         match(
             FunctionMatcher(
                 {
@@ -2183,11 +2196,24 @@ class MockKVerificationScope(
                     true
                 },
                 T::class,
-                logAssertionError = true
+                logAssertionError = logAllAssertionErrors
             )
         )
 
-    inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
+    /**
+     * Captures nullable argument and verifies it with provided block.
+     *
+     * @param logAllAssertionErrors if true, all assertion errors inside the captureBlock will be logged.
+     *                              This can cause multiple errors to be logged if the matcher is evaluated
+     *                              multiple times.
+     * @param captureBlock block that performs assertions on the captured argument.
+     *
+     * @return the captured argument
+     */
+    inline fun <reified T : Any> withNullableArg(
+        logAllAssertionErrors: Boolean = true,
+        noinline captureBlock: MockKAssertScope.(T?) -> Unit,
+    ): T =
         match(
             FunctionWithNullableArgMatcher(
                 {
@@ -2195,19 +2221,25 @@ class MockKVerificationScope(
                     true
                 },
                 T::class,
-                logAssertionError = true
+                logAssertionError = logAllAssertionErrors
             )
         )
 
-    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
-        withArg {
+    inline fun <reified T : Any> coWithArg(
+        logAllAssertionErrors: Boolean = true,
+        noinline captureBlock: suspend MockKAssertScope.(T) -> Unit
+    ): T =
+        withArg(logAllAssertionErrors = logAllAssertionErrors) {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
         }
 
-    inline fun <reified T : Any> coWithNullableArg(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
-        withNullableArg {
+    inline fun <reified T : Any> coWithNullableArg(
+        logAllAssertionErrors: Boolean = true,
+        noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit
+    ): T =
+        withNullableArg(logAllAssertionErrors = logAllAssertionErrors) {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
