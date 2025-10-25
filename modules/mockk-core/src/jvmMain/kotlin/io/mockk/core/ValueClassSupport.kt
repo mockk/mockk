@@ -6,6 +6,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
@@ -26,43 +27,40 @@ actual object ValueClassSupport {
         if (!resultType.isValue_safe) {
             return this
         }
+
         val kFunction = method.kotlinFunction
-        if (kFunction != null) {
-            // Only unbox a value class if the method's return type is actually the type of the inlined property.
-            // For example, in a normal case where a value class `Foo` with underlying `Int` property is inlined:
-            //   method.returnType == int (the actual representation of inlined property on JVM)
-            //   method.kotlinFunction.returnType.classifier == Foo
-            val expectedReturnType = kFunction.returnType.classifier
-            val isReturnNullable = kFunction.returnType.isMarkedNullable
-            // Use innermostBoxedClass with recursion limit to avoid infinite loops (issue #1103) while still handling nested value classes (issue #1308)
-            val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
-            return if (
-                !(kFunction.isSuspend && isPrimitive) &&
-                resultType == expectedReturnType &&
-                !(isReturnNullable && isPrimitive) // Nullable primitive value classes are not inlined (issue #1103)
-            ) {
-                this.boxedValue
-            } else {
-                this
-            }
+        val kProperty = if (kFunction == null) findMatchingPropertyWithJavaGetter(method) else null
+
+        val expectedReturnType = when {
+            kFunction != null -> kFunction.returnType.classifier
+            kProperty != null -> kProperty.returnType.classifier
+            else -> return this
         }
-        // It is possible that the method is a getter for a property, in which case we can check the property's return
-        // type in kotlin.
-        val kProperty = findMatchingPropertyWithJavaGetter(method)
-        if (kProperty == null) {
-            return this
-        } else {
-            val expectedReturnType = kProperty.returnType.classifier
-            val isReturnNullable = kProperty.returnType.isMarkedNullable
-            // Use innermostBoxedClass with recursion limit to avoid infinite loops (issue #1103) while still handling nested value classes (issue #1308)
-            val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
-            return if (resultType == expectedReturnType && !(isReturnNullable && isPrimitive)) {
-                this.boxedValue
-            } else if (!(isReturnNullable && isPrimitive)) {
-                this.boxedValue
-            } else {
-                this
-            }
+
+        val isReturnNullable = when {
+            kFunction != null -> kFunction.returnType.isMarkedNullable
+            kProperty != null -> kProperty.returnType.isMarkedNullable
+            else -> false
+        }
+
+        val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
+        val isExpectedTypeValueClass = expectedReturnType == resultType
+        val isExpectedTypeSupertype = expectedReturnType is KClass<*> &&
+                expectedReturnType != resultType &&
+                expectedReturnType.isSuperclassOf(resultType)
+
+        return when {
+            // Don't unbox when returning via supertype/interface
+            isExpectedTypeSupertype -> this
+            // Don't unbox if nullable primitive or suspend function with primitive
+            isExpectedTypeValueClass && (isReturnNullable && isPrimitive) -> this
+            isExpectedTypeValueClass && (kFunction?.isSuspend == true && isPrimitive) -> this
+            // Unbox for value class return type
+            isExpectedTypeValueClass -> this.boxedValue
+            // For property: unbox if not nullable primitive
+            kProperty != null && !(isReturnNullable && isPrimitive) -> this.boxedValue
+            // Default: don't unbox
+            else -> this
         }
     }
 
