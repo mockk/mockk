@@ -140,10 +140,10 @@ class ValueClassSupportTest {
         val testValue = ValueClass("as interface type property")
 
         val mock = mockk<ValueClassService> {
-            every { valueClassAsInterfaceProperty } returns testValue
+            every { valueClassAsInterfaceTypeProperty } returns testValue
         }
 
-        assertEquals(testValue, mock.valueClassAsInterfaceProperty)
+        assertEquals(testValue, mock.valueClassAsInterfaceTypeProperty)
     }
 
     @Test
@@ -151,19 +151,19 @@ class ValueClassSupportTest {
         val testValue = ValueClass("as interface type property")
 
         val mock = mockk<ValueClassService> {
-            every { nullableValueClassAsInterfaceProperty } returns testValue
+            every { nullableValueClassAsInterfaceTypeProperty } returns testValue
         }
 
-        assertEquals(testValue, mock.nullableValueClassAsInterfaceProperty)
+        assertEquals(testValue, mock.nullableValueClassAsInterfaceTypeProperty)
     }
 
     @Test
     fun `verify null value for nullable value class property of its interface type`() {
         val mock = mockk<ValueClassService> {
-            every { nullableValueClassAsInterfaceProperty } returns null
+            every { nullableValueClassAsInterfaceTypeProperty } returns null
         }
 
-        assertNull(mock.nullableValueClassAsInterfaceProperty)
+        assertNull(mock.nullableValueClassAsInterfaceTypeProperty)
     }
 
     @Test
@@ -270,9 +270,9 @@ internal interface ValueClassService {
     fun getNullableValueClass(): ValueClass?
     val nullableValueClassProperty: ValueClass?
     fun getValueClassAsInterfaceType(): ValueClassSuperType
-    val valueClassAsInterfaceProperty: ValueClassSuperType
+    val valueClassAsInterfaceTypeProperty: ValueClassSuperType
     fun getNullableValueClassAsInterfaceType(): ValueClassSuperType?
-    val nullableValueClassAsInterfaceProperty: ValueClassSuperType?
+    val nullableValueClassAsInterfaceTypeProperty: ValueClassSuperType?
     fun getPrimitiveValueClass(): PrimitiveValueClass
     fun getNullablePrimitiveValueClass(): PrimitiveValueClass?
     fun getNestedValueClass(): NestedValueClass
