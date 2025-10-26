@@ -203,6 +203,30 @@ class ValueClassSupportTest {
     }
 
     @Test
+    fun `verify suspend function returning a nullable value class`() {
+        val testValue = ValueClass("suspend")
+
+        val mock = mockk<ValueClassService> {
+            coEvery { getSuspendNullableValueClass() } returns testValue
+        }
+
+        val result = runBlocking { mock.getSuspendNullableValueClass() }
+
+        assertEquals(testValue, result)
+    }
+
+    @Test
+    fun `verify suspend function returning null value for a nullable value class`() {
+        val mock = mockk<ValueClassService> {
+            coEvery { getSuspendNullableValueClass() } returns null
+        }
+
+        val result = runBlocking { mock.getSuspendNullableValueClass() }
+
+        assertNull(result)
+    }
+
+    @Test
     fun `verify suspend function returning a value class with primitive underlying type`() {
         val testValue = PrimitiveValueClass(0)
 
@@ -270,5 +294,6 @@ internal interface ValueClassService {
     fun getNestedValueClass(): NestedValueClass
     fun getValueClassAsAny(): Any
     suspend fun getSuspendValueClass(): ValueClass
+    suspend fun getSuspendNullableValueClass(): ValueClass?
     suspend fun getSuspendPrimitiveValueClass(): PrimitiveValueClass
 }
