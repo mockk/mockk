@@ -6,6 +6,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
 import io.mockk.core.ValueClassSupport.boxedClass
 import kotlinx.coroutines.awaitCancellation
+import java.util.logging.Logger
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
@@ -2186,7 +2187,7 @@ class MockKVerificationScope(
      * @return the captured argument
      */
     inline fun <reified T : Any> withArg(
-        logAllAssertionErrors: Boolean = true,
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
         noinline captureBlock: MockKAssertScope.(T) -> Unit,
     ): T =
         match(
@@ -2196,7 +2197,7 @@ class MockKVerificationScope(
                     true
                 },
                 T::class,
-                logAssertionError = logAllAssertionErrors
+                assertionErrorLogger = assertionErrorLogger,
             )
         )
 
@@ -2211,7 +2212,7 @@ class MockKVerificationScope(
      * @return the captured argument
      */
     inline fun <reified T : Any> withNullableArg(
-        logAllAssertionErrors: Boolean = true,
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
         noinline captureBlock: MockKAssertScope.(T?) -> Unit,
     ): T =
         match(
@@ -2221,25 +2222,25 @@ class MockKVerificationScope(
                     true
                 },
                 T::class,
-                logAssertionError = logAllAssertionErrors
+                assertionErrorLogger = assertionErrorLogger,
             )
         )
 
     inline fun <reified T : Any> coWithArg(
-        logAllAssertionErrors: Boolean = true,
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
         noinline captureBlock: suspend MockKAssertScope.(T) -> Unit
     ): T =
-        withArg(logAllAssertionErrors = logAllAssertionErrors) {
+        withArg(assertionErrorLogger = assertionErrorLogger) {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
         }
 
     inline fun <reified T : Any> coWithNullableArg(
-        logAllAssertionErrors: Boolean = true,
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
         noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit
     ): T =
-        withNullableArg(logAllAssertionErrors = logAllAssertionErrors) {
+        withNullableArg(assertionErrorLogger = assertionErrorLogger) {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
