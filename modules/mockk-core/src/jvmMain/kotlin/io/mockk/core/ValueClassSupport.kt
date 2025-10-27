@@ -24,9 +24,11 @@ actual object ValueClassSupport {
      */
     actual fun <T : Any> T.maybeUnboxValueForMethodReturn(method: Method): Any? {
         val resultType = this::class
-        if (!resultType.isValue_safe) {
-            return this
-        }
+        // Don't unbox if not a value class
+        if (!resultType.isValue_safe) return this
+
+        // Unbox Kotlin synthetic unbox methods
+        if (method.name.endsWith("unbox-impl")) return this.boxedValue
 
         val kFunction = method.kotlinFunction
         val kProperty = if (kFunction == null) findMatchingPropertyWithJavaGetter(method) else null
@@ -37,6 +39,23 @@ actual object ValueClassSupport {
             else -> return this
         }
 
+        // For generic type parameters, safely check if the underlying value is null.
+        // Avoid accessing properties on mock value classes (which would trigger unstubbed getters).
+        if (expectedReturnType !is KClass<*>) {
+            try {
+                val unbox = this.javaClass.methods.firstOrNull {
+                    it.name.endsWith("unbox-impl") && it.parameterCount == 0
+                }
+                if (unbox != null) {
+                    unbox.isAccessible = true
+                    unbox.invoke(this) ?: return null
+                }
+            } catch (_: Throwable) {
+                // fall through and return the instance as-is
+            }
+            return this
+        }
+
         val isReturnNullable = when {
             kFunction != null -> kFunction.returnType.isMarkedNullable
             kProperty != null -> kProperty.returnType.isMarkedNullable
@@ -45,21 +64,20 @@ actual object ValueClassSupport {
 
         val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
         val isExpectedTypeValueClass = expectedReturnType == resultType
-        val isExpectedTypeSupertype = expectedReturnType is KClass<*> &&
-                expectedReturnType != resultType &&
+        val isExpectedTypeSupertype = expectedReturnType != resultType &&
                 expectedReturnType.isSuperclassOf(resultType)
 
         return when {
-            // Don't unbox when returning via supertype/interface
+            // Don't unbox when returning via supertype/interface.
             isExpectedTypeSupertype -> this
-            // Don't unbox if nullable primitive or suspend function with primitive
+            // Don't unbox if nullable primitive or suspend fun with primitive.
             isExpectedTypeValueClass && (isReturnNullable && isPrimitive) -> this
             isExpectedTypeValueClass && (kFunction?.isSuspend == true && isPrimitive) -> this
-            // Unbox for value class return type
+            // Unbox for value class return type.
             isExpectedTypeValueClass -> this.boxedValue
-            // For property: unbox if not nullable primitive
+            // For property: unbox if not nullable primitive.
             kProperty != null && !(isReturnNullable && isPrimitive) -> this.boxedValue
-            // Default: don't unbox
+            // Default: don't unbox.
             else -> this
         }
     }
