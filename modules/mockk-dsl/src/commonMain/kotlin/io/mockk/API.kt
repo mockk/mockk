@@ -6,6 +6,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKGateway.*
 import io.mockk.core.ValueClassSupport.boxedClass
 import kotlinx.coroutines.awaitCancellation
+import java.util.logging.Logger
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 
@@ -2175,7 +2176,20 @@ class MockKVerificationScope(
     callRecorder: CallRecorder,
     lambda: CapturingSlot<Function<*>>
 ) : MockKMatcherScope(callRecorder, lambda) {
-    inline fun <reified T : Any> withArg(noinline captureBlock: MockKAssertScope.(T) -> Unit): T =
+    /**
+     * Captures argument and verifies it with provided block.
+     *
+     * @param logAllAssertionErrors if true, all assertion errors inside the captureBlock will be logged.
+     *                              This can cause multiple errors to be logged if the matcher is evaluated
+     *                              multiple times.
+     * @param captureBlock block that performs assertions on the captured argument.
+     *
+     * @return the captured argument
+     */
+    inline fun <reified T : Any> withArg(
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
+        noinline captureBlock: MockKAssertScope.(T) -> Unit,
+    ): T =
         match(
             FunctionMatcher(
                 {
@@ -2183,11 +2197,24 @@ class MockKVerificationScope(
                     true
                 },
                 T::class,
-                logAssertionError = true
+                assertionErrorLogger = assertionErrorLogger,
             )
         )
 
-    inline fun <reified T : Any> withNullableArg(noinline captureBlock: MockKAssertScope.(T?) -> Unit): T =
+    /**
+     * Captures nullable argument and verifies it with provided block.
+     *
+     * @param logAllAssertionErrors if true, all assertion errors inside the captureBlock will be logged.
+     *                              This can cause multiple errors to be logged if the matcher is evaluated
+     *                              multiple times.
+     * @param captureBlock block that performs assertions on the captured argument.
+     *
+     * @return the captured argument
+     */
+    inline fun <reified T : Any> withNullableArg(
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
+        noinline captureBlock: MockKAssertScope.(T?) -> Unit,
+    ): T =
         match(
             FunctionWithNullableArgMatcher(
                 {
@@ -2195,19 +2222,25 @@ class MockKVerificationScope(
                     true
                 },
                 T::class,
-                logAssertionError = true
+                assertionErrorLogger = assertionErrorLogger,
             )
         )
 
-    inline fun <reified T : Any> coWithArg(noinline captureBlock: suspend MockKAssertScope.(T) -> Unit): T =
-        withArg {
+    inline fun <reified T : Any> coWithArg(
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
+        noinline captureBlock: suspend MockKAssertScope.(T) -> Unit
+    ): T =
+        withArg(assertionErrorLogger = assertionErrorLogger) {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }
         }
 
-    inline fun <reified T : Any> coWithNullableArg(noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit): T =
-        withNullableArg {
+    inline fun <reified T : Any> coWithNullableArg(
+        noinline assertionErrorLogger: (AssertionError) -> Unit = { e -> e.printStackTrace() },
+        noinline captureBlock: suspend MockKAssertScope.(T?) -> Unit
+    ): T =
+        withNullableArg(assertionErrorLogger = assertionErrorLogger) {
             InternalPlatformDsl.runCoroutine {
                 captureBlock(it)
             }

@@ -292,13 +292,13 @@ public final class io/mockk/FunctionAnswer : io/mockk/Answer {
 }
 
 public final class io/mockk/FunctionMatcher : io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
-	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)V
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun checkType (Ljava/lang/Object;)Z
 	public final fun component1 ()Lkotlin/jvm/functions/Function1;
 	public final fun component2 ()Lkotlin/reflect/KClass;
-	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)Lio/mockk/FunctionMatcher;
-	public static synthetic fun copy$default (Lio/mockk/FunctionMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Lio/mockk/FunctionMatcher;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lio/mockk/FunctionMatcher;
+	public static synthetic fun copy$default (Lio/mockk/FunctionMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/mockk/FunctionMatcher;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun equivalent ()Lio/mockk/Matcher;
 	public fun getArgumentType ()Lkotlin/reflect/KClass;
@@ -310,13 +310,13 @@ public final class io/mockk/FunctionMatcher : io/mockk/EquivalentMatcher, io/moc
 }
 
 public final class io/mockk/FunctionWithNullableArgMatcher : io/mockk/EquivalentMatcher, io/mockk/Matcher, io/mockk/TypedMatcher {
-	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)V
-	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun checkType (Ljava/lang/Object;)Z
 	public final fun component1 ()Lkotlin/jvm/functions/Function1;
 	public final fun component2 ()Lkotlin/reflect/KClass;
-	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Z)Lio/mockk/FunctionWithNullableArgMatcher;
-	public static synthetic fun copy$default (Lio/mockk/FunctionWithNullableArgMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;ZILjava/lang/Object;)Lio/mockk/FunctionWithNullableArgMatcher;
+	public final fun copy (Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Lio/mockk/FunctionWithNullableArgMatcher;
+	public static synthetic fun copy$default (Lio/mockk/FunctionWithNullableArgMatcher;Lkotlin/jvm/functions/Function1;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/mockk/FunctionWithNullableArgMatcher;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun equivalent ()Lio/mockk/Matcher;
 	public fun getArgumentType ()Lkotlin/reflect/KClass;
