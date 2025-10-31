@@ -1241,6 +1241,7 @@ To suppress a method call, especially a `super` call inside an overridden method
 Using `every { ... } just runs` replaces the entire method body, preventing the original code from executing.
 
 This is particularly useful for users coming from frameworks like PowerMockito or for testing classes like Android Activities.
+For reference, see [PowerMockito suppress documentation](https://github.com/powermock/powermock/wiki/Suppress-Unwanted-Behavior).
 
 ```kotlin
 // A simple inheritance hierarchy
@@ -1269,7 +1270,7 @@ child.doWork()
 assertFalse(child.superCalled)
 ```
 
-This approach allows you to isolate the logic within your method for unit testing without executing unwanted parent class behavior
+This approach allows you to isolate the logic within your method for unit testing without executing unwanted parent class behavior.
 
 ## Matcher extensibility
 
