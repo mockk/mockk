@@ -1235,6 +1235,43 @@ mockkObject(ObjBeingMocked) {
 }
 ```
 
+### Suppressing superclass calls
+
+To suppress a method call, especially a `super` call inside an overridden method, you can stub its behavior on a `spyk`.
+Using `every { ... } just runs` replaces the entire method body, preventing the original code from executing.
+
+This is particularly useful for users coming from frameworks like PowerMockito or for testing classes like Android Activities.
+For reference, see [PowerMockito suppress documentation](https://github.com/powermock/powermock/wiki/Suppress-Unwanted-Behavior).
+
+```kotlin
+// A simple inheritance hierarchy
+open class Parent {
+    var superCalled = false
+    open fun doWork() {
+        superCalled = true
+    }
+}
+
+class Child : Parent() {
+    override fun doWork() {
+        super.doWork() // We want to suppress this call during testing
+    }
+}
+
+// In your test:
+val child = spyk<Child>()
+
+// Stub the method: prevents the original (super) implementation from being invoked
+every { child.doWork() } just runs
+
+child.doWork()
+
+// Verify that the superclass method was not executed
+assertFalse(child.superCalled)
+```
+
+This approach allows you to isolate the logic within your method for unit testing without executing unwanted parent class behavior.
+
 ## Matcher extensibility
 
 A very simple way to create new matchers is by attaching a function 
