@@ -232,7 +232,8 @@
     {% if site.github.is_project_page %}
     <a href="{{ site.github.repository_url }}" class="btn">View on GitHub</a>
     <a href="https://buymeacoffee.com/oleksiyp.dev" class="btn">
-        <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Coffee" style="height: 1.2em; width: 1.2em; vertical-align: middle; margin-right: 0.3em;">
+        <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Coffee"
+             style="height: 1.2em; width: 1.2em; vertical-align: middle; margin-right: 0.3em;">
         Buy me a coffee
     </a>
     </br>
@@ -245,18 +246,32 @@
 
 <section class="idea" id="idea-section">
     <style>
-  .idea .message-text2 { display: none } 
-@media (max-width: 760px) {
-  .idea .message-text2 { display: block } 
-}
-  .idea .message-text { display: block } 
-@media (max-width: 760px) {
-  .idea .message-text { display: none } 
-}
-</style>
-<div class="bar" id="idea-bar" style="background: transparent; padding: 15px; text-align: center;">
-  <a href="https://effective-retro.com/" class="btn">Try <img src="/assets/images/effective-retro.png" width="10px" height="10px" alt="Logo of effective retro" /> effective-retro.com →</a>
-</div>
+        .idea .message-text2 {
+            display: none
+        }
+
+        @media (max-width: 760px) {
+            .idea .message-text2 {
+                display: block
+            }
+        }
+
+        .idea .message-text {
+            display: block
+        }
+
+        @media (max-width: 760px) {
+            .idea .message-text {
+                display: none
+            }
+        }
+    </style>
+    <div class="bar" id="idea-bar" style="background: transparent; padding: 15px; text-align: center;">
+        <a href="https://effective-retro.com/" class="btn" style="display: flex; vertical-align:center; gap: 5px"><span>Try </span>
+            <img src="/assets/images/effective-retro.png" width="22px" height="22px" alt="Logo of effective retro"
+                 style="background: #fff; border: 1px solid rgba(255, 255, 255, .15); border-radius: .375rem; padding: .25rem; backdrop-filter: blur(.25rem);  transition: all .2s ease;">
+            effective-retro.com →</a>
+    </div>
 
     <div class="input" id="idea-input">
         <textarea id="idea-input-textarea"></textarea>
