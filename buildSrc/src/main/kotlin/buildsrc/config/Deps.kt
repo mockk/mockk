@@ -9,14 +9,14 @@ fun Project.kotlinVersion(): String =
 
 object Deps {
     object Versions {
-        val jvmTarget = JavaVersion.VERSION_1_8
+        val jvmTarget = JavaVersion.VERSION_17
 
-        const val dokka = "2.0.0"
-        const val kotlinDefault = "2.1.20"
-        const val coroutines = "1.10.1"
+        const val dokka = "2.1.0"
+        const val kotlinDefault = "2.2.20"
+        const val coroutines = "1.10.2"
         const val slfj = "2.0.17"
-        const val logback = "1.5.18"
-        const val junitJupiter = "5.12.2"
+        const val logback = "1.5.20"
+        const val junitJupiter = "6.0.1"
         const val junit4 = "4.13.2"
 
         const val byteBuddy = "1.15.11"
