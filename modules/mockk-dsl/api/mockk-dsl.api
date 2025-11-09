@@ -564,6 +564,7 @@ public final class io/mockk/MockKCancellationRegistry$Type : java/lang/Enum {
 	public static final field CONSTRUCTOR Lio/mockk/MockKCancellationRegistry$Type;
 	public static final field OBJECT Lio/mockk/MockKCancellationRegistry$Type;
 	public static final field STATIC Lio/mockk/MockKCancellationRegistry$Type;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/mockk/MockKCancellationRegistry$Type;
 	public static fun values ()[Lio/mockk/MockKCancellationRegistry$Type;
 }
@@ -1038,6 +1039,7 @@ public final class io/mockk/Ordering : java/lang/Enum {
 	public static final field ORDERED Lio/mockk/Ordering;
 	public static final field SEQUENCE Lio/mockk/Ordering;
 	public static final field UNORDERED Lio/mockk/Ordering;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/mockk/Ordering;
 	public static fun values ()[Lio/mockk/Ordering;
 }
@@ -1089,6 +1091,7 @@ public final class io/mockk/StackElement {
 public final class io/mockk/StackTracesAlignment : java/lang/Enum {
 	public static final field CENTER Lio/mockk/StackTracesAlignment;
 	public static final field LEFT Lio/mockk/StackTracesAlignment;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/mockk/StackTracesAlignment;
 	public static fun values ()[Lio/mockk/StackTracesAlignment;
 }

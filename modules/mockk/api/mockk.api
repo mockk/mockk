@@ -196,6 +196,7 @@ public final class io/mockk/impl/annotations/InjectionLookupType : java/lang/Enu
 	public static final field BY_TYPE Lio/mockk/impl/annotations/InjectionLookupType;
 	public final fun getByName ()Z
 	public final fun getByType ()Z
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/mockk/impl/annotations/InjectionLookupType;
 	public static fun values ()[Lio/mockk/impl/annotations/InjectionLookupType;
 }
@@ -486,6 +487,7 @@ public final class io/mockk/impl/log/LogLevel : java/lang/Enum {
 	public static final field INFO Lio/mockk/impl/log/LogLevel;
 	public static final field TRACE Lio/mockk/impl/log/LogLevel;
 	public static final field WARN Lio/mockk/impl/log/LogLevel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/mockk/impl/log/LogLevel;
 	public static fun values ()[Lio/mockk/impl/log/LogLevel;
 }
@@ -1036,6 +1038,7 @@ public final class io/mockk/impl/stub/MockType : java/lang/Enum {
 	public static final field SPY Lio/mockk/impl/stub/MockType;
 	public static final field STATIC Lio/mockk/impl/stub/MockType;
 	public static final field TEMPORARY Lio/mockk/impl/stub/MockType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/mockk/impl/stub/MockType;
 	public static fun values ()[Lio/mockk/impl/stub/MockType;
 }

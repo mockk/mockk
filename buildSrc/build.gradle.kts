@@ -3,13 +3,13 @@ plugins {
 }
 
 // set the versions of Gradle plugins that the subprojects will use here
-val kotlinPluginVersion: String = "2.1.20"
+val kotlinPluginVersion: String = "2.2.21"
 
-val androidGradle = "8.9.2"
-val kotlinxKover = "0.9.1"
+val androidGradle = "8.13.0"
+val kotlinxKover = "0.9.3"
 val dokka = "2.0.0"
-val binaryCompatibilityValidator = "0.17.0"
-val jreleaserVersion = "1.17.0"
+val binaryCompatibilityValidator = "0.18.1"
+val jreleaserVersion = "1.21.0"
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:$kotlinPluginVersion"))
