@@ -17,8 +17,8 @@ kotlin {
     targets.configureEach {
         compilations.configureEach {
             compilerOptions.configure {
-                apiVersion = KotlinVersion.KOTLIN_1_8
-                languageVersion = KotlinVersion.KOTLIN_1_8
+                apiVersion = KotlinVersion.KOTLIN_2_1
+                languageVersion = KotlinVersion.KOTLIN_2_1
             }
         }
     }

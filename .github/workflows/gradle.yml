@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 17, 19, 21 ] # test LTS versions, and the newest
-        kotlin-version: [ 1.5.31, 1.6.21, 1.7.22, 1.8.20, 1.9.10, 2.0.0, 2.1.0 ]
+        kotlin-version: [ 2.1.21, 2.2.21 ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
     name: "[java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
     timeout-minutes: 30
