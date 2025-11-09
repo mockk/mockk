@@ -59,7 +59,7 @@ abstract class MockKExtensionAfterAllTestTest {
 
     class PropertyExtension : BeforeAllCallback, AfterAllCallback {
 
-        override fun beforeAll(context: ExtensionContext?) {
+        override fun beforeAll(context: ExtensionContext) {
             System.setProperty(KEEP_MOCKS_PROPERTY, "true")
         }
 

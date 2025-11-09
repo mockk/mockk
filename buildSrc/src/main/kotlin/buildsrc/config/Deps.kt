@@ -11,8 +11,7 @@ object Deps {
     object Versions {
         val jvmTarget = JavaVersion.VERSION_17
 
-        const val dokka = "2.1.0"
-        const val kotlinDefault = "2.2.20"
+        const val kotlinDefault = "2.2.21"
         const val coroutines = "1.10.2"
         const val slfj = "2.0.17"
         const val logback = "1.5.20"
