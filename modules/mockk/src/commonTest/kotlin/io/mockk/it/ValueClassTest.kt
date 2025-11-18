@@ -12,6 +12,7 @@ import java.time.Duration
 import java.util.UUID
 import io.mockk.registerInstanceFactory
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertNull
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -719,6 +720,28 @@ class ValueClassTest {
         }
     }
 
+    /** https://github.com/mockk/mockk/issues/1103 */
+    @Test
+    fun `nullable value class does not hang or cause OutOfMemoryError when returning value`() {
+        assertTimeoutPreemptively(Duration.ofSeconds(3)) {
+            val mock = mockk<ClassProvider> {
+                every { provideTestClass() } returns ValueTestClass(4)
+            }
+            assertEquals(ValueTestClass(4), mock.provideTestClass())
+        }
+    }
+
+    /** https://github.com/mockk/mockk/issues/1103 */
+    @Test
+    fun `nullable value class does not hang or cause OutOfMemoryError when return null`() {
+        assertTimeoutPreemptively(Duration.ofSeconds(3)) {
+            val mock = mockk<ClassProvider> {
+                every { provideTestClass() } returns null
+            }
+            assertNull(mock.provideTestClass())
+        }
+    }
+
     @Test
     fun `spy class returning value class not boxed due to cast to another type`() {
         val f = spyk<DummyService>()
@@ -821,6 +844,14 @@ class ValueClassTest {
 
         interface UserOfMyToken {
             fun useMyToken(myToken: MyToken)
+        }
+
+        // Test case for nullable value class
+        @JvmInline
+        value class ValueTestClass(val int: Int)
+
+        interface ClassProvider {
+            fun provideTestClass(): ValueTestClass?
         }
 
         @JvmInline

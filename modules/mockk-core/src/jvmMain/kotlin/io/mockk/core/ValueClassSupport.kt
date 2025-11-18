@@ -34,11 +34,12 @@ actual object ValueClassSupport {
             //   method.kotlinFunction.returnType.classifier == Foo
             val expectedReturnType = kFunction.returnType.classifier
             val isReturnNullable = kFunction.returnType.isMarkedNullable
-            val isPrimitive = resultType.innermostBoxedClass.java.isPrimitive
+            // Use boxedClass (one level) instead of innermostBoxedClass (recursive) to avoid infinite loops (issue #1103)
+            val isPrimitive = resultType.boxedClass.java.isPrimitive
             return if (
                 !(kFunction.isSuspend && isPrimitive) &&
                 resultType == expectedReturnType &&
-                !(isReturnNullable && isPrimitive)
+                !(isReturnNullable && isPrimitive)  // Nullable primitive value classes are not inlined (issue #1103)
             ) {
                 this.boxedValue
             } else {
@@ -53,7 +54,8 @@ actual object ValueClassSupport {
         } else {
             val expectedReturnType = kProperty.returnType.classifier
             val isReturnNullable = kProperty.returnType.isMarkedNullable
-            val isPrimitive = resultType.innermostBoxedClass.java.isPrimitive
+            // Use boxedClass (one level) instead of innermostBoxedClass (recursive) to avoid infinite loops (issue #1103)
+            val isPrimitive = resultType.boxedClass.java.isPrimitive
             return if (resultType == expectedReturnType && !(isReturnNullable && isPrimitive)) {
                 this.boxedValue
             } else if (!(isReturnNullable && isPrimitive)) {
