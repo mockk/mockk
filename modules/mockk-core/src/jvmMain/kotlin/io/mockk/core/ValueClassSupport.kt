@@ -34,8 +34,8 @@ actual object ValueClassSupport {
             //   method.kotlinFunction.returnType.classifier == Foo
             val expectedReturnType = kFunction.returnType.classifier
             val isReturnNullable = kFunction.returnType.isMarkedNullable
-            // Use boxedClass (one level) instead of innermostBoxedClass (recursive) to avoid infinite loops (issue #1103)
-            val isPrimitive = resultType.boxedClass.java.isPrimitive
+            // Use innermostBoxedClass with recursion limit to avoid infinite loops (issue #1103) while still handling nested value classes (issue #1308)
+            val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
             return if (
                 !(kFunction.isSuspend && isPrimitive) &&
                 resultType == expectedReturnType &&
@@ -54,8 +54,8 @@ actual object ValueClassSupport {
         } else {
             val expectedReturnType = kProperty.returnType.classifier
             val isReturnNullable = kProperty.returnType.isMarkedNullable
-            // Use boxedClass (one level) instead of innermostBoxedClass (recursive) to avoid infinite loops (issue #1103)
-            val isPrimitive = resultType.boxedClass.java.isPrimitive
+            // Use innermostBoxedClass with recursion limit to avoid infinite loops (issue #1103) while still handling nested value classes (issue #1308)
+            val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
             return if (resultType == expectedReturnType && !(isReturnNullable && isPrimitive)) {
                 this.boxedValue
             } else if (!(isReturnNullable && isPrimitive)) {
@@ -105,15 +105,21 @@ actual object ValueClassSupport {
     /**
      * Underlying property class of a **`value class`** or self.
      * When the value class has one or more nested value classes,
-     * the innermost boxed class is returned
+     * the innermost boxed class is returned (up to a maximum depth to prevent infinite recursion).
+     *
+     * @param maxDepth Maximum recursion depth (default 10)
      */
-    private val KClass<*>.innermostBoxedClass: KClass<*>
-        @Suppress("RecursivePropertyAccessor")
-        get() = if (!this.isValue_safe) {
+    private fun KClass<*>.innermostBoxedClass(maxDepth: Int = 10): KClass<*> {
+        if (maxDepth <= 0 || !this.isValue_safe) {
+            return this
+        }
+        val boxed = this.boxedClass
+        return if (boxed == this) {
             this
         } else {
-            (this.boxedProperty.returnType.classifier as KClass<*>).innermostBoxedClass
+            boxed.innermostBoxedClass(maxDepth - 1)
         }
+    }
 
     private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
 
