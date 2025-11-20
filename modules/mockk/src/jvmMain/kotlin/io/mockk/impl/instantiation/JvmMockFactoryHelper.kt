@@ -170,18 +170,21 @@ object JvmMockFactoryHelper {
 
         val kotlinReturnType = kotlinFunc?.returnType
             ?: findBackingField(declaringClass.kotlin, this)?.returnType
-        val returnType: KClass<*> = when (kotlinReturnType) {
+        val returnTypeNullable = kotlinReturnType?.isMarkedNullable ?: false
+        val returnTypeClass: KClass<*> = when (kotlinReturnType) {
             is KType -> kotlinReturnType.classifier as? KClass<*> ?: returnType.kotlin
             is KClass<*> -> kotlinReturnType
             else -> returnType.kotlin
-        }.boxedClass
+        }
+        // For nullable value classes, we should NOT call boxedClass as they are not inlined in JVM bytecode
+        // This prevents infinite loops in value class type resolution (issue #1103)
+        val returnType: KClass<*> = if (!returnTypeNullable) returnTypeClass.boxedClass else returnTypeClass
 
         val androidCompatibleReturnType = if (returnType.qualifiedName in androidUnsupportedTypes) {
             this@toDescription.returnType.kotlin
         } else {
             returnType
         }
-        val returnTypeNullable = kotlinReturnType?.isMarkedNullable ?: false
 
         val result = MethodDescription(
             name,
