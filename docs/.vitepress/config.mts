@@ -2,7 +2,7 @@ import {defineConfig} from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    base: 'mockk', // to be deleted, only for fork testing
+    base: '/mockk', // to be deleted, only for fork testing
     head: [['link', {rel: 'icon', href: '/mockk-icon.svg'}]],
     title: "Mockk",
     description: "mocking library for Kotlin",
