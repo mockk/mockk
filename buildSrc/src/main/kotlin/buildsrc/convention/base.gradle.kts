@@ -15,9 +15,6 @@ if (project != rootProject) {
 }
 
 tasks.withType<Test>().configureEach {
-    maxHeapSize = "4g"
-    minHeapSize = "512m"
-    jvmArgs = listOf("-XX:MaxMetaspaceSize=1g")
 
     timeout.set(Duration.ofMinutes(10))
 
