@@ -50,6 +50,9 @@ export default defineConfig({
         },
         editLink: {
             pattern: 'https://github.com/mockk/mockk/edit/master/docs/:path'
+        },
+        search: {
+            provider: 'local'
         }
     }
 })
