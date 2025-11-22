@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "Mockk"
+  name: "MockK"
   text: "mocking in Kotlin"
   actions:
     - theme: brand

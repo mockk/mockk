@@ -4,7 +4,7 @@ import {defineConfig} from 'vitepress'
 export default defineConfig({
     base: '/mockk', // to be deleted, only for fork testing
     head: [['link', {rel: 'icon', href: '/mockk-icon.svg'}]],
-    title: "Mockk",
+    title: "MockK",
     description: "mocking library for Kotlin",
     themeConfig: {
         logo: '/mockk-icon.svg',
