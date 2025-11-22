@@ -35,6 +35,10 @@ jobs:
         with:
           node-version: 25
           cache: pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
