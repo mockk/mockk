@@ -1,6 +1,5 @@
 package buildsrc.convention
 
-import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -13,8 +12,10 @@ plugins {
     id("buildsrc.convention.base")
 }
 
+val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
 android {
-    compileSdk = Deps.Versions.compileSdk
+    compileSdk = libs.findVersion("sdk").get().toString().toInt()
 
     lint {
         abortOnError = false
@@ -29,23 +30,23 @@ android {
     }
 
     defaultConfig {
-        minSdk = Deps.Versions.minSdk
-        targetSdk = Deps.Versions.targetSdk
+        minSdk = libs.findVersion("min-sdk").get().toString().toInt()
+        targetSdk = libs.findVersion("sdk").get().toString().toInt()
     }
 
     compileOptions {
-        sourceCompatibility = Deps.Versions.jvmTarget
-        targetCompatibility = Deps.Versions.jvmTarget
+        sourceCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().toString())
+        targetCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().toString())
     }
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
+        jvmTarget.set(JvmTarget.fromTarget(libs.findVersion("java").get().toString()))
     }
 }
 
 val javadocJar by tasks.registering(Jar::class) {
-    from(tasks.dokkaJavadoc)
+    from(tasks.dokkaGenerate)
     archiveClassifier.set("javadoc")
 }

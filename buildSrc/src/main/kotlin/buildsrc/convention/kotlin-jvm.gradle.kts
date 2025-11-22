@@ -1,6 +1,5 @@
 package buildsrc.convention
 
-import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
@@ -15,6 +14,8 @@ plugins {
     id("buildsrc.convention.toolchain-jvm")
 }
 
+val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
 java {
     withJavadocJar()
     withSourcesJar()
@@ -26,14 +27,15 @@ tasks.withType<JavaCompile>().configureEach {
 
 tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
+        jvmTarget = JvmTarget.fromTarget(libs.findVersion("java").get().toString())
+
+        apiVersion = KotlinVersion.fromVersion(libs.findVersion("min-kotlin").get().toString())
+        languageVersion = KotlinVersion.fromVersion(libs.findVersion("min-kotlin").get().toString())
 
         freeCompilerArgs.add("-Xjsr305=strict")
-        apiVersion = KotlinVersion.KOTLIN_2_1
-        languageVersion = KotlinVersion.KOTLIN_2_1
     }
 }
 
 tasks.named<Jar>("javadocJar") {
-    from(tasks.dokkaJavadoc)
+    from(tasks.dokkaGenerate)
 }

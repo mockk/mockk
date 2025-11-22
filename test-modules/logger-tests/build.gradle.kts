@@ -3,8 +3,7 @@ plugins {
 }
 
 kotlin {
-    jvm {
-    }
+    jvm()
 
     sourceSets {
         val commonMain by getting {
@@ -12,8 +11,8 @@ kotlin {
                 implementation(dependencies.platform(kotlin("bom")))
                 implementation(kotlin("reflect"))
 
-                implementation(dependencies.platform(buildsrc.config.Deps.Libs.kotlinCoroutinesBom))
-                implementation(buildsrc.config.Deps.Libs.kotlinCoroutinesCore)
+                implementation(dependencies.platform(libs.kotlin.coroutines.bom))
+                implementation(libs.kotlin.coroutines.core)
             }
         }
 
@@ -33,7 +32,7 @@ kotlin {
 
         val jvmTest by getting {
             dependencies {
-                implementation(buildsrc.config.Deps.Libs.junitJupiter)
+                implementation(libs.junit.jupiter)
             }
         }
     }

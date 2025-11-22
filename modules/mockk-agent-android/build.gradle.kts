@@ -12,7 +12,6 @@ description = "Android instrumented testing MockK inline mocking agent"
 val mavenName: String by extra("MockK Android Agent")
 val mavenDescription: String by extra("${project.description}")
 
-@Suppress("UnstableApiUsage")
 android {
     namespace = "io.mockk.proxy.android"
     externalNativeBuild {
@@ -49,8 +48,8 @@ dependencies {
     implementation(projects.modules.mockkCore)
 
     implementation(kotlin("reflect"))
-    implementation("com.linkedin.dexmaker:dexmaker:${buildsrc.config.Deps.Versions.dexmaker}")
-    implementation("org.objenesis:objenesis:${buildsrc.config.Deps.Versions.objenesis}")
+    implementation(libs.dexmaker)
+    implementation(libs.objenesis)
 
     androidClassesDex(projects.modules.mockkAgentAndroidDispatcher)
 }

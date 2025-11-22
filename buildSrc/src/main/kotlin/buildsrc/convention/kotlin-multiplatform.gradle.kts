@@ -13,12 +13,17 @@ plugins {
     id("buildsrc.convention.toolchain-jvm")
 }
 
+val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
 kotlin {
     targets.configureEach {
         compilations.configureEach {
-            compilerOptions.configure {
-                apiVersion = KotlinVersion.KOTLIN_2_1
-                languageVersion = KotlinVersion.KOTLIN_2_1
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
+                    apiVersion.set(KotlinVersion.fromVersion(libs.findVersion("min-kotlin").get().toString()))
+                    languageVersion.set(KotlinVersion.fromVersion(libs.findVersion("min-kotlin").get().toString()))
+                }
             }
         }
     }
@@ -30,6 +35,6 @@ kotlin {
 }
 
 val javadocJar by tasks.registering(Jar::class) {
-    from(tasks.dokkaHtml)
+    from(tasks.dokkaGenerate)
     archiveClassifier.set("javadoc")
 }

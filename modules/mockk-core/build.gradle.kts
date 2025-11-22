@@ -1,4 +1,3 @@
-import buildsrc.config.Deps
 
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
@@ -32,7 +31,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(Deps.Libs.junitJupiter)
+                implementation(libs.junit.jupiter)
             }
         }
     }

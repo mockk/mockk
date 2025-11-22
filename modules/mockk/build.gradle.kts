@@ -1,5 +1,3 @@
-import buildsrc.config.Deps
-
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
 
@@ -12,8 +10,7 @@ val mavenName: String by extra("MockK")
 val mavenDescription: String by extra("${project.description}")
 
 kotlin {
-    jvm {
-    }
+    jvm()
 
     sourceSets {
         val commonMain by getting {
@@ -23,8 +20,8 @@ kotlin {
                 api(projects.modules.mockkAgentApi)
                 api(projects.modules.mockkCore)
 
-                implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
-                implementation(Deps.Libs.kotlinCoroutinesCore)
+                implementation(dependencies.platform(libs.kotlin.coroutines.bom))
+                implementation(libs.kotlin.coroutines.core)
 
                 implementation(kotlin("reflect"))
             }
@@ -32,20 +29,20 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(Deps.Libs.kotlinCoroutinesTest)
+                implementation(libs.kotlin.coroutines.test)
             }
         }
         val jvmMain by getting {
             dependencies {
-                compileOnly(Deps.Libs.slfj)
+                compileOnly(libs.slf4j)
 
-                implementation(Deps.Libs.junit4)
-                implementation(Deps.Libs.junitJupiter)
+                implementation(libs.junit4)
+                implementation(libs.junit.jupiter)
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(Deps.Libs.junitJupiter)
+                implementation(libs.junit.jupiter)
             }
         }
     }

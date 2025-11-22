@@ -1,9 +1,6 @@
 package buildsrc.convention
 
-import buildsrc.config.Deps
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
@@ -17,10 +14,13 @@ plugins {
     id("buildsrc.convention.base")
 }
 
+val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
 android {
-    compileSdk = Deps.Versions.compileSdk
+    compileSdk = libs.findVersion("sdk").get().toString().toInt()
 
     lint {
+        targetSdk = libs.findVersion("sdk").get().toString().toInt()
         abortOnError = false
         disable += "InvalidPackage"
         warning += "NewApi"
@@ -33,18 +33,18 @@ android {
     }
 
     defaultConfig {
-        minSdk = Deps.Versions.minSdk
-        targetSdk = Deps.Versions.targetSdk
+        minSdk = libs.findVersion("min-sdk").get().toString().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     testOptions {
+        targetSdk = libs.findVersion("sdk").get().toString().toInt()
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
 
     compileOptions {
-        sourceCompatibility = Deps.Versions.jvmTarget
-        targetCompatibility = Deps.Versions.jvmTarget
+        sourceCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().toString())
+        targetCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().toString())
     }
 
     publishing {
@@ -54,25 +54,24 @@ android {
 
 tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
+        jvmTarget.set(JvmTarget.fromTarget(libs.findVersion("java").get().toString()))
     }
 }
 
 dependencies {
-    testImplementation("junit:junit:${Deps.Versions.junit4}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}")
+    testImplementation(libs.findLibrary("junit4").get())
+    androidTestImplementation(libs.findLibrary("androidx-espresso").get())
 
-    androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
-    androidTestImplementation("androidx.test:runner:${Deps.Versions.androidxTestRunner}")
-    androidTestImplementation("androidx.test.ext:junit-ktx:${Deps.Versions.androidxTestExtJunit}")
-    androidTestUtil("androidx.test:orchestrator:${Deps.Versions.androidxTestOrchestrator}")
+    androidTestImplementation(libs.findLibrary("androidx-rules").get())
+    androidTestImplementation(libs.findLibrary("androidx-runner").get())
+    androidTestImplementation(libs.findLibrary("androidx-junit").get())
+    androidTestUtil(libs.findLibrary("androidx-orchestrator").get())
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(kotlin("test-junit"))
-    androidTestUtil("androidx.test:orchestrator:${Deps.Versions.androidxOrchestrator}")
 }
 
 val javadocJar by tasks.registering(Jar::class) {
-    from(tasks.dokkaJavadoc)
+    from(tasks.dokkaGenerate)
     archiveClassifier.set("javadoc")
 }
