@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 class MockKExtensionWithoutRequireParallelTestingTest {
     @MockK

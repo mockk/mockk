@@ -7,17 +7,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     `java-library`
     kotlin("jvm")
-    id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
     id("buildsrc.convention.toolchain-jvm")
+    id("buildsrc.convention.dokka")
 }
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 java {
-    withJavadocJar()
     withSourcesJar()
 }
 
@@ -36,6 +35,7 @@ tasks.withType<KotlinJvmCompile>().configureEach {
     }
 }
 
-tasks.named<Jar>("javadocJar") {
+val javadocJar by tasks.registering(Jar::class) {
     from(tasks.dokkaGenerate)
+    archiveClassifier.set("javadoc")
 }

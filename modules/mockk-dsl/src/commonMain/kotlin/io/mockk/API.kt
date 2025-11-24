@@ -735,7 +735,8 @@ open class MockKMatcherScope(
      * If matchers are being used, the eq argument matcher must be used to match literal values.
      * When no matchers are used, literal arguments are automatically matched using eq.
      *
-     * @sample
+     * Example:
+     * ```
      * class Calculator {
      *   fun add(a: Int, b: Int) = a + b
      * }
@@ -743,6 +744,7 @@ open class MockKMatcherScope(
      * val calculator = mockk<Calculator>()
      * every { calculator.add(any(), eq(5)) } returns 44
      * every { calculator.add(1, 2) returns 55
+     * ```
      */
     inline fun <reified T : Any> eq(value: T, inverse: Boolean = false): T =
         match(EqMatcher(value, inverse = inverse))
@@ -785,7 +787,8 @@ open class MockKMatcherScope(
      *
      * @see [io.mockk.slot] to create capturing slot.
      * @see [captureNullable] for nullable arguments.
-     * @sample
+     * Example:
+     * ```
      * interface FileNetwork {
      *   fun download(name: String): File
      * }
@@ -797,6 +800,7 @@ open class MockKMatcherScope(
      *
      * network.download("testfile")
      * // slot.captured is now "testfile"
+     * ```
      */
     inline fun <reified T : Any> capture(lst: CapturingSlot<T>): T = match(CapturingSlotMatcher(lst, T::class))
 
@@ -804,7 +808,8 @@ open class MockKMatcherScope(
      * Captures a nullable value to a [CapturingSlot].
      *
      * @see [io.mockk.slot] to create capturing slot.
-     * @sample
+     * Example:
+     * ```
      * interface FileNetwork {
      *   fun download(name: String): File
      * }
@@ -816,6 +821,7 @@ open class MockKMatcherScope(
      *
      * network.download("testfile")
      * // slot.captured is now "testfile"
+     * ```
      */
     inline fun <reified T : Any> captureNullable(lst: CapturingSlot<T?>): T? =
         match(CapturingNullableSlotMatcher(lst, T::class))

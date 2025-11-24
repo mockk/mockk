@@ -6,11 +6,11 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 plugins {
     kotlin("multiplatform")
 
-    id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
     id("buildsrc.convention.toolchain-jvm")
+    id("buildsrc.convention.dokka")
 }
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")

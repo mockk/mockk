@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 17, 19, 21 ] # test LTS versions, and the newest
-        kotlin-version: [ 2.1.21, 2.2.21 ]
+        kotlin-version: [ 1.5.32, 1.6.21, 1.7.22, 1.8.22, 1.9.25, 2.0.21, 2.1.21, 2.2.21 ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
     name: "[java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
     timeout-minutes: 30
@@ -72,7 +72,7 @@ jobs:
           java-version: 17
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Set AVD Architecture Based on API Level
         run: echo "ARCH=$(if [ ${{ matrix.api-level }} -eq 27 ]; then echo 'x86'; else echo 'x86_64'; fi)" >> $GITHUB_ENV

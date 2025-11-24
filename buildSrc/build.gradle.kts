@@ -8,9 +8,10 @@ dependencies {
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.kotlin.reflect)
 
+    implementation(libs.dokka)
+
     implementation(libs.kover)
     implementation(libs.android.gradle)
-    implementation(libs.dokka)
     implementation(libs.binary.compatibility.validator)
     implementation(libs.jreleaser)
 }
