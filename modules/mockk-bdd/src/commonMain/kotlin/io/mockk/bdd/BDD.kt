@@ -23,7 +23,7 @@ import io.mockk.coVerify
  *
  * Used to define what behaviour is going to be mocked.
  *
- * @sample
+ * Example:
  * ```
  * val navigator = mockk<Navigator>()
  * given { navigator.currentLocation } returns "Home"
@@ -59,7 +59,7 @@ fun <T> coGiven(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T,
  * passed or timeout is reached.
  * @param verifyBlock code block containing at least 1 call to verify
  *
- * @sample
+ * Example:
  * ```
  * val navigator = mockk<Navigator>(relaxed = true)
  *

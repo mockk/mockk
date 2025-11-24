@@ -22,7 +22,8 @@ import kotlin.reflect.KClass
  * Unstubbed methods that return [Unit] will not throw, while other methods will still throw unless they are stubbed.
  * @param block block to execute after mock is created with mock as a receiver. Similar to using [apply] on the mock object.
  *
- * @sample
+ * Example:
+ * ```
  * interface Navigator {
  *   val currentLocation: String
  *   fun navigateTo(newLocation: String): Unit
@@ -33,6 +34,7 @@ import kotlin.reflect.KClass
  *
  * println(navigator.currentLocation) // prints "Home"
  * navigator.navigateTo("Store") // throws an error
+ * ```
  */
 inline fun <reified T : Any> mockk(
     name: String? = null,
@@ -111,7 +113,8 @@ inline fun <reified T : Any> spyk(
  * Slots allow you to capture what arguments a mocked method is called with.
  * When mocking a method using [every], pass the slot wrapped with the [MockKMatcherScope.capture] function in place of a method argument or [MockKMatcherScope.any].
  *
- * @sample
+ * Example:
+ * ```
  * interface FileNetwork {
  *   fun download(name: String): File
  * }
@@ -123,6 +126,7 @@ inline fun <reified T : Any> spyk(
  *
  * network.download("testfile")
  * // slot.captured is now "testfile"
+ * ```
  */
 inline fun <reified T : Any?> slot() = MockK.useImpl {
     MockKDsl.internalSlot<T>()
@@ -133,7 +137,8 @@ inline fun <reified T : Any?> slot() = MockK.useImpl {
  *
  * Used to define what behaviour is going to be mocked.
  *
- * @sample
+ * Example:
+ * ```
  * interface Navigator {
  *   val currentLocation: String
  * }
@@ -142,6 +147,7 @@ inline fun <reified T : Any?> slot() = MockK.useImpl {
  * every { navigator.currentLocation } returns "Home"
  *
  * println(navigator.currentLocation) // prints "Home"
+ * ```
  * @see [coEvery] Coroutine version.
  */
 fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = MockK.useImpl {
@@ -156,10 +162,12 @@ fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = Mock
  *
  * @see [every]
  * @see [coJustRun] Coroutine version.
- * @sample
+ * Example:
+ * ```
  * every { logger.log(any()) } returns Unit
  * every { logger.log(any()) } just Runs
  * justRun { logger.log(any()) }
+ * ```
  */
 fun justRun(stubBlock: MockKMatcherScope.() -> Unit) = every(stubBlock) just Runs
 
@@ -204,11 +212,13 @@ fun coJustAwait(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubB
  * passed or timeout is reached.
  * @param verifyBlock code block containing at least 1 call to verify
  *
- * @sample
+ * Example:
+ * ```
  * val navigator = mockk<Navigator>(relaxed = true)
  *
  * navigator.navigateTo("Park")
  * verify { navigator.navigateTo(any()) }
+ * ```
  * @see [coVerify] Coroutine version
  */
 fun verify(
@@ -510,14 +520,15 @@ inline fun <T : Any> mockkClass(
  *
  * This lets you mock object methods with [every].
  *
- * @sample
+ * Example:
+ * ```
  * object CalculatorObject {
  *   fun add(a: Int, b: Int) = a + b
  * }
  *
  * mockkObject(CalculatorObject)
  * every { ObjBeingMocked.add(1, 2) } returns 55
- *
+ * ```
  * @see [unmockkObject] To manually cancel mock
  */
 inline fun mockkObject(vararg objects: Any, recordPrivateCalls: Boolean = false) = MockK.useImpl {
@@ -625,13 +636,15 @@ inline fun mockkStatic(vararg classes: String, block: () -> Unit) {
  * This will apply to all constructors for a given class, there is no way to distinguish between them.
  *
  * @see [unmockkConstructor] To manually cancel mock
- * @sample
+ * Example:
+ * ```
  * class ClassToTest {
  *   private val log = Logger()
  * }
  *
  * mockkConstructor(Logger::class)
  * // ClassToTest.log will now use a mock instance
+ * ```
  */
 inline fun mockkConstructor(
     vararg classes: KClass<*>,

@@ -6,10 +6,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     id("com.android.application")
 
-    id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
+    id("buildsrc.convention.dokka")
 }
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")

@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlinx.benchmark)
+    implementation(libs.kotlinx.benchmark.runtime)
     implementation(platform(libs.kotlin.coroutines.bom))
     implementation(libs.kotlin.coroutines.core)
     implementation(projects.modules.mockk)

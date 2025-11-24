@@ -150,7 +150,6 @@ public final class io/mockk/proxy/common/transformation/TransformationType : jav
 	public static final field CONSTRUCTOR Lio/mockk/proxy/common/transformation/TransformationType;
 	public static final field SIMPLE Lio/mockk/proxy/common/transformation/TransformationType;
 	public static final field STATIC Lio/mockk/proxy/common/transformation/TransformationType;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lio/mockk/proxy/common/transformation/TransformationType;
 	public static fun values ()[Lio/mockk/proxy/common/transformation/TransformationType;
 }
