@@ -30,8 +30,9 @@ import io.mockk.coVerify
  *
  * println(navigator.currentLocation) // prints "Home"
  * ```
+ *
+ * MockK original function: `io.mockk.every`
  * @see [coGiven] Coroutine version.
- * @see [io.mockk.every] MockK original function.
  */
 fun <T> given(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = 
     every(stubBlock)
@@ -41,8 +42,9 @@ fun <T> given(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
  * Similar to [given], but works with suspend functions.
  *
  * Used to define what behaviour is going to be mocked.
+ *
+ * MockK original function: `io.mockk.coEvery`
  * @see [given]
- * @see [io.mockk.coEvery] MockK original function.
  */
 fun <T> coGiven(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = 
     coEvery(stubBlock)
@@ -66,8 +68,9 @@ fun <T> coGiven(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T,
  * navigator.navigateTo("Park")
  * then { navigator.navigateTo(any()) }
  * ```
+ *
+ * MockK original function: `io.mockk.verify`
  * @see [coThen] Coroutine version
- * @see [io.mockk.verify] MockK original function.
  */
 fun then(
     ordering: Ordering = Ordering.UNORDERED,
@@ -91,8 +94,8 @@ fun then(
  * passed or timeout is reached.
  * @param verifyBlock code block containing at least 1 call to verify
  *
+ * MockK original function: `io.mockk.coVerify`
  * @see [then]
- * @see [io.mockk.coVerify] MockK original function.
  */
 fun coThen(
     ordering: Ordering = Ordering.UNORDERED,

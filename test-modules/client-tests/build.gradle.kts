@@ -10,10 +10,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project.dependencies.enforcedPlatform(kotlin("bom", version = kotlinVersion)))
+                implementation(dependencies.enforcedPlatform(kotlin("bom", version = kotlinVersion)))
                 implementation(kotlin("reflect"))
 
-                implementation(project.dependencies.platform(libs.kotlin.coroutines.bom))
+                implementation(dependencies.platform(libs.kotlin.coroutines.bom))
                 implementation(libs.kotlin.coroutines.core)
             }
         }
@@ -27,8 +27,7 @@ kotlin {
         }
 
         val jvmMain by getting {
-            dependencies {
-            }
+            dependencies {}
         }
 
         val jvmTest by getting {
@@ -36,7 +35,9 @@ kotlin {
                 implementation(libs.slf4j)
                 implementation(libs.logback)
 
-                implementation(libs.junit.jupiter)
+                implementation(dependencies.platform(libs.junit.bom))
+                implementation("org.junit.jupiter:junit-jupiter")
+                runtimeOnly("org.junit.platform:junit-platform-launcher")
             }
         }
     }

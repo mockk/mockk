@@ -785,7 +785,7 @@ open class MockKMatcherScope(
     /**
      * Captures a non-nullable value to a [CapturingSlot].
      *
-     * @see [io.mockk.slot] to create capturing slot.
+     * Uses `io.mockk.slot` to create capturing slot.
      * @see [captureNullable] for nullable arguments.
      * Example:
      * ```
@@ -807,7 +807,7 @@ open class MockKMatcherScope(
     /**
      * Captures a nullable value to a [CapturingSlot].
      *
-     * @see [io.mockk.slot] to create capturing slot.
+     * Uses `io.mockk.slot` to create capturing slot.
      * Example:
      * ```
      * interface FileNetwork {
@@ -829,7 +829,7 @@ open class MockKMatcherScope(
     /**
      * Captures a nullable value to a [MutableList].
      *
-     * @see [io.mockk.slot] to create capturing slot.
+     * Uses `io.mockk.slot` to create capturing slot.
      * @see [capture] for non-nullable arguments.
      */
     inline fun <reified T : Any> captureNullable(lst: MutableList<T?>): T? =

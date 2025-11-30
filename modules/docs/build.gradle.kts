@@ -6,6 +6,7 @@ plugins {
 dependencies {
     dokka(projects.modules.mockk)
     dokka(projects.modules.mockkAgent)
+    dokka(projects.modules.mockkAgentAndroid)
     dokka(projects.modules.mockkAgentAndroidDispatcher)
     dokka(projects.modules.mockkAgentApi)
     dokka(projects.modules.mockkAndroid)

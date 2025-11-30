@@ -6,6 +6,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     id("com.android.application")
 
+    kotlin("android")
+
     id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
