@@ -3,7 +3,6 @@ import {defineConfig} from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     base: '/mockk', // to be deleted, only for fork testing
-    head: [['link', {rel: 'icon', href: '/mockk-icon.svg'}]],
     title: "MockK",
     description: "mocking library for Kotlin",
     themeConfig: {
@@ -12,6 +11,7 @@ export default defineConfig({
         // https://vitepress.dev/reference/default-theme-config
         nav: [
             {text: 'Docs', link: '/docs/'},
+            {text: 'API', link: '/api/'},
             {text: 'Help', link: 'https://github.com/mockk/mockk/discussions'},
         ],
 
@@ -53,6 +53,10 @@ export default defineConfig({
         },
         search: {
             provider: 'local'
+        },
+        footer: {
+            message: "Licensed under the <a href=\"https://github.com/mockk/mockk/blob/master/LICENSE\">Apache 2 license</a>.",
+            copyright: "© MockK authors"
         }
     }
 })

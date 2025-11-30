@@ -30,6 +30,11 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+#      - name: Set up JDK
+#        uses: actions/setup-java@v5
+#        with:
+#          distribution: 'temurin'
+#          java-version: '21'
       - name: Install pnpm
         uses: pnpm/action-setup@v4
       - name: Setup Node
@@ -43,6 +48,12 @@ jobs:
         run: pnpm install
       - name: Build with VitePress
         run: pnpm docs:build
+#      - name: Generate Dokka
+#        run: ./gradlew dokkaHtml
+#      - name: Copy Dokka to VitePress
+#        run: |
+#          mkdir -p docs/.vitepress/dist/api
+#          cp -r build/dokka/html/* docs/.vitepress/dist/api/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
