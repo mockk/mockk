@@ -1,5 +1,3 @@
-                         
-
 ### Results of matrix tests
 
 <table>
