@@ -18,7 +18,8 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx.kover:org.jetbrains.kotlinx.kover.gradle.plugin:$kotlinxKover")
 
-    implementation("com.android.tools.build:gradle:$androidGradle")
+    // Temporarily commented out due to network restrictions in sandbox
+    // implementation("com.android.tools.build:gradle:$androidGradle")
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokka")
 
     implementation("org.jetbrains.kotlinx:binary-compatibility-validator:$binaryCompatibilityValidator")
