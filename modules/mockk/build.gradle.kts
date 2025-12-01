@@ -39,13 +39,14 @@ kotlin {
             dependencies {
                 compileOnly(Deps.Libs.slfj)
 
-                implementation(Deps.Libs.junit4)
-                implementation(Deps.Libs.junitJupiter)
+                compileOnly(Deps.Libs.junit4)
+                compileOnly(Deps.Libs.junitJupiter)
             }
         }
         val jvmTest by getting {
             dependencies {
                 implementation(Deps.Libs.junitJupiter)
+                implementation(Deps.Libs.junit4)
             }
         }
     }
