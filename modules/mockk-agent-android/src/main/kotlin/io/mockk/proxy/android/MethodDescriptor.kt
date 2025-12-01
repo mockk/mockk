@@ -10,12 +10,7 @@ internal class MethodDescriptor(
 
     val className = matchResult.groupValues[1]
     val methodName = matchResult.groupValues[2]
-    val methodParamTypes = matchResult.groupValues[3]
-        .split(",")
-        .dropLastWhile { it.isEmpty() }
-        .filter { it != "" }
-        .map(Companion::nameToType)
-        .toTypedArray()
+    val methodParamTypes = parseParamTypes(matchResult.groupValues[3])
 
     val method: Method
         get() = Class.forName(className)
@@ -29,6 +24,86 @@ internal class MethodDescriptor(
 
     companion object {
         private val methodPattern = Regex("(.*)#(.*)\\((.*)\\)")
+
+        /**
+         * Parse parameter types from a comma-separated string.
+         * This method avoids using Kotlin collection operations like dropLastWhile and filter
+         * that internally call isEmpty() on collections, which could trigger the mock dispatcher
+         * and cause infinite recursion when mocking classes that extend ArrayList or other collections.
+         *
+         * We use a two-pass approach:
+         * 1. First pass: count the number of parameters
+         * 2. Second pass: parse and store the parameter types in a pre-allocated array
+         *
+         * This avoids using mutable lists which could also trigger the dispatcher.
+         */
+        private fun parseParamTypes(paramString: String): Array<Class<*>> {
+            if (paramString.isEmpty()) {
+                return emptyArray()
+            }
+
+            // First pass: count the number of parameters
+            var count = 0
+            var i = 0
+            val length = paramString.length
+
+            while (i < length) {
+                // Skip whitespace
+                while (i < length && paramString[i] == ' ') {
+                    i++
+                }
+                if (i >= length) break
+
+                // Find the end of this parameter
+                var end = i
+                while (end < length && paramString[end] != ',') {
+                    end++
+                }
+
+                // Check if we have a non-empty parameter
+                var hasContent = false
+                for (j in i until end) {
+                    if (paramString[j] != ' ') {
+                        hasContent = true
+                        break
+                    }
+                }
+                if (hasContent) {
+                    count++
+                }
+
+                i = end + 1
+            }
+
+            if (count == 0) {
+                return emptyArray()
+            }
+
+            // Second pass: parse the parameters into a pre-allocated array
+            @Suppress("UNCHECKED_CAST")
+            val result = arrayOfNulls<Class<*>>(count) as Array<Class<*>>
+            var paramIndex = 0
+            i = 0
+
+            while (i < length && paramIndex < count) {
+                // Find the next comma
+                var end = i
+                while (end < length && paramString[end] != ',') {
+                    end++
+                }
+
+                // Extract and trim the parameter type
+                val paramType = paramString.substring(i, end).trim()
+                if (paramType.isNotEmpty()) {
+                    result[paramIndex++] = nameToType(paramType)
+                }
+
+                // Move past the comma
+                i = end + 1
+            }
+
+            return result
+        }
 
         fun nameToType(name: String): Class<*> {
             when (name) {
