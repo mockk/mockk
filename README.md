@@ -109,6 +109,16 @@ androidTestImplementation "io.mockk:mockk-bdd-android:${mockkVersion}"
 
 ### Spring support
 
+Projects using Spring Framework can use the `spring-mockk` module to mock beans:
+ 
+```gradle
+testImplementation "io.mockk:spring5mockk:${mockkVersion}"
+```
+
+Besides the `spring5mockk` module there is supported `spring6mockk` module for Spring 6 and `spring7mockk` module for Spring 7.
+
+These modules suppose to replace `springmockk` project after deprecation and took source codes for it upon agreement:
+
  * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
 
 ### Quarkus support

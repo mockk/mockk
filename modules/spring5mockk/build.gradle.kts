@@ -33,11 +33,11 @@ tasks {
 
 dependencies {
     api(projects.modules.mockk)
+    api(Deps.Libs.spring5Test)
+    api(Deps.Libs.spring5Context)
     implementation(Deps.Libs.kotlinReflect)
 
-    compileOnly(Deps.Libs.springBoot3Test)
-    compileOnly(Deps.Libs.spring6Test)
-    compileOnly(Deps.Libs.spring6Context)
+    testImplementation(Deps.Libs.springBoot2Test)
 
     testImplementation(Deps.Libs.junit4)
     testImplementation(Deps.Libs.junitJupiter)

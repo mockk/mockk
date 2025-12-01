@@ -17,6 +17,7 @@ object Deps {
         const val slfj = "2.0.17"
         const val logback = "1.5.18"
         const val junitJupiter = "5.12.2"
+        const val junitJupiter6 = "6.0.1"
         const val junit4 = "4.13.2"
         const val assertj = "3.25.3"
 
@@ -25,11 +26,11 @@ object Deps {
         const val springBoot4 = "4.0.0"
         const val spring7 = "7.0.1"
 
-        const val springBoot3 = "3.2.2"
-        const val spring6 = "6.1.3"
+        const val springBoot3 = "3.0.0"
+        const val spring6 = "6.0.2"
 
-        const val springBoot2 = "2.7.18"
-        const val spring5 = "5.3.39"
+        const val springBoot2 = "2.6.5"
+        const val spring5 = "5.3.17"
 
         const val byteBuddy = "1.15.11"
         const val objenesis = "3.3"
@@ -53,6 +54,8 @@ object Deps {
         const val junit4 = "junit:junit:${Versions.junit4}"
         const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"
         const val junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junitJupiter}"
+        const val junitJupiter6 = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter6}"
+        const val junitJupiter6Params = "org.junit.jupiter:junit-jupiter-params:${Versions.junitJupiter6}"
         const val assertj = "org.assertj:assertj-core:${Versions.assertj}"
 
         const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlinReflect}"
