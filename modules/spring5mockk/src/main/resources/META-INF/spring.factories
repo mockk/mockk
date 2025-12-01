@@ -1,0 +1,8 @@
+# Spring Test ContextCustomizerFactories
+org.springframework.test.context.ContextCustomizerFactory=\
+com.ninjasquad.springmockk.MockkContextCustomizerFactory
+
+# Test Execution Listeners
+org.springframework.test.context.TestExecutionListener=\
+com.ninjasquad.springmockk.MockkTestExecutionListener,\
+com.ninjasquad.springmockk.ClearMocksTestExecutionListener

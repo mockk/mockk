@@ -22,8 +22,14 @@ object Deps {
 
         const val kotlinReflect = "1.7.21"
 
-        const val springBoot = "3.2.2"
-        const val spring = "6.1.3"
+        const val springBoot4 = "4.0.0"
+        const val spring7 = "7.0.1"
+
+        const val springBoot3 = "3.2.2"
+        const val spring6 = "6.1.3"
+
+        const val springBoot2 = "2.7.18"
+        const val spring5 = "5.3.39"
 
         const val byteBuddy = "1.15.11"
         const val objenesis = "3.3"
@@ -51,9 +57,17 @@ object Deps {
 
         const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlinReflect}"
 
-        const val springBootTest = "org.springframework.boot:spring-boot-test:${Versions.springBoot}"
-        const val springTest = "org.springframework:spring-test:${Versions.spring}"
-        const val springContext = "org.springframework:spring-context:${Versions.spring}"
+        const val springBoot4Test = "org.springframework.boot:spring-boot-test:${Versions.springBoot4}"
+        const val spring7Test = "org.springframework:spring-test:${Versions.spring7}"
+        const val spring7Context = "org.springframework:spring-context:${Versions.spring7}"
+
+        const val springBoot3Test = "org.springframework.boot:spring-boot-test:${Versions.springBoot3}"
+        const val spring6Test = "org.springframework:spring-test:${Versions.spring6}"
+        const val spring6Context = "org.springframework:spring-context:${Versions.spring6}"
+
+        const val springBoot2Test = "org.springframework.boot:spring-boot-test:${Versions.springBoot2}"
+        const val spring5Test = "org.springframework:spring-test:${Versions.spring5}"
+        const val spring5Context = "org.springframework:spring-context:${Versions.spring5}"
 
         const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
