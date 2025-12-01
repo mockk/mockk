@@ -12,7 +12,6 @@ import java.util.concurrent.Callable
 import kotlin.coroutines.Continuation
 import kotlin.reflect.*
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
@@ -108,10 +107,11 @@ object JvmMockFactoryHelper {
         try {
             val kotlinFunction = this.kotlinFunction
             if (kotlinFunction != null && kotlinFunction.isInline) return true
-        } catch (_: KotlinReflectionInternalError) {
-            null // fall back to annotation check
-        } catch (_: UnsupportedOperationException) {
-            null // fall back to annotation check
+        } catch (_: Throwable) {
+            // fall back to annotation check
+            // Various exceptions can be thrown by Kotlin reflection, e.g., KotlinReflectionInternalError,
+            // UnsupportedOperationException, ClassNotFoundException, NoClassDefFoundError, NullPointerException.
+            // See issues #18, #22, #1295
         }
 
         return this.declaredAnnotations.any { ann ->
