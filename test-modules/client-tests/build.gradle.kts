@@ -1,23 +1,20 @@
-import buildsrc.config.Deps
-import buildsrc.config.kotlinVersion
-
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
     jacoco
 }
+val kotlinVersion = providers.gradleProperty("io_mockk_kotlin_version").orNull ?: libs.versions.kotlin.get()
 
 kotlin {
-    jvm {
-    }
+    jvm()
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project.dependencies.enforcedPlatform(kotlin("bom", version = kotlinVersion())))
+                implementation(dependencies.enforcedPlatform(kotlin("bom", version = kotlinVersion)))
                 implementation(kotlin("reflect"))
 
-                implementation(project.dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
-                implementation(Deps.Libs.kotlinCoroutinesCore)
+                implementation(dependencies.platform(libs.kotlin.coroutines.bom))
+                implementation(libs.kotlin.coroutines.core)
             }
         }
 
@@ -30,16 +27,17 @@ kotlin {
         }
 
         val jvmMain by getting {
-            dependencies {
-            }
+            dependencies {}
         }
 
         val jvmTest by getting {
             dependencies {
-                implementation(buildsrc.config.Deps.Libs.slfj)
-                implementation(buildsrc.config.Deps.Libs.logback)
+                implementation(libs.slf4j)
+                implementation(libs.logback)
 
-                implementation(buildsrc.config.Deps.Libs.junitJupiter)
+                implementation(dependencies.platform(libs.junit.bom))
+                implementation("org.junit.jupiter:junit-jupiter")
+                runtimeOnly("org.junit.platform:junit-platform-launcher")
             }
         }
     }
@@ -57,7 +55,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
 tasks.withType<Test> {
     // Forward the expected Kotlin version to unit tests
-    environment("kotlin.version", kotlinVersion())
+    environment("kotlin.version", kotlinVersion)
     useJUnitPlatform()
     finalizedBy(tasks.getByName("jacocoTestReport"))
 }

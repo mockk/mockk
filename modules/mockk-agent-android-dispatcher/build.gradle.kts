@@ -6,7 +6,6 @@ plugins {
     buildsrc.convention.`android-application`
 }
 
-@Suppress("UnstableApiUsage")
 android {
     namespace = "io.mockk.proxy.android.dispatcher"
     defaultConfig {

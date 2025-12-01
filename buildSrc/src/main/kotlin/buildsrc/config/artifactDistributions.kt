@@ -10,7 +10,6 @@ import org.gradle.api.attributes.Attribute
  * See https://docs.gradle.org/current/userguide/declaring_dependencies.html#sec:resolvable-consumable-configs
  */
 fun Configuration.asProvider() {
-    isVisible = false
     isCanBeResolved = false
     isCanBeConsumed = true
 }
@@ -22,7 +21,6 @@ fun Configuration.asProvider() {
  * See https://docs.gradle.org/current/userguide/declaring_dependencies.html#sec:resolvable-consumable-configs
  */
 fun Configuration.asConsumer() {
-    isVisible = false
     isCanBeResolved = true
     isCanBeConsumed = false
 }

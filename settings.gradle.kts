@@ -1,13 +1,13 @@
 plugins {
-  id("com.gradle.enterprise") version "3.12.3"
+    id("com.gradle.develocity").version("4.2.2")
+    id("org.gradle.toolchains.foojay-resolver-convention").version("1.0.0")
 }
 
-gradleEnterprise {
-  buildScan {
-    termsOfServiceUrl = "https://gradle.com/terms-of-service"
-    termsOfServiceAgree = "yes"
-    publishAlways()
-  }
+develocity {
+    buildScan {
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseAgree = "yes"
+    }
 }
 
 rootProject.name = "mockk-root"
@@ -17,11 +17,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 apply(from = "./buildSrc/repositories.settings.gradle.kts")
 apply(from = "./buildSrc/android-sdk-detector.settings.gradle.kts")
 
-dependencyResolutionManagement {
-    @Suppress("UnstableApiUsage")
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-}
-
 include(
     ":modules:mockk",
     ":modules:mockk-agent-api",
@@ -29,6 +24,7 @@ include(
     ":modules:mockk-core",
     ":modules:mockk-dsl",
     ":modules:mockk-bdd",
+    ":modules:docs",
 
     ":test-modules:client-tests",
     ":test-modules:performance-tests",

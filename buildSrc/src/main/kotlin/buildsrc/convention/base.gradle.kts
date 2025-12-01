@@ -15,6 +15,7 @@ if (project != rootProject) {
 }
 
 tasks.withType<Test>().configureEach {
+
     timeout.set(Duration.ofMinutes(10))
 
     testLogging {

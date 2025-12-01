@@ -1,26 +1,24 @@
 package buildsrc.convention
 
-import buildsrc.config.Deps
-import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.jetbrains.kotlin.gradle.tasks.UsesKotlinJavaToolchain
 
 
 description = "Set JavaToolchain for compiling main and test code"
 
+val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
-    sourceCompatibility = Deps.Versions.jvmTarget.toString()
-    targetCompatibility = Deps.Versions.jvmTarget.toString()
+    sourceCompatibility = libs.findVersion("java").get().toString()
+    targetCompatibility = libs.findVersion("java").get().toString()
 }
 
 tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
+        jvmTarget = JvmTarget.fromTarget(libs.findVersion("java").get().toString())
     }
 }
 
