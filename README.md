@@ -1633,7 +1633,7 @@ src/test/resources/mockk.properties
 
 ```
 # List of restricted classes (fully qualified names, separated by commas)
-restrictedClasses=com.foo.Bar,com.foo.Baz
+mockk.restrictedClasses=com.foo.Bar,com.foo.Baz
 
 # Whether to throw an exception when mocking restricted classes
 mockk.throwExceptionOnBadMock=true
