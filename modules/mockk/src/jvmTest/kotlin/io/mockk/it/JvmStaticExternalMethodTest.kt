@@ -24,8 +24,10 @@ class JvmStaticExternalMethodTest {
      * - Companion object with instance property
      * - @JvmStatic external method returning Array<String>
      *
-     * Note: We can't use actual 'external' modifier without native library,
-     * but the issue is specifically with reflection on Array<String> return type methods.
+     * Note: We can't use the actual 'external' modifier without a native library.
+     * The issue is specifically with Kotlin reflection's handling of method signatures
+     * that include generic array types on @JvmStatic methods. When MockK intercepts a call
+     * and checks if the method is inline, Kotlin reflection fails to resolve the return type.
      */
     class Settings private constructor() {
         companion object {
