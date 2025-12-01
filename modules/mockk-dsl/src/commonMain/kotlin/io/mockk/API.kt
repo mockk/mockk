@@ -431,16 +431,28 @@ object MockKDsl {
      * Object mockk
      */
     inline fun internalMockkObject(objects: Array<out Any>, recordPrivateCalls: Boolean = false) {
-        val factory = MockKGateway.implementation().objectMockFactory
+        val objectFactory = MockKGateway.implementation().objectMockFactory
+        val staticFactory = MockKGateway.implementation().staticMockFactory
 
         objects.forEach {
-            val cancellation = factory.objectMockk(it, recordPrivateCalls)
+            val objectCancellation = objectFactory.objectMockk(it, recordPrivateCalls)
+
+            // Also set up static mocking for the object's class to properly intercept @JvmStatic methods
+            val cls = it::class
+            val staticCancellation = staticFactory.staticMockk(cls)
 
             internalClearMocks(it, emptyArray())
+            internalClearStaticMockk(arrayOf(cls))
+
+            // Combine both cancellations
+            val combinedCancellation: MockKCancellation = {
+                objectCancellation.invoke()
+                staticCancellation.invoke()
+            }
 
             MockKCancellationRegistry
                 .subRegistry(MockKCancellationRegistry.Type.OBJECT)
-                .cancelPut(it, cancellation)
+                .cancelPut(it, combinedCancellation)
         }
 
     }
