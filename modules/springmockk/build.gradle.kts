@@ -42,5 +42,7 @@ dependencies {
     testImplementation(Deps.Libs.junit4)
     testImplementation(Deps.Libs.junitJupiter)
     testImplementation(Deps.Libs.junitJupiterParams)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation(Deps.Libs.assertj)
 }
