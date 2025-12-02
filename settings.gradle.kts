@@ -29,6 +29,9 @@ include(
     ":modules:mockk-core",
     ":modules:mockk-dsl",
     ":modules:mockk-bdd",
+    ":modules:springmockk-boot2",
+    ":modules:springmockk-boot3",
+    ":modules:springmockk",
 
     ":test-modules:client-tests",
     ":test-modules:performance-tests",

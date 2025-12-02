@@ -17,7 +17,20 @@ object Deps {
         const val slfj = "2.0.17"
         const val logback = "1.5.18"
         const val junitJupiter = "5.12.2"
+        const val junitJupiter6 = "6.0.1"
         const val junit4 = "4.13.2"
+        const val assertj = "3.25.3"
+
+        const val kotlinReflect = "1.7.21"
+
+        const val springBoot4 = "4.0.0"
+        const val spring7 = "7.0.1"
+
+        const val springBoot3 = "3.0.0"
+        const val spring6 = "6.0.2"
+
+        const val springBoot2 = "2.6.5"
+        const val spring5 = "5.3.17"
 
         const val byteBuddy = "1.15.11"
         const val objenesis = "3.3"
@@ -40,6 +53,24 @@ object Deps {
 
         const val junit4 = "junit:junit:${Versions.junit4}"
         const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"
+        const val junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junitJupiter}"
+        const val junitJupiter6 = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter6}"
+        const val junitJupiter6Params = "org.junit.jupiter:junit-jupiter-params:${Versions.junitJupiter6}"
+        const val assertj = "org.assertj:assertj-core:${Versions.assertj}"
+
+        const val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlinReflect}"
+
+        const val springBoot4Test = "org.springframework.boot:spring-boot-test:${Versions.springBoot4}"
+        const val spring7Test = "org.springframework:spring-test:${Versions.spring7}"
+        const val spring7Context = "org.springframework:spring-context:${Versions.spring7}"
+
+        const val springBoot3Test = "org.springframework.boot:spring-boot-test:${Versions.springBoot3}"
+        const val spring6Test = "org.springframework:spring-test:${Versions.spring6}"
+        const val spring6Context = "org.springframework:spring-context:${Versions.spring6}"
+
+        const val springBoot2Test = "org.springframework.boot:spring-boot-test:${Versions.springBoot2}"
+        const val spring5Test = "org.springframework:spring-test:${Versions.spring5}"
+        const val spring5Context = "org.springframework:spring-context:${Versions.spring5}"
 
         const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"

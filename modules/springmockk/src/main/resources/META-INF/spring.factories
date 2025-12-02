@@ -1,0 +1,2 @@
+org.springframework.test.context.TestExecutionListener = \
+	com.ninjasquad.springmockk.MockkClearTestExecutionListener
