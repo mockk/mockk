@@ -14,10 +14,14 @@ class RestrictMockkConfiguration(propertiesLoader: PropertiesLoader = DefaultPro
         userDefinedRestrictedTypes = loadRestrictedTypesFromConfig(properties)
 
         restrictedTypes = DEFAULT_RESTRICTED_CLAZZ + userDefinedRestrictedTypes
-        throwExceptionOnBadMock = loadThrowExceptionSetting(properties)
+
+        // System Property takes precedence.
+        throwExceptionOnBadMock = loadThrowExceptionSystemProperty() ?:
+            loadThrowExceptionSetting(properties)
     }
 
     companion object {
+        private const val RESTRICTED_MOCK_PROP_KEY = "mockk.throwExceptionOnBadMock"
         private val DEFAULT_RESTRICTED_CLAZZ = setOf(
             "java.lang.System",
             "java.util.Collection",
@@ -34,8 +38,16 @@ class RestrictMockkConfiguration(propertiesLoader: PropertiesLoader = DefaultPro
                 .toSet()
         }
 
+        private fun loadThrowExceptionSystemProperty(): Boolean? {
+            val throwExceptionSystemProperty = System.getProperty(RESTRICTED_MOCK_PROP_KEY)
+            if (throwExceptionSystemProperty.isNullOrEmpty()) {
+                return null
+            }
+            return throwExceptionSystemProperty.toBoolean()
+        }
+
         private fun loadThrowExceptionSetting(properties: Properties): Boolean {
-            return properties.getProperty("mockk.throwExceptionOnBadMock", "false").toBoolean()
+            return properties.getProperty(RESTRICTED_MOCK_PROP_KEY, "false").toBoolean()
         }
     }
 }
