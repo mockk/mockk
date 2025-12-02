@@ -159,20 +159,34 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
             .orElse(false)
 
     private val ExtensionContext.confirmVerification: Boolean
-        get() = testClass.confirmVerification ||
-                getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
+        get() {
+            // Check if annotation is present - if so, use its enabled value to allow opt-out
+            val annotationEnabled = testClass.confirmVerificationEnabled
+            if (annotationEnabled != null) {
+                return annotationEnabled
+            }
+            // Fall back to global property
+            return getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
+        }
 
-    private val Optional<out AnnotatedElement>.confirmVerification
-        get() = map { it.hasAnnotationRecursive(ConfirmVerification::class.java) }
-            .orElse(false)
+    private val Optional<out AnnotatedElement>.confirmVerificationEnabled: Boolean?
+        get() = map { it.findAnnotationRecursive(ConfirmVerification::class.java)?.enabled }
+            .orElse(null)
 
     private val ExtensionContext.checkUnnecessaryStub: Boolean
-        get() = testClass.checkUnnecessaryStub ||
-                getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
+        get() {
+            // Check if annotation is present - if so, use its enabled value to allow opt-out
+            val annotationEnabled = testClass.checkUnnecessaryStubEnabled
+            if (annotationEnabled != null) {
+                return annotationEnabled
+            }
+            // Fall back to global property
+            return getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
+        }
 
-    private val Optional<out AnnotatedElement>.checkUnnecessaryStub
-        get() = map { it.hasAnnotationRecursive(CheckUnnecessaryStub::class.java) }
-            .orElse(false)
+    private val Optional<out AnnotatedElement>.checkUnnecessaryStubEnabled: Boolean?
+        get() = map { it.findAnnotationRecursive(CheckUnnecessaryStub::class.java)?.enabled }
+            .orElse(null)
 
     private val ExtensionContext.requireParallelTesting: Boolean
         get() = testClass.requireParallelTesting ||
@@ -190,15 +204,33 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
     @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
     annotation class KeepMocks
 
+    /**
+     * Enable or disable confirm verification for this test class.
+     *
+     * When [enabled] is true, [confirmVerified] will be called after each test.
+     * When [enabled] is false, this annotation explicitly disables confirm verification
+     * even if it's enabled globally via the [CONFIRM_VERIFICATION_PROPERTY] system property.
+     *
+     * This allows enabling confirm verification globally while opting out specific test classes.
+     */
     @Inherited
     @Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.CLASS)
-    annotation class ConfirmVerification
+    annotation class ConfirmVerification(val enabled: Boolean = true)
 
+    /**
+     * Enable or disable unnecessary stub checking for this test class.
+     *
+     * When [enabled] is true, [checkUnnecessaryStub] will be called after each test.
+     * When [enabled] is false, this annotation explicitly disables unnecessary stub checking
+     * even if it's enabled globally via the [CHECK_UNNECESSARY_STUB_PROPERTY] system property.
+     *
+     * This allows enabling unnecessary stub checking globally while opting out specific test classes.
+     */
     @Inherited
     @Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.CLASS)
-    annotation class CheckUnnecessaryStub
+    annotation class CheckUnnecessaryStub(val enabled: Boolean = true)
 
     /***
      * Require parallel testing by disabling the clearAllMocks call after each test execution; it is not thread-safe.
@@ -230,4 +262,22 @@ internal fun <A : Annotation> AnnotatedElement.hasAnnotationRecursive(
         if (annotationType.hasAnnotationRecursive(target, visited)) return true
     }
     return false
+}
+
+@Suppress("UNCHECKED_CAST")
+internal fun <A : Annotation> AnnotatedElement.findAnnotationRecursive(
+    target: Class<A>,
+    visited: MutableSet<Class<out Annotation>> = mutableSetOf()
+): A? {
+    for (annotation in annotations) {
+        val annotationType = annotation.annotationClass.java
+
+        if (annotationType in visited) continue
+        visited.add(annotationType)
+
+        if (target.isInstance(annotation)) return annotation as A
+        val found = annotationType.findAnnotationRecursive(target, visited)
+        if (found != null) return found
+    }
+    return null
 }
