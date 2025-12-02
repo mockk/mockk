@@ -10,7 +10,11 @@ internal class MethodCall(
 ) : Callable<Any?> {
 
     override fun call(): Any? {
-        method.isAccessible = true
+        try {
+            method.isAccessible = true
+        } catch (ignored: Exception) {
+            // Skip setting accessible - method may be in a JDK module that doesn't open to unnamed modules (JDK 16+)
+        }
         return method.invoke(self, *args)
     }
 }
