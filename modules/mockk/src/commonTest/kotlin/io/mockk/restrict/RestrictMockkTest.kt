@@ -167,7 +167,7 @@ class RestrictMockkTest {
             mockk<File>(mockValidator = validator)
         }
 
-        System.setProperty("mockk.throwExceptionOnBadMock", "false")
+        System.clearProperty("mockk.throwExceptionOnBadMock")
     }
 
     @Test
@@ -181,6 +181,8 @@ class RestrictMockkTest {
         assertDoesNotThrow {
             mockk<File>(mockValidator = validator)
         }
+
+        System.clearProperty("mockk.throwExceptionOnBadMock")
     }
 
     @Test
@@ -196,7 +198,7 @@ class RestrictMockkTest {
             mockk<Path>(mockValidator = validator)
         }
 
-        System.setProperty("mockk.throwExceptionOnBadMock", "false")
+        System.clearProperty("mockk.throwExceptionOnBadMock")
     }
 
     @Test
@@ -215,7 +217,67 @@ class RestrictMockkTest {
             mockk<Foo>(mockValidator = validator)
         }
 
+        System.clearProperty("mockk.throwExceptionOnBadMock")
+    }
+
+    @Test
+    fun `when system property true, it should override properties file`() {
+        val config = mapOf(
+            "mockk.throwExceptionOnBadMock" to "false",
+            "mockk.restrictedClasses" to "io.mockk.restrict.Foo"
+        )
+
+        System.setProperty("mockk.throwExceptionOnBadMock", "true")
+
+        val validator = MockkValidator(
+            RestrictMockkConfiguration(TestPropertiesLoader(config))
+        )
+
+        assertThrows<MockKException> {
+            mockk<Foo>(mockValidator = validator)
+        }
+
+        System.clearProperty("mockk.throwExceptionOnBadMock")
+    }
+
+    @Test
+    fun `when system property false, it should override properties file`() {
+        val config = mapOf(
+            "mockk.throwExceptionOnBadMock" to "true",
+            "mockk.restrictedClasses" to "io.mockk.restrict.Foo"
+        )
+
         System.setProperty("mockk.throwExceptionOnBadMock", "false")
+
+        val validator = MockkValidator(
+            RestrictMockkConfiguration(TestPropertiesLoader(config))
+        )
+
+        assertDoesNotThrow {
+            mockk<Foo>(mockValidator = validator)
+        }
+
+        System.clearProperty("mockk.throwExceptionOnBadMock")
+    }
+
+    @Test
+    fun `when system property is empty, it should not override properties file`() {
+        val config = mapOf(
+            "mockk.throwExceptionOnBadMock" to "true",
+            "mockk.restrictedClasses" to "io.mockk.restrict.Foo"
+        )
+
+        System.setProperty("mockk.throwExceptionOnBadMock", "")
+
+        val validator = MockkValidator(
+            RestrictMockkConfiguration(TestPropertiesLoader(config))
+        )
+
+        assertThrows<MockKException> {
+            mockk<Foo>(mockValidator = validator)
+        }
+
+        System.clearProperty("mockk.throwExceptionOnBadMock")
     }
 }
 

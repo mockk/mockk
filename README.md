@@ -1653,6 +1653,51 @@ To strictly prevent mocking restricted classes, explicitly set:
 mockk.throwExceptionOnBadMock=true
 ```
 
+### Configure Restricted Mocking with System Properties
+
+You can also configure
+
+```
+mockk.throwExceptionOnBadMock=true
+```
+
+Example with system properties in your build.gradle.kts file:
+
+```
+tasks.withType<Test> {
+    systemProperty("mockk.throwExceptionOnBadMock", "true")
+}
+```
+You can also do a variable system property and pass the value
+via the terminal like so:
+
+```
+tasks.withType<Test> {
+    systemProperty("mockk.throwExceptionOnBadMock", System.getProperty("mockk.throwExceptionOnBadMock"))
+}
+```
+Then:
+```
+./gradlew -Dmockk.throwExceptionOnBadMock=true :modules:name:test
+```
+
+### Configure Restricted Mocking with Gradle Properties
+
+You can add the property to your `gradle.properties` file:
+```properties
+systemProp.mockk.throwExceptionOnBadMock=true
+```
+Then in your terminal:
+
+```
+./gradlew -Pmockk.throwExceptionOnBadMock=true :modules:name:test
+```
+
+⚠️ **Note:**
+
+The `mockk.throwExceptionOnBadMock` that is set in `gradle.properties` or
+in your `build.gradle` will override the value that is set in `mockk.properties` file.
+
 ### Behavior When Mocking Restricted Classes
 
 #### When `mockk.throwExceptionOnBadMock=false` (Default)
