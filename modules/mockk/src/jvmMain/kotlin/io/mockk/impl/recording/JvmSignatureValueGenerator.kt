@@ -71,11 +71,27 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
     private fun generateSafeLong(): Long {
         return if (rnd.nextBoolean()) {
             // Generate positive value in safe millisecond range
-            rnd.nextLong(MAX_NANOS_IN_MILLIS + 1, MAX_MILLIS)
+            nextLongInRange(MAX_NANOS_IN_MILLIS + 1, MAX_MILLIS)
         } else {
             // Generate negative value in safe millisecond range
-            rnd.nextLong(-MAX_MILLIS, -MAX_NANOS_IN_MILLIS)
+            nextLongInRange(-MAX_MILLIS, -MAX_NANOS_IN_MILLIS)
         }
+    }
+
+    /**
+     * Generates a random Long value in the range [origin, bound).
+     * This is a Java 8 compatible alternative to Random.nextLong(long, long) which was added in Java 17.
+     *
+     * Note: This implementation prioritizes simplicity and Java 8 compatibility over perfect uniformity.
+     * For the purpose of signature value generation (avoiding denormalized Duration ranges),
+     * this is sufficient.
+     */
+    private fun nextLongInRange(origin: Long, bound: Long): Long {
+        require(origin < bound) { "origin ($origin) must be less than bound ($bound)" }
+        val range = bound - origin
+        // Use nextLong() and modulo to stay in range, then add origin
+        // Math.floorMod handles negative values correctly
+        return origin + Math.floorMod(rnd.nextLong(), range)
     }
 
     companion object {
