@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [ 30 ] # Relevant SDK versions to test for MockK Android projects
+        api-level: [ 30, 34 ] # Relevant SDK versions to test for MockK Android projects
       fail-fast: false # in case one API-level fails, we still want to see results from others
     name: "[api-level=${{ matrix.api-level }}]"
     timeout-minutes: 30
