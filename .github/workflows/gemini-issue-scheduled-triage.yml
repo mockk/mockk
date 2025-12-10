@@ -81,7 +81,7 @@ jobs:
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
           use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
           use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
-          model: 'gemini-2.5-pro'
+          gemini_model: 'gemini-2.5-pro'
           settings: |-
             {
               "maxSessionTurns": 25,
