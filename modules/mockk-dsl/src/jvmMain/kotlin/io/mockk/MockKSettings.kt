@@ -6,9 +6,17 @@ actual object MockKSettings {
     private val properties = Properties()
 
     init {
-        MockKSettings::class.java
-            .getResourceAsStream("settings.properties")
-            ?.use(properties::load)
+        val unifiedPropertiesStream = Thread.currentThread().contextClassLoader
+            .getResourceAsStream("mockk.properties")
+
+        if (unifiedPropertiesStream != null) {
+            unifiedPropertiesStream.use(properties::load)
+        } else {
+            // Fallback to the legacy settings.properties for backward compatibility
+            MockKSettings::class.java
+                .getResourceAsStream("settings.properties")
+                ?.use(properties::load)
+        }
     }
 
     private fun booleanProperty(
