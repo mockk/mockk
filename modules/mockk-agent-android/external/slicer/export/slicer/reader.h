@@ -53,6 +53,7 @@ class Reader {
   slicer::ArrayView<const dex::FieldId> FieldIds() const;
   slicer::ArrayView<const dex::MethodId> MethodIds() const;
   slicer::ArrayView<const dex::ProtoId> ProtoIds() const;
+  slicer::ArrayView<const dex::MethodHandle> MethodHandles() const;
   const dex::MapList* DexMapList() const;
 
   // IR creation interface
@@ -69,6 +70,7 @@ class Reader {
   ir::MethodDecl* GetMethodDecl(dex::u4 index);
   ir::Proto* GetProto(dex::u4 index);
   ir::String* GetString(dex::u4 index);
+  ir::MethodHandle* GetMethodHandle(dex::u4 index);
 
   // Parsing annotations
   ir::AnnotationsDirectory* ExtractAnnotations(dex::u4 offset);
@@ -80,6 +82,7 @@ class Reader {
   ir::ParamAnnotation* ParseParamAnnotation(const dex::u1** pptr);
   ir::EncodedField* ParseEncodedField(const dex::u1** pptr, dex::u4* baseIndex);
   ir::Annotation* ParseAnnotation(const dex::u1** pptr);
+  ir::MethodHandle* ParseMethodHandle(dex::u4 index);
 
   // Parse encoded values and arrays
   ir::EncodedValue* ParseEncodedValue(const dex::u1** pptr);
@@ -104,7 +107,7 @@ class Reader {
   // Convert a file pointer (absolute offset) to an in-memory pointer
   template <class T>
   const T* ptr(int offset) const {
-    SLICER_CHECK(offset >= 0 && offset + sizeof(T) <= size_);
+    SLICER_CHECK_GE(offset, 0 && offset + sizeof(T) <= size_);
     return reinterpret_cast<const T*>(image_ + offset);
   }
 
@@ -112,7 +115,7 @@ class Reader {
   // (offset should be inside the data section)
   template <class T>
   const T* dataPtr(int offset) const {
-    SLICER_CHECK(offset >= header_->data_off && offset + sizeof(T) <= size_);
+    SLICER_CHECK_GE(offset, header_->data_off && offset + sizeof(T) <= size_);
     return reinterpret_cast<const T*>(image_ + offset);
   }
 

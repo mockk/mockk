@@ -15,17 +15,16 @@
  */
 
 #include "slicer/dex_ir.h"
+
 #include "slicer/chronometer.h"
 #include "slicer/dex_utf8.h"
 #include "slicer/dex_format.h"
 
-#include <algorithm>
 #include <cstdint>
-#include <map>
+#include <algorithm>
 #include <memory>
-#include <vector>
 #include <sstream>
-#include <functional>
+#include <vector>
 
 namespace ir {
 
@@ -109,6 +108,15 @@ std::string Proto::Signature() const {
   return ss.str();
 }
 
+bool MethodHandle::IsField(){
+  return (
+    method_handle_type == dex::METHOD_HANDLE_TYPE_STATIC_PUT ||
+    method_handle_type == dex::METHOD_HANDLE_TYPE_STATIC_GET ||
+    method_handle_type == dex::METHOD_HANDLE_TYPE_INSTANCE_PUT ||
+    method_handle_type == dex::METHOD_HANDLE_TYPE_INSTANCE_GET
+  );
+}
+
 // Helper for IR normalization
 // (it sorts items and update the numeric idexes to match)
 template <class T, class C>
@@ -140,7 +148,7 @@ void DexFile::TopSortClassIndex(Class* irClass, dex::u4* nextIndex) {
       }
     }
 
-    SLICER_CHECK(*nextIndex < classes.size());
+    SLICER_CHECK_LT(*nextIndex, classes.size());
     irClass->index = (*nextIndex)++;
   }
 }
@@ -256,8 +264,8 @@ void DexFile::Normalize() {
   SortClassIndexes();
 
   IndexItems(classes, [&](const own<Class>& a, const own<Class>& b) {
-    SLICER_CHECK(a->index < classes.size());
-    SLICER_CHECK(b->index < classes.size());
+    SLICER_CHECK_LT(a->index, classes.size());
+    SLICER_CHECK_LT(b->index, classes.size());
     SLICER_CHECK(a->index != b->index || a == b);
     return a->index < b->index;
   });

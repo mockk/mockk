@@ -114,7 +114,7 @@ class IntrusiveList {
   }
 
   void Remove(T* pos) {
-    SLICER_CHECK(pos != end_);
+    SLICER_CHECK_NE(pos, end_);
     if (pos->prev != nullptr) {
       assert(pos != begin_);
       pos->prev->next = pos->next;
