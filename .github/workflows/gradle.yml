@@ -94,7 +94,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
+          disable-animations: true
           script: echo "Generated AVD snapshot for caching."
           emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
 
@@ -104,6 +104,10 @@ jobs:
           arch: ${{ env.ARCH }}
           api-level: ${{ matrix.api-level }}
           script: ./gradlew connectedCheck
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
         if: always()
