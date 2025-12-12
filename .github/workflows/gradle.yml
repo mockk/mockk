@@ -2,13 +2,13 @@ name: All tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -16,8 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 17, 19, 21 ] # test LTS versions, and the newest
-        kotlin-version: [ 1.5.32, 1.6.21, 1.7.22, 1.8.22, 1.9.25, 2.0.21, 2.1.21, 2.2.21 ]
+        java-version: [17, 19, 21] # test LTS versions, and the newest
+        kotlin-version:
+          [1.5.32, 1.6.21, 1.7.22, 1.8.22, 1.9.25, 2.0.21, 2.1.21, 2.2.21]
       fail-fast: false # in case one JDK fails, we still want to see results from others
     name: "[java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
     timeout-minutes: 30
@@ -45,14 +46,13 @@ jobs:
         if: always()
         with:
           require_tests: false
-          report_paths: '**/build/test-results/**/TEST-*.xml'
-
+          report_paths: "**/build/test-results/**/TEST-*.xml"
 
   android-instrumented-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [ 28, 30, 36 ] # Relevant SDK versions to test for MockK Android projects
+        api-level: [28, 30, 34, 35] # Relevant SDK versions to test for MockK Android projects, 36 not yet supported by reactivecircus, works locally
       fail-fast: false # in case one API-level fails, we still want to see results from others
     name: "android [api-level=${{ matrix.api-level }}]"
     timeout-minutes: 30
@@ -96,7 +96,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: echo "Generated AVD snapshot for caching."
-          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+          emulator-build: 7425822 # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
 
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
@@ -106,12 +106,12 @@ jobs:
           script: ./gradlew connectedCheck
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+          emulator-build: 7425822 # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
         if: always()
         with:
           require_tests: false
-          report_paths: '**/build/test-results/**/TEST-*.xml'
-          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+          report_paths: "**/build/test-results/**/TEST-*.xml"
+          emulator-build: 7425822 # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
