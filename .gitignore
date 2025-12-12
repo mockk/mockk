@@ -18,3 +18,4 @@ cloud-badge/node_modules/
 cloud-badge/package-lock.json
 
 .DS_Store
+buildSrc/.kotlin/
