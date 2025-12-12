@@ -1368,27 +1368,55 @@ val builderMock = mockk<MyBuilder> {
 }
 ```
 
-## Settings file
+## Configuration File
 
-To adjust parameters globally, there are a few settings you can specify in a resource file.
+To adjust parameters globally, you can specify settings in a unified configuration file.
 
-How to use:
- 1. Create a `io/mockk/settings.properties` file in `src/test/resources`.
- 2. Put any of the following options:
+### How to use:
+
+1. Create a `mockk.properties` file in `src/test/resources/`.
+2. Add any of the following configuration options:
+
 ```properties
+# MockK Settings
 relaxed=true|false
 relaxUnitFun=true|false
 recordPrivateCalls=true|false
 stackTracesOnVerify=true|false
 stackTracesAlignment=left|center
 failOnSetBackingFieldException=true|false
+
+# Restricted Mocking Configuration (see Restricted Mocking section below)
+mockk.restrictedClasses=com.example.MyClass,com.example.AnotherClass
+mockk.throwExceptionOnBadMock=true|false
 ```
 
+### Configuration Options
+
+| **Property**                    | **Description**                                                                                 | **Default Value** |
+|---------------------------------|-------------------------------------------------------------------------------------------------|-------------------|
+| `relaxed`                       | Enable relaxed mocking globally                                                                 | `false`           |
+| `relaxUnitFun`                  | Enable relaxed mocking for Unit-returning functions                                             | `false`           |
+| `recordPrivateCalls`            | Record private calls for verification                                                           | `false`           |
+| `stackTracesOnVerify`           | Show stack traces on verification failures                                                      | `true`            |
+| `stackTracesAlignment`          | Align stack traces to `left` or `center`                                                        | `center`          |
+| `failOnSetBackingFieldException`| Fail tests if backing field cannot be set                                                       | `false`           |
+| `mockk.restrictedClasses`       | Add fully qualified names of classes to restrict from mocking (comma-separated)                 | N/A               |
+| `mockk.throwExceptionOnBadMock` | Throw exception when mocking restricted classes (`true`), or log warning only (`false`)         | `false`           |
+
+**Notes:**
 * `stackTracesAlignment` determines whether to align the stack traces to the center (default),
  or to the left (more consistent with usual JVM stackTraces).
-* If `failOnSetBackingFieldException` (`false` by default) is set to `true`, tests fail if a
- backing field could not be set. Otherwise, only the warning "Failed to set backing field" will be logged.
+* If `failOnSetBackingFieldException` is set to `true`, tests fail if a backing field could not be set.
+ Otherwise, only the warning "Failed to set backing field" will be logged.
  See [here](https://github.com/mockk/mockk/issues/1291) for more details.
+
+### Legacy Configuration (Backward Compatibility)
+
+For backward compatibility, MockK also supports the legacy configuration file location:
+- `src/test/resources/io/mockk/settings.properties`
+
+If both files exist, `mockk.properties` takes precedence. The legacy location is deprecated and may be removed in a future version.
 
 ## DSL tables
 
@@ -1619,19 +1647,11 @@ For example:
 
 ### How to Configure Restricted Mocking
 
-You can configure Restricted Mocking behavior using the `mockk.properties` file.
+You can configure Restricted Mocking behavior using the unified `mockk.properties` configuration file described in the [Configuration File](#configuration-file) section.
 
-#### 1. Creating the `mockk.properties` File
+Add the following properties to your `src/test/resources/mockk.properties` file:
 
-Place the file in one of the following directories:
-
-```plaintext
-src/test/resources/mockk.properties
-```
-
-#### 2. Configuration Options
-
-```
+```properties
 # List of restricted classes (fully qualified names, separated by commas)
 mockk.restrictedClasses=com.foo.Bar,com.foo.Baz
 
@@ -1639,17 +1659,14 @@ mockk.restrictedClasses=com.foo.Bar,com.foo.Baz
 mockk.throwExceptionOnBadMock=true
 ```
 
-| **Property**                    | **Description**                                                                                 | **Default Value** |
-|---------------------------------|-------------------------------------------------------------------------------------------------|-------------------|
-| `mockk.restrictedClasses`       | Add fully qualified names of classes to restrict. Supports both system and custom classes.      | N/A               |
-| `mockk.throwExceptionOnBadMock` | `true`: Throws an exception when mocking restricted classes. <br> `false`: Logs a warning only. | `false`           |
+See the [Configuration File](#configuration-file) section for detailed information about these and other configuration options.
 
 ⚠️ **Note:**
 
-If mockk.throwExceptionOnBadMock is not set, it will default to false, meaning only warnings will be logged.
+If `mockk.throwExceptionOnBadMock` is not set, it will default to `false`, meaning only warnings will be logged.
 
 To strictly prevent mocking restricted classes, explicitly set:
-```
+```properties
 mockk.throwExceptionOnBadMock=true
 ```
 
