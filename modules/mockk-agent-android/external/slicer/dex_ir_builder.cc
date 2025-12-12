@@ -78,7 +78,7 @@ String* Builder::GetAsciiString(const char* cstr) {
   // update the index -> ir node map
   auto new_index = dex_ir_->strings_indexes.AllocateIndex();
   auto& ir_node = dex_ir_->strings_map[new_index];
-  SLICER_CHECK(ir_node == nullptr);
+  SLICER_CHECK_EQ(ir_node, nullptr);
   ir_node = ir_string;
   ir_string->orig_index = new_index;
 
@@ -106,7 +106,7 @@ Type* Builder::GetType(String* descriptor) {
   // update the index -> ir node map
   auto new_index = dex_ir_->types_indexes.AllocateIndex();
   auto& ir_node = dex_ir_->types_map[new_index];
-  SLICER_CHECK(ir_node == nullptr);
+  SLICER_CHECK_EQ(ir_node, nullptr);
   ir_node = ir_type;
   ir_type->orig_index = new_index;
 
@@ -165,7 +165,7 @@ Proto* Builder::GetProto(Type* return_type, TypeList* param_types) {
   // update the index -> ir node map
   auto new_index = dex_ir_->protos_indexes.AllocateIndex();
   auto& ir_node = dex_ir_->protos_map[new_index];
-  SLICER_CHECK(ir_node == nullptr);
+  SLICER_CHECK_EQ(ir_node, nullptr);
   ir_node = ir_proto;
   ir_proto->orig_index = new_index;
 
@@ -194,7 +194,7 @@ FieldDecl* Builder::GetFieldDecl(String* name, Type* type, Type* parent) {
   // update the index -> ir node map
   auto new_index = dex_ir_->fields_indexes.AllocateIndex();
   auto& ir_node = dex_ir_->fields_map[new_index];
-  SLICER_CHECK(ir_node == nullptr);
+  SLICER_CHECK_EQ(ir_node, nullptr);
   ir_node = ir_field;
   ir_field->orig_index = new_index;
 
@@ -220,7 +220,7 @@ MethodDecl* Builder::GetMethodDecl(String* name, Proto* proto, Type* parent) {
   // update the index -> ir node map
   auto new_index = dex_ir_->methods_indexes.AllocateIndex();
   auto& ir_node = dex_ir_->methods_map[new_index];
-  SLICER_CHECK(ir_node == nullptr);
+  SLICER_CHECK_EQ(ir_node, nullptr);
   ir_node = ir_method;
   ir_method->orig_index = new_index;
 

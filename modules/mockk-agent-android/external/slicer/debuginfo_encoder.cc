@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#include "slicer/common.h"
 #include "slicer/debuginfo_encoder.h"
-#include "slicer/chronometer.h"
+
+#include "slicer/common.h"
 
 #include <assert.h>
+#include <sstream>
+#include <iomanip>
+
 
 namespace lir {
 
@@ -31,7 +34,7 @@ bool DebugInfoEncoder::Visit(DbgInfoHeader* dbg_header) {
 bool DebugInfoEncoder::Visit(DbgInfoAnnotation* dbg_annotation) {
   // keep the address in sync
   if (last_address_ != dbg_annotation->offset) {
-    SLICER_CHECK(dbg_annotation->offset > last_address_);
+    SLICER_CHECK_GT(dbg_annotation->offset, last_address_);
     dbginfo_.Push<dex::u1>(dex::DBG_ADVANCE_PC);
     dbginfo_.PushULeb128(dbg_annotation->offset - last_address_);
     last_address_ = dbg_annotation->offset;
@@ -49,10 +52,10 @@ bool DebugInfoEncoder::Visit(DbgInfoAnnotation* dbg_annotation) {
         // it's not perfectly clear from the .dex specification
         // if initial line == 0 is valid, but a number of existing
         // .dex files do this so we have to support it
-        SLICER_CHECK(line >= 0);
+        SLICER_CHECK_GE(line, 0);
         line_start_ = line;
       } else {
-        SLICER_WEAK_CHECK(line > 0);
+        SLICER_WEAK_CHECK(line >= 0);
         int delta = line - last_line_;
         int adj_opcode = delta - dex::DBG_LINE_BASE;
         // out of range for special opcode?
@@ -111,8 +114,11 @@ bool DebugInfoEncoder::Visit(DbgInfoAnnotation* dbg_annotation) {
       }
     } break;
 
-    default:
-      SLICER_FATAL("Unexpected debug info opcode: 0x%02x", dbg_annotation->dbg_opcode);
+    default: {
+      std::stringstream ss;
+      ss << "Unexpected debug info opcode: " << dbg_annotation->dbg_opcode;
+      SLICER_FATAL(ss.str());
+    }
   }
 
   return true;
@@ -122,11 +128,11 @@ void DebugInfoEncoder::Encode(ir::EncodedMethod* ir_method, std::shared_ptr<ir::
   auto ir_debug_info = ir_method->code->debug_info;
 
   SLICER_CHECK(dbginfo_.empty());
-  SLICER_CHECK(param_names_ == nullptr);
-  SLICER_CHECK(line_start_ == 0);
-  SLICER_CHECK(last_line_ == 0);
-  SLICER_CHECK(last_address_ == 0);
-  SLICER_CHECK(source_file_ == nullptr);
+  SLICER_CHECK_EQ(param_names_, nullptr);
+  SLICER_CHECK_EQ(line_start_, 0);
+  SLICER_CHECK_EQ(last_line_, 0);
+  SLICER_CHECK_EQ(last_address_, 0);
+  SLICER_CHECK_EQ(source_file_, nullptr);
 
   // generate new debug info
   source_file_ = ir_method->decl->parent->class_def->source_file;

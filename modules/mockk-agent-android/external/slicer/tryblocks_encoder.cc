@@ -15,18 +15,17 @@
  */
 
 #include "slicer/tryblocks_encoder.h"
+
 #include "slicer/chronometer.h"
 #include "slicer/common.h"
-
-#include <assert.h>
 
 namespace lir {
 
 bool TryBlocksEncoder::Visit(TryBlockEnd* try_end) {
   const dex::u4 begin_offset = try_end->try_begin->offset;
   const dex::u4 end_offset = try_end->offset;
-  SLICER_CHECK(end_offset > begin_offset);
-  SLICER_CHECK(end_offset - begin_offset < (1 << 16));
+  SLICER_CHECK_GT(end_offset, begin_offset);
+  SLICER_CHECK_LT(end_offset - begin_offset, (1 << 16));
 
   // generate the "try_item"
   dex::TryBlock try_block = {};
@@ -43,12 +42,12 @@ bool TryBlocksEncoder::Visit(TryBlockEnd* try_end) {
     // type_idx
     handlers_.PushULeb128(handler.ir_type->orig_index);
     // address
-    SLICER_CHECK(handler.label->offset != kInvalidOffset);
+    SLICER_CHECK_NE(handler.label->offset, kInvalidOffset);
     handlers_.PushULeb128(handler.label->offset);
   }
   if (try_end->catch_all != nullptr) {
     // address
-    SLICER_CHECK(try_end->catch_all->offset != kInvalidOffset);
+    SLICER_CHECK_NE(try_end->catch_all->offset, kInvalidOffset);
     handlers_.PushULeb128(try_end->catch_all->offset);
   }
 
@@ -60,13 +59,19 @@ void TryBlocksEncoder::Encode(ir::Code* ir_code, std::shared_ptr<ir::DexFile> de
   SLICER_CHECK(tries_.empty());
 
   // first, count the number of try blocks
-  int tries_count = 0;
-  for (auto instr : instructions_) {
-    if (instr->IsA<TryBlockEnd>()) {
+  struct TryBlockEndVisitor : public Visitor {
+    int tries_count = 0;
+    bool Visit(TryBlockEnd* try_end) override {
       ++tries_count;
+      return true;
     }
+  };
+  TryBlockEndVisitor visitor;
+  for (auto instr : instructions_) {
+    instr->Accept(&visitor);
   }
-  SLICER_CHECK(tries_count < (1 << 16));
+  int tries_count = visitor.tries_count;
+  SLICER_CHECK_LT(tries_count, (1 << 16));
 
   // no try blocks?
   if (tries_count == 0) {

@@ -19,19 +19,18 @@ object Deps {
         const val junitJupiter = "5.12.2"
         const val junit4 = "4.13.2"
 
-        const val byteBuddy = "1.15.11"
-        const val objenesis = "3.3"
-        const val dexmaker = "2.28.3"
-        const val androidxEspresso = "3.5.1"
-        const val androidxOrchestrator = "1.4.2"
-        const val androidxTestRules = "1.5.0"
-        const val androidxTestRunner = "1.5.2"
-        const val androidxTestExtJunit = "1.1.5"
-        const val androidxTestOrchestrator = "1.4.2"
+        const val byteBuddy = "1.18.2"
+        const val objenesis = "3.4"
+        const val dexmaker = "2.28.6"
+        const val androidxEspresso = "3.7.0"
+        const val androidxOrchestrator = "1.6.1"
+        const val androidxTestRules = "1.7.0"
+        const val androidxTestRunner = "1.7.0"
+        const val androidxTestExtJunit = "1.3.0"
 
         const val compileSdk = 34
         const val targetSdk = 34
-        const val minSdk = 26
+        const val minSdk = 28
     }
 
     object Libs {

@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "common.h"
-#include "code_ir.h"
-#include "dex_ir.h"
 #include "buffer.h"
 #include "chronometer.h"
+#include "code_ir.h"
+#include "common.h"
+#include "dex_ir.h"
 
 namespace lir {
 

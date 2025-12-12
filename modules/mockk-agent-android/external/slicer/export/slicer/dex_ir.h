@@ -16,14 +16,14 @@
 
 #pragma once
 
-#include "common.h"
-#include "memview.h"
 #include "arrayview.h"
+#include "buffer.h"
+#include "common.h"
 #include "dex_format.h"
 #include "dex_leb128.h"
-#include "buffer.h"
-#include "index_map.h"
 #include "hash_table.h"
+#include "index_map.h"
+#include "memview.h"
 
 #include <stdlib.h>
 #include <map>
@@ -62,6 +62,7 @@ struct String;
 struct Type;
 struct TypeList;
 struct Proto;
+struct MethodHandle;
 struct FieldDecl;
 struct EncodedField;
 struct DebugInfo;
@@ -195,6 +196,16 @@ struct Proto : public IndexedNode {
   TypeList* param_types;
 
   std::string Signature() const;
+};
+
+struct MethodHandle : public IndexedNode {
+  SLICER_IR_INDEXED_TYPE;
+
+  dex::u2 method_handle_type;
+  MethodDecl* method;
+  FieldDecl* field;
+
+  bool IsField();
 };
 
 struct FieldDecl : public IndexedNode {
@@ -365,6 +376,7 @@ struct DexFile {
   std::vector<own<FieldDecl>> fields;
   std::vector<own<MethodDecl>> methods;
   std::vector<own<Class>> classes;
+  std::vector<own<MethodHandle>> method_handles;
 
   // data segment structures
   std::vector<own<EncodedField>> encoded_fields;
@@ -394,6 +406,7 @@ struct DexFile {
   std::map<dex::u4, FieldDecl*> fields_map;
   std::map<dex::u4, MethodDecl*> methods_map;
   std::map<dex::u4, Class*> classes_map;
+  std::map<dex::u4, MethodHandle*> method_handles_map;
 
   // original .dex header "magic" signature
   slicer::MemView magic;
@@ -406,6 +419,7 @@ struct DexFile {
   IndexMap fields_indexes;
   IndexMap methods_indexes;
   IndexMap classes_indexes;
+  IndexMap method_handle_indexes;
 
   // lookup hash tables
   StringsLookup strings_lookup;
@@ -447,6 +461,7 @@ struct DexFile {
   void Track(FieldDecl* p) { PushOwn(fields, p); }
   void Track(MethodDecl* p) { PushOwn(methods, p); }
   void Track(Class* p) { PushOwn(classes, p); }
+  void Track(MethodHandle* p) { PushOwn(method_handles, p); }
 
   void Track(EncodedField* p) { PushOwn(encoded_fields, p); }
   void Track(EncodedMethod* p) { PushOwn(encoded_methods, p); }

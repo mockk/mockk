@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "common.h"
 #include "arrayview.h"
-#include "memview.h"
+#include "common.h"
 #include "dex_leb128.h"
+#include "memview.h"
 
 #include <assert.h>
 #include <string>
@@ -73,7 +73,7 @@ class Buffer {
   //
   template <class T>
   T* ptr(size_t offset) {
-    SLICER_CHECK(offset + sizeof(T) <= size_);
+    SLICER_CHECK_LE(offset + sizeof(T), size_);
     return reinterpret_cast<T*>(buff_ + offset);
   }
 
@@ -115,7 +115,7 @@ class Buffer {
   }
 
   size_t Push(const Buffer& buff) {
-    SLICER_CHECK(&buff != this);
+    SLICER_CHECK_NE(&buff, this);
     return Push(buff.data(), buff.size());
   }
 
@@ -153,7 +153,7 @@ class Buffer {
   }
 
   const dex::u1* data() const {
-    SLICER_CHECK(buff_ != nullptr);
+    SLICER_CHECK_NE(buff_, nullptr);
     return buff_;
   }
 
@@ -163,7 +163,7 @@ class Buffer {
     if (size_ + size > capacity_) {
       capacity_ = std::max(size_t(capacity_ * 1.5), size_ + size);
       buff_ = static_cast<dex::u1*>(::realloc(buff_, capacity_));
-      SLICER_CHECK(buff_ != nullptr);
+      SLICER_CHECK_NE(buff_, nullptr);
     }
     size_ += size;
   }
