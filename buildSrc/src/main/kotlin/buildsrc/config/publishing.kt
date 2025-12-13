@@ -30,6 +30,12 @@ fun MavenPublication.createMockKPom(
                 name.set("Mattia Tommasone")
                 email.set("raibaz@gmail.com")
             }
+            developer {
+                // springmockk author
+                id.set("jnizet")
+                name.set("Jean-Baptiste Nizet")
+                email.set("jb@ninja-squad.com")
+            }
         }
 
         licenses {

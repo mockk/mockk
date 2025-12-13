@@ -1,0 +1,146 @@
+public final class com/ninjasquad/springmockk/ClearMocksTestExecutionListener : org/springframework/test/context/support/AbstractTestExecutionListener {
+	public fun <init> ()V
+	public fun afterTestMethod (Lorg/springframework/test/context/TestContext;)V
+	public fun beforeTestMethod (Lorg/springframework/test/context/TestContext;)V
+	public fun getOrder ()I
+}
+
+public class com/ninjasquad/springmockk/Definition {
+	public fun <init> (Ljava/lang/String;Lcom/ninjasquad/springmockk/MockkClear;Lcom/ninjasquad/springmockk/QualifierDefinition;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClear ()Lcom/ninjasquad/springmockk/MockkClear;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getQualifier ()Lcom/ninjasquad/springmockk/QualifierDefinition;
+	public fun hashCode ()I
+}
+
+public final class com/ninjasquad/springmockk/DefinitionsParser {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Collection;)V
+	public synthetic fun <init> (Ljava/util/Collection;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getField (Lcom/ninjasquad/springmockk/Definition;)Ljava/lang/reflect/Field;
+	public final fun getParsedDefinitions ()Ljava/util/Set;
+	public final fun parse (Ljava/lang/Class;)V
+}
+
+public abstract interface annotation class com/ninjasquad/springmockk/MockkBean : java/lang/annotation/Annotation {
+	public abstract fun classes ()[Ljava/lang/Class;
+	public abstract fun clear ()Lcom/ninjasquad/springmockk/MockkClear;
+	public abstract fun extraInterfaces ()[Ljava/lang/Class;
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun relaxUnitFun ()Z
+	public abstract fun relaxed ()Z
+	public abstract fun value ()[Ljava/lang/Class;
+}
+
+public abstract interface annotation class com/ninjasquad/springmockk/MockkBeans : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lcom/ninjasquad/springmockk/MockkBean;
+}
+
+public final class com/ninjasquad/springmockk/MockkClear : java/lang/Enum {
+	public static final field AFTER Lcom/ninjasquad/springmockk/MockkClear;
+	public static final field BEFORE Lcom/ninjasquad/springmockk/MockkClear;
+	public static final field Companion Lcom/ninjasquad/springmockk/MockkClear$Companion;
+	public static final field NONE Lcom/ninjasquad/springmockk/MockkClear;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ninjasquad/springmockk/MockkClear;
+	public static fun values ()[Lcom/ninjasquad/springmockk/MockkClear;
+}
+
+public final class com/ninjasquad/springmockk/MockkClear$Companion {
+	public final fun get (Ljava/lang/Object;)Lcom/ninjasquad/springmockk/MockkClear;
+}
+
+public final class com/ninjasquad/springmockk/MockkClearKt {
+	public static final fun clear (Ljava/lang/Object;Lcom/ninjasquad/springmockk/MockkClear;)Ljava/lang/Object;
+}
+
+public final class com/ninjasquad/springmockk/MockkContextCustomizer : org/springframework/test/context/ContextCustomizer {
+	public fun <init> (Ljava/util/Set;)V
+	public final fun copy (Ljava/util/Set;)Lcom/ninjasquad/springmockk/MockkContextCustomizer;
+	public static synthetic fun copy$default (Lcom/ninjasquad/springmockk/MockkContextCustomizer;Ljava/util/Set;ILjava/lang/Object;)Lcom/ninjasquad/springmockk/MockkContextCustomizer;
+	public fun customizeContext (Lorg/springframework/context/ConfigurableApplicationContext;Lorg/springframework/test/context/MergedContextConfiguration;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ninjasquad/springmockk/MockkContextCustomizerFactory : org/springframework/test/context/ContextCustomizerFactory {
+	public fun <init> ()V
+	public fun createContextCustomizer (Ljava/lang/Class;Ljava/util/List;)Lorg/springframework/test/context/ContextCustomizer;
+}
+
+public final class com/ninjasquad/springmockk/MockkDefinition : com/ninjasquad/springmockk/Definition {
+	public fun <init> (Ljava/lang/String;Lorg/springframework/core/ResolvableType;[Lkotlin/reflect/KClass;Lcom/ninjasquad/springmockk/MockkClear;ZZLcom/ninjasquad/springmockk/QualifierDefinition;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/springframework/core/ResolvableType;[Lkotlin/reflect/KClass;Lcom/ninjasquad/springmockk/MockkClear;ZZLcom/ninjasquad/springmockk/QualifierDefinition;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun createMock ()Ljava/lang/Object;
+	public final fun createMock (Ljava/lang/String;)Ljava/lang/Object;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExtraInterfaces ()Ljava/util/Set;
+	public final fun getRelaxUnitFun ()Z
+	public final fun getRelaxed ()Z
+	public final fun getTypeToMock ()Lorg/springframework/core/ResolvableType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/ninjasquad/springmockk/MockkFunctionsKt {
+	public static final fun isMock (Ljava/lang/Object;)Z
+}
+
+public final class com/ninjasquad/springmockk/MockkPostProcessor : org/springframework/beans/factory/BeanClassLoaderAware, org/springframework/beans/factory/BeanFactoryAware, org/springframework/beans/factory/config/BeanFactoryPostProcessor, org/springframework/beans/factory/config/InstantiationAwareBeanPostProcessor, org/springframework/core/Ordered {
+	public static final field Companion Lcom/ninjasquad/springmockk/MockkPostProcessor$Companion;
+	public fun <init> (Ljava/util/Set;)V
+	public fun getOrder ()I
+	public fun postProcessBeanFactory (Lorg/springframework/beans/factory/config/ConfigurableListableBeanFactory;)V
+	public fun postProcessProperties (Lorg/springframework/beans/PropertyValues;Ljava/lang/Object;Ljava/lang/String;)Lorg/springframework/beans/PropertyValues;
+	public fun setBeanClassLoader (Ljava/lang/ClassLoader;)V
+	public fun setBeanFactory (Lorg/springframework/beans/factory/BeanFactory;)V
+}
+
+public final class com/ninjasquad/springmockk/MockkPostProcessor$Companion {
+	public final fun register (Lorg/springframework/beans/factory/support/BeanDefinitionRegistry;Ljava/lang/Class;Ljava/util/Set;)V
+	public static synthetic fun register$default (Lcom/ninjasquad/springmockk/MockkPostProcessor$Companion;Lorg/springframework/beans/factory/support/BeanDefinitionRegistry;Ljava/lang/Class;Ljava/util/Set;ILjava/lang/Object;)V
+}
+
+public final class com/ninjasquad/springmockk/MockkTestExecutionListener : org/springframework/test/context/support/AbstractTestExecutionListener {
+	public fun <init> ()V
+	public fun beforeTestMethod (Lorg/springframework/test/context/TestContext;)V
+	public fun getOrder ()I
+	public fun prepareTestInstance (Lorg/springframework/test/context/TestContext;)V
+}
+
+public final class com/ninjasquad/springmockk/QualifierDefinition {
+	public static final field Companion Lcom/ninjasquad/springmockk/QualifierDefinition$Companion;
+	public fun <init> (Ljava/lang/reflect/Field;Ljava/util/Set;)V
+	public final fun applyTo (Lorg/springframework/beans/factory/support/RootBeanDefinition;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun matches (Lorg/springframework/beans/factory/config/ConfigurableListableBeanFactory;Ljava/lang/String;)Z
+}
+
+public final class com/ninjasquad/springmockk/QualifierDefinition$Companion {
+	public final fun forElement (Ljava/lang/reflect/AnnotatedElement;)Lcom/ninjasquad/springmockk/QualifierDefinition;
+}
+
+public abstract interface annotation class com/ninjasquad/springmockk/SpykBean : java/lang/annotation/Annotation {
+	public abstract fun classes ()[Ljava/lang/Class;
+	public abstract fun clear ()Lcom/ninjasquad/springmockk/MockkClear;
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun value ()[Ljava/lang/Class;
+}
+
+public abstract interface annotation class com/ninjasquad/springmockk/SpykBeans : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lcom/ninjasquad/springmockk/SpykBean;
+}
+
+public final class com/ninjasquad/springmockk/SpykDefinition : com/ninjasquad/springmockk/Definition {
+	public fun <init> (Ljava/lang/String;Lorg/springframework/core/ResolvableType;Lcom/ninjasquad/springmockk/MockkClear;Lcom/ninjasquad/springmockk/QualifierDefinition;)V
+	public synthetic fun <init> (Ljava/lang/String;Lorg/springframework/core/ResolvableType;Lcom/ninjasquad/springmockk/MockkClear;Lcom/ninjasquad/springmockk/QualifierDefinition;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun createSpy (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun createSpy (Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getTypeToSpy ()Lorg/springframework/core/ResolvableType;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

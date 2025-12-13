@@ -1,0 +1,60 @@
+public abstract interface annotation class com/ninjasquad/springmockk/MockkBean : java/lang/annotation/Annotation {
+	public abstract fun clear ()Lcom/ninjasquad/springmockk/MockkClear;
+	public abstract fun contextName ()Ljava/lang/String;
+	public abstract fun enforceOverride ()Z
+	public abstract fun extraInterfaces ()[Ljava/lang/Class;
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun relaxUnitFun ()Z
+	public abstract fun relaxed ()Z
+	public abstract fun types ()[Ljava/lang/Class;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/ninjasquad/springmockk/MockkBean$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lcom/ninjasquad/springmockk/MockkBean;
+}
+
+public final class com/ninjasquad/springmockk/MockkClear : java/lang/Enum {
+	public static final field AFTER Lcom/ninjasquad/springmockk/MockkClear;
+	public static final field BEFORE Lcom/ninjasquad/springmockk/MockkClear;
+	public static final field Companion Lcom/ninjasquad/springmockk/MockkClear$Companion;
+	public static final field NONE Lcom/ninjasquad/springmockk/MockkClear;
+	public static fun valueOf (Ljava/lang/String;)Lcom/ninjasquad/springmockk/MockkClear;
+	public static fun values ()[Lcom/ninjasquad/springmockk/MockkClear;
+}
+
+public final class com/ninjasquad/springmockk/MockkClear$Companion {
+	public final fun get (Ljava/lang/Object;)Lcom/ninjasquad/springmockk/MockkClear;
+}
+
+public final class com/ninjasquad/springmockk/MockkClearKt {
+	public static final fun clear (Ljava/lang/Object;Lcom/ninjasquad/springmockk/MockkClear;)Ljava/lang/Object;
+}
+
+public final class com/ninjasquad/springmockk/MockkClearTestExecutionListener : org/springframework/test/context/support/AbstractTestExecutionListener {
+	public static final field Companion Lcom/ninjasquad/springmockk/MockkClearTestExecutionListener$Companion;
+	public fun <init> ()V
+	public fun afterTestMethod (Lorg/springframework/test/context/TestContext;)V
+	public fun beforeTestMethod (Lorg/springframework/test/context/TestContext;)V
+	public fun getOrder ()I
+}
+
+public final class com/ninjasquad/springmockk/MockkClearTestExecutionListener$Companion {
+}
+
+public final class com/ninjasquad/springmockk/MockkFunctionsKt {
+	public static final fun isMockOrSpy (Ljava/lang/Object;)Z
+}
+
+public abstract interface annotation class com/ninjasquad/springmockk/MockkSpyBean : java/lang/annotation/Annotation {
+	public abstract fun clear ()Lcom/ninjasquad/springmockk/MockkClear;
+	public abstract fun contextName ()Ljava/lang/String;
+	public abstract fun name ()Ljava/lang/String;
+	public abstract fun types ()[Ljava/lang/Class;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/ninjasquad/springmockk/MockkSpyBean$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lcom/ninjasquad/springmockk/MockkSpyBean;
+}
+

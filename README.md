@@ -109,7 +109,47 @@ androidTestImplementation "io.mockk:mockk-bdd-android:${mockkVersion}"
 
 ### Spring support
 
- * [springmockk](https://github.com/Ninja-Squad/springmockk) introduced in official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/)
+Projects using Spring Framework can use the SpringMockK modules to mock beans in Spring Boot integration tests using MockK instead of Mockito.
+
+#### Spring Boot 4 (Spring Framework 7) - Latest
+```gradle
+testImplementation "io.mockk:springmockk:${mockkVersion}"
+```
+
+#### Spring Boot 3 (Spring Framework 6)
+```gradle
+testImplementation "io.mockk:springmockk-boot3:${mockkVersion}"
+```
+
+#### Spring Boot 2 (Spring Framework 5)
+```gradle
+testImplementation "io.mockk:springmockk-boot2:${mockkVersion}"
+```
+
+These modules provide `@MockkBean` and `@SpykBean` annotations as direct replacements for Spring Boot's `@MockBean` and `@SpyBean` (Mockito-based), offering the same functionality but with MockK's expressive Kotlin DSL.
+
+**Example:**
+```kotlin
+@ExtendWith(SpringExtension::class)
+@WebMvcTest
+class GreetingControllerTest {
+    @MockkBean
+    private lateinit var greetingService: GreetingService
+
+    @Autowired
+    private lateinit var controller: GreetingController
+
+    @Test
+    fun `should greet by delegating to the greeting service`() {
+        every { greetingService.greet("John") } returns "Hi John"
+
+        assertThat(controller.greet("John")).isEqualTo("Hi John")
+        verify { greetingService.greet("John") }
+    }
+}
+```
+
+The SpringMockK modules incorporate and continue development of the original [springmockk](https://github.com/Ninja-Squad/springmockk) project by Ninja-Squad, which was featured in the official [Spring Boot Kotlin tutorial](https://spring.io/guides/tutorials/spring-boot-kotlin/). The project has been integrated into MockK for continued maintenance by the MockK community.
 
 ### Quarkus support
 

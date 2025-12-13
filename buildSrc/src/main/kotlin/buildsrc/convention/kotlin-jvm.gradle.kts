@@ -16,7 +16,7 @@ plugins {
 }
 
 java {
-    withJavadocJar()
+//    withJavadocJar()
     withSourcesJar()
 }
 
@@ -34,6 +34,7 @@ tasks.withType<KotlinJvmCompile>().configureEach {
     }
 }
 
-tasks.named<Jar>("javadocJar") {
+val javadocJar by tasks.registering(Jar::class) {
     from(tasks.dokkaJavadoc)
+    archiveClassifier.set("javadoc")
 }
