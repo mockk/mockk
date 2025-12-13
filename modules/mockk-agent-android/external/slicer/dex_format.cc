@@ -15,12 +15,21 @@
  */
 
 #include "slicer/dex_format.h"
+
 #include "slicer/common.h"
 
-#include <zlib.h>
 #include <sstream>
+#include <cstdlib>
+#include <zlib.h>
 
 namespace dex {
+
+// The expected format of the magic is dex\nXXX\0 where XXX are digits. We extract this value.
+// Returns 0 if the version can not be parsed.
+u4 Header::GetVersion(const void* magic) {
+  const char* version = reinterpret_cast<const char*>(magic) + 4;
+  return version[3] == '\0' ? strtol(version, nullptr, 10) : 0;
+}
 
 // Compute the DEX file checksum for a memory-mapped DEX file
 u4 ComputeChecksum(const Header* header) {
@@ -64,14 +73,14 @@ std::string DescriptorToDecl(const char* descriptor) {
 
   if (*descriptor == 'L') {
     for (++descriptor; *descriptor != ';'; ++descriptor) {
-      SLICER_CHECK(*descriptor != '\0');
+      SLICER_CHECK_NE(*descriptor, '\0');
       ss << (*descriptor == '/' ? '.' : *descriptor);
     }
   } else {
     ss << PrimitiveTypeName(*descriptor);
   }
 
-  SLICER_CHECK(descriptor[1] == '\0');
+  SLICER_CHECK_EQ(descriptor[1], '\0');
 
   // add the array brackets
   for (int i = 0; i < array_dimensions; ++i) {
@@ -95,10 +104,10 @@ char DescriptorToShorty(const char* descriptor) {
   if (short_descriptor == 'L') {
     // skip the full class name
     for(; *descriptor && *descriptor != ';'; ++descriptor);
-    SLICER_CHECK(*descriptor == ';');
+    SLICER_CHECK_EQ(*descriptor, ';');
   }
 
-  SLICER_CHECK(descriptor[1] == '\0');
+  SLICER_CHECK_EQ(descriptor[1], '\0');
   SLICER_CHECK(short_descriptor == 'L' || PrimitiveTypeName(short_descriptor) != nullptr);
 
   return array_dimensions > 0 ? 'L' : short_descriptor;

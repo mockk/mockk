@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 
-#include "slicer/common.h"
 #include "slicer/code_ir.h"
+
+#include "slicer/bytecode_encoder.h"
+#include "slicer/common.h"
+#include "slicer/debuginfo_encoder.h"
 #include "slicer/dex_bytecode.h"
 #include "slicer/dex_format.h"
 #include "slicer/dex_ir.h"
 #include "slicer/dex_leb128.h"
-#include "slicer/bytecode_encoder.h"
-#include "slicer/debuginfo_encoder.h"
 #include "slicer/tryblocks_encoder.h"
 
-#include <assert.h>
-#include <string.h>
 #include <algorithm>
-#include <cstdlib>
-#include <type_traits>
+#include <iomanip>
+#include <sstream>
 #include <vector>
 
 namespace lir {
 
 void CodeIr::Assemble() {
   auto ir_code = ir_method->code;
-  SLICER_CHECK(ir_code != nullptr);
+  SLICER_CHECK_NE(ir_code, nullptr);
 
   // new .dex bytecode
   //
@@ -56,7 +55,7 @@ void CodeIr::Assemble() {
   try_blocks_encoder.Encode(ir_code, dex_ir);
 }
 
-void CodeIr::DissasembleTryBlocks(const ir::Code* ir_code) {
+void CodeIr::DisassembleTryBlocks(const ir::Code* ir_code) {
   int nextTryBlockId = 1;
   for (const auto& tryBlock : ir_code->try_blocks) {
     auto try_block_begin = Alloc<TryBlockBegin>();
@@ -78,7 +77,7 @@ void CodeIr::DissasembleTryBlocks(const ir::Code* ir_code) {
       // type
       dex::u4 type_index = dex::ReadULeb128(&ptr);
       handler.ir_type = dex_ir->types_map[type_index];
-      SLICER_CHECK(handler.ir_type != nullptr);
+      SLICER_CHECK_NE(handler.ir_type, nullptr);
 
       // address
       dex::u4 address = dex::ReadULeb128(&ptr);
@@ -106,7 +105,7 @@ void CodeIr::DissasembleTryBlocks(const ir::Code* ir_code) {
   }
 }
 
-void CodeIr::DissasembleDebugInfo(const ir::DebugInfo* ir_debug_info) {
+void CodeIr::DisassembleDebugInfo(const ir::DebugInfo* ir_debug_info) {
   if (ir_debug_info == nullptr) {
     return;
   }
@@ -156,7 +155,7 @@ void CodeIr::DissasembleDebugInfo(const ir::DebugInfo* ir_debug_info) {
       case dex::DBG_ADVANCE_LINE:
         // line_diff
         line += dex::ReadSLeb128(&ptr);
-        SLICER_WEAK_CHECK(line > 0);
+        SLICER_WEAK_CHECK(line >= 0);
         break;
 
       case dex::DBG_START_LOCAL: {
@@ -223,7 +222,7 @@ void CodeIr::DissasembleDebugInfo(const ir::DebugInfo* ir_debug_info) {
         int adjusted_opcode = opcode - dex::DBG_FIRST_SPECIAL;
         line += dex::DBG_LINE_BASE + (adjusted_opcode % dex::DBG_LINE_RANGE);
         address += (adjusted_opcode / dex::DBG_LINE_RANGE);
-        SLICER_WEAK_CHECK(line > 0);
+        SLICER_WEAK_CHECK(line >= 0);
         annotation = Alloc<DbgInfoAnnotation>(dex::DBG_ADVANCE_LINE);
         annotation->operands.push_back(Alloc<LineNumber>(line));
       } break;
@@ -236,14 +235,14 @@ void CodeIr::DissasembleDebugInfo(const ir::DebugInfo* ir_debug_info) {
   }
 }
 
-void CodeIr::DissasembleBytecode(const ir::Code* ir_code) {
+void CodeIr::DisassembleBytecode(const ir::Code* ir_code) {
   const dex::u2* begin = ir_code->instructions.begin();
   const dex::u2* end = ir_code->instructions.end();
   const dex::u2* ptr = begin;
 
   while (ptr < end) {
     auto isize = dex::GetWidthFromBytecode(ptr);
-    SLICER_CHECK(isize > 0);
+    SLICER_CHECK_GT(isize, 0);
 
     dex::u4 offset = ptr - begin;
 
@@ -270,7 +269,7 @@ void CodeIr::DissasembleBytecode(const ir::Code* ir_code) {
     instructions.push_back(instr);
     ptr += isize;
   }
-  SLICER_CHECK(ptr == end);
+  SLICER_CHECK_EQ(ptr, end);
 }
 
 void CodeIr::FixupSwitches() {
@@ -313,7 +312,7 @@ static void MergeInstructions(I_LIST& instructions, const E_LIST& extra) {
   }
 }
 
-void CodeIr::Dissasemble() {
+void CodeIr::Disassemble() {
   nodes_.clear();
   labels_.clear();
 
@@ -329,13 +328,13 @@ void CodeIr::Dissasemble() {
   }
 
   // decode the .dex bytecodes
-  DissasembleBytecode(ir_code);
+  DisassembleBytecode(ir_code);
 
   // try/catch blocks
-  DissasembleTryBlocks(ir_code);
+  DisassembleTryBlocks(ir_code);
 
   // debug information
-  DissasembleDebugInfo(ir_code->debug_info);
+  DisassembleDebugInfo(ir_code->debug_info);
 
   // fixup switches
   FixupSwitches();
@@ -360,9 +359,9 @@ PackedSwitchPayload* CodeIr::DecodePackedSwitch(const dex::u2* /*ptr*/,
   // actual decoding is delayed to FixupPackedSwitch()
   // (since the label offsets are relative to the referring
   //  instruction, not the switch data)
-  SLICER_CHECK(offset % 2 == 0);
+  SLICER_CHECK_EQ(offset % 2, 0);
   auto& instr = packed_switches_[offset].instr;
-  SLICER_CHECK(instr == nullptr);
+  SLICER_CHECK_EQ(instr, nullptr);
   instr = Alloc<PackedSwitchPayload>();
   return instr;
 }
@@ -372,7 +371,7 @@ void CodeIr::FixupPackedSwitch(PackedSwitchPayload* instr, dex::u4 base_offset,
   SLICER_CHECK(instr->targets.empty());
 
   auto dex_packed_switch = reinterpret_cast<const dex::PackedSwitchPayload*>(ptr);
-  SLICER_CHECK(dex_packed_switch->ident == dex::kPackedSwitchSignature);
+  SLICER_CHECK_EQ(dex_packed_switch->ident, dex::kPackedSwitchSignature);
 
   instr->first_key = dex_packed_switch->first_key;
   for (dex::u2 i = 0; i < dex_packed_switch->size; ++i) {
@@ -386,9 +385,9 @@ SparseSwitchPayload* CodeIr::DecodeSparseSwitch(const dex::u2* /*ptr*/,
   // actual decoding is delayed to FixupSparseSwitch()
   // (since the label offsets are relative to the referring
   //  instruction, not the switch data)
-  SLICER_CHECK(offset % 2 == 0);
+  SLICER_CHECK_EQ(offset % 2, 0);
   auto& instr = sparse_switches_[offset].instr;
-  SLICER_CHECK(instr == nullptr);
+  SLICER_CHECK_EQ(instr, nullptr);
   instr = Alloc<SparseSwitchPayload>();
   return instr;
 }
@@ -398,7 +397,7 @@ void CodeIr::FixupSparseSwitch(SparseSwitchPayload* instr, dex::u4 base_offset,
   SLICER_CHECK(instr->switch_cases.empty());
 
   auto dex_sparse_switch = reinterpret_cast<const dex::SparseSwitchPayload*>(ptr);
-  SLICER_CHECK(dex_sparse_switch->ident == dex::kSparseSwitchSignature);
+  SLICER_CHECK_EQ(dex_sparse_switch->ident, dex::kSparseSwitchSignature);
 
   auto& data = dex_sparse_switch->data;
   auto& size = dex_sparse_switch->size;
@@ -413,8 +412,8 @@ void CodeIr::FixupSparseSwitch(SparseSwitchPayload* instr, dex::u4 base_offset,
 
 ArrayData* CodeIr::DecodeArrayData(const dex::u2* ptr, dex::u4 offset) {
   auto dex_array_data = reinterpret_cast<const dex::ArrayData*>(ptr);
-  SLICER_CHECK(dex_array_data->ident == dex::kArrayDataSignature);
-  SLICER_CHECK(offset % 2 == 0);
+  SLICER_CHECK_EQ(dex_array_data->ident, dex::kArrayDataSignature);
+  SLICER_CHECK_EQ(offset % 2, 0);
 
   auto instr = Alloc<ArrayData>();
   instr->data = slicer::MemView(ptr, dex::GetWidthFromBytecode(ptr) * 2);
@@ -422,8 +421,8 @@ ArrayData* CodeIr::DecodeArrayData(const dex::u2* ptr, dex::u4 offset) {
 }
 
 Operand* CodeIr::GetRegA(const dex::Instruction& dex_instr) {
-  auto flags = dex::GetFlagsFromOpcode(dex_instr.opcode);
-  if ((flags & dex::kInstrWideRegA) != 0) {
+  auto verify_flags = dex::GetVerifyFlagsFromOpcode(dex_instr.opcode);
+  if ((verify_flags & dex::kVerifyRegAWide) != 0) {
     return Alloc<VRegPair>(dex_instr.vA);
   } else {
     return Alloc<VReg>(dex_instr.vA);
@@ -431,8 +430,8 @@ Operand* CodeIr::GetRegA(const dex::Instruction& dex_instr) {
 }
 
 Operand* CodeIr::GetRegB(const dex::Instruction& dex_instr) {
-  auto flags = dex::GetFlagsFromOpcode(dex_instr.opcode);
-  if ((flags & dex::kInstrWideRegB) != 0) {
+  auto verify_flags = dex::GetVerifyFlagsFromOpcode(dex_instr.opcode);
+  if ((verify_flags & dex::kVerifyRegBWide) != 0) {
     return Alloc<VRegPair>(dex_instr.vB);
   } else {
     return Alloc<VReg>(dex_instr.vB);
@@ -440,8 +439,8 @@ Operand* CodeIr::GetRegB(const dex::Instruction& dex_instr) {
 }
 
 Operand* CodeIr::GetRegC(const dex::Instruction& dex_instr) {
-  auto flags = dex::GetFlagsFromOpcode(dex_instr.opcode);
-  if ((flags & dex::kInstrWideRegC) != 0) {
+  auto verify_flags = dex::GetVerifyFlagsFromOpcode(dex_instr.opcode);
+  if ((verify_flags & dex::kVerifyRegCWide) != 0) {
     return Alloc<VRegPair>(dex_instr.vC);
   } else {
     return Alloc<VReg>(dex_instr.vC);
@@ -455,39 +454,39 @@ Bytecode* CodeIr::DecodeBytecode(const dex::u2* ptr, dex::u4 offset) {
   instr->opcode = dex_instr.opcode;
 
   auto index_type = dex::GetIndexTypeFromOpcode(dex_instr.opcode);
-
-  switch (dex::GetFormatFromOpcode(dex_instr.opcode)) {
-    case dex::kFmt10x:  // op
+  auto format = dex::GetFormatFromOpcode(dex_instr.opcode);
+  switch (format) {
+    case dex::k10x:  // op
       break;
 
-    case dex::kFmt12x:  // op vA, vB
-    case dex::kFmt22x:  // op vAA, vBBBB
-    case dex::kFmt32x:  // op vAAAA, vBBBB
+    case dex::k12x:  // op vA, vB
+    case dex::k22x:  // op vAA, vBBBB
+    case dex::k32x:  // op vAAAA, vBBBB
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(GetRegB(dex_instr));
       break;
 
-    case dex::kFmt11n:  // op vA, #+B
-    case dex::kFmt21s:  // op vAA, #+BBBB
-    case dex::kFmt31i:  // op vAA, #+BBBBBBBB
+    case dex::k11n:  // op vA, #+B
+    case dex::k21s:  // op vAA, #+BBBB
+    case dex::k31i:  // op vAA, #+BBBBBBBB
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(Alloc<Const32>(dex_instr.vB));
       break;
 
-    case dex::kFmt11x:  // op vAA
+    case dex::k11x:  // op vAA
       instr->operands.push_back(GetRegA(dex_instr));
       break;
 
-    case dex::kFmt10t:  // op +AA
-    case dex::kFmt20t:  // op +AAAA
-    case dex::kFmt30t:  // op +AAAAAAAA
+    case dex::k10t:  // op +AA
+    case dex::k20t:  // op +AAAA
+    case dex::k30t:  // op +AAAAAAAA
     {
       auto label = GetLabel(offset + dex::s4(dex_instr.vA));
       instr->operands.push_back(Alloc<CodeLocation>(label));
     } break;
 
-    case dex::kFmt21t:  // op vAA, +BBBB
-    case dex::kFmt31t:  // op vAA, +BBBBBBBB
+    case dex::k21t:  // op vAA, +BBBB
+    case dex::k31t:  // op vAA, +BBBBBBBB
     {
       dex::u4 targetOffset = offset + dex::s4(dex_instr.vB);
       instr->operands.push_back(GetRegA(dex_instr));
@@ -497,25 +496,25 @@ Bytecode* CodeIr::DecodeBytecode(const dex::u2* ptr, dex::u4 offset) {
       if (dex_instr.opcode == dex::OP_PACKED_SWITCH) {
         label->aligned = true;
         dex::u4& base_offset = packed_switches_[targetOffset].base_offset;
-        SLICER_CHECK(base_offset == kInvalidOffset);
+        SLICER_CHECK_EQ(base_offset, kInvalidOffset);
         base_offset = offset;
       } else if (dex_instr.opcode == dex::OP_SPARSE_SWITCH) {
         label->aligned = true;
         dex::u4& base_offset = sparse_switches_[targetOffset].base_offset;
-        SLICER_CHECK(base_offset == kInvalidOffset);
+        SLICER_CHECK_EQ(base_offset, kInvalidOffset);
         base_offset = offset;
       } else if (dex_instr.opcode == dex::OP_FILL_ARRAY_DATA) {
         label->aligned = true;
       }
     } break;
 
-    case dex::kFmt23x:  // op vAA, vBB, vCC
+    case dex::k23x:  // op vAA, vBB, vCC
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(GetRegB(dex_instr));
       instr->operands.push_back(GetRegC(dex_instr));
       break;
 
-    case dex::kFmt22t:  // op vA, vB, +CCCC
+    case dex::k22t:  // op vA, vB, +CCCC
     {
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(GetRegB(dex_instr));
@@ -523,28 +522,28 @@ Bytecode* CodeIr::DecodeBytecode(const dex::u2* ptr, dex::u4 offset) {
       instr->operands.push_back(Alloc<CodeLocation>(label));
     } break;
 
-    case dex::kFmt22b:  // op vAA, vBB, #+CC
-    case dex::kFmt22s:  // op vA, vB, #+CCCC
+    case dex::k22b:  // op vAA, vBB, #+CC
+    case dex::k22s:  // op vA, vB, #+CCCC
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(GetRegB(dex_instr));
       instr->operands.push_back(Alloc<Const32>(dex_instr.vC));
       break;
 
-    case dex::kFmt22c:  // op vA, vB, thing@CCCC
+    case dex::k22c:  // op vA, vB, thing@CCCC
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(GetRegB(dex_instr));
       instr->operands.push_back(GetIndexedOperand(index_type, dex_instr.vC));
       break;
 
-    case dex::kFmt21c:  // op vAA, thing@BBBB
-    case dex::kFmt31c:  // op vAA, string@BBBBBBBB
+    case dex::k21c:  // op vAA, thing@BBBB
+    case dex::k31c:  // op vAA, string@BBBBBBBB
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(GetIndexedOperand(index_type, dex_instr.vB));
       break;
 
-    case dex::kFmt35c:  // op {vC,vD,vE,vF,vG}, thing@BBBB
+    case dex::k35c:  // op {vC,vD,vE,vF,vG}, thing@BBBB
     {
-      SLICER_CHECK(dex_instr.vA <= 5);
+      SLICER_CHECK_LE(dex_instr.vA, 5);
       auto vreg_list = Alloc<VRegList>();
       for (dex::u4 i = 0; i < dex_instr.vA; ++i) {
         vreg_list->registers.push_back(dex_instr.arg[i]);
@@ -553,14 +552,43 @@ Bytecode* CodeIr::DecodeBytecode(const dex::u2* ptr, dex::u4 offset) {
       instr->operands.push_back(GetIndexedOperand(index_type, dex_instr.vB));
     } break;
 
-    case dex::kFmt3rc:  // op {vCCCC .. v(CCCC+AA-1)}, thing@BBBB
+    case dex::k3rc:  // op {vCCCC .. v(CCCC+AA-1)}, thing@BBBB
     {
       auto vreg_range = Alloc<VRegRange>(dex_instr.vC, dex_instr.vA);
       instr->operands.push_back(vreg_range);
       instr->operands.push_back(GetIndexedOperand(index_type, dex_instr.vB));
     } break;
 
-    case dex::kFmt21h:  // op vAA, #+BBBB0000[00000000]
+    case dex::k45cc: // op {vC, vD, vE, vF, vG}, thing@BBBB, other@HHHH
+    {
+      auto vreg_list = Alloc<VRegList>();
+      SLICER_CHECK_LE(dex_instr.vA, 5);
+      // vC if necessary.
+      if (dex_instr.vA > 1) {
+        vreg_list->registers.push_back(dex_instr.vC);
+      }
+      // Add vD,vE,vF,vG as necessary.
+      for (dex::u4 i = 1; i < dex_instr.vA; ++i) {
+        vreg_list->registers.push_back(dex_instr.arg[i - 1]);
+      }
+      instr->operands.push_back(vreg_list);
+      instr->operands.push_back(GetIndexedOperand(index_type, dex_instr.vB));
+      dex::u4 vH = dex_instr.arg[4];
+      auto proto_operand = GetSecondIndexedOperand(index_type, vH);
+      instr->operands.push_back(proto_operand);
+    } break;
+
+    case dex::k4rcc:  // op {vCCCC .. v(CCCC+AA-1)}, thing@BBBB, other@HHHH
+    {
+      auto vreg_range = Alloc<VRegRange>(dex_instr.vC, dex_instr.vA);
+      instr->operands.push_back(vreg_range);
+      instr->operands.push_back(GetIndexedOperand(index_type, dex_instr.vB));
+      dex::u4 vH = dex_instr.arg[4];
+      auto proto_operand = GetSecondIndexedOperand(index_type, vH);
+      instr->operands.push_back(proto_operand);
+    } break;
+
+    case dex::k21h:  // op vAA, #+BBBB0000[00000000]
       switch (dex_instr.opcode) {
         case dex::OP_CONST_HIGH16:
           instr->operands.push_back(GetRegA(dex_instr));
@@ -572,18 +600,24 @@ Bytecode* CodeIr::DecodeBytecode(const dex::u2* ptr, dex::u4 offset) {
           instr->operands.push_back(Alloc<Const64>(dex::u8(dex_instr.vB) << 48));
           break;
 
-        default:
-          SLICER_FATAL("Unexpected opcode 0x%02x", dex_instr.opcode);
+        default: {
+          std::stringstream ss;
+          ss << "Unexpected opcode: " << dex_instr.opcode;
+          SLICER_FATAL(ss.str());
+        }
       }
       break;
 
-    case dex::kFmt51l:  // op vAA, #+BBBBBBBBBBBBBBBB
+    case dex::k51l:  // op vAA, #+BBBBBBBBBBBBBBBB
       instr->operands.push_back(GetRegA(dex_instr));
       instr->operands.push_back(Alloc<Const64>(dex_instr.vB_wide));
       break;
 
-    default:
-      SLICER_FATAL("Unexpected bytecode format (opcode 0x%02x)", dex_instr.opcode);
+    default: {
+      std::stringstream ss;
+      ss << "Unexpected bytecode format " << format << " for opcode " << dex_instr.opcode;
+      SLICER_FATAL(ss.str());
+    }
   }
 
   return instr;
@@ -593,7 +627,7 @@ Bytecode* CodeIr::DecodeBytecode(const dex::u2* ptr, dex::u4 offset) {
 // (index must be valid != kNoIndex)
 IndexedOperand* CodeIr::GetIndexedOperand(dex::InstructionIndexType index_type,
                                           dex::u4 index) {
-  SLICER_CHECK(index != dex::kNoIndex);
+  SLICER_CHECK_NE(index, dex::kNoIndex);
   switch (index_type) {
     case dex::kIndexStringRef:
       return Alloc<String>(dex_ir->strings_map[index], index);
@@ -605,11 +639,26 @@ IndexedOperand* CodeIr::GetIndexedOperand(dex::InstructionIndexType index_type,
       return Alloc<Field>(dex_ir->fields_map[index], index);
 
     case dex::kIndexMethodRef:
+    case dex::kIndexMethodAndProtoRef:
       return Alloc<Method>(dex_ir->methods_map[index], index);
 
+    case dex::kIndexMethodHandleRef:
+      return Alloc<MethodHandle>(dex_ir->method_handles_map[index], index);
+
     default:
-      SLICER_FATAL("Unexpected index type 0x%02x", index_type);
+      std::stringstream ss;
+      ss << "Unexpected index type 0x";
+      ss << std::hex << std::setfill('0') << std::setw(2) << index_type;
+      SLICER_FATAL(ss.str());
   }
+}
+
+// Get the second indexed object (if any).
+IndexedOperand* CodeIr::GetSecondIndexedOperand(dex::InstructionIndexType index_type,
+                                                dex::u4 index) {
+  SLICER_CHECK_NE(index, dex::kNoIndex);
+  SLICER_CHECK_EQ(index_type, dex::kIndexMethodAndProtoRef);
+  return Alloc<Proto>(dex_ir->protos_map[index], index);
 }
 
 // Get a type based on its index (potentially kNoIndex)

@@ -39,7 +39,7 @@ class ArrayView {
   T* data() const { return begin_; }
 
   T& operator[](size_t i) const {
-    SLICER_CHECK(i < size());
+    SLICER_CHECK_LT(i, size());
     return *(begin_ + i);
   }
 

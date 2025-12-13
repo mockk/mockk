@@ -101,6 +101,7 @@ constexpr u2 kProtoIdItem               = 0x0003;
 constexpr u2 kFieldIdItem               = 0x0004;
 constexpr u2 kMethodIdItem              = 0x0005;
 constexpr u2 kClassDefItem              = 0x0006;
+constexpr u2 kMethodHandleItem          = 0x0008;
 constexpr u2 kMapList                   = 0x1000;
 constexpr u2 kTypeList                  = 0x1001;
 constexpr u2 kAnnotationSetRefList      = 0x1002;
@@ -126,12 +127,54 @@ constexpr u1 DBG_SET_EPILOGUE_BEGIN     = 0x08;
 constexpr u1 DBG_SET_FILE               = 0x09;
 constexpr u1 DBG_FIRST_SPECIAL          = 0x0a;
 
+
+// method handle type
+constexpr u1 METHOD_HANDLE_TYPE_STATIC_PUT = 0x00;
+constexpr u1 METHOD_HANDLE_TYPE_STATIC_GET = 0x01;
+constexpr u1 METHOD_HANDLE_TYPE_INSTANCE_PUT = 0x02;
+constexpr u1 METHOD_HANDLE_TYPE_INSTANCE_GET = 0x03;
+constexpr u1 METHOD_HANDLE_TYPE_INVOKE_STATIC = 0x04;
+constexpr u1 METHOD_HANDLE_TYPE_INVOKE_INSTANCE = 0x05;
+constexpr u1 METHOD_HANDLE_TYPE_INVOKE_CONSTRUCTOR = 0x06;
+constexpr u1 METHOD_HANDLE_TYPE_INVOKE_DIRECT = 0x07;
+constexpr u1 METHOD_HANDLE_TYPE_INVOKE_INTERFACE = 0x08;
+
 // special debug info values
 constexpr int DBG_LINE_BASE = -4;
 constexpr int DBG_LINE_RANGE = 15;
 
 // "header_item"
 struct Header {
+  static constexpr size_t kV40Size = 0x70;  // Same as all previous dex versions.
+  static constexpr size_t kV41Size = 0x78;  // Added container_{size,off} fields.
+                                            // See http://go/dex-container-format
+  static constexpr size_t kMaxSize = kV41Size;
+
+  static constexpr u4 kV41 = 41;
+  static constexpr u4 kMinVersion = 35;  // Minimum supported dex version.
+  static constexpr u4 kMaxVersion = 41;  // Maximum supported dex version.
+
+  // Parse magic number and extract the version integer. E.g.: `dex\n123\0` returns `123`.
+  // Returns 0 upon failure.
+  static u4 GetVersion(const void* magic);
+
+  u4 GetVersion() const {
+    return GetVersion(magic);
+  }
+
+  u4 ContainerSize() const {
+    return header_size >= kV41Size ? container_size : file_size;
+  }
+
+  u4 ContainerOff() const {
+    return header_size >= kV41Size ? container_off : 0;
+  }
+
+  void SetContainer(u4 off, u4 size) {
+    container_off = off;
+    container_size = size;
+  }
+
   u1 magic[8];
   u4 checksum;
   u1 signature[kSHA1DigestLen];
@@ -155,6 +198,10 @@ struct Header {
   u4 class_defs_off;
   u4 data_size;
   u4 data_off;
+
+ private:
+  u4 container_size;
+  u4 container_off;
 };
 
 // "map_item"
@@ -212,6 +259,14 @@ struct ClassDef {
   u4 annotations_off;
   u4 class_data_off;
   u4 static_values_off;
+};
+
+// "method_handle_item"
+struct MethodHandle {
+  u2 method_handle_type;
+  u2 unused;
+  u2 field_or_method_id;
+  u2 unused2;
 };
 
 // "type_item"

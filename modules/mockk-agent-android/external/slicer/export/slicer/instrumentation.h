@@ -22,9 +22,9 @@
 #include "dex_ir_builder.h"
 
 #include <memory>
-#include <vector>
-#include <utility>
 #include <set>
+#include <utility>
+#include <vector>
 
 namespace slicer {
 
@@ -40,23 +40,42 @@ class Transformation {
 // an explicit "this" argument for non-static methods.
 class EntryHook : public Transformation {
  public:
-  explicit EntryHook(
-      const ir::MethodId& hook_method_id,
-      bool use_object_type_for_this_argument = false)
-      : hook_method_id_(hook_method_id),
-        use_object_type_for_this_argument_(use_object_type_for_this_argument) {
+  enum class Tweak {
+    None,
+    // Expose the "this" argument of non-static methods as the "Object" type.
+    // This can be helpful when the code you want to handle the hook doesn't
+    // have access to the actual type in its classpath.
+    ThisAsObject,
+    // Forward incoming arguments as an array. Zero-th element of the array is
+    // the method signature. First element of the array is
+    // "this" object if instrumented method isn't static.
+    // It is helpul, when you inject the same hook into the different
+    // methods.
+    ArrayParams,
+  };
+
+  explicit EntryHook(const ir::MethodId& hook_method_id, Tweak tweak)
+      : hook_method_id_(hook_method_id), tweak_(tweak) {
     // hook method signature is generated automatically
-    SLICER_CHECK(hook_method_id_.signature == nullptr);
+    SLICER_CHECK_EQ(hook_method_id_.signature, nullptr);
   }
+
+  // TODO: Delete this legacy constrcutor.
+  // It is left in temporarily so we can move callers away from it to the new
+  // `tweak` constructor.
+  explicit EntryHook(const ir::MethodId& hook_method_id,
+                     bool use_object_type_for_this_argument = false)
+      : EntryHook(hook_method_id, use_object_type_for_this_argument
+                                      ? Tweak::ThisAsObject
+                                      : Tweak::None) {}
 
   virtual bool Apply(lir::CodeIr* code_ir) override;
 
  private:
   ir::MethodId hook_method_id_;
-  // If true, "this" argument of non-static methods is forwarded as Object type.
-  // For example "this" argument of OkHttpClient type is forwared as Object and
-  // is used to get OkHttp class loader.
-  bool use_object_type_for_this_argument_;
+  Tweak tweak_;
+
+  bool InjectArrayParamsHook(lir::CodeIr* code_ir, lir::Bytecode* bytecode);
 };
 
 // Insert a call to the "exit hook" method before every return
@@ -64,35 +83,86 @@ class EntryHook : public Transformation {
 // original return value and it may return a new return value.
 class ExitHook : public Transformation {
  public:
-  explicit ExitHook(const ir::MethodId& hook_method_id) : hook_method_id_(hook_method_id) {
+  enum class Tweak {
+    None = 0,
+    // return value will be passed as "Object" type.
+    // This can be helpful when the code you want to handle the hook doesn't
+    // have access to the actual type in its classpath or when you want to inject
+    // the same hook in multiple methods.
+    ReturnAsObject = 1 << 0,
+    // Pass method signature as the first parameter of the hook method.
+    PassMethodSignature = 1 << 1,
+  };
+
+   explicit ExitHook(const ir::MethodId& hook_method_id, Tweak tweak)
+      : hook_method_id_(hook_method_id), tweak_(tweak) {
     // hook method signature is generated automatically
-    SLICER_CHECK(hook_method_id_.signature == nullptr);
+    SLICER_CHECK_EQ(hook_method_id_.signature, nullptr);
   }
+
+  explicit ExitHook(const ir::MethodId& hook_method_id) : ExitHook(hook_method_id, Tweak::None) {}
 
   virtual bool Apply(lir::CodeIr* code_ir) override;
 
  private:
   ir::MethodId hook_method_id_;
+  Tweak tweak_;
 };
 
-// Replace every invoke-virtual[/range] to the a specified method with
-// a invoke-static[/range] to the detour method. The detour is a static
-// method which takes the same arguments as the original method plus
-// an explicit "this" argument, and returns the same type as the original method
-class DetourVirtualInvoke : public Transformation {
+inline ExitHook::Tweak operator|(ExitHook::Tweak a, ExitHook::Tweak b) {
+  return static_cast<ExitHook::Tweak>(static_cast<int>(a) | static_cast<int>(b));
+}
+
+inline int operator&(ExitHook::Tweak a, ExitHook::Tweak b) {
+  return static_cast<int>(a) & static_cast<int>(b);
+}
+
+// Base class for detour hooks. Replace every occurrence of specific opcode with
+// something else. The detour is a static method which takes the same arguments
+// as the original method plus an explicit "this" argument and returns the same
+// type as the original method. Derived classes must implement GetNewOpcode.
+class DetourHook : public Transformation {
  public:
-  DetourVirtualInvoke(const ir::MethodId& orig_method_id, const ir::MethodId& detour_method_id)
-    : orig_method_id_(orig_method_id), detour_method_id_(detour_method_id) {
+  DetourHook(const ir::MethodId& orig_method_id,
+             const ir::MethodId& detour_method_id)
+      : orig_method_id_(orig_method_id), detour_method_id_(detour_method_id) {
     // detour method signature is automatically created
     // to match the original method and must not be explicitly specified
-    SLICER_CHECK(detour_method_id_.signature == nullptr);
+    SLICER_CHECK_EQ(detour_method_id_.signature, nullptr);
   }
 
   virtual bool Apply(lir::CodeIr* code_ir) override;
 
- private:
+ protected:
   ir::MethodId orig_method_id_;
   ir::MethodId detour_method_id_;
+
+  // Returns a new opcode to replace the desired opcode or OP_NOP otherwise.
+  virtual dex::Opcode GetNewOpcode(dex::Opcode opcode) = 0;
+};
+
+// Replace every invoke-virtual[/range] to the a specified method with
+// a invoke-static[/range] to the detour method.
+class DetourVirtualInvoke : public DetourHook {
+ public:
+  DetourVirtualInvoke(const ir::MethodId& orig_method_id,
+                      const ir::MethodId& detour_method_id)
+      : DetourHook(orig_method_id, detour_method_id) {}
+
+ protected:
+  virtual dex::Opcode GetNewOpcode(dex::Opcode opcode) override;
+};
+
+// Replace every invoke-interface[/range] to the a specified method with
+// a invoke-static[/range] to the detour method.
+class DetourInterfaceInvoke : public DetourHook {
+ public:
+  DetourInterfaceInvoke(const ir::MethodId& orig_method_id,
+                        const ir::MethodId& detour_method_id)
+      : DetourHook(orig_method_id, detour_method_id) {}
+
+ protected:
+  virtual dex::Opcode GetNewOpcode(dex::Opcode opcode) override;
 };
 
 // Allocates scratch registers without doing a full register allocation
@@ -100,13 +170,13 @@ class AllocateScratchRegs : public Transformation {
  public:
   explicit AllocateScratchRegs(int allocate_count, bool allow_renumbering = true)
     : allocate_count_(allocate_count), allow_renumbering_(allow_renumbering) {
-    SLICER_CHECK(allocate_count > 0);
+    SLICER_CHECK_GT(allocate_count, 0);
   }
 
   virtual bool Apply(lir::CodeIr* code_ir) override;
 
   const std::set<dex::u4>& ScratchRegs() const {
-    SLICER_CHECK(scratch_regs_.size() == static_cast<size_t>(allocate_count_));
+    SLICER_CHECK_EQ(scratch_regs_.size(), static_cast<size_t>(allocate_count_));
     return scratch_regs_;
   }
 

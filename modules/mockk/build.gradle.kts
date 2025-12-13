@@ -40,13 +40,16 @@ kotlin {
                 compileOnly(Deps.Libs.slfj)
 
                 compileOnly(Deps.Libs.junit4)
-                compileOnly(Deps.Libs.junitJupiter)
+                compileOnly(dependencies.platform(Deps.Libs.junitBom))
+                compileOnly("org.junit.jupiter:junit-jupiter")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(Deps.Libs.junitJupiter)
                 implementation(Deps.Libs.junit4)
+                implementation(dependencies.platform(Deps.Libs.junitBom))
+                implementation("org.junit.jupiter:junit-jupiter")
+                runtimeOnly("org.junit.platform:junit-platform-launcher")
             }
         }
     }

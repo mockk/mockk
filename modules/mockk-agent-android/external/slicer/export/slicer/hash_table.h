@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include <vector>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace slicer {
 
@@ -124,7 +124,7 @@ HashTable<Key, T, Hash>::Partition::Partition(Index size, const Hash& hasher)
 //
 template<class Key, class T, class Hash>
 bool HashTable<Key, T, Hash>::Partition::Insert(T* value) {
-  SLICER_CHECK(value != nullptr);
+  SLICER_CHECK_NE(value, nullptr);
   // overflow?
   if (buckets_.size() + 1 > buckets_.capacity()) {
     return false;
@@ -211,7 +211,7 @@ void HashTable<Key, T, Hash>::Partition::PrintStats(const char* name, bool verbo
       ++used_buckets;
       int chain_length = 0;
       for (Index ci = i; buckets_[ci].next != kInvalidIndex; ci = buckets_[ci].next) {
-        SLICER_CHECK(buckets_[ci].value != nullptr);
+        SLICER_CHECK_NE(buckets_[ci].value, nullptr);
         ++chain_length;
         if (verbose) printf("*");
       }

@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "common.h"
 #include "code_ir.h"
+#include "common.h"
 
 #include <vector>
 

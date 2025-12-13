@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "common.h"
-#include "buffer.h"
 #include "arrayview.h"
+#include "buffer.h"
+#include "common.h"
 #include "dex_format.h"
 #include "dex_ir.h"
 
@@ -32,25 +32,25 @@ namespace dex {
 // (tracking the section offset, section type, ...)
 class Section : public slicer::Buffer {
  public:
-  Section(dex::u2 mapEntryType) : map_entry_type_(mapEntryType) {}
+  explicit Section(dex::u2 mapEntryType) : map_entry_type_(mapEntryType) {}
   ~Section() = default;
 
   Section(const Section&) = delete;
   Section& operator=(const Section&) = delete;
 
   void SetOffset(dex::u4 offset) {
-    SLICER_CHECK(offset > 0 && offset % 4 == 0);
+    SLICER_CHECK_EQ(offset > 0 && offset % 4, 0);
     offset_ = offset;
   }
 
   dex::u4 SectionOffset() const {
-    SLICER_CHECK(offset_ > 0 && offset_ % 4 == 0);
+    SLICER_CHECK_EQ(offset_ > 0 && offset_ % 4, 0);
     return ItemsCount() > 0 ? offset_ : 0;
   }
 
   dex::u4 AbsoluteOffset(dex::u4 itemOffset) const {
-    SLICER_CHECK(offset_ > 0);
-    SLICER_CHECK(itemOffset < size());
+    SLICER_CHECK_GT(offset_, 0);
+    SLICER_CHECK_LT(itemOffset, size());
     return offset_ + itemOffset;
   }
 
@@ -76,7 +76,7 @@ class Section : public slicer::Buffer {
 template <class T>
 class Index {
  public:
-  Index(dex::u2 mapEntryType) : map_entry_type_(mapEntryType) {}
+  explicit Index(dex::u2 mapEntryType) : map_entry_type_(mapEntryType) {}
   ~Index() = default;
 
   Index(const Index&) = delete;
@@ -96,7 +96,7 @@ class Index {
   }
 
   dex::u4 SectionOffset() const {
-    SLICER_CHECK(offset_ > 0 && offset_ % 4 == 0);
+    SLICER_CHECK_EQ(offset_ > 0 && offset_ % 4, 0);
     return ItemsCount() > 0 ? offset_ : 0;
   }
 
@@ -110,7 +110,7 @@ class Index {
   dex::u4 size() const { return count_ * sizeof(T); }
 
   T& operator[](int i) {
-    SLICER_CHECK(i >= 0 && i < count_);
+    SLICER_CHECK_GE(i, 0 && i < count_);
     return values_[i];
   }
 
@@ -135,6 +135,7 @@ class Writer {
           field_ids(dex::kFieldIdItem),
           method_ids(dex::kMethodIdItem),
           class_defs(dex::kClassDefItem),
+          method_handles(dex::kMethodHandleItem),
           string_data(dex::kStringDataItem),
           type_lists(dex::kTypeList),
           debug_info(dex::kDebugInfoItem),
@@ -153,6 +154,7 @@ class Writer {
     Index<dex::FieldId> field_ids;
     Index<dex::MethodId> method_ids;
     Index<dex::ClassDef> class_defs;
+    Index<dex::MethodHandle> method_handles;
 
     Section string_data;
     Section type_lists;
@@ -176,7 +178,7 @@ class Writer {
   };
 
  public:
-  Writer(std::shared_ptr<ir::DexFile> dex_ir) : dex_ir_(dex_ir) {}
+  explicit Writer(std::shared_ptr<ir::DexFile> dex_ir) : dex_ir_(dex_ir) {}
   ~Writer() = default;
 
   Writer(const Writer&) = delete;
@@ -205,6 +207,7 @@ class Writer {
   void FillFields();
   void FillMethods();
   void FillClassDefs();
+  void FillMethodHandles();
 
   // helpers for writing .dex structures
   dex::u4 WriteTypeList(const std::vector<ir::Type*>& types);
@@ -223,6 +226,8 @@ class Writer {
   dex::u4 MapTypeIndex(dex::u4 index) const;
   dex::u4 MapFieldIndex(dex::u4 index) const;
   dex::u4 MapMethodIndex(dex::u4 index) const;
+  dex::u4 MapProtoIndex(dex::u4 index) const;
+  dex::u4 MapMethodHandleIndex(dex::u4 index) const;
 
   // writing parts of a class definition
   void WriteInstructions(slicer::ArrayView<const dex::u2> instructions);

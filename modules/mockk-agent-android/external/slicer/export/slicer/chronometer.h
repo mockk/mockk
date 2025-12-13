@@ -26,7 +26,7 @@ class Chronometer {
 
  public:
   // elapsed time is in milliseconds
-  Chronometer(double& elapsed, bool cumulative = false) :
+  explicit Chronometer(double& elapsed, bool cumulative = false) :
               elapsed_(elapsed), cumulative_(cumulative) {
     start_time_ = Clock::now();
   }
