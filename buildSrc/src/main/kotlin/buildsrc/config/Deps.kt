@@ -16,7 +16,7 @@ object Deps {
         const val coroutines = "1.10.1"
         const val slfj = "2.0.17"
         const val logback = "1.5.18"
-        const val junitJupiter = "5.12.2"
+        const val junitJupiter = "5.14.1"
         const val junit4 = "4.13.2"
 
         const val byteBuddy = "1.18.2"
@@ -38,7 +38,7 @@ object Deps {
         const val logback = "ch.qos.logback:logback-classic:${Versions.logback}"
 
         const val junit4 = "junit:junit:${Versions.junit4}"
-        const val junitJupiter = "org.junit.jupiter:junit-jupiter:${Versions.junitJupiter}"
+        const val junitBom = "org.junit:junit-bom:${Versions.junitJupiter}"
 
         const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
         const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
