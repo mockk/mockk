@@ -29,7 +29,9 @@ object Deps {
 
         const val compileSdk = 34
         const val targetSdk = 34
-        const val minSdk = 21 // for static mocking is minSdk 28
+        const val minSdk = 21
+        // SDK 26+: Open classes, abstract classes, subclass proxies
+        // SDK 28+: Final classes/methods, static mocking
     }
 
     object Libs {
