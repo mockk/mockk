@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 17, 19, 21, 25 ] # test LTS versions, and the newest
+        java-version: [ 17, 21, 25 ] # test LTS versions and maybe latest feature release
         kotlin-version: [ 1.5.32, 1.7.22, 1.9.25, 2.0.21, 2.2.21 ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
     name: "Check [java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [ 28, 30, 36 ] # Relevant SDK versions to test for MockK Android projects
+        api-level: [ 21, 26, 28, 34, 36 ] # Relevant SDK versions to test for MockK Android projects
       fail-fast: false # in case one API-level fails, we still want to see results from others
     name: "ConnectedCheck [api=${{ matrix.api-level }}]"
     timeout-minutes: 30
