@@ -11,7 +11,6 @@ object Deps {
     object Versions {
         val jvmTarget = JavaVersion.VERSION_1_8
 
-        const val dokka = "2.0.0"
         const val kotlinDefault = "2.1.20"
         const val coroutines = "1.10.1"
         const val slfj = "2.0.17"
@@ -30,7 +29,7 @@ object Deps {
 
         const val compileSdk = 34
         const val targetSdk = 34
-        const val minSdk = 28
+        const val minSdk = 21 // for static mocking is minSdk 28
     }
 
     object Libs {

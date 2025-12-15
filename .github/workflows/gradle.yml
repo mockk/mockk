@@ -87,6 +87,29 @@ jobs:
             echo "ARCH=x86_64" >> $GITHUB_ENV
           fi
 
+      # AVD Cache is disabled until issue github.com/ReactiveCircus/android-emulator-runner/issues/362 is resolved
+
+#      - name: AVD cache
+#        uses: actions/cache@v4
+#        id: avd-cache
+#        with:
+#          path: |
+#            ~/.android/avd/*
+#            ~/.android/adb*
+#          key: avd-${{ matrix.api-level }}-${{ env.TARGET }}
+#
+#      - name: create AVD and generate snapshot for caching
+#        if: steps.avd-cache.outputs.cache-hit != 'true'
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: ${{ matrix.api-level }}
+#          target: ${{ env.TARGET }}
+#          arch: ${{ env.ARCH }}
+#          force-avd-creation: false
+#          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+#          disable-animations: false
+#          script: echo "Generated AVD snapshot for caching."
+
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
