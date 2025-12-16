@@ -1,14 +1,14 @@
-name: All tests
+name: Gradle Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
     branches: [ master ]
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -16,22 +16,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 17, 19, 21 ] # test LTS versions, and the newest
-        kotlin-version: [ 1.5.31, 1.6.21, 1.7.22, 1.8.20, 1.9.10, 2.0.0, 2.1.0 ]
+        java-version: [ 17, 21, 25 ] # test LTS versions and maybe latest feature release
+        kotlin-version: [ 1.5.32, 1.7.22, 1.9.25, 2.0.21, 2.2.21 ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
-    name: "[java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
+    name: "Check [java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Set up JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Run tests with Gradle
         run: >
@@ -40,25 +40,24 @@ jobs:
           -Pio_mockk_kotlin_version=${{ matrix.kotlin-version }}
           -Pio_mockk_java_toolchain_test_version=${{ matrix.java-version }}
 
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
-        if: always()
+      - name: Junit Test Report
+        uses: mikepenz/action-junit-report@v6
+        if: success() || failure() # always run even if the previous step fails
         with:
-          require_tests: false
+          check_name: "Check JUnit Report [java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
           report_paths: '**/build/test-results/**/TEST-*.xml'
-
 
   android-instrumented-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [ 30 ] # Relevant SDK versions to test for MockK Android projects
+        api-level: [ 21, 26, 28, 34, 36 ] # Relevant SDK versions to test for MockK Android projects
       fail-fast: false # in case one API-level fails, we still want to see results from others
-    name: "[api-level=${{ matrix.api-level }}]"
+    name: "ConnectedCheck [api=${{ matrix.api-level }}]"
     timeout-minutes: 30
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Enable KVM
         run: |
@@ -66,52 +65,65 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v5
         with:
-          distribution: temurin
-          java-version: 17
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v5
 
-      - name: Set AVD Architecture Based on API Level
-        run: echo "ARCH=$(if [ ${{ matrix.api-level }} -eq 27 ]; then echo 'x86'; else echo 'x86_64'; fi)" >> $GITHUB_ENV
+      - name: Set target and architecture based on API level
+        run: |
+          if [ ${{ matrix.api-level }} -le 29 ]; then
+            echo "TARGET=default" >> $GITHUB_ENV
+          else
+            echo "TARGET=google_apis" >> $GITHUB_ENV
+          fi
+          
+          if [ ${{ matrix.api-level }} -le 30 ]; then
+            echo "ARCH=x86" >> $GITHUB_ENV
+          else
+            echo "ARCH=x86_64" >> $GITHUB_ENV
+          fi
 
-      - name: AVD cache
-        uses: actions/cache@v4
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: ${{ runner.os }}-avd-${{ matrix.api-level }}
+      # AVD Cache is disabled until issue github.com/ReactiveCircus/android-emulator-runner/issues/362 is resolved
 
-      - name: create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          arch: ${{ env.ARCH }}
-          api-level: ${{ matrix.api-level }}
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
-          script: echo "Generated AVD snapshot for caching."
-          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+#      - name: AVD cache
+#        uses: actions/cache@v4
+#        id: avd-cache
+#        with:
+#          path: |
+#            ~/.android/avd/*
+#            ~/.android/adb*
+#          key: avd-${{ matrix.api-level }}-${{ env.TARGET }}
+#
+#      - name: create AVD and generate snapshot for caching
+#        if: steps.avd-cache.outputs.cache-hit != 'true'
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: ${{ matrix.api-level }}
+#          target: ${{ env.TARGET }}
+#          arch: ${{ env.ARCH }}
+#          force-avd-creation: false
+#          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+#          disable-animations: false
+#          script: echo "Generated AVD snapshot for caching."
 
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          arch: ${{ env.ARCH }}
           api-level: ${{ matrix.api-level }}
-          script: ./gradlew connectedCheck
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          target: ${{ env.TARGET }}
+          arch: ${{ env.ARCH }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+          script: ./gradlew connectedCheck
 
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
-        if: always()
+      - name: Junit Test Report
+        uses: mikepenz/action-junit-report@v6
+        if: success() || failure() # always run even if the previous step fails
         with:
-          require_tests: false
-          report_paths: '**/build/test-results/**/TEST-*.xml'
-          emulator-build: 7425822  # workaround for emulator bug: https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+          check_name: "ConnectedCheck JUnit Report [api=${{ matrix.api-level }}]"
+          report_paths: "**/build/outputs/androidTest-results/**/TEST-*.xml"

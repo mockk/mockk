@@ -1,9 +1,13 @@
 package io.mockk.proxy.android;
 
 import io.mockk.proxy.*;
+import io.mockk.proxy.android.test.MinSdk;
+import io.mockk.proxy.android.test.MinSdkRule;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -20,6 +24,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 @SuppressWarnings("Duplicates")
 @RunWith(AndroidJUnit4.class)
 public class AndroidMockKProxyMakerTest {
+    @Rule
+    public MinSdkRule minSdkRule = new MinSdkRule();
 
     static boolean[] executed = new boolean[10];
     ListAppendingHandler handler;
@@ -54,6 +60,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(26) // Basic proxy/subclass creation requires SDK 26+
     public void openClassProxy() throws Exception {
         A proxy = makeProxy(A.class);
 
@@ -64,6 +71,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(28)
     public void openClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
         A proxy = makeProxy(A.class);
@@ -81,6 +89,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(28)
     public void finalClassProxy() throws Exception {
         B proxy = makeProxy(B.class);
 
@@ -91,6 +100,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(28)
     public void finalClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
         B proxy = makeProxy(B.class);
@@ -120,6 +130,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(26) // Basic proxy/subclass creation requires SDK 26+
     public void abstractClassProxy() throws Exception {
         D proxy = makeProxy(D.class);
 
@@ -137,6 +148,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(26) // Basic proxy/subclass creation requires SDK 26+
     public void openSubClassProxy1() throws Exception {
         E1 proxy = makeProxy(E1.class);
 
@@ -148,6 +160,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(28)
     public void openSubClassCallOriginalProxy1() throws Exception {
         handler.callOriginal = true;
         E1 proxy = makeProxy(E1.class);
@@ -166,6 +179,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(26) // Basic proxy/subclass creation requires SDK 26+
     public void openSubClassProxy2() throws Exception {
         E2 proxy = makeProxy(E2.class);
 
@@ -177,6 +191,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(28)
     public void openSubClassCallOriginalProxy2() throws Exception {
         handler.callOriginal = true;
         E2 proxy = makeProxy(E2.class);
@@ -200,6 +215,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(26) // Basic proxy/subclass creation requires SDK 26+
     public void openSubClassProxy3() throws Exception {
         E3 proxy = makeProxy(E3.class);
 
@@ -212,6 +228,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(28)
     public void openSubClassCallOriginalProxy3() throws Exception {
         handler.callOriginal = true;
         E3 proxy = makeProxy(E3.class);
@@ -248,7 +265,8 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
-    public void openComplexSubClassProxy() throws Exception {
+    @MinSdk(26) // Basic proxy/subclass creation requires SDK 26+
+    public void openComplexSubClassProxy() {
         G proxy = makeProxy(G.class);
 
         proxy.a();
@@ -262,6 +280,7 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
+    @MinSdk(28)
     public void openComplexSubClassCallOriginalProxy() throws Exception {
         handler.callOriginal = true;
         G proxy = makeProxy(G.class);
@@ -300,7 +319,8 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
-    public void finalComplexSubClassProxy() throws Exception {
+    @MinSdk(28)
+    public void finalComplexSubClassProxy() {
         G1 proxy = makeProxy(G1.class);
 
         proxy.a();
@@ -314,7 +334,8 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
-    public void finalComplexSubClassCallOriginalProxy() throws Exception {
+    @MinSdk(28)
+    public void finalComplexSubClassCallOriginalProxy() {
         handler.callOriginal = true;
         G1 proxy = makeProxy(G1.class);
 
@@ -335,7 +356,8 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
-    public void staticProxy() throws Exception {
+    @MinSdk(28)
+    public void staticProxy() {
         staticMaker.staticProxy(H.class, handler);
 
         H.a();
@@ -345,7 +367,8 @@ public class AndroidMockKProxyMakerTest {
     }
 
     @Test
-    public void staticCallOriginalProxy() throws Exception {
+    @MinSdk(28)
+    public void staticCallOriginalProxy() {
         handler.callOriginal = true;
         staticMaker.staticProxy(H.class, handler);
 

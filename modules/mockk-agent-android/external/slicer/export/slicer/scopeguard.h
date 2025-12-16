@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <utility>
+
 namespace slicer {
 
 // A simple and lightweight scope guard and macro
