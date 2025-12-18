@@ -4,6 +4,7 @@ import io.mockk.*
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
 import io.mockk.core.ValueClassSupport.boxedClass
+import io.mockk.core.ValueClassSupport.innermostBoxedClass
 import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -176,9 +177,9 @@ object JvmMockFactoryHelper {
             is KClass<*> -> kotlinReturnType
             else -> returnType.kotlin
         }
-        // For nullable value classes, we should NOT call boxedClass as they are not inlined in JVM bytecode
-        // This prevents infinite loops in value class type resolution (issue #1103)
-        val returnType: KClass<*> = if (!returnTypeNullable) returnTypeClass.boxedClass else returnTypeClass
+        // Use innermostBoxedClass for all value classes (nullable or not) to handle nested value classes
+        // while preventing infinite recursion (issues #1103, #1308, #1475)
+        val returnType: KClass<*> = returnTypeClass.innermostBoxedClass()
 
         val androidCompatibleReturnType = if (returnType.qualifiedName in androidUnsupportedTypes) {
             this@toDescription.returnType.kotlin

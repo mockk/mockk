@@ -109,7 +109,7 @@ actual object ValueClassSupport {
      *
      * @param maxDepth Maximum recursion depth (default 10)
      */
-    private fun KClass<*>.innermostBoxedClass(maxDepth: Int = 10): KClass<*> {
+    fun KClass<*>.innermostBoxedClass(maxDepth: Int = 10): KClass<*> {
         if (maxDepth <= 0 || !this.isValue_safe) {
             return this
         }
