@@ -742,6 +742,39 @@ class ValueClassTest {
         }
     }
 
+    /** https://github.com/mockk/mockk/issues/1103 */
+    @Test
+    fun `nullable non-primitive value class does not hang or cause OutOfMemoryError when returning value`() {
+        assertTimeoutPreemptively(Duration.ofSeconds(3)) {
+            val mock = mockk<NonPrimitiveClassProvider> {
+                every { provideTestClass() } returns NonPrimitiveValueTestClass("4")
+            }
+            assertEquals(NonPrimitiveValueTestClass("4"), mock.provideTestClass())
+        }
+    }
+
+    /** https://github.com/mockk/mockk/issues/1103 */
+    @Test
+    fun `nullable non-primitive value class does not hang or cause OutOfMemoryError when return null`() {
+        assertTimeoutPreemptively(Duration.ofSeconds(3)) {
+            val mock = mockk<NonPrimitiveClassProvider> {
+                every { provideTestClass() } returns null
+            }
+            assertNull(mock.provideTestClass())
+        }
+    }
+
+    /** https://github.com/mockk/mockk/issues/1475 */
+    @Test
+    fun `nullable value class verification with exact value - similar to nishatoma example`() {
+        val mock = mockk<ValueClassWithOptionalReturn>()
+        every { mock.something(any()) } returns ValueClassId("bar")
+
+        mock.something(ValueClassId("foo"))
+
+        verify { mock.something(ValueClassId("foo")) }
+    }
+
     @Test
     fun `spy class returning value class not boxed due to cast to another type`() {
         val f = spyk<DummyService>()
@@ -852,6 +885,22 @@ class ValueClassTest {
 
         interface ClassProvider {
             fun provideTestClass(): ValueTestClass?
+        }
+
+        // Test case for nullable non-primitive value class
+        @JvmInline
+        value class NonPrimitiveValueTestClass(val string: String)
+
+        interface NonPrimitiveClassProvider {
+            fun provideTestClass(): NonPrimitiveValueTestClass?
+        }
+
+        // Test case for issue #1475 - nullable value class return type with verification
+        @JvmInline
+        value class ValueClassId(val id: String)
+
+        interface ValueClassWithOptionalReturn {
+            fun something(data: ValueClassId): ValueClassId?
         }
 
         @JvmInline
