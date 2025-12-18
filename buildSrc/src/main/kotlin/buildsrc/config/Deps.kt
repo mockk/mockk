@@ -1,48 +1,22 @@
 package buildsrc.config
 
 import org.gradle.api.JavaVersion
-import org.gradle.api.Project
-
-fun Project.kotlinVersion(): String =
-    providers.gradleProperty("io_mockk_kotlin_version")
-        .getOrElse(Deps.Versions.kotlinDefault)
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 object Deps {
     object Versions {
         val jvmTarget = JavaVersion.VERSION_1_8
+        val kotlinCompatibility = KotlinVersion.KOTLIN_1_8
 
-        const val kotlinDefault = "2.1.20"
-        const val coroutines = "1.10.1"
-        const val slfj = "2.0.17"
-        const val logback = "1.5.18"
-        const val junitJupiter = "5.14.1"
-        const val junit4 = "4.13.2"
-
-        const val byteBuddy = "1.18.2"
-        const val objenesis = "3.4"
-        const val dexmaker = "2.28.6"
-        const val androidxEspresso = "3.7.0"
-        const val androidxOrchestrator = "1.6.1"
-        const val androidxTestRules = "1.7.0"
-        const val androidxTestRunner = "1.7.0"
-        const val androidxTestExtJunit = "1.3.0"
-
-        const val compileSdk = 34
-        const val targetSdk = 34
-        const val minSdk = 21
+        const val ANDROID_SDK = 36
+        const val ANDROID_MIN_SDK = 21
         // SDK 26+: Open classes, abstract classes, subclass proxies
         // SDK 28+: Final classes/methods, static mocking
-    }
 
-    object Libs {
-        const val slfj = "org.slf4j:slf4j-api:${Versions.slfj}"
-        const val logback = "ch.qos.logback:logback-classic:${Versions.logback}"
-
-        const val junit4 = "junit:junit:${Versions.junit4}"
-        const val junitBom = "org.junit:junit-bom:${Versions.junitJupiter}"
-
-        const val kotlinCoroutinesBom = "org.jetbrains.kotlinx:kotlinx-coroutines-bom:${Versions.coroutines}"
-        const val kotlinCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core"
-        const val kotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test"
+        const val ANDROID_TEST_ESPRESSO = "3.7.0"
+        const val ANDROID_TEST_ORCHESTRATOR = "1.6.1"
+        const val ANDROID_TEST_RULES = "1.7.0"
+        const val ANDROID_TEST_RUNNER = "1.7.0"
+        const val ANDROID_TEST_JUNIT_EXTENSIONS = "1.3.0"
     }
 }

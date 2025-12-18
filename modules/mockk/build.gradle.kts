@@ -1,5 +1,3 @@
-import buildsrc.config.Deps
-
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
 
@@ -23,8 +21,8 @@ kotlin {
                 api(projects.modules.mockkAgentApi)
                 api(projects.modules.mockkCore)
 
-                implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
-                implementation(Deps.Libs.kotlinCoroutinesCore)
+                implementation(dependencies.platform(libs.kotlin.coroutines.bom))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 
                 implementation(kotlin("reflect"))
             }
@@ -32,22 +30,22 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(Deps.Libs.kotlinCoroutinesTest)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
             }
         }
         val jvmMain by getting {
             dependencies {
-                compileOnly(Deps.Libs.slfj)
+                compileOnly(libs.slf4j)
 
-                compileOnly(Deps.Libs.junit4)
-                compileOnly(dependencies.platform(Deps.Libs.junitBom))
+                compileOnly(libs.junit4)
+                compileOnly(dependencies.platform(libs.junit.bom))
                 compileOnly("org.junit.jupiter:junit-jupiter")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(Deps.Libs.junit4)
-                implementation(dependencies.platform(Deps.Libs.junitBom))
+                implementation(libs.junit4)
+                implementation(dependencies.platform(libs.junit.bom))
                 implementation("org.junit.jupiter:junit-jupiter")
                 runtimeOnly("org.junit.platform:junit-platform-launcher")
             }

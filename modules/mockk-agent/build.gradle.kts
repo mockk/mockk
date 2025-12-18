@@ -30,15 +30,15 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                api("org.objenesis:objenesis:${Deps.Versions.objenesis}")
+                api(libs.objenesis)
 
-                api("net.bytebuddy:byte-buddy:${Deps.Versions.byteBuddy}")
-                api("net.bytebuddy:byte-buddy-agent:${Deps.Versions.byteBuddy}")
+                api(libs.byte.buddy.asProvider().get())
+                api(libs.byte.buddy.agent)
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(dependencies.platform(Deps.Libs.junitBom))
+                implementation(dependencies.platform(libs.junit.bom))
                 implementation("org.junit.jupiter:junit-jupiter")
                 runtimeOnly("org.junit.platform:junit-platform-launcher")
             }

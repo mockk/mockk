@@ -1,6 +1,6 @@
 package buildsrc.convention
 
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 plugins {
@@ -17,8 +17,8 @@ kotlin {
     targets.configureEach {
         compilations.configureEach {
             compilerOptions.configure {
-                apiVersion = KotlinVersion.KOTLIN_1_8
-                languageVersion = KotlinVersion.KOTLIN_1_8
+                apiVersion = Deps.Versions.kotlinCompatibility
+                languageVersion = Deps.Versions.kotlinCompatibility
             }
         }
     }

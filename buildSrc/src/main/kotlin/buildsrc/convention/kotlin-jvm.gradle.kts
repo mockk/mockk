@@ -2,7 +2,6 @@ package buildsrc.convention
 
 import buildsrc.config.Deps
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
@@ -29,8 +28,8 @@ tasks.withType<KotlinJvmCompile>().configureEach {
         jvmTarget.set(JvmTarget.fromTarget(Deps.Versions.jvmTarget.toString()))
 
         freeCompilerArgs.add("-Xjsr305=strict")
-        apiVersion = KotlinVersion.KOTLIN_1_8
-        languageVersion = KotlinVersion.KOTLIN_1_8
+        apiVersion = Deps.Versions.kotlinCompatibility
+        languageVersion = Deps.Versions.kotlinCompatibility
     }
 }
 

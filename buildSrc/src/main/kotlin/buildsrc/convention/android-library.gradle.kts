@@ -3,7 +3,6 @@ package buildsrc.convention
 import buildsrc.config.Deps
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
@@ -18,7 +17,7 @@ plugins {
 }
 
 android {
-    compileSdk = Deps.Versions.compileSdk
+    compileSdk = Deps.Versions.ANDROID_SDK
 
     lint {
         abortOnError = false
@@ -33,8 +32,8 @@ android {
     }
 
     defaultConfig {
-        minSdk = Deps.Versions.minSdk
-        targetSdk = Deps.Versions.targetSdk
+        minSdk = Deps.Versions.ANDROID_MIN_SDK
+        targetSdk = Deps.Versions.ANDROID_SDK
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -59,16 +58,14 @@ tasks.withType<KotlinJvmCompile>().configureEach {
 }
 
 dependencies {
-    testImplementation("junit:junit:${Deps.Versions.junit4}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.androidxEspresso}")
-
-    androidTestImplementation("androidx.test:rules:${Deps.Versions.androidxTestRules}")
-    androidTestImplementation("androidx.test:runner:${Deps.Versions.androidxTestRunner}")
-    androidTestImplementation("androidx.test.ext:junit-ktx:${Deps.Versions.androidxTestExtJunit}")
-
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(kotlin("test-junit"))
-    androidTestUtil("androidx.test:orchestrator:${Deps.Versions.androidxOrchestrator}")
+
+    androidTestImplementation("androidx.test.espresso:espresso-core:${Deps.Versions.ANDROID_TEST_ESPRESSO}")
+    androidTestImplementation("androidx.test:rules:${Deps.Versions.ANDROID_TEST_RULES}")
+    androidTestImplementation("androidx.test:runner:${Deps.Versions.ANDROID_TEST_RUNNER}")
+    androidTestImplementation("androidx.test.ext:junit-ktx:${Deps.Versions.ANDROID_TEST_JUNIT_EXTENSIONS}")
+    androidTestUtil("androidx.test:orchestrator:${Deps.Versions.ANDROID_TEST_ORCHESTRATOR}")
 }
 
 val javadocJar by tasks.registering(Jar::class) {
