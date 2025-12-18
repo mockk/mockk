@@ -23,5 +23,4 @@ dependencies {
     api(projects.modules.mockkBdd)
     
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-
-} 
+}

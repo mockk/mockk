@@ -17,8 +17,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(dependencies.platform(Deps.Libs.kotlinCoroutinesBom))
-                implementation(Deps.Libs.kotlinCoroutinesCore)
+                implementation(dependencies.platform(libs.kotlin.coroutines.bom))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
                 implementation(kotlin("reflect"))
                 implementation(projects.modules.mockkCore)
             }
@@ -35,7 +35,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(dependencies.platform(Deps.Libs.junitBom))
+                implementation(dependencies.platform(libs.junit.bom))
                 implementation("org.junit.jupiter:junit-jupiter")
                 runtimeOnly("org.junit.platform:junit-platform-launcher")
             }

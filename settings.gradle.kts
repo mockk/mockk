@@ -17,11 +17,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 apply(from = "./buildSrc/repositories.settings.gradle.kts")
 apply(from = "./buildSrc/android-sdk-detector.settings.gradle.kts")
 
-dependencyResolutionManagement {
-    @Suppress("UnstableApiUsage")
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-}
-
 include(
     ":modules:mockk",
     ":modules:mockk-agent-api",

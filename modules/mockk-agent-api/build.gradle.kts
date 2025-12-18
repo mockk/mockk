@@ -31,7 +31,7 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test-junit5"))
-                implementation(dependencies.platform(Deps.Libs.junitBom))
+                implementation(dependencies.platform(libs.junit.bom))
                 implementation("org.junit.jupiter:junit-jupiter")
                 runtimeOnly("org.junit.platform:junit-platform-launcher")
             }

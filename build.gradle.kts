@@ -1,5 +1,3 @@
-import buildsrc.config.excludeGeneratedGradleDslAccessors
-
 plugins {
     base
     org.jetbrains.kotlinx.`binary-compatibility-validator`
@@ -17,7 +15,6 @@ apiValidation {
         projects.testModules.performanceTests.name,
     )
 }
-
 
 dependencies {
     kover(projects.modules.mockk)

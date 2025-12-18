@@ -49,8 +49,8 @@ dependencies {
     implementation(projects.modules.mockkCore)
 
     implementation(kotlin("reflect"))
-    implementation("com.linkedin.dexmaker:dexmaker:${buildsrc.config.Deps.Versions.dexmaker}")
-    implementation("org.objenesis:objenesis:${buildsrc.config.Deps.Versions.objenesis}")
+    implementation(libs.dexmaker)
+    implementation(libs.objenesis)
 
     androidClassesDex(projects.modules.mockkAgentAndroidDispatcher)
 }

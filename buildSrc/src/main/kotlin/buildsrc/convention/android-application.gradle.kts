@@ -14,7 +14,7 @@ plugins {
 }
 
 android {
-    compileSdk = Deps.Versions.compileSdk
+    compileSdk = Deps.Versions.ANDROID_SDK
 
     lint {
         abortOnError = false
@@ -29,8 +29,8 @@ android {
     }
 
     defaultConfig {
-        minSdk = Deps.Versions.minSdk
-        targetSdk = Deps.Versions.targetSdk
+        minSdk = Deps.Versions.ANDROID_MIN_SDK
+        targetSdk = Deps.Versions.ANDROID_SDK
     }
 
     compileOptions {
