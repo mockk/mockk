@@ -1,5 +1,4 @@
-1. We use Kotlin style guide:
+# Code Style
 
-```
-File -> Settings -> Editor -> Code style -> Kotlin -> "Set from..." -> Predefined style -> kotlin style guide 
-```
+Please make sure, that EditorConfig Support is activated in your IDE.
+See [IntelliJ Documentation](https://www.jetbrains.com/help/idea/editorconfig.html) for more information. 

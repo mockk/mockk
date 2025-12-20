@@ -5,6 +5,7 @@ out/
 build/
 
 .gradle/
+.kotlin
 
 *.iml
 hs_err_*
