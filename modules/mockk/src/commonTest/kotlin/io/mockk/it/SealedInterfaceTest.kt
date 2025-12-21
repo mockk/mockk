@@ -5,14 +5,13 @@ import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-
 class SealedInterfaceTest {
-
     @Test
     fun serviceReturnsSealedClassImpl() {
-        val factory = mockk<Factory> {
-            every { create() } returns Leaf(1)
-        }
+        val factory =
+            mockk<Factory> {
+                every { create() } returns Leaf(1)
+            }
 
         val result = factory.create()
 
@@ -21,9 +20,10 @@ class SealedInterfaceTest {
 
     @Test
     fun serviceAnswersSealedClassImpl() {
-        val factory = mockk<Factory> {
-            every { create() } answers { Leaf(1) }
-        }
+        val factory =
+            mockk<Factory> {
+                every { create() } answers { Leaf(1) }
+            }
 
         val result = factory.create()
 
@@ -33,9 +33,10 @@ class SealedInterfaceTest {
     @Test
     fun serviceTakesSealedInterfaceAsInput() {
         val formattedNode = "Formatted node"
-        val factory = mockk<Factory> {
-            every { format(any()) } answers { formattedNode }
-        }
+        val factory =
+            mockk<Factory> {
+                every { format(any()) } answers { formattedNode }
+            }
 
         val result = factory.format(Root(0))
 
@@ -43,11 +44,15 @@ class SealedInterfaceTest {
     }
 
     companion object {
-
         sealed interface Node
 
-        data class Root(val id: Int) : Node
-        data class Leaf(val id: Int) : Node
+        data class Root(
+            val id: Int,
+        ) : Node
+
+        data class Leaf(
+            val id: Int,
+        ) : Node
 
         interface Factory {
             fun create(): Node
@@ -60,6 +65,5 @@ class SealedInterfaceTest {
 
             override fun format(node: Node): String = node.toString()
         }
-
     }
 }

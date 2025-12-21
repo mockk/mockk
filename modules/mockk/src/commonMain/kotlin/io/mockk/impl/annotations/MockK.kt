@@ -24,5 +24,5 @@ package io.mockk.impl.annotations
 annotation class MockK(
     val name: String = "",
     val relaxed: Boolean = false,
-    val relaxUnitFun: Boolean = false
+    val relaxUnitFun: Boolean = false,
 )

@@ -11,7 +11,7 @@ class JvmAutoHinter : AutoHinter() {
         callRecorder: MockKGateway.CallRecorder,
         i: Int,
         n: Int,
-        block: () -> T
+        block: () -> T,
     ) {
         var callsPassed = -1
         while (true) {
@@ -40,11 +40,14 @@ class JvmAutoHinter : AutoHinter() {
         }
     }
 
-    private fun extractClassName(ex: ClassCastException): String {
-        return ex.message?.let {
-            exceptionMessage.find(it)?.groups?.get(3)?.value
+    private fun extractClassName(ex: ClassCastException): String =
+        ex.message?.let {
+            exceptionMessage
+                .find(it)
+                ?.groups
+                ?.get(3)
+                ?.value
         } ?: throw ex
-    }
 
     companion object {
         // JDK 8: net.bytebuddy.renamed.java.lang.Object$ByteBuddy$As29nsJf$ByteBuddy$877l7O7D cannot be cast to io.mockk.impl.recording.states.CallRecordingState

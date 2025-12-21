@@ -3,23 +3,22 @@ package io.mockk.it
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.registerInstanceFactory
 import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
 import java.util.UUID
-import io.mockk.registerInstanceFactory
-import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertNull
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ValueClassTest {
-
     private val dummyValueWrapperArg get() = DummyValueWrapper(DummyValue(42))
     private val dummyValueWrapperReturn get() = DummyValueWrapper(DummyValue(99))
     private val complexValueParam = UUID.fromString("4d19b22c-7754-4c55-ba4d-f80109708a1f")
@@ -31,12 +30,13 @@ class ValueClassTest {
     private val dummyValueClassReturn get() = DummyValue(202)
     private val dummyComplexValueClassReturn get() = ComplexValue(UUID.fromString("25581db2-4cdb-48cd-a6c9-e087aee31f0b"))
 
-    //<editor-fold desc="arg=Value Class, return=ValueClass">
+    // <editor-fold desc="arg=Value Class, return=ValueClass">
     @Test
     fun `arg is ValueClass, returns ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(dummyValueClassArg) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(dummyValueClassArg) } returns dummyValueClassReturn
+            }
 
         assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
@@ -45,9 +45,10 @@ class ValueClassTest {
 
     @Test
     fun `field is ValueClass, returns ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { valueClassField } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { valueClassField } returns dummyValueClassReturn
+            }
 
         assertEquals(dummyValueClassReturn, mock.valueClassField)
 
@@ -56,9 +57,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(ValueClass), returns ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(any()) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(any()) } returns dummyValueClassReturn
+            }
 
         assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
@@ -67,9 +69,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is eq(ValueClass), returns ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(eq(dummyValueClassArg)) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(eq(dummyValueClassArg)) } returns dummyValueClassReturn
+            }
 
         assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
@@ -78,9 +81,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is refEq(ValueClass), returns ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(refEq(dummyValueClassArg)) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(refEq(dummyValueClassArg)) } returns dummyValueClassReturn
+            }
 
         assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
@@ -90,9 +94,10 @@ class ValueClassTest {
     @Test
     fun `arg is slot(ValueClass), returns ValueClass`() {
         val slot = slot<DummyValue>()
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(capture(slot)) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(capture(slot)) } returns dummyValueClassReturn
+            }
 
         val result = mock.argValueClassReturnValueClass(dummyValueClassArg)
 
@@ -106,9 +111,10 @@ class ValueClassTest {
     @Test
     fun `arg is MutableList(ValueClass), returns ValueClass`() {
         val slot = mutableListOf<DummyValue>()
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(capture(slot)) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(capture(slot)) } returns dummyValueClassReturn
+            }
 
         val result = mock.argValueClassReturnValueClass(dummyValueClassArg)
 
@@ -121,9 +127,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is ValueClass, answers ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(dummyValueClassArg) } answers { dummyValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(dummyValueClassArg) } answers { dummyValueClassReturn }
+            }
 
         assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
@@ -132,9 +139,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(ValueClass), answers ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(any()) } answers { dummyValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(any()) } answers { dummyValueClassReturn }
+            }
 
         assertEquals(dummyValueClassReturn, mock.argValueClassReturnValueClass(dummyValueClassArg))
 
@@ -145,9 +153,10 @@ class ValueClassTest {
     fun `arg is slot(ValueClass), answers ValueClass`() {
         val slot = slot<DummyValue>()
 
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnValueClass(capture(slot)) } answers { dummyValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnValueClass(capture(slot)) } answers { dummyValueClassReturn }
+            }
 
         val result = mock.argValueClassReturnValueClass(dummyValueClassArg)
 
@@ -157,14 +166,15 @@ class ValueClassTest {
 
         verify { mock.argValueClassReturnValueClass(dummyValueClassArg) }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="arg=Complex Value Class, return=ComplexValueClass">
+    // <editor-fold desc="arg=Complex Value Class, return=ComplexValueClass">
     @Test
     fun `arg is ComplexValueClass, returns ComplexValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } returns dummyComplexValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } returns dummyComplexValueClassReturn
+            }
 
         assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
@@ -173,9 +183,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(ComplexValueClass), returns ComplexValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argComplexValueClassReturnComplexValueClass(any()) } returns dummyComplexValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argComplexValueClassReturnComplexValueClass(any()) } returns dummyComplexValueClassReturn
+            }
 
         assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
@@ -185,9 +196,10 @@ class ValueClassTest {
     @Test
     fun `arg is slot(ComplexValueClass), returns ComplexValueClass`() {
         val slot = slot<ComplexValue>()
-        val mock = mockk<DummyService> {
-            every { argComplexValueClassReturnComplexValueClass(capture(slot)) } returns dummyComplexValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argComplexValueClassReturnComplexValueClass(capture(slot)) } returns dummyComplexValueClassReturn
+            }
 
         val result = mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
 
@@ -200,9 +212,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is ComplexValueClass, answers ComplexValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } answers { dummyComplexValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) } answers { dummyComplexValueClassReturn }
+            }
 
         assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
@@ -211,9 +224,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(ComplexValueClass), answers ComplexValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argComplexValueClassReturnComplexValueClass(any()) } answers { dummyComplexValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argComplexValueClassReturnComplexValueClass(any()) } answers { dummyComplexValueClassReturn }
+            }
 
         assertEquals(dummyComplexValueClassReturn, mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg))
 
@@ -224,9 +238,10 @@ class ValueClassTest {
     fun `arg is slot(ComplexValueClass), answers ComplexValueClass`() {
         val slot = slot<ComplexValue>()
 
-        val mock = mockk<DummyService> {
-            every { argComplexValueClassReturnComplexValueClass(capture(slot)) } answers { dummyComplexValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argComplexValueClassReturnComplexValueClass(capture(slot)) } answers { dummyComplexValueClassReturn }
+            }
 
         val result = mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg)
 
@@ -236,14 +251,15 @@ class ValueClassTest {
 
         verify { mock.argComplexValueClassReturnComplexValueClass(dummyComplexValueClassArg) }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="arg=Value Class, return=Wrapper">
+    // <editor-fold desc="arg=Value Class, return=Wrapper">
     @Test
     fun `arg is ValueClass, returns Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(dummyValueClassArg) } returns dummyValueWrapperReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnWrapper(dummyValueClassArg) } returns dummyValueWrapperReturn
+            }
 
         assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
@@ -253,9 +269,10 @@ class ValueClassTest {
     @Test
     @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(ValueClass), returns Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(any()) } returns dummyValueWrapperReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnWrapper(any()) } returns dummyValueWrapperReturn
+            }
 
         assertEquals(dummyValueWrapperArg, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
@@ -266,9 +283,10 @@ class ValueClassTest {
     fun `arg is slot(ValueClass), returns Wrapper`() {
         val slot = slot<DummyValue>()
 
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(capture(slot)) } returns dummyValueWrapperReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnWrapper(capture(slot)) } returns dummyValueWrapperReturn
+            }
 
         val result = mock.argValueClassReturnWrapper(dummyValueClassArg)
 
@@ -281,9 +299,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is ValueClass, answers Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(dummyValueClassArg) } answers { dummyValueWrapperReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnWrapper(dummyValueClassArg) } answers { dummyValueWrapperReturn }
+            }
 
         assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
@@ -292,9 +311,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(ValueClass), answers Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(any()) } answers { dummyValueWrapperReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnWrapper(any()) } answers { dummyValueWrapperReturn }
+            }
 
         assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
@@ -305,9 +325,10 @@ class ValueClassTest {
     fun `arg is slot(ValueClass), answers Wrapper`() {
         val slot = slot<DummyValue>()
 
-        val mock = mockk<DummyService> {
-            every { argValueClassReturnWrapper(capture(slot)) } answers { dummyValueWrapperReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argValueClassReturnWrapper(capture(slot)) } answers { dummyValueWrapperReturn }
+            }
 
         val result = mock.argValueClassReturnWrapper(dummyValueClassArg)
 
@@ -317,14 +338,15 @@ class ValueClassTest {
 
         verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="arg=Wrapper, return=ValueClass">
+    // <editor-fold desc="arg=Wrapper, return=ValueClass">
     @Test
     fun `arg is Wrapper, returns ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(dummyValueWrapperArg) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnValueClass(dummyValueWrapperArg) } returns dummyValueClassReturn
+            }
 
         assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
@@ -333,9 +355,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(Wrapper), returns ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(any()) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnValueClass(any()) } returns dummyValueClassReturn
+            }
 
         assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
@@ -346,9 +369,10 @@ class ValueClassTest {
     @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(Wrapper), returns ValueClass`() {
         val slot = slot<DummyValueWrapper>()
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(capture(slot)) } returns dummyValueClassReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnValueClass(capture(slot)) } returns dummyValueClassReturn
+            }
 
         val result = mock.argWrapperReturnValueClass(dummyValueWrapperArg)
 
@@ -361,9 +385,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is Wrapper, answers ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(dummyValueWrapperArg) } answers { dummyValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnValueClass(dummyValueWrapperArg) } answers { dummyValueClassReturn }
+            }
 
         assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
@@ -372,9 +397,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(Wrapper), answers ValueClass`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(any()) } answers { dummyValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnValueClass(any()) } answers { dummyValueClassReturn }
+            }
 
         assertEquals(dummyValueClassReturn, mock.argWrapperReturnValueClass(dummyValueWrapperArg))
 
@@ -386,9 +412,10 @@ class ValueClassTest {
     fun `arg is slot(Wrapper), answers ValueClass`() {
         val slot = slot<DummyValueWrapper>()
 
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnValueClass(capture(slot)) } answers { dummyValueClassReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnValueClass(capture(slot)) } answers { dummyValueClassReturn }
+            }
 
         val result = mock.argWrapperReturnValueClass(dummyValueWrapperArg)
 
@@ -398,14 +425,15 @@ class ValueClassTest {
 
         verify { mock.argWrapperReturnValueClass(dummyValueWrapperArg) }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="arg=Wrapper, return=Wrapper">
+    // <editor-fold desc="arg=Wrapper, return=Wrapper">
     @Test
     fun `arg is Wrapper, returns Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnWrapper(dummyValueWrapperArg) } returns dummyValueWrapperReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnWrapper(dummyValueWrapperArg) } returns dummyValueWrapperReturn
+            }
 
         assertEquals(dummyValueWrapperReturn, mock.argWrapperReturnWrapper(dummyValueWrapperArg))
 
@@ -414,9 +442,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(Wrapper), returns Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnWrapper(any()) } returns dummyValueWrapperReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnWrapper(any()) } returns dummyValueWrapperReturn
+            }
 
         assertEquals(dummyValueWrapperReturn, mock.argWrapperReturnWrapper(dummyValueWrapperArg))
 
@@ -427,9 +456,10 @@ class ValueClassTest {
     @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(Wrapper), returns Wrapper`() {
         val slot = slot<DummyValueWrapper>()
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnWrapper(capture(slot)) } returns dummyValueWrapperReturn
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnWrapper(capture(slot)) } returns dummyValueWrapperReturn
+            }
 
         val result = mock.argWrapperReturnWrapper(dummyValueWrapperArg)
 
@@ -442,9 +472,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is Wrapper, answers Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnWrapper(dummyValueWrapperArg) } answers { dummyValueWrapperReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnWrapper(dummyValueWrapperArg) } answers { dummyValueWrapperReturn }
+            }
 
         assertEquals(dummyValueWrapperReturn, mock.argWrapperReturnWrapper(dummyValueWrapperArg))
 
@@ -453,9 +484,10 @@ class ValueClassTest {
 
     @Test
     fun `arg is any(Wrapper), answers Wrapper`() {
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnWrapper(any()) } answers { dummyValueWrapperReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnWrapper(any()) } answers { dummyValueWrapperReturn }
+            }
 
         assertEquals(dummyValueWrapperReturn, mock.argWrapperReturnWrapper(dummyValueWrapperArg))
 
@@ -467,9 +499,10 @@ class ValueClassTest {
     fun `arg is slot(Wrapper), answers Wrapper`() {
         val slot = slot<DummyValueWrapper>()
 
-        val mock = mockk<DummyService> {
-            every { argWrapperReturnWrapper(capture(slot)) } answers { dummyValueWrapperReturn }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argWrapperReturnWrapper(capture(slot)) } answers { dummyValueWrapperReturn }
+            }
 
         val result = mock.argWrapperReturnWrapper(dummyValueWrapperArg)
 
@@ -479,15 +512,17 @@ class ValueClassTest {
 
         verify { mock.argWrapperReturnWrapper(dummyValueWrapperArg) }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="arg=None, return=UInt">
+    // <editor-fold desc="arg=None, return=UInt">
+
     /** https://github.com/mockk/mockk/issues/729 */
     @Test
     fun `arg None, returns UInt`() {
-        val mock = mockk<DummyService> {
-            every { argNoneReturnsUInt() } returns 999u
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argNoneReturnsUInt() } returns 999u
+            }
 
         val result = mock.argNoneReturnsUInt()
 
@@ -497,18 +532,19 @@ class ValueClassTest {
     /** https://github.com/mockk/mockk/issues/729 */
     @Test
     fun `arg None, answers UInt`() {
-        val mock = mockk<DummyService> {
-            every { argNoneReturnsUInt() } answers { 999u }
-        }
+        val mock =
+            mockk<DummyService> {
+                every { argNoneReturnsUInt() } answers { 999u }
+            }
 
         val result = mock.argNoneReturnsUInt()
 
         assertEquals(999u, result)
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="extension functions">
-    //<editor-fold desc="extension function on String">
+    // <editor-fold desc="extension functions">
+    // <editor-fold desc="extension function on String">
     @Test
     @Ignore // TODO fix infinite loop
     fun `receiver is String, return is ValueClass`() {
@@ -532,9 +568,9 @@ class ValueClassTest {
 
         assertEquals(dummyValueWrapperArg, result)
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="extension function on Wrapper">
+    // <editor-fold desc="extension function on Wrapper">
     @Test
     @Ignore // TODO fix infinite loop
     fun `receiver is Wrapper, return is Wrapper`() {
@@ -569,13 +605,13 @@ class ValueClassTest {
 
         assertEquals("example", result)
     }
-    //</editor-fold>
+    // </editor-fold>
 
     @Test
     fun `receiver is ComplexValue, return is Result with ComplexValue`() {
         val service = mockk<DummyService>()
 
-        every {  service.argGenericValueClassReturnResultWrapped(complexValueResultArg) } returns complexValueResultReturn
+        every { service.argGenericValueClassReturnResultWrapped(complexValueResultArg) } returns complexValueResultReturn
 
         val result = service.argGenericValueClassReturnResultWrapped(complexValueResultArg)
 
@@ -583,7 +619,7 @@ class ValueClassTest {
         assertEquals(complexValueResultReturn.getOrNull(), result.getOrNull())
     }
 
-    //<editor-fold desc="extension function on ValueClass">
+    // <editor-fold desc="extension function on ValueClass">
     @Test
     @Ignore // TODO fix infinite loop
     fun `receiver is ValueClass, return is Wrapper`() {
@@ -610,9 +646,10 @@ class ValueClassTest {
 
     @Test
     fun `function returning nullable value class not boxed due to cast to another type`() {
-        val mock = mockk<DummyService> {
-            every { nullableValueClass() } returns DummyValue(2)
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableValueClass() } returns DummyValue(2)
+            }
 
         assertEquals(DummyValue(2), mock.nullableValueClass())
     }
@@ -620,18 +657,20 @@ class ValueClassTest {
     @Test
     fun `function returning nullable complex value class, returns value class`() {
         val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
-        val mock = mockk<DummyService> {
-            every { nullableComplexValueClass() } returns expected
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableComplexValueClass() } returns expected
+            }
 
         assertEquals(expected, mock.nullableComplexValueClass())
     }
 
     @Test
     fun `function returning nullable nested value class, returns value class`() {
-        val mock = mockk<DummyService> {
-            every { nullableNestedValueClass() } returns DummyValueWrapper(DummyValue(10))
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableNestedValueClass() } returns DummyValueWrapper(DummyValue(10))
+            }
 
         assertEquals(DummyValueWrapper(DummyValue(10)), mock.nullableNestedValueClass())
     }
@@ -640,9 +679,10 @@ class ValueClassTest {
     fun `function returning nullable nested complex value class, returns value class`() {
         val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
 
-        val mock = mockk<DummyService> {
-            every { nullableNestedComplexValueClass() } returns DummyComplexValueWrapper(expected)
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableNestedComplexValueClass() } returns DummyComplexValueWrapper(expected)
+            }
 
         assertEquals(DummyComplexValueWrapper(expected), mock.nullableNestedComplexValueClass())
     }
@@ -650,18 +690,20 @@ class ValueClassTest {
     @Test
     fun `nullable complex value class field, returns value class`() {
         val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
-        val mock = mockk<DummyService> {
-            every { nullableComplexValueClassField } returns expected
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableComplexValueClassField } returns expected
+            }
 
         assertEquals(expected, mock.nullableComplexValueClassField)
     }
 
     @Test
     fun `nullable nested value class field, returns value class`() {
-        val mock = mockk<DummyService> {
-            every { nullableNestedValueClassField } returns DummyValueWrapper(DummyValue(10))
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableNestedValueClassField } returns DummyValueWrapper(DummyValue(10))
+            }
 
         assertEquals(DummyValueWrapper(DummyValue(10)), mock.nullableNestedValueClassField)
     }
@@ -669,18 +711,20 @@ class ValueClassTest {
     @Test
     fun `nullable nested complex value class field, returns value class`() {
         val expected = ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
-        val mock = mockk<DummyService> {
-            every { nullableNestedComplexValueClassField } returns DummyComplexValueWrapper(expected)
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableNestedComplexValueClassField } returns DummyComplexValueWrapper(expected)
+            }
 
         assertEquals(DummyComplexValueWrapper(expected), mock.nullableNestedComplexValueClassField)
     }
 
     @Test
     fun `nullable value class field is not boxed due to cast to another type`() {
-        val mock = mockk<DummyService> {
-            every { nullableValueClassField } returns DummyValue(2)
-        }
+        val mock =
+            mockk<DummyService> {
+                every { nullableValueClassField } returns DummyValue(2)
+            }
 
         assertEquals(DummyValue(2), mock.nullableValueClassField)
     }
@@ -700,9 +744,10 @@ class ValueClassTest {
     fun `result value`() {
         val givenResult = DummyValue(42)
 
-        val mock = mockk<DummyService> {
-            every { returnValueClass() } returns givenResult
-        }
+        val mock =
+            mockk<DummyService> {
+                every { returnValueClass() } returns givenResult
+            }
 
         val result = mock.returnValueClass()
 
@@ -724,9 +769,10 @@ class ValueClassTest {
     @Test
     fun `nullable value class does not hang or cause OutOfMemoryError when returning value`() {
         assertTimeoutPreemptively(Duration.ofSeconds(3)) {
-            val mock = mockk<ClassProvider> {
-                every { provideTestClass() } returns ValueTestClass(4)
-            }
+            val mock =
+                mockk<ClassProvider> {
+                    every { provideTestClass() } returns ValueTestClass(4)
+                }
             assertEquals(ValueTestClass(4), mock.provideTestClass())
         }
     }
@@ -735,9 +781,10 @@ class ValueClassTest {
     @Test
     fun `nullable value class does not hang or cause OutOfMemoryError when return null`() {
         assertTimeoutPreemptively(Duration.ofSeconds(3)) {
-            val mock = mockk<ClassProvider> {
-                every { provideTestClass() } returns null
-            }
+            val mock =
+                mockk<ClassProvider> {
+                    every { provideTestClass() } returns null
+                }
             assertNull(mock.provideTestClass())
         }
     }
@@ -746,9 +793,10 @@ class ValueClassTest {
     @Test
     fun `nullable non-primitive value class does not hang or cause OutOfMemoryError when returning value`() {
         assertTimeoutPreemptively(Duration.ofSeconds(3)) {
-            val mock = mockk<NonPrimitiveClassProvider> {
-                every { provideTestClass() } returns NonPrimitiveValueTestClass("4")
-            }
+            val mock =
+                mockk<NonPrimitiveClassProvider> {
+                    every { provideTestClass() } returns NonPrimitiveValueTestClass("4")
+                }
             assertEquals(NonPrimitiveValueTestClass("4"), mock.provideTestClass())
         }
     }
@@ -757,9 +805,10 @@ class ValueClassTest {
     @Test
     fun `nullable non-primitive value class does not hang or cause OutOfMemoryError when return null`() {
         assertTimeoutPreemptively(Duration.ofSeconds(3)) {
-            val mock = mockk<NonPrimitiveClassProvider> {
-                every { provideTestClass() } returns null
-            }
+            val mock =
+                mockk<NonPrimitiveClassProvider> {
+                    every { provideTestClass() } returns null
+                }
             assertNull(mock.provideTestClass())
         }
     }
@@ -858,18 +907,23 @@ class ValueClassTest {
 
         val mock = mockk<UserOfMyToken>()
         assertDoesNotThrow("Value classes should match any() without InvocationTargetException") {
-             every { mock.useMyToken(any()) } returns Unit
+            every { mock.useMyToken(any()) } returns Unit
         }
 
         // Call the method with a concrete instance.
         mock.useMyToken(MyToken("MY_PREFIX::actualCallValue"))
 
-        assertTrue(factoryCalled, "Instance factory should have been called when `any()` is used with a value class and a factory is registered.")
+        assertTrue(
+            factoryCalled,
+            "Instance factory should have been called when `any()` is used with a value class and a factory is registered.",
+        )
     }
 
     companion object {
         @JvmInline
-        value class MyToken(val raw: String) {
+        value class MyToken(
+            val raw: String,
+        ) {
             init {
                 require(raw.startsWith("MY_PREFIX::")) { "Token must start with MY_PREFIX::" }
             }
@@ -881,7 +935,9 @@ class ValueClassTest {
 
         // Test case for nullable value class
         @JvmInline
-        value class ValueTestClass(val int: Int)
+        value class ValueTestClass(
+            val int: Int,
+        )
 
         interface ClassProvider {
             fun provideTestClass(): ValueTestClass?
@@ -889,7 +945,9 @@ class ValueClassTest {
 
         // Test case for nullable non-primitive value class
         @JvmInline
-        value class NonPrimitiveValueTestClass(val string: String)
+        value class NonPrimitiveValueTestClass(
+            val string: String,
+        )
 
         interface NonPrimitiveClassProvider {
             fun provideTestClass(): NonPrimitiveValueTestClass?
@@ -897,28 +955,38 @@ class ValueClassTest {
 
         // Test case for issue #1475 - nullable value class return type with verification
         @JvmInline
-        value class ValueClassId(val id: String)
+        value class ValueClassId(
+            val id: String,
+        )
 
         interface ValueClassWithOptionalReturn {
             fun something(data: ValueClassId): ValueClassId?
         }
 
         @JvmInline
-        value class DummyValue(val value: Int) {
+        value class DummyValue(
+            val value: Int,
+        ) {
             // field without backing field
             val text: String get() = value.toString()
         }
 
         @JvmInline
-        value class ComplexValue(val value: UUID) {
+        value class ComplexValue(
+            val value: UUID,
+        ) {
             val text: String get() = value.toString()
         }
 
         @JvmInline
-        value class DummyValueWrapper(val value: DummyValue)
+        value class DummyValueWrapper(
+            val value: DummyValue,
+        )
 
         @JvmInline
-        value class DummyComplexValueWrapper(val value: ComplexValue)
+        value class DummyComplexValueWrapper(
+            val value: ComplexValue,
+        )
 
         @Suppress("UNUSED_PARAMETER")
         class DummyService {
@@ -928,26 +996,20 @@ class ValueClassTest {
             val nullableNestedValueClassField: DummyValueWrapper? = null
             val nullableNestedComplexValueClassField: DummyComplexValueWrapper? = null
 
-            fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper =
-                DummyValueWrapper(DummyValue(0))
+            fun argWrapperReturnWrapper(wrapper: DummyValueWrapper): DummyValueWrapper = DummyValueWrapper(DummyValue(0))
 
-            fun argWrapperReturnValueClass(wrapper: DummyValueWrapper): DummyValue =
-                DummyValue(0)
+            fun argWrapperReturnValueClass(wrapper: DummyValueWrapper): DummyValue = DummyValue(0)
 
-            fun argValueClassReturnWrapper(valueClass: DummyValue): DummyValueWrapper =
-                DummyValueWrapper(valueClass)
+            fun argValueClassReturnWrapper(valueClass: DummyValue): DummyValueWrapper = DummyValueWrapper(valueClass)
 
-            fun argGenericValueClassReturnResultWrapped(valueClass: ComplexValue): Result<ComplexValue> =
-                Result.success(valueClass)
+            fun argGenericValueClassReturnResultWrapped(valueClass: ComplexValue): Result<ComplexValue> = Result.success(valueClass)
 
-            fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue =
-                DummyValue(0)
+            fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue = DummyValue(0)
 
             fun argComplexValueClassReturnComplexValueClass(complexValue: ComplexValue): ComplexValue =
                 ComplexValue(UUID.fromString("7dea337b-ce0b-4e25-9788-79e708aadc33"))
 
-            fun returnValueClass(): DummyValue =
-                DummyValue(0)
+            fun returnValueClass(): DummyValue = DummyValue(0)
 
             // Note the value class is not inlined in this case due to being cast to another type
             fun returnValueClassNotInlined(): Any = DummyValue(0)
@@ -960,8 +1022,7 @@ class ValueClassTest {
                 ComplexValue(UUID.fromString("c5744ead-302f-4e29-9f82-d10eb2a85ea3"))
 
             @Suppress("RedundantSuspendModifier")
-            suspend fun returnNestedValueClassSuspendNotInlined(): DummyValueWrapper =
-                DummyValueWrapper(DummyValue(0))
+            suspend fun returnNestedValueClassSuspendNotInlined(): DummyValueWrapper = DummyValueWrapper(DummyValue(0))
 
             @Suppress("RedundantSuspendModifier")
             suspend fun returnNestedComplexValueClassSuspendNotInlined(): DummyComplexValueWrapper =

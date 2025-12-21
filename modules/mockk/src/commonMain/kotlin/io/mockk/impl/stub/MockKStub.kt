@@ -1,6 +1,17 @@
 package io.mockk.impl.stub
 
-import io.mockk.*
+import io.mockk.Answer
+import io.mockk.BackingFieldValueProvider
+import io.mockk.Call
+import io.mockk.EqMatcher
+import io.mockk.InternalPlatformDsl
+import io.mockk.Invocation
+import io.mockk.InvocationMatcher
+import io.mockk.MethodDescription
+import io.mockk.MockKException
+import io.mockk.MockKGateway
+import io.mockk.NullCheckMatcher
+import io.mockk.StackElement
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
 import io.mockk.impl.log.Logger
@@ -13,7 +24,7 @@ open class MockKStub(
     val relaxUnitFun: Boolean = false,
     val gatewayAccess: StubGatewayAccess,
     val recordPrivateCalls: Boolean,
-    val mockType: MockType
+    val mockType: MockType,
 ) : Stub {
     val log = gatewayAccess.safeToString(Logger<MockKStub>())
 
@@ -31,52 +42,54 @@ open class MockKStub(
 
     var disposeRoutine: () -> Unit = {}
 
-    override fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>) {
+    override fun addAnswer(
+        matcher: InvocationMatcher,
+        answer: Answer<*>,
+    ) {
         val invocationAnswer = InvocationAnswer(matcher, answer, 0)
         answers.add(invocationAnswer)
     }
 
     override fun answer(invocation: Invocation): Any? {
-        val invocationAndMatcher = InternalPlatform.synchronized(answers) {
-            answers
-                .findLast { it.matcher.match(invocation) }
-                ?.also { it.usageCount++ }
-        } ?: return defaultAnswer(invocation)
+        val invocationAndMatcher =
+            InternalPlatform.synchronized(answers) {
+                answers
+                    .findLast { it.matcher.match(invocation) }
+                    ?.also { it.usageCount++ }
+            } ?: return defaultAnswer(invocation)
 
         return with(invocationAndMatcher) {
             matcher.captureAnswer(invocation)
 
-            val call = Call(
-                invocation.method.returnType,
-                invocation,
-                matcher,
-                invocation.fieldValueProvider
-            )
+            val call =
+                Call(
+                    invocation.method.returnType,
+                    invocation,
+                    matcher,
+                    invocation.fieldValueProvider,
+                )
 
             answer.answer(call)
         }
     }
 
-
     protected inline fun stdObjectFunctions(
         self: Any,
         method: MethodDescription,
         args: List<Any?>,
-        otherwise: () -> Any?
-    ): Any? {
-        return when {
+        otherwise: () -> Any?,
+    ): Any? =
+        when {
             method.isToString() -> toStr()
             method.isHashCode() -> InternalPlatformDsl.identityHashCode(self)
             method.isEquals() -> self === args[0]
             else -> otherwise()
         }
-    }
 
-    override fun stdObjectAnswer(invocation: Invocation): Any? {
-        return stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
+    override fun stdObjectAnswer(invocation: Invocation): Any? =
+        stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
             throw MockKException("No other calls allowed in stdObjectAnswer than equals/hashCode/toString")
         }
-    }
 
     protected open fun defaultAnswer(invocation: Invocation): Any? =
         stdObjectFunctions(invocation.self, invocation.method, invocation.args) {
@@ -84,39 +97,44 @@ open class MockKStub(
                 if (invocation.method.returnsUnit) return Unit
                 return gatewayAccess.anyValueGenerator().anyValue(
                     invocation.method.returnType,
-                    invocation.method.returnTypeNullable
+                    invocation.method.returnTypeNullable,
                 ) {
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
             } else {
                 val configuredAnswers = answers.map { it.matcher.toString() }.joinToString(separator = "\n") { it }
-                throw MockKException("no answer found for ${gatewayAccess.safeToString.exec { invocation.toString() }}" +
-                        " among the configured answers: ($configuredAnswers)")
+                throw MockKException(
+                    "no answer found for ${gatewayAccess.safeToString.exec { invocation.toString() }}" +
+                        " among the configured answers: ($configuredAnswers)",
+                )
             }
         }
 
-    private fun shouldRelax(invocation: Invocation) = when {
-        relaxed -> true
-        relaxUnitFun &&
+    private fun shouldRelax(invocation: Invocation) =
+        when {
+            relaxed -> true
+            relaxUnitFun &&
                 invocation.method.returnsUnit -> true
-        else -> false
-    }
+            else -> false
+        }
 
     override fun recordCall(invocation: Invocation) {
-        val record = when {
-            checkExcluded(invocation) -> {
-                log.debug { "Call excluded: $invocation" }
-                false
+        val record =
+            when {
+                checkExcluded(invocation) -> {
+                    log.debug { "Call excluded: $invocation" }
+                    false
+                }
+                recordPrivateCalls -> true
+                else -> !invocation.method.privateCall
             }
-            recordPrivateCalls -> true
-            else -> !invocation.method.privateCall
-        }
 
         if (record) {
             recordedCalls.add(invocation)
 
             InternalPlatform.synchronized(recordedCallsByMethod) {
-                recordedCallsByMethod.getOrPut(invocation.method) { mutableListOf() }
+                recordedCallsByMethod
+                    .getOrPut(invocation.method) { mutableListOf() }
                     .add(invocation)
             }
 
@@ -124,9 +142,10 @@ open class MockKStub(
         }
     }
 
-    private fun checkExcluded(invocation: Invocation) = InternalPlatform.synchronized(exclusions) {
-        exclusions.any { it.match(invocation) }
-    }
+    private fun checkExcluded(invocation: Invocation) =
+        InternalPlatform.synchronized(exclusions) {
+            exclusions.any { it.match(invocation) }
+        }
 
     override fun allRecordedCalls(): List<Invocation> {
         InternalPlatform.synchronized(recordedCalls) {
@@ -142,14 +161,15 @@ open class MockKStub(
 
     override fun excludeRecordedCalls(
         params: MockKGateway.ExclusionParameters,
-        matcher: InvocationMatcher
+        matcher: InvocationMatcher,
     ) {
         exclusions.add(matcher)
 
         if (params.current) {
             InternalPlatform.synchronized(recordedCalls) {
-                val callsToExclude = recordedCalls
-                    .filter(matcher::match)
+                val callsToExclude =
+                    recordedCalls
+                        .filter(matcher::match)
 
                 if (callsToExclude.isNotEmpty()) {
                     log.debug {
@@ -161,7 +181,6 @@ open class MockKStub(
                     .forEach { recordedCalls.remove(it) }
 
                 InternalPlatform.synchronized(recordedCallsByMethod) {
-
                     recordedCallsByMethod[matcher.method]?.apply {
                         filter(matcher::match)
                             .forEach { remove(it) }
@@ -194,8 +213,11 @@ open class MockKStub(
 
     override fun toStr() = "${type.simpleName}($name)"
 
-    override fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any {
-        return InternalPlatform.synchronized(childs) {
+    override fun childMockK(
+        matcher: InvocationMatcher,
+        childType: KClass<*>,
+    ): Any =
+        InternalPlatform.synchronized(childs) {
             gatewayAccess.safeToString.exec {
                 childs.customComputeIfAbsent(matcher) {
                     gatewayAccess.mockFactory!!.mockk(
@@ -203,12 +225,11 @@ open class MockKStub(
                         childName(this.name),
                         moreInterfaces = arrayOf(),
                         relaxed = relaxed,
-                        relaxUnitFun = relaxUnitFun
+                        relaxUnitFun = relaxUnitFun,
                     )
                 }
             }
         }
-    }
 
     private fun childName(name: String): String {
         val result = childOfRegex.matchEntire(name)
@@ -226,7 +247,7 @@ open class MockKStub(
         method: MethodDescription,
         originalCall: () -> Any?,
         args: Array<out Any?>,
-        fieldValueProvider: BackingFieldValueProvider
+        fieldValueProvider: BackingFieldValueProvider,
     ): Any? {
         val originalPlusToString = {
             if (method.isToString()) {
@@ -236,37 +257,40 @@ open class MockKStub(
             }
         }
 
-
         fun List<StackElement>.cutMockKCallProxyCall(): List<StackElement> {
-            fun search(cls: String, mtd: String): Int? {
-                return indexOfFirst {
+            fun search(
+                cls: String,
+                mtd: String,
+            ): Int? =
+                indexOfFirst {
                     it.className == cls && it.methodName == mtd
                 }.let { if (it == -1) null else it }
-            }
 
-            val idx = search("io.mockk.proxy.MockKCallProxy", "call")
-                ?: search("io.mockk.proxy.MockKProxyInterceptor", "intercept")
-                ?: search("io.mockk.proxy.MockKProxyInterceptor", "interceptNoSuper")
-                ?: return this
+            val idx =
+                search("io.mockk.proxy.MockKCallProxy", "call")
+                    ?: search("io.mockk.proxy.MockKProxyInterceptor", "intercept")
+                    ?: search("io.mockk.proxy.MockKProxyInterceptor", "interceptNoSuper")
+                    ?: return this
 
             return this.drop(idx + 1)
         }
 
         val stackTraceHolder = InternalPlatform.captureStackTrace()
 
-        val invocation = Invocation(
-            self,
-            this,
-            method,
-            args.toList(),
-            InternalPlatform.time(),
-            {
-                stackTraceHolder()
-                    .cutMockKCallProxyCall()
-            },
-            originalPlusToString,
-            fieldValueProvider
-        )
+        val invocation =
+            Invocation(
+                self,
+                this,
+                method,
+                args.toList(),
+                InternalPlatform.time(),
+                {
+                    stackTraceHolder()
+                        .cutMockKCallProxyCall()
+                },
+                originalPlusToString,
+                fieldValueProvider,
+            )
 
         return gatewayAccess.callRecorder().call(invocation)
     }
@@ -294,18 +318,24 @@ open class MockKStub(
         val childOfRegex = Regex("child(\\^(\\d+))? of (.+)")
     }
 
-    private data class InvocationAnswer(val matcher: InvocationMatcher, val answer: Answer<*>, var usageCount: Int)
+    private data class InvocationAnswer(
+        val matcher: InvocationMatcher,
+        val answer: Answer<*>,
+        var usageCount: Int,
+    )
 
     protected fun Invocation.allEqMatcher() =
         InvocationMatcher(
             self,
             method,
             args.map {
-                if (it == null)
+                if (it == null) {
                     NullCheckMatcher()
-                else
+                } else {
                     EqMatcher(it)
-            }, false
+                }
+            },
+            false,
         )
 
     override fun dispose() {
@@ -315,8 +345,8 @@ open class MockKStub(
                 recordedCalls = true,
                 childMocks = true,
                 verificationMarks = true,
-                exclusionRules = true
-            )
+                exclusionRules = true,
+            ),
         )
         disposeRoutine.invoke()
     }

@@ -3,9 +3,17 @@ package io.mockk.it
 import io.mockk.MockKAnnotations
 import io.mockk.MockKException
 import io.mockk.every
-import io.mockk.impl.annotations.*
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.OverrideMockKs
+import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.impl.annotations.SpyK
 import io.mockk.verify
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertSame
 
 class AnnotationsTest {
     class MockCls {
@@ -76,22 +84,22 @@ class AnnotationsTest {
         }
     }
 
-    class InjectionTarget1(val obj: MockCls)
+    class InjectionTarget1(
+        val obj: MockCls,
+    )
 
     class InjectionTarget2 {
         lateinit var obj: MockCls
     }
 
-    class InjectionTarget3{
+    class InjectionTarget3 {
         val obj = MockCls()
     }
 
-    class InjectionTarget4{
+    class InjectionTarget4 {
         lateinit var obj: MockCls
-        fun op(a: Int): Int {
-            return obj.op(a)
-        }
 
+        fun op(a: Int): Int = obj.op(a)
     }
 
     class InjectSourceCls {

@@ -10,18 +10,22 @@ import kotlin.test.assertEquals
 
 class NullsTest {
     interface Wrapper
-    data class IntWrapper(val data: Int) : Wrapper
+
+    data class IntWrapper(
+        val data: Int,
+    ) : Wrapper
 
     class MockCls {
-        fun op(a: Wrapper?, b: Wrapper?): Int? {
-            return if (a is IntWrapper && b is IntWrapper) {
+        fun op(
+            a: Wrapper?,
+            b: Wrapper?,
+        ): Int? =
+            if (a is IntWrapper && b is IntWrapper) {
                 a.data + b.data
             } else {
                 0
             }
-        }
     }
-
 
     @MockK
     lateinit var mock: MockCls
@@ -47,6 +51,5 @@ class NullsTest {
         assertEquals(null, mock.op(IntWrapper(1), IntWrapper(2)))
 
         verify { mock.op(IntWrapper(1), IntWrapper(2)) }
-
     }
 }

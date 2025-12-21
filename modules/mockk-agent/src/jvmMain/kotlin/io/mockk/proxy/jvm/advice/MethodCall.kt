@@ -6,9 +6,8 @@ import java.util.concurrent.Callable
 internal class MethodCall(
     private val self: Any,
     private val method: Method,
-    private val args: Array<Any?>
+    private val args: Array<Any?>,
 ) : Callable<Any?> {
-
     override fun call(): Any? {
         try {
             method.isAccessible = true

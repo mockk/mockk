@@ -9,7 +9,6 @@ import kotlin.test.assertFailsWith
  * Test related to GitHub issue #538
  */
 class ThrowExceptionOnNonMockedClassTest {
-
     @Test
     fun `throw exception if not mocked class is in every block`() {
         val expectedExceptionMessage =
@@ -23,5 +22,4 @@ class ThrowExceptionOnNonMockedClassTest {
     private class NotMockedClass {
         fun methodThatReturnsANumber() = 55
     }
-
 }

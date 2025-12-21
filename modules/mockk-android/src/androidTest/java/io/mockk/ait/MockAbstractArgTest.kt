@@ -6,17 +6,18 @@ import io.mockk.verify
 import org.junit.runner.RunWith
 import kotlin.test.Test
 
-interface IOtherInterface {}
+interface IOtherInterface
 
 interface IMockableInterface {
     fun doSomethingWithAbstractClass(a: MyAbstractClass?)
+
     fun doSomethingWithInterface(a: IOtherInterface?)
+
     fun doSomethingWithString(s: String)
 }
 
 @RunWith(AndroidJUnit4::class)
 class MockAbstractArgTest {
-
     @Test
     fun canVerifyStringArg() {
         val myMock = mockk<IMockableInterface>(relaxUnitFun = true)

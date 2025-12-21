@@ -21,28 +21,35 @@ class MockKExtensionConstructorBindingTest(
     @SpyK private val engine: Engine,
     @InjectMockKs private val plane: Plane,
 ) {
-
     enum class Status {
-        GOOD, BAD, CRITICAL
+        GOOD,
+        BAD,
+        CRITICAL,
     }
 
     class LeftWing {
         fun status() = GOOD
+
         fun describe() = "Left wing"
     }
 
     class RightWing {
         fun status() = GOOD
+
         fun describe() = "Right wing"
     }
 
-    data class Engine(private val enginePart: EnginePart) {
+    data class Engine(
+        private val enginePart: EnginePart,
+    ) {
         fun status() = enginePart.status()
+
         fun describe() = "Engine" + (enginePart.model() ?: "")
     }
 
     class EnginePart {
         fun status() = GOOD
+
         fun model(): String? = null
     }
 
@@ -52,6 +59,7 @@ class MockKExtensionConstructorBindingTest(
         private val engine: Engine,
     ) {
         fun describeComponents() = listOf(leftWing.describe(), rightWing.describe(), engine.describe()).joinToString(" ")
+
         fun state() = listOf(leftWing.status(), rightWing.status(), engine.status()).maxByOrNull { it.ordinal } ?: CRITICAL
     }
 

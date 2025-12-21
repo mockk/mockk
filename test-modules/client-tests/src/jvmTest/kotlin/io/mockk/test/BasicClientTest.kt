@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 
 class BasicClientTest {
     class Sut(
-        private val collaborator: Collaborator
+        private val collaborator: Collaborator,
     ) {
         fun aFunction(): String = collaborator.anotherFunction("world")
     }

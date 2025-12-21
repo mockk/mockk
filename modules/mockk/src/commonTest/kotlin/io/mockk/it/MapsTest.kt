@@ -13,7 +13,6 @@ import kotlin.test.assertFailsWith
  * Test class related to [Map]s mocking.
  */
 class MapsTest {
-
     class CloudBlockBlob {
         var metadata: HashMap<String?, String?>? = null
     }

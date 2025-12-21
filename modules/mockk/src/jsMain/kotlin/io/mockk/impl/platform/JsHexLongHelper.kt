@@ -13,5 +13,4 @@ object JsHexLongHelper {
 
         return buf.reverse().toString()
     }
-
 }

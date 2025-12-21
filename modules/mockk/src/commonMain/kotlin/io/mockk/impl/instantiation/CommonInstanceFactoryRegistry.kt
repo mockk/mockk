@@ -8,9 +8,10 @@ class CommonInstanceFactoryRegistry : InstanceFactoryRegistry {
     private val factories = InternalPlatform.synchronizedMutableList<InstanceFactory>()
 
     val instanceFactories: List<InstanceFactory>
-        get() = InternalPlatform.synchronized(factories) {
-            factories.toList()
-        }
+        get() =
+            InternalPlatform.synchronized(factories) {
+                factories.toList()
+            }
 
     override fun registerFactory(factory: InstanceFactory) {
         factories.add(factory)

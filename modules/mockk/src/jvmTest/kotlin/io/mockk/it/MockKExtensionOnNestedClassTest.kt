@@ -18,12 +18,11 @@ class MockKExtensionOnNestedClassTest {
     @ExtendWith(MockKExtension::class)
     inner class InjectMockInNestedTest(
         @MockK private val foo: Foo,
-        @MockK @AdditionalInterface(Runnable::class) private val bar: Foo) {
-
+        @MockK @AdditionalInterface(Runnable::class) private val bar: Foo,
+    ) {
         @Test
         fun shouldHaveInjectMock() {
             assertNotNull(foo, message = "Should have been injected")
         }
     }
-
 }

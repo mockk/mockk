@@ -5,6 +5,7 @@ import java.time.Duration
 
 plugins {
     base
+    id("buildsrc.convention.spotless")
 }
 
 // Common build config that can be applied to any project. This should typically be language-independent.

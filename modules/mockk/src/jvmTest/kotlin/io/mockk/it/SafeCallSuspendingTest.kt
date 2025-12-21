@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test
 class SafeCallSuspendingTest {
     class MyClass {
         suspend fun doSomething() {
-
         }
     }
 

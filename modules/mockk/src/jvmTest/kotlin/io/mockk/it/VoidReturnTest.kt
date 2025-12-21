@@ -2,15 +2,18 @@ package io.mockk.it
 
 import io.mockk.every
 import io.mockk.mockk
-import java.util.concurrent.TimeUnit
 import org.junit.jupiter.api.Test
+import java.util.concurrent.TimeUnit
 
 /**
  * Test related to GitHub issue #69
  */
 class VoidReturnTest {
     abstract class KafkaFuture<T> {
-        abstract operator fun get(timeout: Long, unit: TimeUnit): T
+        abstract operator fun get(
+            timeout: Long,
+            unit: TimeUnit,
+        ): T
     }
 
     @Test

@@ -1,11 +1,13 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.*
+import io.mockk.MockKException
+import io.mockk.every
 import io.mockk.impl.recording.CommonCallRecorder
+import io.mockk.mockk
+import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
-
 
 class StubbingStateTest {
     lateinit var recorder: CommonCallRecorder

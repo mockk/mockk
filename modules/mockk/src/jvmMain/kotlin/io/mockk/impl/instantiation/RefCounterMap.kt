@@ -18,5 +18,4 @@ class RefCounterMap<T> {
             counter[cls] = cnt - 1
             cnt == 1
         }
-
 }

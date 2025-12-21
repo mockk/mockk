@@ -12,7 +12,6 @@ import kotlin.test.assertTrue
 class TimeoutTest {
     class MockCls {
         fun run() {
-
         }
     }
 
@@ -103,7 +102,6 @@ class TimeoutTest {
             mock2.run()
         }
     }
-
 
     @Test
     fun longTimeout() {

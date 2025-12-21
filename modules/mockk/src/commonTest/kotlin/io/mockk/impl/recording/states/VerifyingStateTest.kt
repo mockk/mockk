@@ -1,9 +1,21 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.*
-import io.mockk.MockKGateway.*
+import io.mockk.MockKException
+import io.mockk.MockKGateway.CallVerifier
+import io.mockk.MockKGateway.VerificationAcknowledger
+import io.mockk.MockKGateway.VerificationParameters
+import io.mockk.MockKGateway.VerificationResult
+import io.mockk.Ordering
+import io.mockk.RecordedCall
+import io.mockk.Runs
+import io.mockk.every
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.recording.VerificationCallSorter
+import io.mockk.invoke
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -91,7 +103,7 @@ class VerifyingStateTest {
         every {
             verifier.verify(
                 listOf(call1, call2),
-                VerificationParameters(Ordering.UNORDERED, 1, 2, false, 0)
+                VerificationParameters(Ordering.UNORDERED, 1, 2, false, 0),
             )
         } returns outcome
     }

@@ -1,11 +1,15 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.*
+import io.mockk.Answer
+import io.mockk.ConstantAnswer
+import io.mockk.MockKSettings
+import io.mockk.RecordedCall
+import io.mockk.every
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.AnswerAnsweringOpportunity
-import org.junit.jupiter.api.Assertions.assertEquals
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -57,7 +61,8 @@ class StubbingAwaitingAnswerStateTest {
             MockKSettings.setFailOnSetBackingFieldException(true)
             val testContainerMock = mockk<TestContainer>()
             assertThrows<IllegalArgumentException> {
-                every { testContainerMock getProperty "someInt" } returns "mockValue" }
+                every { testContainerMock getProperty "someInt" } returns "mockValue"
+            }
         } finally {
             // We reset the settings in the end to avoid side effects for other tests
             MockKSettings.setFailOnSetBackingFieldException(false)

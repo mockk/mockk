@@ -20,23 +20,14 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 @Ignore("This makes the github action time out")
 class ArrayListReturnTypeTest {
-
     class ListTest {
-        fun getOneItem(v: String): String {
-            return v
-        }
+        fun getOneItem(v: String): String = v
 
-        fun getListItem(v: String): ArrayList<String> {
-            return arrayListOf(v)
-        }
+        fun getListItem(v: String): ArrayList<String> = arrayListOf(v)
 
-        fun getHashSetItem(v: String): HashSet<String> {
-            return hashSetOf(v)
-        }
+        fun getHashSetItem(v: String): HashSet<String> = hashSetOf(v)
 
-        fun getLinkedListItem(v: String): java.util.LinkedList<String> {
-            return java.util.LinkedList<String>().apply { add(v) }
-        }
+        fun getLinkedListItem(v: String): java.util.LinkedList<String> = java.util.LinkedList<String>().apply { add(v) }
     }
 
     @Test

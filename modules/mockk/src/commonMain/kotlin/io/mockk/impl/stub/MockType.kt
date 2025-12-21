@@ -6,5 +6,5 @@ enum class MockType {
     OBJECT,
     STATIC,
     CONSTRUCTOR,
-    TEMPORARY
+    TEMPORARY,
 }

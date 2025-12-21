@@ -43,7 +43,6 @@ class FilterLoggerTest {
         }
     }
 
-
     @Test
     fun givenTraceLevelWhenErrorMessageWithExceptionThenItsLogged() {
         traceLogger.error(ex) { "msg" }
@@ -64,7 +63,6 @@ class FilterLoggerTest {
             logger wasNot Called
         }
     }
-
 
     @Test
     fun givenTraceLevelWhenWarnMessageThenItsLogged() {
@@ -87,7 +85,6 @@ class FilterLoggerTest {
         }
     }
 
-
     @Test
     fun givenTraceLevelWhenWarnMessageWithExceptionThenItsLogged() {
         traceLogger.warn(ex) { "msg" }
@@ -108,7 +105,6 @@ class FilterLoggerTest {
             logger wasNot Called
         }
     }
-
 
     @Test
     fun givenTraceLevelWhenInfoMessageThenItsLogged() {
@@ -131,7 +127,6 @@ class FilterLoggerTest {
         }
     }
 
-
     @Test
     fun givenTraceLevelWhenInfoMessageWithExceptionThenItsLogged() {
         traceLogger.info(ex) { "msg" }
@@ -152,7 +147,6 @@ class FilterLoggerTest {
             logger wasNot Called
         }
     }
-
 
     @Test
     fun givenTraceLevelWhenDebugMessageThenItsLogged() {
@@ -216,7 +210,6 @@ class FilterLoggerTest {
             logger wasNot Called
         }
     }
-
 
     @Test
     fun givenTraceLevelWhenTraceMessageWithExceptionThenItsLogged() {

@@ -13,14 +13,14 @@ import io.mockk.verify
 import io.mockk.verifyCount
 import io.mockk.verifyOrder
 import io.mockk.verifySequence
-import kotlin.test.assertEquals
-import kotlin.test.assertFails
-import kotlin.test.assertFailsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import kotlin.test.assertEquals
+import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 class VerificationAcknowledgeTest {
     class MockCls {
@@ -38,7 +38,6 @@ class VerificationAcknowledgeTest {
         assertEquals(2, mock.op(6))
         assertEquals(3, mock.op(7))
     }
-
 
     private fun doCalls2() {
         every { mock.op(0) } throws RuntimeException("test")
@@ -73,18 +72,19 @@ class VerificationAcknowledgeTest {
         doCalls1()
         assertFailsWith<AssertionError> {
             checkUnnecessaryStub(mock)
+        }.also {
+            assertThat(
+                it.message,
+                equalTo(
+                    "Unnecessary stubbings detected.\n" +
+                        "Following stubbings are not used, either because there are unnecessary or " +
+                        "because tested code doesn't call them :\n" +
+                        "\n" +
+                        "1) $mock.op(eq(98)))\n" +
+                        "2) $mock.op(eq(99)))",
+                ),
+            )
         }
-            .also {
-                assertThat(
-                    it.message, equalTo(
-                        "Unnecessary stubbings detected.\n" +
-                                "Following stubbings are not used, either because there are unnecessary or because tested code doesn't call them :\n" +
-                                "\n" +
-                                "1) ${mock}.op(eq(98)))\n" +
-                                "2) ${mock}.op(eq(99)))"
-                    )
-                )
-            }
     }
 
     @Test
@@ -104,17 +104,18 @@ class VerificationAcknowledgeTest {
         val mock2 = mockk<MockCls> { every { op(42) } returns 1 }
         assertFailsWith<AssertionError> {
             checkUnnecessaryStub()
+        }.also {
+            assertThat(
+                it.message,
+                equalTo(
+                    "Unnecessary stubbings detected.\n" +
+                        "Following stubbings are not used, either because there are unnecessary or because " +
+                        "tested code doesn't call them :\n" +
+                        "\n" +
+                        "1) $mock2.op(eq(42)))",
+                ),
+            )
         }
-            .also {
-                assertThat(
-                    it.message, equalTo(
-                        "Unnecessary stubbings detected.\n" +
-                                "Following stubbings are not used, either because there are unnecessary or because tested code doesn't call them :\n" +
-                                "\n" +
-                                "1) ${mock2}.op(eq(42)))"
-                    )
-                )
-            }
     }
 
     @Test
@@ -448,7 +449,6 @@ class VerificationAcknowledgeTest {
         }
     }
 
-
     @Test
     fun exactlyOnce() {
         doCalls2()
@@ -542,7 +542,6 @@ class VerificationAcknowledgeTest {
 
     @Test
     fun clearExclusions() {
-
         every { mock.op(1) } returns 1
         every { mock.op(2) } returns 2
         every { mock.op(3) } returns 3
@@ -574,7 +573,7 @@ class VerificationAcknowledgeTest {
             recordedCalls = false,
             childMocks = false,
             verificationMarks = false,
-            exclusionRules = true
+            exclusionRules = true,
         )
 
         assertEquals(3, mock.op(3))
@@ -643,7 +642,7 @@ class VerificationAcknowledgeTest {
 
         assertEquals(123L, Instant.now().epochSecond)
 
-        verify(exactly = 1) { Instant.now().epochSecond  }
+        verify(exactly = 1) { Instant.now().epochSecond }
 
         confirmVerified(Instant::class)
     }

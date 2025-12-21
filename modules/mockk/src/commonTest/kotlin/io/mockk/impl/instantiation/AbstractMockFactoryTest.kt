@@ -2,10 +2,14 @@
 
 package io.mockk.impl.instantiation
 
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.every
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.reflect.KClass
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -101,17 +105,15 @@ class AbstractMockFactoryTest {
             moreInterfaces: Array<out KClass<*>>,
             stub: Stub,
             useDefaultConstructor: Boolean,
-            instantiate: Boolean
-        ): T {
-            throw AssertionError("fail")
-        }
+            instantiate: Boolean,
+        ): T = throw AssertionError("fail")
 
         override fun <T : Any> newProxy(
             cls: KClass<out T>,
             moreInterfaces: Array<out KClass<*>>,
             stub: Stub,
             useDefaultConstructor: Boolean,
-            instantiate: Boolean
+            instantiate: Boolean,
         ): T = publicNewProxy(cls, moreInterfaces, stub, useDefaultConstructor, instantiate)
     }
 }

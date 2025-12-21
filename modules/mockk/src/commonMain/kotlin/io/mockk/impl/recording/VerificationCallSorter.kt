@@ -8,13 +8,16 @@ class VerificationCallSorter {
     lateinit var regularCalls: List<RecordedCall>
 
     fun sort(calls: List<RecordedCall>) {
-        wasNotCalledCalls = calls.filter {
-            it.matcher.method == WasNotCalled.method
-        }
+        wasNotCalledCalls =
+            calls.filter {
+                it.matcher.method == WasNotCalled.method
+            }
 
-        val callSet = calls.map {
-            InternalPlatform.ref(it)
-        }.toMutableList()
+        val callSet =
+            calls
+                .map {
+                    InternalPlatform.ref(it)
+                }.toMutableList()
 
         tailrec fun removeChain(call: RecordedCall) {
             callSet.remove(InternalPlatform.ref(call))

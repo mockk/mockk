@@ -7,15 +7,19 @@ import io.mockk.MockKGateway
 import io.mockk.MockKSettings
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
-import io.mockk.impl.stub.*
+import io.mockk.impl.stub.MockKStub
+import io.mockk.impl.stub.MockType
+import io.mockk.impl.stub.SpyKStub
+import io.mockk.impl.stub.Stub
+import io.mockk.impl.stub.StubGatewayAccess
+import io.mockk.impl.stub.StubRepository
 import kotlin.reflect.KClass
 
 abstract class AbstractMockFactory(
     val stubRepository: StubRepository,
     val instantiator: AbstractInstantiator,
-    gatewayAccessIn: StubGatewayAccess
+    gatewayAccessIn: StubGatewayAccess,
 ) : MockKGateway.MockFactory {
-
     val safeToString = gatewayAccessIn.safeToString
     val log = safeToString(Logger<AbstractMockFactory>())
 
@@ -26,7 +30,7 @@ abstract class AbstractMockFactory(
         moreInterfaces: Array<out KClass<*>>,
         stub: Stub,
         useDefaultConstructor: Boolean = false,
-        instantiate: Boolean = false
+        instantiate: Boolean = false,
     ): T
 
     override fun <T : Any> mockk(
@@ -34,20 +38,21 @@ abstract class AbstractMockFactory(
         name: String?,
         relaxed: Boolean,
         moreInterfaces: Array<out KClass<*>>,
-        relaxUnitFun: Boolean
+        relaxUnitFun: Boolean,
     ): T {
         val id = newId()
         val newName = (name ?: "") + "#$id"
 
-        val stub = MockKStub(
-            mockType,
-            newName,
-            relaxed || MockKSettings.relaxed,
-            relaxUnitFun || MockKSettings.relaxUnitFun,
-            gatewayAccess,
-            true,
-            MockType.REGULAR
-        )
+        val stub =
+            MockKStub(
+                mockType,
+                newName,
+                relaxed || MockKSettings.relaxed,
+                relaxUnitFun || MockKSettings.relaxUnitFun,
+                gatewayAccess,
+                true,
+                MockType.REGULAR,
+            )
 
         if (moreInterfaces.isEmpty()) {
             log.debug { "Creating mockk for ${mockType.toStr()} name=$newName" }
@@ -70,16 +75,17 @@ abstract class AbstractMockFactory(
         objToCopy: T?,
         name: String?,
         moreInterfaces: Array<out KClass<*>>,
-        recordPrivateCalls: Boolean
+        recordPrivateCalls: Boolean,
     ): T {
         val id = newId()
         val newName = (name ?: "") + "#$id"
 
-        val actualCls = when {
-            objToCopy != null -> objToCopy::class
-            mockType != null -> mockType
-            else -> throw MockKException("Either mockType or objToCopy should not be null")
-        }
+        val actualCls =
+            when {
+                objToCopy != null -> objToCopy::class
+                mockType != null -> mockType
+                else -> throw MockKException("Either mockType or objToCopy should not be null")
+            }
 
         if (moreInterfaces.isEmpty()) {
             log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName" }
@@ -87,13 +93,14 @@ abstract class AbstractMockFactory(
             log.debug { "Creating spyk for ${actualCls.toStr()} name=$newName, moreInterfaces=${moreInterfaces.contentToString()}" }
         }
 
-        val stub = SpyKStub(
-            actualCls,
-            newName,
-            gatewayAccess,
-            recordPrivateCalls || MockKSettings.recordPrivateCalls,
-            MockType.SPY
-        )
+        val stub =
+            SpyKStub(
+                actualCls,
+                newName,
+                gatewayAccess,
+                recordPrivateCalls || MockKSettings.recordPrivateCalls,
+                MockType.SPY,
+            )
 
         val useDefaultConstructor = objToCopy == null
 
@@ -112,15 +119,15 @@ abstract class AbstractMockFactory(
         return proxy
     }
 
-
     override fun temporaryMock(mockType: KClass<*>): Any {
-        val stub = MockKStub(
-            mockType,
-            "temporary mock",
-            gatewayAccess = gatewayAccess,
-            recordPrivateCalls = true,
-            mockType = MockType.TEMPORARY
-        )
+        val stub =
+            MockKStub(
+                mockType,
+                "temporary mock",
+                gatewayAccess = gatewayAccess,
+                recordPrivateCalls = true,
+                mockType = MockType.TEMPORARY,
+            )
 
         log.trace { "Building proxy for ${mockType.toStr()} hashcode=${InternalPlatform.hkd(mockType)}" }
 

@@ -11,7 +11,6 @@ import kotlin.test.assertTrue
  * [Set]s related tests.
  */
 class SetsTest {
-
     /**
      * See issue #221
      */

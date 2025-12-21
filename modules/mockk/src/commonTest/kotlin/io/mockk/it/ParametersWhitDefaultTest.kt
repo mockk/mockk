@@ -6,7 +6,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ParametersWhitDefaultTest {
-
     private val target = mockk<DefaultParam>()
 
     /**

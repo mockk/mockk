@@ -13,6 +13,7 @@ import kotlin.test.assertTrue
 @ExtendWith(MockKExtension::class)
 class ExtensionAndInitMocksTest {
     open class Car
+
     @MockK
     private lateinit var car: Car
 

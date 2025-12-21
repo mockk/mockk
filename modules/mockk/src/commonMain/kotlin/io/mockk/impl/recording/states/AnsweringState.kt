@@ -6,7 +6,9 @@ import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 
-open class AnsweringState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
+open class AnsweringState(
+    recorder: CommonCallRecorder,
+) : CallRecordingState(recorder) {
     open val log = recorder.safeToString(Logger<AnsweringState>())
 
     override fun call(invocation: Invocation): Any? {
@@ -23,5 +25,6 @@ open class AnsweringState(recorder: CommonCallRecorder) : CallRecordingState(rec
     }
 
     override fun startStubbing() = recorder.factories.stubbingState(recorder)
+
     override fun startVerification(params: VerificationParameters) = recorder.factories.verifyingState(recorder, params)
 }

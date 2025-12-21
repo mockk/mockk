@@ -1,11 +1,14 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ExtensionFunctionsTest {
-
     @Test
     fun staticExtensionFunction() {
         mockkStatic("io.mockk.it.ExtensionFunctionsTestKt")
@@ -21,7 +24,6 @@ class ExtensionFunctionsTest {
             IntWrapper(5).f()
             IntWrapper(20).f()
         }
-
     }
 
     @Test
@@ -39,7 +41,6 @@ class ExtensionFunctionsTest {
                 IntWrapper(5).h()
             }
         }
-
     }
 
     @Test
@@ -58,7 +59,9 @@ class ExtensionFunctionsTest {
     }
 }
 
-data class IntWrapper(val data: Int)
+data class IntWrapper(
+    val data: Int,
+)
 
 class ExtCls {
     fun IntWrapper.g() = data + 5

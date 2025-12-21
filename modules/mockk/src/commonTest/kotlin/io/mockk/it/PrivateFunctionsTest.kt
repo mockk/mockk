@@ -13,7 +13,6 @@ import kotlin.test.assertEquals
 
 @Suppress("UNUSED_PARAMETER")
 class PrivateFunctionsTest {
-
     /**
      * See issue #70
      */
@@ -110,7 +109,6 @@ class PrivateFunctionsTest {
     }
 
     class PrivateNoReturnCls {
-
         fun myPublicMethod() {
             myPrivateMethod()
         }
@@ -132,13 +130,25 @@ class PrivateFunctionsTest {
     }
 
     class MockCls {
-        fun y(a: Int, b: Int?, d: Def?) = x(a, b, d)
+        fun y(
+            a: Int,
+            b: Int?,
+            d: Def?,
+        ) = x(a, b, d)
 
-        private fun x(a: Int, b: Int?, d: Def?) = "abc $a $b"
+        private fun x(
+            a: Int,
+            b: Int?,
+            d: Def?,
+        ) = "abc $a $b"
     }
 
     class GenericsCls {
-        private fun <T> updateItemInDb(id: Long, column: String, data: T) {
+        private fun <T> updateItemInDb(
+            id: Long,
+            column: String,
+            data: T,
+        ) {
         }
 
         fun pubCall() {

@@ -1,6 +1,5 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
-import io.mockk.proxy.MockKInvocationHandler;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher;
@@ -9,7 +8,6 @@ import net.bytebuddy.asm.Advice.*;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static net.bytebuddy.implementation.bytecode.assign.Assigner.Typing.DYNAMIC;

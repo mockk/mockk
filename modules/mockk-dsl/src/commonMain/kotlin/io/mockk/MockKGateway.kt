@@ -27,7 +27,7 @@ interface MockKGateway {
         val recordedCalls: Boolean,
         val childMocks: Boolean,
         val verificationMarks: Boolean,
-        val exclusionRules: Boolean
+        val exclusionRules: Boolean,
     )
 
     companion object {
@@ -43,7 +43,7 @@ interface MockKGateway {
             name: String?,
             relaxed: Boolean,
             moreInterfaces: Array<out KClass<*>>,
-            relaxUnitFun: Boolean
+            relaxUnitFun: Boolean,
         ): T
 
         fun <T : Any> spyk(
@@ -51,7 +51,7 @@ interface MockKGateway {
             objToCopy: T?,
             name: String?,
             moreInterfaces: Array<out KClass<*>>,
-            recordPrivateCalls: Boolean
+            recordPrivateCalls: Boolean,
         ): T
 
         fun temporaryMock(mockType: KClass<*>): Any
@@ -59,27 +59,41 @@ interface MockKGateway {
         fun isMock(value: Any): Boolean
     }
 
-
     /**
      * Binds static mocks
      */
     interface StaticMockFactory {
         fun staticMockk(cls: KClass<*>): () -> Unit
 
-        fun clear(type: KClass<*>, options: ClearOptions)
+        fun clear(
+            type: KClass<*>,
+            options: ClearOptions,
+        )
 
-        fun clearAll(options: ClearOptions, currentThreadOnly: Boolean)
+        fun clearAll(
+            options: ClearOptions,
+            currentThreadOnly: Boolean,
+        )
     }
 
     /**
      * Binds object mocks
      */
     interface ObjectMockFactory {
-        fun objectMockk(obj: Any, recordPrivateCalls: Boolean): () -> Unit
+        fun objectMockk(
+            obj: Any,
+            recordPrivateCalls: Boolean,
+        ): () -> Unit
 
-        fun clear(obj: Any, options: ClearOptions)
+        fun clear(
+            obj: Any,
+            options: ClearOptions,
+        )
 
-        fun clearAll(options: ClearOptions, currentThreadOnly: Boolean)
+        fun clearAll(
+            options: ClearOptions,
+            currentThreadOnly: Boolean,
+        )
     }
 
     /**
@@ -89,14 +103,23 @@ interface MockKGateway {
         fun constructorMockk(
             cls: KClass<*>,
             recordPrivateCalls: Boolean,
-            localToThread: Boolean
+            localToThread: Boolean,
         ): () -> Unit
 
-        fun <T : Any> mockPlaceholder(cls: KClass<T>, args: Array<Matcher<*>>? = null): T
+        fun <T : Any> mockPlaceholder(
+            cls: KClass<T>,
+            args: Array<Matcher<*>>? = null,
+        ): T
 
-        fun clear(type: KClass<*>, options: ClearOptions)
+        fun clear(
+            type: KClass<*>,
+            options: ClearOptions,
+        )
 
-        fun clearAll(options: ClearOptions, currentThreadOnly: Boolean)
+        fun clearAll(
+            options: ClearOptions,
+            currentThreadOnly: Boolean,
+        )
     }
 
     /**
@@ -105,12 +128,12 @@ interface MockKGateway {
     interface Clearer {
         fun clear(
             mocks: Array<out Any>,
-            options: ClearOptions
+            options: ClearOptions,
         )
 
         fun clearAll(
             options: ClearOptions,
-            currentThreadOnly: Boolean
+            currentThreadOnly: Boolean,
         )
     }
 
@@ -120,7 +143,7 @@ interface MockKGateway {
     interface Stubber {
         fun <T> every(
             mockBlock: (MockKMatcherScope.() -> T)?,
-            coMockBlock: (suspend MockKMatcherScope.() -> T)?
+            coMockBlock: (suspend MockKMatcherScope.() -> T)?,
         ): MockKStubScope<T, T>
     }
 
@@ -131,7 +154,7 @@ interface MockKGateway {
         fun verify(
             params: VerificationParameters,
             mockBlock: (MockKVerificationScope.() -> Unit)?,
-            coMockBlock: (suspend MockKVerificationScope.() -> Unit)?
+            coMockBlock: (suspend MockKVerificationScope.() -> Unit)?,
         )
     }
 
@@ -142,7 +165,7 @@ interface MockKGateway {
         fun exclude(
             params: ExclusionParameters,
             mockBlock: (MockKMatcherScope.() -> Unit)?,
-            coMockBlock: (suspend MockKMatcherScope.() -> Unit)?
+            coMockBlock: (suspend MockKMatcherScope.() -> Unit)?,
         )
     }
 
@@ -154,14 +177,14 @@ interface MockKGateway {
         val min: Int,
         val max: Int,
         val inverse: Boolean,
-        val timeout: Long
+        val timeout: Long,
     )
 
     /**
      * Parameters of exclusion
      */
     data class ExclusionParameters(
-        val current: Boolean
+        val current: Boolean,
     )
 
     interface AnswerOpportunity<T> {
@@ -180,9 +203,15 @@ interface MockKGateway {
 
         fun startExclusion(params: ExclusionParameters)
 
-        fun round(n: Int, total: Int = 64)
+        fun round(
+            n: Int,
+            total: Int = 64,
+        )
 
-        fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T
+        fun <T : Any> matcher(
+            matcher: Matcher<*>,
+            cls: KClass<T>,
+        ): T
 
         fun call(invocation: Invocation): Any?
 
@@ -190,7 +219,10 @@ interface MockKGateway {
 
         fun done()
 
-        fun hintNextReturnType(cls: KClass<*>, n: Int)
+        fun hintNextReturnType(
+            cls: KClass<*>,
+            n: Int,
+        )
 
         fun reset()
 
@@ -209,7 +241,10 @@ interface MockKGateway {
      * Verifier takes the list of calls and checks what invocations happened to the mocks
      */
     interface CallVerifier {
-        fun verify(verificationSequence: List<RecordedCall>, params: VerificationParameters): VerificationResult
+        fun verify(
+            verificationSequence: List<RecordedCall>,
+            params: VerificationParameters,
+        ): VerificationResult
 
         fun captureArguments()
     }
@@ -218,13 +253,17 @@ interface MockKGateway {
      * Result of verification
      */
     sealed class VerificationResult {
-        data class OK(val verifiedCalls: List<Invocation>) : VerificationResult()
-        data class Failure(val message: String) : VerificationResult()
+        data class OK(
+            val verifiedCalls: List<Invocation>,
+        ) : VerificationResult()
+
+        data class Failure(
+            val message: String,
+        ) : VerificationResult()
 
         val matches: Boolean
             get() = this is OK
     }
-
 
     interface InstanceFactoryRegistry {
         fun registerFactory(factory: InstanceFactory)
@@ -244,7 +283,7 @@ interface MockKGateway {
             targets: List<Any>,
             overrideRecordPrivateCalls: Boolean,
             relaxUnitFun: Boolean,
-            relaxed: Boolean
+            relaxed: Boolean,
         )
     }
 

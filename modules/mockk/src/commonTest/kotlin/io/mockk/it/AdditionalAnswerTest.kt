@@ -52,7 +52,7 @@ class AdditionalAnswerTest {
 
     @Test
     fun andReturnsTwoLambdasAnswer() {
-        every { mock.op(any()) } returns 3 andThenAnswer  { 4 } andThenAnswer  { 5 }
+        every { mock.op(any()) } returns 3 andThenAnswer { 4 } andThenAnswer { 5 }
 
         assertEquals(3, mock.op(1))
         assertEquals(4, mock.op(2))
@@ -110,9 +110,10 @@ class AdditionalAnswerTest {
 
     @Test
     fun andThrowsTwice() {
-        every { mock.op(any()) } returns 3 andThenThrows IllegalArgumentException("error1") andThenThrows IllegalStateException(
-            "error2"
-        )
+        every { mock.op(any()) } returns 3 andThenThrows IllegalArgumentException("error1") andThenThrows
+            IllegalStateException(
+                "error2",
+            )
 
         assertEquals(3, mock.op(1))
         assertFailsWith(IllegalArgumentException::class) {
@@ -125,11 +126,12 @@ class AdditionalAnswerTest {
 
     @Test
     fun andThrowsMany() {
-        val exceptions = listOf(
-            IllegalArgumentException("error1"),
-            NullPointerException("error2"),
-            NoSuchElementException("error3")
-        )
+        val exceptions =
+            listOf(
+                IllegalArgumentException("error1"),
+                NullPointerException("error2"),
+                NoSuchElementException("error3"),
+            )
 
         every { mock.op(any()) } throwsMany exceptions
 
@@ -149,11 +151,12 @@ class AdditionalAnswerTest {
 
     @Test
     fun andThenThrowsMany() {
-        val exceptions = listOf(
-            IllegalArgumentException("error1"),
-            NullPointerException("error2"),
-            NoSuchElementException("error3")
-        )
+        val exceptions =
+            listOf(
+                IllegalArgumentException("error1"),
+                NullPointerException("error2"),
+                NoSuchElementException("error3"),
+            )
         every { mock.op(any()) } returns 3 andThenThrowsMany exceptions andThen 2
 
         assertEquals(3, mock.op(1))

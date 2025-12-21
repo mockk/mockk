@@ -13,7 +13,7 @@ import java.util.WeakHashMap
 
 class ObjenesisInstantiator(
     private val log: MockKAgentLogger,
-    private val byteBuddy: ByteBuddy
+    private val byteBuddy: ByteBuddy,
 ) : MockKInstantiatior {
     private val objenesis = ObjenesisStd(false)
 
@@ -33,47 +33,49 @@ class ObjenesisInstantiator(
                 }
             } catch (ex: Exception) {
                 log.trace(
-                    ex, "Failed to instantiate via proxy " + cls + ". " +
-                            "Doing objenesis instantiation"
+                    ex,
+                    "Failed to instantiate via proxy " + cls + ". " +
+                        "Doing objenesis instantiation",
                 )
             }
-
         }
 
         return instanceViaObjenesis(cls)
     }
 
     private fun <T> instantiateViaProxy(cls: Class<T>): T? {
-        val proxyCls = if (!Modifier.isAbstract(cls.modifiers)) {
-            log.trace("Skipping instantiation subsclassing $cls because class is not abstract.")
-            cls
-        } else {
-            log.trace("Instantiating $cls via subclass proxy")
+        val proxyCls =
+            if (!Modifier.isAbstract(cls.modifiers)) {
+                log.trace("Skipping instantiation subsclassing $cls because class is not abstract.")
+                cls
+            } else {
+                log.trace("Instantiating $cls via subclass proxy")
 
-            val classLoader = cls.classLoader
-            typeCache.findOrInsert(
-                classLoader,
-                CacheKey(cls, setOf()),
-                {
-                    byteBuddy.subclass(cls)
-                        .annotateType(*cls.annotations)
-                        .make()
-                        .load(classLoader)
-                        .loaded
-                }, classLoader ?: bootstrapMonitor
-            )
-        }
+                val classLoader = cls.classLoader
+                typeCache.findOrInsert(
+                    classLoader,
+                    CacheKey(cls, setOf()),
+                    {
+                        byteBuddy
+                            .subclass(cls)
+                            .annotateType(*cls.annotations)
+                            .make()
+                            .load(classLoader)
+                            .loaded
+                    },
+                    classLoader ?: bootstrapMonitor,
+                )
+            }
 
         return cls.cast(instanceViaObjenesis(proxyCls))
     }
-
 
     private fun <T> instanceViaObjenesis(clazz: Class<T>): T {
         log.trace("Creating new empty instance of $clazz")
 
         return clazz.cast(
             getOrCreateInstantiator(clazz)
-                .newInstance()
+                .newInstance(),
         )
     }
 

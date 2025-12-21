@@ -6,15 +6,15 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class CancelableResult<T : Any>(
-    input:T?=null,
-    private val cancelBlock: () -> Unit = {}
+    input: T? = null,
+    private val cancelBlock: () -> Unit = {},
 ) : Cancelable<T> {
-
     private val weakValue: WeakReference<T>? = input?.let { WeakReference(it) }
 
     val fired = AtomicBoolean()
 
-    override fun get() = weakValue?.get()
+    override fun get() =
+        weakValue?.get()
             ?: throw MockKAgentException("Value for this result is not assigned")
 
     override fun cancel() {

@@ -18,20 +18,24 @@ package io.mockk.proxy.android.transformation
 
 import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
-import java.util.*
+import java.util.Random
 
 internal class InliningClassTransformer(
-    private val specMap: ClassTransformationSpecMap
+    private val specMap: ClassTransformationSpecMap,
 ) {
     val identifier = newId()
 
     @Suppress("unused") // JNI call
-    fun transform(classBeingRedefined: Class<*>?, classfileBuffer: ByteArray): ByteArray? {
+    fun transform(
+        classBeingRedefined: Class<*>?,
+        classfileBuffer: ByteArray,
+    ): ByteArray? {
         if (classBeingRedefined == null) {
             return classfileBuffer
         }
 
-        val spec = specMap[classBeingRedefined]
+        val spec =
+            specMap[classBeingRedefined]
                 ?: return classfileBuffer
 
         return synchronized(lock) {
@@ -41,7 +45,7 @@ internal class InliningClassTransformer(
                     classfileBuffer,
                     spec.shouldDoSimpleIntercept,
                     spec.shouldDoStaticIntercept,
-                    spec.shouldDoConstructorIntercept
+                    spec.shouldDoConstructorIntercept,
                 )
             } catch (ex: Exception) {
                 throw MockKAgentException("Transformation issue", ex)
@@ -56,12 +60,13 @@ internal class InliningClassTransformer(
         original: ByteArray,
         mockk: Boolean,
         staticMockk: Boolean,
-        constructorMockk: Boolean
+        constructorMockk: Boolean,
     ): ByteArray
 
     companion object {
         private val lock = Any()
         private val rng = Random()
+
         private fun newId() = Math.abs(rng.nextLong()).toString(16)
     }
 }

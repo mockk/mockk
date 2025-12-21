@@ -6,17 +6,24 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @JvmInline
-value class InnerClass(val innerValue: Long)
+value class InnerClass(
+    val innerValue: Long,
+)
 
 @JvmInline
-value class OuterClass(val outerValue: InnerClass)
+value class OuterClass(
+    val outerValue: InnerClass,
+)
 
-class ContainerOfInnerClass(val innerClass: InnerClass)
+class ContainerOfInnerClass(
+    val innerClass: InnerClass,
+)
 
-class ContainerOfOuterClass(val outerClass: OuterClass)
+class ContainerOfOuterClass(
+    val outerClass: OuterClass,
+)
 
 class DefaultValueInMockedValueClassTest {
-
     // https://github.com/mockk/mockk/issues/1330
     @Test
     fun `given nested value class when relaxed mocking is enabled then value successfully verified`() {
@@ -35,14 +42,16 @@ class DefaultValueInMockedValueClassTest {
 
     @Test
     fun `given nested value class when relaxed mocking is disabled then value successfully verified`() {
-        val containerOfInnerClass = mockk<ContainerOfInnerClass> {
-            every { innerClass } returns InnerClass(innerValue = 0L)
-        }
+        val containerOfInnerClass =
+            mockk<ContainerOfInnerClass> {
+                every { innerClass } returns InnerClass(innerValue = 0L)
+            }
         assertEquals(0L, containerOfInnerClass.innerClass.innerValue)
 
-        val mockedClass = mockk<ContainerOfOuterClass> {
-            every { outerClass } returns OuterClass(outerValue = InnerClass(innerValue = 0L))
-        }
+        val mockedClass =
+            mockk<ContainerOfOuterClass> {
+                every { outerClass } returns OuterClass(outerValue = InnerClass(innerValue = 0L))
+            }
         assertEquals(0L, mockedClass.outerClass.outerValue.innerValue)
     }
 }

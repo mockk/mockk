@@ -24,6 +24,9 @@ class LambdaTest {
     }
 
     class MockCls {
-        fun lambdaOp(a: Int, b: () -> Int) = a + b()
+        fun lambdaOp(
+            a: Int,
+            b: () -> Int,
+        ) = a + b()
     }
 }

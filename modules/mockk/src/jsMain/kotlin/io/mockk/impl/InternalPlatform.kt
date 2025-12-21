@@ -17,8 +17,8 @@ actual object InternalPlatform {
 
     actual fun hkd(obj: Any): String = JsHexLongHelper.toHexString(InternalPlatformDsl.identityHashCode(obj).toLong())
 
-    actual fun isPassedByValue(cls: KClass<*>): Boolean {
-        return when (cls) {
+    actual fun isPassedByValue(cls: KClass<*>): Boolean =
+        when (cls) {
             Boolean::class -> true
             Byte::class -> true
             Short::class -> true
@@ -30,9 +30,11 @@ actual object InternalPlatform {
             String::class -> true
             else -> false
         }
-    }
 
-    actual fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V {
+    actual fun <K, V> MutableMap<K, V>.customComputeIfAbsent(
+        key: K,
+        valueFunc: (K) -> V,
+    ): V {
         val value = get(key)
         return if (value == null) {
             val newValue = valueFunc(key)
@@ -43,12 +45,12 @@ actual object InternalPlatform {
         }
     }
 
-    actual fun packRef(arg: Any?): Any? {
-        return if (arg == null || isPassedByValue(arg::class))
+    actual fun packRef(arg: Any?): Any? =
+        if (arg == null || isPassedByValue(arg::class)) {
             arg
-        else
+        } else {
             ref(arg)
-    }
+        }
 
     actual fun prettifyRecordingException(ex: Throwable) = ex
 
@@ -61,7 +63,10 @@ actual object InternalPlatform {
     actual fun <K, V> synchronizedMutableMap(): MutableMap<K, V> = hashMapOf()
 
     @Suppress("NAME_SHADOWING", "UNUSED_VARIABLE")
-    actual fun <T : Any> copyFields(to: T, from: T) {
+    actual fun <T : Any> copyFields(
+        to: T,
+        from: T,
+    ) {
         val to = to.asDynamic()
         val from = from.asDynamic()
         js("for (var key in from) { to[key] = from[key]; }")
@@ -70,18 +75,21 @@ actual object InternalPlatform {
     // TODO
     actual fun captureStackTrace() = { listOf<StackElement>() }
 
-    actual fun weakRef(value: Any) = object : WeakRef {
-        override val value: Any?
-            get() = value
-    }
-
-    actual fun multiNotifier() = object : MultiNotifier {
-        override fun notify(key: Any) {
-            // skip
+    actual fun weakRef(value: Any) =
+        object : WeakRef {
+            override val value: Any?
+                get() = value
         }
 
-        override fun openSession(keys: List<Any>, timeout: Long) =
-            throw UnsupportedOperationException("not implemented for JS")
-    }
-}
+    actual fun multiNotifier() =
+        object : MultiNotifier {
+            override fun notify(key: Any) {
+                // skip
+            }
 
+            override fun openSession(
+                keys: List<Any>,
+                timeout: Long,
+            ) = throw UnsupportedOperationException("not implemented for JS")
+        }
+}

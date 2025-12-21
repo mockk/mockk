@@ -14,30 +14,29 @@ class JvmMockFactory(
     val proxyMaker: MockKProxyMaker,
     instantiator: JvmInstantiator,
     stubRepository: StubRepository,
-    gatewayAccess: StubGatewayAccess
-) :
-    AbstractMockFactory(
+    gatewayAccess: StubGatewayAccess,
+) : AbstractMockFactory(
         stubRepository,
         instantiator,
-        gatewayAccess
+        gatewayAccess,
     ) {
-
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> newProxy(
         cls: KClass<out T>,
         moreInterfaces: Array<out KClass<*>>,
         stub: Stub,
         useDefaultConstructor: Boolean,
-        instantiate: Boolean
-    ): T {
-        return try {
-            val proxyResult = proxyMaker.proxy(
-                cls.java,
-                moreInterfaces.map { it.java }.toTypedArray(),
-                JvmMockFactoryHelper.mockHandler(stub),
-                useDefaultConstructor,
-                null
-            )
+        instantiate: Boolean,
+    ): T =
+        try {
+            val proxyResult =
+                proxyMaker.proxy(
+                    cls.java,
+                    moreInterfaces.map { it.java }.toTypedArray(),
+                    JvmMockFactoryHelper.mockHandler(stub),
+                    useDefaultConstructor,
+                    null,
+                )
 
             (stub as? MockKStub)?.disposeRoutine = proxyResult::cancel
 
@@ -47,8 +46,8 @@ class JvmMockFactory(
                 instantiate -> {
                     log.trace(ex) {
                         "Failed to build proxy for ${cls.toStr()}. " +
-                                "Trying just instantiate it. " +
-                                "This can help if it's last call in the chain"
+                            "Trying just instantiate it. " +
+                            "This can help if it's last call in the chain"
                     }
 
                     gatewayAccess.anyValueGenerator().anyValue(cls, isNullable = false) {
@@ -57,13 +56,14 @@ class JvmMockFactory(
                 }
 
                 useDefaultConstructor ->
-                    throw MockKException("Can't instantiate proxy via " +
-                        "default constructor for $cls", ex)
+                    throw MockKException(
+                        "Can't instantiate proxy via " +
+                            "default constructor for $cls",
+                        ex,
+                    )
 
                 else ->
                     throw MockKException("Can't instantiate proxy for $cls", ex)
             }
         }
-    }
 }
-

@@ -14,7 +14,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MockKRuleTest {
-
     @get:Rule
     val mockkRule = MockKRule(this)
 
@@ -22,24 +21,25 @@ class MockKRuleTest {
         NORTH,
         SOUTH,
         EAST,
-        WEST
+        WEST,
     }
 
     enum class Outcome {
         FAILURE,
-        RECORDED
+        RECORDED,
     }
 
     class RelaxedOutcome
 
     class Car {
-        fun recordTelemetry(speed: Int, direction: Direction, lat: Double, long: Double): Outcome {
-            return Outcome.FAILURE
-        }
+        fun recordTelemetry(
+            speed: Int,
+            direction: Direction,
+            lat: Double,
+            long: Double,
+        ): Outcome = Outcome.FAILURE
 
-        fun relaxedTest(): RelaxedOutcome? {
-            return null
-        }
+        fun relaxedTest(): RelaxedOutcome? = null
     }
 
     @MockK
@@ -58,7 +58,7 @@ class MockKRuleTest {
                 speed = more(50),
                 direction = Direction.NORTH,
                 lat = any(),
-                long = any()
+                long = any(),
             )
         } returns Outcome.RECORDED
 

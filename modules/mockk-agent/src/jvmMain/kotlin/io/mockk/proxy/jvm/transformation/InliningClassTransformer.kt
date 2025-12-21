@@ -16,7 +16,19 @@ import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
 import net.bytebuddy.dynamic.VisibilityBridgeStrategy
-import net.bytebuddy.matcher.ElementMatchers.*
+import net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith
+import net.bytebuddy.matcher.ElementMatchers.isConstructor
+import net.bytebuddy.matcher.ElementMatchers.isDeclaredBy
+import net.bytebuddy.matcher.ElementMatchers.isDefaultFinalizer
+import net.bytebuddy.matcher.ElementMatchers.isDefaultMethod
+import net.bytebuddy.matcher.ElementMatchers.isFinal
+import net.bytebuddy.matcher.ElementMatchers.isMethod
+import net.bytebuddy.matcher.ElementMatchers.isPublic
+import net.bytebuddy.matcher.ElementMatchers.isStatic
+import net.bytebuddy.matcher.ElementMatchers.isTypeInitializer
+import net.bytebuddy.matcher.ElementMatchers.named
+import net.bytebuddy.matcher.ElementMatchers.not
+import net.bytebuddy.matcher.ElementMatchers.takesNoArguments
 import java.io.File
 import java.lang.instrument.ClassFileTransformer
 import java.security.ProtectionDomain
@@ -28,12 +40,12 @@ internal class InliningClassTransformer(
     private val handlers: MockHandlerMap,
     private val staticHandlers: MockHandlerMap,
     private val constructorHandlers: MockHandlerMap,
-    private val byteBuddy: ByteBuddy
+    private val byteBuddy: ByteBuddy,
 ) : ClassFileTransformer {
-
-    private val restrictedMethods = setOf(
-        "java.lang.System.getSecurityManager"
-    )
+    private val restrictedMethods =
+        setOf(
+            "java.lang.System.getSecurityManager",
+        )
 
     private lateinit var advice: JvmMockKProxyAdvice
     private lateinit var staticAdvice: JvmMockKStaticProxyAdvice
@@ -62,27 +74,30 @@ internal class InliningClassTransformer(
         className: String,
         classBeingRedefined: Class<*>?,
         protectionDomain: ProtectionDomain?,
-        classfileBuffer: ByteArray
+        classfileBuffer: ByteArray,
     ): ByteArray? {
         if (classBeingRedefined == null) {
             return classfileBuffer
         }
 
-        val spec = specMap[classBeingRedefined]
+        val spec =
+            specMap[classBeingRedefined]
                 ?: return classfileBuffer
 
         try {
-            val builder = byteBuddy
-                // Work around for https://bugs.openjdk.org/browse/JDK-8136614
-                .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
-                .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
-                .visit(FixParameterNamesVisitor(classBeingRedefined))
+            val builder =
+                byteBuddy
+                    // Work around for https://bugs.openjdk.org/browse/JDK-8136614
+                    .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
+                    .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
+                    .visit(FixParameterNamesVisitor(classBeingRedefined))
 
-            val type = builder
-                .run { if (spec.shouldDoSimpleIntercept) visit(simpleAdvice()) else this }
-                .run { if (spec.shouldDoStaticIntercept) visit(staticAdvice(className)) else this }
-                .run { if (spec.shouldDoConstructorIntercept) visit(constructorAdvice()) else this }
-                .make()
+            val type =
+                builder
+                    .run { if (spec.shouldDoSimpleIntercept) visit(simpleAdvice()) else this }
+                    .run { if (spec.shouldDoStaticIntercept) visit(staticAdvice(className)) else this }
+                    .run { if (spec.shouldDoConstructorIntercept) visit(constructorAdvice()) else this }
+                    .make()
 
             try {
                 val property = System.getProperty("io.mockk.classdump.path")
@@ -96,7 +111,6 @@ internal class InliningClassTransformer(
             }
 
             return type.bytes
-
         } catch (e: Throwable) {
             log.warn(e, "Failed to transform class $className")
             return null
@@ -105,48 +119,47 @@ internal class InliningClassTransformer(
 
     @Suppress("RemoveExplicitTypeArguments")
     private fun simpleAdvice() =
-        Advice.withCustomMapping()
+        Advice
+            .withCustomMapping()
             .bind(ProxyAdviceId::class.java, advice.id)
             .to(JvmMockKProxyAdvice::class.java)
             .on(
                 isMethod<MethodDescription>()
                     .and(not<OfByteCodeElement>(isStatic<OfByteCodeElement>()))
                     .and(not<MethodDescription>(isDefaultFinalizer<MethodDescription>()))
-                    .and(not<MethodDescription>(this::matchValueClassGetValueMethod))
+                    .and(not<MethodDescription>(this::matchValueClassGetValueMethod)),
             )
 
     @Suppress("RemoveExplicitTypeArguments")
     private fun staticAdvice(className: String) =
-        Advice.withCustomMapping()
+        Advice
+            .withCustomMapping()
             .bind(ProxyAdviceId::class.java, staticProxyAdviceId(className))
             .to(staticProxyAdvice(className))
             .on(
                 isStatic<OfByteCodeElement>()
                     .and(not<MethodDescription>(isTypeInitializer<MethodDescription>()))
                     .and(not<MethodDescription>(isConstructor<MethodDescription>()))
-                    .and(not<MethodDescription>(this::matchRestrictedMethods))
+                    .and(not<MethodDescription>(this::matchRestrictedMethods)),
             )
 
-    private fun matchRestrictedMethods(desc: MethodDescription) =
-        desc.declaringType.typeName + "." + desc.name in restrictedMethods
+    private fun matchRestrictedMethods(desc: MethodDescription) = desc.declaringType.typeName + "." + desc.name in restrictedMethods
 
-    private fun matchValueClassGetValueMethod(desc: MethodDescription): Boolean {
-        return isFinal<MethodDescription>()
+    private fun matchValueClassGetValueMethod(desc: MethodDescription): Boolean =
+        isFinal<MethodDescription>()
             .and(isDeclaredBy(isAnnotatedWith(JvmInline::class.java)))
             .and(named("getValue"))
             .and(isPublic())
             .and(takesNoArguments())
             .matches(desc)
-    }
 
     @Suppress("RemoveExplicitTypeArguments")
-    private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods {
-        return Advice.withCustomMapping()
+    private fun constructorAdvice(): AsmVisitorWrapper.ForDeclaredMethods =
+        Advice
+            .withCustomMapping()
             .bind(ProxyAdviceId::class.java, constructorAdvice.id)
             .to(JvmMockKConstructorProxyAdvice::class.java)
             .on(isConstructor())
-    }
-
 
     // workaround #35
     private fun staticProxyAdviceId(className: String) =

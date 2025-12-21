@@ -1,6 +1,11 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyAll
+import io.mockk.verifyOrder
+import io.mockk.verifySequence
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -8,9 +13,15 @@ import kotlin.test.assertEquals
 @Suppress("UNUSED_PARAMETER")
 class ChainedCallsMatchingTest {
     class ChainedOpClass {
-        fun chainOp(a: Int, b: Int) = this
+        fun chainOp(
+            a: Int,
+            b: Int,
+        ) = this
 
-        fun otherOp(a: Int, b: Int) = a + b
+        fun otherOp(
+            a: Int,
+            b: Int,
+        ) = a + b
     }
 
     val mock = mockk<ChainedOpClass>()
@@ -99,4 +110,3 @@ class ChainedCallsMatchingTest {
         }
     }
 }
-

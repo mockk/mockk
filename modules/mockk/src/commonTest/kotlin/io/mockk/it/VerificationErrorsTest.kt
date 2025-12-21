@@ -1,6 +1,12 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.clearMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import io.mockk.verifyAll
+import io.mockk.verifyOrder
+import io.mockk.verifySequence
 import kotlin.test.Test
 import kotlin.test.fail
 
@@ -8,7 +14,10 @@ class VerificationErrorsTest {
     val mock = mockk<MockCls>("mock")
     val openMock = mockk<OpenMockCls>("mock")
 
-    private fun expectVerificationError(vararg messages: String, block: () -> Unit) {
+    private fun expectVerificationError(
+        vararg messages: String,
+        block: () -> Unit,
+    ) {
         try {
             clearMocks(mock, openMock)
             block()
@@ -25,7 +34,7 @@ class VerificationErrorsTest {
         expectVerificationError(
             "Only one matching call to ",
             "but arguments are not matching",
-            "MockCls.otherOp"
+            "MockCls.otherOp",
         ) {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
@@ -169,7 +178,7 @@ class VerificationErrorsTest {
     fun notFullSequence() {
         expectVerificationError(
             "number of calls happened not matching exact number of verification sequence",
-            "MockCls.otherOp"
+            "MockCls.otherOp",
         ) {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
 
@@ -211,30 +220,46 @@ class VerificationErrorsTest {
         }
     }
 
-    data class IntWrapper(val data: Int)
+    data class IntWrapper(
+        val data: Int,
+    )
 
     class MockCls {
-        fun otherOp(a: Int = 1, b: Int = 2): Int = a + b
+        fun otherOp(
+            a: Int = 1,
+            b: Int = 2,
+        ): Int = a + b
 
         fun manyArgsOp(
-            a: Boolean = true, b: Boolean = true,
-            c: Byte = 1, d: Byte = 2,
-            e: Short = 3, f: Short = 4,
-            g: Char = 5.toChar(), h: Char = 6.toChar(),
-            i: Int = 7, j: Int = 8,
-            k: Long = 9, l: Long = 10,
-            m: Float = 10.0f, n: Float = 11.0f,
-            o: Double = 12.0, p: Double = 13.0,
-            q: String = "14", r: String = "15",
-            s: IntWrapper = IntWrapper(16), t: IntWrapper = IntWrapper(17)
-        ): Double {
-
-            return (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.code.toByte() + h.code.toByte() +
-                    i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
-        }
+            a: Boolean = true,
+            b: Boolean = true,
+            c: Byte = 1,
+            d: Byte = 2,
+            e: Short = 3,
+            f: Short = 4,
+            g: Char = 5.toChar(),
+            h: Char = 6.toChar(),
+            i: Int = 7,
+            j: Int = 8,
+            k: Long = 9,
+            l: Long = 10,
+            m: Float = 10.0f,
+            n: Float = 11.0f,
+            o: Double = 12.0,
+            p: Double = 13.0,
+            q: String = "14",
+            r: String = "15",
+            s: IntWrapper = IntWrapper(16),
+            t: IntWrapper = IntWrapper(17),
+        ): Double =
+            (if (a) 0 else -1) + (if (b) 0 else -2) + c + d + e + f + g.code.toByte() + h.code.toByte() +
+                i + j + k + l + m + n + o + p + q.toInt() + r.toInt() + s.data + t.data
     }
 
     abstract class OpenMockCls {
-        abstract fun op(a: Int = 1, b: Int = 2): Int
+        abstract fun op(
+            a: Int = 1,
+            b: Int = 2,
+        ): Int
     }
 }

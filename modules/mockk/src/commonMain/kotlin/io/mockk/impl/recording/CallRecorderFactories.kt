@@ -1,6 +1,8 @@
 package io.mockk.impl.recording
 
-import io.mockk.MockKGateway.*
+import io.mockk.MockKGateway.CallVerifier
+import io.mockk.MockKGateway.ExclusionParameters
+import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.impl.recording.states.CallRecordingState
 
 typealias VerifierFactory = (VerificationParameters) -> CallVerifier
@@ -27,5 +29,5 @@ data class CallRecorderFactories(
     val verifyingState: VerifyingStateFactory,
     val exclusionState: ExclusionStateFactory,
     val stubbingAwaitingAnswerState: StateFactory,
-    val safeLoggingState: StateFactory
+    val safeLoggingState: StateFactory,
 )

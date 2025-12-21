@@ -20,9 +20,7 @@ class ConcurrentStubInvocationTest {
         val fetchTimes = numValues / nThreads
 
         class ClassToMock {
-            fun getValue(): Int {
-                return 0
-            }
+            fun getValue(): Int = 0
         }
 
         val mock = mockk<ClassToMock>(relaxed = true)
@@ -32,18 +30,19 @@ class ConcurrentStubInvocationTest {
         every { mock.getValue() } returnsMany values
 
         val latch = CountDownLatch(nThreads)
-        (1..nThreads).map {
-            thread {
-                latch.countDown()
-                latch.await()
+        (1..nThreads)
+            .map {
+                thread {
+                    latch.countDown()
+                    latch.await()
 
-                repeat(fetchTimes) {
-                    sum.addAndGet(mock.getValue())
+                    repeat(fetchTimes) {
+                        sum.addAndGet(mock.getValue())
+                    }
                 }
+            }.forEach {
+                it.join()
             }
-        }.forEach {
-            it.join()
-        }
 
         // expect to recive each value once
         assertEquals(values.sum(), sum.get())

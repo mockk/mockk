@@ -13,19 +13,21 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
-class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializer {
+class JvmMockInitializer(
+    val gateway: MockKGateway,
+) : MockKGateway.MockInitializer {
     override fun initAnnotatedMocks(
         targets: List<Any>,
         overrideRecordPrivateCalls: Boolean,
         relaxUnitFun: Boolean,
-        relaxed: Boolean
+        relaxed: Boolean,
     ) {
         for (target in targets) {
             initMock(
                 target,
                 overrideRecordPrivateCalls,
                 relaxUnitFun,
-                relaxed
+                relaxed,
             )
         }
     }
@@ -34,7 +36,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         target: Any,
         overrideRecordPrivateCalls: Boolean,
         relaxUnitFun: Boolean,
-        relaxed: Boolean
+        relaxed: Boolean,
     ) {
         val cls = target::class
         for (property in cls.memberProperties) {
@@ -42,7 +44,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 property as KProperty1<Any, Any>,
                 target,
                 relaxUnitFun,
-                relaxed
+                relaxed,
             )
             assignRelaxedMockK(property, target)
 
@@ -50,7 +52,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 assignSpyK(
                     property,
                     target,
-                    overrideRecordPrivateCalls
+                    overrideRecordPrivateCalls,
                 )
             }
         }
@@ -59,22 +61,24 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
             property as KProperty1<Any, Any>
 
             property.annotated<InjectMockKs>(target) { annotation ->
-                val mockInjector = MockInjector(
-                    target,
-                    annotation.lookupType,
-                    annotation.injectImmutable,
-                    annotation.overrideValues
-                )
+                val mockInjector =
+                    MockInjector(
+                        target,
+                        annotation.lookupType,
+                        annotation.injectImmutable,
+                        annotation.overrideValues,
+                    )
                 val instance = doInjection(property, target, mockInjector)
                 convertSpyKAnnotatedToSpy(property, instance, overrideRecordPrivateCalls)
             }
             property.annotated<OverrideMockKs>(target) { annotation ->
-                val mockInjector = MockInjector(
-                    target,
-                    annotation.lookupType,
-                    annotation.injectImmutable,
-                    true
-                )
+                val mockInjector =
+                    MockInjector(
+                        target,
+                        annotation.lookupType,
+                        annotation.injectImmutable,
+                        true,
+                    )
 
                 doInjection(property, target, mockInjector)
             }
@@ -84,10 +88,11 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     private fun doInjection(
         property: KProperty1<out Any, Any?>,
         target: Any,
-        mockInjector: MockInjector
-    ): Any {
-        return if (property is KMutableProperty1) {
-            val instance = (property as KMutableProperty1<Any, Any?>).getAnyIfLateNull(target)
+        mockInjector: MockInjector,
+    ): Any =
+        if (property is KMutableProperty1) {
+            val instance =
+                (property as KMutableProperty1<Any, Any?>).getAnyIfLateNull(target)
                     ?: mockInjector.constructorInjection(property.returnType.classifier as KClass<*>)
 
             mockInjector.propertiesInjection(instance)
@@ -100,9 +105,12 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
 
             instance
         }
-    }
 
-    private fun convertSpyKAnnotatedToSpy(property: KProperty1<Any, Any>, instance: Any, overrideRecordPrivateCalls: Boolean): Any {
+    private fun convertSpyKAnnotatedToSpy(
+        property: KProperty1<Any, Any>,
+        instance: Any,
+        overrideRecordPrivateCalls: Boolean,
+    ): Any {
         val spyAnnotation = property.findAnnotation<SpyK>() ?: return instance
         return createSpyK(property, spyAnnotation, instance, overrideRecordPrivateCalls)
     }
@@ -110,7 +118,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
     private fun assignSpyK(
         property: KProperty1<Any, Any>,
         target: Any,
-        overrideRecordPrivateCalls: Boolean
+        overrideRecordPrivateCalls: Boolean,
     ) {
         property.annotated<SpyK>(target) { annotation ->
             val obj = property.get(target)
@@ -122,21 +130,24 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         property: KProperty1<Any, Any>,
         spyAnnotation: SpyK,
         instance: Any,
-        overrideRecordPrivateCalls: Boolean
-    ): Any {
-        return gateway.mockFactory.spyk(
+        overrideRecordPrivateCalls: Boolean,
+    ): Any =
+        gateway.mockFactory.spyk(
             null,
             instance,
             overrideName(spyAnnotation.name, property.name),
             moreInterfaces(property),
-            spyAnnotation.recordPrivateCalls
-                    || overrideRecordPrivateCalls
+            spyAnnotation.recordPrivateCalls ||
+                overrideRecordPrivateCalls,
         )
-    }
 
-    private fun assignRelaxedMockK(property: KProperty1<Any, Any>, target: Any) {
+    private fun assignRelaxedMockK(
+        property: KProperty1<Any, Any>,
+        target: Any,
+    ) {
         property.annotated<RelaxedMockK>(target) { annotation ->
-            val type = property.returnType.classifier as? KClass<*>
+            val type =
+                property.returnType.classifier as? KClass<*>
                     ?: return@annotated null
 
             gateway.mockFactory.mockk(
@@ -144,9 +155,8 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 overrideName(annotation.name, property.name),
                 true,
                 moreInterfaces(property),
-                relaxUnitFun = false
+                relaxUnitFun = false,
             )
-
         }
     }
 
@@ -154,52 +164,62 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         property: KProperty1<Any, Any>,
         target: Any,
         relaxUnitFun: Boolean,
-    relaxed: Boolean
+        relaxed: Boolean,
     ) {
         property.annotated<MockK>(target) { annotation ->
-            val type = property.returnType.classifier as? KClass<*>
+            val type =
+                property.returnType.classifier as? KClass<*>
                     ?: return@annotated null
 
             gateway.mockFactory.mockk(
                 type,
                 overrideName(annotation.name, property.name),
                 annotation.relaxed ||
-                        relaxed,
+                    relaxed,
                 moreInterfaces(property),
                 relaxUnitFun =
-                annotation.relaxUnitFun ||
-                        relaxUnitFun
+                    annotation.relaxUnitFun ||
+                        relaxUnitFun,
             )
-
         }
     }
 
-    private fun overrideName(annotationName: String, propertyName: String): String =
-        annotationName.ifBlank { propertyName }
+    private fun overrideName(
+        annotationName: String,
+        propertyName: String,
+    ): String = annotationName.ifBlank { propertyName }
 
     private inline fun <reified T : Annotation> KProperty1<Any, Any>.annotated(
         target: Any,
-        block: (T) -> Any?
+        block: (T) -> Any?,
     ) {
-        val annotation = findAnnotation<T>()
+        val annotation =
+            findAnnotation<T>()
                 ?: return
 
         tryMakeAccessible(this)
         if (isAlreadyInitialized(this, target)) return
 
-        val ret = block(annotation)
+        val ret =
+            block(annotation)
                 ?: return
 
         if (this !is KMutableProperty1<Any, Any>) {
-            throw MockKException("Annotation $annotation present on $name read-only property, make it read-write please('lateinit var' or 'var')")
+            throw MockKException(
+                "Annotation $annotation present on $name read-only property, make it read-write please('lateinit var' or 'var')",
+            )
         }
 
         set(target, ret)
     }
 
-    private fun isAlreadyInitialized(property: KProperty1<Any, Any?>, target: Any): Boolean {
+    private fun isAlreadyInitialized(
+        property: KProperty1<Any, Any?>,
+        target: Any,
+    ): Boolean {
         try {
-            val value = property.get(target)
+            val value =
+                property.get(target)
                     ?: return false
 
             return gateway.mockFactory.isMock(value)
@@ -216,7 +236,7 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
         }
     }
 
-    private inline fun <reified T : Annotation>  isAnnotatedWith(property: KProperty<*>) : Boolean {
+    private inline fun <reified T : Annotation> isAnnotatedWith(property: KProperty<*>): Boolean {
         val annotation = property.findAnnotation<T>()
         return null != annotation
     }
@@ -227,6 +247,5 @@ class JvmMockInitializer(val gateway: MockKGateway) : MockKGateway.MockInitializ
                 .filterIsInstance<AdditionalInterface>()
                 .map { it.type }
                 .toTypedArray()
-
     }
 }

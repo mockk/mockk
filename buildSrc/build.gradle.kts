@@ -14,4 +14,5 @@ dependencies {
     implementation(libs.kover)
     implementation(libs.binary.compatibility.validator)
     implementation(libs.jreleaser)
+    implementation(libs.spotless)
 }

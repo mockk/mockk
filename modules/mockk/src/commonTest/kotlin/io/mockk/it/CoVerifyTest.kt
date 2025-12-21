@@ -7,9 +7,9 @@ import io.mockk.coVerifyCount
 import io.mockk.coVerifyOrder
 import io.mockk.coVerifySequence
 import io.mockk.mockk
+import kotlinx.coroutines.coroutineScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.coroutines.coroutineScope
 
 class CoVerifyTest {
     class MockCls {

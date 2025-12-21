@@ -8,10 +8,7 @@ class SpyKStub<T : Any>(
     name: String,
     gatewayAccess: StubGatewayAccess,
     recordPrivateCalls: Boolean,
-    mockType: MockType
+    mockType: MockType,
 ) : MockKStub(cls, name, false, false, gatewayAccess, recordPrivateCalls, mockType) {
-
-    override fun defaultAnswer(invocation: Invocation): Any? {
-        return invocation.originalCall()
-    }
+    override fun defaultAnswer(invocation: Invocation): Any? = invocation.originalCall()
 }

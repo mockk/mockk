@@ -10,9 +10,8 @@ import io.mockk.impl.verify.VerificationHelpers
 
 class CommonVerificationAcknowledger(
     val stubRepo: StubRepository,
-    val safeToString: SafeToString
+    val safeToString: SafeToString,
 ) : MockKGateway.VerificationAcknowledger {
-
     override fun markCallVerified(invocation: Invocation) {
         (invocation.stub as? Stub)?.markCallVerified(invocation)
     }
@@ -46,25 +45,23 @@ class CommonVerificationAcknowledger(
                 reportNotVerified(
                     allCalls.size,
                     verifiedCalls.size,
-                    stub.allRecordedCalls() - stub.verifiedCalls().toSet()
+                    stub.allRecordedCalls() - stub.verifiedCalls().toSet(),
                 )
             }
         throw AssertionError("Verification acknowledgment failed$nonVerifiedReport")
     }
 
-
     private fun reportNotVerified(
         nTotal: Int,
         nVerified: Int,
-        notVerified: List<Invocation>
-    ): String {
-        return "\n\nVerified call count: $nVerified\n" +
-                "Recorded call count: $nTotal\n" +
-                "\n\nNot verified calls:\n" +
-                VerificationHelpers.formatCalls(notVerified) +
-                "\n\nStack traces:\n" +
-                VerificationHelpers.stackTraces(notVerified)
-    }
+        notVerified: List<Invocation>,
+    ): String =
+        "\n\nVerified call count: $nVerified\n" +
+            "Recorded call count: $nTotal\n" +
+            "\n\nNot verified calls:\n" +
+            VerificationHelpers.formatCalls(notVerified) +
+            "\n\nStack traces:\n" +
+            VerificationHelpers.stackTraces(notVerified)
 
     private fun checkUnnecessaryStubHelper(stub: Stub) {
         val unnecessaryMatcher = stub.matcherUsages().filterValues { it == 0 }.keys
@@ -72,11 +69,11 @@ class CommonVerificationAcknowledger(
         if (unnecessaryMatcher.isEmpty()) return
 
         val report =
-            "Unnecessary stubbings detected.\nFollowing stubbings are not used, either because there are unnecessary or because tested code doesn't call them :\n\n" +
-                    unnecessaryMatcher
-                        .mapIndexed { idx, matcher -> "${idx + 1}) $matcher" }
-                        .joinToString("\n")
+            "Unnecessary stubbings detected.\nFollowing stubbings are not used, either because " +
+                "there are unnecessary or because tested code doesn't call them :\n\n" +
+                unnecessaryMatcher
+                    .mapIndexed { idx, matcher -> "${idx + 1}) $matcher" }
+                    .joinToString("\n")
         throw AssertionError(report)
     }
-
 }

@@ -43,17 +43,18 @@ class MockKExtensionRequireParallelTestingTest {
     }
 
     @Test
-    fun `given car when test with require parallel testing execution returns successfully`() = runTest {
-        // Given
-        every { car.drive() } returns "driving"
+    fun `given car when test with require parallel testing execution returns successfully`() =
+        runTest {
+            // Given
+            every { car.drive() } returns "driving"
 
-        // When
-        val result = car.drive()
+            // When
+            val result = car.drive()
 
-        // Then
-        verify { car.drive() }
-        assert(result == "driving")
-    }
+            // Then
+            verify { car.drive() }
+            assert(result == "driving")
+        }
 }
 
 internal interface Car {

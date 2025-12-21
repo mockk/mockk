@@ -3,9 +3,10 @@ package io.mockk.proxy.android
 import java.lang.reflect.Method
 
 internal class MethodDescriptor(
-    signature: String
+    signature: String,
 ) {
-    private val matchResult = methodPattern.matchEntire(signature)
+    private val matchResult =
+        methodPattern.matchEntire(signature)
             ?: throw IllegalArgumentException()
 
     val className = matchResult.groupValues[1]
@@ -13,12 +14,13 @@ internal class MethodDescriptor(
     val methodParamTypes = parseParamTypes(matchResult.groupValues[3])
 
     val method: Method
-        get() = Class.forName(className)
-            .getDeclaredMethod(
-                methodName,
-                *methodParamTypes
-            )
-
+        get() =
+            Class
+                .forName(className)
+                .getDeclaredMethod(
+                    methodName,
+                    *methodParamTypes,
+                )
 
     override fun toString() = "$className#$methodName"
 
@@ -98,7 +100,11 @@ internal class MethodDescriptor(
          * Check if substring has any non-whitespace content.
          * Avoids using String.trim() which may trigger collection operations.
          */
-        private fun hasNonWhitespaceContent(str: String, start: Int, end: Int): Boolean {
+        private fun hasNonWhitespaceContent(
+            str: String,
+            start: Int,
+            end: Int,
+        ): Boolean {
             for (j in start until end) {
                 if (str[j] != ' ') {
                     return true
@@ -111,7 +117,11 @@ internal class MethodDescriptor(
          * Trim whitespace from substring without using String.trim().
          * Returns the trimmed substring.
          */
-        private fun trimSubstring(str: String, start: Int, end: Int): String {
+        private fun trimSubstring(
+            str: String,
+            start: Int,
+            end: Int,
+        ): String {
             var trimStart = start
             var trimEnd = end
 
@@ -153,25 +163,26 @@ internal class MethodDescriptor(
         fun classForTypeName(name: String): Class<*> {
             val (baseType, nArrays) = numberOfSquareBrackets(name)
 
-            val className = when {
-                nArrays > 0 ->
-                    repeat(nArrays, "[") + "L" + baseType + ";"
-                else ->
-                    baseType
-            }
+            val className =
+                when {
+                    nArrays > 0 ->
+                        repeat(nArrays, "[") + "L" + baseType + ";"
+                    else ->
+                        baseType
+                }
 
             return Class.forName(className)
         }
 
         private tailrec fun numberOfSquareBrackets(
             name: String,
-            nPairs: Int = 0
+            nPairs: Int = 0,
         ): Pair<String, Int> =
             when {
                 name.endsWith("[]") ->
                     numberOfSquareBrackets(
                         name.substring(0, name.length - 2),
-                        nPairs + 1
+                        nPairs + 1,
                     )
                 else ->
                     name to nPairs
@@ -180,7 +191,7 @@ internal class MethodDescriptor(
         private tailrec fun repeat(
             n: Int,
             str: String,
-            res: String = ""
+            res: String = "",
         ): String = if (n == 0) res else repeat(n - 1, str, res + str)
     }
 }

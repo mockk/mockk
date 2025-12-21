@@ -8,9 +8,8 @@ import io.mockk.proxy.common.transformation.RetransformInlineInstrumentation
 internal class AndroidInlineInstrumentation(
     log: MockKAgentLogger,
     specMap: ClassTransformationSpecMap,
-    private val agent: JvmtiAgent
+    private val agent: JvmtiAgent,
 ) : RetransformInlineInstrumentation(log, specMap) {
-
     override fun retransform(classesToTransform: Collection<Class<*>>) {
         val classes = classesToTransform.filter { !it.isInterface }.toTypedArray()
 

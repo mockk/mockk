@@ -5,11 +5,16 @@ import io.mockk.Matcher
 import io.mockk.impl.log.SafeToString
 import kotlin.reflect.KClass
 
-class CallRoundBuilder(val safeToString: SafeToString) {
+class CallRoundBuilder(
+    val safeToString: SafeToString,
+) {
     val signedMatchers = mutableListOf<SignedMatcher>()
     val signedCalls = mutableListOf<SignedCall>()
 
-    fun addMatcher(matcher: Matcher<*>, sigValue: Any) {
+    fun addMatcher(
+        matcher: Matcher<*>,
+        sigValue: Any,
+    ) {
         signedMatchers.add(SignedMatcher(matcher, sigValue))
     }
 
@@ -17,17 +22,18 @@ class CallRoundBuilder(val safeToString: SafeToString) {
         retValue: Any?,
         tempMock: Boolean,
         retType: KClass<*>,
-        invocation: Invocation
+        invocation: Invocation,
     ) {
-        val signedCall = SignedCall(
-            retValue,
-            tempMock,
-            retType,
-            invocation.self,
-            invocation.method,
-            invocation.args,
-            safeToString.exec { invocation.toString() }
-        )
+        val signedCall =
+            SignedCall(
+                retValue,
+                tempMock,
+                retType,
+                invocation.self,
+                invocation.method,
+                invocation.args,
+                safeToString.exec { invocation.toString() },
+            )
 
         signedCalls.add(signedCall)
     }
@@ -42,8 +48,8 @@ class CallRoundBuilder(val safeToString: SafeToString) {
                     self,
                     WasNotCalled.method,
                     listOf(),
-                    safeToString.exec { "$self wasNot Called" }
-                )
+                    safeToString.exec { "$self wasNot Called" },
+                ),
             )
         }
     }

@@ -17,14 +17,14 @@ import kotlin.test.assertEquals
  * the Java module system's strong encapsulation.
  */
 class JdkConsumerSpyTest {
-
     @Test
     fun `spying on Consumer should work without InaccessibleObjectException`() {
         val results = mutableListOf<String>()
 
-        val consumer = spyk<Consumer<String>> {
-            every { this@spyk.accept(any()) } answers { results.add(firstArg<String>()) }
-        }
+        val consumer =
+            spyk<Consumer<String>> {
+                every { this@spyk.accept(any()) } answers { results.add(firstArg<String>()) }
+            }
 
         consumer.accept("test1")
         consumer.accept("test2")
@@ -36,9 +36,10 @@ class JdkConsumerSpyTest {
     fun `spying on Consumer and using andThen should work`() {
         val results = mutableListOf<String>()
 
-        val consumer1: Consumer<String> = spyk<Consumer<String>> {
-            every { this@spyk.accept(any()) } answers { results.add("first: ${firstArg<String>()}") }
-        }
+        val consumer1: Consumer<String> =
+            spyk<Consumer<String>> {
+                every { this@spyk.accept(any()) } answers { results.add("first: ${firstArg<String>()}") }
+            }
 
         val consumer2: Consumer<String> = Consumer { results.add("second: $it") }
 

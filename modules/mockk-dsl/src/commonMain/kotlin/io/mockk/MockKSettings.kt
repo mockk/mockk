@@ -16,13 +16,12 @@ expect object MockKSettings {
 
 enum class StackTracesAlignment {
     LEFT,
-    CENTER;
+    CENTER,
 }
 
-fun stackTracesAlignmentValueOf(property: String): StackTracesAlignment {
-    return try {
+fun stackTracesAlignmentValueOf(property: String): StackTracesAlignment =
+    try {
         enumValueOf(property.uppercase())
     } catch (e: IllegalArgumentException) {
         StackTracesAlignment.CENTER
     }
-}

@@ -1,18 +1,19 @@
 package io.mockk.impl.verify
 
-import io.mockk.MockKGateway.*
+import io.mockk.MockKGateway.CallVerifier
+import io.mockk.MockKGateway.VerificationParameters
+import io.mockk.MockKGateway.VerificationResult
 import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.StubRepository
 
 class TimeoutVerifier(
     val stubRepo: StubRepository,
-    val verifierChain: CallVerifier
+    val verifierChain: CallVerifier,
 ) : CallVerifier {
-
     override fun verify(
         verificationSequence: List<RecordedCall>,
-        params: VerificationParameters
+        params: VerificationParameters,
     ): VerificationResult {
         val stubs = verificationSequence.allStubs(stubRepo)
 
@@ -39,7 +40,8 @@ class TimeoutVerifier(
     override fun captureArguments() = verifierChain.captureArguments()
 
     private fun List<RecordedCall>.allStubs(stubRepo: StubRepository) =
-        this.map { InternalPlatform.ref(it.matcher.self) }
+        this
+            .map { InternalPlatform.ref(it.matcher.self) }
             .distinct()
             .map { it.value }
             .map { stubRepo.stubFor(it) }

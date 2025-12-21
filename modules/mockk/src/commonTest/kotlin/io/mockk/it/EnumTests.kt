@@ -13,7 +13,9 @@ class EnumTests {
         var type: EnumType? = null
 
         enum class EnumType {
-            ONE, TWO, THREE
+            ONE,
+            TWO,
+            THREE,
         }
 
         var typeString = "test"

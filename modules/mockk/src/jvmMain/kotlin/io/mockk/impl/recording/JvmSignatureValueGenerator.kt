@@ -1,21 +1,22 @@
 package io.mockk.impl.recording
 
+import io.mockk.core.ValueClassSupport.boxedClass
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
-import io.mockk.core.ValueClassSupport.boxedClass
 import java.util.Random
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 
-class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
+class JvmSignatureValueGenerator(
+    val rnd: Random,
+) : SignatureValueGenerator {
     override fun <T : Any> signatureValue(
         cls: KClass<T>,
         anyValueGeneratorProvider: () -> AnyValueGenerator,
         instantiator: AbstractInstantiator,
     ): T {
-
         // For value classes, try the instance factory first.
         // If the factory provides an instance, use it.
         // Otherwise, fallback to the original behavior of constructing from the underlying boxed type.
@@ -38,45 +39,45 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
     private fun <T : Any> instantiate(
         cls: KClass<T>,
         anyValueGeneratorProvider: () -> AnyValueGenerator,
-        instantiator: AbstractInstantiator
-    ): Any = when (cls) {
-        Boolean::class -> rnd.nextBoolean()
-        Byte::class -> rnd.nextInt().toByte()
-        Short::class -> rnd.nextInt().toShort()
-        Character::class -> rnd.nextInt().toChar()
-        Integer::class -> rnd.nextInt()
-        Long::class -> generateSafeLong()
-        Float::class -> rnd.nextFloat()
-        Double::class -> rnd.nextDouble()
-        String::class -> rnd.nextLong().toString(16)
+        instantiator: AbstractInstantiator,
+    ): Any =
+        when (cls) {
+            Boolean::class -> rnd.nextBoolean()
+            Byte::class -> rnd.nextInt().toByte()
+            Short::class -> rnd.nextInt().toShort()
+            Character::class -> rnd.nextInt().toChar()
+            Integer::class -> rnd.nextInt()
+            Long::class -> generateSafeLong()
+            Float::class -> rnd.nextFloat()
+            Double::class -> rnd.nextDouble()
+            String::class -> rnd.nextLong().toString(16)
 
-        else ->
-            if (cls.isSealed) {
-                cls.sealedSubclasses.firstNotNullOfOrNull {
-                    instantiate(it, anyValueGeneratorProvider, instantiator)
-                } ?: error("Unable to create proxy for sealed class $cls, available subclasses: ${cls.sealedSubclasses}")
-            } else {
-                @Suppress("UNCHECKED_CAST")
-                anyValueGeneratorProvider().anyValue(cls, isNullable = false) {
-                    instantiator.instantiate(cls)
-                } as T
-            }
-    }
+            else ->
+                if (cls.isSealed) {
+                    cls.sealedSubclasses.firstNotNullOfOrNull {
+                        instantiate(it, anyValueGeneratorProvider, instantiator)
+                    } ?: error("Unable to create proxy for sealed class $cls, available subclasses: ${cls.sealedSubclasses}")
+                } else {
+                    @Suppress("UNCHECKED_CAST")
+                    anyValueGeneratorProvider().anyValue(cls, isNullable = false) {
+                        instantiator.instantiate(cls)
+                    } as T
+                }
+        }
 
     /**
      * Generates a Long value in Duration's safe millisecond range to avoid AssertionError.
      * Uses wider millisecond range while avoiding the denormalized range.
      * See: https://github.com/mockk/mockk/issues/1401
      */
-    private fun generateSafeLong(): Long {
-        return if (rnd.nextBoolean()) {
+    private fun generateSafeLong(): Long =
+        if (rnd.nextBoolean()) {
             // Generate positive value in safe millisecond range
             nextLongInRange(MAX_NANOS_IN_MILLIS + 1, MAX_MILLIS)
         } else {
             // Generate negative value in safe millisecond range
             nextLongInRange(-MAX_MILLIS, -MAX_NANOS_IN_MILLIS)
         }
-    }
 
     /**
      * Generates a random Long value in the range [origin, bound).
@@ -86,7 +87,10 @@ class JvmSignatureValueGenerator(val rnd: Random) : SignatureValueGenerator {
      * For the purpose of signature value generation (avoiding denormalized Duration ranges),
      * this is sufficient.
      */
-    private fun nextLongInRange(origin: Long, bound: Long): Long {
+    private fun nextLongInRange(
+        origin: Long,
+        bound: Long,
+    ): Long {
         require(origin < bound) { "origin ($origin) must be less than bound ($bound)" }
         val range = bound - origin
         // Use nextLong() and modulo to stay in range, then add origin

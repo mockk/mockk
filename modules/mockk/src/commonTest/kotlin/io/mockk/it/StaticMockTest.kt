@@ -1,6 +1,8 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -8,7 +10,10 @@ infix fun Int.op(b: Int) = this + b
 
 class StaticMockTest {
     class MockCls {
-        fun op(a: Int, b: Int) = a + b
+        fun op(
+            a: Int,
+            b: Int,
+        ) = a + b
     }
 
     @Test

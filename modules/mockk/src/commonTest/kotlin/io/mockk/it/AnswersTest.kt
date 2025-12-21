@@ -2,15 +2,28 @@
 
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.invoke
+import io.mockk.slot
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AnswersTest {
     class MockCls {
-        fun op(a: Int, b: Int, c: Int = 10, d: Int = 25, e: Int? = 55) = a + b + c + d
+        fun op(
+            a: Int,
+            b: Int,
+            c: Int = 10,
+            d: Int = 25,
+            e: Int? = 55,
+        ) = a + b + c + d
 
-        fun lambdaOp(a: Int, b: () -> Int) = a + b()
+        fun lambdaOp(
+            a: Int,
+            b: () -> Int,
+        ) = a + b()
     }
 
     private val spy = spyk(MockCls())

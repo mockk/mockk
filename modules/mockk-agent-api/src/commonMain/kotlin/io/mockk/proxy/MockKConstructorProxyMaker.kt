@@ -3,6 +3,6 @@ package io.mockk.proxy
 interface MockKConstructorProxyMaker {
     fun constructorProxy(
         clazz: Class<*>,
-        handler: MockKInvocationHandler
+        handler: MockKInvocationHandler,
     ): Cancelable<Class<*>>
 }

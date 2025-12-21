@@ -12,13 +12,18 @@ import io.mockk.impl.recording.CommonCallRecorder
 import kotlin.math.max
 import kotlin.reflect.KClass
 
-abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
+abstract class RecordingState(
+    recorder: CommonCallRecorder,
+) : CallRecordingState(recorder) {
     val log = recorder.safeToString(Logger<RecordingState>())
 
     private var callRoundBuilder: CallRoundBuilder? = null
     private val callRounds = mutableListOf<CallRound>()
 
-    override fun round(round: Int, total: Int) {
+    override fun round(
+        round: Int,
+        total: Int,
+    ) {
         val builder = callRoundBuilder
         if (builder != null) {
             callRounds.add(builder.build())
@@ -42,15 +47,20 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
         recorder.calls.addAll(detector.calls)
     }
 
-    override fun <T : Any> matcher(matcher: Matcher<*>, cls: KClass<T>): T {
-        val signatureValue = recorder.signatureValueGenerator.signatureValue(
-            cls,
-            recorder.anyValueGenerator,
-            recorder.instantiator,
-        )
+    override fun <T : Any> matcher(
+        matcher: Matcher<*>,
+        cls: KClass<T>,
+    ): T {
+        val signatureValue =
+            recorder.signatureValueGenerator.signatureValue(
+                cls,
+                recorder.anyValueGenerator,
+                recorder.instantiator,
+            )
 
-        val packRef: Any = InternalPlatform.packRef(signatureValue)
-            ?: error("null packRef for $cls signature $signatureValue")
+        val packRef: Any =
+            InternalPlatform.packRef(signatureValue)
+                ?: error("null packRef for $cls signature $signatureValue")
 
         builder().addMatcher(matcher, packRef)
 
@@ -68,12 +78,15 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
             isTemporaryMock = true
             recorder.mockFactory.temporaryMock(retType)
         }
-        val retValue = when {
-            invocation.method.isToString() -> recorder.stubRepo[invocation.self]?.toStr() ?: ""
-            retType in CollectionTypes -> temporaryMock()
-            else -> recorder.anyValueGenerator()
-                .anyValue(retType, invocation.method.returnTypeNullable, orInstantiateVia = temporaryMock)
-        }
+        val retValue =
+            when {
+                invocation.method.isToString() -> recorder.stubRepo[invocation.self]?.toStr() ?: ""
+                retType in CollectionTypes -> temporaryMock()
+                else ->
+                    recorder
+                        .anyValueGenerator()
+                        .anyValue(retType, invocation.method.returnTypeNullable, orInstantiateVia = temporaryMock)
+            }
 
         if (retValue == null) {
             isTemporaryMock = false
@@ -83,7 +96,7 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
             retValue,
             isTemporaryMock,
             retType,
-            invocation
+            invocation,
         )
 
         return retValue
@@ -92,8 +105,8 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
     private fun callIsNumberUnboxing(call: RecordedCall): Boolean {
         val matcher = call.matcher
         return matcher.self is Number &&
-                matcher.method.name.endsWith("Value") &&
-                matcher.method.paramTypes.isEmpty()
+            matcher.method.name.endsWith("Value") &&
+            matcher.method.paramTypes.isEmpty()
     }
 
     private fun workaroundBoxedNumbers() {
@@ -102,14 +115,16 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
             return
         }
 
-        val callsWithoutCasts = recorder.calls.filterNot {
-            callIsNumberUnboxing(it)
-        }
-
-        if (callsWithoutCasts.size != recorder.calls.size) {
-            val callsWithCasts = recorder.calls.filter {
+        val callsWithoutCasts =
+            recorder.calls.filterNot {
                 callIsNumberUnboxing(it)
             }
+
+        if (callsWithoutCasts.size != recorder.calls.size) {
+            val callsWithCasts =
+                recorder.calls.filter {
+                    callIsNumberUnboxing(it)
+                }
             log.debug { "Removed ${callsWithCasts.size} unboxing calls:\n${callsWithCasts.joinToString("\n")}" }
         }
 
@@ -129,8 +144,9 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
     override fun nCalls(): Int = callRoundBuilder?.signedCalls?.size ?: 0
 
     override fun isLastCallReturnsNothing(): Boolean {
-        val lastCall = callRoundBuilder?.signedCalls?.lastOrNull()
-            ?: return false
+        val lastCall =
+            callRoundBuilder?.signedCalls?.lastOrNull()
+                ?: return false
 
         return lastCall.method.returnsNothing
     }
@@ -143,27 +159,31 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
      */
     @Suppress("DEPRECATION_ERROR")
     override fun estimateCallRounds(): Int {
-        val regularArguments = builder().signedCalls
-            .flatMap { it.args }
-            .filterNotNull()
-            .map(this::typeEstimation)
-            .maxOfOrNull { it } ?: 1
+        val regularArguments =
+            builder()
+                .signedCalls
+                .flatMap { it.args }
+                .filterNotNull()
+                .map(this::typeEstimation)
+                .maxOfOrNull { it } ?: 1
 
-        val varargArguments = builder().signedCalls
-            .mapNotNull {
-                if (it.method.varArgsArg != -1) {
-                    it.method.paramTypes[it.method.varArgsArg]
-                } else {
-                    null
-                }
-            }.map(this::varArgTypeEstimation)
-            .maxOfOrNull { it } ?: 1
+        val varargArguments =
+            builder()
+                .signedCalls
+                .mapNotNull {
+                    if (it.method.varArgsArg != -1) {
+                        it.method.paramTypes[it.method.varArgsArg]
+                    } else {
+                        null
+                    }
+                }.map(this::varArgTypeEstimation)
+                .maxOfOrNull { it } ?: 1
 
         return max(regularArguments, varargArguments)
     }
 
-    private fun typeEstimation(it: Any): Int {
-        return when (it::class) {
+    private fun typeEstimation(it: Any): Int =
+        when (it::class) {
             Boolean::class -> 40
             Byte::class -> 8
             Char::class -> 4
@@ -172,10 +192,9 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
             Float::class -> 2
             else -> 1
         }
-    }
 
-    private fun varArgTypeEstimation(it: KClass<*>): Int {
-        return when (it) {
+    private fun varArgTypeEstimation(it: KClass<*>): Int =
+        when (it) {
             BooleanArray::class -> 40
             ByteArray::class -> 8
             CharArray::class -> 4
@@ -184,23 +203,24 @@ abstract class RecordingState(recorder: CommonCallRecorder) : CallRecordingState
             FloatArray::class -> 2
             else -> 1
         }
-    }
 
     override fun discardLastCallRound() {
         callRoundBuilder = null
     }
 
-    private fun builder(): CallRoundBuilder = callRoundBuilder
-        ?: throw MockKException("Call builder is not initialized. Bad state")
+    private fun builder(): CallRoundBuilder =
+        callRoundBuilder
+            ?: throw MockKException("Call builder is not initialized. Bad state")
 
     private companion object {
-        private val CollectionTypes = listOf(
-            List::class,
-            Map::class,
-            Set::class,
-            ArrayList::class,
-            HashMap::class,
-            HashSet::class
-        )
+        private val CollectionTypes =
+            listOf(
+                List::class,
+                Map::class,
+                Set::class,
+                ArrayList::class,
+                HashMap::class,
+                HashSet::class,
+            )
     }
 }

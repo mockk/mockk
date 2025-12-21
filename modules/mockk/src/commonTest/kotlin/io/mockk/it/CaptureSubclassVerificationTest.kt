@@ -17,7 +17,6 @@ import kotlin.test.assertTrue
  * See issue #774.
  */
 class CaptureSubclassVerificationTest {
-
     interface Interface
 
     class Subclass1 : Interface
@@ -30,9 +29,10 @@ class CaptureSubclassVerificationTest {
 
     @Test
     fun `test unordered`() {
-        val service = mockk<Service> {
-            every { method(any()) } just Runs
-        }
+        val service =
+            mockk<Service> {
+                every { method(any()) } just Runs
+            }
 
         service.method(Subclass1())
         service.method(Subclass2())
@@ -45,9 +45,10 @@ class CaptureSubclassVerificationTest {
 
     @Test
     fun `test ordered`() {
-        val service = mockk<Service> {
-            every { method(any()) } just Runs
-        }
+        val service =
+            mockk<Service> {
+                every { method(any()) } just Runs
+            }
 
         service.method(Subclass1())
         service.method(Subclass2())
@@ -63,9 +64,10 @@ class CaptureSubclassVerificationTest {
 
     @Test
     fun `test sequence`() {
-        val service = mockk<Service> {
-            every { method(any()) } just Runs
-        }
+        val service =
+            mockk<Service> {
+                every { method(any()) } just Runs
+            }
 
         service.method(Subclass1())
         service.method(Subclass2())
@@ -81,9 +83,10 @@ class CaptureSubclassVerificationTest {
 
     @Test
     fun `test count`() {
-        val service = mockk<Service> {
-            every { method(any()) } just Runs
-        }
+        val service =
+            mockk<Service> {
+                every { method(any()) } just Runs
+            }
 
         service.method(Subclass1())
         service.method(Subclass2())

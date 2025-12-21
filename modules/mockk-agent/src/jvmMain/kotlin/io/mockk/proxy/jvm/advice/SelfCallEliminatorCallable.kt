@@ -6,9 +6,8 @@ import java.util.concurrent.Callable
 internal class SelfCallEliminatorCallable(
     private val callable: Callable<Any?>,
     private val self: Any,
-    private val method: Method
+    private val method: Method,
 ) : Callable<Any?> {
-
     override fun call() =
         SelfCallEliminator.apply(self, method) {
             callable.call()

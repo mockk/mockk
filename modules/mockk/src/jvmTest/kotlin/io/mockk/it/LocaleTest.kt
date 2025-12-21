@@ -12,9 +12,10 @@ import kotlin.test.assertEquals
 class LocaleTest {
     @Test
     fun shouldMockLocale() {
-        val foo = mockk<Foo> {
-            every { getLocale() } returns Locale.GERMAN
-        }
+        val foo =
+            mockk<Foo> {
+                every { getLocale() } returns Locale.GERMAN
+            }
 
         assertEquals(Locale.GERMAN, foo.getLocale())
     }

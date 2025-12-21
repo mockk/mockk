@@ -9,27 +9,27 @@ import io.mockk.impl.recording.AutoHinter
 
 abstract class RecordedBlockEvaluator(
     val callRecorder: () -> CallRecorder,
-    val autoHinterFactory: () -> AutoHinter
+    val autoHinterFactory: () -> AutoHinter,
 ) {
-
     fun <T, S : MockKMatcherScope> record(
         scope: S,
         mockBlock: (S.() -> T)?,
-        coMockBlock: (suspend S.() -> T)?
+        coMockBlock: (suspend S.() -> T)?,
     ) = try {
         val callRecorderInstance = callRecorder()
 
-        val block: () -> T = when {
-            mockBlock != null -> {
-                { scope.mockBlock() }
+        val block: () -> T =
+            when {
+                mockBlock != null -> {
+                    { scope.mockBlock() }
+                }
+                coMockBlock != null -> {
+                    { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
+                }
+                else -> {
+                    { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
+                }
             }
-            coMockBlock != null -> {
-                { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
-            }
-            else -> {
-                { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
-            }
-        }
 
         val blockWithRethrow = enhanceWithRethrow(block, callRecorderInstance::isLastCallReturnsNothing)
 
@@ -40,7 +40,7 @@ abstract class RecordedBlockEvaluator(
                 callRecorderInstance,
                 0,
                 64,
-                blockWithRethrow
+                blockWithRethrow,
             )
         } catch (npe: NothingThrownNullPointerException) {
             // skip
@@ -53,7 +53,7 @@ abstract class RecordedBlockEvaluator(
                     callRecorderInstance,
                     i,
                     n,
-                    blockWithRethrow
+                    blockWithRethrow,
                 )
             } catch (npe: NothingThrownNullPointerException) {
                 // skip
@@ -69,7 +69,7 @@ abstract class RecordedBlockEvaluator(
 
     private fun <T> enhanceWithRethrow(
         block: () -> T,
-        checkLastCallReturnsNothing: () -> Boolean
+        checkLastCallReturnsNothing: () -> Boolean,
     ): () -> T =
         {
             try {

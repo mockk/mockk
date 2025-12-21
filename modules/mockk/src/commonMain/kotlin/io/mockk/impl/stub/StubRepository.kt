@@ -7,15 +7,19 @@ import io.mockk.impl.WeakRef
 import io.mockk.impl.log.SafeToString
 
 class StubRepository(
-    val safeToString: SafeToString
+    val safeToString: SafeToString,
 ) {
     private val stubs = InternalPlatform.weakMap<Any, WeakRef>()
     private val recordCallMultiNotifier = InternalPlatform.multiNotifier()
 
-    fun stubFor(mock: Any): Stub = get(mock)
-        ?: throw MockKException(safeToString.exec { "can't find stub $mock" })
+    fun stubFor(mock: Any): Stub =
+        get(mock)
+            ?: throw MockKException(safeToString.exec { "can't find stub $mock" })
 
-    fun add(mock: Any, stub: Stub) {
+    fun add(
+        mock: Any,
+        stub: Stub,
+    ) {
         stubs[mock] = InternalPlatform.weakRef(stub)
     }
 
@@ -32,9 +36,6 @@ class StubRepository(
 
     fun openRecordCallAwaitSession(
         stubs: List<Stub>,
-        timeout: Long
-    ): Session {
-        return recordCallMultiNotifier.openSession(stubs, timeout)
-    }
+        timeout: Long,
+    ): Session = recordCallMultiNotifier.openSession(stubs, timeout)
 }
-

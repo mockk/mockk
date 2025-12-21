@@ -19,24 +19,25 @@ class MockKExtensionTest {
         NORTH,
         SOUTH,
         EAST,
-        WEST
+        WEST,
     }
 
     enum class Outcome {
         FAILURE,
-        RECORDED
+        RECORDED,
     }
 
     class RelaxedOutcome
 
     class Car {
-        fun recordTelemetry(speed: Int, direction: Direction, lat: Double, long: Double): Outcome {
-            return Outcome.FAILURE
-        }
+        fun recordTelemetry(
+            speed: Int,
+            direction: Direction,
+            lat: Double,
+            long: Double,
+        ): Outcome = Outcome.FAILURE
 
-        fun relaxedTest(): RelaxedOutcome? {
-            return null
-        }
+        fun relaxedTest(): RelaxedOutcome? = null
     }
 
     @MockK
@@ -49,13 +50,15 @@ class MockKExtensionTest {
     private var carSpy = Car()
 
     @Test
-    fun injectsValidMockInMethods(@MockK car: Car) {
+    fun injectsValidMockInMethods(
+        @MockK car: Car,
+    ) {
         every {
             car.recordTelemetry(
                 speed = more(50),
                 direction = Direction.NORTH,
                 lat = any(),
-                long = any()
+                long = any(),
             )
         } returns Outcome.RECORDED
 
@@ -71,7 +74,7 @@ class MockKExtensionTest {
                 speed = more(50),
                 direction = Direction.NORTH,
                 lat = any(),
-                long = any()
+                long = any(),
             )
         } returns Outcome.RECORDED
 
@@ -81,7 +84,9 @@ class MockKExtensionTest {
     }
 
     @Test
-    fun injectsValidRelaxedMockInMethods(@RelaxedMockK car: Car) {
+    fun injectsValidRelaxedMockInMethods(
+        @RelaxedMockK car: Car,
+    ) {
         val result = car.relaxedTest()
 
         assertTrue(result is RelaxedOutcome)

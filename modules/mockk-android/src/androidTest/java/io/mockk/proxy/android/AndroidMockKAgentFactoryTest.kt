@@ -8,7 +8,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AndroidMockKAgentFactoryTest {
-
     /**
      * This tests that the hidden api logic in [AndroidMockKAgentFactory] works. Otherwise, we would fail when mocking
      * the FrameLayout.
