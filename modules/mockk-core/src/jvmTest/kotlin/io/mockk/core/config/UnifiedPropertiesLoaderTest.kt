@@ -1,9 +1,12 @@
 package io.mockk.core.config
 
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.writeText
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
-import java.io.File
+import kotlin.test.assertTrue
 
 class UnifiedPropertiesLoaderTest {
     private val loader = UnifiedPropertiesLoader
@@ -40,14 +43,19 @@ class UnifiedPropertiesLoaderTest {
         deleteFromClasspath(UnifiedPropertiesLoader.LEGACY_PROPERTIES_FILE)
     }
 
-    private fun writeToClasspath(path: String, content: String) {
-        val file = File(this::class.java.getResource("/")!!.toURI()).resolve(path.removePrefix("/"))
-        file.parentFile?.mkdirs()
-        file.writeText(content)
+    private fun writeToClasspath(
+        path: String,
+        content: String,
+    ) {
+        getRoot().resolve(path.removePrefix("/")).run {
+            parent?.let { Files.createDirectories(it) }
+            writeText(content)
+        }
     }
 
     private fun deleteFromClasspath(path: String) {
-        val file = File(this::class.java.getResource("/")!!.toURI()).resolve(path.removePrefix("/"))
-        file.delete()
+        getRoot().resolve(path.removePrefix("/")).deleteExisting()
     }
+
+    private fun getRoot(): Path = Path.of(this::class.java.getResource("/")!!.toURI())
 }

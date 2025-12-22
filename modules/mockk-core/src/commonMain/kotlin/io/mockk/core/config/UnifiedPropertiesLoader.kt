@@ -9,15 +9,15 @@ import java.util.Properties
  * If not found, it falls back to the legacy [LEGACY_PROPERTIES_FILE] location for backward compatibility.
  */
 object UnifiedPropertiesLoader : PropertiesLoader {
-    override fun loadProperties(): Properties {
-        return Properties().apply {
-            UnifiedPropertiesLoader::class.java.run {
-                getResourceAsStream(UNIFIED_PROPERTIES_FILE)
-                    // Fallback to the legacy file for backward compatibility
-                    ?: getResourceAsStream(LEGACY_PROPERTIES_FILE)
-            }?.use(::load)
+    override fun loadProperties(): Properties =
+        Properties().apply {
+            UnifiedPropertiesLoader::class.java
+                .run {
+                    getResourceAsStream(UNIFIED_PROPERTIES_FILE)
+                        // Fallback to the legacy file for backward compatibility
+                        ?: getResourceAsStream(LEGACY_PROPERTIES_FILE)
+                }?.use(::load)
         }
-    }
 
     /**
      * The unified properties file location.
