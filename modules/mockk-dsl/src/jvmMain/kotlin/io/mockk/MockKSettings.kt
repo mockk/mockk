@@ -3,7 +3,7 @@ package io.mockk
 import io.mockk.core.config.UnifiedPropertiesLoader
 
 actual object MockKSettings {
-    private val properties = UnifiedPropertiesLoader().loadProperties()
+    private val properties = UnifiedPropertiesLoader.loadProperties()
 
     private fun booleanProperty(
         property: String,

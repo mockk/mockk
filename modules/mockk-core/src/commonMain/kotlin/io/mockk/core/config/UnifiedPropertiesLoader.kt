@@ -8,35 +8,24 @@ import java.util.Properties
  * This loader attempts to load properties from [UNIFIED_PROPERTIES_FILE] at the classpath root first.
  * If not found, it falls back to the legacy [LEGACY_PROPERTIES_FILE] location for backward compatibility.
  */
-class UnifiedPropertiesLoader : PropertiesLoader {
+object UnifiedPropertiesLoader : PropertiesLoader {
     override fun loadProperties(): Properties {
-        val properties = Properties()
-
-        // Try to load from the unified location first (classpath root)
-        val unifiedStream = Thread.currentThread().contextClassLoader
-            .getResourceAsStream(UNIFIED_PROPERTIES_FILE)
-
-        if (unifiedStream != null) {
-            unifiedStream.use { properties.load(it) }
-        } else {
-            // Fallback to the legacy location for backward compatibility
-            val legacyStream = UnifiedPropertiesLoader::class.java
-                .getResourceAsStream(LEGACY_PROPERTIES_FILE)
-            legacyStream?.use { properties.load(it) }
+        return Properties().apply {
+            UnifiedPropertiesLoader::class.java.run {
+                getResourceAsStream(UNIFIED_PROPERTIES_FILE)
+                    // Fallback to the legacy file for backward compatibility
+                    ?: getResourceAsStream(LEGACY_PROPERTIES_FILE)
+            }?.use(::load)
         }
-
-        return properties
     }
 
-    companion object {
-        /**
-         * The unified properties file location at the classpath root.
-         */
-        const val UNIFIED_PROPERTIES_FILE = "mockk.properties"
+    /**
+     * The unified properties file location.
+     */
+    internal const val UNIFIED_PROPERTIES_FILE = "/mockk.properties"
 
-        /**
-         * The legacy properties file location (io/mockk/settings.properties).
-         */
-        const val LEGACY_PROPERTIES_FILE = "settings.properties"
-    }
+    /**
+     * The legacy properties file location.
+     */
+    internal const val LEGACY_PROPERTIES_FILE = "/io/mockk/settings.properties"
 }

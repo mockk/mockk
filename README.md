@@ -1370,11 +1370,11 @@ val builderMock = mockk<MyBuilder> {
 
 ## Configuration File
 
-To adjust parameters globally, you can specify settings in a unified configuration file.
+To adjust parameters globally, you can specify settings in a configuration file.
 
 ### How to use:
 
-1. Create a `mockk.properties` file in `src/test/resources/`.
+1. Create the configuration file at `src/test/resources/mockk.properties`.
 2. Add any of the following configuration options:
 
 ```properties
@@ -1411,12 +1411,14 @@ mockk.throwExceptionOnBadMock=true|false
  Otherwise, only the warning "Failed to set backing field" will be logged.
  See [here](https://github.com/mockk/mockk/issues/1291) for more details.
 
-### Legacy Configuration (Backward Compatibility)
+### Legacy Configuration
 
-For backward compatibility, MockK also supports the legacy configuration file location:
-- `src/test/resources/io/mockk/settings.properties`
+For backward compatibility, MockK also supports the legacy configuration file:
+```
+src/test/resources/io/mockk/settings.properties
+```
 
-If both files exist, `mockk.properties` takes precedence. The legacy location is deprecated and may be removed in a future version.
+If both files exist, `mockk.properties` takes precedence. The legacy location is deprecated and will be removed in a future version.
 
 ## DSL tables
 
@@ -1647,9 +1649,9 @@ For example:
 
 ### How to Configure Restricted Mocking
 
-You can configure Restricted Mocking behavior using the unified `mockk.properties` configuration file described in the [Configuration File](#configuration-file) section.
+You can configure Restricted Mocking behavior using the `mockk.properties` configuration file described in the [Configuration File](#configuration-file) section.
 
-Add the following properties to your `src/test/resources/mockk.properties` file:
+Add the following properties to your [configuration file](#configuration-file):
 
 ```properties
 # List of restricted classes (fully qualified names, separated by commas)
@@ -1659,7 +1661,7 @@ mockk.restrictedClasses=com.foo.Bar,com.foo.Baz
 mockk.throwExceptionOnBadMock=true
 ```
 
-See the [Configuration File](#configuration-file) section for detailed information about these and other configuration options.
+See the [Configuration File](#configuration-file) section for detailed information about these and other available options.
 
 ⚠️ **Note:**
 
