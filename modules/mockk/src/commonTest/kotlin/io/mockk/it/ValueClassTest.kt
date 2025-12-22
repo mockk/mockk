@@ -7,6 +7,7 @@ import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertTimeoutPreemptively
 import java.time.Duration
 import java.util.UUID
