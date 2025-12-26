@@ -5,9 +5,8 @@ import java.lang.instrument.UnmodifiableClassException
 
 abstract class RetransformInlineInstrumentation(
     protected val log: MockKAgentLogger,
-    private val specMap: ClassTransformationSpecMap
+    private val specMap: ClassTransformationSpecMap,
 ) : InlineInstrumentation {
-
     protected abstract fun retransform(classesToTransform: Collection<Class<*>>)
 
     override fun execute(request: TransformationRequest): () -> Unit {
@@ -30,7 +29,7 @@ abstract class RetransformInlineInstrumentation(
     private fun doCancel(request: TransformationRequest) {
         try {
             specMap.applyTransformation(
-                request.reverse()
+                request.reverse(),
             ) {
                 val classes = it.classes
                 if (classes.isNotEmpty()) {

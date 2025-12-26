@@ -6,7 +6,6 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-
 class DefaultMethodTest {
     @Test
     fun `should mock ClassImplementingPackagePrivateInterfaceWithDefaultMethod class`() {

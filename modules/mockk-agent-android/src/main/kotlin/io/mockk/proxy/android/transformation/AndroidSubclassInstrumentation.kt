@@ -11,36 +11,38 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
 internal class AndroidSubclassInstrumentation(
-    val inlineInstrumentationApplied: Boolean
+    val inlineInstrumentationApplied: Boolean,
 ) : SubclassInstrumentation {
-
     @Suppress("UNCHECKED_CAST")
-    override fun <T> subclass(clazz: Class<T>, interfaces: Array<Class<*>>): Class<T> =
+    override fun <T> subclass(
+        clazz: Class<T>,
+        interfaces: Array<Class<*>>,
+    ): Class<T> =
         try {
-            ProxyBuilder.forClass(clazz)
+            ProxyBuilder
+                .forClass(clazz)
                 .implementing(*interfaces)
                 .apply {
                     if (inlineInstrumentationApplied) {
                         onlyMethods(getMethodsToProxy(clazz, interfaces))
                     }
-                }
-                .apply {
+                }.apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 //                        markTrusted();
                     }
-                }
-                .apply {
+                }.apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         withSharedClassLoader()
                     }
-                }
-                .buildProxyClass() as Class<T>
+                }.buildProxyClass() as Class<T>
         } catch (e: Exception) {
             throw MockKAgentException("Failed to mock $clazz", e)
         }
 
-
-    private fun <T> getMethodsToProxy(clazz: Class<T>, interfaces: Array<Class<*>>): Array<Method> {
+    private fun <T> getMethodsToProxy(
+        clazz: Class<T>,
+        interfaces: Array<Class<*>>,
+    ): Array<Method> {
         val abstractMethods = mutableSetOf<MethodSetEntry>()
         val nonAbstractMethods = mutableSetOf<MethodSetEntry>()
 
@@ -75,10 +77,12 @@ internal class AndroidSubclassInstrumentation(
         return abstractMethods.map { it.originalMethod }.toTypedArray()
     }
 
-    override fun setProxyHandler(proxy: Any, handler: MockKInvocationHandler) {
+    override fun setProxyHandler(
+        proxy: Any,
+        handler: MockKInvocationHandler,
+    ) {
         if (ProxyBuilder.isProxyClass(proxy::class.java)) {
             ProxyBuilder.setInvocationHandler(proxy, ProxyInvocationHandler(handler))
         }
     }
-
 }

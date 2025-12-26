@@ -14,7 +14,6 @@ import kotlin.test.assertEquals
  * Verifies issue #259.
  */
 class RaceConditionInMockCreationTest {
-
     class TestCls {
         fun fn() = "abc"
     }

@@ -14,11 +14,10 @@ class CommonInstanceFactoryRegistryTest {
     @BeforeTest
     fun setUp() {
         factoryRegistry = CommonInstanceFactoryRegistry()
-        factory = object : InstanceFactory {
-            override fun instantiate(cls: KClass<*>): Any? {
-                return null
+        factory =
+            object : InstanceFactory {
+                override fun instantiate(cls: KClass<*>): Any? = null
             }
-        }
     }
 
     @Test

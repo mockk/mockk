@@ -1,10 +1,19 @@
 package io.mockk.impl.eval
 
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.MockKException
 import io.mockk.MockKGateway.CallRecorder
+import io.mockk.MockKMatcherScope
+import io.mockk.Runs
+import io.mockk.every
 import io.mockk.impl.recording.AutoHinter
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.*
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class RecordedBlockEvaluatorTest {
     lateinit var evaluator: RecordedBlockEvaluator
@@ -30,7 +39,10 @@ class RecordedBlockEvaluatorTest {
         testLambdaCalls(2, 2)
     }
 
-    private fun testLambdaCalls(expectLambdaCalls: Int, estimateCallRounds: Int) {
+    private fun testLambdaCalls(
+        expectLambdaCalls: Int,
+        estimateCallRounds: Int,
+    ) {
         var counter = 0
         val mockBlock: MockKMatcherScope.() -> Unit = { counter++ }
 
@@ -52,7 +64,10 @@ class RecordedBlockEvaluatorTest {
         testCoLambdaCalls(2, 2)
     }
 
-    private fun testCoLambdaCalls(expectLambdaCalls: Int, estimateCallRounds: Int) {
+    private fun testCoLambdaCalls(
+        expectLambdaCalls: Int,
+        estimateCallRounds: Int,
+    ) {
         var counter = 0
         val coMockBlock: suspend MockKMatcherScope.() -> Unit = { counter++ }
 
@@ -66,11 +81,12 @@ class RecordedBlockEvaluatorTest {
 
     @Test
     fun givenNoBlocksWhenEveryEvaluatorIsCalledThenExceptionIsThrown() {
-        val exception = assertThrows<MockKException> {
-            every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
+        val exception =
+            assertThrows<MockKException> {
+                every { autoHinter.autoHint<Unit>(callRecorder, any(), any(), invoke()) } just Runs
 
-            evaluator.record<Unit, MockKMatcherScope>(scope, null, null)
-        }
+                evaluator.record<Unit, MockKMatcherScope>(scope, null, null)
+            }
 
         assertEquals("You should specify either 'mockBlock' or 'coMockBlock'", exception.message)
     }
@@ -83,5 +99,4 @@ class RecordedBlockEvaluatorTest {
             callRecorder.done()
         }
     }
-
 }

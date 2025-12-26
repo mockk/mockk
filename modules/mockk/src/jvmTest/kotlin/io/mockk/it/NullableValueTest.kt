@@ -12,9 +12,13 @@ import kotlin.test.assertEquals
 
 class NullableValueTest {
     class NullableValueGenerator(
-        voidInstance: Any
+        voidInstance: Any,
     ) : JvmAnyValueGenerator(voidInstance) {
-        override fun anyValue(cls: KClass<*>, isNullable: Boolean, orInstantiateVia: () -> Any?): Any? {
+        override fun anyValue(
+            cls: KClass<*>,
+            isNullable: Boolean,
+            orInstantiateVia: () -> Any?,
+        ): Any? {
             if (isNullable) return null
             return super.anyValue(cls, isNullable, orInstantiateVia)
         }
@@ -32,7 +36,9 @@ class NullableValueTest {
         class Foo {
             val property: Bar? = Bar()
             val isEnabled: Boolean? = false
+
             fun getSomething(): Bar? = Bar()
+
             suspend fun getOtherThing(): Bar? = Bar()
         }
 
@@ -47,21 +53,21 @@ class NullableValueTest {
         }
     }
 
-
     /**
      * Test related to GitHub issue #323
      */
     @Ignore("Temporarily ignored because it's failing only on travis and not anywhere else")
     @Test
     fun withNullableArgMatchesAndExecutesCaptureBlockWhenArgumentIsNull() {
-
         class MockedClass {
             fun printNullableString(s: String?) {
                 println(s)
             }
         }
 
-        class TestedClass(private val mockedClass: MockedClass) {
+        class TestedClass(
+            private val mockedClass: MockedClass,
+        ) {
             fun testNullString() {
                 val testString: String? = null
                 mockedClass.printNullableString(testString)

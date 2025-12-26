@@ -1,9 +1,11 @@
 package io.mockk.restrict
 
 import io.mockk.impl.restrict.propertiesloader.PropertiesLoader
-import java.util.*
+import java.util.Properties
 
-class TestPropertiesLoader(private val mockProperties: Map<String, String> = emptyMap()) : PropertiesLoader {
+class TestPropertiesLoader(
+    private val mockProperties: Map<String, String> = emptyMap(),
+) : PropertiesLoader {
     override fun loadProperties(): Properties {
         val properties = Properties()
         mockProperties.forEach { (key, value) ->

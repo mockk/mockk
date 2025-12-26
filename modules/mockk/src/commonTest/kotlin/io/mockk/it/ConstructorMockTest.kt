@@ -1,6 +1,14 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.EqMatcher
+import io.mockk.MockKException
+import io.mockk.OfTypeMatcher
+import io.mockk.clearConstructorMockk
+import io.mockk.every
+import io.mockk.mockkConstructor
+import io.mockk.unmockkAll
+import io.mockk.unmockkConstructor
+import io.mockk.verify
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,15 +19,25 @@ class ConstructorMockTest {
         val exampleProperty: Int = 1
     }
 
-    data class MockCls(private val x: Int = 0) {
-
+    data class MockCls(
+        private val x: Int = 0,
+    ) {
         constructor(x: String) : this(x.toInt())
 
-        fun op(a: Int, b: Int) = a + b + x
+        fun op(
+            a: Int,
+            b: Int,
+        ) = a + b + x
 
-        fun opList(a: Int, b: Int) = listOf(a, b)
+        fun opList(
+            a: Int,
+            b: Int,
+        ) = listOf(a, b)
 
-        fun chainOp(a: Int, b: Int) = MockCls(a + b + x)
+        fun chainOp(
+            a: Int,
+            b: Int,
+        ) = MockCls(a + b + x)
     }
 
     @Test
@@ -104,7 +122,6 @@ class ConstructorMockTest {
         assertEquals(3, MockCls().op(1, 2))
 
         verify { anyConstructed<MockCls>().op(1, 2) }
-
     }
 
     @Test

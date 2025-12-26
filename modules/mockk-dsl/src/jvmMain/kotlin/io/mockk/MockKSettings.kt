@@ -11,11 +11,15 @@ actual object MockKSettings {
             ?.use(properties::load)
     }
 
-    private fun booleanProperty(property: String, defaultValue: String) =
-        properties.getProperty(
+    private fun booleanProperty(
+        property: String,
+        defaultValue: String,
+    ) = properties
+        .getProperty(
             property,
-            defaultValue
-        )!!.toBoolean()
+            defaultValue,
+        )!!
+        .toBoolean()
 
     actual val relaxed: Boolean
         get() = booleanProperty("relaxed", "false")

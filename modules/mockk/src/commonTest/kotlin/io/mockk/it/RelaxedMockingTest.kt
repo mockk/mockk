@@ -1,6 +1,12 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.MockKException
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -9,15 +15,23 @@ import kotlin.test.assertTrue
 @Suppress("UNUSED_PARAMETER")
 class RelaxedMockingTest {
     class MockCls {
-        fun op(a: Int, b: Int) = a + b
-        fun opUnit(a: Int, b: Int) {}
+        fun op(
+            a: Int,
+            b: Int,
+        ) = a + b
+
+        fun opUnit(
+            a: Int,
+            b: Int,
+        ) {}
     }
 
     @Test
     fun rurfRegularOperationOk() {
-        val mock = mockk<MockCls>(relaxUnitFun = true) {
-            every { op(1, 2) } returns 4
-        }
+        val mock =
+            mockk<MockCls>(relaxUnitFun = true) {
+                every { op(1, 2) } returns 4
+            }
 
         assertEquals(4, mock.op(1, 2))
     }

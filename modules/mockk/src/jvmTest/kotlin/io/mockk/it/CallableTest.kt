@@ -14,15 +14,17 @@ import kotlin.test.Test
 class CallableTest {
     @Test
     fun test() {
-        val taskCaptor = CapturingSlot<Callable<Boolean>>().apply {
-            captured = Callable { true }
-        }
-
-        val asyncTaskExecutor = mockk<ExecutorService> {
-            every { submit(capture(taskCaptor)) } answers {
-                CompletableFuture.completedFuture(taskCaptor.captured.call())
+        val taskCaptor =
+            CapturingSlot<Callable<Boolean>>().apply {
+                captured = Callable { true }
             }
-        }
+
+        val asyncTaskExecutor =
+            mockk<ExecutorService> {
+                every { submit(capture(taskCaptor)) } answers {
+                    CompletableFuture.completedFuture(taskCaptor.captured.call())
+                }
+            }
 
         asyncTaskExecutor.submit(Callable { true })
     }

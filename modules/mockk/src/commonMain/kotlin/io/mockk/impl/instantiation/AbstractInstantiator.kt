@@ -3,10 +3,14 @@ package io.mockk.impl.instantiation
 import io.mockk.impl.log.Logger
 import kotlin.reflect.KClass
 
-abstract class AbstractInstantiator(val instanceFactoryRegistry: CommonInstanceFactoryRegistry) {
-
+abstract class AbstractInstantiator(
+    val instanceFactoryRegistry: CommonInstanceFactoryRegistry,
+) {
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> instantiateViaInstanceFactoryRegistry(cls: KClass<T>, orInstantiate: () -> T): T {
+    fun <T : Any> instantiateViaInstanceFactoryRegistry(
+        cls: KClass<T>,
+        orInstantiate: () -> T,
+    ): T {
         for (factory in instanceFactoryRegistry.instanceFactories) {
             val instance = factory.instantiate(cls)
             if (instance != null) {

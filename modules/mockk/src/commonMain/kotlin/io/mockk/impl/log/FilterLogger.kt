@@ -1,14 +1,19 @@
 package io.mockk.impl.log
 
-class FilterLogger(val logger: Logger, val logLevel: () -> LogLevel) : Logger {
-
+class FilterLogger(
+    val logger: Logger,
+    val logLevel: () -> LogLevel,
+) : Logger {
     override fun error(msg: () -> String) {
         if (logLevel() >= LogLevel.ERROR) {
             logger.error(msg)
         }
     }
 
-    override fun error(ex: Throwable, msg: () -> String) {
+    override fun error(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         if (logLevel() >= LogLevel.ERROR) {
             logger.error(ex, msg)
         }
@@ -20,7 +25,10 @@ class FilterLogger(val logger: Logger, val logLevel: () -> LogLevel) : Logger {
         }
     }
 
-    override fun warn(ex: Throwable, msg: () -> String) {
+    override fun warn(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         if (logLevel() >= LogLevel.WARN) {
             logger.warn(ex, msg)
         }
@@ -32,7 +40,10 @@ class FilterLogger(val logger: Logger, val logLevel: () -> LogLevel) : Logger {
         }
     }
 
-    override fun info(ex: Throwable, msg: () -> String) {
+    override fun info(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         if (logLevel() >= LogLevel.INFO) {
             logger.info(ex, msg)
         }
@@ -44,7 +55,10 @@ class FilterLogger(val logger: Logger, val logLevel: () -> LogLevel) : Logger {
         }
     }
 
-    override fun debug(ex: Throwable, msg: () -> String) {
+    override fun debug(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         if (logLevel() >= LogLevel.DEBUG) {
             logger.debug(ex, msg)
         }
@@ -56,7 +70,10 @@ class FilterLogger(val logger: Logger, val logLevel: () -> LogLevel) : Logger {
         }
     }
 
-    override fun trace(ex: Throwable, msg: () -> String) {
+    override fun trace(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         if (logLevel() >= LogLevel.TRACE) {
             logger.trace(ex, msg)
         }

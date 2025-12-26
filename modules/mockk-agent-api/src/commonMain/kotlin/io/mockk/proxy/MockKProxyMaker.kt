@@ -6,6 +6,6 @@ interface MockKProxyMaker {
         interfaces: Array<Class<*>>,
         handler: MockKInvocationHandler,
         useDefaultConstructor: Boolean,
-        instance: Any?
+        instance: Any?,
     ): Cancelable<T>
 }

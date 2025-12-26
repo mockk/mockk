@@ -4,5 +4,5 @@ import io.mockk.Matcher
 
 data class SignedMatcher(
     val matcher: Matcher<*>,
-    val signature: Any
+    val signature: Any,
 )

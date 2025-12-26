@@ -12,13 +12,17 @@ class ChildHinter {
     }
 
     private fun shift() {
-        childTypes = childTypes
-            .mapKeys { (k, _) -> k - 1 }
-            .filter { (k, _) -> k > 0 }
-            .toMutableMap()
+        childTypes =
+            childTypes
+                .mapKeys { (k, _) -> k - 1 }
+                .filter { (k, _) -> k > 0 }
+                .toMutableMap()
     }
 
-    fun hint(n: Int, cls: KClass<*>) {
+    fun hint(
+        n: Int,
+        cls: KClass<*>,
+    ) {
         childTypes[n] = cls
     }
 }

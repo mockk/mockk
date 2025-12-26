@@ -1,7 +1,9 @@
 package io.mockk.impl.eval
 
 import io.mockk.CapturingSlot
-import io.mockk.MockKGateway.*
+import io.mockk.MockKGateway.CallRecorder
+import io.mockk.MockKGateway.Excluder
+import io.mockk.MockKGateway.ExclusionParameters
 import io.mockk.MockKMatcherScope
 import io.mockk.impl.recording.AutoHinter
 import io.mockk.impl.stub.StubRepository
@@ -9,13 +11,13 @@ import io.mockk.impl.stub.StubRepository
 class ExcludeBlockEvaluator(
     callRecorder: () -> CallRecorder,
     val stubRepo: StubRepository,
-    autoHinterFactory: () -> AutoHinter
-) : RecordedBlockEvaluator(callRecorder, autoHinterFactory), Excluder {
-
+    autoHinterFactory: () -> AutoHinter,
+) : RecordedBlockEvaluator(callRecorder, autoHinterFactory),
+    Excluder {
     override fun exclude(
         params: ExclusionParameters,
         mockBlock: (MockKMatcherScope.() -> Unit)?,
-        coMockBlock: (suspend MockKMatcherScope.() -> Unit)?
+        coMockBlock: (suspend MockKMatcherScope.() -> Unit)?,
     ) {
         if (coMockBlock != null) {
             initializeCoroutines()

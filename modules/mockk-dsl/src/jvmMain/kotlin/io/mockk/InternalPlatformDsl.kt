@@ -6,7 +6,12 @@ import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.Continuation
-import kotlin.reflect.*
+import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty1
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.allSuperclasses
 import kotlin.reflect.full.functions
 import kotlin.reflect.full.memberProperties
@@ -15,14 +20,12 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
 
 actual object InternalPlatformDsl {
-
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
 
-    actual fun <T> runCoroutine(block: suspend () -> T): T {
-        return runBlocking {
+    actual fun <T> runCoroutine(block: suspend () -> T): T =
+        runBlocking {
             block()
         }
-    }
 
     actual fun Any?.toStr() =
         try {
@@ -49,8 +52,11 @@ actual object InternalPlatformDsl {
             "<error \"$thr\">"
         }
 
-    actual fun deepEquals(obj1: Any?, obj2: Any?): Boolean {
-        return when {
+    actual fun deepEquals(
+        obj1: Any?,
+        obj2: Any?,
+    ): Boolean =
+        when {
             obj1 === obj2 -> true
 
             obj1 == null || obj2 == null -> false
@@ -59,9 +65,11 @@ actual object InternalPlatformDsl {
 
             else -> obj1 == obj2
         }
-    }
 
-    private fun arrayDeepEquals(obj1: Any, obj2: Any): Boolean {
+    private fun arrayDeepEquals(
+        obj1: Any,
+        obj2: Any,
+    ): Boolean {
         return when (obj1) {
             is BooleanArray -> obj1 contentEquals obj2 as BooleanArray
             is ByteArray -> obj1 contentEquals obj2 as ByteArray
@@ -96,36 +104,36 @@ actual object InternalPlatformDsl {
         self: Any,
         methodName: String,
         args: Array<out Any?>,
-        anyContinuationGen: () -> Continuation<*>
+        anyContinuationGen: () -> Continuation<*>,
     ): Any? {
         val params = arrayOf(self, *args)
-        val func = self::class.allAncestorFunctions().firstOrNull {
-            if (it.name != methodName) {
-                return@firstOrNull false
-            }
-            if (it.parameters.size != params.size) {
-                return@firstOrNull false
-            }
-
-            for ((idx, param) in it.parameters.withIndex()) {
-
-                val matches = when (val classifier = param.type.classifier) {
-                    is KClass<*> -> classifier.isInstance(params[idx])
-                    is KTypeParameter -> classifier.upperBounds.anyIsInstance(params[idx])
-                    else -> false
-                }
-                if (!matches) {
+        val func =
+            self::class.allAncestorFunctions().firstOrNull {
+                if (it.name != methodName) {
                     return@firstOrNull false
                 }
+                if (it.parameters.size != params.size) {
+                    return@firstOrNull false
+                }
+
+                for ((idx, param) in it.parameters.withIndex()) {
+                    val matches =
+                        when (val classifier = param.type.classifier) {
+                            is KClass<*> -> classifier.isInstance(params[idx])
+                            is KTypeParameter -> classifier.upperBounds.anyIsInstance(params[idx])
+                            else -> false
+                        }
+                    if (!matches) {
+                        return@firstOrNull false
+                    }
+                }
+
+                return@firstOrNull true
             }
-
-            return@firstOrNull true
-
-        }
-            ?: throw MockKException(
-                "can't find function $methodName(${args.joinToString(", ")}) of class ${self.javaClass.name} for dynamic call.\n" +
-                        "If you were trying to verify a private function, make sure to provide type information to exactly match the functions signature."
-            )
+                ?: throw MockKException(
+                    "can't find function $methodName(${args.joinToString(", ")}) of class ${self.javaClass.name} for dynamic call.\n" +
+                        "If you were trying to verify a private function, make sure to provide type information to exactly match the functions signature.",
+                )
 
         func.javaMethod?.let { makeAccessible(it) }
         return if (func.isSuspend) {
@@ -135,13 +143,12 @@ actual object InternalPlatformDsl {
         }
     }
 
-    private fun KClass<*>.allAncestorFunctions(): Sequence<KFunction<*>> {
-        return (sequenceOf(this) + this.allSuperclasses.asSequence())
+    private fun KClass<*>.allAncestorFunctions(): Sequence<KFunction<*>> =
+        (sequenceOf(this) + this.allSuperclasses.asSequence())
             .flatMap { it.functions }
-    }
 
-    private fun List<KType>.anyIsInstance(value: Any?): Boolean {
-        return any { bound ->
+    private fun List<KType>.anyIsInstance(value: Any?): Boolean =
+        any { bound ->
             val classifier = bound.classifier
             if (classifier is KClass<*>) {
                 classifier.isInstance(value)
@@ -149,34 +156,50 @@ actual object InternalPlatformDsl {
                 false
             }
         }
-    }
 
-    actual fun dynamicGet(self: Any, name: String): Any? {
-        val property = self::class.memberProperties
-            .filterIsInstance<KProperty1<Any, Any?>>()
-            .firstOrNull {
-                it.name == name
-            } ?: throw MockKException("can't find property $name for dynamic property get")
+    actual fun dynamicGet(
+        self: Any,
+        name: String,
+    ): Any? {
+        val property =
+            self::class
+                .memberProperties
+                .filterIsInstance<KProperty1<Any, Any?>>()
+                .firstOrNull {
+                    it.name == name
+                } ?: throw MockKException("can't find property $name for dynamic property get")
 
         property.isAccessible = true
         return property.get(self)
     }
 
-    actual fun dynamicSet(self: Any, name: String, value: Any?) {
-        val property = self::class.memberProperties
-            .filterIsInstance<KMutableProperty1<Any, Any?>>()
-            .firstOrNull {
-                it.name == name
-            } ?: throw MockKException("can't find property $name for dynamic property set")
+    actual fun dynamicSet(
+        self: Any,
+        name: String,
+        value: Any?,
+    ) {
+        val property =
+            self::class
+                .memberProperties
+                .filterIsInstance<KMutableProperty1<Any, Any?>>()
+                .firstOrNull {
+                    it.name == name
+                } ?: throw MockKException("can't find property $name for dynamic property set")
 
         property.isAccessible = true
         return property.set(self, value)
     }
 
-    actual fun dynamicSetField(self: Any, name: String, value: Any?) {
-        val field = self.javaClass
-            .declaredFields.firstOrNull { it.name == name }
-            ?: return
+    actual fun dynamicSetField(
+        self: Any,
+        name: String,
+        value: Any?,
+    ) {
+        val field =
+            self.javaClass
+                .declaredFields
+                .firstOrNull { it.name == name }
+                ?: return
 
         makeAccessible(field)
         field.set(self, value)
@@ -191,26 +214,26 @@ actual object InternalPlatformDsl {
     }
 
     actual fun <T> threadLocal(initializer: () -> T): InternalRef<T> {
-        class TL : ThreadLocal<T>(), InternalRef<T> {
-            override fun initialValue(): T {
-                return initializer()
-            }
+        class TL :
+            ThreadLocal<T>(),
+            InternalRef<T> {
+            override fun initialValue(): T = initializer()
 
             override val value: T
                 get() = get()
-
         }
         return TL()
     }
 
-    actual fun counter() = object : InternalCounter {
-        val atomicValue = AtomicLong()
+    actual fun counter() =
+        object : InternalCounter {
+            val atomicValue = AtomicLong()
 
-        override val value: Long
-            get() = atomicValue.get()
+            override val value: Long
+                get() = atomicValue.get()
 
-        override fun increment() = atomicValue.getAndIncrement()
-    }
+            override fun increment() = atomicValue.getAndIncrement()
+        }
 
     actual fun <T> coroutineCall(lambda: suspend () -> T): CoroutineCall<T> = JvmCoroutineCall(lambda)
 
@@ -218,29 +241,29 @@ actual object InternalPlatformDsl {
     internal actual fun <T : Any> boxCast(
         cls: KClass<*>,
         arg: Any,
-    ): T {
-        return if (cls.isValue) {
+    ): T =
+        if (cls.isValue) {
             val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
             constructor.call(arg) as T
         } else {
             arg as T
         }
-    }
 }
 
-class JvmCoroutineCall<T>(private val lambda: suspend () -> T) : CoroutineCall<T> {
+class JvmCoroutineCall<T>(
+    private val lambda: suspend () -> T,
+) : CoroutineCall<T> {
     companion object {
         val callMethod: Method = JvmCoroutineCall::class.java.getMethod("callCoroutine", Continuation::class.java)
     }
 
     suspend fun callCoroutine() = lambda()
 
-    override fun callWithContinuation(continuation: Continuation<*>): T {
-        return try {
+    override fun callWithContinuation(continuation: Continuation<*>): T =
+        try {
             @Suppress("UNCHECKED_CAST")
             callMethod.invoke(this, continuation) as T
         } catch (ex: InvocationTargetException) {
             throw ex.targetException
         }
-    }
 }

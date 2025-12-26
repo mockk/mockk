@@ -17,15 +17,19 @@
 package io.mockk.proxy.common
 
 import io.mockk.proxy.MockKInvocationHandler
-
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.util.concurrent.Callable
 
-class ProxyInvocationHandler(private val handler: MockKInvocationHandler) : InvocationHandler {
-
-    override fun invoke(proxy: Any, method: Method, args: Array<Any?>?) = when {
+class ProxyInvocationHandler(
+    private val handler: MockKInvocationHandler,
+) : InvocationHandler {
+    override fun invoke(
+        proxy: Any,
+        method: Method,
+        args: Array<Any?>?,
+    ) = when {
         isEqualsMethod(method) ->
             proxy === args?.get(0)
 
@@ -37,24 +41,21 @@ class ProxyInvocationHandler(private val handler: MockKInvocationHandler) : Invo
                 proxy,
                 method,
                 CallProxySuper(proxy, method, args ?: arrayOf()),
-                args ?: arrayOf()
+                args ?: arrayOf(),
             )
     }
 
     private class CallProxySuper(
         private val proxy: Any,
         private val method: Method,
-        private val args: Array<Any?>
+        private val args: Array<Any?>,
     ) : Callable<Any> {
-
-        private fun superMethodName(method: Method): String {
-            return "super$${method.name}$" +
-                    method.returnType.name
-                        .replace('.', '_')
-                        .replace('[', '_')
-                        .replace(';', '_')
-
-        }
+        private fun superMethodName(method: Method): String =
+            "super$${method.name}$" +
+                method.returnType.name
+                    .replace('.', '_')
+                    .replace('[', '_')
+                    .replace(';', '_')
 
         override fun call(): Any =
             try {
@@ -70,20 +71,22 @@ class ProxyInvocationHandler(private val handler: MockKInvocationHandler) : Invo
         private val equalsMethodName = "equals".intern()
         private val hashCodeMethodName = "hashCode".intern()
 
-        private fun isEqualsMethod(method: Method) = when {
-            method.name !== equalsMethodName ->
-                false
-            method.parameterTypes.size != 1 ->
-                false
-            else ->
-                method.parameterTypes[0] == Any::class.java
-        }
+        private fun isEqualsMethod(method: Method) =
+            when {
+                method.name !== equalsMethodName ->
+                    false
+                method.parameterTypes.size != 1 ->
+                    false
+                else ->
+                    method.parameterTypes[0] == Any::class.java
+            }
 
-        private fun isHashCodeMethod(method: Method) = when {
-            method.name !== hashCodeMethodName ->
-                false
-            else ->
-                method.parameterTypes.isEmpty()
-        }
+        private fun isHashCodeMethod(method: Method) =
+            when {
+                method.name !== hashCodeMethodName ->
+                    false
+                else ->
+                    method.parameterTypes.isEmpty()
+            }
     }
 }

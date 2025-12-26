@@ -8,18 +8,19 @@ import java.lang.instrument.Instrumentation
 internal class JvmInlineInstrumentation(
     log: MockKAgentLogger,
     specMap: ClassTransformationSpecMap,
-    private val instrumentation: Instrumentation
+    private val instrumentation: Instrumentation,
 ) : RetransformInlineInstrumentation(log, specMap) {
-
     override fun retransform(classesToTransform: Collection<Class<*>>) {
-        val classesAbleTransform = classesToTransform.filter {
-            instrumentation.isModifiableClass(it)
-        }.toTypedArray()
+        val classesAbleTransform =
+            classesToTransform
+                .filter {
+                    instrumentation.isModifiableClass(it)
+                }.toTypedArray()
 
         if (classesToTransform.size != classesAbleTransform.size) {
             val nonInstrumentable = classesToTransform - classesAbleTransform.toSet()
             log.warn(
-                "Non instrumentable classes(skipped): ${nonInstrumentable.joinToString()}"
+                "Non instrumentable classes(skipped): ${nonInstrumentable.joinToString()}",
             )
         }
 

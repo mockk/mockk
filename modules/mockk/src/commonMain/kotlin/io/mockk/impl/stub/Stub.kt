@@ -1,6 +1,11 @@
 package io.mockk.impl.stub
 
-import io.mockk.*
+import io.mockk.Answer
+import io.mockk.BackingFieldValueProvider
+import io.mockk.Invocation
+import io.mockk.InvocationMatcher
+import io.mockk.MethodDescription
+import io.mockk.MockKGateway
 import io.mockk.MockKGateway.ExclusionParameters
 import io.mockk.impl.platform.Disposable
 import kotlin.reflect.KClass
@@ -12,11 +17,17 @@ interface Stub : Disposable {
 
     val threadId: Long
 
-    fun addAnswer(matcher: InvocationMatcher, answer: Answer<*>)
+    fun addAnswer(
+        matcher: InvocationMatcher,
+        answer: Answer<*>,
+    )
 
     fun answer(invocation: Invocation): Any?
 
-    fun childMockK(matcher: InvocationMatcher, childType: KClass<*>): Any
+    fun childMockK(
+        matcher: InvocationMatcher,
+        childType: KClass<*>,
+    ): Any
 
     fun recordCall(invocation: Invocation)
 
@@ -24,7 +35,10 @@ interface Stub : Disposable {
 
     fun allRecordedCalls(method: MethodDescription): List<Invocation>
 
-    fun excludeRecordedCalls(params: ExclusionParameters, matcher: InvocationMatcher)
+    fun excludeRecordedCalls(
+        params: ExclusionParameters,
+        matcher: InvocationMatcher,
+    )
 
     fun markCallVerified(invocation: Invocation)
 
@@ -39,11 +53,10 @@ interface Stub : Disposable {
         method: MethodDescription,
         originalCall: () -> Any?,
         args: Array<out Any?>,
-        fieldValueProvider: BackingFieldValueProvider
+        fieldValueProvider: BackingFieldValueProvider,
     ): Any?
 
     fun toStr(): String
 
     fun stdObjectAnswer(invocation: Invocation): Any?
 }
-

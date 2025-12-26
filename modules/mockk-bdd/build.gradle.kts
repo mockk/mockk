@@ -1,11 +1,14 @@
-import buildsrc.config.Deps
-
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
     buildsrc.convention.`mockk-publishing`
 }
 
 description = "MockK BDD style aliases for DSL"
+
+// BDD style API for MockK.
+// Provides aliases for MockK functions in BDD style:
+// - given/coGiven (aliases for every/coEvery)
+// - then/coThen (aliases for verify/coVerify)
 
 val mavenName: String by extra("MockK BDD")
 val mavenDescription: String by extra("${project.description}")
@@ -42,4 +45,4 @@ kotlin {
             }
         }
     }
-} 
+}

@@ -10,18 +10,30 @@ import kotlin.test.assertEquals
 class RelaxedSuspendingMockingTest {
     @Suppress("RedundantSuspendModifier")
     class MockCls {
-        suspend fun op(a: Int, b: Int) = a + b
-        suspend fun opUnit(a: Int, b: Int) {}
-        suspend fun complexOp(a: Int, b: Int): List<Int> = listOf(a, b)
+        suspend fun op(
+            a: Int,
+            b: Int,
+        ) = a + b
+
+        suspend fun opUnit(
+            a: Int,
+            b: Int,
+        ) {}
+
+        suspend fun complexOp(
+            a: Int,
+            b: Int,
+        ): List<Int> = listOf(a, b)
     }
 
     @Test
     fun rurfRegularOperationOk() {
-        val mock = mockk<MockCls>(relaxUnitFun = true) {
-            coEvery { op(1, 2) } returns 4
-            coEvery { opUnit(1, 2) } returns Unit
-            coEvery { complexOp(1, 2) } returns listOf(4, 5)
-        }
+        val mock =
+            mockk<MockCls>(relaxUnitFun = true) {
+                coEvery { op(1, 2) } returns 4
+                coEvery { opUnit(1, 2) } returns Unit
+                coEvery { complexOp(1, 2) } returns listOf(4, 5)
+            }
 
         assertEquals(4, runBlocking { mock.op(1, 2) })
         assertEquals(Unit, runBlocking { mock.opUnit(1, 2) })
@@ -35,7 +47,6 @@ class RelaxedSuspendingMockingTest {
         assertEquals(0, runBlocking { mock.op(1, 2) })
         assertEquals(emptyList(), runBlocking { mock.complexOp(1, 2) })
     }
-
 
     @Test
     fun rurfFullyRelaxedRegularUnitOperationOk() {

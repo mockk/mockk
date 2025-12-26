@@ -1,7 +1,6 @@
 package io.mockk.proxy.jvm.dispatcher
 
 import io.mockk.proxy.MockKAgentLogger
-
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -14,7 +13,7 @@ import java.util.jar.JarOutputStream
 import kotlin.math.abs
 
 internal class BootJarLoader(
-    private val log: MockKAgentLogger
+    private val log: MockKAgentLogger,
 ) {
     fun loadBootJar(instrumentation: Instrumentation): Boolean {
         val bootJar = buildBootJar() ?: return false
@@ -29,12 +28,13 @@ internal class BootJarLoader(
         val classLoader = ClassLoader.getSystemClassLoader().root()
 
         for (name in classNames) {
-            val cls = try {
-                classLoader.loadClass(name)
-            } catch (cnfe: ClassNotFoundException) {
-                log.trace(cnfe, "Can't load class $name")
-                return false
-            }
+            val cls =
+                try {
+                    classLoader.loadClass(name)
+                } catch (cnfe: ClassNotFoundException) {
+                    log.trace(cnfe, "Can't load class $name")
+                    return false
+                }
 
             if (cls.classLoader != null) {
                 log.trace("Classloader is not bootstrap for $name")
@@ -47,9 +47,7 @@ internal class BootJarLoader(
         return true
     }
 
-
-    private tailrec fun ClassLoader.root(): ClassLoader =
-        if (parent == null) this else parent.root()
+    private tailrec fun ClassLoader.root(): ClassLoader = if (parent == null) this else parent.root()
 
     private fun buildBootJar(): File? {
         try {
@@ -68,7 +66,6 @@ internal class BootJarLoader(
             log.trace(ex, "Error creating boot jar")
             return null
         }
-
     }
 
     private fun createTempBootFile() =
@@ -79,13 +76,17 @@ internal class BootJarLoader(
         }
 
     @Throws(IOException::class)
-    private fun addClass(out: JarOutputStream, source: String): Boolean {
+    private fun addClass(
+        out: JarOutputStream,
+        source: String,
+    ): Boolean {
         val fileName = source.replace('.', '/')
 
         val classLoader = BootJarLoader::class.java.classLoader
 
-        val inputStream: InputStream? = classLoader.getResourceAsStream("$fileName.clazz")
-            ?: classLoader.getResourceAsStream("$fileName.class")
+        val inputStream: InputStream? =
+            classLoader.getResourceAsStream("$fileName.clazz")
+                ?: classLoader.getResourceAsStream("$fileName.class")
 
         if (inputStream == null) {
             log.trace("$fileName not found")
@@ -103,11 +104,12 @@ internal class BootJarLoader(
 
         private val rnd = Random()
 
-        private val classNames = arrayOf(
-            pkg + "JvmMockKDispatcher",
-            pkg + "JvmMockKWeakMap",
-            pkg + "JvmMockKWeakMap\$StrongKey",
-            pkg + "JvmMockKWeakMap\$WeakKey"
-        )
+        private val classNames =
+            arrayOf(
+                pkg + "JvmMockKDispatcher",
+                pkg + "JvmMockKWeakMap",
+                pkg + "JvmMockKWeakMap\$StrongKey",
+                pkg + "JvmMockKWeakMap\$WeakKey",
+            )
     }
 }

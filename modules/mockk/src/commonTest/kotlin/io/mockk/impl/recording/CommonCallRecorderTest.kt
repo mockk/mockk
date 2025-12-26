@@ -30,11 +30,18 @@ class CommonCallRecorderTest {
         every { factories.verifyingState.invoke(any(), any()) } returns mockk()
         every { factories.stubbingState.invoke(any()) } returns mockk()
 
-        commonCallRecorder = CommonCallRecorder(
-            mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true),
-            mockk(relaxed = true), mockk(relaxed = true), factories, initStateFactory,
-            mockk(relaxed = true)
-        )
+        commonCallRecorder =
+            CommonCallRecorder(
+                mockk(relaxed = true),
+                mockk(relaxed = true),
+                mockk(relaxed = true),
+                mockk(relaxed = true),
+                mockk(relaxed = true),
+                mockk(relaxed = true),
+                factories,
+                initStateFactory,
+                mockk(relaxed = true),
+            )
     }
 
     @Test

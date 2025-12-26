@@ -17,29 +17,30 @@ import kotlin.reflect.KClass
 class JvmStaticMockFactory(
     val proxyMaker: MockKStaticProxyMaker,
     val stubRepository: StubRepository,
-    val gatewayAccess: StubGatewayAccess
+    val gatewayAccess: StubGatewayAccess,
 ) : StaticMockFactory {
-
     val refCntMap = RefCounterMap<KClass<*>>()
 
     override fun staticMockk(cls: KClass<*>): () -> Unit {
         if (refCntMap.incrementRefCnt(cls)) {
             log.debug { "Creating static mockk for ${cls.toStr()}" }
 
-            val stub = SpyKStub(
-                cls,
-                "static " + cls.simpleName,
-                gatewayAccess,
-                true,
-                MockType.STATIC
-            )
+            val stub =
+                SpyKStub(
+                    cls,
+                    "static " + cls.simpleName,
+                    gatewayAccess,
+                    true,
+                    MockType.STATIC,
+                )
 
             log.trace { "Building static proxy for ${cls.toStr()} hashcode=${hkd(cls)}" }
-            val cancellation = try {
-                proxyMaker.staticProxy(cls.java, JvmMockFactoryHelper.mockHandler(stub))
-            } catch (ex: MockKAgentException) {
-                throw MockKException("Failed to build static proxy", ex)
-            }
+            val cancellation =
+                try {
+                    proxyMaker.staticProxy(cls.java, JvmMockFactoryHelper.mockHandler(stub))
+                } catch (ex: MockKAgentException) {
+                    throw MockKException("Failed to build static proxy", ex)
+                }
 
             stub.hashCodeStr = hkd(cls.java)
             stub.disposeRoutine = cancellation::cancel
@@ -58,17 +59,16 @@ class JvmStaticMockFactory(
         }
     }
 
-
     override fun clear(
         type: KClass<*>,
-        options: MockKGateway.ClearOptions
+        options: MockKGateway.ClearOptions,
     ) {
         stubRepository[type.java]?.clear(options)
     }
 
     override fun clearAll(
         options: MockKGateway.ClearOptions,
-        currentThreadOnly: Boolean
+        currentThreadOnly: Boolean,
     ) {
         val currentThreadId = Thread.currentThread().id
         stubRepository.allStubs.forEach {

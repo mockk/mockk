@@ -48,7 +48,9 @@ class JvmConstructorOverridenTest {
         assert(constructor.parameterCount == DataClass::class.java.constructors[0].parameterCount)
         assert(constructor == DataClass::class.java.constructors[0])
     }
-
 }
 
-data class DataClass(val name: String, val age: Int)
+data class DataClass(
+    val name: String,
+    val age: Int,
+)

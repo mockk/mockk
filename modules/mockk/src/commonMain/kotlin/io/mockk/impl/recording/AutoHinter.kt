@@ -7,7 +7,7 @@ open class AutoHinter {
         callRecorder: MockKGateway.CallRecorder,
         i: Int,
         n: Int,
-        block: () -> T
+        block: () -> T,
     ) {
         callRecorder.round(i, n)
         block()

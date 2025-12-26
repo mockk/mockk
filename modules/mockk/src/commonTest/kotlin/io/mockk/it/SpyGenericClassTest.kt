@@ -31,9 +31,7 @@ class SpyGenericClassTest {
     }
 
     private abstract class ParentClazz<V : ParentView> : ParentInterface<V> {
-        override fun foobar(view: V) {
-            throw RuntimeException()
-        }
+        override fun foobar(view: V): Unit = throw RuntimeException()
     }
 
     private class ChildClazz : ParentClazz<SomeView>() {

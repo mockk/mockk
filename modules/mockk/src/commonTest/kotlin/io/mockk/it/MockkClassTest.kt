@@ -8,7 +8,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class MockkClassTest {
-
     val mock = mockkClass(MockCls::class)
 
     /**
@@ -36,12 +35,13 @@ class MockkClassTest {
     }
 
     class TestClass {
-        fun alwaysThrows() : Nothing {
-            throw RuntimeException("this can be any exception")
-        }
+        fun alwaysThrows(): Nothing = throw RuntimeException("this can be any exception")
     }
 
     class MockCls {
-        fun op(a: Int, b: Int) = a + b
+        fun op(
+            a: Int,
+            b: Int,
+        ) = a + b
     }
 }

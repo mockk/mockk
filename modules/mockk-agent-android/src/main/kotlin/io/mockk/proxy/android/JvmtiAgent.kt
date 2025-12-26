@@ -33,30 +33,33 @@ internal class JvmtiAgent {
 
     init {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            throw MockKAgentException("Requires API level " + Build.VERSION_CODES.P + ". API level is "
-                    + Build.VERSION.SDK_INT)
+            throw MockKAgentException(
+                "Requires API level " + Build.VERSION_CODES.P + ". API level is " +
+                    Build.VERSION.SDK_INT,
+            )
         }
 
         if (Build.VERSION.CODENAME != "P") {
-
         }
 
         val cl =
             JvmtiAgent::class.java.classLoader as? BaseDexClassLoader
-                    ?: throw MockKAgentException("Could not load jvmti plugin as AndroidMockKJvmtiAgent class was not loaded " + "by a BaseDexClassLoader")
+                ?: throw MockKAgentException(
+                    "Could not load jvmti plugin as AndroidMockKJvmtiAgent class was not loaded " + "by a BaseDexClassLoader",
+                )
 
-        Debug.attachJvmtiAgent(libName, null, cl)
+        Debug.attachJvmtiAgent(LIB_NAME, null, cl)
         nativeRegisterTransformerHook()
     }
 
-
-
     fun appendToBootstrapClassLoaderSearch(inStream: InputStream) {
-        val jarFile = File.createTempFile("mockk-boot", ".jar")
-            .apply { deleteOnExit() }
-            .also {
-                FileOutputStream(it).use { inStream.copyTo(it) }
-            }
+        val jarFile =
+            File
+                .createTempFile("mockk-boot", ".jar")
+                .apply { deleteOnExit() }
+                .also {
+                    FileOutputStream(it).use { inStream.copyTo(it) }
+                }
 
         nativeAppendToBootstrapClassLoaderSearch(jarFile.absolutePath)
     }
@@ -81,7 +84,7 @@ internal class JvmtiAgent {
         className: String,
         classBeingRedefined: Class<*>,
         protectionDomain: ProtectionDomain?,
-        classfileBuffer: ByteArray
+        classfileBuffer: ByteArray,
     ) = transformer?.transform(classBeingRedefined, classfileBuffer) ?: classfileBuffer
 
     fun disconnect() {
@@ -89,11 +92,13 @@ internal class JvmtiAgent {
     }
 
     private external fun nativeRegisterTransformerHook()
+
     private external fun nativeUnregisterTransformerHook()
+
     private external fun nativeRetransformClasses(classes: Array<Class<*>>)
 
     companion object {
-        private const val libName = "libmockkjvmtiagent.so"
+        private const val LIB_NAME = "libmockkjvmtiagent.so"
         private val lock = Any()
 
         @JvmStatic

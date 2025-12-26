@@ -1,6 +1,8 @@
 package io.mockk.proxy.common.transformation
 
-import io.mockk.proxy.common.transformation.TransformationType.*
+import io.mockk.proxy.common.transformation.TransformationType.CONSTRUCTOR
+import io.mockk.proxy.common.transformation.TransformationType.SIMPLE
+import io.mockk.proxy.common.transformation.TransformationType.STATIC
 import java.util.WeakHashMap
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -12,14 +14,15 @@ class ClassTransformationSpecMap {
 
     fun applyTransformation(
         request: TransformationRequest,
-        retransformClasses: (TransformationRequest) -> Unit
+        retransformClasses: (TransformationRequest) -> Unit,
     ) = transformationLock.withLock {
         val result = mutableListOf<Class<*>>()
 
         specLock.withLock {
             for (cls in request.classes) {
-                val spec = classSpecs[cls]
-                    ?: ClassTransformationSpec(cls)
+                val spec =
+                    classSpecs[cls]
+                        ?: ClassTransformationSpec(cls)
 
                 val diff = if (request.untransform) -1 else 1
 
@@ -60,5 +63,4 @@ class ClassTransformationSpecMap {
         specLock.withLock {
             request.classes.associate { it.simpleName to classSpecs[it].toString() }
         }
-
 }

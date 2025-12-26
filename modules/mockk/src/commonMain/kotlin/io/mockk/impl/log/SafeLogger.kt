@@ -2,15 +2,20 @@ package io.mockk.impl.log
 
 import io.mockk.impl.recording.CommonCallRecorder
 
-class SafeLogger(val logger: Logger, val callRecorderGetter: () -> CommonCallRecorder) : Logger {
-
+class SafeLogger(
+    val logger: Logger,
+    val callRecorderGetter: () -> CommonCallRecorder,
+) : Logger {
     override fun error(msg: () -> String) {
         safeLogging {
             logger.error(msg)
         }
     }
 
-    override fun error(ex: Throwable, msg: () -> String) {
+    override fun error(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         safeLogging {
             logger.error(ex, msg)
         }
@@ -22,7 +27,10 @@ class SafeLogger(val logger: Logger, val callRecorderGetter: () -> CommonCallRec
         }
     }
 
-    override fun warn(ex: Throwable, msg: () -> String) {
+    override fun warn(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         safeLogging {
             logger.warn(ex, msg)
         }
@@ -34,7 +42,10 @@ class SafeLogger(val logger: Logger, val callRecorderGetter: () -> CommonCallRec
         }
     }
 
-    override fun info(ex: Throwable, msg: () -> String) {
+    override fun info(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         safeLogging {
             logger.info(ex, msg)
         }
@@ -46,7 +57,10 @@ class SafeLogger(val logger: Logger, val callRecorderGetter: () -> CommonCallRec
         }
     }
 
-    override fun debug(ex: Throwable, msg: () -> String) {
+    override fun debug(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         safeLogging {
             logger.debug(ex, msg)
         }
@@ -58,7 +72,10 @@ class SafeLogger(val logger: Logger, val callRecorderGetter: () -> CommonCallRec
         }
     }
 
-    override fun trace(ex: Throwable, msg: () -> String) {
+    override fun trace(
+        ex: Throwable,
+        msg: () -> String,
+    ) {
         safeLogging {
             logger.trace(ex, msg)
         }
@@ -67,5 +84,4 @@ class SafeLogger(val logger: Logger, val callRecorderGetter: () -> CommonCallRec
     private fun safeLogging(block: () -> Unit) {
         callRecorderGetter().safeExec(block)
     }
-
 }

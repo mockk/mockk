@@ -1,7 +1,14 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.MockKException
+import io.mockk.Runs
+import io.mockk.RurfMockCls
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.slot
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -16,9 +23,10 @@ class RurfTest {
 
     @Test
     fun rurfRegularOperationOk() {
-        val mock = mockk<RurfMockCls>(relaxUnitFun = true) {
-            every { op(1, 2) } returns 4
-        }
+        val mock =
+            mockk<RurfMockCls>(relaxUnitFun = true) {
+                every { op(1, 2) } returns 4
+            }
 
         assertEquals(4, mock.op(1, 2))
     }
@@ -65,5 +73,4 @@ class RurfTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mock2.opUnit(1, 2)
     }
-
 }

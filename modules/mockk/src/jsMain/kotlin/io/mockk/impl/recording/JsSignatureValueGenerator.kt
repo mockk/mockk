@@ -4,12 +4,16 @@ import kotlin.js.Math
 import kotlin.reflect.KClass
 
 class JsSignatureValueGenerator : SignatureValueGenerator {
-    fun rnd(min: Number, max: Number): Double {
-        return Math.random() * (max.toDouble() - min.toDouble()) + min.toDouble()
-    }
+    fun rnd(
+        min: Number,
+        max: Number,
+    ): Double = Math.random() * (max.toDouble() - min.toDouble()) + min.toDouble()
 
     @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
-    override fun <T : Any> signatureValue(cls: KClass<T>, orInstantiateVia: () -> T): T {
+    override fun <T : Any> signatureValue(
+        cls: KClass<T>,
+        orInstantiateVia: () -> T,
+    ): T {
         with(cls) {
             return when (cls) {
                 Boolean::class -> rnd(0, 1) > 0.5

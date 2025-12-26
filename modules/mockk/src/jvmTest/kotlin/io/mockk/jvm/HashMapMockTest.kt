@@ -4,16 +4,15 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.test.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.condition.DisabledForJreRange
 import org.junit.jupiter.api.condition.JRE
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.test.assertEquals
 
 class HashMapMockTest {
-
     @Test
     fun canMockAHashMap() {
         val map = mockk<HashMap<String, String>>()

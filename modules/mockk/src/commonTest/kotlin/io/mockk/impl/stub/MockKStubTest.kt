@@ -3,9 +3,9 @@ package io.mockk.impl.stub
 import io.mockk.MockKException
 import io.mockk.every
 import io.mockk.mockk
-import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
 
 class MockKStubTest {
     @Test
@@ -17,9 +17,10 @@ class MockKStubTest {
             mock.function(2)
         } returns 3
 
-        val exception = assertThrows<MockKException> {
-            mock.function(3)
-        }
+        val exception =
+            assertThrows<MockKException> {
+                mock.function(3)
+            }
 
         assertEquals(expectedMessage, exception.message)
     }
@@ -37,9 +38,10 @@ $mock.function(eq(5))))"""
             mock.function(5)
         } returns 3
 
-        val exception = assertThrows<MockKException> {
-            mock.function(3)
-        }
+        val exception =
+            assertThrows<MockKException> {
+                mock.function(3)
+            }
 
         assertEquals(expectedMessage, exception.message)
     }
@@ -55,9 +57,9 @@ $mock.function(eq(5))))"""
         mock.functionNull(null)
     }
 
-
     class DummyClass {
         fun function(a: Int) = a
+
         fun functionNull(a: Any?) = 2
     }
 }

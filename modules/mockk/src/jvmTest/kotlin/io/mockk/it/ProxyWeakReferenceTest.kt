@@ -18,9 +18,9 @@ class ProxyWeakReferenceTest {
         }
     }
 
-    class LazySpringBeanWhichHoldsReferenceForBeanFactory(val beanFactory: ByteArray) {
-        fun doSmth(): String {
-            return "Smth"
-        }
+    class LazySpringBeanWhichHoldsReferenceForBeanFactory(
+        val beanFactory: ByteArray,
+    ) {
+        fun doSmth(): String = "Smth"
     }
 }

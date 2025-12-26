@@ -7,12 +7,17 @@ import java.util.Random
 import java.util.concurrent.Callable
 
 internal open class BaseAdvice(
-    private val handlers: MockHandlerMap
+    private val handlers: MockHandlerMap,
 ) : JvmMockKDispatcher() {
     val id = randomGen.nextLong()
 
-    override fun handler(self: Any, method: Method, arguments: Array<Any?>): Callable<*>? {
-        val handler = handlers[self]
+    override fun handler(
+        self: Any,
+        method: Method,
+        arguments: Array<Any?>,
+    ): Callable<*>? {
+        val handler =
+            handlers[self]
                 ?: return null
 
         return if (SelfCallEliminator.isSelf(self, method)) {
@@ -20,24 +25,28 @@ internal open class BaseAdvice(
         } else {
             Interceptor(handler, self, method, arguments)
         }
-
     }
 
     override fun constructorDone(
         self: Any,
-        arguments: Array<Any?>
+        arguments: Array<Any?>,
     ) {
-        val handler = handlers[self::class.java]
+        val handler =
+            handlers[self::class.java]
                 ?: return
 
         handler.invocation(self, null, null, arguments)
     }
 
-
-    override fun handle(self: Any, method: Method, arguments: Array<Any?>, originalMethod: Callable<Any>?): Any? {
+    override fun handle(
+        self: Any,
+        method: Method,
+        arguments: Array<Any?>,
+        originalMethod: Callable<Any>?,
+    ): Any? {
         val handler =
             handler(self, method, arguments)
-                    ?: originalMethod
+                ?: originalMethod
 
         return handler?.call()
     }

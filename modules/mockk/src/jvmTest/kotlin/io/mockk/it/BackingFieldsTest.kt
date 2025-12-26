@@ -27,7 +27,7 @@ class BackingFieldsTest {
                 .javaClass
                 .getDeclaredField("ret")
                 .also { it.isAccessible = true }
-                .get(obj)
+                .get(obj),
         )
     }
 
@@ -43,7 +43,7 @@ class BackingFieldsTest {
                 .javaClass
                 .getDeclaredField("ret")
                 .also { it.isAccessible = true }
-                .get(obj)
+                .get(obj),
         )
     }
 }

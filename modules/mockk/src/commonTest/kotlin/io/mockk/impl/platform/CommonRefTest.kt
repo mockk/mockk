@@ -64,5 +64,4 @@ class CommonRefTest {
 
         assertEquals(hash1, hash2)
     }
-
 }

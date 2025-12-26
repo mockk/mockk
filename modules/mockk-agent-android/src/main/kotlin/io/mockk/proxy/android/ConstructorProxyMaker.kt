@@ -1,6 +1,9 @@
 package io.mockk.proxy.android
 
-import io.mockk.proxy.*
+import io.mockk.proxy.Cancelable
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKConstructorProxyMaker
+import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.android.transformation.AndroidInlineInstrumentation
 import io.mockk.proxy.common.CancelableResult
 import io.mockk.proxy.common.transformation.TransformationRequest
@@ -8,20 +11,23 @@ import io.mockk.proxy.common.transformation.TransformationType
 
 internal class ConstructorProxyMaker(
     private val inliner: AndroidInlineInstrumentation?,
-    private val mocks: MutableMap<Any, MockKInvocationHandler>
+    private val mocks: MutableMap<Any, MockKInvocationHandler>,
 ) : MockKConstructorProxyMaker {
-
-    override fun constructorProxy(clazz: Class<*>, handler: MockKInvocationHandler): Cancelable<Class<*>> {
+    override fun constructorProxy(
+        clazz: Class<*>,
+        handler: MockKInvocationHandler,
+    ): Cancelable<Class<*>> {
         if (inliner == null) {
             throw MockKAgentException("Mocking static is supported starting from Android P")
         }
 
-        val cancellation = inliner.execute(
-            TransformationRequest(
-                setOf(clazz),
-                TransformationType.CONSTRUCTOR
+        val cancellation =
+            inliner.execute(
+                TransformationRequest(
+                    setOf(clazz),
+                    TransformationType.CONSTRUCTOR,
+                ),
             )
-        )
 
         mocks[clazz] = handler
 

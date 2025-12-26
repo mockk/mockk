@@ -1,13 +1,10 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
-import io.mockk.proxy.MockKInvocationHandler;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher;
 import net.bytebuddy.asm.Advice;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 @SuppressWarnings("unused")
 public class JvmMockKConstructorProxyAdvice extends BaseAdvice {

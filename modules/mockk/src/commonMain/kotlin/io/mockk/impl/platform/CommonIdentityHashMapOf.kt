@@ -28,7 +28,10 @@ class CommonIdentityHashMapOf<K, V> : MutableMap<K, V> {
 
     override fun clear() = map.clear()
 
-    override fun put(key: K, value: V): V? = map.put(ref(key), value)
+    override fun put(
+        key: K,
+        value: V,
+    ): V? = map.put(ref(key), value)
 
     override fun putAll(from: Map<out K, V>): Unit = throw UnsupportedOperationException("putAll")
 

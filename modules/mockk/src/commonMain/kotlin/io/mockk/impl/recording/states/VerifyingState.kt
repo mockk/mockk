@@ -10,9 +10,8 @@ import io.mockk.impl.verify.VerificationHelpers
 
 class VerifyingState(
     recorder: CommonCallRecorder,
-    val params: VerificationParameters
+    val params: VerificationParameters,
 ) : RecordingState(recorder) {
-
     override fun wasNotCalled(list: List<Any>) = addWasNotCalled(list)
 
     override fun recordingDone(): CallRecordingState {
@@ -28,7 +27,7 @@ class VerifyingState(
             recorder.safeExec {
                 verifier.verify(
                     sorter.regularCalls,
-                    params
+                    params,
                 )
             }
 
@@ -51,15 +50,20 @@ class VerifyingState(
         }
     }
 
-    private fun failIfNotPassed(outcome: VerificationResult, inverse: Boolean) {
+    private fun failIfNotPassed(
+        outcome: VerificationResult,
+        inverse: Boolean,
+    ) {
         when (outcome) {
-            is VerificationResult.OK -> if (inverse) {
-                val callsReport = VerificationHelpers.formatCalls(outcome.verifiedCalls)
-                throw AssertionError("Inverse verification failed.\n\nVerified calls:\n$callsReport")
-            }
-            is VerificationResult.Failure -> if (!inverse) {
-                throw AssertionError("Verification failed: ${outcome.message}")
-            }
+            is VerificationResult.OK ->
+                if (inverse) {
+                    val callsReport = VerificationHelpers.formatCalls(outcome.verifiedCalls)
+                    throw AssertionError("Inverse verification failed.\n\nVerified calls:\n$callsReport")
+                }
+            is VerificationResult.Failure ->
+                if (!inverse) {
+                    throw AssertionError("Verification failed: ${outcome.message}")
+                }
         }
     }
 
@@ -84,15 +88,19 @@ class VerifyingState(
         if (calledStubs.isNotEmpty()) {
             if (calledStubs.size == 1) {
                 val calledStub = calledStubs[0]
-                throw AssertionError(recorder.safeExec {
-                    "Verification failed: ${calledStub.toStr()} should not be called:\n" +
-                        calledStub.allRecordedCalls().joinToString("\n")
-                })
+                throw AssertionError(
+                    recorder.safeExec {
+                        "Verification failed: ${calledStub.toStr()} should not be called:\n" +
+                            calledStub.allRecordedCalls().joinToString("\n")
+                    },
+                )
             } else {
-                throw AssertionError(recorder.safeExec {
-                    "Verification failed: ${calledStubs.joinToString(", ") { it.toStr() }} should not be called:\n" +
-                        calledStubs.flatMap { it.allRecordedCalls() }.joinToString("\n")
-                })
+                throw AssertionError(
+                    recorder.safeExec {
+                        "Verification failed: ${calledStubs.joinToString(", ") { it.toStr() }} should not be called:\n" +
+                            calledStubs.flatMap { it.allRecordedCalls() }.joinToString("\n")
+                    },
+                )
             }
         }
     }

@@ -4,16 +4,26 @@ import io.mockk.MockKException
 import io.mockk.mockk
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
+import kotlin.test.assertNull
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 @Suppress("UNUSED_PARAMETER")
 class MockInjectorTest {
     interface MockIf
+
     class MockCls : MockIf
 
     @Test
     fun primaryConstructorInjectionByType() {
-        class InjectTarget(val param: MockCls)
+        class InjectTarget(
+            val param: MockCls,
+        )
 
         class InjectDeclaration {
             val mockCls = mockk<MockCls>()
@@ -21,18 +31,21 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertSame(declaration.mockCls, instance.param)
     }
 
     @Test
     fun primaryConstructorInjectionByName() {
-        class InjectTarget(val mockCls: MockCls)
+        class InjectTarget(
+            val mockCls: MockCls,
+        )
 
         class InjectDeclaration {
             val mockCls = mockk<MockCls>()
@@ -40,18 +53,21 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_NAME,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_NAME,
+                declaration,
+            )
 
         assertSame(declaration.mockCls, instance.mockCls)
     }
 
     @Test
     fun primaryConstructorInjectionBoth() {
-        class InjectTarget(val mockCls: MockCls)
+        class InjectTarget(
+            val mockCls: MockCls,
+        )
 
         class InjectDeclaration {
             val mockCls = mockk<MockCls>()
@@ -59,18 +75,21 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_NAME,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_NAME,
+                declaration,
+            )
 
         assertSame(declaration.mockCls, instance.mockCls)
     }
 
     @Test
     fun primaryConstructorInjectionByNameNonMatchingType() {
-        class InjectTarget(val mockCls: Int)
+        class InjectTarget(
+            val mockCls: Int,
+        )
 
         class InjectDeclaration {
             val mockCls = mockk<MockCls>()
@@ -82,14 +101,16 @@ class MockInjectorTest {
             inject(
                 InjectTarget::class,
                 InjectionLookupType.BY_NAME,
-                declaration
+                declaration,
             )
         }
     }
 
     @Test
     fun primaryConstructorInjectionByTypeSubclass() {
-        class InjectTarget(val param: MockIf)
+        class InjectTarget(
+            val param: MockIf,
+        )
 
         class InjectDeclaration {
             val mockCls = mockk<MockCls>()
@@ -97,18 +118,21 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertSame(declaration.mockCls, instance.param)
     }
 
     @Test
     fun secondaryConstructorInjection() {
-        class InjectTarget constructor(val param: MockIf)
+        class InjectTarget constructor(
+            val param: MockIf,
+        )
 
         class InjectDeclaration {
             val mockCls = mockk<MockCls>()
@@ -116,11 +140,12 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertSame(declaration.mockCls, instance.param)
     }
@@ -146,11 +171,12 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertEquals(2, instance.results.size)
         assertSame(declaration.mockCls, instance.results[0])
@@ -180,11 +206,12 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertEquals(1, instance.results.size)
         assertEquals(1, instance.ctor)
@@ -193,7 +220,9 @@ class MockInjectorTest {
 
     @Test
     fun matchingSecondaryNonMatchingPrimaryConstructorInjection() {
-        class InjectTarget(val x: Int) {
+        class InjectTarget(
+            val x: Int,
+        ) {
             val results = mutableListOf<MockCls>()
             var ctor = x
 
@@ -214,11 +243,12 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertEquals(1, instance.results.size)
         assertEquals(1, instance.ctor)
@@ -227,7 +257,9 @@ class MockInjectorTest {
 
     @Test
     fun matchingSecondaryConstructorInjection() {
-        class InjectTarget(val type: MockCls) {
+        class InjectTarget(
+            val type: MockCls,
+        ) {
             val results = mutableListOf<MockCls>()
             var ctor = 1
 
@@ -244,11 +276,12 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertEquals(2, instance.results.size)
         assertEquals(2, instance.ctor)
@@ -258,7 +291,9 @@ class MockInjectorTest {
 
     @Test
     fun nonMatchingSecondaryConstructorInjection() {
-        class InjectTarget(val type: MockCls) {
+        class InjectTarget(
+            val type: MockCls,
+        ) {
             val results = mutableListOf<MockCls>()
             var ctor = 1
 
@@ -274,11 +309,12 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertEquals(1, instance.ctor)
         assertSame(declaration.mockCls, instance.type)
@@ -300,18 +336,22 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+            )
 
         assertEquals(null, instance.param)
     }
 
     @Test
     fun otherNameConstructorInjection() {
-        class InjectTarget(val otherName: MockCls, val name: MockCls)
+        class InjectTarget(
+            val otherName: MockCls,
+            val name: MockCls,
+        )
 
         class InjectDeclaration {
             val name = MockCls()
@@ -323,7 +363,7 @@ class MockInjectorTest {
             inject(
                 InjectTarget::class,
                 InjectionLookupType.BY_NAME,
-                declaration
+                declaration,
             )
         }
     }
@@ -338,18 +378,22 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BOTH,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BOTH,
+                declaration,
+            )
 
         assertNotNull(instance)
     }
 
     @Test
     fun constructorWithDefaultArgumentInjection() {
-        class InjectTarget(param1: MockIf, param2: MockCls = MockCls())
+        class InjectTarget(
+            param1: MockIf,
+            param2: MockCls = MockCls(),
+        )
 
         class InjectDeclaration {
             val param1 = mockk<MockIf>()
@@ -357,18 +401,21 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BOTH,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BOTH,
+                declaration,
+            )
 
         assertNotNull(instance)
     }
 
     @Test
     fun matchingDefaultArgumentConstructorInjection() {
-        class InjectTarget(param1: MockCls = MockCls())
+        class InjectTarget(
+            param1: MockCls = MockCls(),
+        )
 
         class InjectDeclaration {
             val param1 = mockk<MockCls>()
@@ -376,11 +423,12 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BOTH,
-            declaration
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BOTH,
+                declaration,
+            )
 
         assertNotNull(instance)
     }
@@ -397,12 +445,13 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration,
-            true
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+                true,
+            )
 
         assertSame(declaration.obj, instance.property)
     }
@@ -420,12 +469,13 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_NAME,
-            declaration,
-            true
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_NAME,
+                declaration,
+                true,
+            )
 
         assertSame(declaration.property1, instance.property1)
         assertNull(instance.property2)
@@ -444,12 +494,13 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration,
-            true
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+                true,
+            )
 
         assertSame(declaration.property, instance.property1)
         assertSame(declaration.property, instance.property2)
@@ -469,12 +520,13 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration,
-            true
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+                true,
+            )
 
         assertSame(declaration.obj, instance.access())
     }
@@ -491,13 +543,14 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration,
-            propertyInjection = true,
-            injectImmutable = false,
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+                propertyInjection = true,
+                injectImmutable = false,
+            )
 
         assertNotSame(declaration.obj, instance.property)
     }
@@ -514,14 +567,15 @@ class MockInjectorTest {
 
         val declaration = InjectDeclaration()
 
-        val instance = inject(
-            InjectTarget::class,
-            InjectionLookupType.BY_TYPE,
-            declaration,
-            propertyInjection = true,
-            injectImmutable = true,
-            overrideValues = true,
-        )
+        val instance =
+            inject(
+                InjectTarget::class,
+                InjectionLookupType.BY_TYPE,
+                declaration,
+                propertyInjection = true,
+                injectImmutable = true,
+                overrideValues = true,
+            )
 
         assertSame(declaration.obj, instance.property)
     }
@@ -532,7 +586,7 @@ class MockInjectorTest {
         declaration: Any,
         propertyInjection: Boolean = false,
         injectImmutable: Boolean = false,
-        overrideValues: Boolean = false
+        overrideValues: Boolean = false,
     ): T {
         val injector = MockInjector(declaration, lookupType, injectImmutable, overrideValues)
         val instance = injector.constructorInjection(typeToCreate)

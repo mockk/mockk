@@ -1,5 +1,6 @@
 package io.mockk.core
 
+import io.mockk.core.ValueClassSupport.boxedValue
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -12,7 +13,6 @@ import kotlin.reflect.jvm.javaGetter
 import kotlin.reflect.jvm.kotlinFunction
 
 actual object ValueClassSupport {
-
     private val unboxValueReturnTypes = setOf(Result.success("").javaClass.kotlin)
 
     /**
@@ -39,7 +39,7 @@ actual object ValueClassSupport {
             return if (
                 !(kFunction.isSuspend && isPrimitive) &&
                 resultType == expectedReturnType &&
-                !(isReturnNullable && isPrimitive)  // Nullable primitive value classes are not inlined (issue #1103)
+                !(isReturnNullable && isPrimitive) // Nullable primitive value classes are not inlined (issue #1103)
             ) {
                 this.boxedValue
             } else {
@@ -66,9 +66,10 @@ actual object ValueClassSupport {
         }
     }
 
-    private fun findMatchingPropertyWithJavaGetter(method: Method): KProperty<*>? {
-        return method.declaringClass.kotlin.declaredMemberProperties.find { it.javaGetter == method }
-    }
+    private fun findMatchingPropertyWithJavaGetter(method: Method): KProperty<*>? =
+        method.declaringClass.kotlin.declaredMemberProperties.find {
+            it.javaGetter == method
+        }
 
     /**
      * Underlying property value of a **`value class`** or self.
@@ -78,17 +79,18 @@ actual object ValueClassSupport {
      */
     actual val <T : Any> T.boxedValue: Any?
         @Suppress("UNCHECKED_CAST")
-        get() = if (!this::class.isValue_safe) {
-            this
-        } else {
-            val klass = (this::class as KClass<T>)
-            val boxedProperty = klass.boxedProperty.get(this)
-            if (klass == Result::class) {
-                boxedProperty
+        get() =
+            if (!this::class.isValue_safe) {
+                this
             } else {
-                boxedProperty?.boxedValue
+                val klass = (this::class as KClass<T>)
+                val boxedProperty = klass.boxedProperty.get(this)
+                if (klass == Result::class) {
+                    boxedProperty
+                } else {
+                    boxedProperty?.boxedValue
+                }
             }
-        }
 
     /**
      * Underlying property class of a **`value class`** or self.
@@ -96,11 +98,12 @@ actual object ValueClassSupport {
      * The returned class might also be a `value class`!
      */
     actual val KClass<*>.boxedClass: KClass<*>
-        get() = if (!this.isValue_safe) {
-            this
-        } else {
-            this.boxedProperty.returnType.classifier as KClass<*>
-        }
+        get() =
+            if (!this.isValue_safe) {
+                this
+            } else {
+                this.boxedProperty.returnType.classifier as KClass<*>
+            }
 
     /**
      * Underlying property class of a **`value class`** or self.
@@ -129,15 +132,16 @@ actual object ValueClassSupport {
      * The underlying property might also be a `value class`!
      */
     private val <T : Any> KClass<T>.boxedProperty: KProperty1<T, *>
-        get() = if (!this.isValue_safe) {
-            throw UnsupportedOperationException("$this is not a value class")
-        } else {
-            @Suppress("UNCHECKED_CAST")
-            valueClassFieldCache.getOrPut(this) {
-                // value classes always have exactly one property with a backing field
-                this.declaredMemberProperties.first { it.javaField != null }.apply { isAccessible = true }
-            } as KProperty1<T, *>
-        }
+        get() =
+            if (!this.isValue_safe) {
+                throw UnsupportedOperationException("$this is not a value class")
+            } else {
+                @Suppress("UNCHECKED_CAST")
+                valueClassFieldCache.getOrPut(this) {
+                    // value classes always have exactly one property with a backing field
+                    this.declaredMemberProperties.first { it.javaField != null }.apply { isAccessible = true }
+                } as KProperty1<T, *>
+            }
 
     /**
      * Returns `true` if calling [KClass.isValue] is safe.
@@ -145,13 +149,14 @@ actual object ValueClassSupport {
      * (In some instances [KClass.isValue] can throw an exception.)
      */
     private val <T : Any> KClass<T>.isValue_safe: Boolean
-        get() = try {
-            this.isValue
-        } catch (_: KotlinReflectionInternalError) {
-            false
-        } catch (_: UnsupportedOperationException) {
-            false
-        } catch (_: AbstractMethodError) {
-            false
-        }
+        get() =
+            try {
+                this.isValue
+            } catch (_: KotlinReflectionInternalError) {
+                false
+            } catch (_: UnsupportedOperationException) {
+                false
+            } catch (_: AbstractMethodError) {
+                false
+            }
 }

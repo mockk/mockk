@@ -13,7 +13,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 abstract class MockKExtensionAfterAllTestTest {
-
     @Test
     open fun prepareAfterAllUnmockTest() {
         mockkObject(TestMock)
@@ -29,10 +28,8 @@ abstract class MockKExtensionAfterAllTestTest {
 
     @ExtendWith(CheckIsStillMock::class, MockKExtension::class)
     class AnnotatedMethodAfterAllKeepMocks : MockKExtensionAfterAllTestTest() {
-
         @MockKExtension.KeepMocks
         override fun prepareAfterAllUnmockTest() = super.prepareAfterAllUnmockTest()
-
     }
 
     @ExtendWith(CheckIsStillMock::class, PropertyExtension::class, MockKExtension::class)
@@ -41,24 +38,21 @@ abstract class MockKExtensionAfterAllTestTest {
     object TestMock
 
     class CheckIsNotMock : AfterAllCallback {
-
         override fun afterAll(context: ExtensionContext) {
             assertFalse(isMockKMock(TestMock, objectMock = true))
         }
-
     }
 
     class CheckIsStillMock : AfterAllCallback {
-
         override fun afterAll(context: ExtensionContext) {
             assertTrue(isMockKMock(TestMock, objectMock = true))
             unmockkObject(TestMock)
         }
-
     }
 
-    class PropertyExtension : BeforeAllCallback, AfterAllCallback {
-
+    class PropertyExtension :
+        BeforeAllCallback,
+        AfterAllCallback {
         override fun beforeAll(context: ExtensionContext?) {
             System.setProperty(KEEP_MOCKS_PROPERTY, "true")
         }
@@ -66,7 +60,5 @@ abstract class MockKExtensionAfterAllTestTest {
         override fun afterAll(context: ExtensionContext) {
             System.clearProperty(KEEP_MOCKS_PROPERTY)
         }
-
     }
-
 }

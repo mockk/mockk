@@ -1,6 +1,11 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.proxy.*
+import io.mockk.proxy.MockKAgentFactory
+import io.mockk.proxy.MockKAgentLogFactory
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.MockKConstructorProxyMaker
+import io.mockk.proxy.MockKProxyMaker
+import io.mockk.proxy.MockKStaticProxyMaker
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.BootJarLoader
@@ -26,9 +31,10 @@ class JvmMockKAgentFactory : MockKAgentFactory {
     override fun init(logFactory: MockKAgentLogFactory) {
         log = logFactory.logger(JvmMockKAgentFactory::class.java)
 
-        val loader = BootJarLoader(
-            logFactory.logger(BootJarLoader::class.java)
-        )
+        val loader =
+            BootJarLoader(
+                logFactory.logger(BootJarLoader::class.java),
+            )
 
         val jvmInstrumentation = initInstrumentation(loader)
 
@@ -40,12 +46,12 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     "java.lang.WeakPairMap",
                     "java.lang.WeakPairMap\$WeakRefPeer",
                     "java.lang.WeakPairMap\$Pair",
-                    "java.lang.WeakPairMap\$Pair\$Weak\$1"
+                    "java.lang.WeakPairMap\$Pair\$Weak\$1",
                 ).forEach {
                     try {
                         Class.forName(it, false, null)
                     } catch (ignored: ClassNotFoundException) {
-                         // skip
+                        // skip
                     }
                 }
             }
@@ -53,15 +59,16 @@ class JvmMockKAgentFactory : MockKAgentFactory {
             fun init() {
                 preload()
 
-                val byteBuddy = ByteBuddy()
-                    .with(TypeValidation.DISABLED)
-                    .with(MockKSubclassNamingStrategy())
+                val byteBuddy =
+                    ByteBuddy()
+                        .with(TypeValidation.DISABLED)
+                        .with(MockKSubclassNamingStrategy())
 
-
-                jvmInstantiator = ObjenesisInstantiator(
-                    logFactory.logger(ObjenesisInstantiator::class.java),
-                    byteBuddy
-                )
+                jvmInstantiator =
+                    ObjenesisInstantiator(
+                        logFactory.logger(ObjenesisInstantiator::class.java),
+                        byteBuddy,
+                    )
 
                 val handlers = MockHandlerMap.create(jvmInstrumentation != null)
                 val staticHandlers = MockHandlerMap.create(jvmInstrumentation != null)
@@ -69,55 +76,56 @@ class JvmMockKAgentFactory : MockKAgentFactory {
 
                 val specMap = ClassTransformationSpecMap()
 
+                val inliner =
+                    jvmInstrumentation?.let {
+                        it.addTransformer(
+                            InliningClassTransformer(
+                                logFactory.logger(InliningClassTransformer::class.java),
+                                specMap,
+                                handlers,
+                                staticHandlers,
+                                constructorHandlers,
+                                byteBuddy,
+                            ),
+                            true,
+                        )
 
-                val inliner = jvmInstrumentation?.let {
-
-                    it.addTransformer(
-                        InliningClassTransformer(
-                            logFactory.logger(InliningClassTransformer::class.java),
+                        JvmInlineInstrumentation(
+                            logFactory.logger(JvmInlineInstrumentation::class.java),
                             specMap,
-                            handlers,
-                            staticHandlers,
-                            constructorHandlers,
-                            byteBuddy
-                        ),
-                        true
+                            jvmInstrumentation,
+                        )
+                    }
+
+                val subclasser =
+                    SubclassInstrumentation(
+                        logFactory.logger(SubclassInstrumentation::class.java),
+                        handlers,
+                        byteBuddy,
                     )
 
-                    JvmInlineInstrumentation(
-                        logFactory.logger(JvmInlineInstrumentation::class.java),
-                        specMap,
-                        jvmInstrumentation
+                jvmProxyMaker =
+                    ProxyMaker(
+                        logFactory.logger(ProxyMaker::class.java),
+                        inliner,
+                        subclasser,
+                        jvmInstantiator,
+                        handlers,
                     )
-                }
 
-                val subclasser = SubclassInstrumentation(
-                    logFactory.logger(SubclassInstrumentation::class.java),
-                    handlers,
-                    byteBuddy
-                )
+                jvmStaticProxyMaker =
+                    StaticProxyMaker(
+                        logFactory.logger(StaticProxyMaker::class.java),
+                        inliner,
+                        staticHandlers,
+                    )
 
-
-                jvmProxyMaker = ProxyMaker(
-                    logFactory.logger(ProxyMaker::class.java),
-                    inliner,
-                    subclasser,
-                    jvmInstantiator,
-                    handlers
-                )
-
-                jvmStaticProxyMaker = StaticProxyMaker(
-                    logFactory.logger(StaticProxyMaker::class.java),
-                    inliner,
-                    staticHandlers
-                )
-
-                jvmConstructorProxyMaker = ConstructorProxyMaker(
-                    logFactory.logger(ConstructorProxyMaker::class.java),
-                    inliner,
-                    constructorHandlers
-
-                )
+                jvmConstructorProxyMaker =
+                    ConstructorProxyMaker(
+                        logFactory.logger(ConstructorProxyMaker::class.java),
+                        inliner,
+                        constructorHandlers,
+                    )
             }
         }
         Initializer().init()
@@ -129,8 +137,8 @@ class JvmMockKAgentFactory : MockKAgentFactory {
         if (instrumentation == null) {
             log.debug(
                 "Can't install ByteBuddy agent.\n" +
-                        "Try running VM with MockK Java Agent\n" +
-                        "i.e. with -javaagent:mockk-agent.jar option."
+                    "Try running VM with MockK Java Agent\n" +
+                    "i.e. with -javaagent:mockk-agent.jar option.",
             )
             return null
         }
@@ -148,7 +156,6 @@ class JvmMockKAgentFactory : MockKAgentFactory {
     override val proxyMaker get() = jvmProxyMaker
     override val staticProxyMaker get() = jvmStaticProxyMaker
     override val constructorProxyMaker get() = jvmConstructorProxyMaker
-
 }
 
 internal class MockKSubclassNamingStrategy : NamingStrategy.AbstractBase() {

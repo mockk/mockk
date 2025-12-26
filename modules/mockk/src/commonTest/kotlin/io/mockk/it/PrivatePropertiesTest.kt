@@ -1,11 +1,14 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PrivatePropertiesTest {
-
     /**
      * See issue #51
      */
@@ -28,7 +31,9 @@ class PrivatePropertiesTest {
         verify { mock invoke "fn" withArguments listOf(5) }
     }
 
-    data class Person(var name: String)
+    data class Person(
+        var name: String,
+    )
 
     @Suppress("ProtectedInFinal", "RedundantSetter")
     class Team {
@@ -47,6 +52,5 @@ class PrivatePropertiesTest {
             set(value) {
                 person = Person(value)
             }
-
     }
 }

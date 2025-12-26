@@ -1,12 +1,17 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ObjectMockTest {
     object MockObj {
-        fun add(a: Int, b: Int) = a + b
+        fun add(
+            a: Int,
+            b: Int,
+        ) = a + b
     }
 
     @Test

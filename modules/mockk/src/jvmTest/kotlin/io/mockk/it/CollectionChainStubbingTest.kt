@@ -8,7 +8,6 @@ import kotlin.test.assertTrue
 
 // Regression tests for GitHub issue #565.
 class CollectionChainStubbingTest {
-
     private interface ReturningCollections {
         val list: List<Int>
         val map: Map<String, Int>

@@ -7,7 +7,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CapturingSlotTest {
-
     @Test
     fun `capturing slot behave as expected`() {
         val slot = CapturingSlot<String?>()
@@ -32,7 +31,7 @@ class CapturingSlotTest {
         assertEquals(slot.captured, null)
         assertTrue(slot.isCaptured)
         assertTrue(slot.isNull)
-        //clear captured
+        // clear captured
         slot.clear()
         val afterNullableClearMessage = assertThrows<IllegalStateException> { slot.captured }.message
         assertEquals(afterNullableClearMessage, "Value not yet captured.")

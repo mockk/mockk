@@ -1,6 +1,16 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.InternalPlatformDsl
+import io.mockk.MockKException
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.coroutineScope
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -9,7 +19,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 class CapturingTest {
-
     private val mock = mockk<MockedSubject>()
 
     @BeforeTest
@@ -189,9 +198,10 @@ class CapturingTest {
     @Test
     fun testNullableCapture() {
         val list = mutableListOf<String?>()
-        val test: MockNullableCls = mockk {
-            every { call(captureNullable(list)) } just Runs
-        }
+        val test: MockNullableCls =
+            mockk {
+                every { call(captureNullable(list)) } just Runs
+            }
 
         val args = listOf("One", "Two", "Three", null)
         for (arg in args) {
@@ -229,19 +239,31 @@ class CapturingTest {
     }
 
     class MockCls {
-        fun op(a: Int, b: Int, c: Cls) = a + b + c.value
-        fun nullableOp(a: Int, b: Int, c: Cls?): Int {
-            return a + b + (c?.value ?: 9)
-        }
+        fun op(
+            a: Int,
+            b: Int,
+            c: Cls,
+        ) = a + b + c.value
+
+        fun nullableOp(
+            a: Int,
+            b: Int,
+            c: Cls?,
+        ): Int = a + b + (c?.value ?: 9)
     }
 
     class CoMockCls {
-        suspend fun op(a: Int, b: Int, c: Cls): Int = coroutineScope { a + b + c.value }
+        suspend fun op(
+            a: Int,
+            b: Int,
+            c: Cls,
+        ): Int = coroutineScope { a + b + c.value }
     }
 
     open class MockedSubject {
-        open fun doSomething(id: String?, data: Any?): String {
-            throw IllegalStateException("Not mocked :(")
-        }
+        open fun doSomething(
+            id: String?,
+            data: Any?,
+        ): String = throw IllegalStateException("Not mocked :(")
     }
 }

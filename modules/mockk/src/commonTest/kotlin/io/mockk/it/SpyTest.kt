@@ -2,7 +2,12 @@ package io.mockk.it
 
 import io.mockk.every
 import io.mockk.spyk
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class SpyTest {
     @Test
@@ -102,19 +107,20 @@ class SpyTest {
 
     @Suppress("UNUSED_PARAMETER")
     class ChainedCallsCls {
-
         private fun getInterface(list: List<Boolean>) = listOf(true)
 
-        fun bar(t: String, list: List<Boolean> = getInterface(listOf(false))): String {
-            return "FOO"
-        }
+        fun bar(
+            t: String,
+            list: List<Boolean> = getInterface(listOf(false)),
+        ): String = "FOO"
 
-        fun bar2(list: List<Boolean> = getInterface(listOf(false))): String {
-            return "FOO"
-        }
+        fun bar2(list: List<Boolean> = getInterface(listOf(false))): String = "FOO"
     }
 
-    open class BaseTestCls(val someReference: String, val executed: Array<Boolean>) {
+    open class BaseTestCls(
+        val someReference: String,
+        val executed: Array<Boolean>,
+    ) {
         open fun doSomething() {
             executed[0] = true
         }
@@ -125,21 +131,21 @@ class SpyTest {
         }
     }
 
-
-    class SpyTestCls(executed: Array<Boolean>) : BaseTestCls("A spy", executed) {
+    class SpyTestCls(
+        executed: Array<Boolean>,
+    ) : BaseTestCls("A spy", executed) {
         override fun doSomething() {
             executed[1] = true
             super.doSomething()
         }
 
-        override fun computeSomething(a: Int): Int? {
-            return if (a == Integer.MAX_VALUE) {
+        override fun computeSomething(a: Int): Int? =
+            if (a == Integer.MAX_VALUE) {
                 null
             } else {
                 executed[3] = true
                 super.computeSomething(a)
                 5 + a
             }
-        }
     }
 }

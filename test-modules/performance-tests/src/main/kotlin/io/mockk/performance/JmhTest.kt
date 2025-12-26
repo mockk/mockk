@@ -16,12 +16,13 @@ import org.openjdk.jmh.infra.Blackhole
 @State(Scope.Thread)
 @BenchmarkMode(Mode.Throughput)
 open class JmhTest {
-
     @TearDown(Level.Invocation)
     fun tearDown() = unmockkAll()
 
     private fun noMockOrStub() = MockedClass()
+
     private fun simpleMock() = mockk<MockedClass>()
+
     private fun simpleMockAndStub() = mockk<MockedClass> { every { mockedFun() } returns "Hello, mockk!" }
 
     private fun mockThenOperation(
@@ -52,28 +53,22 @@ open class JmhTest {
     }
 
     @Benchmark
-    fun clearAllMocksAfterNoMockOrStub(blackhole: Blackhole) =
-        mockThenOperation(blackhole, ::noMockOrStub) { clearAllMocks() }
+    fun clearAllMocksAfterNoMockOrStub(blackhole: Blackhole) = mockThenOperation(blackhole, ::noMockOrStub) { clearAllMocks() }
 
     @Benchmark
-    fun clearAllMocksAfterSimpleMock(blackhole: Blackhole) =
-        mockThenOperation(blackhole, ::simpleMock) { clearAllMocks() }
+    fun clearAllMocksAfterSimpleMock(blackhole: Blackhole) = mockThenOperation(blackhole, ::simpleMock) { clearAllMocks() }
 
     @Benchmark
-    fun clearAllMocksAfterSimpleMockAndStub(blackhole: Blackhole) =
-        mockThenOperation(blackhole, ::simpleMockAndStub) { clearAllMocks() }
+    fun clearAllMocksAfterSimpleMockAndStub(blackhole: Blackhole) = mockThenOperation(blackhole, ::simpleMockAndStub) { clearAllMocks() }
 
     @Benchmark
-    fun unmockkAllAfterNoMockOrStub(blackhole: Blackhole) =
-        mockThenOperation(blackhole, ::noMockOrStub) { unmockkAll() }
+    fun unmockkAllAfterNoMockOrStub(blackhole: Blackhole) = mockThenOperation(blackhole, ::noMockOrStub) { unmockkAll() }
 
     @Benchmark
-    fun unmockkAllAfterSimpleMock(blackhole: Blackhole) =
-        mockThenOperation(blackhole, ::simpleMock) { unmockkAll() }
+    fun unmockkAllAfterSimpleMock(blackhole: Blackhole) = mockThenOperation(blackhole, ::simpleMock) { unmockkAll() }
 
     @Benchmark
-    fun unmockkAllAfterSimpleMockAndStub(blackhole: Blackhole) =
-        mockThenOperation(blackhole, ::simpleMockAndStub) { unmockkAll() }
+    fun unmockkAllAfterSimpleMockAndStub(blackhole: Blackhole) = mockThenOperation(blackhole, ::simpleMockAndStub) { unmockkAll() }
 
     class MockedClass {
         fun mockedFun(): String = "Hello, world!"

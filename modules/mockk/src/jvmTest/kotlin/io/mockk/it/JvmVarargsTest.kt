@@ -1,6 +1,10 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.JvmVarArgsCls
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

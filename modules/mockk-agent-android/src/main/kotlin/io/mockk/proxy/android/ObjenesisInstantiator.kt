@@ -8,9 +8,12 @@ import io.mockk.proxy.MockKInstantiatior
 import org.objenesis.ObjenesisStd
 import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.Modifier
-import java.util.*
+import java.util.Collections
+import java.util.WeakHashMap
 
-internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantiatior {
+internal class ObjenesisInstantiator(
+    val log: MockKAgentLogger,
+) : MockKInstantiatior {
     private val objenesis = ObjenesisStd(false)
     private val instantiators = Collections.synchronizedMap(WeakHashMap<Class<*>, ObjectInstantiator<*>>())
 
@@ -19,11 +22,12 @@ internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantia
 
         log.trace("Creating new empty instance of $clazz")
 
-        val inst = synchronized(instantiators) {
-            instantiators.getOrPut(clazz) {
-                objenesis.getInstantiatorOf(clazz)
+        val inst =
+            synchronized(instantiators) {
+                instantiators.getOrPut(clazz) {
+                    objenesis.getInstantiatorOf(clazz)
+                }
             }
-        }
 
         val newInstance = inst.newInstance()
         return clazz.cast(newInstance) as T
@@ -33,12 +37,14 @@ internal class OnjenesisInstantiator(val log: MockKAgentLogger) : MockKInstantia
     private fun <T> proxyInterface(clazz: Class<T>) =
         if (Modifier.isAbstract(clazz.modifiers)) {
             if (clazz.isInterface) {
-                ProxyBuilder.forClass(Any::class.java)
+                ProxyBuilder
+                    .forClass(Any::class.java)
                     .parentClassLoader(clazz.classLoader)
                     .implementing(clazz)
                     .buildProxyClass()
             } else {
-                ProxyBuilder.forClass(clazz)
+                ProxyBuilder
+                    .forClass(clazz)
                     .parentClassLoader(clazz.classLoader)
                     .buildProxyClass()
             }

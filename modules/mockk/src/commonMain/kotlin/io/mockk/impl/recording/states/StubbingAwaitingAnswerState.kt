@@ -1,12 +1,19 @@
 package io.mockk.impl.recording.states
 
-import io.mockk.*
+import io.mockk.Answer
+import io.mockk.ConstantAnswer
+import io.mockk.InternalPlatformDsl
+import io.mockk.InvocationMatcher
+import io.mockk.MockKGateway
+import io.mockk.MockKSettings
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.AnswerAnsweringOpportunity
 import io.mockk.impl.stub.MockKStub
 
-class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingState(recorder) {
+class StubbingAwaitingAnswerState(
+    recorder: CommonCallRecorder,
+) : CallRecordingState(recorder) {
     val log = recorder.safeToString(Logger<StubbingAwaitingAnswerState>())
 
     override fun answerOpportunity(): MockKGateway.AnswerOpportunity<*> {
@@ -17,16 +24,18 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
         for ((idx, recordedCall) in calls.withIndex()) {
             val lastCall = idx == calls.size - 1
 
-            val ans = if (lastCall) {
-                answerOpportunity = AnswerAnsweringOpportunity<Any> {
-                    recorder.safeExec { recordedCall.matcher.toString() }
+            val ans =
+                if (lastCall) {
+                    answerOpportunity =
+                        AnswerAnsweringOpportunity<Any> {
+                            recorder.safeExec { recordedCall.matcher.toString() }
+                        }
+                    answerOpportunity
+                } else if (recordedCall.isRetValueMock) {
+                    ConstantAnswer(recordedCall.retValue)
+                } else {
+                    continue
                 }
-                answerOpportunity
-            } else if (recordedCall.isRetValueMock) {
-                ConstantAnswer(recordedCall.retValue)
-            } else {
-                continue
-            }
 
             val mock = recordedCall.matcher.self
             val stub = recorder.stubRepo.stubFor(mock)
@@ -46,7 +55,11 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
         return answerOpportunity!!
     }
 
-    private fun assignFieldIfMockingProperty(mock: Any, matcher: InvocationMatcher, ans: Answer<Any?>) {
+    private fun assignFieldIfMockingProperty(
+        mock: Any,
+        matcher: InvocationMatcher,
+        ans: Answer<Any?>,
+    ) {
         if (ans is AnswerAnsweringOpportunity<*>) {
             ans.onFirstAnswer { answer ->
                 assignFieldIfMockingProperty(mock, matcher, answer)
@@ -62,14 +75,16 @@ class StubbingAwaitingAnswerState(recorder: CommonCallRecorder) : CallRecordingS
                 return
             }
 
-            val fieldName = methodName.substring("get".length)
-                .toCamelCase()
+            val fieldName =
+                methodName
+                    .substring("get".length)
+                    .toCamelCase()
 
             InternalPlatformDsl.dynamicSetField(mock, fieldName, ans.constantValue)
         } catch (ex: Exception) {
             if (MockKSettings.failOnSetBackingFieldException) {
-                log.error(ex) { "Failed to set backing field"}
-               throw ex
+                log.error(ex) { "Failed to set backing field" }
+                throw ex
             } else {
                 log.warn(ex) { "Failed to set backing field (skipping)" }
             }

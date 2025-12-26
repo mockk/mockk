@@ -1,6 +1,11 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.proxy.*
+import io.mockk.proxy.Cancelable
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.MockKInstantiatior
+import io.mockk.proxy.MockKInvocationHandler
+import io.mockk.proxy.MockKProxyMaker
 import io.mockk.proxy.common.CancelableResult
 import io.mockk.proxy.common.transformation.InlineInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
@@ -14,17 +19,15 @@ internal class ProxyMaker(
     private val inliner: InlineInstrumentation?,
     private val subclasser: SubclassInstrumentation,
     private val instantiator: MockKInstantiatior,
-    private val handlers: MutableMap<Any, MockKInvocationHandler>
+    private val handlers: MutableMap<Any, MockKInvocationHandler>,
 ) : MockKProxyMaker {
-
     override fun <T : Any> proxy(
         clazz: Class<T>,
         interfaces: Array<Class<*>>,
         handler: MockKInvocationHandler,
         useDefaultConstructor: Boolean,
-        instance: Any?
+        instance: Any?,
     ): Cancelable<T> {
-
         throwIfNotPossibleToProxy(clazz, interfaces)
 
         // Sometimes (e.g. in case of sealed classes) we will create the proxy for a subclass of `clazz` and not `clazz`
@@ -35,12 +38,13 @@ internal class ProxyMaker(
 
         val result = CancelableResult<T>(cancelBlock = cancellation)
 
-        val proxyClass = try {
-            subclass(actualClass, interfaces)
-        } catch (ex: Exception) {
-            result.cancel()
-            throw MockKAgentException("Failed to subclass $actualClass", ex)
-        }
+        val proxyClass =
+            try {
+                subclass(actualClass, interfaces)
+            } catch (ex: Exception) {
+                result.cancel()
+                throw MockKAgentException("Failed to subclass $actualClass", ex)
+            }
 
         try {
             val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance)
@@ -61,9 +65,9 @@ internal class ProxyMaker(
         clazz: Class<T>,
         proxyClass: Class<T>,
         useDefaultConstructor: Boolean,
-        instance: Any?
-    ): T {
-        return when {
+        instance: Any?,
+    ): T =
+        when {
             instance != null -> {
                 log.trace("Attaching to object mock for $clazz")
                 clazz.cast(instance)
@@ -77,11 +81,8 @@ internal class ProxyMaker(
                 instantiator.instance(proxyClass)
             }
         }
-    }
 
-    private fun <T : Any> inline(
-        clazz: Class<T>
-    ): () -> Unit {
+    private fun <T : Any> inline(clazz: Class<T>): () -> Unit {
         val superclasses = getAllSuperclasses(clazz)
 
         return if (inliner != null) {
@@ -97,16 +98,15 @@ internal class ProxyMaker(
         }
     }
 
-    private fun <T : Any> findActualClassToBeProxied(
-        clazz: Class<T>,
-    ): Class<T> {
+    private fun <T : Any> findActualClassToBeProxied(clazz: Class<T>): Class<T> {
         val kClass = clazz.kotlin
         if (!kClass.isSealed) {
             return clazz
         }
 
-        val subclass = kClass.sealedSubclasses.firstOrNull()?.java
-            ?: error("Unable to create proxy for sealed class $clazz, no subclasses available")
+        val subclass =
+            kClass.sealedSubclasses.firstOrNull()?.java
+                ?: error("Unable to create proxy for sealed class $clazz, no subclasses available")
         log.trace("Class $clazz is sealed, will use its subclass $subclass to build proxy")
         @Suppress("UNCHECKED_CAST")
         return findActualClassToBeProxied(subclass) as Class<T>
@@ -114,9 +114,9 @@ internal class ProxyMaker(
 
     private fun <T : Any> subclass(
         clazz: Class<T>,
-        interfaces: Array<Class<*>>
-    ): Class<T> {
-        return if (Modifier.isFinal(clazz.modifiers)) {
+        interfaces: Array<Class<*>>,
+    ): Class<T> =
+        if (Modifier.isFinal(clazz.modifiers)) {
             log.trace("Taking instance of $clazz itself because it is final.")
             clazz
         } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null) {
@@ -125,32 +125,31 @@ internal class ProxyMaker(
         } else {
             log.trace(
                 "Building subclass proxy for $clazz with " +
-                        "additional interfaces ${interfaces.toList()}"
+                    "additional interfaces ${interfaces.toList()}",
             )
             subclasser.subclass(clazz, interfaces)
         }
-    }
 
     private fun <T : Any> throwIfNotPossibleToProxy(
         clazz: Class<T>,
-        interfaces: Array<Class<*>>
+        interfaces: Array<Class<*>>,
     ) {
         when {
             clazz.isPrimitive ->
                 throw MockKAgentException(
-                    "Failed to create proxy for $clazz.\n$clazz is a primitive"
+                    "Failed to create proxy for $clazz.\n$clazz is a primitive",
                 )
             clazz.isArray ->
                 throw MockKAgentException(
-                    "Failed to create proxy for $clazz.\n$clazz is an array"
+                    "Failed to create proxy for $clazz.\n$clazz is an array",
                 )
             clazz as Class<*> in notMockableClasses ->
                 throw MockKAgentException(
-                    "Failed to create proxy for $clazz.\n$clazz is one of excluded classes"
+                    "Failed to create proxy for $clazz.\n$clazz is one of excluded classes",
                 )
             interfaces.isNotEmpty() && Modifier.isFinal(clazz.modifiers) ->
                 throw MockKAgentException(
-                    "Failed to create proxy for $clazz.\nMore interfaces requested and class is final."
+                    "Failed to create proxy for $clazz.\nMore interfaces requested and class is final.",
                 )
         }
     }
@@ -170,34 +169,32 @@ internal class ProxyMaker(
         }
     }
 
-
     private fun warnOnFinalMethods(clazz: Class<*>) {
         for (method in gatherAllMethods(clazz)) {
             val modifiers = method.modifiers
             if (!Modifier.isPrivate(modifiers) && Modifier.isFinal(modifiers)) {
                 log.debug(
                     "It is impossible to intercept calls to $method " +
-                            "for ${method.declaringClass} because it is final"
+                        "for ${method.declaringClass} because it is final",
                 )
             }
         }
     }
 
-
     companion object {
-
-        private val notMockableClasses = setOf(
-            Class::class.java,
-            Boolean::class.java,
-            Byte::class.java,
-            Short::class.java,
-            Char::class.java,
-            Int::class.java,
-            Long::class.java,
-            Float::class.java,
-            Double::class.java,
-            String::class.java
-        )
+        private val notMockableClasses =
+            setOf(
+                Class::class.java,
+                Boolean::class.java,
+                Byte::class.java,
+                Short::class.java,
+                Char::class.java,
+                Int::class.java,
+                Long::class.java,
+                Float::class.java,
+                Double::class.java,
+                String::class.java,
+            )
 
         private fun gatherAllMethods(clazz: Class<*>): Array<Method> =
             if (clazz.superclass == null) {
@@ -219,7 +216,10 @@ internal class ProxyMaker(
             return result
         }
 
-        private fun addInterfaces(result: MutableSet<Class<*>>, clazz: Class<*>) {
+        private fun addInterfaces(
+            result: MutableSet<Class<*>>,
+            clazz: Class<*>,
+        ) {
             for (intf in clazz.interfaces) {
                 if (result.add(intf)) {
                     addInterfaces(result, intf)

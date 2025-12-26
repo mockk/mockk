@@ -8,7 +8,6 @@ import kotlin.test.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 class MethodDescriptionTest {
-
     /**
      * Verifies issue #170.
      */

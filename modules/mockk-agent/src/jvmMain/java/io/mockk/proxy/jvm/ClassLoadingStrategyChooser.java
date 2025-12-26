@@ -1,9 +1,10 @@
 package io.mockk.proxy.jvm;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import net.bytebuddy.dynamic.loading.ClassInjector;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class ClassLoadingStrategyChooser {
     private static final Method PRIVATE_LOOKUP_IN;

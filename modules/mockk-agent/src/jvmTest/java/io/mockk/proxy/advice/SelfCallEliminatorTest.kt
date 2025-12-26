@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test
 import java.lang.reflect.Method
 
 class SelfCallEliminatorTest {
-
     @Test
     fun `isSelf returns true when ChildClass overrides BaseClass method with type parameter`() {
         val childMethod = getMethod("method", ChildClass::class.java, String::class.java) // ChildClass: override fun method(t: String)
@@ -25,22 +24,25 @@ class SelfCallEliminatorTest {
     @Test
     fun `isSelf returns false when methods are not self`() {
         val childMethod = getMethod("method", ChildClass::class.java, Int::class.java) // ChildClass: fun method(t: Int)
-        val baseMethod = getMethod("method", BaseClass::class.java, Any::class.java)  // BaseClass: open fun method(t: T)
+        val baseMethod = getMethod("method", BaseClass::class.java, Any::class.java) // BaseClass: open fun method(t: T)
 
         SelfCallEliminator.apply(ChildClass::class.java, childMethod) {
             assertFalse(SelfCallEliminator.isSelf(ChildClass::class.java, baseMethod))
         }
 
-        val otherMethod = getMethod("someOtherMethod", ChildClass::class.java, String::class.java) // ChildClass: fun someOtherMethod(t: String)
+        // ChildClass: fun someOtherMethod(t: String)
+        val otherMethod = getMethod("someOtherMethod", ChildClass::class.java, String::class.java)
 
         SelfCallEliminator.apply(ChildClass::class.java, otherMethod) {
             assertFalse(SelfCallEliminator.isSelf(ChildClass::class.java, baseMethod))
         }
     }
 
-    private fun getMethod(name: String, clazz: Class<*>, parameterType: Class<*>): Method {
-        return clazz.getDeclaredMethod(name, parameterType)
-    }
+    private fun getMethod(
+        name: String,
+        clazz: Class<*>,
+        parameterType: Class<*>,
+    ): Method = clazz.getDeclaredMethod(name, parameterType)
 
     abstract class BaseClass<T> {
         open fun method(t: T) {

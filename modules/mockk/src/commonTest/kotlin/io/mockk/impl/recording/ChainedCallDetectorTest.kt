@@ -20,7 +20,6 @@ class ChainedCallDetectorTest {
 
     @Test
     fun givenTwoCallRoundsWithOneCallNoArgsWhenDetectCallsHappenThenOneCallIsReturned() {
-
         every { callRound1.calls } returns listOf(call1)
         every { callRound2.calls } returns listOf(call2)
 

@@ -13,7 +13,10 @@ class JvmMultiNotifier : MultiNotifier {
     val conditionMet = mutableSetOf<Ref>()
     val counters = mutableMapOf<Ref, Int>()
 
-    override fun openSession(keys: List<Any>, timeout: Long): Session {
+    override fun openSession(
+        keys: List<Any>,
+        timeout: Long,
+    ): Session {
         val start = time()
         lock.withLock {
             changeCounters(keys, 1)
@@ -25,7 +28,7 @@ class JvmMultiNotifier : MultiNotifier {
     inner class SessionImpl(
         private val start: Long,
         private val timeout: Long,
-        private val keys: List<Any>
+        private val keys: List<Any>,
     ) : Session {
         override fun wait(): Boolean {
             var ret = false
@@ -58,7 +61,10 @@ class JvmMultiNotifier : MultiNotifier {
 
     private fun time() = System.currentTimeMillis()
 
-    private fun changeCounters(keys: List<Any>, delta: Int) {
+    private fun changeCounters(
+        keys: List<Any>,
+        delta: Int,
+    ) {
         keys.forEach {
             val ref = InternalPlatform.ref(it)
             val value = counters.getOrElse(ref) { 0 } + delta

@@ -1,14 +1,25 @@
 package io.mockk.impl.recording
 
-import io.mockk.*
+import io.mockk.AllAnyMatcher
+import io.mockk.ArrayMatcher
+import io.mockk.ConstantMatcher
+import io.mockk.EqMatcher
 import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.InternalPlatformDsl.toStr
+import io.mockk.InvocationMatcher
+import io.mockk.Matcher
+import io.mockk.MockKException
+import io.mockk.NullCheckMatcher
+import io.mockk.RecordedCall
+import io.mockk.VarargMatcher
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeToString
 import kotlin.coroutines.Continuation
 
-class ChainedCallDetector(safeToString: SafeToString) {
+class ChainedCallDetector(
+    safeToString: SafeToString,
+) {
     val log = safeToString(Logger<ChainedCallDetector>())
 
     val argMatchers = mutableListOf<Matcher<*>>()
@@ -18,7 +29,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
     fun detect(
         callRounds: List<CallRound>,
         callN: Int,
-        matcherMap: HashMap<List<Any>, Matcher<*>>
+        matcherMap: HashMap<List<Any>, Matcher<*>>,
     ) {
         val callInAllRounds = callRounds.map { it.calls[callN] }
         val zeroCall = callInAllRounds[0]
@@ -26,11 +37,15 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
         log.trace { "Processing call #$callN: ${zeroCall.method.toStr()}" }
 
-        fun buildMatcher(isStart: Boolean, zeroCallValue: Any?, matcherBySignature: Matcher<*>?): Matcher<*> =
+        fun buildMatcher(
+            isStart: Boolean,
+            zeroCallValue: Any?,
+            matcherBySignature: Matcher<*>?,
+        ): Matcher<*> =
             if (matcherBySignature == null) {
-                if (allAny)
+                if (allAny) {
                     ConstantMatcher(true)
-                else {
+                } else {
                     eqOrNullMatcher(zeroCallValue)
                 }
             } else {
@@ -43,9 +58,11 @@ class ChainedCallDetector(safeToString: SafeToString) {
             }
 
         fun regularArgument(nArgument: Int): Matcher<*> {
-            val signature = callInAllRounds.map {
-                InternalPlatform.packRef(it.args[nArgument])
-            }.toList()
+            val signature =
+                callInAllRounds
+                    .map {
+                        InternalPlatform.packRef(it.args[nArgument])
+                    }.toList()
 
             log.trace { "Signature for $nArgument argument of ${zeroCall.method.toStr()}: $signature" }
 
@@ -54,7 +71,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
             return buildMatcher(
                 nArgument == 0,
                 zeroCall.args[nArgument],
-                matcherBySignature
+                matcherBySignature,
             )
         }
 
@@ -75,10 +92,12 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
             val zeroCallArg = zeroCall.args[nArgument]!!.toArray()
             repeat(zeroCallArg.size) { nVarArg ->
-                val signature = callInAllRounds.map {
-                    val arg = it.args[nArgument]!!.toArray()
-                    InternalPlatform.packRef(arg[nVarArg])
-                }.toList()
+                val signature =
+                    callInAllRounds
+                        .map {
+                            val arg = it.args[nArgument]!!.toArray()
+                            InternalPlatform.packRef(arg[nVarArg])
+                        }.toList()
 
                 log.trace { "Signature for $nArgument/$nVarArg argument of ${zeroCall.method.toStr()}: $signature" }
 
@@ -87,8 +106,8 @@ class ChainedCallDetector(safeToString: SafeToString) {
                     buildMatcher(
                         nArgument == 0 && nVarArg == 0,
                         zeroCallArg[nVarArg],
-                        matcherBySignature
-                    )
+                        matcherBySignature,
+                    ),
                 )
             }
 
@@ -107,11 +126,12 @@ class ChainedCallDetector(safeToString: SafeToString) {
             val varArgsArg = zeroCall.method.varArgsArg
 
             repeat(zeroCall.args.size) { nArgument ->
-                val matcher = if (varArgsArg == nArgument) {
-                    varArgArgument(nArgument)
-                } else {
-                    regularArgument(nArgument)
-                }
+                val matcher =
+                    if (varArgsArg == nArgument) {
+                        varArgArgument(nArgument)
+                    } else {
+                        regularArgument(nArgument)
+                    }
 
                 argMatchers.add(matcher)
             }
@@ -119,25 +139,28 @@ class ChainedCallDetector(safeToString: SafeToString) {
 
         @Suppress("UNCHECKED_CAST")
         fun buildRecordedCall(): RecordedCall {
-            fun SignedCall.isSuspend() = when {
-                method.isSuspend -> true
-                method.isFnCall -> args.lastOrNull()?.let {
-                    Continuation::class.isInstance(it)
-                } ?: false
-                else -> false
-            }
+            fun SignedCall.isSuspend() =
+                when {
+                    method.isSuspend -> true
+                    method.isFnCall ->
+                        args.lastOrNull()?.let {
+                            Continuation::class.isInstance(it)
+                        } ?: false
+                    else -> false
+                }
 
             if (zeroCall.isSuspend()) {
                 log.trace { "Suspend function found. Replacing continuation with any() matcher" }
                 argMatchers[argMatchers.size - 1] = ConstantMatcher<Any>(true)
             }
 
-            val im = InvocationMatcher(
-                zeroCall.self,
-                zeroCall.method,
-                argMatchers.toList() as List<Matcher<Any>>,
-                allAny
-            )
+            val im =
+                InvocationMatcher(
+                    zeroCall.self,
+                    zeroCall.method,
+                    argMatchers.toList() as List<Matcher<Any>>,
+                    allAny,
+                )
             log.trace { "Built matcher: $im" }
 
             return RecordedCall(
@@ -146,7 +169,7 @@ class ChainedCallDetector(safeToString: SafeToString) {
                 zeroCall.retType,
                 im,
                 null,
-                null
+                null,
             )
         }
 

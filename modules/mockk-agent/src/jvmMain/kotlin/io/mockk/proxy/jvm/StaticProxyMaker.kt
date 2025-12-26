@@ -1,6 +1,10 @@
 package io.mockk.proxy.jvm
 
-import io.mockk.proxy.*
+import io.mockk.proxy.Cancelable
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.MockKInvocationHandler
+import io.mockk.proxy.MockKStaticProxyMaker
 import io.mockk.proxy.common.CancelableResult
 import io.mockk.proxy.common.transformation.InlineInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
@@ -9,26 +13,26 @@ import io.mockk.proxy.common.transformation.TransformationType
 internal class StaticProxyMaker(
     private val log: MockKAgentLogger,
     private val inliner: InlineInstrumentation?,
-    private val staticHandlers: MutableMap<Any, MockKInvocationHandler>
+    private val staticHandlers: MutableMap<Any, MockKInvocationHandler>,
 ) : MockKStaticProxyMaker {
-
     override fun staticProxy(
         clazz: Class<*>,
-        handler: MockKInvocationHandler
+        handler: MockKInvocationHandler,
     ): Cancelable<Class<*>> {
         if (inliner == null) {
             throw MockKAgentException(
                 "Failed to create static proxy for $clazz.\n" +
-                        "Try running VM with MockK Java Agent\n" +
-                        "i.e. with -javaagent:mockk-agent.jar option."
+                    "Try running VM with MockK Java Agent\n" +
+                    "i.e. with -javaagent:mockk-agent.jar option.",
             )
         }
 
         log.debug("Transforming $clazz for static method interception")
-        val request = TransformationRequest(
-            setOf(clazz),
-            TransformationType.STATIC
-        )
+        val request =
+            TransformationRequest(
+                setOf(clazz),
+                TransformationType.STATIC,
+            )
 
         val cancellation = inliner.execute(request)
 

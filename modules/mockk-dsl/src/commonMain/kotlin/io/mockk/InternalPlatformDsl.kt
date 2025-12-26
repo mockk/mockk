@@ -10,7 +10,10 @@ expect object InternalPlatformDsl {
 
     fun Any?.toStr(): String
 
-    fun deepEquals(obj1: Any?, obj2: Any?): Boolean
+    fun deepEquals(
+        obj1: Any?,
+        obj2: Any?,
+    ): Boolean
 
     fun unboxChar(value: Any): Any
 
@@ -22,14 +25,25 @@ expect object InternalPlatformDsl {
         self: Any,
         methodName: String,
         args: Array<out Any?>,
-        anyContinuationGen: () -> Continuation<*>
+        anyContinuationGen: () -> Continuation<*>,
     ): Any?
 
-    fun dynamicGet(self: Any, name: String): Any?
+    fun dynamicGet(
+        self: Any,
+        name: String,
+    ): Any?
 
-    fun dynamicSet(self: Any, name: String, value: Any?)
+    fun dynamicSet(
+        self: Any,
+        name: String,
+        value: Any?,
+    )
 
-    fun dynamicSetField(self: Any, name: String, value: Any?)
+    fun dynamicSetField(
+        self: Any,
+        name: String,
+        value: Any?,
+    )
 
     fun <T> threadLocal(initializer: () -> T): InternalRef<T>
 

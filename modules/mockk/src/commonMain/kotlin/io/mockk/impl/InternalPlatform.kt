@@ -12,7 +12,10 @@ expect object InternalPlatform {
 
     fun isPassedByValue(cls: KClass<*>): Boolean
 
-    fun <K, V> MutableMap<K, V>.customComputeIfAbsent(key: K, valueFunc: (K) -> V): V
+    fun <K, V> MutableMap<K, V>.customComputeIfAbsent(
+        key: K,
+        valueFunc: (K) -> V,
+    ): V
 
     fun <K, V> weakMap(): MutableMap<K, V>
 
@@ -26,7 +29,10 @@ expect object InternalPlatform {
 
     fun prettifyRecordingException(ex: Throwable): Throwable
 
-    fun <T : Any> copyFields(to: T, from: T)
+    fun <T : Any> copyFields(
+        to: T,
+        from: T,
+    )
 
     fun captureStackTrace(): () -> List<StackElement>
 
@@ -34,7 +40,10 @@ expect object InternalPlatform {
 
     fun multiNotifier(): MultiNotifier
 
-    inline fun <T> synchronized(obj: Any, block: () -> T): T
+    inline fun <T> synchronized(
+        obj: Any,
+        block: () -> T,
+    ): T
 }
 
 interface Ref {
@@ -48,7 +57,10 @@ interface WeakRef {
 interface MultiNotifier {
     fun notify(key: Any)
 
-    fun openSession(keys: List<Any>, timeout: Long): Session
+    fun openSession(
+        keys: List<Any>,
+        timeout: Long,
+    ): Session
 
     interface Session {
         fun wait(): Boolean

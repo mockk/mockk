@@ -14,8 +14,11 @@ class IntTest {
         abstract fun op(): R
     }
 
-    class Cls3<R>(val c: Cls1<R>) {
+    class Cls3<R>(
+        val c: Cls1<R>,
+    ) {
         var res: R? = null
+
         fun op2() {
             res = c.op()
         }

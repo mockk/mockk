@@ -6,12 +6,9 @@ import io.mockk.impl.recording.CommonCallRecorder
 
 class ExclusionState(
     recorder: CommonCallRecorder,
-    val params: ExclusionParameters
+    val params: ExclusionParameters,
 ) : RecordingState(recorder) {
-
-    override fun wasNotCalled(list: List<Any>) {
-        throw MockKException("`wasNot called` is not allowed in exclude { ... } block.")
-    }
+    override fun wasNotCalled(list: List<Any>): Unit = throw MockKException("`wasNot called` is not allowed in exclude { ... } block.")
 
     override fun recordingDone(): CallRecordingState {
         checkMissingCalls()
@@ -32,5 +29,4 @@ class ExclusionState(
             throw MockKException("Missing calls inside exclude { ... } block.")
         }
     }
-
 }

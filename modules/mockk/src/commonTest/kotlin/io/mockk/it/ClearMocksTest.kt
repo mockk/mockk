@@ -1,6 +1,15 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.clearMocks
+import io.mockk.confirmVerified
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.spyk
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotSame
@@ -162,10 +171,11 @@ class ClearMocksTest {
     fun clearAllMocksCurrentThreadOnly() {
         var mockInOtherThread: MockCls? = null
 
-        val thread = Thread {
-            mockInOtherThread = mockk()
-            every { mockInOtherThread!!.op(any()) } returns 42
-        }
+        val thread =
+            Thread {
+                mockInOtherThread = mockk()
+                every { mockInOtherThread!!.op(any()) } returns 42
+            }
         thread.start()
         thread.join()
 

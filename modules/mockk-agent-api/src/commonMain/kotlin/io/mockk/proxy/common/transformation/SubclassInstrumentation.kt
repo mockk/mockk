@@ -5,8 +5,11 @@ import io.mockk.proxy.MockKInvocationHandler
 interface SubclassInstrumentation {
     fun <T> subclass(
         clazz: Class<T>,
-        interfaces: Array<Class<*>>
+        interfaces: Array<Class<*>>,
     ): Class<T>
 
-    fun setProxyHandler(proxy: Any, handler: MockKInvocationHandler)
+    fun setProxyHandler(
+        proxy: Any,
+        handler: MockKInvocationHandler,
+    )
 }

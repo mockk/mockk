@@ -1,5 +1,3 @@
-import buildsrc.config.Deps
-
 plugins {
     buildsrc.convention.`kotlin-multiplatform`
 
@@ -32,7 +30,11 @@ kotlin {
             dependencies {
                 api(libs.objenesis)
 
-                api(libs.byte.buddy.asProvider().get())
+                api(
+                    libs.byte.buddy
+                        .asProvider()
+                        .get(),
+                )
                 api(libs.byte.buddy.agent)
             }
         }

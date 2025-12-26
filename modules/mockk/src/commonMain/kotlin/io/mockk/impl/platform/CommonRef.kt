@@ -4,7 +4,9 @@ import io.mockk.InternalPlatformDsl
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.Ref
 
-class CommonRef(override val value: Any) : Ref {
+class CommonRef(
+    override val value: Any,
+) : Ref {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Ref) return false

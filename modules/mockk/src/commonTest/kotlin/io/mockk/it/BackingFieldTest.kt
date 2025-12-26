@@ -40,14 +40,13 @@ class BackingFieldTest {
     fun mockDynamicSetIntProperty() {
         every {
             mock setProperty "intProp" value any<Int>()
-        } propertyType Int::class answers  { fieldValue += value }
+        } propertyType Int::class answers { fieldValue += value }
 
         mock.intProp = 3
         mock.intProp = 4
 
         assertEquals(12, mock.intProp)
     }
-
 
     @Test
     fun mockSetManyIntProperty() {

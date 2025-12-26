@@ -13,7 +13,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class VerifyAtLeastAtMostExactlyTest {
-
     val mock = mockk<MockCls>()
 
     @Test
@@ -224,7 +223,7 @@ class VerifyAtLeastAtMostExactlyTest {
     fun atLeastNeverAtMostOnce() {
         listOf(
             { every { mock.op(any()) } returns 0 },
-            { every { mock.op(any()) } returns 1 }
+            { every { mock.op(any()) } returns 1 },
         ).forEach { condition ->
             clearAllMocks()
             every { mock.op2(any(), any()) } returns 5
@@ -273,20 +272,29 @@ class VerifyAtLeastAtMostExactlyTest {
         }
     }
 
-    private fun doCalls4(): Boolean {
-        return mock.op(0) == 0 || mock.op(1) == 1
-    }
+    private fun doCalls4(): Boolean = mock.op(0) == 0 || mock.op(1) == 1
 
     class MockCls {
         fun op(a: Int) = a + 1
-        fun op2(a: Int, b: Int) = a + b
+
+        fun op2(
+            a: Int,
+            b: Int,
+        ) = a + b
     }
 
     interface Tracker {
-        fun track(song: String, action: String, param: String, moreParam: Map<String, String>)
+        fun track(
+            song: String,
+            action: String,
+            param: String,
+            moreParam: Map<String, String>,
+        )
     }
 
-    class Player(private val tracker: Tracker) {
+    class Player(
+        private val tracker: Tracker,
+    ) {
         fun goCrazy() {
             tracker.track("song 2", "play", "param", mapOf(Pair("key", "value")))
             tracker.track("song 2", "pause", "param", mapOf(Pair("key", "value")))

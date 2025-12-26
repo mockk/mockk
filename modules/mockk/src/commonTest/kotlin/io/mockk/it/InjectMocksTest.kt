@@ -12,7 +12,6 @@ import kotlin.test.Test
  * See issue #47
  */
 class InjectMocksTest {
-
     interface IFoo
 
     class Foo : IFoo {
@@ -23,7 +22,6 @@ class InjectMocksTest {
     abstract class AbstractBar<T : IFoo> {
         lateinit var foo: T
     }
-
 
     class Bar : AbstractBar<Foo>() {
         fun call() {
@@ -39,7 +37,6 @@ class InjectMocksTest {
 
     @BeforeTest
     fun setUp() = MockKAnnotations.init(this)
-
 
     @Test
     fun test() {

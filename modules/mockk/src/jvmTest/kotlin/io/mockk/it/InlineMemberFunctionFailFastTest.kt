@@ -3,10 +3,7 @@ package io.mockk.it
 import io.mockk.MockKException
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.spyk
 import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
-import kotlin.reflect.KFunction
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -18,11 +15,11 @@ private class HasInline {
 
 private class HasWrapper {
     private val impl = HasInline()
+
     fun addOne(x: Int) = impl.addOne(x) // non-inline wrapper
 }
 
 class InlineMemberFunctionFailFastTest {
-
     @Test
     fun stubOfNonInlineWrapperReturnsConfiguredValue() {
         val w = mockk<HasWrapper>()
@@ -33,9 +30,10 @@ class InlineMemberFunctionFailFastTest {
     @Test
     fun stubOfInlineFunctionFromKotlinThrowsDescriptiveError() {
         val inlineMock = mockk<HasInline>()
-        val ex = assertFailsWith<MockKException> {
-            every { inlineMock.addOne(any()) } returns 42
-        }
+        val ex =
+            assertFailsWith<MockKException> {
+                every { inlineMock.addOne(any()) } returns 42
+            }
         assertContains(ex.message!!, "Kotlin inline function")
     }
 
@@ -44,15 +42,16 @@ class InlineMemberFunctionFailFastTest {
         val m = mockk<HasInline>()
         val method = HasInline::class.java.getDeclaredMethod("addOne", Int::class.javaPrimitiveType)
 
-        val ex = assertFailsWith<InvocationTargetException> {
-            method.isAccessible = true
-            method.invoke(m, 10)
-        }
-        val cause = (ex.targetException ?: ex.cause) as? MockKException
-            ?: error("Unexpected cause: ${ex.targetException?.javaClass ?: ex.cause?.javaClass}")
+        val ex =
+            assertFailsWith<InvocationTargetException> {
+                method.isAccessible = true
+                method.invoke(m, 10)
+            }
+        val cause =
+            (ex.targetException ?: ex.cause) as? MockKException
+                ?: error("Unexpected cause: ${ex.targetException?.javaClass ?: ex.cause?.javaClass}")
 
         val msg = cause.message ?: ""
         assertContains(msg, "Mocking Kotlin inline functions is not supported")
     }
-
 }

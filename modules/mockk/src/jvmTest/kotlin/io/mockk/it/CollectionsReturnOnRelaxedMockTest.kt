@@ -11,26 +11,18 @@ import kotlin.test.assertTrue
  * Test related to GitHub issue #386
  */
 class CollectionsReturnOnRelaxedMockTest {
-
     class ReturningCollections {
-        fun getList(): List<Any> {
-            return listOf()
-        }
-        fun getMap(): Map<Any, Any> {
-            return mapOf()
-        }
-        fun getSet(): Set<Any> {
-            return setOf()
-        }
-        fun getArrayList(): ArrayList<Any> {
-            return arrayListOf()
-        }
-        fun getHashMap(): HashMap<Any, Any> {
-            return hashMapOf()
-        }
-        fun getHashSet(): HashSet<Any> {
-            return hashSetOf()
-        }
+        fun getList(): List<Any> = listOf()
+
+        fun getMap(): Map<Any, Any> = mapOf()
+
+        fun getSet(): Set<Any> = setOf()
+
+        fun getArrayList(): ArrayList<Any> = arrayListOf()
+
+        fun getHashMap(): HashMap<Any, Any> = hashMapOf()
+
+        fun getHashSet(): HashSet<Any> = hashSetOf()
     }
 
     @RelaxedMockK
@@ -82,5 +74,4 @@ class CollectionsReturnOnRelaxedMockTest {
         assertEquals(0, hashset.size)
         assertTrue(hashset.isEmpty())
     }
-
 }

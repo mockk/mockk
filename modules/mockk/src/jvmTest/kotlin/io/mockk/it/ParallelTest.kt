@@ -3,9 +3,9 @@ package io.mockk.it
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import io.mockk.impl.log.JvmLogging
 import io.mockk.impl.log.Logger
+import io.mockk.verify
 import java.util.Collections.synchronizedList
 import java.util.Random
 import kotlin.test.Test
@@ -16,21 +16,33 @@ import kotlin.test.assertTrue
  */
 class ParallelTest {
     class MockCls {
-        fun op(a: Int, b: Int) = a + b
+        fun op(
+            a: Int,
+            b: Int,
+        ) = a + b
     }
 
-    data class Op(val mock: MockCls, val a: Int, val b: Int)
+    data class Op(
+        val mock: MockCls,
+        val a: Int,
+        val b: Int,
+    )
 
     @MockK
     lateinit var mock1: MockCls
+
     @MockK
     lateinit var mock2: MockCls
+
     @MockK
     lateinit var mock3: MockCls
+
     @MockK
     lateinit var mock4: MockCls
+
     @MockK
     lateinit var mock5: MockCls
+
     @MockK
     lateinit var mock6: MockCls
 
@@ -74,8 +86,7 @@ class ParallelTest {
                     log.warn(ex) { "Exception for thread $n" }
                     exceptions.add(ex)
                 }
-            }
-                .apply { start() }
+            }.apply { start() }
                 .apply { threads.add(this) }
         }
 

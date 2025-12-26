@@ -14,8 +14,9 @@ class RecordingStateTest {
     @BeforeTest
     fun setUp() {
         recorder = mockk(relaxed = true)
-        state = object : RecordingState(recorder) {
-        }
+        state =
+            object : RecordingState(recorder) {
+            }
     }
 
     @Test

@@ -16,13 +16,15 @@ import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.implementation.Implementation
 import net.bytebuddy.jar.asm.ClassVisitor
 import net.bytebuddy.jar.asm.MethodVisitor
-import net.bytebuddy.matcher.ElementMatchers.*
+import net.bytebuddy.matcher.ElementMatchers.hasDescriptor
+import net.bytebuddy.matcher.ElementMatchers.isConstructor
+import net.bytebuddy.matcher.ElementMatchers.named
 import net.bytebuddy.pool.TypePool
 import net.bytebuddy.utility.OpenedClassReader
 
-internal class FixParameterNamesVisitor(val type: Class<*>) :
-    AsmVisitorWrapper.AbstractBase() {
-
+internal class FixParameterNamesVisitor(
+    val type: Class<*>,
+) : AsmVisitorWrapper.AbstractBase() {
     override fun wrap(
         type: TypeDescription,
         visitor: ClassVisitor,
@@ -31,39 +33,40 @@ internal class FixParameterNamesVisitor(val type: Class<*>) :
         fields: FieldList<FieldDescription.InDefinedShape>,
         methods: MethodList<*>,
         writerFlags: Int,
-        readerFlags: Int
-    ): ClassVisitor {
-        return FixParameterNamesClassVisitor(
+        readerFlags: Int,
+    ): ClassVisitor =
+        FixParameterNamesClassVisitor(
             visitor,
-            TypeDescription.ForLoadedType(this.type)
+            TypeDescription.ForLoadedType(this.type),
         )
-    }
 
     internal class FixParameterNamesClassVisitor constructor(
         visitor: ClassVisitor,
-        val typeDescription: TypeDescription
+        val typeDescription: TypeDescription,
     ) : ClassVisitor(OpenedClassReader.ASM_API, visitor) {
-
         override fun visitMethod(
             access: Int,
             name: String,
             desc: String,
             signature: String?,
-            exceptions: Array<String>?
+            exceptions: Array<String>?,
         ): MethodVisitor {
+            val methodVisitor =
+                super.visitMethod(
+                    access,
+                    name,
+                    desc,
+                    signature,
+                    exceptions,
+                )
 
-            val methodVisitor = super.visitMethod(
-                access,
-                name,
-                desc,
-                signature,
-                exceptions
-            )
-
-            val filter = (when (name) {
-                CONSTRUCTOR_INTERNAL_NAME -> isConstructor()
-                else -> named<MethodDescription>(name)
-            }).and(hasDescriptor(desc))
+            val filter =
+                (
+                    when (name) {
+                        CONSTRUCTOR_INTERNAL_NAME -> isConstructor()
+                        else -> named<MethodDescription>(name)
+                    }
+                ).and(hasDescriptor(desc))
 
             val methodList = typeDescription.declaredMethods.filter(filter)
 
@@ -77,15 +80,16 @@ internal class FixParameterNamesVisitor(val type: Class<*>) :
             for (parameterDescription in methodList.only.parameters) {
                 methodVisitor.visitParameter(
                     parameterDescription.name,
-                    parameterDescription.modifiers
+                    parameterDescription.modifiers,
                 )
             }
 
             return object : MethodVisitor(OpenedClassReader.ASM_API, methodVisitor) {
-                override fun visitParameter(name: String, access: Int) {}
+                override fun visitParameter(
+                    name: String,
+                    access: Int,
+                ) {}
             }
-
         }
     }
-
 }

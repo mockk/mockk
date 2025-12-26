@@ -12,7 +12,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class VerifyTest {
-
     val mock = mockk<MockCls>()
 
     private fun doCalls() {
@@ -185,7 +184,6 @@ class VerifyTest {
         bar.baz("$foo")
 
         verify(exactly = 1) { bar.baz("$foo") }
-
     }
 
     class Bar {
@@ -195,9 +193,7 @@ class VerifyTest {
     }
 
     class Foo {
-        override fun toString(): String {
-            return "foo"
-        }
+        override fun toString(): String = "foo"
     }
 
     class MockCls {

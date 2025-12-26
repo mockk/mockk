@@ -9,7 +9,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-class MyClass: MyAbstractClass() {
+class MyClass : MyAbstractClass() {
     override fun foo(): String = "foo"
 }
 

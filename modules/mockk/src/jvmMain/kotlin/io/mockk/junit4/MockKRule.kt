@@ -31,7 +31,10 @@ import org.junit.runner.Description
  * }
  * ```
  */
-class MockKRule(private val testSubject: Any) : TestWatcher(), TestRule {
+class MockKRule(
+    private val testSubject: Any,
+) : TestWatcher(),
+    TestRule {
     override fun starting(description: Description?) {
         super.starting(description)
         MockKAnnotations.init(testSubject)

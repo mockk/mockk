@@ -15,7 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class MatcherTest {
-
     @MockK
     lateinit var mock: MockCls
 
@@ -166,7 +165,6 @@ class MatcherTest {
         }
     }
 
-
     @Test
     fun or() {
         every { mock.op(1, or(eq(3), eq(5))) } returns 1
@@ -231,7 +229,6 @@ class MatcherTest {
             mock.op(1, 21)
         }
     }
-
 
     @Test
     fun compositeExpr2() {
@@ -356,36 +353,56 @@ class MatcherTest {
     }
 
     interface Wrapper
-    data class IntWrapper(val data: Int) : Wrapper
+
+    data class IntWrapper(
+        val data: Int,
+    ) : Wrapper
 
     class MockCls {
-        fun op(a: Int, b: Int): Int = a + b
+        fun op(
+            a: Int,
+            b: Int,
+        ): Int = a + b
 
-        fun op(a: Wrapper?, b: Wrapper?): Int {
-            return if (a is IntWrapper && b is IntWrapper) {
+        fun op(
+            a: Wrapper?,
+            b: Wrapper?,
+        ): Int =
+            if (a is IntWrapper && b is IntWrapper) {
                 a.data + b.data
             } else {
                 0
             }
-        }
     }
 
     open class B
+
     class C : B()
+
     class A {
-        fun go(x: B) { x.toString() }
+        fun go(x: B) {
+            x.toString()
+        }
     }
 
-    data class Product(val name: String, val price: Int)
-    data class Order(val name: String)
+    data class Product(
+        val name: String,
+        val price: Int,
+    )
+
+    data class Order(
+        val name: String,
+    )
 
     class ShopService {
-
         fun buyProducts(products: List<Product>) {
             println("You bought $products...")
         }
 
-        fun addProductAndOrders(products: List<Product>, orders: List<Order>) {
+        fun addProductAndOrders(
+            products: List<Product>,
+            orders: List<Order>,
+        ) {
             println("Add $products and $orders...")
         }
     }

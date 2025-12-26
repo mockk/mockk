@@ -13,14 +13,14 @@ class AbstractInstantiatorTest {
     lateinit var registry: CommonInstanceFactoryRegistry
     lateinit var factory: InstanceFactory
 
-
     @BeforeTest
     fun setUp() {
         registry = mockk(relaxed = true)
         factory = mockk(relaxed = true)
-        instantiator = object : AbstractInstantiator(registry) {
-            override fun <T : Any> instantiate(cls: KClass<T>): T = throw AssertionError("instantiate called")
-        }
+        instantiator =
+            object : AbstractInstantiator(registry) {
+                override fun <T : Any> instantiate(cls: KClass<T>): T = throw AssertionError("instantiate called")
+            }
     }
 
     @Test

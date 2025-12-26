@@ -7,9 +7,8 @@ import kotlin.reflect.KClass
 
 class JvmInstantiator(
     private val instantiator: MockKInstantiatior,
-    instanceFactoryRegistry: CommonInstanceFactoryRegistry
+    instanceFactoryRegistry: CommonInstanceFactoryRegistry,
 ) : AbstractInstantiator(instanceFactoryRegistry) {
-
     override fun <T : Any> instantiate(cls: KClass<T>): T {
         log.trace { "Building empty instance ${cls.toStr()}" }
         return instantiateViaInstanceFactoryRegistry(cls) {

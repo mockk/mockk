@@ -1,6 +1,11 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.isMockKMock
+import io.mockk.mockk
+import io.mockk.mockkConstructor
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.spyk
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -11,7 +16,7 @@ class MockTypesTest {
         SPY,
         OBJECT,
         STATIC,
-        CONSTRUCTOR
+        CONSTRUCTOR,
     }
 
     class TestCls
@@ -48,7 +53,10 @@ class MockTypesTest {
         }
     }
 
-    fun assertOnlyOfType(mock: Any, singleType: MockType) {
+    fun assertOnlyOfType(
+        mock: Any,
+        singleType: MockType,
+    ) {
         for (type in MockType.values()) {
             if (singleType == type) {
                 assertTrue(isOfMockType(mock, type), "mock is not of type $singleType")
@@ -58,7 +66,10 @@ class MockTypesTest {
         }
     }
 
-    fun isOfMockType(mock: Any, type: MockType) = when (type) {
+    fun isOfMockType(
+        mock: Any,
+        type: MockType,
+    ) = when (type) {
         MockType.REGULAR -> isMockKMock(mock)
         MockType.SPY -> isMockKMock(mock, regular = false, spy = true)
         MockType.OBJECT -> isMockKMock(mock, regular = false, objectMock = true)

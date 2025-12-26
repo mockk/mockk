@@ -32,7 +32,10 @@ internal object InjectionHelpers {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun KMutableProperty1<*, *>.setAny(obj: Any, value: Any?) {
+    fun KMutableProperty1<*, *>.setAny(
+        obj: Any,
+        value: Any?,
+    ) {
         try {
             isAccessible = true
         } catch (ex: Throwable) {
@@ -41,8 +44,10 @@ internal object InjectionHelpers {
         return (this.setter as KMutableProperty1.Setter<Any, Any?>).invoke(obj, value)
     }
 
-
-    fun KProperty1<*, *>.setImmutableAny(obj: Any, value: Any?) {
+    fun KProperty1<*, *>.setImmutableAny(
+        obj: Any,
+        value: Any?,
+    ) {
         val javaField = this.javaField ?: return
         try {
             javaField.isAccessible = true
@@ -51,5 +56,4 @@ internal object InjectionHelpers {
         }
         javaField.set(obj, value)
     }
-
 }

@@ -13,44 +13,49 @@ import kotlin.test.assertEquals
 class PrivateParentMethodTest {
     open class Parent {
         open fun call(): String = callPrivate()
+
         private fun callPrivate() = "Real"
     }
 
-    open class Child: Parent()
+    open class Child : Parent()
 
-    class ChildWithShadowedMethod: Parent() {
+    class ChildWithShadowedMethod : Parent() {
         override fun call(): String = callPrivate()
+
         fun callPrivate() = "Shadowed"
     }
 
-    class GrandChild: Child()
+    class GrandChild : Child()
 
     @Test
     fun testChildAlwaysMockedFirst() {
-        val mock = mockk<ChildWithShadowedMethod> {
-            every { call() } answers { callOriginal() }
-            every { this@mockk["callPrivate"]() } returns "Mock"
-        }
+        val mock =
+            mockk<ChildWithShadowedMethod> {
+                every { call() } answers { callOriginal() }
+                every { this@mockk["callPrivate"]() } returns "Mock"
+            }
 
         assertEquals(mock.call(), "Mock")
     }
 
     @Test
     fun testPrivateCallMock() {
-        val mock = mockk<Child> {
-            every { call() } answers { callOriginal() }
-            every { this@mockk["callPrivate"]() } returns "Mock"
-        }
+        val mock =
+            mockk<Child> {
+                every { call() } answers { callOriginal() }
+                every { this@mockk["callPrivate"]() } returns "Mock"
+            }
 
         assertEquals(mock.call(), "Mock")
     }
 
     @Test
     fun testPrivateCallMockForGrandChild() {
-        val mock = mockk<GrandChild> {
-            every { call() } answers { callOriginal() }
-            every { this@mockk["callPrivate"]() } returns "Mock"
-        }
+        val mock =
+            mockk<GrandChild> {
+                every { call() } answers { callOriginal() }
+                every { this@mockk["callPrivate"]() } returns "Mock"
+            }
 
         assertEquals(mock.call(), "Mock")
     }

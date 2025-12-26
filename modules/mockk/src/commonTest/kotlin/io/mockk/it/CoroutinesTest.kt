@@ -1,6 +1,14 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.InternalPlatformDsl
+import io.mockk.coEvery
+import io.mockk.coInvoke
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.spyk
+import io.mockk.verify
 import kotlinx.coroutines.coroutineScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -66,8 +74,15 @@ class CoroutinesTest {
     }
 
     class MockCls {
-        suspend fun coOtherOp(a: Int = 1, b: Int = 2): Int = coroutineScope { a + b }
-        suspend fun coLambdaOp(a: Int, b: suspend () -> Int) = a + b()
+        suspend fun coOtherOp(
+            a: Int = 1,
+            b: Int = 2,
+        ): Int = coroutineScope { a + b }
+
+        suspend fun coLambdaOp(
+            a: Int,
+            b: suspend () -> Int,
+        ) = a + b()
     }
 
     class MockPrivateSuspendCls {

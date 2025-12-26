@@ -15,18 +15,21 @@ class CallRecordingStateTest {
     @BeforeTest
     fun setUp() {
         recorder = mockk(relaxed = true)
-        state = object : CallRecordingState(recorder) {
-        }
-        ops = listOf(
-            { state.call(mockk(relaxed = true)) },
-            { state.startStubbing() },
-            { state.startVerification(mockk(relaxed = true)) },
-            { state.round(1, 1) },
-            { state.answerOpportunity() },
-            { state.recordingDone() },
-            { state.nCalls() },
-            { state.estimateCallRounds() },
-            { state.wasNotCalled(mockk(relaxed = true)) })
+        state =
+            object : CallRecordingState(recorder) {
+            }
+        ops =
+            listOf(
+                { state.call(mockk(relaxed = true)) },
+                { state.startStubbing() },
+                { state.startVerification(mockk(relaxed = true)) },
+                { state.round(1, 1) },
+                { state.answerOpportunity() },
+                { state.recordingDone() },
+                { state.nCalls() },
+                { state.estimateCallRounds() },
+                { state.wasNotCalled(mockk(relaxed = true)) },
+            )
     }
 
     @Test

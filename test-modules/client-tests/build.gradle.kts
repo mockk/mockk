@@ -3,8 +3,10 @@ plugins {
     jacoco
 }
 
-val kotlinVersion: String = providers.gradleProperty("io_mockk_kotlin_version")
-    .getOrElse(libs.versions.kotlin.get())
+val kotlinVersion: String =
+    providers
+        .gradleProperty("io_mockk_kotlin_version")
+        .getOrElse(libs.versions.kotlin.get())
 
 kotlin {
     jvm {}

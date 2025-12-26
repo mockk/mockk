@@ -1,13 +1,25 @@
 package io.mockk.junit5
 
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.MockKException
+import io.mockk.checkUnnecessaryStub
+import io.mockk.clearAllMocks
+import io.mockk.confirmVerified
 import io.mockk.impl.annotations.AdditionalInterface
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.annotations.SpyK
+import io.mockk.mockkClass
+import io.mockk.spyk
+import io.mockk.unmockkAll
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.extension.*
+import org.junit.jupiter.api.extension.AfterAllCallback
+import org.junit.jupiter.api.extension.AfterEachCallback
+import org.junit.jupiter.api.extension.ExtensionContext
+import org.junit.jupiter.api.extension.ParameterContext
+import org.junit.jupiter.api.extension.ParameterResolver
+import org.junit.jupiter.api.extension.TestInstancePostProcessor
 import java.lang.annotation.Inherited
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.InvocationTargetException
@@ -32,14 +44,22 @@ import kotlin.reflect.jvm.javaConstructor
  *
  * Alternatively `–Djunit.extensions.autodetection.enabled=true` may be placed on a command line.
  */
-class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCallback, AfterAllCallback {
+class MockKExtension :
+    TestInstancePostProcessor,
+    ParameterResolver,
+    AfterEachCallback,
+    AfterAllCallback {
     private val cache = mutableMapOf<KClass<out Any>, Any>()
 
-    override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
-        return getMockKAnnotation(parameterContext) != null
-    }
+    override fun supportsParameter(
+        parameterContext: ParameterContext,
+        extensionContext: ExtensionContext,
+    ): Boolean = getMockKAnnotation(parameterContext) != null
 
-    override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any? {
+    override fun resolveParameter(
+        parameterContext: ParameterContext,
+        extensionContext: ExtensionContext,
+    ): Any? {
         val parameter = parameterContext.parameter
         val type = parameter.type.kotlin
         val annotation = getMockKAnnotation(parameterContext) ?: return null
@@ -47,12 +67,13 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
 
         return when (annotation) {
             is InjectMockKs -> tryConstructClass(type)
-            is SpyK -> spyk(
-                tryConstructClass(type),
-                name,
-                *moreInterfaces(parameterContext),
-                recordPrivateCalls = annotation.recordPrivateCalls
-            )
+            is SpyK ->
+                spyk(
+                    tryConstructClass(type),
+                    name,
+                    *moreInterfaces(parameterContext),
+                    recordPrivateCalls = annotation.recordPrivateCalls,
+                )
 
             is MockK, is RelaxedMockK -> {
                 mockkClass(
@@ -68,49 +89,58 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
         }?.also { cache[type] = it }
     }
 
-    private fun tryConstructClass(type: KClass<out Any>): Any = try {
-        val ctor = type.constructors.first()
-        val args = ctor.javaConstructor?.parameters
-            ?.map { cache[it.type.kotlin] }
-            ?.toTypedArray()
-            ?: emptyArray()
-        ctor.call(*args)
-    } catch (ex: InvocationTargetException) {
-        // Current JUnit5 implementation resolves test constructor parameters one-by-one in order of declaration.
-        // This means that any parameter can only access preceding arguments and only those can be used to
-        // construct non-mock class instance. Breaking this order will cause NPE at test class initialization.
-        // Same limitation also applies to spies as their use original class implementation under hood.
-        throw MockKException(
-            "Unable to instantiate class ${type.simpleName}. " +
+    private fun tryConstructClass(type: KClass<out Any>): Any =
+        try {
+            val ctor = type.constructors.first()
+            val args =
+                ctor.javaConstructor
+                    ?.parameters
+                    ?.map { cache[it.type.kotlin] }
+                    ?.toTypedArray()
+                    ?: emptyArray()
+            ctor.call(*args)
+        } catch (ex: InvocationTargetException) {
+            // Current JUnit5 implementation resolves test constructor parameters one-by-one in order of declaration.
+            // This means that any parameter can only access preceding arguments and only those can be used to
+            // construct non-mock class instance. Breaking this order will cause NPE at test class initialization.
+            // Same limitation also applies to spies as their use original class implementation under hood.
+            throw MockKException(
+                "Unable to instantiate class ${type.simpleName}. " +
                     "Please ensure that all dependencies needed by class are defined before it in test class constructor. " +
-                    "Already registered mocks: ${cache.values}", ex
-        )
-    }
+                    "Already registered mocks: ${cache.values}",
+                ex,
+            )
+        }
 
-    private fun getMockKAnnotation(parameter: ParameterContext): Any? {
-        return sequenceOf(MockK::class, RelaxedMockK::class, SpyK::class, InjectMockKs::class)
+    private fun getMockKAnnotation(parameter: ParameterContext): Any? =
+        sequenceOf(MockK::class, RelaxedMockK::class, SpyK::class, InjectMockKs::class)
             .map { parameter.findAnnotation(it.java) }
             .firstOrNull { it.isPresent }
             ?.get()
-    }
 
-    private fun getMockName(parameter: Parameter, annotation: Any): String? {
-        return when {
+    private fun getMockName(
+        parameter: Parameter,
+        annotation: Any,
+    ): String? =
+        when {
             annotation is MockK -> annotation.name
             annotation is RelaxedMockK -> annotation.name
             annotation is SpyK -> annotation.name
             parameter.isNamePresent -> parameter.name
             else -> null
         }
-    }
 
     private fun moreInterfaces(parameter: ParameterContext) =
-        parameter.findAnnotation(AdditionalInterface::class.java)
+        parameter
+            .findAnnotation(AdditionalInterface::class.java)
             .map { it.type }
             .map { arrayOf(it) }
             .orElseGet { emptyArray() }
 
-    override fun postProcessTestInstance(testInstance: Any, context: ExtensionContext) {
+    override fun postProcessTestInstance(
+        testInstance: Any,
+        context: ExtensionContext,
+    ) {
         MockKAnnotations.init(testInstance)
     }
 
@@ -151,36 +181,44 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
         get() = testInstanceLifecycle.map { it == TestInstance.Lifecycle.PER_METHOD }.orElse(true)
 
     private val ExtensionContext.keepMocks: Boolean
-        get() = testClass.keepMocks || testMethod.keepMocks ||
+        get() =
+            testClass.keepMocks || testMethod.keepMocks ||
                 getConfigurationParameter(KEEP_MOCKS_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.keepMocks
-        get() = map { it.hasAnnotationRecursive(KeepMocks::class.java) }
-            .orElse(false)
+        get() =
+            map { it.hasAnnotationRecursive(KeepMocks::class.java) }
+                .orElse(false)
 
     private val ExtensionContext.confirmVerification: Boolean
-        get() = testClass.confirmVerification ||
+        get() =
+            testClass.confirmVerification ||
                 getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.confirmVerification
-        get() = map { it.hasAnnotationRecursive(ConfirmVerification::class.java) }
-            .orElse(false)
+        get() =
+            map { it.hasAnnotationRecursive(ConfirmVerification::class.java) }
+                .orElse(false)
 
     private val ExtensionContext.checkUnnecessaryStub: Boolean
-        get() = testClass.checkUnnecessaryStub ||
+        get() =
+            testClass.checkUnnecessaryStub ||
                 getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.checkUnnecessaryStub
-        get() = map { it.hasAnnotationRecursive(CheckUnnecessaryStub::class.java) }
-            .orElse(false)
+        get() =
+            map { it.hasAnnotationRecursive(CheckUnnecessaryStub::class.java) }
+                .orElse(false)
 
     private val ExtensionContext.requireParallelTesting: Boolean
-        get() = testClass.requireParallelTesting ||
+        get() =
+            testClass.requireParallelTesting ||
                 getConfigurationParameter(REQUIRE_PARALLEL_TESTING).map { it.toBoolean() }.orElse(false)
 
     private val Optional<out AnnotatedElement>.requireParallelTesting
-        get() = map { it.hasAnnotationRecursive(RequireParallelTesting::class.java) }
-            .orElse(false)
+        get() =
+            map { it.hasAnnotationRecursive(RequireParallelTesting::class.java) }
+                .orElse(false)
 
     /***
      * Prevent calling [unmockkAll] after each test execution
@@ -218,7 +256,7 @@ class MockKExtension : TestInstancePostProcessor, ParameterResolver, AfterEachCa
 
 internal fun <A : Annotation> AnnotatedElement.hasAnnotationRecursive(
     target: Class<A>,
-    visited: MutableSet<Class<out Annotation>> = mutableSetOf()
+    visited: MutableSet<Class<out Annotation>> = mutableSetOf(),
 ): Boolean {
     for (annotation in annotations) {
         val annotationType = annotation.annotationClass.java

@@ -15,12 +15,14 @@ class StackTraceLineNumberTest {
     @Test
     fun everyLineNumberIsCorrect() {
         var stackTrace: Array<StackTraceElement>? = null
-        val ex = try {
-            stackTrace = Thread.currentThread().stackTrace; every { throw RuntimeException("failure") }
-            fail("No exception thrown")
-        } catch (ex: Exception) {
-            ex
-        }
+        val ex =
+            try {
+                stackTrace = Thread.currentThread().stackTrace
+                every { throw RuntimeException("failure") }
+                fail("No exception thrown")
+            } catch (ex: Exception) {
+                ex
+            }
 
         checkLineNumber(ex, stackTrace, "everyLineNumberIsCorrect")
     }
@@ -29,38 +31,43 @@ class StackTraceLineNumberTest {
     @Test
     fun verifyLineNumberIsCorrect() {
         var stackTrace: Array<StackTraceElement>? = null
-        val ex = try {
-            stackTrace = Thread.currentThread().stackTrace; verify { throw RuntimeException("failure") }
-            fail("No exception thrown")
-        } catch (ex: Exception) {
-            ex
-        }
+        val ex =
+            try {
+                stackTrace = Thread.currentThread().stackTrace
+                verify { throw RuntimeException("failure") }
+                fail("No exception thrown")
+            } catch (ex: Exception) {
+                ex
+            }
 
         checkLineNumber(ex, stackTrace, "verifyLineNumberIsCorrect")
     }
 
-    private fun Array<StackTraceElement>.lineNumber(test: String, methodName: String): Int {
-        return first {
+    private fun Array<StackTraceElement>.lineNumber(
+        test: String,
+        methodName: String,
+    ): Int =
+        first {
             it.className == test &&
-                    it.methodName == methodName
+                it.methodName == methodName
         }.lineNumber
-    }
-
 
     private fun checkLineNumber(
         ex: Exception,
         stackTrace: Array<StackTraceElement>?,
-        methodName: String
+        methodName: String,
     ) {
-        val actualLN = ex.stackTrace.lineNumber(
-            "io.mockk.it.StackTraceLineNumberTest",
-            methodName
-        )
+        val actualLN =
+            ex.stackTrace.lineNumber(
+                "io.mockk.it.StackTraceLineNumberTest",
+                methodName,
+            )
 
-        val expectedLN = stackTrace!!.lineNumber(
-            "io.mockk.it.StackTraceLineNumberTest",
-            methodName
-        )
+        val expectedLN =
+            stackTrace!!.lineNumber(
+                "io.mockk.it.StackTraceLineNumberTest",
+                methodName,
+            ) + 1 // every/verify call is on the next line after capturing stackTrace
 
         assertEquals(expectedLN, actualLN)
     }

@@ -1,7 +1,11 @@
 package io.mockk.impl.recording
 
-import io.mockk.*
+import io.mockk.Invocation
+import io.mockk.Matcher
+import io.mockk.every
 import io.mockk.impl.log.SafeToString
+import io.mockk.invoke
+import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertSame

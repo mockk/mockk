@@ -17,4 +17,6 @@ package io.mockk.impl.annotations
  *
  * @param name name of a relaxed mockk
  */
-annotation class RelaxedMockK(val name: String = "")
+annotation class RelaxedMockK(
+    val name: String = "",
+)

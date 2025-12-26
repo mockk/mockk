@@ -1,11 +1,10 @@
 package io.mockk.core
 
+import io.mockk.core.ValueClassSupport.boxedValue
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
-
 expect object ValueClassSupport {
-
     /**
      * Unboxes the underlying property value of a **`value class`** or self, as long the unboxed value is appropriate
      * for the given method's return type.
@@ -27,5 +26,4 @@ expect object ValueClassSupport {
      * The result might also be a value class! So check recursively, if necessary.
      */
     val KClass<*>.boxedClass: KClass<*>
-
 }

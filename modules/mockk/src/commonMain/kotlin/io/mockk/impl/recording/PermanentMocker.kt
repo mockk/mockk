@@ -10,9 +10,8 @@ import io.mockk.impl.stub.StubRepository
 
 class PermanentMocker(
     val stubRepo: StubRepository,
-    val safeToString: SafeToString
+    val safeToString: SafeToString,
 ) {
-
     val log = safeToString(Logger<PermanentMocker>())
 
     val permanentMocks = InternalPlatform.identityMap<Any, Any>()
@@ -44,8 +43,10 @@ class PermanentMocker(
 
             log.trace { "Child search key: ${equivalentCall.matcher}" }
 
-            val childMock = stubRepo.stubFor(newCall.matcher.self)
-                .childMockK(equivalentCall.matcher, equivalentCall.retType)
+            val childMock =
+                stubRepo
+                    .stubFor(newCall.matcher.self)
+                    .childMockK(equivalentCall.matcher, equivalentCall.retType)
 
             val newNewCall = newCall.copy(retValue = childMock)
 
@@ -59,12 +60,13 @@ class PermanentMocker(
     }
 
     private fun makeEquivalent(newCall: RecordedCall): RecordedCall {
-        val equivalentArgs = newCall.matcher.args.map {
-            when (it) {
-                is EquivalentMatcher -> it.equivalent()
-                else -> it
+        val equivalentArgs =
+            newCall.matcher.args.map {
+                when (it) {
+                    is EquivalentMatcher -> it.equivalent()
+                    else -> it
+                }
             }
-        }
 
         val equivalentIM = newCall.matcher.copy(args = equivalentArgs)
         return newCall.copy(matcher = equivalentIM)
@@ -72,13 +74,14 @@ class PermanentMocker(
 
     private fun makeCallPermanent(call: RecordedCall): RecordedCall {
         val selfChain = callRef[call.matcher.self]
-        val argChains = call.matcher.args
-            .map {
-                when (it) {
-                    is EqMatcher -> callRef[it.value] ?: it
-                    else -> it
+        val argChains =
+            call.matcher.args
+                .map {
+                    when (it) {
+                        is EqMatcher -> callRef[it.value] ?: it
+                        else -> it
+                    }
                 }
-            }
 
         val newSelf = permanentMocks[call.matcher.self] ?: call.matcher.self
         val newArgs = call.matcher.args.map { it.substitute(permanentMocks) }
@@ -86,7 +89,7 @@ class PermanentMocker(
         return call.copy(
             matcher = newMatcher,
             selfChain = selfChain,
-            argChains = argChains
+            argChains = argChains,
         )
     }
 
@@ -95,16 +98,18 @@ class PermanentMocker(
         val usedCalls = hashSetOf<RecordedCall>()
 
         for (call in calls) {
-            callTree[call] = formatCall(
-                call,
-                callTree,
-                usedCalls
-            )
+            callTree[call] =
+                formatCall(
+                    call,
+                    callTree,
+                    usedCalls,
+                )
         }
 
-        return calls.filter {
-            it !in usedCalls
-        }.map {
+        return calls
+            .filter {
+                it !in usedCalls
+            }.map {
                 callTree[it] ?: "<bad call>"
             }
     }
@@ -112,37 +117,38 @@ class PermanentMocker(
     private fun formatCall(
         call: RecordedCall,
         tree: Map<RecordedCall, String>,
-        usedCalls: MutableSet<RecordedCall>
+        usedCalls: MutableSet<RecordedCall>,
     ): String {
         val methodName = call.matcher.method.name
-        val args = call.argChains!!.map {
-            when (it) {
-                is RecordedCall -> {
-                    usedCalls.add(it)
-                    tree[it] ?: "<bad link>"
+        val args =
+            call.argChains!!.map {
+                when (it) {
+                    is RecordedCall -> {
+                        usedCalls.add(it)
+                        tree[it] ?: "<bad link>"
+                    }
+                    else -> it.toString()
                 }
-                else -> it.toString()
             }
-        }
 
         val selfChain = call.selfChain
-        val prefix = if (selfChain != null) {
-            usedCalls.add(selfChain)
-            (tree[selfChain] ?: "<bad link>") + "."
-        } else {
-            call.matcher.self.toString() + "."
-        }
+        val prefix =
+            if (selfChain != null) {
+                usedCalls.add(selfChain)
+                (tree[selfChain] ?: "<bad link>") + "."
+            } else {
+                call.matcher.self.toString() + "."
+            }
 
         if (methodName.startsWith("get") &&
             methodName.length > 3 &&
             args.isEmpty()
         ) {
             return prefix +
-                    methodName[3].lowercaseChar() +
-                    methodName.substring(4)
+                methodName[3].lowercaseChar() +
+                methodName.substring(4)
         }
 
         return prefix + methodName + "(" + args.joinToString(", ") + ")"
     }
-
 }

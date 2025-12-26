@@ -3,20 +3,11 @@ package io.mockk.bdd
 import io.mockk.MockKMatcherScope
 import io.mockk.MockKStubScope
 import io.mockk.MockKVerificationScope
-import io.mockk.MockK
-import io.mockk.MockKDsl
 import io.mockk.Ordering
-import io.mockk.every
 import io.mockk.coEvery
-import io.mockk.verify
 import io.mockk.coVerify
-
-/**
- * BDD style API for MockK.
- * Provides aliases for MockK functions in BDD style:
- * - given/coGiven (aliases for every/coEvery)
- * - then/coThen (aliases for verify/coVerify)
- */
+import io.mockk.every
+import io.mockk.verify
 
 /**
  * Starts a block of stubbing in BDD style. Part of DSL.
@@ -33,8 +24,7 @@ import io.mockk.coVerify
  * @see [coGiven] Coroutine version.
  * @see [io.mockk.every] MockK original function.
  */
-fun <T> given(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = 
-    every(stubBlock)
+fun <T> given(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = every(stubBlock)
 
 /**
  * Starts a block of stubbing for coroutines in BDD style. Part of DSL.
@@ -44,8 +34,7 @@ fun <T> given(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
  * @see [given]
  * @see [io.mockk.coEvery] MockK original function.
  */
-fun <T> coGiven(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = 
-    coEvery(stubBlock)
+fun <T> coGiven(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> = coEvery(stubBlock)
 
 /**
  * Verifies calls happened in the past in BDD style. Part of DSL
@@ -76,7 +65,7 @@ fun then(
     atMost: Int = Int.MAX_VALUE,
     exactly: Int = -1,
     timeout: Long = 0,
-    verifyBlock: MockKVerificationScope.() -> Unit
+    verifyBlock: MockKVerificationScope.() -> Unit,
 ) = verify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
 
 /**
@@ -101,5 +90,5 @@ fun coThen(
     atMost: Int = Int.MAX_VALUE,
     exactly: Int = -1,
     timeout: Long = 0,
-    verifyBlock: suspend MockKVerificationScope.() -> Unit
-) = coVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock) 
+    verifyBlock: suspend MockKVerificationScope.() -> Unit,
+) = coVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock)

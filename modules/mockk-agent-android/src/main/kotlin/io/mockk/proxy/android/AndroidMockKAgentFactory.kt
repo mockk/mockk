@@ -4,7 +4,14 @@ package io.mockk.proxy.android
 
 import android.annotation.SuppressLint
 import android.os.Build
-import io.mockk.proxy.*
+import io.mockk.proxy.MockKAgentException
+import io.mockk.proxy.MockKAgentFactory
+import io.mockk.proxy.MockKAgentLogFactory
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.MockKConstructorProxyMaker
+import io.mockk.proxy.MockKInstantiatior
+import io.mockk.proxy.MockKProxyMaker
+import io.mockk.proxy.MockKStaticProxyMaker
 import io.mockk.proxy.android.advice.Advice
 import io.mockk.proxy.android.transformation.AndroidInlineInstrumentation
 import io.mockk.proxy.android.transformation.AndroidSubclassInstrumentation
@@ -43,8 +50,8 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
                     ProxyMaker::class
                         .java
                         .classLoader
-                        .getResource(dispatcherJar)
-                            ?: throw MockKAgentException("'$dispatcherJar' not found")
+                        .getResource(DISPATCHER_JAR)
+                        ?: throw MockKAgentException("'$DISPATCHER_JAR' not found")
 
                 dispatcherJar
                     .openStream()
@@ -53,31 +60,34 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
                     }
 
                 dispatcherClass = Class.forName(
-                    dispatcherClassName,
+                    DISPATCHER_CLASS_NAME,
                     true,
-                    Any::class.java.classLoader
-                ) ?: throw MockKAgentException("$dispatcherClassName could not be loaded")
+                    Any::class.java.classLoader,
+                ) ?: throw MockKAgentException("$DISPATCHER_CLASS_NAME could not be loaded")
             } catch (cnfe: ClassNotFoundException) {
                 throw MockKAgentException(
-                    "MockK failed to inject the AndroidMockKDispatcher class into the "
-                            + "bootstrap class loader\n\nIt seems like your current VM does not "
-                            + "support the jvmti API correctly.", cnfe
+                    "MockK failed to inject the AndroidMockKDispatcher class into the " +
+                        "bootstrap class loader\n\nIt seems like your current VM does not " +
+                        "support the jvmti API correctly.",
+                    cnfe,
                 )
             } catch (ioe: IOException) {
                 throw MockKAgentException(
-                    "MockK could not self-attach a jvmti agent to the current VM. This "
-                            + "feature is required for inline mocking.\nThis error occured due to an "
-                            + "I/O error during the creation of this agent: " + ioe + "\n\n"
-                            + "Potentially, the current VM does not support the jvmti API correctly", ioe
+                    "MockK could not self-attach a jvmti agent to the current VM. This " +
+                        "feature is required for inline mocking.\nThis error occured due to an " +
+                        "I/O error during the creation of this agent: " + ioe + "\n\n" +
+                        "Potentially, the current VM does not support the jvmti API correctly",
+                    ioe,
                 )
             } catch (ex: MockKAgentException) {
                 throw ex
             } catch (ex: Exception) {
                 throw MockKAgentException(
-                    "Could not initialize inline mock maker.\n"
-                            + "\n"
-                            + "Release: Android " + Build.VERSION.RELEASE + " " + Build.VERSION.INCREMENTAL
-                            + "Device: " + Build.BRAND + " " + Build.MODEL, ex
+                    "Could not initialize inline mock maker.\n" +
+                        "\n" +
+                        "Release: Android " + Build.VERSION.RELEASE + " " + Build.VERSION.INCREMENTAL +
+                        "Device: " + Build.BRAND + " " + Build.MODEL,
+                    ex,
                 )
             }
 
@@ -87,22 +97,25 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
             // From API 30, this workaround no longer works.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                 try {
-                    val vmRuntimeClass = Class.forName(vmRuntimeClassName)
-                    val getDeclaredMethod = Class::class.java.getDeclaredMethod(
-                            getDeclaredMethodMethodName,
+                    val vmRuntimeClass = Class.forName(VM_RUNTIME_CLASS_NAME)
+                    val getDeclaredMethod =
+                        Class::class.java.getDeclaredMethod(
+                            GET_DECLARED_METHOD_METHOD_NAME,
                             String::class.java,
-                            arrayOf<Class<*>>()::class.java
-                    ) as Method
-                    val getRuntime = getDeclaredMethod(
+                            arrayOf<Class<*>>()::class.java,
+                        ) as Method
+                    val getRuntime =
+                        getDeclaredMethod(
                             vmRuntimeClass,
-                            getRuntimeMethodName,
-                            null
-                    ) as Method
-                    val setHiddenApiExemptions = getDeclaredMethod(
+                            GET_RUNTIME_METHOD_NAME,
+                            null,
+                        ) as Method
+                    val setHiddenApiExemptions =
+                        getDeclaredMethod(
                             vmRuntimeClass,
-                            setHiddenApiExemptionsMethodName,
-                            arrayOf(arrayOf<String>()::class.java)
-                    ) as Method
+                            SET_HIDDEN_API_EXEMPTIONS_METHOD_NAME,
+                            arrayOf(arrayOf<String>()::class.java),
+                        ) as Method
 
                     setHiddenApiExemptions(getRuntime(null), arrayOf("L"))
                 } catch (ex: Exception) {
@@ -110,12 +123,14 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
                 }
             } else {
                 try {
-                    val vmDebugClass = Class.forName(vmDebugClassName)
+                    val vmDebugClass = Class.forName(VM_DEBUG_CLASS_NAME)
+
                     @SuppressLint("DiscouragedPrivateApi")
-                    val allowHiddenApiReflectionFrom = vmDebugClass.getDeclaredMethod(
-                            allowHiddenApiReflectionFromMethodName,
-                            Class::class.java
-                    ) as Method
+                    val allowHiddenApiReflectionFrom =
+                        vmDebugClass.getDeclaredMethod(
+                            ALLOW_HIDDEN_API_REFLECTION_FROM_METHOD_NAME,
+                            Class::class.java,
+                        ) as Method
 
                     allowHiddenApiReflectionFrom(null, MethodDescriptor::class.java)
                 } catch (e: Exception) {
@@ -127,11 +142,12 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
             val classTransformer = InliningClassTransformer(specMap)
 
             try {
-                dispatcherClass.getMethod("set", String::class.java, Any::class.java)
+                dispatcherClass
+                    .getMethod("set", String::class.java, Any::class.java)
                     .invoke(
                         null,
                         classTransformer.identifier,
-                        advice
+                        advice,
                     )
             } catch (e: Exception) {
                 throw MockKAgentException("Failed to set advice in dispatcher", e)
@@ -139,54 +155,58 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
 
             agent.transformer = classTransformer
 
-            inliner = AndroidInlineInstrumentation(
-                logFactory.logger(AndroidInlineInstrumentation::class.java),
-                specMap,
-                agent
-            )
-
+            inliner =
+                AndroidInlineInstrumentation(
+                    logFactory.logger(AndroidInlineInstrumentation::class.java),
+                    specMap,
+                    agent,
+                )
         } else {
             log.debug("Detected version prior to Android P. Not using inlining class transformer. Only proxy subclassing is available")
         }
 
+        instantiator =
+            ObjenesisInstantiator(
+                logFactory.logger(ObjenesisInstantiator::class.java),
+            )
 
-        instantiator = OnjenesisInstantiator(
-            logFactory.logger(OnjenesisInstantiator::class.java)
-        )
+        val subclasser =
+            AndroidSubclassInstrumentation(
+                inliner != null,
+            )
 
-        val subclasser = AndroidSubclassInstrumentation(
-            inliner != null
-        )
+        proxyMaker =
+            ProxyMaker(
+                logFactory.logger(
+                    ProxyMaker::class.java,
+                ),
+                inliner,
+                subclasser,
+                instantiator,
+                handlers,
+            )
 
-        proxyMaker = ProxyMaker(
-            logFactory.logger(
-                ProxyMaker::class.java
-            ),
-            inliner,
-            subclasser,
-            instantiator,
-            handlers
-        )
+        staticProxyMaker =
+            StaticProxyMaker(
+                inliner,
+                staticHandlers,
+            )
 
-        staticProxyMaker = StaticProxyMaker(
-            inliner,
-            staticHandlers
-        )
-
-        constructorProxyMaker = ConstructorProxyMaker(
-            inliner,
-            constructorHandlers
-        )
+        constructorProxyMaker =
+            ConstructorProxyMaker(
+                inliner,
+                constructorHandlers,
+            )
     }
 
     companion object {
-        private const val dispatcherClassName = "io.mockk.proxy.android.AndroidMockKDispatcher"
-        private const val dispatcherJar = "dispatcher.jar"
-        private const val vmRuntimeClassName = "dalvik.system.VMRuntime"
-        private const val vmDebugClassName = "dalvik.system.VMDebug"
-        private const val getDeclaredMethodMethodName = "getDeclaredMethod"
-        private const val allowHiddenApiReflectionFromMethodName = "allowHiddenApiReflectionFrom"
-        private const val getRuntimeMethodName = "getRuntime"
-        private const val setHiddenApiExemptionsMethodName = "setHiddenApiExemptions"
+        private const val DISPATCHER_CLASS_NAME = "io.mockk.proxy.android.AndroidMockKDispatcher"
+        private const val DISPATCHER_JAR = "dispatcher.jar"
+        private const val VM_RUNTIME_CLASS_NAME = "dalvik.system.VMRuntime"
+        private const val VM_DEBUG_CLASS_NAME = "dalvik.system.VMDebug"
+        private const val GET_DECLARED_METHOD_METHOD_NAME = "getDeclaredMethod"
+        private const val ALLOW_HIDDEN_API_REFLECTION_FROM_METHOD_NAME = "allowHiddenApiReflectionFrom"
+        private const val GET_RUNTIME_METHOD_NAME = "getRuntime"
+        private const val SET_HIDDEN_API_EXEMPTIONS_METHOD_NAME = "setHiddenApiExemptions"
     }
 }

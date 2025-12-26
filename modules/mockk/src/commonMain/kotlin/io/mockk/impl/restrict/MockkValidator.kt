@@ -4,7 +4,9 @@ import io.mockk.MockKException
 import io.mockk.impl.log.Logger
 import kotlin.reflect.KClass
 
-class MockkValidator(private val configuration: RestrictMockkConfiguration) {
+class MockkValidator(
+    private val configuration: RestrictMockkConfiguration,
+) {
     private val logger by lazy { Logger<MockkValidator>() }
     private val restrictedClasses: Set<String> = configuration.restrictedTypes
 

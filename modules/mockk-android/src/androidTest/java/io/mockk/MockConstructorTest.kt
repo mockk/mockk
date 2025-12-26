@@ -14,7 +14,11 @@ class MockConstructorTest {
     val minSdkRule = MinSdkRule()
 
     class MockCls {
-        fun add(a: Int, b: Int) = a + b
+        fun add(
+            a: Int,
+            b: Int,
+        ) = a + b
+
         companion object {
             const val VALUE = 5
         }

@@ -9,11 +9,12 @@ plugins {
 group = "io.mockk"
 
 apiValidation {
-    ignoredProjects += listOf(
-        projects.testModules.loggerTests.name,
-        projects.testModules.clientTests.name,
-        projects.testModules.performanceTests.name,
-    )
+    ignoredProjects +=
+        listOf(
+            projects.testModules.loggerTests.name,
+            projects.testModules.clientTests.name,
+            projects.testModules.performanceTests.name,
+        )
 }
 
 dependencies {

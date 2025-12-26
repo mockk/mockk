@@ -10,7 +10,10 @@ import kotlin.test.assertEquals
 @RunWith(AndroidJUnit4::class)
 class PrePTest {
     open class MockCls {
-        open fun sum(a: Int, b: Int) = a + b
+        open fun sum(
+            a: Int,
+            b: Int,
+        ) = a + b
     }
 
     @Test

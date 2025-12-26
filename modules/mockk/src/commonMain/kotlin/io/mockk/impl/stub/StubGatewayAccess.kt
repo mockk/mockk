@@ -10,5 +10,5 @@ data class StubGatewayAccess(
     val anyValueGenerator: () -> AnyValueGenerator,
     val stubRepository: StubRepository,
     val safeToString: SafeToString,
-    val mockFactory: MockKGateway.MockFactory? = null
+    val mockFactory: MockKGateway.MockFactory? = null,
 )

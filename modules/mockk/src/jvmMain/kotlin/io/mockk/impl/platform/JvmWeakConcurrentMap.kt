@@ -8,11 +8,12 @@ class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
     private val map = ConcurrentHashMap<Any, V>()
     private val queue = ReferenceQueue<K>()
 
-    override fun get(key: K): V? {
-        return map[StrongKey(key)]
-    }
+    override fun get(key: K): V? = map[StrongKey(key)]
 
-    override fun put(key: K, value: V): V? {
+    override fun put(
+        key: K,
+        value: V,
+    ): V? {
         expunge()
         return if (value != null) {
             map.put(WeakKey(key, queue), value)
@@ -26,7 +27,6 @@ class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
         return map.remove(StrongKey(key))
     }
 
-
     private fun expunge() {
         var ref = queue.poll()
         while (ref != null) {
@@ -38,7 +38,10 @@ class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
         }
     }
 
-    private class WeakKey<K>(key: K, queue: ReferenceQueue<K>) : WeakReference<K>(key, queue) {
+    private class WeakKey<K>(
+        key: K,
+        queue: ReferenceQueue<K>,
+    ) : WeakReference<K>(key, queue) {
         private val hashCode: Int
 
         init {
@@ -61,12 +64,12 @@ class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
             return false
         }
 
-        override fun hashCode(): Int {
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
     }
 
-    private class StrongKey<K>(private val key: K) {
+    private class StrongKey<K>(
+        private val key: K,
+    ) {
         private val hashCode: Int = System.identityHashCode(key)
 
         override fun equals(other: Any?): Boolean {
@@ -85,34 +88,21 @@ class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
             return false
         }
 
-        override fun hashCode(): Int {
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
-        fun get(): K? {
-            return key
-        }
+        fun get(): K? = key
     }
-
 
     override val size
         get() = map.size
 
-    override fun isEmpty(): Boolean {
-        return map.isEmpty()
-    }
+    override fun isEmpty(): Boolean = map.isEmpty()
 
-    override fun containsKey(key: K): Boolean {
-        return get(key) != null
-    }
+    override fun containsKey(key: K): Boolean = get(key) != null
 
-    override fun containsValue(value: V): Boolean {
-        return map.containsValue(value)
-    }
+    override fun containsValue(value: V): Boolean = map.containsValue(value)
 
-    override fun putAll(from: Map<out K, V>) {
-        throw UnsupportedOperationException("putAll")
-    }
+    override fun putAll(from: Map<out K, V>): Unit = throw UnsupportedOperationException("putAll")
 
     override fun clear() {
         map.clear()

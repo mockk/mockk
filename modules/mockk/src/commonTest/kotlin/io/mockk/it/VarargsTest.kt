@@ -1,6 +1,10 @@
 package io.mockk.it
 
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.slot
+import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -40,7 +44,7 @@ class VarargsTest {
                 5,
                 *anyIntVararg(),
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
 
@@ -54,8 +58,8 @@ class VarargsTest {
                 3,
                 3,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Int>()
         verify {
@@ -64,7 +68,7 @@ class VarargsTest {
                 5,
                 *anyIntVararg(),
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -78,11 +82,12 @@ class VarargsTest {
                 IntWrapper(5),
                 *anyVararg(),
                 IntWrapper(4),
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.intWrapperOp(
+            3,
+            mock.intWrapperOp(
                 7,
                 IntWrapper(5),
                 IntWrapper(3),
@@ -90,8 +95,8 @@ class VarargsTest {
                 IntWrapper(3),
                 IntWrapper(3),
                 IntWrapper(4),
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<IntWrapper>()
         verify {
@@ -100,12 +105,11 @@ class VarargsTest {
                 IntWrapper(5),
                 *anyVararg(),
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(IntWrapper(4), slot.captured)
     }
-
 
     @Test
     fun varargAnyIntWrapper() {
@@ -115,20 +119,21 @@ class VarargsTest {
                 IntWrapper(5),
                 *varargAny { it.value == 3 },
                 IntWrapper(4),
-                c = 8
+                c = 8,
             )
         } returns 3
 
         assertEquals(
-            3, mock.intWrapperOp(
+            3,
+            mock.intWrapperOp(
                 7,
                 IntWrapper(5),
                 IntWrapper(3),
                 IntWrapper(6),
                 IntWrapper(2),
                 IntWrapper(4),
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.intOp(
@@ -138,7 +143,7 @@ class VarargsTest {
                 6,
                 2,
                 4,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<IntWrapper>()
@@ -148,7 +153,7 @@ class VarargsTest {
                 IntWrapper(5),
                 *varargAny { it.value == 3 },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured.value)
@@ -162,19 +167,20 @@ class VarargsTest {
                 true,
                 *varargAnyBoolean { it },
                 true,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.booleanOp(
+            3,
+            mock.booleanOp(
                 7,
                 true,
                 false,
                 true,
                 false,
                 true,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Boolean>()
         verify {
@@ -183,7 +189,7 @@ class VarargsTest {
                 true,
                 *varargAnyBoolean { it },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(true, slot.captured)
@@ -197,19 +203,20 @@ class VarargsTest {
                 *varargAnyBoolean { it },
                 true,
                 true,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.booleanOp(
+            3,
+            mock.booleanOp(
                 7,
                 true,
                 false,
                 true,
                 true,
                 true,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Boolean>()
         verify {
@@ -218,7 +225,7 @@ class VarargsTest {
                 *varargAnyBoolean { it },
                 true,
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(true, slot.captured)
@@ -232,20 +239,21 @@ class VarargsTest {
                 false,
                 *varargAllBoolean { it },
                 false,
-                c = 8
+                c = 8,
             )
         } returns 3
 
         assertEquals(
-            3, mock.booleanOp(
+            3,
+            mock.booleanOp(
                 7,
                 false,
                 true,
                 true,
                 true,
                 false,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.booleanOp(
@@ -255,7 +263,7 @@ class VarargsTest {
                 false,
                 false,
                 false,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Boolean>()
@@ -265,7 +273,7 @@ class VarargsTest {
                 false,
                 *varargAllBoolean { it },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(false, slot.captured)
@@ -279,19 +287,20 @@ class VarargsTest {
                 5,
                 *varargAnyByte { it == 3.toByte() },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.byteOp(
+            3,
+            mock.byteOp(
                 7,
                 5,
                 3,
                 6,
                 2,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Byte>()
         verify {
@@ -300,7 +309,7 @@ class VarargsTest {
                 5,
                 *varargAnyByte { it == 3.toByte() },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -314,20 +323,21 @@ class VarargsTest {
                 5,
                 *varargAllByte { it == 3.toByte() },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
 
         assertEquals(
-            3, mock.byteOp(
+            3,
+            mock.byteOp(
                 7,
                 5,
                 3,
                 3,
                 3,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.byteOp(
@@ -337,7 +347,7 @@ class VarargsTest {
                 4,
                 4,
                 4,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Byte>()
@@ -347,7 +357,7 @@ class VarargsTest {
                 5,
                 *varargAllByte { it == 3.toByte() },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -361,20 +371,21 @@ class VarargsTest {
                 5.toChar(),
                 *varargAnyChar { it == 3.toChar() },
                 4.toChar(),
-                c = 8
+                c = 8,
             )
         } returns 3
 
         assertEquals(
-            3, mock.charOp(
+            3,
+            mock.charOp(
                 7,
                 5.toChar(),
                 3.toChar(),
                 6.toChar(),
                 2.toChar(),
                 4.toChar(),
-                c = 8
-            )
+                c = 8,
+            ),
         )
 
         val slot = slot<Char>()
@@ -384,7 +395,7 @@ class VarargsTest {
                 5.toChar(),
                 *varargAnyChar { it == 3.toChar() },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4.toChar(), slot.captured)
@@ -398,7 +409,7 @@ class VarargsTest {
                 5.toChar(),
                 *varargAllChar { it == 3.toChar() },
                 4.toChar(),
-                c = 8
+                c = 8,
             )
         } returns 3
 
@@ -411,8 +422,8 @@ class VarargsTest {
                 3.toChar(),
                 3.toChar(),
                 4.toChar(),
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.charOp(
@@ -422,7 +433,7 @@ class VarargsTest {
                 4.toChar(),
                 4.toChar(),
                 4.toChar(),
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Char>()
@@ -432,7 +443,7 @@ class VarargsTest {
                 5.toChar(),
                 *varargAllChar { it == 3.toChar() },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4.toChar(), slot.captured)
@@ -446,19 +457,20 @@ class VarargsTest {
                 5,
                 *varargAnyShort { it == 3.toShort() },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.shortOp(
+            3,
+            mock.shortOp(
                 7,
                 5,
                 3,
                 6,
                 2,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Short>()
         verify {
@@ -467,7 +479,7 @@ class VarargsTest {
                 5,
                 *varargAnyShort { it == 3.toShort() },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -481,7 +493,7 @@ class VarargsTest {
                 5,
                 *varargAllShort { it == 3.toShort() },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
@@ -493,8 +505,8 @@ class VarargsTest {
                 3,
                 3,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.shortOp(
@@ -504,7 +516,7 @@ class VarargsTest {
                 4,
                 4,
                 4,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Short>()
@@ -514,7 +526,7 @@ class VarargsTest {
                 5,
                 *varargAllShort { it == 3.toShort() },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -528,19 +540,20 @@ class VarargsTest {
                 5,
                 *varargAnyInt { it == 3 },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.intOp(
+            3,
+            mock.intOp(
                 7,
                 5,
                 3,
                 6,
                 2,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Int>()
         verify {
@@ -549,7 +562,7 @@ class VarargsTest {
                 5,
                 *varargAnyInt { it == 3 },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -563,19 +576,20 @@ class VarargsTest {
                 5,
                 *varargAllInt { it == 3 },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.intOp(
+            3,
+            mock.intOp(
                 7,
                 5,
                 3,
                 3,
                 3,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.intOp(
@@ -585,7 +599,7 @@ class VarargsTest {
                 4,
                 4,
                 4,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Int>()
@@ -595,7 +609,7 @@ class VarargsTest {
                 5,
                 *varargAllInt { it == 3 },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -609,19 +623,20 @@ class VarargsTest {
                 5,
                 *varargAnyLong { it == 3L },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.longOp(
+            3,
+            mock.longOp(
                 7,
                 5,
                 3,
                 6,
                 2,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Long>()
         verify {
@@ -630,7 +645,7 @@ class VarargsTest {
                 5,
                 *varargAnyLong { it == 3L },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -644,19 +659,20 @@ class VarargsTest {
                 5,
                 *varargAllLong { it == 3L },
                 4,
-                c = 8
+                c = 8,
             )
         } returns 3
         assertEquals(
-            3, mock.longOp(
+            3,
+            mock.longOp(
                 7,
                 5,
                 3,
                 3,
                 3,
                 4,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.longOp(
@@ -666,7 +682,7 @@ class VarargsTest {
                 4,
                 4,
                 4,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Long>()
@@ -676,7 +692,7 @@ class VarargsTest {
                 5,
                 *varargAllLong { it == 3L },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4, slot.captured)
@@ -690,7 +706,7 @@ class VarargsTest {
                 5.0f,
                 *varargAnyFloat { it == 3.0f },
                 4.0f,
-                c = 8
+                c = 8,
             )
         } returns 3.0f
 
@@ -703,8 +719,8 @@ class VarargsTest {
                 6.0f,
                 2.0f,
                 4.0f,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Float>()
         verify {
@@ -713,7 +729,7 @@ class VarargsTest {
                 5.0f,
                 *varargAnyFloat { it == 3.0f },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4.0f, slot.captured)
@@ -727,7 +743,7 @@ class VarargsTest {
                 5.0f,
                 *varargAllFloat { it == 3.0f },
                 4.0f,
-                c = 8
+                c = 8,
             )
         } returns 3.0f
         assertEquals(
@@ -739,8 +755,8 @@ class VarargsTest {
                 3.0f,
                 3.0f,
                 4.0f,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.floatOp(
@@ -750,7 +766,7 @@ class VarargsTest {
                 4.0f,
                 4.0f,
                 4.0f,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Float>()
@@ -760,7 +776,7 @@ class VarargsTest {
                 5.0f,
                 *varargAllFloat { it == 3.0f },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4.0f, slot.captured)
@@ -774,7 +790,7 @@ class VarargsTest {
                 5.0,
                 *varargAnyDouble { it == 3.0 },
                 4.0,
-                c = 8
+                c = 8,
             )
         } returns 3.0
         assertEquals(
@@ -786,8 +802,8 @@ class VarargsTest {
                 6.0,
                 2.0,
                 4.0,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         val slot = slot<Double>()
         verify {
@@ -796,7 +812,7 @@ class VarargsTest {
                 5.0,
                 *varargAnyDouble { it == 3.0 },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4.0, slot.captured)
@@ -810,7 +826,7 @@ class VarargsTest {
                 5.0,
                 *varargAllDouble { it == 3.0 },
                 4.0,
-                c = 8
+                c = 8,
             )
         } returns 3.0
 
@@ -823,8 +839,8 @@ class VarargsTest {
                 3.0,
                 3.0,
                 4.0,
-                c = 8
-            )
+                c = 8,
+            ),
         )
         assertFails {
             mock.doubleOp(
@@ -834,7 +850,7 @@ class VarargsTest {
                 4.0,
                 4.0,
                 4.0,
-                c = 8
+                c = 8,
             )
         }
         val slot = slot<Double>()
@@ -844,7 +860,7 @@ class VarargsTest {
                 5.0,
                 *varargAllDouble { it == 3.0 },
                 capture(slot),
-                c = 8
+                c = 8,
             )
         }
         assertEquals(4.0, slot.captured)
@@ -868,7 +884,7 @@ class VarargsTest {
             IntWrapper(2),
             IntWrapper(3),
             IntWrapper(4),
-            c = 5
+            c = 5,
         )
 
         val slot1 = CapturingSlot<IntWrapper>()
@@ -878,7 +894,7 @@ class VarargsTest {
             mock.intWrapperOp(
                 1,
                 *anyVararg(),
-                c = 5
+                c = 5,
             )
         }
         verify {
@@ -887,7 +903,7 @@ class VarargsTest {
                 capture(slot1),
                 capture(slot2),
                 *anyVararg(),
-                c = 5
+                c = 5,
             )
         }
 
@@ -895,17 +911,72 @@ class VarargsTest {
         assertEquals(IntWrapper(3), slot2.captured)
     }
 
-    data class IntWrapper(val value: Int)
+    data class IntWrapper(
+        val value: Int,
+    )
 
     class VarargsCls {
-        fun intWrapperOp(a: Int, vararg b: IntWrapper, c: Int, d: Int = 6) = b.sumOf { it.value } + a
-        fun booleanOp(a: Int, vararg b: Boolean, c: Int, d: Int = 6) = b.sumOf { if (it) 1L else 0L } + a
-        fun byteOp(a: Int, vararg b: Byte, c: Int, d: Int = 6) = b.sum() + a
-        fun charOp(a: Int, vararg b: Char, c: Int, d: Int = 6) = b.sumOf { it.code } + a
-        fun shortOp(a: Int, vararg b: Short, c: Int, d: Int = 6) = b.sum() + a
-        fun intOp(a: Int, vararg b: Int, c: Int, d: Int = 6) = b.sum() + a
-        fun longOp(a: Int, vararg b: Long, c: Int, d: Int = 6) = b.sum() + a
-        fun floatOp(a: Int, vararg b: Float, c: Int, d: Int = 6) = b.sum() + a
-        fun doubleOp(a: Int, vararg b: Double, c: Int, d: Int = 6) = b.sum() + a
+        fun intWrapperOp(
+            a: Int,
+            vararg b: IntWrapper,
+            c: Int,
+            d: Int = 6,
+        ) = b.sumOf { it.value } + a
+
+        fun booleanOp(
+            a: Int,
+            vararg b: Boolean,
+            c: Int,
+            d: Int = 6,
+        ) = b.sumOf { if (it) 1L else 0L } + a
+
+        fun byteOp(
+            a: Int,
+            vararg b: Byte,
+            c: Int,
+            d: Int = 6,
+        ) = b.sum() + a
+
+        fun charOp(
+            a: Int,
+            vararg b: Char,
+            c: Int,
+            d: Int = 6,
+        ) = b.sumOf { it.code } + a
+
+        fun shortOp(
+            a: Int,
+            vararg b: Short,
+            c: Int,
+            d: Int = 6,
+        ) = b.sum() + a
+
+        fun intOp(
+            a: Int,
+            vararg b: Int,
+            c: Int,
+            d: Int = 6,
+        ) = b.sum() + a
+
+        fun longOp(
+            a: Int,
+            vararg b: Long,
+            c: Int,
+            d: Int = 6,
+        ) = b.sum() + a
+
+        fun floatOp(
+            a: Int,
+            vararg b: Float,
+            c: Int,
+            d: Int = 6,
+        ) = b.sum() + a
+
+        fun doubleOp(
+            a: Int,
+            vararg b: Double,
+            c: Int,
+            d: Int = 6,
+        ) = b.sum() + a
     }
 }

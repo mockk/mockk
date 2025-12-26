@@ -9,6 +9,6 @@ interface MockKInvocationHandler {
         self: Any,
         method: Method?,
         originalCall: Callable<*>?,
-        args: Array<Any?>
+        args: Array<Any?>,
     ): Any?
 }

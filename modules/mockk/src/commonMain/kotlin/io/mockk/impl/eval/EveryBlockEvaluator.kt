@@ -10,13 +10,13 @@ import io.mockk.impl.recording.AutoHinter
 
 class EveryBlockEvaluator(
     callRecorder: () -> CallRecorder,
-    autoHinterFactory: () -> AutoHinter
-) : RecordedBlockEvaluator(callRecorder, autoHinterFactory), Stubber {
-
+    autoHinterFactory: () -> AutoHinter,
+) : RecordedBlockEvaluator(callRecorder, autoHinterFactory),
+    Stubber {
     @Suppress("UNCHECKED_CAST")
     override fun <T> every(
         mockBlock: (MockKMatcherScope.() -> T)?,
-        coMockBlock: (suspend MockKMatcherScope.() -> T)?
+        coMockBlock: (suspend MockKMatcherScope.() -> T)?,
     ): MockKStubScope<T, T> {
         if (coMockBlock != null) {
             initializeCoroutines()

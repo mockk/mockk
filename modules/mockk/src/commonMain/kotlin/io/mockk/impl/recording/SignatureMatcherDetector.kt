@@ -10,7 +10,7 @@ import io.mockk.impl.log.SafeToString
 
 class SignatureMatcherDetector(
     safeToString: SafeToString,
-    val chainedCallDetectorFactory: ChainedCallDetectorFactory
+    val chainedCallDetectorFactory: ChainedCallDetectorFactory,
 ) {
     val calls = mutableListOf<RecordedCall>()
     val log = safeToString(Logger<SignatureMatcherDetector>())
@@ -22,23 +22,26 @@ class SignatureMatcherDetector(
 
         fun checkAllSameNumberOfCalls() {
             if (callRounds.any { it.calls.size != nCalls }) {
-                throw MockKException("every/verify {} block were run several times. Recorded calls count differ between runs\n" +
+                throw MockKException(
+                    "every/verify {} block were run several times. Recorded calls count differ between runs\n" +
                         callRounds.withIndex().joinToString("\n") { (index, value) ->
                             val calls = value.calls.joinToString(", ") { it.invocationStr }
                             "Round ${index + 1}: $calls"
-                        }
+                        },
                 )
             }
         }
 
         val nMatchers = callRounds[0].matchers.size
+
         fun checkAllSameNumberOfMatchers() {
             if (callRounds.any { it.matchers.size != nMatchers }) {
-                throw MockKException("every/verify {} block were run several times. Recorded matchers count differ between runs\n" +
+                throw MockKException(
+                    "every/verify {} block were run several times. Recorded matchers count differ between runs\n" +
                         callRounds.withIndex().joinToString("\n") { (index, value) ->
                             val matchers = value.matchers.joinToString(", ") { it.toString() }
                             "Round ${index + 1}: $matchers"
-                        }
+                        },
                 )
             }
         }
@@ -52,9 +55,11 @@ class SignatureMatcherDetector(
                 val signature = callRounds.map { it.matchers[nMatcher].signature }
 
                 if (matcher is CompositeMatcher<*>) {
-                    allCompositeMatchers.add(callRounds.map {
-                        it.matchers[nMatcher].matcher as CompositeMatcher<*>
-                    })
+                    allCompositeMatchers.add(
+                        callRounds.map {
+                            it.matchers[nMatcher].matcher as CompositeMatcher<*>
+                        },
+                    )
                 }
 
                 matcherMap[signature] = matcher
@@ -68,16 +73,19 @@ class SignatureMatcherDetector(
             for (compositeMatchers in allCompositeMatchers) {
                 val matcher = compositeMatchers.last()
 
-                matcher.subMatchers = matcher.operandValues.withIndex().map { (nOp, _) ->
-                    val signature = compositeMatchers.map {
-                        InternalPlatform.packRef(it.operandValues[nOp])
-                    }.toList()
+                matcher.subMatchers =
+                    matcher.operandValues.withIndex().map { (nOp, _) ->
+                        val signature =
+                            compositeMatchers
+                                .map {
+                                    InternalPlatform.packRef(it.operandValues[nOp])
+                                }.toList()
 
-                    log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
+                        log.trace { "Signature for $nOp operand of $matcher composite matcher: $signature" }
 
-                    matcherMap.remove(signature)
-                        ?: ChainedCallDetector.eqOrNullMatcher(matcher.operandValues[nOp])
-                } as List<Matcher<Any?>>?
+                        matcherMap.remove(signature)
+                            ?: ChainedCallDetector.eqOrNullMatcher(matcher.operandValues[nOp])
+                    } as List<Matcher<Any?>>?
             }
         }
 
@@ -99,12 +107,13 @@ class SignatureMatcherDetector(
 
             // If there are matchers but no recorded calls (= likely an inline mocking attempt), add a hint
             val inlineHint =
-                if (nMatchers > 0 && nCalls == 0)
+                if (nMatchers > 0 && nCalls == 0) {
                     "\nNote: if you tried to stub a Kotlin inline function, it cannot be mocked. " +
-                            "Inline functions are inlined at call sites, so no call is recorded. " +
-                            "Extract a non-inline wrapper or mock the dependencies used inside the inline function."
-                else
+                        "Inline functions are inlined at call sites, so no call is recorded. " +
+                        "Extract a non-inline wrapper or mock the dependencies used inside the inline function."
+                } else {
                     ""
+                }
 
             throw MockKException(base + inlineHint)
         }

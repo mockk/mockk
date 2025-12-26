@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.fail
 
 class JvmAnyValueGeneratorTest {
-
     private val generator = JvmAnyValueGenerator("")
 
     private val failOnPassThrough = { fail("Passed trough") }

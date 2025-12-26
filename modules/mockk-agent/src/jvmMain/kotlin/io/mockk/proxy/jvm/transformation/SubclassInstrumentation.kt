@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 internal class SubclassInstrumentation(
     private val log: MockKAgentLogger,
     private val handlers: MockHandlerMap,
-    private val byteBuddy: ByteBuddy
+    private val byteBuddy: ByteBuddy,
 ) {
     private val bootstrapMonitor = Any()
     private val proxyClassCache = TypeCache<CacheKey>(TypeCache.Sort.WEAK)
@@ -35,13 +35,12 @@ internal class SubclassInstrumentation(
             }
         }
         AdviceBuilder().build()
-
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <T> subclass(
         clazz: Class<T>,
-        interfaces: Array<Class<*>>
+        interfaces: Array<Class<*>>,
     ): Class<T> {
         val key = CacheKey(clazz, interfaces.toSet())
         val classLoader = clazz.classLoader
@@ -51,36 +50,42 @@ internal class SubclassInstrumentation(
             classLoader,
             key,
             { doInterceptedSubclassing(clazz, interfaces) },
-            monitor
+            monitor,
         ) as Class<T>
     }
 
     private fun <T> doInterceptedSubclassing(
         clazz: Class<T>,
-        interfaces: Array<Class<*>>
+        interfaces: Array<Class<*>>,
     ): Class<out T> {
-        val resultClassLoader = MultipleParentClassLoader.Builder()
-            .append(clazz)
-            .append(*interfaces)
-            .append(currentThread().contextClassLoader)
-            .append(JvmMockKProxyInterceptor::class.java)
-            .build(JvmMockKProxyInterceptor::class.java.classLoader)
+        val resultClassLoader =
+            MultipleParentClassLoader
+                .Builder()
+                .append(clazz)
+                .append(*interfaces)
+                .append(currentThread().contextClassLoader)
+                .append(JvmMockKProxyInterceptor::class.java)
+                .build(JvmMockKProxyInterceptor::class.java.classLoader)
 
-        val interceptor = MethodDelegation.withDefaultConfiguration()
-            .withBinders(
-                TargetMethodAnnotationDrivenBinder.ParameterBinder.ForFixedValue.OfConstant.of(
-                    ProxyAdviceId::class.java, interceptor.id
-                )
-            )
-            .to(JvmMockKProxyInterceptor::class.java)
+        val interceptor =
+            MethodDelegation
+                .withDefaultConfiguration()
+                .withBinders(
+                    TargetMethodAnnotationDrivenBinder.ParameterBinder.ForFixedValue.OfConstant.of(
+                        ProxyAdviceId::class.java,
+                        interceptor.id,
+                    ),
+                ).to(JvmMockKProxyInterceptor::class.java)
 
-        val type = byteBuddy.subclass(clazz)
-            .implement(*interfaces)
-            .annotateType(*clazz.annotations)
-            .method(any<Any>())
-            .intercept(interceptor)
-            .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
-            .make()
+        val type =
+            byteBuddy
+                .subclass(clazz)
+                .implement(*interfaces)
+                .annotateType(*clazz.annotations)
+                .method(any<Any>())
+                .intercept(interceptor)
+                .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
+                .make()
 
         try {
             val property = System.getProperty("io.mockk.classdump.path")
