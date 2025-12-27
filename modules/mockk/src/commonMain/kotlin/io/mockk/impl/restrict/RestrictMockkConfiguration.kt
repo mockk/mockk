@@ -1,11 +1,11 @@
 package io.mockk.impl.restrict
 
-import io.mockk.impl.restrict.propertiesloader.DefaultPropertiesLoader
-import io.mockk.impl.restrict.propertiesloader.PropertiesLoader
+import io.mockk.core.config.PropertiesLoader
+import io.mockk.core.config.UnifiedPropertiesLoader
 import java.util.Properties
 
 class RestrictMockkConfiguration(
-    propertiesLoader: PropertiesLoader = DefaultPropertiesLoader(),
+    propertiesLoader: PropertiesLoader = UnifiedPropertiesLoader,
 ) {
     val userDefinedRestrictedTypes: Set<String>
     val restrictedTypes: Set<String>
