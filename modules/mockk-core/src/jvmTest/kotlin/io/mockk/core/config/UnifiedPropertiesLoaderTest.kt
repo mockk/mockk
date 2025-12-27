@@ -2,8 +2,7 @@ package io.mockk.core.config
 
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.writeText
+import java.nio.file.StandardOpenOption
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -49,12 +48,12 @@ class UnifiedPropertiesLoaderTest {
     ) {
         getRoot().resolve(path.removePrefix("/")).run {
             parent?.let { Files.createDirectories(it) }
-            writeText(content)
+            Files.writeString(this, content, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
         }
     }
 
     private fun deleteFromClasspath(path: String) {
-        getRoot().resolve(path.removePrefix("/")).deleteExisting()
+        Files.delete(getRoot().resolve(path.removePrefix("/")))
     }
 
     private fun getRoot(): Path = Path.of(this::class.java.getResource("/")!!.toURI())

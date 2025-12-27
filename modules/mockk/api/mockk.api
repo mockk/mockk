@@ -935,11 +935,6 @@ public final class io/mockk/impl/restrict/RestrictMockkConfiguration {
 public final class io/mockk/impl/restrict/RestrictMockkConfiguration$Companion {
 }
 
-public final class io/mockk/impl/restrict/propertiesloader/DefaultPropertiesLoader : io/mockk/core/config/PropertiesLoader {
-	public fun <init> ()V
-	public fun loadProperties ()Ljava/util/Properties;
-}
-
 public final class io/mockk/impl/stub/AnswerAnsweringOpportunity : io/mockk/Answer, io/mockk/MockKGateway$AnswerOpportunity {
 	public fun <init> (Lkotlin/jvm/functions/Function0;)V
 	public fun answer (Lio/mockk/Call;)Ljava/lang/Object;
