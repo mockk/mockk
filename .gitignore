@@ -7,8 +7,6 @@ build/
 .gradle/
 .kotlin
 
-.kotlin/
-
 *.iml
 hs_err_*
 replay_*
