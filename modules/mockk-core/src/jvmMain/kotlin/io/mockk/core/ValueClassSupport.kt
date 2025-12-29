@@ -37,6 +37,8 @@ actual object ValueClassSupport {
         if (method.name.endsWith("unbox-impl")) return this.boxedValue
 
         val kFunction = method.kotlinFunction
+        // It is possible that the method is a getter for a property, in which
+        // case we can check the property's return type in kotlin
         val kProperty = if (kFunction == null) findMatchingPropertyWithJavaGetter(method) else null
 
         val expectedReturnType = when {
@@ -61,6 +63,8 @@ actual object ValueClassSupport {
             else -> false
         }
 
+        // Use innermostBoxedClass with recursion limit to avoid infinite loops
+        // (issue #1103) while still handling nested value classes (issue #1308)
         val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
         val isExpectedTypeValueClass = expectedReturnType == resultType
         val isExpectedTypeSupertype = expectedReturnType != resultType &&

@@ -16,11 +16,12 @@ internal class Interceptor(
 ) : Callable<Any?> {
     override fun call(): Any? {
         // Wrap call to eliminate self-recursion when invoking the original implementation.
-        val callOriginalMethod = SelfCallEliminatorCallable(
-            MethodCall(self, method, arguments),
-            self,
-            method
-        )
+        val callOriginalMethod =
+            SelfCallEliminatorCallable(
+                MethodCall(self, method, arguments),
+                self,
+                method,
+            )
         // Delegate to handler and unbox value-class results if needed for the return type.
         return handler.invocation(self, method, callOriginalMethod, arguments)
             ?.maybeUnboxValueForMethodReturn(method)
