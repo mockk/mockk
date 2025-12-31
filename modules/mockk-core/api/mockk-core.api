@@ -7,3 +7,18 @@ public final class io/mockk/core/ValueClassSupport {
 	public final fun maybeUnboxValueForMethodReturn (Ljava/lang/Object;Ljava/lang/reflect/Method;)Ljava/lang/Object;
 }
 
+public abstract interface class io/mockk/core/config/PropertiesLoader {
+	public abstract fun loadProperties ()Ljava/util/Properties;
+}
+
+public final class io/mockk/core/config/UnifiedPropertiesLoader : io/mockk/core/config/PropertiesLoader {
+	public static final field Companion Lio/mockk/core/config/UnifiedPropertiesLoader$Companion;
+	public static final field LEGACY_PROPERTIES_FILE Ljava/lang/String;
+	public static final field UNIFIED_PROPERTIES_FILE Ljava/lang/String;
+	public fun <init> ()V
+	public fun loadProperties ()Ljava/util/Properties;
+}
+
+public final class io/mockk/core/config/UnifiedPropertiesLoader$Companion {
+}
+
