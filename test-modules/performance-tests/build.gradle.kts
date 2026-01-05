@@ -1,4 +1,3 @@
-import buildsrc.config.Deps
 import kotlinx.benchmark.gradle.JvmBenchmarkTarget
 import kotlinx.benchmark.gradle.benchmark
 
