@@ -1,7 +1,6 @@
 package io.mockk
 
 import kotlin.coroutines.Continuation
-import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 
 actual object InternalPlatformDsl {
