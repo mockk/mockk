@@ -39,7 +39,10 @@ class UnifiedPropertiesLoaderTest {
         deleteFromClasspath(UnifiedPropertiesLoader.LEGACY_PROPERTIES_FILE)
     }
 
-    private fun writeToClasspath(path: String, content: String) {
+    private fun writeToClasspath(
+        path: String,
+        content: String,
+    ) {
         resolveFromClasspath(path).run {
             parent?.let { Files.createDirectories(it) }
             Files.writeString(this, content)
