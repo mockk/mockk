@@ -14,3 +14,4 @@ ij_kotlin_packages_to_use_import_on_demand = unset
 
 # ktlint
 ktlint_standard_no-unused-imports = enabled
+ktlint_standard_no-wildcard-imports = enabled
