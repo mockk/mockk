@@ -41,11 +41,12 @@ actual object ValueClassSupport {
         // case we can check the property's return type in kotlin
         val kProperty = if (kFunction == null) findMatchingPropertyWithJavaGetter(method) else null
 
-        val expectedReturnType = when {
-            kFunction != null -> kFunction.returnType.classifier
-            kProperty != null -> kProperty.returnType.classifier
-            else -> return this
-        }
+        val expectedReturnType =
+            when {
+                kFunction != null -> kFunction.returnType.classifier
+                kProperty != null -> kProperty.returnType.classifier
+                else -> return this
+            }
 
         // For generic return types, use a cached MethodHandle to probe for null.
         // This avoids calling mocked/intercepted property getters.
@@ -57,17 +58,19 @@ actual object ValueClassSupport {
             return this
         }
 
-        val isReturnNullable = when {
-            kFunction != null -> kFunction.returnType.isMarkedNullable
-            kProperty != null -> kProperty.returnType.isMarkedNullable
-            else -> false
-        }
+        val isReturnNullable =
+            when {
+                kFunction != null -> kFunction.returnType.isMarkedNullable
+                kProperty != null -> kProperty.returnType.isMarkedNullable
+                else -> false
+            }
 
         // Use innermostBoxedClass with recursion limit to avoid infinite loops
         // (issue #1103) while still handling nested value classes (issue #1308)
         val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
         val isExpectedTypeValueClass = expectedReturnType == resultType
-        val isExpectedTypeSupertype = expectedReturnType != resultType &&
+        val isExpectedTypeSupertype =
+            expectedReturnType != resultType &&
                 expectedReturnType.isSuperclassOf(resultType)
 
         return when {
@@ -165,9 +168,10 @@ actual object ValueClassSupport {
         return valueClassUnboxHandleCache.getOrPut(this) {
             try {
                 // Find zero-arg Kotlin synthetic unbox method: *unbox-impl
-                val unboxImplMethod = this.java.declaredMethods.firstOrNull {
-                    it.name.endsWith("unbox-impl") && it.parameterCount == 0
-                } ?: return@getOrPut null
+                val unboxImplMethod =
+                    this.java.declaredMethods.firstOrNull {
+                        it.name.endsWith("unbox-impl") && it.parameterCount == 0
+                    } ?: return@getOrPut null
                 unboxImplMethod.isAccessible = true
                 // Prefer MethodHandle to avoid reflective exceptions on hot path
                 methodHandleLookup.unreflect(unboxImplMethod)

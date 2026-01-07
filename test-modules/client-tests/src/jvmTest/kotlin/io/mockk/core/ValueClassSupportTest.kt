@@ -9,7 +9,6 @@ import org.junit.jupiter.api.assertNull
 import kotlin.test.assertEquals
 
 class ValueClassSupportTest {
-
     /** https://github.com/mockk/mockk/issues/868 */
     @Test
     fun `verify Java class does not cause KotlinReflectionInternalError`() {
@@ -27,9 +26,10 @@ class ValueClassSupportTest {
     @Test
     fun `verify value class parameter does not cause ClassCastException`() {
         val testValue = ValueClass("testing")
-        val mock = mockk<TestDataClass> {
-            every { v } returns testValue
-        }
+        val mock =
+            mockk<TestDataClass> {
+                every { v } returns testValue
+            }
         assertEquals(testValue, mock.v)
     }
 
@@ -37,9 +37,10 @@ class ValueClassSupportTest {
     fun `verify regular class is not affected by value class logic`() {
         val testValue = RegularClass("regular")
 
-        val mock = mockk<ValueClassService> {
-            every { getRegularClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getRegularClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getRegularClass())
     }
@@ -48,9 +49,10 @@ class ValueClassSupportTest {
     fun `verify value class`() {
         val testValue = ValueClass("direct")
 
-        val mock = mockk<ValueClassService> {
-            every { getValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getValueClass())
     }
@@ -59,18 +61,20 @@ class ValueClassSupportTest {
     fun `verify nullable value class`() {
         val testValue = ValueClass("nullable")
 
-        val mock = mockk<ValueClassService> {
-            every { getNullableValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullableValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getNullableValueClass())
     }
 
     @Test
     fun `verify null value for nullable value class`() {
-        val mock = mockk<ValueClassService> {
-            every { getNullableValueClass() } returns null
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullableValueClass() } returns null
+            }
 
         assertNull(mock.getNullableValueClass())
     }
@@ -79,9 +83,10 @@ class ValueClassSupportTest {
     fun `verify value class property`() {
         val testValue = ValueClass("property")
 
-        val mock = mockk<ValueClassService> {
-            every { valueClassProperty } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { valueClassProperty } returns testValue
+            }
 
         assertEquals(testValue, mock.valueClassProperty)
     }
@@ -90,18 +95,20 @@ class ValueClassSupportTest {
     fun `verify nullable value class property`() {
         val testValue = ValueClass("property")
 
-        val mock = mockk<ValueClassService> {
-            every { nullableValueClassProperty } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { nullableValueClassProperty } returns testValue
+            }
 
         assertEquals(testValue, mock.nullableValueClassProperty)
     }
 
     @Test
     fun `verify null value for nullable value class property`() {
-        val mock = mockk<ValueClassService> {
-            every { nullableValueClassProperty } returns null
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { nullableValueClassProperty } returns null
+            }
 
         assertNull(mock.nullableValueClassProperty)
     }
@@ -110,9 +117,10 @@ class ValueClassSupportTest {
     fun `verify value class with primitive underlying type`() {
         val testValue = PrimitiveValueClass(0)
 
-        val mock = mockk<ValueClassService> {
-            every { getPrimitiveValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getPrimitiveValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getPrimitiveValueClass())
     }
@@ -121,18 +129,20 @@ class ValueClassSupportTest {
     fun `verify nullable value class with primitive underlying type`() {
         val testValue = PrimitiveValueClass(0)
 
-        val mock = mockk<ValueClassService> {
-            every { getNullablePrimitiveValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullablePrimitiveValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getNullablePrimitiveValueClass())
     }
 
     @Test
     fun `verify null value for nullable value class with primitive underlying type`() {
-        val mock = mockk<ValueClassService> {
-            every { getNullablePrimitiveValueClass() } returns null
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullablePrimitiveValueClass() } returns null
+            }
 
         assertNull(mock.getNullablePrimitiveValueClass())
     }
@@ -141,9 +151,10 @@ class ValueClassSupportTest {
     fun `verify value class returned as Any`() {
         val testValue = ValueClass("any")
 
-        val mock = mockk<ValueClassService> {
-            every { getValueClassAsAny() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getValueClassAsAny() } returns testValue
+            }
 
         assertEquals(testValue, mock.getValueClassAsAny())
     }
@@ -153,9 +164,10 @@ class ValueClassSupportTest {
     fun `verify generic value class`() {
         val testValue = ValueClass("generic")
 
-        val mock = mockk<GenericValueClassService<ValueClass>> {
-            every { getGenericValueClass() } returns testValue
-        }
+        val mock =
+            mockk<GenericValueClassService<ValueClass>> {
+                every { getGenericValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getGenericValueClass())
     }
@@ -165,9 +177,10 @@ class ValueClassSupportTest {
     fun `verify nullable generic value class`() {
         val testValue = ValueClass("generic")
 
-        val mock = mockk<GenericValueClassService<ValueClass?>> {
-            every { getGenericValueClass() } returns testValue
-        }
+        val mock =
+            mockk<GenericValueClassService<ValueClass?>> {
+                every { getGenericValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getGenericValueClass())
     }
@@ -175,9 +188,10 @@ class ValueClassSupportTest {
     /** https://github.com/mockk/mockk/issues/1342 */
     @Test
     fun `verify null value for nullable generic value class`() {
-        val mock = mockk<GenericValueClassService<ValueClass?>> {
-            every { getGenericValueClass() } returns null
-        }
+        val mock =
+            mockk<GenericValueClassService<ValueClass?>> {
+                every { getGenericValueClass() } returns null
+            }
 
         assertNull(mock.getGenericValueClass())
     }
@@ -187,9 +201,10 @@ class ValueClassSupportTest {
     fun `verify generic value class property`() {
         val testValue = ValueClass("generic")
 
-        val mock = mockk<GenericValueClassService<ValueClass>> {
-            every { genericValueClassProperty } returns testValue
-        }
+        val mock =
+            mockk<GenericValueClassService<ValueClass>> {
+                every { genericValueClassProperty } returns testValue
+            }
 
         assertEquals(testValue, mock.genericValueClassProperty)
     }
@@ -199,9 +214,10 @@ class ValueClassSupportTest {
     fun `verify nullable generic value class property`() {
         val testValue = ValueClass("direct")
 
-        val mock = mockk<GenericValueClassService<ValueClass?>> {
-            every { genericValueClassProperty } returns testValue
-        }
+        val mock =
+            mockk<GenericValueClassService<ValueClass?>> {
+                every { genericValueClassProperty } returns testValue
+            }
 
         assertEquals(testValue, mock.genericValueClassProperty)
     }
@@ -209,9 +225,10 @@ class ValueClassSupportTest {
     /** https://github.com/mockk/mockk/issues/1342 */
     @Test
     fun `verify null value for nullable generic value class property`() {
-        val mock = mockk<GenericValueClassService<ValueClass?>> {
-            every { genericValueClassProperty } returns null
-        }
+        val mock =
+            mockk<GenericValueClassService<ValueClass?>> {
+                every { genericValueClassProperty } returns null
+            }
 
         assertNull(mock.genericValueClassProperty)
     }
@@ -221,9 +238,10 @@ class ValueClassSupportTest {
     fun `verify value class returned as its interface type`() {
         val testValue = ValueClass("as interface type")
 
-        val mock = mockk<ValueClassService> {
-            every { getValueClassAsInterfaceType() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getValueClassAsInterfaceType() } returns testValue
+            }
 
         assertEquals(testValue, mock.getValueClassAsInterfaceType())
     }
@@ -233,9 +251,10 @@ class ValueClassSupportTest {
     fun `verify nullable value class returned as its interface type`() {
         val testValue = ValueClass("as interface type")
 
-        val mock = mockk<ValueClassService> {
-            every { getNullableValueClassAsInterfaceType() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullableValueClassAsInterfaceType() } returns testValue
+            }
 
         assertEquals(testValue, mock.getNullableValueClassAsInterfaceType())
     }
@@ -243,9 +262,10 @@ class ValueClassSupportTest {
     /** https://github.com/mockk/mockk/issues/1342 */
     @Test
     fun `verify null value for nullable value class returned as its interface type`() {
-        val mock = mockk<ValueClassService> {
-            every { getNullableValueClassAsInterfaceType() } returns null
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullableValueClassAsInterfaceType() } returns null
+            }
 
         assertNull(mock.getNullableValueClassAsInterfaceType())
     }
@@ -255,9 +275,10 @@ class ValueClassSupportTest {
     fun `verify value class property of its interface type`() {
         val testValue = ValueClass("as interface type property")
 
-        val mock = mockk<ValueClassService> {
-            every { valueClassAsInterfaceTypeProperty } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { valueClassAsInterfaceTypeProperty } returns testValue
+            }
 
         assertEquals(testValue, mock.valueClassAsInterfaceTypeProperty)
     }
@@ -267,9 +288,10 @@ class ValueClassSupportTest {
     fun `verify nullable value class property of its interface type`() {
         val testValue = ValueClass("as interface type property")
 
-        val mock = mockk<ValueClassService> {
-            every { nullableValueClassAsInterfaceTypeProperty } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { nullableValueClassAsInterfaceTypeProperty } returns testValue
+            }
 
         assertEquals(testValue, mock.nullableValueClassAsInterfaceTypeProperty)
     }
@@ -277,9 +299,10 @@ class ValueClassSupportTest {
     /** https://github.com/mockk/mockk/issues/1342 */
     @Test
     fun `verify null value for nullable value class property of its interface type`() {
-        val mock = mockk<ValueClassService> {
-            every { nullableValueClassAsInterfaceTypeProperty } returns null
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { nullableValueClassAsInterfaceTypeProperty } returns null
+            }
 
         assertNull(mock.nullableValueClassAsInterfaceTypeProperty)
     }
@@ -289,9 +312,10 @@ class ValueClassSupportTest {
     fun `verify nested value class`() {
         val testValue = NestedValueClass(ValueClass("nested"))
 
-        val mock = mockk<ValueClassService> {
-            every { getNestedValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNestedValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getNestedValueClass())
     }
@@ -301,9 +325,10 @@ class ValueClassSupportTest {
     fun `verify nested value class with primitive underlying type`() {
         val testValue = NestedPrimitiveValueClass(PrimitiveValueClass(1))
 
-        val mock = mockk<ValueClassService> {
-            every { getNestedPrimitiveValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNestedPrimitiveValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getNestedPrimitiveValueClass())
     }
@@ -313,9 +338,10 @@ class ValueClassSupportTest {
     fun `verify nullable nested value class with primitive underlying type`() {
         val testValue = NestedPrimitiveValueClass(PrimitiveValueClass(1))
 
-        val mock = mockk<ValueClassService> {
-            every { getNullableNestedPrimitiveValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullableNestedPrimitiveValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getNullableNestedPrimitiveValueClass())
     }
@@ -323,9 +349,10 @@ class ValueClassSupportTest {
     /** https://github.com/mockk/mockk/issues/1308 */
     @Test
     fun `verify null value for nullable nested value class with primitive underlying type`() {
-        val mock = mockk<ValueClassService> {
-            every { getNullableNestedPrimitiveValueClass() } returns null
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getNullableNestedPrimitiveValueClass() } returns null
+            }
 
         assertNull(mock.getNullableNestedPrimitiveValueClass())
     }
@@ -335,9 +362,10 @@ class ValueClassSupportTest {
     fun `verify deeply nested value class`() {
         val testValue = DeeplyNestedValueClass(NestedValueClass(ValueClass("deeply nested")))
 
-        val mock = mockk<ValueClassService> {
-            every { getDeeplyNestedValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getDeeplyNestedValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getDeeplyNestedValueClass())
     }
@@ -347,9 +375,10 @@ class ValueClassSupportTest {
     fun `verify deeply nested primitive value class`() {
         val testValue = DeeplyNestedPrimitiveValueClass(NestedPrimitiveValueClass(PrimitiveValueClass(1)))
 
-        val mock = mockk<ValueClassService> {
-            every { getDeeplyNestedPrimitiveValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getDeeplyNestedPrimitiveValueClass() } returns testValue
+            }
 
         assertEquals(testValue, mock.getDeeplyNestedPrimitiveValueClass())
     }
@@ -359,9 +388,10 @@ class ValueClassSupportTest {
     fun `verify Result value class`() {
         val testValue = Result.success("success")
 
-        val mock = mockk<ValueClassService> {
-            every { getResult() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                every { getResult() } returns testValue
+            }
 
         assertEquals(testValue, mock.getResult())
     }
@@ -370,9 +400,10 @@ class ValueClassSupportTest {
     fun `verify suspend function returning a value class`() {
         val testValue = ValueClass("suspend")
 
-        val mock = mockk<ValueClassService> {
-            coEvery { getSuspendValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                coEvery { getSuspendValueClass() } returns testValue
+            }
 
         val result = runBlocking { mock.getSuspendValueClass() }
 
@@ -383,9 +414,10 @@ class ValueClassSupportTest {
     fun `verify suspend function returning a nullable value class`() {
         val testValue = ValueClass("suspend")
 
-        val mock = mockk<ValueClassService> {
-            coEvery { getSuspendNullableValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                coEvery { getSuspendNullableValueClass() } returns testValue
+            }
 
         val result = runBlocking { mock.getSuspendNullableValueClass() }
 
@@ -394,9 +426,10 @@ class ValueClassSupportTest {
 
     @Test
     fun `verify suspend function returning null value for a nullable value class`() {
-        val mock = mockk<ValueClassService> {
-            coEvery { getSuspendNullableValueClass() } returns null
-        }
+        val mock =
+            mockk<ValueClassService> {
+                coEvery { getSuspendNullableValueClass() } returns null
+            }
 
         val result = runBlocking { mock.getSuspendNullableValueClass() }
 
@@ -407,9 +440,10 @@ class ValueClassSupportTest {
     fun `verify suspend function returning a value class with primitive underlying type`() {
         val testValue = PrimitiveValueClass(0)
 
-        val mock = mockk<ValueClassService> {
-            coEvery { getSuspendPrimitiveValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                coEvery { getSuspendPrimitiveValueClass() } returns testValue
+            }
 
         val result = runBlocking { mock.getSuspendPrimitiveValueClass() }
 
@@ -421,9 +455,10 @@ class ValueClassSupportTest {
     fun `verify suspend function returning a nested primitive value class`() {
         val testValue = NestedPrimitiveValueClass(PrimitiveValueClass(1))
 
-        val mock = mockk<ValueClassService> {
-            coEvery { getSuspendNestedPrimitiveValueClass() } returns testValue
-        }
+        val mock =
+            mockk<ValueClassService> {
+                coEvery { getSuspendNestedPrimitiveValueClass() } returns testValue
+            }
 
         val result = runBlocking { mock.getSuspendNestedPrimitiveValueClass() }
 
@@ -446,56 +481,94 @@ private class MockTarget {
     fun func(): JavaEnum = JavaEnum.A
 }
 
-internal data class RegularClass(val s: String)
+internal data class RegularClass(
+    val s: String,
+)
 
 internal interface ValueClassSuperType
 
 @JvmInline
-internal value class ValueClass(val s: String) : ValueClassSuperType
+internal value class ValueClass(
+    val s: String,
+) : ValueClassSuperType
 
 @JvmInline
-internal value class PrimitiveValueClass(val value: Int)
+internal value class PrimitiveValueClass(
+    val value: Int,
+)
 
 @JvmInline
-internal value class NestedValueClass(val inner: ValueClass)
+internal value class NestedValueClass(
+    val inner: ValueClass,
+)
 
 @JvmInline
-internal value class NestedPrimitiveValueClass(val inner: PrimitiveValueClass)
+internal value class NestedPrimitiveValueClass(
+    val inner: PrimitiveValueClass,
+)
 
 @JvmInline
-internal value class DeeplyNestedValueClass(val inner: NestedValueClass)
+internal value class DeeplyNestedValueClass(
+    val inner: NestedValueClass,
+)
 
 @JvmInline
-internal value class DeeplyNestedPrimitiveValueClass(val inner: NestedPrimitiveValueClass)
+internal value class DeeplyNestedPrimitiveValueClass(
+    val inner: NestedPrimitiveValueClass,
+)
 
 internal interface ValueClassService {
     fun getRegularClass(): RegularClass
+
     fun getValueClass(): ValueClass
+
     val valueClassProperty: ValueClass
+
     fun getNullableValueClass(): ValueClass?
+
     val nullableValueClassProperty: ValueClass?
+
     fun getPrimitiveValueClass(): PrimitiveValueClass
+
     fun getNullablePrimitiveValueClass(): PrimitiveValueClass?
+
     fun getNestedValueClass(): NestedValueClass
+
     fun getNestedPrimitiveValueClass(): NestedPrimitiveValueClass
+
     fun getNullableNestedPrimitiveValueClass(): NestedPrimitiveValueClass?
+
     fun getDeeplyNestedValueClass(): DeeplyNestedValueClass
+
     fun getDeeplyNestedPrimitiveValueClass(): DeeplyNestedPrimitiveValueClass
+
     fun getResult(): Result<String>
+
     fun getValueClassAsAny(): Any
+
     fun getValueClassAsInterfaceType(): ValueClassSuperType
+
     val valueClassAsInterfaceTypeProperty: ValueClassSuperType
+
     fun getNullableValueClassAsInterfaceType(): ValueClassSuperType?
+
     val nullableValueClassAsInterfaceTypeProperty: ValueClassSuperType?
+
     suspend fun getSuspendValueClass(): ValueClass
+
     suspend fun getSuspendNullableValueClass(): ValueClass?
+
     suspend fun getSuspendPrimitiveValueClass(): PrimitiveValueClass
+
     suspend fun getSuspendNestedPrimitiveValueClass(): NestedPrimitiveValueClass
 }
 
-private data class TestDataClass(val v: ValueClassSuperType)
+private data class TestDataClass(
+    val v: ValueClassSuperType,
+)
 
 internal interface GenericValueClassService<T> {
     fun getGenericValueClass(): T
+
     val genericValueClassProperty: T
 }
