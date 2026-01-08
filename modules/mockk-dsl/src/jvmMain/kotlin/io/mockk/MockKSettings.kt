@@ -1,15 +1,9 @@
 package io.mockk
 
-import java.util.Properties
+import io.mockk.core.config.UnifiedPropertiesLoader
 
 actual object MockKSettings {
-    private val properties = Properties()
-
-    init {
-        MockKSettings::class.java
-            .getResourceAsStream("settings.properties")
-            ?.use(properties::load)
-    }
+    private val properties = UnifiedPropertiesLoader.loadProperties()
 
     private fun booleanProperty(
         property: String,

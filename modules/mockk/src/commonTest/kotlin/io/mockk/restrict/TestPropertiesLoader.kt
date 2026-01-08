@@ -1,6 +1,6 @@
 package io.mockk.restrict
 
-import io.mockk.impl.restrict.propertiesloader.PropertiesLoader
+import io.mockk.core.config.PropertiesLoader
 import java.util.Properties
 
 class TestPropertiesLoader(
