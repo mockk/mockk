@@ -75,12 +75,14 @@ class MockInjector(
 
     private fun matchParameter(param: KParameter): Any? =
         lookupValueByName(param.name, param.type.classifier)
+            ?: lookupListValues(param)
             ?: lookupValueByType(param.type.classifier)
             ?: if (param.isOptional) null else throw MockKException("Parameter unmatched: $param")
 
     private fun tryMatchingParameters(parameters: List<KParameter>): Boolean =
         parameters.all { param ->
             lookupValueByName(param.name, param.type.classifier) != null ||
+                lookupListValues(param) != null ||
                 lookupValueByType(param.type.classifier) != null ||
                 param.isOptional
         }
@@ -122,6 +124,28 @@ class MockInjector(
         } else {
             false
         }
+    }
+
+    private fun isListType(classifier: KClassifier?): Boolean =
+        classifier == List::class
+
+    private fun listElementType(param: KParameter): KClass<*>? {
+        val typeArg = param.type.arguments.firstOrNull()?.type?.classifier
+        return typeArg as? KClass<*>
+    }
+
+    private fun lookupListValues(param: KParameter): List<Any>? {
+        if (!isListType(param.type.classifier)) return null
+        if (!lookupType.byType) return null
+
+        val elementType = listElementType(param) ?: return null
+
+        val mocks = mockHolder::class
+            .memberProperties
+            .filter { isMatchingType(it, elementType) }
+            .mapNotNull { it.getAnyIfLateNull(mockHolder) }
+
+        return mocks.takeIf { it.isNotEmpty() }
     }
 
     private fun <R> KFunction<R>.constructorToStr(): String {
