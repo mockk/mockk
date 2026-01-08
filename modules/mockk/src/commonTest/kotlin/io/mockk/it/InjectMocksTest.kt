@@ -47,3 +47,44 @@ class InjectMocksTest {
         verify { foo.method() }
     }
 }
+
+/**
+ * See issue #1356
+ * Test for injecting mocks as a List
+ */
+class InjectMocksListTest {
+    interface IFoo {
+        fun method()
+    }
+
+    class Foo1 : IFoo {
+        override fun method() {}
+    }
+
+    class Foo2 : IFoo {
+        override fun method() {}
+    }
+
+    class Bar(
+        val foos: List<IFoo>,
+    )
+
+    @MockK
+    lateinit var foo1: Foo1
+
+    @MockK
+    lateinit var foo2: Foo2
+
+    @InjectMockKs
+    lateinit var bar: Bar
+
+    @BeforeTest
+    fun setUp() = MockKAnnotations.init(this)
+
+    @Test
+    fun testListInjection() {
+        kotlin.test.assertEquals(2, bar.foos.size)
+        kotlin.test.assertTrue(bar.foos.contains(foo1))
+        kotlin.test.assertTrue(bar.foos.contains(foo2))
+    }
+}
