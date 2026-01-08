@@ -66,7 +66,7 @@ class InjectMocksListTest {
     }
 
     class Bar(
-        val foos: List<IFoo>
+        val foos: List<IFoo>,
     )
 
     @MockK

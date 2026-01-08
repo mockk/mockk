@@ -126,11 +126,14 @@ class MockInjector(
         }
     }
 
-    private fun isListType(classifier: KClassifier?): Boolean =
-        classifier == List::class
+    private fun isListType(classifier: KClassifier?): Boolean = classifier == List::class
 
     private fun listElementType(param: KParameter): KClass<*>? {
-        val typeArg = param.type.arguments.firstOrNull()?.type?.classifier
+        val typeArg =
+            param.type.arguments
+                .firstOrNull()
+                ?.type
+                ?.classifier
         return typeArg as? KClass<*>
     }
 
@@ -140,10 +143,11 @@ class MockInjector(
 
         val elementType = listElementType(param) ?: return null
 
-        val mocks = mockHolder::class
-            .memberProperties
-            .filter { isMatchingType(it, elementType) }
-            .mapNotNull { it.getAnyIfLateNull(mockHolder) }
+        val mocks =
+            mockHolder::class
+                .memberProperties
+                .filter { isMatchingType(it, elementType) }
+                .mapNotNull { it.getAnyIfLateNull(mockHolder) }
 
         return mocks.takeIf { it.isNotEmpty() }
     }
