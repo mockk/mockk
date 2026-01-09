@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertFails
 
 class AnyMatcherTypeTest {
-
     private interface Sender {
         fun send(message: Any)
     }
