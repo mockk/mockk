@@ -551,8 +551,10 @@ fun CompositeMatcher<*>.captureSubMatchers(arg: Any?) {
  * underlying type (boxed/unboxed forms).
  */
 data class AnyTypedMatcher(
-    override val argumentType: KClass<*>
-) : Matcher<Any>, TypedMatcher, EquivalentMatcher {
+    override val argumentType: KClass<*>,
+) : Matcher<Any>,
+    TypedMatcher,
+    EquivalentMatcher {
     private val underlyingBoxed: KClass<*>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
         if (!argumentType.isValue) return@lazy null
         argumentType.constructors
