@@ -49,4 +49,24 @@ class AnyMatcherTypeTest {
             verify { sender.send(capture(s)) }
         }
     }
+
+    @Test
+    fun `any reified type should match correct type when arg is Any`() {
+        val sender = mockk<Sender>()
+        every { sender.send(any()) } just Runs
+
+        sender.send(123)
+
+        verify { sender.send(any<Int>()) }
+    }
+
+    @Test
+    fun `any Any class should match when arg is Any`() {
+        val sender = mockk<Sender>()
+        every { sender.send(any()) } just Runs
+
+        codeUnderTest(sender)
+
+        verify { sender.send(any(Any::class)) }
+    }
 }
