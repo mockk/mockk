@@ -787,12 +787,12 @@ open class MockKMatcherScope(
     /**
      * Matches any argument given a [KClass]
      */
-    fun <T : Any> any(classifier: KClass<T>): T = match(ConstantMatcher(true), classifier)
+    fun <T : Any> any(classifier: KClass<T>): T = match(AnyTypedMatcher(classifier), classifier)
 
     /**
      * Matches any argument.
      */
-    inline fun <reified T : Any> any(): T = match(ConstantMatcher(true))
+    inline fun <reified T : Any> any(): T = match(AnyTypedMatcher(T::class), T::class)
 
     /**
      * Matches any nullable argument.
@@ -5391,11 +5391,7 @@ data class InvocationMatcher(
             val matcher = args[i]
             val arg = invocation.args[i]
 
-            if (matcher is TypedMatcher) {
-                if (!matcher.checkType(arg)) {
-                    return false
-                }
-            }
+            if (arg != null && matcher is TypedMatcher && !matcher.checkType(arg)) return false
 
             if (!matcher.match(arg)) {
                 return false
