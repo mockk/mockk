@@ -5,7 +5,7 @@
 
 [![Release Version](https://img.shields.io/maven-central/v/io.mockk/mockk.svg?label=release)](https://search.maven.org/#search%7Cga%7C1%7Cmockk)
 [![Change log](https://img.shields.io/badge/change%20log-%E2%96%A4-yellow.svg)](https://github.com/mockk/mockk/releases)
-[![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk) 
+[![codecov](https://codecov.io/gh/mockk/mockk/branch/master/graph/badge.svg)](https://codecov.io/gh/mockk/mockk)
 [![Android](https://img.shields.io/badge/android-support-green.svg)](https://mockk.io/ANDROID)
 [![Matrix tests](https://img.shields.io/badge/matrix-test-e53994.svg)](https://mockk.io/MATRIX)
 [![Open Source Helpers](https://www.codetriage.com/mockk/mockk/badges/users.svg)](https://www.codetriage.com/mockk/mockk)
@@ -120,7 +120,7 @@ androidTestImplementation "io.mockk:mockk-bdd-android:${mockkVersion}"
 From version 1.13.0 MockK supports Kotlin 1.4 and higher
 
 ### Known issues
- 
+
 * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
 * Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
 * Spies, `mockkStatic` may not work on JDK 16+; `InaccessibleObjectException`/`IllegalAccessException`: [read more here](doc/md/jdk16-access-exceptions.md)
@@ -145,10 +145,10 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
  - [Testing Quarkus with Kotlin, JUnit and MockK](https://www.novatec-gmbh.de/en/blog/testing-quarkus-with-kotlin-junit-and-mockk/)
  - [Unraveling MockK's black magic(EN, translation)](https://chao2zhang.medium.com/unraveling-mockks-black-magic-e725c61ed9dd)
  - [Mockk Guidebook](https://notwoods.github.io/mockk-guidebook/)
- - [“Kotlin Unit Testing with Mockk” by Marco Cattaneo](https://link.medium.com/ObtQ4eBfg5) 
+ - [“Kotlin Unit Testing with Mockk” by Marco Cattaneo](https://link.medium.com/ObtQ4eBfg5)
  - [(Video) Use verify in MockK to validate function calls on mocked object](https://www.youtube.com/watch?v=J7_4WrImJPk)
  - [Testing With MockK paid course on raywenderlich.com](https://www.raywenderlich.com/5443751-testing-with-mockk)
- - TDD for Android video tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay    
+ - TDD for Android video tutorial [part 1](https://www.youtube.com/watch?v=60KFJTb_HwU), [part 2](https://www.youtube.com/watch?v=32pnzGirvgM) by Ryan Kay
  - [(Video)Android Developer Live Coding #13: Unit Testing with Mockk, Coroutines, Test Driven Development](https://www.youtube.com/watch?v=h8_LZn1DFDI)
  - [KotlinConf 2018 - Best Practices for Unit Testing in Kotlin by Philipp Hauer](https://www.youtube.com/watch?v=RX_g65J14H0&feature=youtu.be&t=940)
  - [kotlin-fullstack-sample uses MockK](https://github.com/Kotlin/kotlin-fullstack-sample/pull/28/files#diff-eade18fbfd0abfb6338dbfa647b3215dR17) project covered with tests
@@ -156,11 +156,11 @@ Check the series of articles "Mocking is not rocket science" at [Kt. Academy](ht
  - [Habrahabr article](https://habrahabr.ru/post/341202/) (RU)
  - [Mocking in Kotlin with MockK - Yannick De Turck](https://ordina-jworks.github.io/testing/2018/02/05/Writing-tests-in-Kotlin-with-MockK.html)
  - [How does MockK work internally? - Sagar Malhotra](https://proandroiddev.com/how-does-mocking-work-internally-a-deep-dive-into-mockk-internals-defecd66b815)
- 
+
 ### Japanese guides and articles
  - [Documentation translation to Japanese](https://qiita.com/yasuX/items/d3cfc9853c53dfaee222)
  - [Unraveling MockK's black magic / MockKの「黒魔術」を解明する (JP, but readable through chrome translator)](https://zenn.dev/oboenikui/articles/af44c158f9fa35)
- 
+
 ### Chinese guides and articles
  - [用 Kotlin + Mockito 寫單元測試會碰到什麼問題？](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-1-4-39a85e42b8)
  - [MockK 功能介紹：mockk, every, Annotation, verify](https://medium.com/joe-tsai/mockk-%E4%B8%80%E6%AC%BE%E5%BC%B7%E5%A4%A7%E7%9A%84-kotlin-mocking-library-part-2-4-4be059331110)
@@ -181,9 +181,9 @@ You can use annotations to simplify the creation of mock objects:
 
 class TrafficSystem {
   lateinit var car1: Car
-  
+
   lateinit var car2: Car
-  
+
   lateinit var car3: Car
 }
 
@@ -199,10 +199,10 @@ class CarTest {
 
   @SpyK
   var car4 = Car()
-  
+
   @InjectMockKs
   var trafficSystem = TrafficSystem()
-  
+
   @Before
   fun setUp() = MockKAnnotations.init(this, relaxUnitFun = true) // turn relaxUnitFun on for all mocks
 
@@ -213,15 +213,15 @@ class CarTest {
 }
 ```
 
-Injection first tries to match properties by name, then by class or superclass. 
-Check the `lookupType` parameter for customization. 
+Injection first tries to match properties by name, then by class or superclass.
+Check the `lookupType` parameter for customization.
 
-Properties are injected even if `private` is applied. Constructors for injection are selected from the biggest 
+Properties are injected even if `private` is applied. Constructors for injection are selected from the biggest
 number of arguments to lowest.
 
-`@InjectMockKs` by default injects only `lateinit var`s or `var`s that are not assigned. 
+`@InjectMockKs` by default injects only `lateinit var`s or `var`s that are not assigned.
 To change this, use `overrideValues = true`. This would assign the value even if it is already initialized somehow.
-To inject `val`s, use `injectImmutable = true`. For a shorter notation use `@OverrideMockKs` which does the same as 
+To inject `val`s, use `injectImmutable = true`. For a shorter notation use `@OverrideMockKs` which does the same as
 `@InjectMockKs` by default, but turns these two flags on.
 
 ### JUnit4
@@ -250,7 +250,7 @@ class CarTest {
 
 #### JUnit5
 
-In JUnit5 you can use `MockKExtension` to initialize your mocks. 
+In JUnit5 you can use `MockKExtension` to initialize your mocks.
 
 ```kotlin
 @ExtendWith(MockKExtension::class)
@@ -285,10 +285,10 @@ fun calculateAddsValues1(@MockK car1: Car, @RelaxedMockK car2: Car) {
 
 Finally, this extension will call `unmockkAll` and `clearAllMocks` in a `@AfterAll` callback, ensuring your test environment is clean after
 each test class execution.
-You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting 
+You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting
 the `mockk.junit.extension.keepmocks=true` property.
 (Since v1.13.11)
-Alternatively, since `clearAllMocks` by default (`currentThreadOnly=false`) is not thread-safe, if you need to run test in parallel you can add the 
+Alternatively, since `clearAllMocks` by default (`currentThreadOnly=false`) is not thread-safe, if you need to run test in parallel you can add the
 `MockKExtension.RequireParallelTesting` annotation to your class or set the `mockk.junit.extension.requireParallelTesting=true`
 property to disable calling it in the `@AfterAll` callback.
 If `clearAllMocks` is explicitly called, you can supply `clearAllMocks(currentThreadOnly = true)` so that it only clears mocks created within the same thread (since v1.13.12).
@@ -327,7 +327,7 @@ Note 2: there is a known issue if using a spy with a suspending function: https:
 
 ### Relaxed mock
 
-A `relaxed mock` is the mock that returns some simple value for all functions. 
+A `relaxed mock` is the mock that returns some simple value for all functions.
 This allows you to skip specifying behavior for each case, while still stubbing things you need.
 For reference types, chained mocks are returned.
 
@@ -350,7 +350,7 @@ Workaround:
 val func = mockk<() -> Car>(relaxed = true) // in this case invoke function has generic return type
 
 // this line is workaround, without it the relaxed mock would throw a class cast exception on the next line
-every { func() } returns Car() // or you can return mockk() for example 
+every { func() } returns Car() // or you can return mockk() for example
 
 func()
 ```
@@ -376,7 +376,7 @@ assertEquals(4, adder.addOne(3)) // original function is called
 
 ### Mock relaxed for functions returning Unit
 
-If you want `Unit`-returning functions to be relaxed, you can use `relaxUnitFun = true` as an argument to the `mockk` function, 
+If you want `Unit`-returning functions to be relaxed, you can use `relaxUnitFun = true` as an argument to the `mockk` function,
 `@MockK`annotation or `MockKAnnotations.init` function.
 
 Function:
@@ -494,23 +494,23 @@ assertEquals(4, MockCls().add(1, 2)) // note new object is created
 verify { anyConstructed<MockCls>().add(1, 2) }
 ```
 
-The basic idea is that just after the constructor of the mocked class is executed (any of them), objects become a `constructed mock`.  
-Mocking behavior of such a mock is connected to the special `prototype mock` denoted by `anyConstructed<MockCls>()`.  
-There is one instance per class of such a `prototype mock`. Call recording also happens to the `prototype mock`.  
-If no behavior for the function is specified, then the original function is executed.  
+The basic idea is that just after the constructor of the mocked class is executed (any of them), objects become a `constructed mock`.
+Mocking behavior of such a mock is connected to the special `prototype mock` denoted by `anyConstructed<MockCls>()`.
+There is one instance per class of such a `prototype mock`. Call recording also happens to the `prototype mock`.
+If no behavior for the function is specified, then the original function is executed.
 
 In case a class has more than one constructor, each can be mocked separately:
 
 ```kotlin
 class MockCls(private val a: Int = 0) {
-  constructor(x: String) : this(x.toInt())  
+  constructor(x: String) : this(x.toInt())
   fun add(b: Int) = a + b
 }
 
 mockkConstructor(MockCls::class)
 
 every { constructedWith<MockCls>().add(1) } returns 2
-every { 
+every {
     constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).add(2) // Mocks the constructor which takes a String
 } returns 3
 every {
@@ -521,7 +521,7 @@ assertEquals(2, MockCls().add(1))
 assertEquals(3, MockCls("2").add(2))
 assertEquals(4, MockCls(4).add(7))
 
-verify { 
+verify {
     constructedWith<MockCls>().add(1)
     constructedWith<MockCls>(OfTypeMatcher<String>(String::class)).add(2)
     constructedWith<MockCls>(EqMatcher(4)).add(7)
@@ -541,7 +541,7 @@ You can mix both regular arguments and matchers:
 ```kotlin
 val car = mockk<Car>()
 
-every { 
+every {
   car.recordTelemetry(
     speed = more(50),
     direction = Direction.NORTH, // here eq() is used
@@ -574,10 +574,10 @@ verify { car.door(DoorType.FRONT_LEFT).windowState() }
 confirmVerified(car)
 ```
 
-Note: if the function's return type is generic then the information about the actual type is gone.  
-To make chained calls work, additional information is required.  
-Most of the time the framework will catch the cast exception and do `autohinting`.  
-In the case it is explicitly required, use `hint` before making the next call.  
+Note: if the function's return type is generic then the information about the actual type is gone.
+To make chained calls work, additional information is required.
+Most of the time the framework will catch the cast exception and do `autohinting`.
+In the case it is explicitly required, use `hint` before making the next call.
 
 ```kotlin
 every { obj.op2(1, 2).hint(Int::class).op1(3, 4) } returns 5
@@ -625,7 +625,7 @@ val addressBook = mockk<AddressBook> {
 
 ### Capturing
 
-You can capture an argument to a `CapturingSlot` or `MutableList`. 
+You can capture an argument to a `CapturingSlot` or `MutableList`.
 
 `CapturingSlot` is usually created via factory method `slot<T : Any?>()` and is possible to capture nullable and non nullable types.
 `MutableList` is intended for capturing multiple values during testing.
@@ -714,7 +714,7 @@ car.accelerate(fromSpeed = 10, toSpeed = 30)
 car.accelerate(fromSpeed = 20, toSpeed = 30)
 
 // all pass
-verifyCount { 
+verifyCount {
     (3..5) * { car.accelerate(allAny(), allAny()) } // same as verify(atLeast = 3, atMost = 5) { car.accelerate(allAny(), allAny()) }
     1 * { car.accelerate(fromSpeed = 10, toSpeed = 20) } // same as verify(exactly = 1) { car.accelerate(fromSpeed = 10, toSpeed = 20) }
     0 * { car.accelerate(fromSpeed = 30, toSpeed = 10) } // same as verify(exactly = 0) { car.accelerate(fromSpeed = 30, toSpeed = 10) }
@@ -821,7 +821,7 @@ checkUnnecessaryStub(mock1, mock2)
 ```
 
 It will throw an exception if there are some declared calls on the mocks that are not used by the tested code.
-This can happen if you have declared some really unnecessary stubs or if the tested code doesn't call an expected one.  
+This can happen if you have declared some really unnecessary stubs or if the tested code doesn't call an expected one.
 
 
 ### Recording exclusions
@@ -1039,7 +1039,7 @@ In `jvm` environments you can replace the class name with a function reference:
 ```kotlin
 mockkStatic(Obj::extensionFunc)
 ```
-Note that this will mock the whole `pkg.FileKt` class, and not just `extensionFunc`. 
+Note that this will mock the whole `pkg.FileKt` class, and not just `extensionFunc`.
 
 This syntax also applies for extension properties:
 ```kotlin
@@ -1055,7 +1055,7 @@ KHttp.kt:
 @file:JvmName("KHttp")
 
 package khttp
-// ... KHttp code 
+// ... KHttp code
 ```
 
 Testing code:
@@ -1063,7 +1063,7 @@ Testing code:
 mockkStatic("khttp.KHttp")
 ```
 
-Sometimes you need to know a little bit more to mock an extension function. 
+Sometimes you need to know a little bit more to mock an extension function.
 For example the extension function `File.endsWith()` has a totally unpredictable `classname`:
 ```kotlin
 mockkStatic("kotlin.io.FilesKt__UtilsKt")
@@ -1274,7 +1274,7 @@ This approach allows you to isolate the logic within your method for unit testin
 
 ## Matcher extensibility
 
-A very simple way to create new matchers is by attaching a function 
+A very simple way to create new matchers is by attaching a function
 to `MockKMatcherScope` or `MockKVerificationScope` and using the `match` function:
 
 ```kotlin
@@ -1283,13 +1283,13 @@ fun MockKMatcherScope.seqEq(seq: Sequence<String>) = match<Sequence<String>> {
 }
 ```
 
-It's also possible to create more advanced matchers by implementing the `Matcher` interface. 
+It's also possible to create more advanced matchers by implementing the `Matcher` interface.
 
 ### Custom matchers
 
 Example of a custom matcher that compares list without order:
 
-```kotlin 
+```kotlin
 @Test
 fun test() {
     class MockCls {
@@ -1466,8 +1466,8 @@ By default, simple arguments are matched using `eq()`
 
 | Matcher                                                 | Description                                                                                            |
 |---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| `any()`                                                 | matches any argument                                                                                   |
-| `any(Class)`                                            | matches any argument of the give Class (for reflective mocking)                                        |
+| `any<T>()`                                              | matches any argument of type `T` (type-checked)                                                        |
+| `any(Class)`                                            | matches any argument of the given Class (type-checked; useful for reflective mocking)                  |
 | `allAny()`                                              | special matcher that uses `any()` instead of `eq()` for matchers that are provided as simple arguments |
 | `isNull()`                                              | checks if the value is null                                                                            |
 | `isNull(inverse=true)`                                  | checks if the value is not null                                                                        |
@@ -1480,8 +1480,8 @@ By default, simple arguments are matched using `eq()`
 | `eq(value, inverse=true)`                               | matches if the value is not equal to the provided value via the `deepEquals` function                  |
 | `neq(value)`                                            | matches if the value is not equal to the provided value via the `deepEquals` function                  |
 | `refEq(value)`                                          | matches if the value is equal to the provided value via reference comparison                           |
-| `refEq(value, inverse=true)`                            | matches if the value is not equal to the provided value via reference comparison                       ||
-| `nrefEq(value)`                                         | matches if the value is not equal to the provided value via reference comparison                       ||
+| `refEq(value, inverse=true)`                            | matches if the value is not equal to the provided value via reference comparison                       |
+| `nrefEq(value)`                                         | matches if the value is not equal to the provided value via reference comparison                       |
 | `cmpEq(value)`                                          | matches if the value is equal to the provided value via the `compareTo` function                       |
 | `less(value)`                                           | matches if the value is less than the provided value via the `compareTo` function                      |
 | `more(value)`                                           | matches if the value is more than the provided value via the `compareTo` function                      |
