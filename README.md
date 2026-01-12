@@ -1466,7 +1466,7 @@ By default, simple arguments are matched using `eq()`
 
 | Matcher                                                 | Description                                                                                            |
 |---------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
-| `any()`                                                 | matches any argument of type `T` (type-checked)                                                        |
+| `any<T>()`                                              | matches any argument of type `T` (type-checked)                                                        |
 | `any(Class)`                                            | matches any argument of the given Class (type-checked; useful for reflective mocking)                  |
 | `allAny()`                                              | special matcher that uses `any()` instead of `eq()` for matchers that are provided as simple arguments |
 | `isNull()`                                              | checks if the value is null                                                                            |
