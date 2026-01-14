@@ -6,11 +6,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id("com.android.application")
+    kotlin("android")
 
-    id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
+}
+
+dependencies {
+    // Don't add kotlin to dex, only needed for generating dokka
+    compileOnly(kotlin("stdlib"))
 }
 
 android {
@@ -46,6 +51,6 @@ tasks.withType<KotlinJvmCompile>().configureEach {
 }
 
 val javadocJar by tasks.registering(Jar::class) {
-    from(tasks.dokkaJavadoc)
+    from(tasks.dokkaGenerate)
     archiveClassifier.set("javadoc")
 }

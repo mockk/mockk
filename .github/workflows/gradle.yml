@@ -2,7 +2,6 @@ name: Gradle Tests
 
 on:
   push:
-    branches: [master]
   pull_request:
     branches: [ master ]
 
@@ -17,7 +16,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 17, 21, 25 ] # test LTS versions and maybe latest feature release
-        kotlin-version: [ 1.5.32, 1.7.22, 1.9.25, 2.0.21, 2.2.21 ]
+        kotlin-version: [ 1.5.32, 1.7.22, 1.9.25, 2.0.21, 2.2.21, 2.3.0 ]
       fail-fast: false # in case one JDK fails, we still want to see results from others
     name: "Check [java=${{ matrix.java-version }}, kotlin=${{ matrix.kotlin-version }}]"
     timeout-minutes: 30
@@ -89,26 +88,26 @@ jobs:
 
       # AVD Cache is disabled until issue github.com/ReactiveCircus/android-emulator-runner/issues/362 is resolved
 
-#      - name: AVD cache
-#        uses: actions/cache@v4
-#        id: avd-cache
-#        with:
-#          path: |
-#            ~/.android/avd/*
-#            ~/.android/adb*
-#          key: avd-${{ matrix.api-level }}-${{ env.TARGET }}
-#
-#      - name: create AVD and generate snapshot for caching
-#        if: steps.avd-cache.outputs.cache-hit != 'true'
-#        uses: reactivecircus/android-emulator-runner@v2
-#        with:
-#          api-level: ${{ matrix.api-level }}
-#          target: ${{ env.TARGET }}
-#          arch: ${{ env.ARCH }}
-#          force-avd-creation: false
-#          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-#          disable-animations: false
-#          script: echo "Generated AVD snapshot for caching."
+      #      - name: AVD cache
+      #        uses: actions/cache@v4
+      #        id: avd-cache
+      #        with:
+      #          path: |
+      #            ~/.android/avd/*
+      #            ~/.android/adb*
+      #          key: avd-${{ matrix.api-level }}-${{ env.TARGET }}
+      #
+      #      - name: create AVD and generate snapshot for caching
+      #        if: steps.avd-cache.outputs.cache-hit != 'true'
+      #        uses: reactivecircus/android-emulator-runner@v2
+      #        with:
+      #          api-level: ${{ matrix.api-level }}
+      #          target: ${{ env.TARGET }}
+      #          arch: ${{ env.ARCH }}
+      #          force-avd-creation: false
+      #          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+      #          disable-animations: false
+      #          script: echo "Generated AVD snapshot for caching."
 
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2

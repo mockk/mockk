@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 plugins {
     kotlin("multiplatform")
 
-    id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
@@ -19,6 +18,8 @@ kotlin {
             compilerOptions.configure {
                 apiVersion = Deps.Versions.kotlinCompatibility
                 languageVersion = Deps.Versions.kotlinCompatibility
+                // Suppress Beta warning for expect/actual classes
+                freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
     }
@@ -30,6 +31,6 @@ kotlin {
 }
 
 val javadocJar by tasks.registering(Jar::class) {
-    from(tasks.dokkaHtml)
+    from(tasks.dokkaGenerate)
     archiveClassifier.set("javadoc")
 }
