@@ -20,9 +20,10 @@ import kotlin.reflect.KClass
  * @param moreInterfaces additional interfaces for this mockk to implement, in addition to the specified class.
  * @param relaxUnitFun allows creation with no specific behaviour for Unit function.
  * Unstubbed methods that return [Unit] will not throw, while other methods will still throw unless they are stubbed.
- * @param block block to execute after mock is created with mock as a receiver. Similar to using [apply] on the mock object.
+ * @param block block to execute after mock is created with mock as a receiver. Similar to using `kotlin.apply` on the mock object.
  *
- * @sample
+ * Example:
+ * ```
  * interface Navigator {
  *   val currentLocation: String
  *   fun navigateTo(newLocation: String): Unit
@@ -33,6 +34,7 @@ import kotlin.reflect.KClass
  *
  * println(navigator.currentLocation) // prints "Home"
  * navigator.navigateTo("Store") // throws an error
+ * ```
  */
 inline fun <reified T : Any> mockk(
     name: String? = null,
@@ -63,7 +65,7 @@ inline fun <reified T : Any> mockk(
  * @param name spyk name
  * @param moreInterfaces additional interfaces for this spyk to implement, in addition to the specified class.
  * @param recordPrivateCalls allows this spyk to record any private calls, enabling a verification.
- * @param block block to execute after spyk is created with spyk as a receiver. Similar to using [apply] on the spyk object.
+ * @param block block to execute after spyk is created with spyk as a receiver. Similar to using `kotlin.apply` on the spyk object.
  */
 inline fun <reified T : Any> spyk(
     name: String? = null,
@@ -89,7 +91,7 @@ inline fun <reified T : Any> spyk(
  * @param name spyk name
  * @param moreInterfaces additional interfaces for this spyk to implement, in addition to the specified class.
  * @param recordPrivateCalls allows this spyk to record any private calls, enabling a verification.
- * @param block block to execute after spyk is created with spyk as a receiver. Similar to using [apply] on the spyk object.
+ * @param block block to execute after spyk is created with spyk as a receiver. Similar to using `kotlin.apply` on the spyk object.
  */
 inline fun <reified T : Any> spyk(
     objToCopy: T,
@@ -112,9 +114,10 @@ inline fun <reified T : Any> spyk(
  * Creates new capturing slot.
  *
  * Slots allow you to capture what arguments a mocked method is called with.
- * When mocking a method using [every], pass the slot wrapped with the [MockKMatcherScope.capture] function in place of a method argument or [MockKMatcherScope.any].
+ * When mocking a method using [every], pass the slot wrapped with the `io.mockk.MockKMatcherScope.capture` function in place of a method argument or `io.mockk.MockKMatcherScope.any`.
  *
- * @sample
+ * Example:
+ * ```
  * interface FileNetwork {
  *   fun download(name: String): File
  * }
@@ -126,8 +129,9 @@ inline fun <reified T : Any> spyk(
  *
  * network.download("testfile")
  * // slot.captured is now "testfile"
+ * ```
  */
-inline fun <reified T : Any?> slot() =
+inline fun <reified T : Any?> slot(): CapturingSlot<T> =
     MockK.useImpl {
         MockKDsl.internalSlot<T>()
     }
@@ -137,7 +141,8 @@ inline fun <reified T : Any?> slot() =
  *
  * Used to define what behaviour is going to be mocked.
  *
- * @sample
+ * Example:
+ * ```
  * interface Navigator {
  *   val currentLocation: String
  * }
@@ -146,6 +151,7 @@ inline fun <reified T : Any?> slot() =
  * every { navigator.currentLocation } returns "Home"
  *
  * println(navigator.currentLocation) // prints "Home"
+ * ```
  * @see [coEvery] Coroutine version.
  */
 fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
@@ -161,10 +167,12 @@ fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
  *
  * @see [every]
  * @see [coJustRun] Coroutine version.
- * @sample
+ * Example:
+ * ```
  * every { logger.log(any()) } returns Unit
  * every { logger.log(any()) } just Runs
  * justRun { logger.log(any()) }
+ * ```
  */
 fun justRun(stubBlock: MockKMatcherScope.() -> Unit) = every(stubBlock) just Runs
 
@@ -210,11 +218,13 @@ fun coJustAwait(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubB
  * passed or timeout is reached.
  * @param verifyBlock code block containing at least 1 call to verify
  *
- * @sample
+ * Example:
+ * ```
  * val navigator = mockk<Navigator>(relaxed = true)
  *
  * navigator.navigateTo("Park")
  * verify { navigator.navigateTo(any()) }
+ * ```
  * @see [coVerify] Coroutine version
  */
 fun verify(
@@ -225,9 +235,10 @@ fun verify(
     exactly: Int = -1,
     timeout: Long = 0,
     verifyBlock: MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalVerify(ordering, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
+    }
 
 /**
  * Verifies that calls were made inside a coroutine.
@@ -251,17 +262,18 @@ fun coVerify(
     exactly: Int = -1,
     timeout: Long = 0,
     verifyBlock: suspend MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalCoVerify(
-        ordering,
-        inverse,
-        atLeast,
-        atMost,
-        exactly,
-        timeout,
-        verifyBlock,
-    )
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalCoVerify(
+            ordering,
+            inverse,
+            atLeast,
+            atMost,
+            exactly,
+            timeout,
+            verifyBlock,
+        )
+    }
 
 /**
  * Verifies all the calls of the mocks specified inside [verifyBlock].
@@ -281,9 +293,10 @@ fun coVerify(
 fun verifyAll(
     inverse: Boolean = false,
     verifyBlock: MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalVerifyAll(inverse, verifyBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalVerifyAll(inverse, verifyBlock)
+    }
 
 /**
  * Verifies that all calls inside [verifyBlock] happened, checking that they happened in the order declared.
@@ -299,9 +312,10 @@ fun verifyAll(
 fun verifyOrder(
     inverse: Boolean = false,
     verifyBlock: MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalVerifyOrder(inverse, verifyBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalVerifyOrder(inverse, verifyBlock)
+    }
 
 /**
  * Verifies that all calls inside [verifyBlock] happened, and no other call was made to those mocks
@@ -317,9 +331,10 @@ fun verifyOrder(
 fun verifySequence(
     inverse: Boolean = false,
     verifyBlock: MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalVerifySequence(inverse, verifyBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalVerifySequence(inverse, verifyBlock)
+    }
 
 /**
  * Verifies that calls and their count
@@ -329,9 +344,8 @@ fun verifySequence(
  * @see verifyOrder
  * @see verifyAll
  * @see verifySequence
- *
  */
-fun verifyCount(verifyBlock: MockKCallCountVerificationScope.() -> Unit) =
+fun verifyCount(verifyBlock: MockKCallCountVerificationScope.() -> Unit): Unit =
     MockK.useImpl {
         MockKCallCountVerificationScope().verifyBlock()
     }
@@ -352,9 +366,10 @@ fun verifyCount(verifyBlock: MockKCallCountVerificationScope.() -> Unit) =
 fun coVerifyAll(
     inverse: Boolean = false,
     verifyBlock: suspend MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalCoVerifyAll(inverse, verifyBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalCoVerifyAll(inverse, verifyBlock)
+    }
 
 /**
  * Verifies that all calls inside [verifyBlock] happened, checking that they happened in the order declared.
@@ -371,9 +386,10 @@ fun coVerifyAll(
 fun coVerifyOrder(
     inverse: Boolean = false,
     verifyBlock: suspend MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalCoVerifyOrder(inverse, verifyBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalCoVerifyOrder(inverse, verifyBlock)
+    }
 
 /**
  * Verifies that all calls inside [verifyBlock] happened, and no other call was made to those mocks.
@@ -390,9 +406,10 @@ fun coVerifyOrder(
 fun coVerifySequence(
     inverse: Boolean = false,
     verifyBlock: suspend MockKVerificationScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalCoVerifySequence(inverse, verifyBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalCoVerifySequence(inverse, verifyBlock)
+    }
 
 /**
  * Verifies that calls and their count. Coroutine version
@@ -404,7 +421,7 @@ fun coVerifySequence(
  * @see coVerifySequence
  *
  */
-fun coVerifyCount(verifyBlock: MockKCallCountCoVerificationScope.() -> Unit) =
+fun coVerifyCount(verifyBlock: MockKCallCountCoVerificationScope.() -> Unit): Unit =
     MockK.useImpl {
         MockKCallCountCoVerificationScope().verifyBlock()
     }
@@ -418,9 +435,10 @@ fun coVerifyCount(verifyBlock: MockKCallCountCoVerificationScope.() -> Unit) =
 fun excludeRecords(
     current: Boolean = true,
     excludeBlock: MockKMatcherScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalExcludeRecords(current, excludeBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalExcludeRecords(current, excludeBlock)
+    }
 
 /**
  * Exclude calls from recording for a `suspend` block
@@ -431,9 +449,10 @@ fun excludeRecords(
 fun coExcludeRecords(
     current: Boolean = true,
     excludeBlock: suspend MockKMatcherScope.() -> Unit,
-) = MockK.useImpl {
-    MockKDsl.internalCoExcludeRecords(current, excludeBlock)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalCoExcludeRecords(current, excludeBlock)
+    }
 
 /**
  * Checks if all recorded calls were verified.
@@ -443,14 +462,15 @@ fun coExcludeRecords(
 fun confirmVerified(
     vararg mocks: Any,
     clear: Boolean = false,
-) = MockK.useImpl {
-    MockKDsl.internalConfirmVerified(mocks, clear = clear)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalConfirmVerified(mocks, clear = clear)
+    }
 
 /**
  * Checks if all recorded calls are necessary.
  */
-fun checkUnnecessaryStub(vararg mocks: Any) =
+fun checkUnnecessaryStub(vararg mocks: Any): Unit =
     MockK.useImpl {
         MockKDsl.internalCheckUnnecessaryStub(mocks)
     }
@@ -467,17 +487,18 @@ fun clearMocks(
     childMocks: Boolean = true,
     verificationMarks: Boolean = true,
     exclusionRules: Boolean = true,
-) = MockK.useImpl {
-    MockKDsl.internalClearMocks(
-        firstMock = firstMock,
-        mocks = mocks,
-        answers = answers,
-        recordedCalls = recordedCalls,
-        childMocks = childMocks,
-        verificationMarks = verificationMarks,
-        exclusionRules = exclusionRules,
-    )
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalClearMocks(
+            firstMock = firstMock,
+            mocks = mocks,
+            answers = answers,
+            recordedCalls = recordedCalls,
+            childMocks = childMocks,
+            verificationMarks = verificationMarks,
+            exclusionRules = exclusionRules,
+        )
+    }
 
 /**
  * Registers instance factory and returns object able to do deregistration.
@@ -525,27 +546,29 @@ inline fun <T : Any> mockkClass(
  *
  * This lets you mock object methods with [every].
  *
- * @sample
+ * Example:
+ * ```
  * object CalculatorObject {
  *   fun add(a: Int, b: Int) = a + b
  * }
  *
  * mockkObject(CalculatorObject)
  * every { ObjBeingMocked.add(1, 2) } returns 55
- *
+ * ```
  * @see [unmockkObject] To manually cancel mock
  */
 inline fun mockkObject(
     vararg objects: Any,
     recordPrivateCalls: Boolean = false,
-) = MockK.useImpl {
-    MockKDsl.internalMockkObject(objects, recordPrivateCalls = recordPrivateCalls)
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalMockkObject(objects, recordPrivateCalls = recordPrivateCalls)
+    }
 
 /**
  * Cancel object mocks.
  */
-inline fun unmockkObject(vararg objects: Any) =
+inline fun unmockkObject(vararg objects: Any): Unit =
     MockK.useImpl {
         MockKDsl.internalUnmockkObject(objects)
     }
@@ -571,7 +594,7 @@ inline fun mockkObject(
  *
  * @see [unmockkStatic] To manually cancel mock
  */
-inline fun mockkStatic(vararg classes: KClass<*>) =
+inline fun mockkStatic(vararg classes: KClass<*>): Unit =
     MockK.useImpl {
         MockKDsl.internalMockkStatic(classes)
     }
@@ -581,7 +604,7 @@ inline fun mockkStatic(vararg classes: KClass<*>) =
  *
  * @see [unmockkStatic] To manually cancel mock
  */
-inline fun mockkStatic(vararg classes: String) =
+inline fun mockkStatic(vararg classes: String): Unit =
     MockK.useImpl {
         MockKDsl.internalMockkStatic(classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
     }
@@ -594,19 +617,20 @@ inline fun clearStaticMockk(
     answers: Boolean = true,
     recordedCalls: Boolean = true,
     childMocks: Boolean = true,
-) = MockK.useImpl {
-    MockKDsl.internalClearStaticMockk(
-        classes,
-        answers = answers,
-        recordedCalls = recordedCalls,
-        childMocks = childMocks,
-    )
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalClearStaticMockk(
+            classes,
+            answers = answers,
+            recordedCalls = recordedCalls,
+            childMocks = childMocks,
+        )
+    }
 
 /**
  * Cancel static mocks.
  */
-inline fun unmockkStatic(vararg classes: KClass<*>) =
+inline fun unmockkStatic(vararg classes: KClass<*>): Unit =
     MockK.useImpl {
         MockKDsl.internalUnmockkStatic(classes)
     }
@@ -614,7 +638,7 @@ inline fun unmockkStatic(vararg classes: KClass<*>) =
 /**
  * Cancel static mocks.
  */
-inline fun unmockkStatic(vararg classes: String) =
+inline fun unmockkStatic(vararg classes: String): Unit =
     MockK.useImpl {
         MockKDsl.internalUnmockkStatic(classes.map { InternalPlatformDsl.classForName(it) as KClass<*> }.toTypedArray())
     }
@@ -658,30 +682,33 @@ inline fun mockkStatic(
  * This will apply to all constructors for a given class, there is no way to distinguish between them.
  *
  * @see [unmockkConstructor] To manually cancel mock
- * @sample
+ * Example:
+ * ```
  * class ClassToTest {
  *   private val log = Logger()
  * }
  *
  * mockkConstructor(Logger::class)
  * // ClassToTest.log will now use a mock instance
+ * ```
  */
 inline fun mockkConstructor(
     vararg classes: KClass<*>,
     recordPrivateCalls: Boolean = false,
     localToThread: Boolean = false,
-) = MockK.useImpl {
-    MockKDsl.internalMockkConstructor(
-        classes,
-        recordPrivateCalls = recordPrivateCalls,
-        localToThread = localToThread,
-    )
-}
+): Unit =
+    MockK.useImpl {
+        MockKDsl.internalMockkConstructor(
+            classes,
+            recordPrivateCalls = recordPrivateCalls,
+            localToThread = localToThread,
+        )
+    }
 
 /**
  * Cancel constructor mocks.
  */
-inline fun unmockkConstructor(vararg classes: KClass<*>) =
+inline fun unmockkConstructor(vararg classes: KClass<*>): Unit =
     MockK.useImpl {
         MockKDsl.internalUnmockkConstructor(classes)
     }

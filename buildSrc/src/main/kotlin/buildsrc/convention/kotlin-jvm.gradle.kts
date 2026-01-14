@@ -7,7 +7,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     `java-library`
     kotlin("jvm")
-    id("org.jetbrains.dokka")
     id("org.jetbrains.kotlinx.kover")
 
     id("buildsrc.convention.base")
@@ -34,5 +33,5 @@ tasks.withType<KotlinJvmCompile>().configureEach {
 }
 
 tasks.named<Jar>("javadocJar") {
-    from(tasks.dokkaJavadoc)
+    from(tasks.dokkaGenerate)
 }

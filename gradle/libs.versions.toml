@@ -5,7 +5,7 @@ coroutines = "1.10.2"
 android-gradle = "8.13.2"
 
 kover = "0.9.3"
-dokka = "2.0.0"
+dokka = "2.1.0"
 binary-compatibility-validator = "0.18.1"
 jreleaser = "1.21.0"
 

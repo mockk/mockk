@@ -12,7 +12,6 @@ description = "Android instrumented testing MockK inline mocking agent"
 val mavenName: String by extra("MockK Android Agent")
 val mavenDescription: String by extra("${project.description}")
 
-@Suppress("UnstableApiUsage")
 android {
     namespace = "io.mockk.proxy.android"
     externalNativeBuild {

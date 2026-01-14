@@ -24,6 +24,8 @@ include(
     ":modules:mockk-core",
     ":modules:mockk-dsl",
     ":modules:mockk-bdd",
+    ":modules:dokka",
+
     ":test-modules:client-tests",
     ":test-modules:performance-tests",
     ":test-modules:logger-tests",
