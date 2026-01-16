@@ -1,0 +1,29 @@
+* text eol=lf
+
+*.bat           text eol=crlf
+
+# Java sources
+*.java          text diff=java
+*.kt            text diff=kotlin
+*.groovy        text diff=java
+*.scala         text diff=java
+*.gradle        text diff=java
+*.gradle.kts    text diff=kotlin
+*.css           text diff=css
+*.scss          text diff=css
+*.htm           text diff=html
+*.html          text diff=html
+
+# These files are binary and should be left untouched
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.xcf           binary
+*.class         binary
+*.dll           binary
+*.ear           binary
+*.jar           binary
+*.so            binary
+*.war           binary
+*.jks           binary
+*.ico           binary
