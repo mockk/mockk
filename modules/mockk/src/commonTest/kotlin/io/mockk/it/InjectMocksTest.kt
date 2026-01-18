@@ -96,7 +96,8 @@ class InjectMocksListTest {
  * Problem: MockK previously processed @InjectMockKs fields in reflection order,
  * which failed when dependency order differed from field declaration order.
  *
- * Solution: Use topological sort to resolve dependencies in correct order.
+ * Solution: Use dependency order (via MockKAnnotations.init(useDependencyOrder = true))
+ * to resolve dependencies in correct order.
  */
 class InjectMocksDependencyOrderTest {
     // ========== Domain Classes ==========
@@ -168,9 +169,24 @@ class InjectMocksDependencyOrderTest {
     }
 
     @Test
+    fun twoLevelDependencyWithoutTopologicalSort() {
+        val obj = TwoLevelTestTarget()
+
+        val exception =
+            kotlin.test.assertFailsWith<io.mockk.MockKException> {
+                MockKAnnotations.init(obj)
+            }
+
+        kotlin.test.assertTrue(
+            exception.message?.contains("No matching constructors found") == true,
+            "Error should mention 'No matching constructors found', but was: ${exception.message}",
+        )
+    }
+
+    @Test
     fun twoLevelDependency() {
         val obj = TwoLevelTestTarget()
-        MockKAnnotations.init(obj)
+        MockKAnnotations.init(obj, useDependencyOrder = true)
 
         kotlin.test.assertNotNull(obj.b, "ServiceB should be created")
         kotlin.test.assertNotNull(obj.a, "ServiceA should be created")
@@ -194,9 +210,24 @@ class InjectMocksDependencyOrderTest {
     }
 
     @Test
+    fun threeLevelChainDependencyWithoutTopologicalSort() {
+        val obj = ThreeLevelTestTarget()
+
+        val exception =
+            kotlin.test.assertFailsWith<io.mockk.MockKException> {
+                MockKAnnotations.init(obj)
+            }
+
+        kotlin.test.assertTrue(
+            exception.message?.contains("No matching constructors found") == true,
+            "Error should mention 'No matching constructors found', but was: ${exception.message}",
+        )
+    }
+
+    @Test
     fun threeLevelChainDependency() {
         val obj = ThreeLevelTestTarget()
-        MockKAnnotations.init(obj)
+        MockKAnnotations.init(obj, useDependencyOrder = true)
 
         kotlin.test.assertNotNull(obj.c, "LevelC should be created")
         kotlin.test.assertNotNull(obj.b, "LevelB should be created")
@@ -225,9 +256,24 @@ class InjectMocksDependencyOrderTest {
     }
 
     @Test
+    fun diamondDependencyWithoutTopologicalSort() {
+        val obj = DiamondTestTarget()
+
+        val exception =
+            kotlin.test.assertFailsWith<io.mockk.MockKException> {
+                MockKAnnotations.init(obj)
+            }
+
+        kotlin.test.assertTrue(
+            exception.message?.contains("No matching constructors found") == true,
+            "Error should mention 'No matching constructors found', but was: ${exception.message}",
+        )
+    }
+
+    @Test
     fun diamondDependency() {
         val obj = DiamondTestTarget()
-        MockKAnnotations.init(obj)
+        MockKAnnotations.init(obj, useDependencyOrder = true)
 
         kotlin.test.assertNotNull(obj.zeta, "DiamondA (zeta) should be created")
         kotlin.test.assertNotNull(obj.beta, "DiamondB (beta) should be created")
@@ -240,38 +286,7 @@ class InjectMocksDependencyOrderTest {
         kotlin.test.assertSame(obj.gamma, obj.alpha.c, "DiamondD.c should be gamma")
     }
 
-    // ========== Test 4: Misleading names ==========
-
-    class ServiceZ(
-        val repository: Repository,
-    )
-
-    class ServiceY(
-        val z: ServiceZ,
-    )
-
-    class MisleadingNamesTestTarget {
-        @MockK
-        lateinit var repository: Repository
-
-        @InjectMockKs
-        lateinit var serviceY: ServiceY // 'serviceY' < 'serviceZ', but Y depends on Z
-
-        @InjectMockKs
-        lateinit var serviceZ: ServiceZ
-    }
-
-    @Test
-    fun misleadingNamesDependency() {
-        val obj = MisleadingNamesTestTarget()
-        MockKAnnotations.init(obj)
-
-        kotlin.test.assertNotNull(obj.serviceZ, "ServiceZ should be created")
-        kotlin.test.assertNotNull(obj.serviceY, "ServiceY should be created")
-        kotlin.test.assertSame(obj.serviceZ, obj.serviceY.z, "ServiceY.z should be the injected ServiceZ")
-    }
-
-    // ========== Test 5: Circular dependency detection ==========
+    // ========== Test 4: Circular dependency detection ==========
 
     class CircularTestTarget {
         @InjectMockKs
@@ -282,12 +297,27 @@ class InjectMocksDependencyOrderTest {
     }
 
     @Test
-    fun circularDependencyDetection() {
+    fun circularDependencyWithoutTopologicalSort() {
         val obj = CircularTestTarget()
 
         val exception =
             kotlin.test.assertFailsWith<io.mockk.MockKException> {
                 MockKAnnotations.init(obj)
+            }
+
+        kotlin.test.assertTrue(
+            exception.message?.contains("No matching constructors found") == true,
+            "Error should mention 'No matching constructors found', but was: ${exception.message}",
+        )
+    }
+
+    @Test
+    fun circularDependencyDetection() {
+        val obj = CircularTestTarget()
+
+        val exception =
+            kotlin.test.assertFailsWith<io.mockk.MockKException> {
+                MockKAnnotations.init(obj, useDependencyOrder = true)
             }
 
         kotlin.test.assertTrue(

@@ -284,6 +284,7 @@ interface MockKGateway {
             overrideRecordPrivateCalls: Boolean,
             relaxUnitFun: Boolean,
             relaxed: Boolean,
+            useDependencyOrder: Boolean,
         )
     }
 

@@ -23,6 +23,7 @@ class JvmMockInitializer(
         overrideRecordPrivateCalls: Boolean,
         relaxUnitFun: Boolean,
         relaxed: Boolean,
+        useDependencyOrder: Boolean,
     ) {
         for (target in targets) {
             initMock(
@@ -30,6 +31,7 @@ class JvmMockInitializer(
                 overrideRecordPrivateCalls,
                 relaxUnitFun,
                 relaxed,
+                useDependencyOrder,
             )
         }
     }
@@ -39,6 +41,7 @@ class JvmMockInitializer(
         overrideRecordPrivateCalls: Boolean,
         relaxUnitFun: Boolean,
         relaxed: Boolean,
+        useDependencyOrder: Boolean,
     ) {
         val cls = target::class
         for (property in cls.memberProperties) {
@@ -59,15 +62,20 @@ class JvmMockInitializer(
             }
         }
 
-        // Collect @InjectMockKs properties and sort by dependency order
+        // Collect @InjectMockKs properties and optionally sort by dependency order
         val injectMockKsProperties =
             cls.memberProperties
                 .map { it as KProperty1<Any, Any> }
                 .filter { it.findAnnotation<InjectMockKs>() != null }
 
-        val sortedProperties = sortByDependencyOrder(injectMockKsProperties)
+        val orderedProperties =
+            if (useDependencyOrder) {
+                sortByDependencyOrder(injectMockKsProperties)
+            } else {
+                injectMockKsProperties
+            }
 
-        for (property in sortedProperties) {
+        for (property in orderedProperties) {
             property.annotated<InjectMockKs>(target) { annotation ->
                 val mockInjector =
                     MockInjector(

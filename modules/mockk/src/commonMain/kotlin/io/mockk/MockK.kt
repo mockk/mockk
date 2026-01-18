@@ -777,18 +777,21 @@ fun isMockKMock(
 object MockKAnnotations {
     /**
      * Initializes properties annotated with @MockK, @RelaxedMockK, @Slot and @SpyK in provided object.
+     * When useDependencyOrder is true, @InjectMockKs properties are initialized in dependency order.
      */
     inline fun init(
         vararg obj: Any,
         overrideRecordPrivateCalls: Boolean = false,
         relaxUnitFun: Boolean = false,
         relaxed: Boolean = false,
+        useDependencyOrder: Boolean = false,
     ) = MockK.useImpl {
         MockKDsl.internalInitAnnotatedMocks(
             obj.toList(),
             overrideRecordPrivateCalls,
             relaxUnitFun,
             relaxed,
+            useDependencyOrder,
         )
     }
 }
