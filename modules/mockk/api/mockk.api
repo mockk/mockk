@@ -25,6 +25,7 @@ public final class io/mockk/MockKKt {
 	public static final fun checkUnnecessaryStub ([Ljava/lang/Object;)V
 	public static final fun clearAllMocks (ZZZZZZZZ)V
 	public static synthetic fun clearAllMocks$default (ZZZZZZZZILjava/lang/Object;)V
+	public static final fun clearAllStubsFromMemory ()V
 	public static final fun clearConstructorMockk ([Lkotlin/reflect/KClass;ZZZ)V
 	public static synthetic fun clearConstructorMockk$default ([Lkotlin/reflect/KClass;ZZZILjava/lang/Object;)V
 	public static final fun clearMocks (Ljava/lang/Object;[Ljava/lang/Object;ZZZZZ)V
@@ -947,6 +948,7 @@ public final class io/mockk/impl/stub/CommonClearer : io/mockk/MockKGateway$Clea
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/log/SafeToString;)V
 	public fun clear ([Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
 	public fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
+	public fun clearAllStubsFromMemory ()V
 	public final fun getLog ()Lio/mockk/impl/log/Logger;
 	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
 	public final fun getStubRepository ()Lio/mockk/impl/stub/StubRepository;

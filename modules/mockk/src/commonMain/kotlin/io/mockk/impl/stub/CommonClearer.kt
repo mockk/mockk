@@ -33,4 +33,6 @@ class CommonClearer(
             it.clear(options)
         }
     }
+
+    override fun clearAllStubsFromMemory() = stubRepository.clear()
 }

@@ -781,6 +781,15 @@ inline fun clearAllMocks(
 }
 
 /**
+ * Removes all objects stored within the internal stubs collection.
+ *
+ * This is not the same as `clearAllMocks` which goes through each
+ * object in the internal collection and clears their stubs, while still keeping them
+ * in memory.
+ */
+fun clearAllStubsFromMemory() = MockKDsl.internalClearMemory()
+
+/**
  * Checks if provided mock is mock of certain type
  */
 fun isMockKMock(
