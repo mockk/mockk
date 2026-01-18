@@ -1,8 +1,11 @@
 package io.mockk.impl.annotations
 
 import java.lang.reflect.InvocationTargetException
+import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KType
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
@@ -56,4 +59,14 @@ internal object InjectionHelpers {
         }
         javaField.set(obj, value)
     }
+
+    fun KProperty<*>.getReturnTypeKClass(): KClass<*>? = returnType.classifier as? KClass<*>
+
+    fun KType.getKClass(): KClass<*>? = classifier as? KClass<*>
+
+    fun KClass<*>.getConstructorParameterTypes(): Set<KClass<*>> =
+        constructors
+            .flatMap { constructor ->
+                constructor.parameters.mapNotNull { it.type.getKClass() }
+            }.toSet()
 }

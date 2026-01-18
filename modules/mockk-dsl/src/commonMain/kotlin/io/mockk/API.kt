@@ -438,11 +438,13 @@ object MockKDsl {
         overrideRecordPrivateCalls: Boolean = false,
         relaxUnitFun: Boolean = false,
         relaxed: Boolean = false,
+        useDependencyOrder: Boolean = false,
     ) = MockKGateway.implementation().mockInitializer.initAnnotatedMocks(
         targets,
         overrideRecordPrivateCalls,
         relaxUnitFun,
         relaxed,
+        useDependencyOrder,
     )
 
     /**
