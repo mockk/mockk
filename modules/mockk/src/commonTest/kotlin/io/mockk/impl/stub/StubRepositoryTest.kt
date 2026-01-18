@@ -14,8 +14,7 @@ import org.junit.jupiter.api.TestInstance
 import kotlin.test.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class MockKStubMemoryTest {
-
+class StubRepositoryTest {
     interface Service {
         fun compute(x: Int): Int
     }
