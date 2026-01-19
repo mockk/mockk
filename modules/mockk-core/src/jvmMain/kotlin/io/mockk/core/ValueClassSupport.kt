@@ -1,8 +1,6 @@
 package io.mockk.core
 
 import io.mockk.core.ValueClassSupport.boxedValue
-import java.lang.invoke.MethodHandle
-import java.lang.invoke.MethodHandles
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
@@ -48,12 +46,12 @@ actual object ValueClassSupport {
                 else -> return this
             }
 
-        // For generic return types, use a cached MethodHandle to probe for null.
+        // For generic return types, use a cached Method to probe for null.
         // This avoids calling mocked/intercepted property getters.
         if (expectedReturnType !is KClass<*>) {
-            val handle = resultType.resolveUnboxHandleOrNull()
-            if (handle != null) {
-                handle.invoke(this) ?: return null
+            val method = resultType.resolveUnboxMethodOrNull()
+            if (method != null) {
+                method.invoke(this) ?: return null
             }
             return this
         }
@@ -149,23 +147,18 @@ actual object ValueClassSupport {
     private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
 
     /**
-     * Cached [MethodHandle]s to synthetic `unbox-impl` methods.
+     * Cached [Method]s to synthetic `unbox-impl` methods.
      */
-    private val valueClassUnboxHandleCache = mutableMapOf<KClass<out Any>, MethodHandle?>()
+    private val valueClassUnboxMethodCache = mutableMapOf<KClass<out Any>, Method?>()
 
     /**
-     * Lookup used to unreflect the discovered method into a MethodHandle (lazily created).
+     * Resolves a [Method] for the `unbox-impl` method of a value class.
      */
-    private val methodHandleLookup by lazy { MethodHandles.lookup() }
-
-    /**
-     * Resolves a [MethodHandle] for the `unbox-impl` method of a value class.
-     */
-    private fun <T : Any> KClass<T>.resolveUnboxHandleOrNull(): MethodHandle? {
+    private fun <T : Any> KClass<T>.resolveUnboxMethodOrNull(): Method? {
         // There's no such method for non-value classes
         if (!this.isValue_safe) return null
 
-        return valueClassUnboxHandleCache.getOrPut(this) {
+        return valueClassUnboxMethodCache.getOrPut(this) {
             try {
                 // Find zero-arg Kotlin synthetic unbox method: *unbox-impl
                 val unboxImplMethod =
@@ -173,8 +166,7 @@ actual object ValueClassSupport {
                         it.name.endsWith("unbox-impl") && it.parameterCount == 0
                     } ?: return@getOrPut null
                 unboxImplMethod.isAccessible = true
-                // Prefer MethodHandle to avoid reflective exceptions on hot path
-                methodHandleLookup.unreflect(unboxImplMethod)
+                unboxImplMethod
             } catch (_: Exception) {
                 // Cache null as sentinel value; hot path won’t retry or throw
                 null
