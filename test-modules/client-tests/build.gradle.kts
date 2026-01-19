@@ -8,16 +8,30 @@ val kotlinVersion: String =
         .gradleProperty("io_mockk_kotlin_version")
         .getOrElse(libs.versions.kotlin.get())
 
+val coroutinesVersion: String =
+    if (providers.gradleProperty("io_mockk_kotlin_version").isPresent) {
+        when {
+            kotlinVersion.startsWith("1.5") -> "1.5.2"
+            kotlinVersion.startsWith("1.6") -> "1.6.4"
+            kotlinVersion.startsWith("1.7") -> "1.6.4"
+            kotlinVersion.startsWith("1.8") -> "1.7.3"
+            kotlinVersion.startsWith("1.9") -> "1.8.1"
+            else -> libs.versions.coroutines.get()
+        }
+    } else {
+        libs.versions.coroutines.get()
+    }
+
 kotlin {
     jvm {}
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project.dependencies.enforcedPlatform(kotlin("bom", version = kotlinVersion)))
+                implementation(dependencies.enforcedPlatform(kotlin("bom", version = kotlinVersion)))
                 implementation(kotlin("reflect"))
 
-                implementation(dependencies.platform(libs.kotlin.coroutines.bom))
+                implementation(dependencies.enforcedPlatform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutinesVersion"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
             }
         }

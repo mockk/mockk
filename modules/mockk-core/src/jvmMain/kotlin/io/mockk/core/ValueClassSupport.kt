@@ -6,12 +6,16 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaGetter
 import kotlin.reflect.jvm.kotlinFunction
 
+/**
+ * JVM-specific helpers for value class support.
+ */
 actual object ValueClassSupport {
     private val unboxValueReturnTypes = setOf(Result.success("").javaClass.kotlin)
 
@@ -19,50 +23,66 @@ actual object ValueClassSupport {
      * Unboxes the underlying property value of a **`value class`** or self, as long the unboxed value is appropriate
      * for the given method's return type.
      *
+     * @return The original instance, its underlying value, or `null` for logical nulls in generic contexts.
      * @see boxedValue
      */
     actual fun <T : Any> T.maybeUnboxValueForMethodReturn(method: Method): Any? {
         val resultType = this::class
-        if (!resultType.isValue_safe) {
-            return this
-        }
+        // Don't unbox if not a value class
+        if (!resultType.isValue_safe) return this
+
+        // Unbox Kotlin synthetic *unbox-impl methods
+        if (method.name.endsWith("unbox-impl")) return this.boxedValue
+
         val kFunction = method.kotlinFunction
-        if (kFunction != null) {
-            // Only unbox a value class if the method's return type is actually the type of the inlined property.
-            // For example, in a normal case where a value class `Foo` with underlying `Int` property is inlined:
-            //   method.returnType == int (the actual representation of inlined property on JVM)
-            //   method.kotlinFunction.returnType.classifier == Foo
-            val expectedReturnType = kFunction.returnType.classifier
-            val isReturnNullable = kFunction.returnType.isMarkedNullable
-            // Use innermostBoxedClass with recursion limit to avoid infinite loops (issue #1103) while still handling nested value classes (issue #1308)
-            val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
-            return if (
-                !(kFunction.isSuspend && isPrimitive) &&
-                resultType == expectedReturnType &&
-                !(isReturnNullable && isPrimitive) // Nullable primitive value classes are not inlined (issue #1103)
-            ) {
-                this.boxedValue
-            } else {
-                this
+        // It is possible that the method is a getter for a property, in which
+        // case we can check the property's return type in kotlin
+        val kProperty = if (kFunction == null) findMatchingPropertyWithJavaGetter(method) else null
+
+        val expectedReturnType =
+            when {
+                kFunction != null -> kFunction.returnType.classifier
+                kProperty != null -> kProperty.returnType.classifier
+                else -> return this
             }
-        }
-        // It is possible that the method is a getter for a property, in which case we can check the property's return
-        // type in kotlin.
-        val kProperty = findMatchingPropertyWithJavaGetter(method)
-        if (kProperty == null) {
+
+        // For generic return types, use a cached Method to probe for null.
+        // This avoids calling mocked/intercepted property getters.
+        if (expectedReturnType !is KClass<*>) {
+            val method = resultType.resolveUnboxMethodOrNull()
+            if (method != null) {
+                method.invoke(this) ?: return null
+            }
             return this
-        } else {
-            val expectedReturnType = kProperty.returnType.classifier
-            val isReturnNullable = kProperty.returnType.isMarkedNullable
-            // Use innermostBoxedClass with recursion limit to avoid infinite loops (issue #1103) while still handling nested value classes (issue #1308)
-            val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
-            return if (resultType == expectedReturnType && !(isReturnNullable && isPrimitive)) {
-                this.boxedValue
-            } else if (!(isReturnNullable && isPrimitive)) {
-                this.boxedValue
-            } else {
-                this
+        }
+
+        val isReturnNullable =
+            when {
+                kFunction != null -> kFunction.returnType.isMarkedNullable
+                kProperty != null -> kProperty.returnType.isMarkedNullable
+                else -> false
             }
+
+        // Use innermostBoxedClass with recursion limit to avoid infinite loops
+        // (issue #1103) while still handling nested value classes (issue #1308)
+        val isPrimitive = resultType.innermostBoxedClass().java.isPrimitive
+        val isExpectedTypeValueClass = expectedReturnType == resultType
+        val isExpectedTypeSupertype =
+            expectedReturnType != resultType &&
+                expectedReturnType.isSuperclassOf(resultType)
+
+        return when {
+            // Don't unbox when returning via supertype or interface
+            isExpectedTypeSupertype -> this
+            // Don't unbox for nullable primitives or suspend functions returning primitives
+            isExpectedTypeValueClass && (isReturnNullable && isPrimitive) -> this
+            isExpectedTypeValueClass && (kFunction?.isSuspend == true && isPrimitive) -> this
+            // Unbox when returning the value class type directly
+            isExpectedTypeValueClass -> this.boxedValue
+            // Unbox for properties unless it's a nullable primitive
+            kProperty != null && !(isReturnNullable && isPrimitive) -> this.boxedValue
+            // Default: don't unbox
+            else -> this
         }
     }
 
@@ -125,6 +145,34 @@ actual object ValueClassSupport {
     }
 
     private val valueClassFieldCache = mutableMapOf<KClass<out Any>, KProperty1<out Any, *>>()
+
+    /**
+     * Cached [Method]s to synthetic `unbox-impl` methods.
+     */
+    private val valueClassUnboxMethodCache = mutableMapOf<KClass<out Any>, Method?>()
+
+    /**
+     * Resolves a [Method] for the `unbox-impl` method of a value class.
+     */
+    private fun <T : Any> KClass<T>.resolveUnboxMethodOrNull(): Method? {
+        // There's no such method for non-value classes
+        if (!this.isValue_safe) return null
+
+        return valueClassUnboxMethodCache.getOrPut(this) {
+            try {
+                // Find zero-arg Kotlin synthetic unbox method: *unbox-impl
+                val unboxImplMethod =
+                    this.java.declaredMethods.firstOrNull {
+                        it.name.endsWith("unbox-impl") && it.parameterCount == 0
+                    } ?: return@getOrPut null
+                unboxImplMethod.isAccessible = true
+                unboxImplMethod
+            } catch (_: Exception) {
+                // Cache null as sentinel value; hot path won’t retry or throw
+                null
+            }
+        }
+    }
 
     /**
      * Underlying property of a **`value class`**.
