@@ -779,7 +779,12 @@ public abstract interface class io/mockk/MockKGateway$MockFactory {
 }
 
 public abstract interface class io/mockk/MockKGateway$MockInitializer {
+	public abstract fun initAnnotatedMocks (Ljava/util/List;ZZZ)V
 	public abstract fun initAnnotatedMocks (Ljava/util/List;ZZZZ)V
+}
+
+public final class io/mockk/MockKGateway$MockInitializer$DefaultImpls {
+	public static fun initAnnotatedMocks (Lio/mockk/MockKGateway$MockInitializer;Ljava/util/List;ZZZ)V
 }
 
 public abstract interface class io/mockk/MockKGateway$MockTypeChecker {

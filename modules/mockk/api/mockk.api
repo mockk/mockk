@@ -204,6 +204,7 @@ public final class io/mockk/impl/annotations/JvmMockInitializer : io/mockk/MockK
 	public static final field Companion Lio/mockk/impl/annotations/JvmMockInitializer$Companion;
 	public fun <init> (Lio/mockk/MockKGateway;)V
 	public final fun getGateway ()Lio/mockk/MockKGateway;
+	public fun initAnnotatedMocks (Ljava/util/List;ZZZ)V
 	public fun initAnnotatedMocks (Ljava/util/List;ZZZZ)V
 	public final fun initMock (Ljava/lang/Object;ZZZZ)V
 }
