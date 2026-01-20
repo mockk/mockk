@@ -5,9 +5,13 @@ plugins {
 }
 
 dokka {
+    pluginsConfiguration.html {
+        homepageLink = "https://mockk.io"
+        footerMessage = "© 2026 MockK Authors"
+    }
+
     dokkaSourceSets.configureEach {
         sourceLink {
-            // Read docs for more details: https://kotlinlang.org/docs/dokka-gradle.html#source-link-configuration
             remoteUrl("https://github.com/mockk/mockk/tree/master")
             localDirectory.set(rootDir)
         }
