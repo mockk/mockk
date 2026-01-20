@@ -135,6 +135,8 @@ interface MockKGateway {
             options: ClearOptions,
             currentThreadOnly: Boolean,
         )
+
+        fun clearAllStubsFromMemory()
     }
 
     /**

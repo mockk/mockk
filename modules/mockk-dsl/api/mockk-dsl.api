@@ -599,6 +599,7 @@ public final class io/mockk/MockKDsl {
 	public static synthetic fun internalClearAllMocks$default (Lio/mockk/MockKDsl;ZZZZZZZZZZILjava/lang/Object;)V
 	public final fun internalClearConstructorMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
 	public static synthetic fun internalClearConstructorMockk$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZZZZILjava/lang/Object;)V
+	public final fun internalClearMemory ()V
 	public final fun internalClearMocks (Ljava/lang/Object;[Ljava/lang/Object;ZZZZZ)V
 	public static synthetic fun internalClearMocks$default (Lio/mockk/MockKDsl;Ljava/lang/Object;[Ljava/lang/Object;ZZZZZILjava/lang/Object;)V
 	public final fun internalClearObjectMockk ([Ljava/lang/Object;ZZZZZ)V
@@ -728,6 +729,7 @@ public final class io/mockk/MockKGateway$ClearOptions {
 public abstract interface class io/mockk/MockKGateway$Clearer {
 	public abstract fun clear ([Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
 	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
+	public abstract fun clearAllStubsFromMemory ()V
 }
 
 public final class io/mockk/MockKGateway$Companion {

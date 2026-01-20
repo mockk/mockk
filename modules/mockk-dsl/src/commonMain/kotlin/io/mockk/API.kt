@@ -664,6 +664,10 @@ object MockKDsl {
         }
     }
 
+    inline fun internalClearMemory() {
+        MockKGateway.implementation().clearer.clearAllStubsFromMemory()
+    }
+
     /*
      * Checks if provided mock is mock of certain type
      */

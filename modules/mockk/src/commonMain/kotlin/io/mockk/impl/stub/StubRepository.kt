@@ -30,6 +30,8 @@ class StubRepository(
     val allStubs: List<Stub>
         get() = stubs.values.mapNotNull { it.value as? Stub }
 
+    internal fun clear() = stubs.clear()
+
     fun notifyCallRecorded(stub: MockKStub) {
         recordCallMultiNotifier.notify(stub)
     }

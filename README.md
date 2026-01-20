@@ -1458,6 +1458,7 @@ Here are a few tables to help you master the DSL.
 | `clearConstructorMockk`   | clears the constructor mock                                                                                |
 | `unmockkAll`              | unmocks object, static and constructor mocks                                                               |
 | `clearAllMocks`           | clears regular, object, static and constructor mocks                                                       |
+| `clearAllStubsFromMemory` | removes all mocks from the internal collection storing them, and as a result frees up memory.              |
 
 
 ### Matchers
