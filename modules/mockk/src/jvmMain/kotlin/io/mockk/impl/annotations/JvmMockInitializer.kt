@@ -5,6 +5,8 @@ package io.mockk.impl.annotations
 import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
+import io.mockk.impl.annotations.InjectionHelpers.getConstructorParameterTypes
+import io.mockk.impl.annotations.InjectionHelpers.getReturnTypeKClass
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
@@ -21,6 +23,7 @@ class JvmMockInitializer(
         overrideRecordPrivateCalls: Boolean,
         relaxUnitFun: Boolean,
         relaxed: Boolean,
+        useDependencyOrder: Boolean,
     ) {
         for (target in targets) {
             initMock(
@@ -28,6 +31,7 @@ class JvmMockInitializer(
                 overrideRecordPrivateCalls,
                 relaxUnitFun,
                 relaxed,
+                useDependencyOrder,
             )
         }
     }
@@ -37,6 +41,7 @@ class JvmMockInitializer(
         overrideRecordPrivateCalls: Boolean,
         relaxUnitFun: Boolean,
         relaxed: Boolean,
+        useDependencyOrder: Boolean,
     ) {
         val cls = target::class
         for (property in cls.memberProperties) {
@@ -57,9 +62,20 @@ class JvmMockInitializer(
             }
         }
 
-        for (property in cls.memberProperties) {
-            property as KProperty1<Any, Any>
+        // Collect @InjectMockKs properties and optionally sort by dependency order
+        val injectMockKsProperties =
+            cls.memberProperties
+                .map { it as KProperty1<Any, Any> }
+                .filter { it.findAnnotation<InjectMockKs>() != null }
 
+        val orderedProperties =
+            if (useDependencyOrder) {
+                sortByDependencyOrder(injectMockKsProperties)
+            } else {
+                injectMockKsProperties
+            }
+
+        for (property in orderedProperties) {
             property.annotated<InjectMockKs>(target) { annotation ->
                 val mockInjector =
                     MockInjector(
@@ -71,6 +87,11 @@ class JvmMockInitializer(
                 val instance = doInjection(property, target, mockInjector)
                 convertSpyKAnnotatedToSpy(property, instance, overrideRecordPrivateCalls)
             }
+        }
+
+        for (property in cls.memberProperties) {
+            property as KProperty1<Any, Any>
+
             property.annotated<OverrideMockKs>(target) { annotation ->
                 val mockInjector =
                     MockInjector(
@@ -83,6 +104,75 @@ class JvmMockInitializer(
                 doInjection(property, target, mockInjector)
             }
         }
+    }
+
+    /**
+     * Sorts @InjectMockKs properties by dependency order using topological sort.
+     * Properties with no dependencies on other @InjectMockKs types are processed first.
+     */
+    private fun sortByDependencyOrder(properties: List<KProperty1<Any, Any>>): List<KProperty1<Any, Any>> {
+        if (properties.size <= 1) return properties
+
+        val dependencies = buildDependencyGraph(properties)
+        return topologicalSort(properties, dependencies)
+    }
+
+    private fun buildDependencyGraph(properties: List<KProperty1<Any, Any>>): Map<KProperty1<Any, Any>, Set<KProperty1<Any, Any>>> {
+        val typeToProperty =
+            properties
+                .mapNotNull { prop -> prop.getReturnTypeKClass()?.let { it to prop } }
+                .toMap()
+
+        return properties.associateWith { property ->
+            val clazz = property.getReturnTypeKClass() ?: return@associateWith emptySet()
+
+            clazz
+                .getConstructorParameterTypes()
+                .mapNotNull { paramType -> typeToProperty[paramType] }
+                .toSet()
+        }
+    }
+
+    /**
+     * Performs topological sort using Kahn's algorithm.
+     * @throws MockKException if circular dependency is detected.
+     */
+    private fun topologicalSort(
+        properties: List<KProperty1<Any, Any>>,
+        dependencies: Map<KProperty1<Any, Any>, Set<KProperty1<Any, Any>>>,
+    ): List<KProperty1<Any, Any>> {
+        val inDegree =
+            properties
+                .associateWith { prop ->
+                    dependencies[prop]?.size ?: 0
+                }.toMutableMap()
+
+        val result = mutableListOf<KProperty1<Any, Any>>()
+        val queue = ArrayDeque(properties.filter { inDegree[it] == 0 })
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            result.add(current)
+
+            for (prop in properties) {
+                if (dependencies[prop]?.contains(current) == true) {
+                    val newDegree = inDegree.getValue(prop) - 1
+                    inDegree[prop] = newDegree
+                    if (newDegree == 0) {
+                        queue.add(prop)
+                    }
+                }
+            }
+        }
+
+        if (result.size != properties.size) {
+            val circular = properties.filter { it !in result }
+            throw MockKException(
+                "Circular dependency detected in @InjectMockKs: ${circular.map { it.name }}",
+            )
+        }
+
+        return result
     }
 
     private fun doInjection(
@@ -146,9 +236,7 @@ class JvmMockInitializer(
         target: Any,
     ) {
         property.annotated<RelaxedMockK>(target) { annotation ->
-            val type =
-                property.returnType.classifier as? KClass<*>
-                    ?: return@annotated null
+            val type = property.getReturnTypeKClass() ?: return@annotated null
 
             gateway.mockFactory.mockk(
                 type,
@@ -167,9 +255,7 @@ class JvmMockInitializer(
         relaxed: Boolean,
     ) {
         property.annotated<MockK>(target) { annotation ->
-            val type =
-                property.returnType.classifier as? KClass<*>
-                    ?: return@annotated null
+            val type = property.getReturnTypeKClass() ?: return@annotated null
 
             gateway.mockFactory.mockk(
                 type,

@@ -17,8 +17,8 @@ public final class io/mockk/MockK {
 
 public final class io/mockk/MockKAnnotations {
 	public static final field INSTANCE Lio/mockk/MockKAnnotations;
-	public final fun init ([Ljava/lang/Object;ZZZ)V
-	public static synthetic fun init$default (Lio/mockk/MockKAnnotations;[Ljava/lang/Object;ZZZILjava/lang/Object;)V
+	public final fun init ([Ljava/lang/Object;ZZZZ)V
+	public static synthetic fun init$default (Lio/mockk/MockKAnnotations;[Ljava/lang/Object;ZZZZILjava/lang/Object;)V
 }
 
 public final class io/mockk/MockKKt {
@@ -206,7 +206,8 @@ public final class io/mockk/impl/annotations/JvmMockInitializer : io/mockk/MockK
 	public fun <init> (Lio/mockk/MockKGateway;)V
 	public final fun getGateway ()Lio/mockk/MockKGateway;
 	public fun initAnnotatedMocks (Ljava/util/List;ZZZ)V
-	public final fun initMock (Ljava/lang/Object;ZZZ)V
+	public fun initAnnotatedMocks (Ljava/util/List;ZZZZ)V
+	public final fun initMock (Ljava/lang/Object;ZZZZ)V
 }
 
 public final class io/mockk/impl/annotations/JvmMockInitializer$Companion {

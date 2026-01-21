@@ -224,6 +224,20 @@ To change this, use `overrideValues = true`. This would assign the value even if
 To inject `val`s, use `injectImmutable = true`. For a shorter notation use `@OverrideMockKs` which does the same as
 `@InjectMockKs` by default, but turns these two flags on.
 
+### @InjectMockKs dependency order
+
+If multiple `@InjectMockKs` properties depend on each other via constructor parameters, initialization order matters.
+By default, MockK processes them in reflection order; to resolve dependencies deterministically, enable dependency
+order:
+
+```kotlin
+@Before
+fun setUp() = MockKAnnotations.init(this, useDependencyOrder = true)
+```
+
+This applies a topological sort across `@InjectMockKs` and throws `MockKException` on circular dependencies.
+Enabling `useDependencyOrder` adds an approximate 3-5% performance overhead during initialization.
+
 ### JUnit4
 
 JUnit 4 exposes a rule-based API to allow for some automation following the test lifecycle. MockK includes a rule which uses this to set up and tear down your mocks without needing to manually call `MockKAnnotations.init(this)`. Example:
