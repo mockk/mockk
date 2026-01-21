@@ -5,6 +5,8 @@ public final class io/mockk/APIKt {
 	public static final fun checkEquals (Lio/mockk/MockKAssertScope;Ljava/lang/String;Ljava/lang/Object;)V
 	public static final fun internalSubstitute (Ljava/lang/Object;Ljava/util/Map;)Ljava/lang/Object;
 	public static final fun internalSubstitute (Ljava/util/List;Ljava/util/Map;)Ljava/util/List;
+	public static final fun just (Lio/mockk/MockKRepeatedAnswerScope;Lio/mockk/Awaits;)Lio/mockk/MockKAdditionalAnswerScope;
+	public static final fun just (Lio/mockk/MockKRepeatedAnswerScope;Lio/mockk/Runs;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun just (Lio/mockk/MockKStubScope;Lio/mockk/Awaits;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun just (Lio/mockk/MockKStubScope;Lio/mockk/Runs;)Lio/mockk/MockKAdditionalAnswerScope;
 	public static final fun use (Lio/mockk/Deregisterable;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
@@ -947,6 +949,15 @@ public final class io/mockk/MockKObjectScope : io/mockk/MockKUnmockKScope {
 	public final fun getRecordPrivateCalls ()Z
 }
 
+public final class io/mockk/MockKRepeatedAnswerScope {
+	public fun <init> (Lio/mockk/MockKGateway$AnswerOpportunity;Lio/mockk/MockKGateway$CallRecorder;Lio/mockk/CapturingSlot;I)V
+	public final fun answers (Lio/mockk/Answer;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun answers (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun coAnswers (Lkotlin/jvm/functions/Function3;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun returns (Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun throws (Ljava/lang/Throwable;)Lio/mockk/MockKAdditionalAnswerScope;
+}
+
 public final class io/mockk/MockKSettings {
 	public static final field INSTANCE Lio/mockk/MockKSettings;
 	public final fun getFailOnSetBackingFieldException ()Z
@@ -979,6 +990,7 @@ public final class io/mockk/MockKStubScope {
 	public final fun coAnswers (Lkotlin/jvm/functions/Function3;)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun nullablePropertyType (Lkotlin/reflect/KClass;)Lio/mockk/MockKStubScope;
 	public final fun propertyType (Lkotlin/reflect/KClass;)Lio/mockk/MockKStubScope;
+	public final fun repeatedly (I)Lio/mockk/MockKRepeatedAnswerScope;
 	public final fun returns (Ljava/lang/Object;)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun returnsArgument (I)Lio/mockk/MockKAdditionalAnswerScope;
 	public final fun returnsMany (Ljava/util/List;)Lio/mockk/MockKAdditionalAnswerScope;
