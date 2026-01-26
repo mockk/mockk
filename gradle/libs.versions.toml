@@ -7,7 +7,7 @@ android-gradle = "8.13.2"
 kover = "0.9.3"
 dokka = "2.2.0-Beta"
 binary-compatibility-validator = "0.18.1"
-jreleaser = "1.21.0"
+jreleaser = "1.22.0"
 
 slf4j = "2.0.17"
 logback = "1.5.21"

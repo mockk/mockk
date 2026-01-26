@@ -83,6 +83,7 @@ jreleaser {
 
     release {
         github {
+            immutableRelease = false
             enabled = false
             skipRelease = true
             skipTag = true
