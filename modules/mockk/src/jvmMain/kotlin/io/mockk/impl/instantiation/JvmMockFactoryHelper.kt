@@ -130,9 +130,12 @@ object JvmMockFactoryHelper {
             val kotlinFunction = this.kotlinFunction
             if (kotlinFunction != null && kotlinFunction.isInline) return true
         } catch (_: KotlinReflectionInternalError) {
-            null // fall back to annotation check
+            // fall back to annotation check
         } catch (_: UnsupportedOperationException) {
-            null // fall back to annotation check
+            // fall back to annotation check
+        } catch (_: IllegalStateException) {
+            // Can occur with complex Java inheritance hierarchies, e.g., "Cannot infer visibility"
+            // See https://github.com/mockk/mockk/issues/1432
         }
 
         return this.declaredAnnotations.any { ann ->
