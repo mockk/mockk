@@ -63,8 +63,7 @@ class SameInstanceMatcher<T : Any>(
 
     override fun hashCode(): Int = InternalPlatformDsl.identityHashCode(valueArg)
 
-    override fun toString(): String =
-        "sameInstance(${valueArg::class.simpleName}@${InternalPlatformDsl.identityHashCode(valueArg)})"
+    override fun toString(): String = "sameInstance(${valueArg::class.simpleName}@${hashCode()})"
 }
 
 /**
