@@ -547,6 +547,24 @@ This means that when verifying invocations on a `prototype mock` you have to ens
 the same that where used when stubbing, i.e. the matchers in the `verify` block and in the `every` block must be the
 same.
 
+When constructor arguments are mocks, prefer `SameInstanceMatcher` (reference match) and reuse the same matcher
+instances in both `every` and `verify`:
+
+```kotlin
+mockkConstructor(Intent::class)
+
+val uri = mockk<Uri>()
+val uriMatcher = SameInstanceMatcher(uri)
+
+every {
+    constructedWith<Intent>(EqMatcher(Intent.ACTION_VIEW), uriMatcher).setFlags(any())
+} returns mockk()
+
+verify {
+    constructedWith<Intent>(EqMatcher(Intent.ACTION_VIEW), uriMatcher).setFlags(any())
+}
+```
+
 
 ### Partial argument matching
 
