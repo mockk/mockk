@@ -43,6 +43,30 @@ data class EqMatcher<in T : Any>(
 }
 
 /**
+ * Matcher that checks reference equality without calling equals/hashCode/toString on the value.
+ *
+ * Useful for matching mocked constructor arguments (e.g., with constructedWith),
+ * where invoking equals/hashCode/toString on a mock can cause extra recorded calls.
+ */
+class SameInstanceMatcher<T : Any>(
+    val valueArg: T,
+) : Matcher<T> {
+    override fun match(arg: T?): Boolean = arg === valueArg
+
+    override fun substitute(map: Map<Any, Any>) = SameInstanceMatcher(valueArg.internalSubstitute(map))
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SameInstanceMatcher<*>) return false
+        return other.valueArg === valueArg
+    }
+
+    override fun hashCode(): Int = InternalPlatformDsl.identityHashCode(valueArg)
+
+    override fun toString(): String = "sameInstance(${valueArg::class.simpleName}@${hashCode()})"
+}
+
+/**
  * Matcher that always returns one same value.
  */
 data class ConstantMatcher<in T : Any>(

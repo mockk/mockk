@@ -1089,6 +1089,17 @@ public final class io/mockk/Runs {
 	public static final field INSTANCE Lio/mockk/Runs;
 }
 
+public final class io/mockk/SameInstanceMatcher : io/mockk/Matcher {
+	public fun <init> (Ljava/lang/Object;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValueArg ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun match (Ljava/lang/Object;)Z
+	public synthetic fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun substitute (Ljava/util/Map;)Lio/mockk/SameInstanceMatcher;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class io/mockk/StackElement {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IZ)V
 	public final fun component1 ()Ljava/lang/String;

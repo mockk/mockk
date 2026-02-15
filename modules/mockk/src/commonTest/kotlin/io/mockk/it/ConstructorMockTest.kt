@@ -3,8 +3,10 @@ package io.mockk.it
 import io.mockk.EqMatcher
 import io.mockk.MockKException
 import io.mockk.OfTypeMatcher
+import io.mockk.SameInstanceMatcher
 import io.mockk.clearConstructorMockk
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.unmockkAll
 import io.mockk.unmockkConstructor
@@ -17,6 +19,17 @@ import kotlin.test.assertFailsWith
 class ConstructorMockTest {
     class ExampleClass {
         val exampleProperty: Int = 1
+    }
+
+    interface TokenProvider {
+        fun token(): String
+    }
+
+    data class MockClsWithRefArg(
+        private val action: String,
+        private val tokenProvider: TokenProvider,
+    ) {
+        fun op() = "$action:${tokenProvider.token()}"
     }
 
     data class MockCls(
@@ -167,6 +180,48 @@ class ConstructorMockTest {
         verify {
             constructedWith<MockCls>(EqMatcher(6)).op(1, 2)
         }
+    }
+
+    @Test
+    fun constructedWithSameInstanceMatcher() {
+        mockkConstructor(MockClsWithRefArg::class)
+
+        val tokenProvider = mockk<TokenProvider>()
+        val tokenMatcher = SameInstanceMatcher(tokenProvider)
+
+        every {
+            constructedWith<MockClsWithRefArg>(EqMatcher("ACTION"), tokenMatcher).op()
+        } returns "ok"
+
+        assertEquals("ok", MockClsWithRefArg("ACTION", tokenProvider).op())
+
+        verify {
+            constructedWith<MockClsWithRefArg>(EqMatcher("ACTION"), tokenMatcher).op()
+        }
+    }
+
+    @Test
+    fun constructedWithSameInstanceMatcherDistinguishesArgs() {
+        mockkConstructor(MockClsWithRefArg::class)
+
+        val tokenProviderA = mockk<TokenProvider>()
+        val tokenProviderB = mockk<TokenProvider>()
+
+        val matcherA = SameInstanceMatcher(tokenProviderA)
+        val matcherB = SameInstanceMatcher(tokenProviderB)
+
+        every {
+            constructedWith<MockClsWithRefArg>(EqMatcher("ACTION"), matcherA).op()
+        } returns "a"
+        every {
+            constructedWith<MockClsWithRefArg>(EqMatcher("ACTION"), matcherB).op()
+        } returns "b"
+
+        assertEquals("a", MockClsWithRefArg("ACTION", tokenProviderA).op())
+        assertEquals("b", MockClsWithRefArg("ACTION", tokenProviderB).op())
+
+        verify { constructedWith<MockClsWithRefArg>(EqMatcher("ACTION"), matcherA).op() }
+        verify { constructedWith<MockClsWithRefArg>(EqMatcher("ACTION"), matcherB).op() }
     }
 
     @Test
