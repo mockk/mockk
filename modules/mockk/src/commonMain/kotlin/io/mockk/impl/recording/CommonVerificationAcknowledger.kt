@@ -6,7 +6,7 @@ import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.SafeToString
 import io.mockk.impl.stub.Stub
 import io.mockk.impl.stub.StubRepository
-import io.mockk.impl.verify.VerificationHelpers
+import io.mockk.impl.verify.VerificationReportFormatter
 
 class CommonVerificationAcknowledger(
     val stubRepo: StubRepository,
@@ -42,7 +42,7 @@ class CommonVerificationAcknowledger(
 
         val nonVerifiedReport =
             safeToString.exec {
-                reportNotVerified(
+                VerificationReportFormatter.reportNotVerified(
                     allCalls.size,
                     verifiedCalls.size,
                     stub.allRecordedCalls() - stub.verifiedCalls().toSet(),
@@ -50,18 +50,6 @@ class CommonVerificationAcknowledger(
             }
         throw AssertionError("Verification acknowledgment failed$nonVerifiedReport")
     }
-
-    private fun reportNotVerified(
-        nTotal: Int,
-        nVerified: Int,
-        notVerified: List<Invocation>,
-    ): String =
-        "\n\nVerified call count: $nVerified\n" +
-            "Recorded call count: $nTotal\n" +
-            "\n\nNot verified calls:\n" +
-            VerificationHelpers.formatCalls(notVerified) +
-            "\n\nStack traces:\n" +
-            VerificationHelpers.stackTraces(notVerified)
 
     private fun checkUnnecessaryStubHelper(stub: Stub) {
         val unnecessaryMatcher = stub.matcherUsages().filterValues { it == 0 }.keys

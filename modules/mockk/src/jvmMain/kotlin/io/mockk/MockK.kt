@@ -3,6 +3,7 @@
 package io.mockk
 
 import io.mockk.impl.JvmMockKGateway
+import io.mockk.impl.verify.JvmFunctionScopedVerificationAcknowledger
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaMethod
@@ -51,6 +52,44 @@ fun clearStaticMockk(vararg functions: KFunction<*>) = clearStaticMockk(*functio
  * Clear static mocks.
  */
 fun clearStaticMockk(vararg functions: KProperty<*>) = clearStaticMockk(*functions.map(KProperty<*>::getter).toTypedArray())
+
+/**
+ * Checks if all recorded calls for the provided function references were verified.
+ *
+ * Accepts any [KFunction] reference, but confirmation works only for references that
+ * map to statically mocked targets (for example top-level and module-wide extension
+ * functions mocked via [mockkStatic]).
+ * This overload requires at least one function reference.
+ * For global verification (all stubs), use [confirmVerified] with no arguments.
+ *
+ * @param clear if `true`, recorded calls and verification marks are cleared for the
+ * selected function references after successful confirmation.
+ */
+fun confirmVerified(
+    function: KFunction<*>,
+    vararg functions: KFunction<*>,
+    clear: Boolean = false,
+) = MockK.useImpl {
+    JvmFunctionScopedVerificationAcknowledger.confirmVerified(arrayOf(function, *functions), clear)
+}
+
+/**
+ * Checks if all recorded calls for the provided property references were verified.
+ *
+ * Accepts any [KProperty] reference, but confirmation works only for references that
+ * map to statically mocked targets (for example top-level and module-wide extension
+ * properties mocked via [mockkStatic]).
+ * This overload requires at least one property reference.
+ * For global verification (all stubs), use [confirmVerified] with no arguments.
+ *
+ * @param clear if `true`, recorded calls and verification marks are cleared for the
+ * selected property references after successful confirmation.
+ */
+fun confirmVerified(
+    property: KProperty<*>,
+    vararg properties: KProperty<*>,
+    clear: Boolean = false,
+) = confirmVerified(property.getter, *properties.map(KProperty<*>::getter).toTypedArray(), clear = clear)
 
 /**
  * Builds a static mock and unmocks it after the block has been executed.

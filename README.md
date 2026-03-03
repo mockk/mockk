@@ -1010,9 +1010,13 @@ every { buildCar() } returns testCar
 assertEquals(testCar, buildCar())
 
 verify { buildCar() }
+confirmVerified(::buildCar)
 ```
 
 Mocking a function will clear any existing mocks of other functions declared in the same file, equivalent to calling `clearStaticMockk` on the generated enclosing class.
+`confirmVerified` accepts function/property references, but scoped confirmation works only for references backed by static mocks (typically top-level or module-wide extension references used with `mockkStatic`).
+If you pass `clear = true` to `confirmVerified` with function/property references, only selected references are cleared.
+`confirmVerified()` with no arguments keeps its original behavior and confirms all stubs.
 
 ### Extension functions
 

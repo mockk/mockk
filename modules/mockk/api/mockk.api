@@ -1,6 +1,10 @@
 public final class io/mockk/JVMMockKKt {
 	public static final fun clearStaticMockk ([Lkotlin/reflect/KFunction;)V
 	public static final fun clearStaticMockk ([Lkotlin/reflect/KProperty;)V
+	public static final fun confirmVerified (Lkotlin/reflect/KFunction;[Lkotlin/reflect/KFunction;Z)V
+	public static final fun confirmVerified (Lkotlin/reflect/KProperty;[Lkotlin/reflect/KProperty;Z)V
+	public static synthetic fun confirmVerified$default (Lkotlin/reflect/KFunction;[Lkotlin/reflect/KFunction;ZILjava/lang/Object;)V
+	public static synthetic fun confirmVerified$default (Lkotlin/reflect/KProperty;[Lkotlin/reflect/KProperty;ZILjava/lang/Object;)V
 	public static final fun getDeclaringKotlinFile (Lkotlin/reflect/KFunction;)Lkotlin/reflect/KClass;
 	public static final fun mockkStatic ([Lkotlin/reflect/KFunction;)V
 	public static final fun mockkStatic ([Lkotlin/reflect/KFunction;Lkotlin/jvm/functions/Function0;)V
