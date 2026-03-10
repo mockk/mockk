@@ -786,8 +786,28 @@ inline fun clearAllMocks(
  * This is not the same as `clearAllMocks` which goes through each
  * object in the internal collection and clears their stubs, while still keeping them
  * in memory.
+ *
+ * **Important:** After calling this function, all mocks that were stored in the internal
+ * stubs collection are permanently removed from memory. These mocks can no longer be used
+ * for stubbing or verification. Any subsequent attempts to use them will fail.
+ *
+ * ### Child mocks behavior
+ *
+ * When `excludeMocks` parameter is provided, the function not only preserves the specified
+ * mocks but also preserves their child mocks. Child mocks are lazy mocks created during
+ * mock invocation (for example, when a mock returns another mock). This ensures that
+ * excluded mocks can still function properly with their associated child mocks.
+ *
+ * @param currentThreadOnly if true, clears only mocks created in the current thread
+ * @param excludeMocks a list of mocks to exclude from clearing (preserves them in memory)
  */
-fun clearAllStubsFromMemory() = MockKDsl.internalClearMemory()
+fun clearAllStubsFromMemory(
+    currentThreadOnly: Boolean = false,
+    excludeMocks: List<Any> = emptyList(),
+) = MockKDsl.internalClearMemory(
+    currentThreadOnly,
+    excludeMocks,
+)
 
 /**
  * Checks if provided mock is mock of certain type

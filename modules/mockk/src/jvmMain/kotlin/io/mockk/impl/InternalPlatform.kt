@@ -5,6 +5,7 @@ import io.mockk.MockKException
 import io.mockk.StackElement
 import io.mockk.core.ValueClassSupport.boxedClass
 import io.mockk.core.ValueClassSupport.boxedValue
+import io.mockk.declaringKotlinFile
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
@@ -14,6 +15,8 @@ import java.util.Collections.synchronizedList
 import java.util.Collections.synchronizedMap
 import java.util.Locale
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KProperty
 import kotlin.reflect.full.cast
 
 actual object InternalPlatform {
@@ -51,7 +54,7 @@ actual object InternalPlatform {
         }
     }
 
-    actual fun <K, V> weakMap(): MutableMap<K, V> = JvmWeakConcurrentMap()
+    actual fun <K, V> weakMap(): WeakMap<K, V> = JvmWeakConcurrentMap()
 
     actual fun <K, V> identityMap(): MutableMap<K, V> = CommonIdentityHashMapOf()
 
@@ -183,4 +186,14 @@ actual object InternalPlatform {
             .getProperty("java.vendor", "")
             .lowercase(Locale.US)
             .contains("android")
+
+    actual fun getMockKeys(mocks: List<Any>): List<Any> =
+        mocks.map {
+            when (it) {
+                is KClass<*> -> it.java
+                is KProperty<*> -> it.getter.declaringKotlinFile.java
+                is KFunction<*> -> it.declaringKotlinFile.java
+                else -> it
+            }
+        }
 }
