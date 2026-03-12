@@ -321,6 +321,11 @@ You can make sure that all stubbed methods are useful - used at least once - by 
 
 This will internally call `checkUnnecessaryStub` on all mocks after each test, to make sure there are no unnecessary stubbings.
 
+#### Declarative enabling of dependency order
+
+You can enable topological dependency resolution of `@InjectMockKs` by also annotating your test class with `@MockKExtension.UseDependencyOrder`.
+
+This will internally process each test instance of the annotated class with `MockKAnnotations.init(useDependencyOrder==true)`.
 
 ### Spy
 
