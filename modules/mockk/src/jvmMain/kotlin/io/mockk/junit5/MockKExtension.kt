@@ -141,7 +141,7 @@ class MockKExtension :
         testInstance: Any,
         context: ExtensionContext,
     ) {
-        MockKAnnotations.init(testInstance)
+        MockKAnnotations.init(testInstance, useDependencyOrder = context.useDependencyOrder)
     }
 
     override fun afterEach(context: ExtensionContext) {
@@ -220,6 +220,16 @@ class MockKExtension :
             map { it.hasAnnotationRecursive(RequireParallelTesting::class.java) }
                 .orElse(false)
 
+    private val ExtensionContext.useDependencyOrder: Boolean
+        get() =
+            testClass.useDependencyOrder ||
+                getConfigurationParameter(USE_DEPENDENCY_ORDER_PROPERTY).map { it.toBoolean() }.orElse(false)
+
+    private val Optional<out AnnotatedElement>.useDependencyOrder
+        get() =
+            map { it.hasAnnotationRecursive(UseDependencyOrder::class.java) }
+                .orElse(false)
+
     /***
      * Prevent calling [unmockkAll] after each test execution
      */
@@ -246,11 +256,17 @@ class MockKExtension :
     @Target(AnnotationTarget.CLASS)
     annotation class RequireParallelTesting
 
+    @Inherited
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.CLASS)
+    annotation class UseDependencyOrder
+
     companion object {
         const val KEEP_MOCKS_PROPERTY = "mockk.junit.extension.keepmocks"
         const val CONFIRM_VERIFICATION_PROPERTY = "mockk.junit.extension.confirmverification"
         const val CHECK_UNNECESSARY_STUB_PROPERTY = "mockk.junit.extension.checkUnnecessaryStub"
         const val REQUIRE_PARALLEL_TESTING = "mockk.junit.extension.requireParallelTesting"
+        const val USE_DEPENDENCY_ORDER_PROPERTY = "mockk.junit.extension.useDependencyOrder"
     }
 }
 

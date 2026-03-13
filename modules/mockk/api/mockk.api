@@ -1161,6 +1161,7 @@ public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extens
 	public static final field Companion Lio/mockk/junit5/MockKExtension$Companion;
 	public static final field KEEP_MOCKS_PROPERTY Ljava/lang/String;
 	public static final field REQUIRE_PARALLEL_TESTING Ljava/lang/String;
+	public static final field USE_DEPENDENCY_ORDER_PROPERTY Ljava/lang/String;
 	public fun <init> ()V
 	public fun afterAll (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
 	public fun afterEach (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
@@ -1182,5 +1183,8 @@ public abstract interface annotation class io/mockk/junit5/MockKExtension$KeepMo
 }
 
 public abstract interface annotation class io/mockk/junit5/MockKExtension$RequireParallelTesting : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class io/mockk/junit5/MockKExtension$UseDependencyOrder : java/lang/annotation/Annotation {
 }
 
