@@ -960,6 +960,7 @@ public final class io/mockk/MockKSettings {
 	public final fun setRelaxUnitFun (Z)V
 	public final fun setRelaxed (Z)V
 	public final fun setStackTracesAlignment (Ljava/lang/String;)V
+	public final fun setStackTracesOnVerify (Z)V
 }
 
 public final class io/mockk/MockKSettingsKt {
