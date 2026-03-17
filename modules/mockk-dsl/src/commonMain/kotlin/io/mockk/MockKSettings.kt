@@ -12,6 +12,18 @@ expect object MockKSettings {
     val stackTracesAlignment: StackTracesAlignment
 
     val failOnSetBackingFieldException: Boolean
+
+    fun setRelaxed(value: Boolean)
+
+    fun setRelaxUnitFun(value: Boolean)
+
+    fun setRecordPrivateCalls(value: Boolean)
+
+    fun setStackTracesOnVerify(value: Boolean)
+
+    fun setStackTracesAlignment(value: String)
+
+    fun setFailOnSetBackingFieldException(value: Boolean)
 }
 
 enum class StackTracesAlignment {
@@ -22,6 +34,6 @@ enum class StackTracesAlignment {
 fun stackTracesAlignmentValueOf(property: String): StackTracesAlignment =
     try {
         enumValueOf(property.uppercase())
-    } catch (e: IllegalArgumentException) {
+    } catch (_: IllegalArgumentException) {
         StackTracesAlignment.CENTER
     }

@@ -21,4 +21,28 @@ actual object MockKSettings {
 
     actual val failOnSetBackingFieldException: Boolean
         get() = js("global.io_mockk_settings_failOnSetBackingFieldException || false") as Boolean
+
+    actual fun setRelaxed(value: Boolean) {
+        js("global.io_mockk_settings_relaxed = value")
+    }
+
+    actual fun setRelaxUnitFun(value: Boolean) {
+        js("global.io_mockk_settings_relaxUnitFun = value")
+    }
+
+    actual fun setRecordPrivateCalls(value: Boolean) {
+        js("global.io_mockk_settings_recordPrivateCalls = value")
+    }
+
+    actual fun setStackTracesOnVerify(value: Boolean) {
+        js("global.io_mockk_settings_stackTracesOnVerify = value")
+    }
+
+    actual fun setStackTracesAlignment(value: String) {
+        js("global.io_mockk_settings_stackTracesAlignment = value")
+    }
+
+    actual fun setFailOnSetBackingFieldException(value: Boolean) {
+        js("global.io_mockk_settings_failOnSetBackingFieldException = value")
+    }
 }

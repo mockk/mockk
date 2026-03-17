@@ -33,23 +33,27 @@ actual object MockKSettings {
     actual val failOnSetBackingFieldException: Boolean
         get() = booleanProperty("failOnSetBackingFieldException", "false")
 
-    fun setRelaxed(value: Boolean) {
+    actual fun setRelaxed(value: Boolean) {
         properties.setProperty("relaxed", value.toString())
     }
 
-    fun setRelaxUnitFun(value: Boolean) {
+    actual fun setRelaxUnitFun(value: Boolean) {
         properties.setProperty("relaxUnitFun", value.toString())
     }
 
-    fun setRecordPrivateCalls(value: Boolean) {
+    actual fun setRecordPrivateCalls(value: Boolean) {
         properties.setProperty("recordPrivateCalls", value.toString())
     }
 
-    fun setStackTracesAlignment(value: String) {
+    actual fun setStackTracesOnVerify(value: Boolean) {
+        properties.setProperty("stackTracesOnVerify", value.toString())
+    }
+
+    actual fun setStackTracesAlignment(value: String) {
         properties.setProperty("stackTracesAlignment", value)
     }
 
-    fun setFailOnSetBackingFieldException(value: Boolean) {
+    actual fun setFailOnSetBackingFieldException(value: Boolean) {
         properties.setProperty("failOnSetBackingFieldException", value.toString())
     }
 }
