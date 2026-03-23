@@ -231,6 +231,8 @@ open class MockKStub(
             }
         }
 
+    internal fun getChildrenKeys() = childs.values
+
     private fun childName(name: String): String {
         val result = childOfRegex.matchEntire(name)
         return if (result != null) {

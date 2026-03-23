@@ -1,10 +1,11 @@
 package io.mockk.impl.platform
 
+import io.mockk.impl.WeakMap
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
-class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
+class JvmWeakConcurrentMap<K, V> : WeakMap<K, V> {
     private val map = ConcurrentHashMap<Any, V>()
     private val queue = ReferenceQueue<K>()
 
@@ -28,14 +29,24 @@ class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
     }
 
     private fun expunge() {
+        var rootException: Throwable? = null
         var ref = queue.poll()
         while (ref != null) {
             val value = map.remove(ref)
             if (value is Disposable) {
-                value.dispose()
+                try {
+                    value.dispose()
+                } catch (e: Throwable) {
+                    if (rootException == null) {
+                        rootException = e
+                    } else {
+                        rootException.addSuppressed(e)
+                    }
+                }
             }
             ref = queue.poll()
         }
+        rootException?.let { throw it }
     }
 
     private class WeakKey<K>(
@@ -104,8 +115,35 @@ class JvmWeakConcurrentMap<K, V> : MutableMap<K, V> {
 
     override fun putAll(from: Map<out K, V>): Unit = throw UnsupportedOperationException("putAll")
 
-    override fun clear() {
-        map.clear()
+    override fun clear() = removeIf { _, _ -> true }
+
+    override fun removeIf(predicate: (K, V) -> Boolean) {
+        expunge()
+
+        var rootException: Throwable? = null
+        for (entity in map.entries) {
+            @Suppress("UNCHECKED_CAST")
+            val weakKey = entity.key as? WeakKey<K>
+            val k = weakKey?.get() ?: continue
+            val v = entity.value
+            if (predicate(k, v)) {
+                val value = map.remove(weakKey)
+                if (value != null) {
+                    if (value is Disposable) {
+                        try {
+                            value.dispose()
+                        } catch (e: Throwable) {
+                            if (rootException == null) {
+                                rootException = e
+                            } else {
+                                rootException.addSuppressed(e)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rootException?.let { throw it }
     }
 
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>

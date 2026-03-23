@@ -92,4 +92,6 @@ actual object InternalPlatform {
                 timeout: Long,
             ) = throw UnsupportedOperationException("not implemented for JS")
         }
+
+    actual fun getMockKeys(mocks: List<Any>): List<Any> = keys
 }

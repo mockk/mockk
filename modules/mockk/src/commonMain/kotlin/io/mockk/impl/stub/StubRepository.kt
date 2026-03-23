@@ -30,7 +30,32 @@ class StubRepository(
     val allStubs: List<Stub>
         get() = stubs.values.mapNotNull { it.value as? Stub }
 
-    internal fun clear() = stubs.clear()
+    internal fun clear(
+        currentThreadOnly: Boolean,
+        excludeMocks: List<Any>,
+    ) {
+        val excludePlatformMockKeys = InternalPlatform.getMockKeys(excludeMocks)
+        val currentThreadId = Thread.currentThread().id
+
+        // Recursively collect all children keys
+        val excludeMockKeys = mutableSetOf<Any>()
+        excludeMockKeys.addAll(excludePlatformMockKeys)
+        val queue = ArrayDeque(excludePlatformMockKeys)
+        while (queue.isNotEmpty()) {
+            val parentKey = queue.removeFirst()
+            val childrenKeys =
+                (stubs[parentKey]?.value as? MockKStub)?.getChildrenKeys() ?: emptyList()
+            for (childKey in childrenKeys) {
+                if (excludeMockKeys.add(childKey)) {
+                    queue.add(childKey)
+                }
+            }
+        }
+
+        stubs.removeIf { key, stub ->
+            key !in excludeMockKeys && (!currentThreadOnly || (stub.value as? Stub)?.threadId == currentThreadId)
+        }
+    }
 
     fun notifyCallRecorded(stub: MockKStub) {
         recordCallMultiNotifier.notify(stub)

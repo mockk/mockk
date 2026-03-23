@@ -17,7 +17,7 @@ expect object InternalPlatform {
         valueFunc: (K) -> V,
     ): V
 
-    fun <K, V> weakMap(): MutableMap<K, V>
+    fun <K, V> weakMap(): WeakMap<K, V>
 
     fun <K, V> identityMap(): MutableMap<K, V>
 
@@ -44,6 +44,8 @@ expect object InternalPlatform {
         obj: Any,
         block: () -> T,
     ): T
+
+    fun getMockKeys(mocks: List<Any>): List<Any>
 }
 
 interface Ref {
@@ -67,4 +69,8 @@ interface MultiNotifier {
 
         fun close()
     }
+}
+
+interface WeakMap<K, V> : MutableMap<K, V> {
+    fun removeIf(predicate: (K, V) -> Boolean)
 }

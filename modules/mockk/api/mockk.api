@@ -29,7 +29,8 @@ public final class io/mockk/MockKKt {
 	public static final fun checkUnnecessaryStub ([Ljava/lang/Object;)V
 	public static final fun clearAllMocks (ZZZZZZZZ)V
 	public static synthetic fun clearAllMocks$default (ZZZZZZZZILjava/lang/Object;)V
-	public static final fun clearAllStubsFromMemory ()V
+	public static final fun clearAllStubsFromMemory (ZLjava/util/List;)V
+	public static synthetic fun clearAllStubsFromMemory$default (ZLjava/util/List;ILjava/lang/Object;)V
 	public static final fun clearConstructorMockk ([Lkotlin/reflect/KClass;ZZZ)V
 	public static synthetic fun clearConstructorMockk$default ([Lkotlin/reflect/KClass;ZZZILjava/lang/Object;)V
 	public static final fun clearMocks (Ljava/lang/Object;[Ljava/lang/Object;ZZZZZ)V
@@ -93,6 +94,7 @@ public final class io/mockk/impl/InternalPlatform {
 	public final fun captureStackTrace ()Lkotlin/jvm/functions/Function0;
 	public final fun copyFields (Ljava/lang/Object;Ljava/lang/Object;)V
 	public final fun customComputeIfAbsent (Ljava/util/Map;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun getMockKeys (Ljava/util/List;)Ljava/util/List;
 	public final fun hkd (Ljava/lang/Object;)Ljava/lang/String;
 	public final fun identityMap ()Ljava/util/Map;
 	public final fun isPassedByValue (Lkotlin/reflect/KClass;)Z
@@ -105,7 +107,7 @@ public final class io/mockk/impl/InternalPlatform {
 	public final fun synchronizedMutableList ()Ljava/util/List;
 	public final fun synchronizedMutableMap ()Ljava/util/Map;
 	public final fun time ()J
-	public final fun weakMap ()Ljava/util/Map;
+	public final fun weakMap ()Lio/mockk/impl/WeakMap;
 	public final fun weakRef (Ljava/lang/Object;)Lio/mockk/impl/WeakRef;
 }
 
@@ -179,6 +181,10 @@ public abstract interface class io/mockk/impl/MultiNotifier$Session {
 
 public abstract interface class io/mockk/impl/Ref {
 	public abstract fun getValue ()Ljava/lang/Object;
+}
+
+public abstract interface class io/mockk/impl/WeakMap : java/util/Map, kotlin/jvm/internal/markers/KMutableMap {
+	public abstract fun removeIf (Lkotlin/jvm/functions/Function2;)V
 }
 
 public abstract interface class io/mockk/impl/WeakRef {
@@ -397,7 +403,7 @@ public final class io/mockk/impl/instantiation/JvmMockFactory : io/mockk/impl/in
 
 public final class io/mockk/impl/instantiation/JvmMockFactoryHelper {
 	public static final field INSTANCE Lio/mockk/impl/instantiation/JvmMockFactoryHelper;
-	public final fun getCache ()Ljava/util/Map;
+	public final fun getCache ()Lio/mockk/impl/WeakMap;
 	public final fun isEquals (Ljava/lang/reflect/Method;)Z
 	public final fun isHashCode (Ljava/lang/reflect/Method;)Z
 	public final fun mockHandler (Lio/mockk/impl/stub/Stub;)Lio/mockk/proxy/MockKInvocationHandler;
@@ -567,7 +573,7 @@ public final class io/mockk/impl/log/Slf4jLogger : io/mockk/impl/log/Logger {
 	public fun warn (Lkotlin/jvm/functions/Function0;)V
 }
 
-public final class io/mockk/impl/platform/CommonIdentityHashMapOf : java/util/Map, kotlin/jvm/internal/markers/KMutableMap {
+public final class io/mockk/impl/platform/CommonIdentityHashMapOf : io/mockk/impl/WeakMap {
 	public fun <init> ()V
 	public fun clear ()V
 	public fun containsKey (Ljava/lang/Object;)Z
@@ -584,6 +590,7 @@ public final class io/mockk/impl/platform/CommonIdentityHashMapOf : java/util/Ma
 	public fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun putAll (Ljava/util/Map;)V
 	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun removeIf (Lkotlin/jvm/functions/Function2;)V
 	public final fun size ()I
 	public final fun values ()Ljava/util/Collection;
 }
@@ -600,7 +607,7 @@ public abstract interface class io/mockk/impl/platform/Disposable {
 	public abstract fun dispose ()V
 }
 
-public final class io/mockk/impl/platform/JvmWeakConcurrentMap : java/util/Map, kotlin/jvm/internal/markers/KMutableMap {
+public final class io/mockk/impl/platform/JvmWeakConcurrentMap : io/mockk/impl/WeakMap {
 	public fun <init> ()V
 	public fun clear ()V
 	public fun containsKey (Ljava/lang/Object;)Z
@@ -616,6 +623,7 @@ public final class io/mockk/impl/platform/JvmWeakConcurrentMap : java/util/Map, 
 	public fun put (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 	public fun putAll (Ljava/util/Map;)V
 	public fun remove (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun removeIf (Lkotlin/jvm/functions/Function2;)V
 	public final fun size ()I
 	public final fun values ()Ljava/util/Collection;
 }
@@ -777,7 +785,7 @@ public final class io/mockk/impl/recording/JvmSignatureValueGenerator$Companion 
 
 public final class io/mockk/impl/recording/PermanentMocker {
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/log/SafeToString;)V
-	public final fun getCallRef ()Ljava/util/Map;
+	public final fun getCallRef ()Lio/mockk/impl/WeakMap;
 	public final fun getLog ()Lio/mockk/impl/log/Logger;
 	public final fun getPermanentMocks ()Ljava/util/Map;
 	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
@@ -953,7 +961,7 @@ public final class io/mockk/impl/stub/CommonClearer : io/mockk/MockKGateway$Clea
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/log/SafeToString;)V
 	public fun clear ([Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
 	public fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
-	public fun clearAllStubsFromMemory ()V
+	public fun clearAllStubsFromMemory (ZLjava/util/List;)V
 	public final fun getLog ()Lio/mockk/impl/log/Logger;
 	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
 	public final fun getStubRepository ()Lio/mockk/impl/stub/StubRepository;
