@@ -34,5 +34,8 @@ class CommonClearer(
         }
     }
 
-    override fun clearAllStubsFromMemory() = stubRepository.clear()
+    override fun clearAllStubsFromMemory(
+        currentThreadOnly: Boolean,
+        excludeMocks: List<Any>,
+    ) = stubRepository.clear(currentThreadOnly, excludeMocks)
 }
