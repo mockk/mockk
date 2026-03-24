@@ -137,8 +137,8 @@ interface MockKGateway {
         )
 
         fun clearAllStubsFromMemory(
-            currentThreadOnly: Boolean,
-            excludeMocks: List<Any>,
+            currentThreadOnly: Boolean = false,
+            excludeMocks: List<Any> = emptyList(),
         )
     }
 

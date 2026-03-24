@@ -667,8 +667,8 @@ object MockKDsl {
     }
 
     inline fun internalClearMemory(
-        currentThreadOnly: Boolean,
-        excludeMocks: List<Any>,
+        currentThreadOnly: Boolean = false,
+        excludeMocks: List<Any> = emptyList(),
     ) {
         val implementation = MockKGateway.implementation()
         implementation.clearer.clearAllStubsFromMemory(currentThreadOnly, excludeMocks)
