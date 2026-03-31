@@ -16,11 +16,11 @@ import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
 import net.bytebuddy.dynamic.VisibilityBridgeStrategy
+import net.bytebuddy.dynamic.scaffold.MethodGraph
 import net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith
 import net.bytebuddy.matcher.ElementMatchers.isConstructor
 import net.bytebuddy.matcher.ElementMatchers.isDeclaredBy
 import net.bytebuddy.matcher.ElementMatchers.isDefaultFinalizer
-import net.bytebuddy.matcher.ElementMatchers.isDefaultMethod
 import net.bytebuddy.matcher.ElementMatchers.isFinal
 import net.bytebuddy.matcher.ElementMatchers.isMethod
 import net.bytebuddy.matcher.ElementMatchers.isPublic
@@ -87,8 +87,8 @@ internal class InliningClassTransformer(
         try {
             val builder =
                 byteBuddy
-                    // Work around for https://bugs.openjdk.org/browse/JDK-8136614
-                    .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
+                    .with(VisibilityBridgeStrategy.Default.NEVER)
+                    .with(MethodGraph.Compiler.ForDeclaredMethods.INSTANCE)
                     .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
                     .visit(FixParameterNamesVisitor(classBeingRedefined))
 
