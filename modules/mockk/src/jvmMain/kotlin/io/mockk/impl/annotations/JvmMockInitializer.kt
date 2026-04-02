@@ -76,7 +76,7 @@ class JvmMockInitializer(
             }
 
         for (property in orderedProperties) {
-            property.annotated<InjectMockKs>(target) { annotation ->
+            property.annotated<InjectMockKs>(target, requireMutable = false) { annotation ->
                 val mockInjector =
                     MockInjector(
                         target,
@@ -92,7 +92,7 @@ class JvmMockInitializer(
         for (property in cls.memberProperties) {
             property as KProperty1<Any, Any>
 
-            property.annotated<OverrideMockKs>(target) { annotation ->
+            property.annotated<OverrideMockKs>(target, requireMutable = false) { annotation ->
                 val mockInjector =
                     MockInjector(
                         target,
@@ -277,6 +277,7 @@ class JvmMockInitializer(
 
     private inline fun <reified T : Annotation> KProperty1<Any, Any>.annotated(
         target: Any,
+        requireMutable: Boolean = true,
         block: (T) -> Any?,
     ) {
         val annotation =
@@ -290,13 +291,13 @@ class JvmMockInitializer(
             block(annotation)
                 ?: return
 
-        if (this !is KMutableProperty1<Any, Any>) {
+        if (this is KMutableProperty1<Any, Any>) {
+            set(target, ret)
+        } else if (requireMutable) {
             throw MockKException(
                 "Annotation $annotation present on $name read-only property, make it read-write please('lateinit var' or 'var')",
             )
         }
-
-        set(target, ret)
     }
 
     private fun isAlreadyInitialized(
