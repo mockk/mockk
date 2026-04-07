@@ -44,7 +44,7 @@ import io.mockk.MockKMatcherScope
  * These helpers invoke the lambda with `any()` matchers, letting MockK record the call.
  */
 
-/** Provides a single context parameter matcher. */
+// Provides a single context parameter matcher.
 inline fun <reified C1 : Any> MockKMatcherScope.withContext(
     noinline stubBlock: context(C1) () -> Any?,
 ): Any? = stubBlock(any())
