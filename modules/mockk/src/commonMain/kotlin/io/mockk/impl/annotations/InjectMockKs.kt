@@ -1,11 +1,13 @@
 package io.mockk.impl.annotations
 
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
 annotation class InjectMockKs(
     val lookupType: InjectionLookupType = InjectionLookupType.BOTH,
     val injectImmutable: Boolean = false,
     val overrideValues: Boolean = false,
 )
 
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
 annotation class OverrideMockKs(
     val lookupType: InjectionLookupType = InjectionLookupType.BOTH,
     val injectImmutable: Boolean = true,
