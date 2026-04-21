@@ -146,6 +146,14 @@ class InjectMocksDependencyOrderTest {
         val c: DiamondC,
     )
 
+    interface InterfaceDependency
+
+    class InterfaceDependencyImpl : InterfaceDependency
+
+    class InterfaceConsumer(
+        val dependency: InterfaceDependency,
+    )
+
     // Circular dependency (intentionally no "Circular" in class name for test accuracy)
     class NodeX(
         val y: NodeY,
@@ -286,7 +294,58 @@ class InjectMocksDependencyOrderTest {
         kotlin.test.assertSame(obj.gamma, obj.alpha.c, "DiamondD.c should be gamma")
     }
 
-    // ========== Test 4: Circular dependency detection ==========
+    // ========== Test 4: Misleading names ==========
+
+    class ServiceZ(
+        val repository: Repository,
+    )
+
+    class ServiceY(
+        val z: ServiceZ,
+    )
+
+    class MisleadingNamesTestTarget {
+        @MockK
+        lateinit var repository: Repository
+
+        @InjectMockKs
+        lateinit var serviceY: ServiceY // 'serviceY' < 'serviceZ', but Y depends on Z
+
+        @InjectMockKs
+        lateinit var serviceZ: ServiceZ
+    }
+
+    @Test
+    fun misleadingNamesDependency() {
+        val obj = MisleadingNamesTestTarget()
+        MockKAnnotations.init(obj, useDependencyOrder = true)
+
+        kotlin.test.assertNotNull(obj.serviceZ, "ServiceZ should be created")
+        kotlin.test.assertNotNull(obj.serviceY, "ServiceY should be created")
+        kotlin.test.assertSame(obj.serviceZ, obj.serviceY.z, "ServiceY.z should be the injected ServiceZ")
+    }
+
+    // ========== Test 5: Interface dependency ==========
+
+    class InterfaceDependencyTestTarget {
+        @InjectMockKs
+        lateinit var consumer: InterfaceConsumer
+
+        @InjectMockKs
+        lateinit var implementation: InterfaceDependencyImpl
+    }
+
+    @Test
+    fun interfaceDependency() {
+        val obj = InterfaceDependencyTestTarget()
+        MockKAnnotations.init(obj, useDependencyOrder = true)
+
+        kotlin.test.assertNotNull(obj.implementation, "InterfaceDependencyImpl should be created")
+        kotlin.test.assertNotNull(obj.consumer, "InterfaceConsumer should be created")
+        kotlin.test.assertSame(obj.implementation, obj.consumer.dependency, "InterfaceConsumer should receive the implementation")
+    }
+
+    // ========== Test 6: Circular dependency detection ==========
 
     class CircularTestTarget {
         @InjectMockKs

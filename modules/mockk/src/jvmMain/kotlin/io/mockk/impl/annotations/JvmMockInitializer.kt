@@ -12,6 +12,7 @@ import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
@@ -118,17 +119,18 @@ class JvmMockInitializer(
     }
 
     private fun buildDependencyGraph(properties: List<KProperty1<Any, Any>>): Map<KProperty1<Any, Any>, Set<KProperty1<Any, Any>>> {
-        val typeToProperty =
+        val providers =
             properties
                 .mapNotNull { prop -> prop.getReturnTypeKClass()?.let { it to prop } }
-                .toMap()
 
         return properties.associateWith { property ->
             val clazz = property.getReturnTypeKClass() ?: return@associateWith emptySet()
 
             clazz
                 .getConstructorParameterTypes()
-                .mapNotNull { paramType -> typeToProperty[paramType] }
+                .mapNotNull { paramType ->
+                    providers.firstOrNull { (providerType) -> providerType.isSubclassOf(paramType) }?.second
+                }
                 .toSet()
         }
     }
