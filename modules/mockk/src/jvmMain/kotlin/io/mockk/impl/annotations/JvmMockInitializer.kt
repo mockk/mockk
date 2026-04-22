@@ -119,9 +119,10 @@ class JvmMockInitializer(
     }
 
     private fun buildDependencyGraph(properties: List<KProperty1<Any, Any>>): Map<KProperty1<Any, Any>, Set<KProperty1<Any, Any>>> {
-        val providers =
+        val typeToProperty =
             properties
                 .mapNotNull { prop -> prop.getReturnTypeKClass()?.let { it to prop } }
+                .toMap()
 
         return properties.associateWith { property ->
             val clazz = property.getReturnTypeKClass() ?: return@associateWith emptySet()
@@ -129,9 +130,11 @@ class JvmMockInitializer(
             clazz
                 .getConstructorParameterTypes()
                 .mapNotNull { paramType ->
-                    providers.firstOrNull { (providerType) -> providerType.isSubclassOf(paramType) }?.second
-                }
-                .toSet()
+                    typeToProperty[paramType]
+                        ?: typeToProperty.entries
+                            .firstOrNull { (providerType, _) -> providerType.isSubclassOf(paramType) }
+                            ?.value
+                }.toSet()
         }
     }
 

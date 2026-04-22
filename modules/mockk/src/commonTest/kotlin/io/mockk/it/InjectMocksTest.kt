@@ -90,7 +90,7 @@ class InjectMocksListTest {
 }
 
 /**
- * See issue #1496
+ * See issue #1496, #1523
  * Test for @InjectMockKs dependency order resolution using topological sort.
  *
  * Problem: MockK previously processed @InjectMockKs fields in reflection order,
