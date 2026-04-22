@@ -12,6 +12,7 @@ import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
@@ -128,8 +129,12 @@ class JvmMockInitializer(
 
             clazz
                 .getConstructorParameterTypes()
-                .mapNotNull { paramType -> typeToProperty[paramType] }
-                .toSet()
+                .mapNotNull { paramType ->
+                    typeToProperty[paramType]
+                        ?: typeToProperty.entries
+                            .firstOrNull { (providerType, _) -> providerType.isSubclassOf(paramType) }
+                            ?.value
+                }.toSet()
         }
     }
 

@@ -90,7 +90,7 @@ class InjectMocksListTest {
 }
 
 /**
- * See issue #1496
+ * See issue #1496, #1523
  * Test for @InjectMockKs dependency order resolution using topological sort.
  *
  * Problem: MockK previously processed @InjectMockKs fields in reflection order,
@@ -144,6 +144,14 @@ class InjectMocksDependencyOrderTest {
     class DiamondD(
         val b: DiamondB,
         val c: DiamondC,
+    )
+
+    interface InterfaceDependency
+
+    class InterfaceDependencyImpl : InterfaceDependency
+
+    class InterfaceConsumer(
+        val dependency: InterfaceDependency,
     )
 
     // Circular dependency (intentionally no "Circular" in class name for test accuracy)
@@ -286,7 +294,27 @@ class InjectMocksDependencyOrderTest {
         kotlin.test.assertSame(obj.gamma, obj.alpha.c, "DiamondD.c should be gamma")
     }
 
-    // ========== Test 4: Circular dependency detection ==========
+    // ========== Test 4: Interface dependency ==========
+
+    class InterfaceDependencyTestTarget {
+        @InjectMockKs
+        lateinit var consumer: InterfaceConsumer
+
+        @InjectMockKs
+        lateinit var implementation: InterfaceDependencyImpl
+    }
+
+    @Test
+    fun interfaceDependency() {
+        val obj = InterfaceDependencyTestTarget()
+        MockKAnnotations.init(obj, useDependencyOrder = true)
+
+        kotlin.test.assertNotNull(obj.implementation, "InterfaceDependencyImpl should be created")
+        kotlin.test.assertNotNull(obj.consumer, "InterfaceConsumer should be created")
+        kotlin.test.assertSame(obj.implementation, obj.consumer.dependency, "InterfaceConsumer should receive the implementation")
+    }
+
+    // ========== Test 5: Circular dependency detection ==========
 
     class CircularTestTarget {
         @InjectMockKs
