@@ -90,7 +90,7 @@ class InjectMocksListTest {
 }
 
 /**
- * See issue #1496, #1523
+ * See issue #1496, #1523, #1524
  * Test for @InjectMockKs dependency order resolution using topological sort.
  *
  * Problem: MockK previously processed @InjectMockKs fields in reflection order,
@@ -152,6 +152,10 @@ class InjectMocksDependencyOrderTest {
 
     class InterfaceConsumer(
         val dependency: InterfaceDependency,
+    )
+
+    class ListInterfaceConsumer(
+        val dependencies: List<InterfaceDependency>,
     )
 
     // Circular dependency (intentionally no "Circular" in class name for test accuracy)
@@ -314,7 +318,39 @@ class InjectMocksDependencyOrderTest {
         kotlin.test.assertSame(obj.implementation, obj.consumer.dependency, "InterfaceConsumer should receive the implementation")
     }
 
-    // ========== Test 5: Circular dependency detection ==========
+    // ========== Test 5: List dependency ==========
+
+    class ListDependencyTestTarget {
+        @InjectMockKs
+        lateinit var consumer: ListInterfaceConsumer
+
+        @InjectMockKs
+        lateinit var implementation1: InterfaceDependencyImpl
+
+        @InjectMockKs
+        lateinit var implementation2: InterfaceDependencyImpl
+    }
+
+    @Test
+    fun listDependency() {
+        val obj = ListDependencyTestTarget()
+        MockKAnnotations.init(obj, useDependencyOrder = true)
+
+        kotlin.test.assertNotNull(obj.implementation1, "The first InterfaceDependencyImpl should be created")
+        kotlin.test.assertNotNull(obj.implementation2, "The second InterfaceDependencyImpl should be created")
+        kotlin.test.assertNotNull(obj.consumer, "ListInterfaceConsumer should be created")
+        kotlin.test.assertEquals(2, obj.consumer.dependencies.size, "ListInterfaceConsumer should receive two implementations")
+        kotlin.test.assertTrue(
+            obj.consumer.dependencies.contains(obj.implementation1),
+            "ListInterfaceConsumer should receive the first implementation",
+        )
+        kotlin.test.assertTrue(
+            obj.consumer.dependencies.contains(obj.implementation2),
+            "ListInterfaceConsumer should receive the second implementation",
+        )
+    }
+
+    // ========== Test 6: Circular dependency detection ==========
 
     class CircularTestTarget {
         @InjectMockKs

@@ -2,6 +2,7 @@ package io.mockk.impl.annotations
 
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
+import kotlin.reflect.KClassifier
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
@@ -64,9 +65,20 @@ internal object InjectionHelpers {
 
     fun KType.getKClass(): KClass<*>? = classifier as? KClass<*>
 
-    fun KClass<*>.getConstructorParameterTypes(): Set<KClass<*>> =
+    fun KClass<*>.getConstructorParameterTypes(): Set<KType> =
         constructors
             .flatMap { constructor ->
-                constructor.parameters.mapNotNull { it.type.getKClass() }
+                constructor.parameters.map { it.type }
             }.toSet()
+
+    fun isListType(classifier: KClassifier?): Boolean = classifier == List::class
+
+    fun getListElementType(type: KType): KClass<*>? {
+        val typeArg =
+            type.arguments
+                .firstOrNull()
+                ?.type
+                ?.classifier
+        return typeArg as? KClass<*>
+    }
 }

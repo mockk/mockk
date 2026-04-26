@@ -6,7 +6,10 @@ import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
 import io.mockk.impl.annotations.InjectionHelpers.getConstructorParameterTypes
+import io.mockk.impl.annotations.InjectionHelpers.getKClass
+import io.mockk.impl.annotations.InjectionHelpers.getListElementType
 import io.mockk.impl.annotations.InjectionHelpers.getReturnTypeKClass
+import io.mockk.impl.annotations.InjectionHelpers.isListType
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
@@ -127,16 +130,45 @@ class JvmMockInitializer(
         return properties.associateWith { property ->
             val clazz = property.getReturnTypeKClass() ?: return@associateWith emptySet()
 
+            val dependencies = mutableSetOf<KProperty1<Any, Any>>()
             clazz
                 .getConstructorParameterTypes()
-                .mapNotNull { paramType ->
-                    typeToProperty[paramType]
-                        ?: typeToProperty.entries
-                            .firstOrNull { (providerType, _) -> providerType.isSubclassOf(paramType) }
-                            ?.value
-                }.toSet()
+                .forEach { paramType ->
+                    val paramClass = paramType.getKClass() ?: return@forEach
+
+                    if (isListType(paramClass)) {
+                        val elementType = getListElementType(paramType) ?: return@forEach
+
+                        lookupPropertiesByType(properties, elementType)
+                            .also { dependencies.addAll(it) }
+                    } else {
+                        lookupPropertyByType(typeToProperty, paramClass)
+                            ?.also { dependencies.add(it) }
+                    }
+                }
+            dependencies
         }
     }
+
+    private fun lookupPropertiesByType(
+        properties: List<KProperty1<Any, Any>>,
+        type: KClass<*>,
+    ): List<KProperty1<Any, Any>> =
+        properties.filter {
+            it
+                .getReturnTypeKClass()
+                ?.isSubclassOf(type)
+                ?: false
+        }
+
+    private fun lookupPropertyByType(
+        typeToProperty: Map<KClass<*>, KProperty1<Any, Any>>,
+        type: KClass<*>,
+    ): KProperty1<Any, Any>? =
+        typeToProperty[type]
+            ?: typeToProperty.entries
+                .firstOrNull { (providerType, _) -> providerType.isSubclassOf(type) }
+                ?.value
 
     /**
      * Performs topological sort using Kahn's algorithm.
