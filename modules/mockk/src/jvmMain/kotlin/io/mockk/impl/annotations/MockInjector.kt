@@ -2,6 +2,8 @@ package io.mockk.impl.annotations
 
 import io.mockk.MockKException
 import io.mockk.impl.annotations.InjectionHelpers.getAnyIfLateNull
+import io.mockk.impl.annotations.InjectionHelpers.getListElementType
+import io.mockk.impl.annotations.InjectionHelpers.isListType
 import io.mockk.impl.annotations.InjectionHelpers.setAny
 import io.mockk.impl.annotations.InjectionHelpers.setImmutableAny
 import kotlin.reflect.KClass
@@ -126,22 +128,11 @@ class MockInjector(
         }
     }
 
-    private fun isListType(classifier: KClassifier?): Boolean = classifier == List::class
-
-    private fun listElementType(param: KParameter): KClass<*>? {
-        val typeArg =
-            param.type.arguments
-                .firstOrNull()
-                ?.type
-                ?.classifier
-        return typeArg as? KClass<*>
-    }
-
     private fun lookupListValues(param: KParameter): List<Any>? {
         if (!isListType(param.type.classifier)) return null
         if (!lookupType.byType) return null
 
-        val elementType = listElementType(param) ?: return null
+        val elementType = getListElementType(param.type) ?: return null
 
         val mocks =
             mockHolder::class
