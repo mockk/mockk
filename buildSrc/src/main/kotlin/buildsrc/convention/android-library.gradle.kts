@@ -37,16 +37,6 @@ android {
 
     testOptions {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
-        // AGP 8.5 changed the default of jniLibs.useLegacyPackaging from true to false for test
-        // APKs, which leaves libmockkjvmtiagent.so packed inside the APK rather than extracted to
-        // the filesystem. Debug.attachJvmtiAgent can no longer locate it by bare name in that
-        // case, and the JvmtiAgent runtime fallback extracts it on demand, but applying legacy
-        // packaging here keeps mockk's own instrumented tests on the well-trodden path.
-        packaging {
-            jniLibs {
-                useLegacyPackaging = true
-            }
-        }
     }
 
     compileOptions {
