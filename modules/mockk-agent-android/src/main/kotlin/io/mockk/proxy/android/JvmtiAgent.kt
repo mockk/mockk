@@ -25,10 +25,8 @@ import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.android.transformation.InliningClassTransformer
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.security.ProtectionDomain
-import java.util.zip.ZipFile
 
 internal class JvmtiAgent {
     var transformer: InliningClassTransformer? = null
@@ -54,30 +52,12 @@ internal class JvmtiAgent {
         nativeRegisterTransformerHook()
     }
 
-    // AGP 8.5+ defaults to useLegacyPackaging=false for test APKs, which means native libs are
-    // no longer extracted to the filesystem. attachJvmtiAgent requires a real file path for dlopen,
-    // so we resolve the path via findLibrary and extract to a temp file when needed.
-    private fun resolveAgentPath(cl: BaseDexClassLoader): String {
-        val libPath =
-            cl.findLibrary("mockkjvmtiagent")
-                ?: return LIB_NAME
-        if ("!/" !in libPath) return libPath
-        return extractFromApk(libPath)
-    }
-
-    private fun extractFromApk(zipEntryPath: String): String {
-        val splitAt = zipEntryPath.indexOf("!/")
-        val apkPath = zipEntryPath.substring(0, splitAt)
-        val entryName = zipEntryPath.substring(splitAt + 2)
-        val tempFile = File.createTempFile("mockk-jvmtiagent", ".so").apply { deleteOnExit() }
-        ZipFile(apkPath).use { zip ->
-            val entry =
-                zip.getEntry(entryName)
-                    ?: throw IOException("$entryName not found in $apkPath")
-            zip.getInputStream(entry).use { it.copyTo(FileOutputStream(tempFile)) }
-        }
-        return tempFile.absolutePath
-    }
+    // AGP 8.5+ defaults to useLegacyPackaging=false for test APKs, so native libs are stored
+    // uncompressed in the APK but not extracted to the filesystem. We use findLibrary to get
+    // the canonical path: a plain filesystem path when extracted, or an "apk!/entry" zip-entry
+    // path when not extracted. Android 6+ dlopen handles both forms natively, so we pass the
+    // result directly to attachJvmtiAgent instead of relying on a bare-name dlopen search.
+    private fun resolveAgentPath(cl: BaseDexClassLoader): String = cl.findLibrary("mockkjvmtiagent") ?: LIB_NAME
 
     fun appendToBootstrapClassLoaderSearch(inStream: InputStream) {
         val jarFile =
