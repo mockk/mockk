@@ -58,8 +58,9 @@ internal class JvmtiAgent {
     // no longer extracted to the filesystem. attachJvmtiAgent requires a real file path for dlopen,
     // so we resolve the path via findLibrary and extract to a temp file when needed.
     private fun resolveAgentPath(cl: BaseDexClassLoader): String {
-        val libPath = cl.findLibrary("mockkjvmtiagent")
-            ?: return LIB_NAME
+        val libPath =
+            cl.findLibrary("mockkjvmtiagent")
+                ?: return LIB_NAME
         if ("!/" !in libPath) return libPath
         return extractFromApk(libPath)
     }
@@ -70,8 +71,9 @@ internal class JvmtiAgent {
         val entryName = zipEntryPath.substring(splitAt + 2)
         val tempFile = File.createTempFile("mockk-jvmtiagent", ".so").apply { deleteOnExit() }
         ZipFile(apkPath).use { zip ->
-            val entry = zip.getEntry(entryName)
-                ?: throw IOException("$entryName not found in $apkPath")
+            val entry =
+                zip.getEntry(entryName)
+                    ?: throw IOException("$entryName not found in $apkPath")
             zip.getInputStream(entry).use { it.copyTo(FileOutputStream(tempFile)) }
         }
         return tempFile.absolutePath
