@@ -75,8 +75,9 @@ internal class JvmtiAgent {
         val entryName = zipEntryPath.substring(splitAt + 2)
         val extracted = File.createTempFile("mockkjvmtiagent", ".so").apply { deleteOnExit() }
         ZipFile(apkPath).use { zip ->
-            val entry = zip.getEntry(entryName)
-                ?: throw MockKAgentException("$entryName not found in $apkPath")
+            val entry =
+                zip.getEntry(entryName)
+                    ?: throw MockKAgentException("$entryName not found in $apkPath")
             zip.getInputStream(entry).use { input ->
                 FileOutputStream(extracted).use { output -> input.copyTo(output) }
             }
