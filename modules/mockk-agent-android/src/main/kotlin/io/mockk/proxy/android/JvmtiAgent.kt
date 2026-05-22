@@ -27,6 +27,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.security.ProtectionDomain
+import java.util.zip.ZipFile
 
 internal class JvmtiAgent {
     var transformer: InliningClassTransformer? = null
@@ -52,12 +53,36 @@ internal class JvmtiAgent {
         nativeRegisterTransformerHook()
     }
 
-    // AGP 8.5+ defaults to useLegacyPackaging=false for test APKs, so native libs are stored
-    // uncompressed in the APK but not extracted to the filesystem. We use findLibrary to get
-    // the canonical path: a plain filesystem path when extracted, or an "apk!/entry" zip-entry
-    // path when not extracted. Android 6+ dlopen handles both forms natively, so we pass the
-    // result directly to attachJvmtiAgent instead of relying on a bare-name dlopen search.
-    private fun resolveAgentPath(cl: BaseDexClassLoader): String = cl.findLibrary("mockkjvmtiagent") ?: LIB_NAME
+    // Debug.attachJvmtiAgent rejects any path containing '=' (reserved as the lib=options
+    // separator) with IllegalArgumentException. Two real-world cases produce such paths:
+    //   1. AGP 8.5+ test APK default (useLegacyPackaging=false): the .so stays inside the APK
+    //      as a zip entry, so findLibrary returns "<apk>!/lib/<abi>/libmockkjvmtiagent.so".
+    //   2. Android 10+ install directories: paths embed base64-padded random tokens, e.g.
+    //      "/data/app/~~xxx==/pkg-yyy==/lib/<abi>/libmockkjvmtiagent.so".
+    // For (1) we extract the .so to the app's cache dir, whose path never contains '='. For
+    // (2) the .so is already on the filesystem and reachable via the classloader's library
+    // search path, so we fall back to the bare lib name and let the linker resolve it.
+    private fun resolveAgentPath(cl: BaseDexClassLoader): String {
+        val libPath = cl.findLibrary("mockkjvmtiagent") ?: return LIB_NAME
+        if ("!/" in libPath) return extractAgentLibrary(libPath)
+        if ('=' in libPath) return LIB_NAME
+        return libPath
+    }
+
+    private fun extractAgentLibrary(zipEntryPath: String): String {
+        val splitAt = zipEntryPath.indexOf("!/")
+        val apkPath = zipEntryPath.substring(0, splitAt)
+        val entryName = zipEntryPath.substring(splitAt + 2)
+        val extracted = File.createTempFile("mockkjvmtiagent", ".so").apply { deleteOnExit() }
+        ZipFile(apkPath).use { zip ->
+            val entry = zip.getEntry(entryName)
+                ?: throw MockKAgentException("$entryName not found in $apkPath")
+            zip.getInputStream(entry).use { input ->
+                FileOutputStream(extracted).use { output -> input.copyTo(output) }
+            }
+        }
+        return extracted.absolutePath
+    }
 
     fun appendToBootstrapClassLoaderSearch(inStream: InputStream) {
         val jarFile =
