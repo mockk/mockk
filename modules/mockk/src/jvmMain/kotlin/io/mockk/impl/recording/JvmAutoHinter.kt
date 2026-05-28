@@ -50,11 +50,14 @@ class JvmAutoHinter : AutoHinter() {
         } ?: throw ex
 
     companion object {
-        // JDK 8: net.bytebuddy.renamed.java.lang.Object$ByteBuddy$As29nsJf$ByteBuddy$877l7O7D cannot be cast to io.mockk.impl.recording.states.CallRecordingState
-        // JDK 9:
-        // JDK 10:
-        // JDK 11: class net.bytebuddy.renamed.java.lang.Object$ByteBuddy$rpycQEYo$ByteBuddy$bHEk1ADY cannot be cast to class java.lang.String (net.bytebuddy.renamed.java.lang.Object$ByteBuddy$rpycQEYo$ByteBuddy$bHEk1ADY is in unnamed module of loader net.bytebuddy.dynamic.loading.ByteArrayClassLoader @19569ebd; java.lang.String is in module java.base of loader 'bootstrap')
-        val exceptionMessage = Regex("cannot be cast to (class )?(.+/)?(.+?)( \\((.+)\\))?$")
+        // HotSpot pre-JEP358 (JDK 8-13):
+        //   net.bytebuddy.renamed.java.lang.Object$ByteBuddy$As29nsJf$ByteBuddy$877l7O7D cannot be cast to io.mockk.impl.recording.states.CallRecordingState
+        // HotSpot JEP358 (JDK 14+):
+        //   class net.bytebuddy.renamed.java.lang.Object$ByteBuddy$rpycQEYo$ByteBuddy$bHEk1ADY cannot be cast to class java.lang.String (net.bytebuddy.renamed.java.lang.Object$ByteBuddy$rpycQEYo$ByteBuddy$bHEk1ADY is in unnamed module of loader net.bytebuddy.dynamic.loading.ByteArrayClassLoader @19569ebd; java.lang.String is in module java.base of loader 'bootstrap')
+        // OpenJ9 / IBM Semeru (all releases):
+        //   net.bytebuddy.renamed.java.lang.Object$ByteBuddy$As29nsJf$ByteBuddy$877l7O7D incompatible with java.lang.String
+        val exceptionMessage =
+            Regex("(?:cannot be cast to|incompatible with) (class )?(.+/)?(.+?)( \\((.+)\\))?$")
 
         val log = Logger<JvmAutoHinter>()
     }
