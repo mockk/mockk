@@ -44,8 +44,6 @@ internal class Advice(
             } else {
                 methodDesc.method
             }
-        } catch (_: NoClassDefFoundError) {
-            null
         } catch (_: LinkageError) {
             null
         }
