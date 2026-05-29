@@ -14,6 +14,7 @@
  - [ ] bump if needed major or minor (resetting everything afterwards)
  - [ ] commit it
  - [ ] tag it
+ - [ ] disable the `spotless` plugin (it depends on a newer jGit version that jReleaser doesn't like)
  - [ ] release from Gradle with `gradle publish jreleaserDeploy`
  - [ ] the release should automatically show up on Maven Central
  - [ ] bump version and append -SNAPSHOT
