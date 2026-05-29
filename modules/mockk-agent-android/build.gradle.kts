@@ -33,6 +33,12 @@ android {
             abiFilters += setOf("armeabi-v7a", "x86", "x86_64", "arm64-v8a")
         }
     }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 val androidClassesDex: Configuration by configurations.creating {
@@ -52,6 +58,11 @@ dependencies {
     implementation(libs.objenesis)
 
     androidClassesDex(projects.modules.mockkAgentAndroidDispatcher)
+
+    testImplementation(kotlin("test-junit5"))
+    testImplementation(platform(libs.junit.bom))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 val packageDispatcherJar by tasks.registering(Jar::class) {
