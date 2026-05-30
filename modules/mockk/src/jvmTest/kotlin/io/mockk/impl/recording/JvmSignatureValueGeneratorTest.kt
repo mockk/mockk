@@ -1,5 +1,6 @@
 package io.mockk.impl.recording
 
+import io.mockk.impl.InternalPlatform
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
 import io.mockk.impl.instantiation.CommonInstanceFactoryRegistry
@@ -13,6 +14,11 @@ import kotlin.test.fail
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+
+@JvmInline
+value class NullableInnerValueClass(
+    val value: String?,
+)
 
 class JvmSignatureValueGeneratorTest {
     private val generator = JvmSignatureValueGenerator(Random(42))
@@ -78,6 +84,16 @@ class JvmSignatureValueGeneratorTest {
 
             assertNotNull(duration, "Duration should be created successfully")
         }
+    }
+
+    // https://github.com/mockk/mockk/issues/1326
+    @Test
+    fun `packRef for value class with null inner value returns non-null`() {
+        val instance = NullableInnerValueClass(null)
+        assertNotNull(
+            InternalPlatform.packRef(instance),
+            "packRef for value class with null inner value must not return null",
+        )
     }
 
     companion object {
