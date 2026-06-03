@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.condition.EnabledForJreRange
+import org.junit.jupiter.api.condition.JRE
 import java.lang.reflect.Method
 import java.net.URLClassLoader
 
@@ -43,12 +45,20 @@ class AdviceOverrideDetectionTest {
     }
 
     @Test
+    @EnabledForJreRange(
+        min = JRE.JAVA_25,
+        disabledReason = "getDeclaredMethod throws LinkageError for poisoned classes only on JDK 25+",
+    )
     fun findMethod_returnsNullWhenLinkageErrorPreventsLookup() {
         val hostClass = loadHostWithTrapClass()
         assertNull(invokeFindMethod(hostClass, "safe", emptyArray()))
     }
 
     @Test
+    @EnabledForJreRange(
+        min = JRE.JAVA_25,
+        disabledReason = "HostWithTrap fixture expectations match JDK 25+ reflection linkage behavior",
+    )
     fun declaredMethods_onHostWithTrap_failsWhenMissingTypeNotOnClasspath() {
         val hostClass = loadHostWithTrapClass()
         val error = assertThrows<NoClassDefFoundError> { hostClass.declaredMethods }
