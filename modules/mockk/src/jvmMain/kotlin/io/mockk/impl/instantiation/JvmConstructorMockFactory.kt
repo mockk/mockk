@@ -300,7 +300,18 @@ class JvmConstructorMockFactory(
         options: MockKGateway.ClearOptions,
         currentThreadOnly: Boolean,
     ) {
-        clearer.clearAll(options, currentThreadOnly)
+        val currentThreadId = Thread.currentThread().id
+        clearer.stubRepository.allStubs.forEach { stub ->
+            if (currentThreadOnly && currentThreadId != stub.threadId) {
+                return@forEach
+            }
+            val isConstructorMock =
+                stub is ConstructorStub ||
+                    (stub is SpyKStub<*> && stub.mockType == MockType.CONSTRUCTOR)
+            if (isConstructorMock) {
+                stub.clear(options)
+            }
+        }
     }
 
     fun isMock(cls: KClass<*>) =

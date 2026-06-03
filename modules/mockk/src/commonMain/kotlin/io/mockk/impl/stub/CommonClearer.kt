@@ -26,11 +26,19 @@ class CommonClearer(
         currentThreadOnly: Boolean,
     ) {
         val currentThreadId = Thread.currentThread().id
-        stubRepository.allStubs.forEach {
-            if (currentThreadOnly && currentThreadId != it.threadId) {
+        stubRepository.allStubs.forEach { stub ->
+            if (currentThreadOnly && currentThreadId != stub.threadId) {
                 return@forEach
             }
-            it.clear(options)
+            val isRegularOrSpy =
+                when {
+                    stub is SpyKStub<*> -> stub.mockType == MockType.SPY
+                    stub is MockKStub -> stub.mockType == MockType.REGULAR
+                    else -> false
+                }
+            if (isRegularOrSpy) {
+                stub.clear(options)
+            }
         }
     }
 

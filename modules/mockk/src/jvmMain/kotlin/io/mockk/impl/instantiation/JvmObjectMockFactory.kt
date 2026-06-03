@@ -90,11 +90,13 @@ class JvmObjectMockFactory(
         currentThreadOnly: Boolean,
     ) {
         val currentThreadId = Thread.currentThread().id
-        stubRepository.allStubs.forEach {
-            if (currentThreadOnly && currentThreadId != it.threadId) {
+        stubRepository.allStubs.forEach { stub ->
+            if (currentThreadOnly && currentThreadId != stub.threadId) {
                 return@forEach
             }
-            it.clear(options)
+            if (stub is SpyKStub<*> && stub.mockType == MockType.OBJECT) {
+                stub.clear(options)
+            }
         }
     }
 
