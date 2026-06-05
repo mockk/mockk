@@ -9,8 +9,15 @@ open class JvmAnyValueGenerator(
         cls: KClass<*>,
         isNullable: Boolean,
         orInstantiateVia: () -> Any?,
-    ): Any? =
-        when (cls) {
+    ): Any? {
+        // For nullable value classes return null directly instead of creating an Objenesis instance.
+        // Objenesis zero-initializes the underlying field (e.g. 0L for Long-backed value classes),
+        // and maybeUnboxValueForMethodReturn then returns the instance rather than null because
+        // unbox-impl() is non-null. This causes the recording state to treat it as a live mock,
+        // triggering unnecessary child-mock creation that fails for value classes.
+        if (isNullable && runCatching { cls.isValue }.getOrDefault(false)) return null
+
+        return when (cls) {
             Void.TYPE.kotlin -> voidInstance
             Void::class -> voidInstance
 
@@ -41,4 +48,5 @@ open class JvmAnyValueGenerator(
                     }
                 }
         }
+    }
 }

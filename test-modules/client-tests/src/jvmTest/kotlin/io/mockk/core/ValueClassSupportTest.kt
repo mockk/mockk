@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertNull
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class ValueClassSupportTest {
     /** https://github.com/mockk/mockk/issues/868 */
@@ -31,6 +32,30 @@ class ValueClassSupportTest {
                 every { v } returns testValue
             }
         assertEquals(testValue, mock.v)
+    }
+
+    @Test
+    fun `verify mocked generic return value`() {
+        val value = InlineValueWrapper(1)
+        val mock =
+            mockk<ParameterizedValueClassService<InlineValueWrapper>> {
+                every { value() } returns value
+            }
+        assertEquals(value, mock.value())
+    }
+
+    @Test
+    fun `verify null mocked generic return value`() {
+        val mock =
+            mockk<ParameterizedValueClassService<InlineValueWrapper>> {
+                every { nullableValue() } returns null
+            }
+
+        // https://github.com/mockk/mockk/issues/1341
+        val isResNull = mock.nullableValue() == null
+        assertTrue(isResNull)
+
+        assertEquals(null, mock.nullableValue())
     }
 
     @Test
@@ -561,6 +586,21 @@ internal interface ValueClassService {
     suspend fun getSuspendPrimitiveValueClass(): PrimitiveValueClass
 
     suspend fun getSuspendNestedPrimitiveValueClass(): NestedPrimitiveValueClass
+}
+
+internal interface ValueWrapper {
+    val value: Long
+}
+
+@JvmInline
+internal value class InlineValueWrapper(
+    override val value: Long,
+) : ValueWrapper
+
+internal interface ParameterizedValueClassService<T : ValueWrapper> {
+    fun value(): T
+
+    fun nullableValue(): T?
 }
 
 private data class TestDataClass(
