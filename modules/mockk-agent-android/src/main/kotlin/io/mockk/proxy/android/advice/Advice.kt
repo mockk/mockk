@@ -38,11 +38,15 @@ internal class Advice(
             return null
         }
 
-        if (instance != null && instance::class.java.isOverridden(methodDesc.method)) {
-            return null
+        return try {
+            if (instance != null && instance::class.java.isOverridden(methodDesc.method)) {
+                null
+            } else {
+                methodDesc.method
+            }
+        } catch (_: LinkageError) {
+            null
         }
-
-        return methodDesc.method
     }
 
     @Suppress("unused") // called from dispatcher
@@ -168,12 +172,14 @@ internal class Advice(
         private fun Class<*>.findMethod(
             name: String,
             parameters: Array<Class<*>>,
-        ) = declaredMethods.firstOrNull {
-            it.name == name &&
-                it.parameterTypes refEquals parameters
-        }
-
-        private infix fun <T> Array<T>.refEquals(other: Array<T>) = size == other.size && zip(other).none { (a, b) -> a !== b }
+        ): Method? =
+            try {
+                getDeclaredMethod(name, *parameters)
+            } catch (_: NoSuchMethodException) {
+                null
+            } catch (_: LinkageError) {
+                null
+            }
 
         private val Class<*>.final
             get() = isFinal(modifiers)
