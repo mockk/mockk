@@ -262,7 +262,7 @@ class CarTest {
 }
 ```
 
-#### JUnit5
+### JUnit5
 
 In JUnit5 you can use `MockKExtension` to initialize your mocks.
 
