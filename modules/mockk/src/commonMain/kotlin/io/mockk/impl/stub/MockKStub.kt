@@ -36,6 +36,7 @@ open class MockKStub(
     private val recordedCallsByMethod =
         InternalPlatform.synchronizedMutableMap<MethodDescription, MutableList<Invocation>>()
     private val exclusions = InternalPlatform.synchronizedMutableList<InvocationMatcher>()
+    private val suppressions = InternalPlatform.synchronizedMutableList<InvocationMatcher>()
     private val verifiedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
 
     lateinit var hashCodeStr: String
@@ -72,6 +73,11 @@ open class MockKStub(
             answer.answer(call)
         }
     }
+
+    protected fun isSuppressed(invocation: Invocation): Boolean =
+        InternalPlatform.synchronized(suppressions) {
+            suppressions.any { it.match(invocation) }
+        }
 
     protected inline fun stdObjectFunctions(
         self: Any,
@@ -196,6 +202,10 @@ open class MockKStub(
         }
     }
 
+    override fun suppressRecordedCalls(matcher: InvocationMatcher) {
+        suppressions.add(matcher)
+    }
+
     override fun markCallVerified(invocation: Invocation) {
         verifiedCalls.add(invocation)
     }
@@ -313,6 +323,9 @@ open class MockKStub(
         }
         if (options.exclusionRules) {
             this.exclusions.clear()
+        }
+        if (options.suppressionRules) {
+            this.suppressions.clear()
         }
     }
 

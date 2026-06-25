@@ -12,6 +12,7 @@ import io.mockk.impl.log.JsConsoleLogger
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeToString
 import io.mockk.impl.recording.*
+import io.mockk.impl.eval.SuppressBlockEvaluator
 import io.mockk.impl.recording.states.*
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubGatewayAccess
@@ -78,6 +79,7 @@ class JsMockKGateway : MockKGateway {
         ::StubbingState,
         ::VerifyingState,
         ::ExclusionState,
+        { recorder -> SuppressionState(recorder) },
         ::StubbingAwaitingAnswerState,
         ::SafeLoggingState
     )
@@ -100,6 +102,7 @@ class JsMockKGateway : MockKGateway {
     override val stubber: Stubber = EveryBlockEvaluator({ callRecorder }, ::AutoHinter)
     override val verifier: Verifier = VerifyBlockEvaluator({ callRecorder }, stubRepo, ::AutoHinter)
     override val excluder: Excluder = ExcludeBlockEvaluator({ callRecorder }, stubRepo, ::AutoHinter)
+    override val suppresser: Suppresser = SuppressBlockEvaluator({ callRecorder }, stubRepo, ::AutoHinter)
     override val mockInitializer: MockInitializer
         get() = throw MockKException("MockK annotations are not supported in JS")
 

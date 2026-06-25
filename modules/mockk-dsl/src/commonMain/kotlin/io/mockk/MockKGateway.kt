@@ -13,6 +13,7 @@ interface MockKGateway {
     val stubber: Stubber
     val verifier: Verifier
     val excluder: Excluder
+    val suppresser: Suppresser
     val callRecorder: CallRecorder
     val instanceFactoryRegistry: InstanceFactoryRegistry
     val clearer: Clearer
@@ -28,6 +29,7 @@ interface MockKGateway {
         val childMocks: Boolean,
         val verificationMarks: Boolean,
         val exclusionRules: Boolean,
+        val suppressionRules: Boolean = false,
     )
 
     companion object {
@@ -186,6 +188,16 @@ interface MockKGateway {
     )
 
     /**
+     * Suppress calls
+     */
+    interface Suppresser {
+        fun suppress(
+            mockBlock: (MockKMatcherScope.() -> Unit)?,
+            coMockBlock: (suspend MockKMatcherScope.() -> Unit)?,
+        )
+    }
+
+    /**
      * Parameters of exclusion
      */
     data class ExclusionParameters(
@@ -207,6 +219,8 @@ interface MockKGateway {
         fun startVerification(params: VerificationParameters)
 
         fun startExclusion(params: ExclusionParameters)
+
+        fun startSuppression()
 
         fun round(
             n: Int,

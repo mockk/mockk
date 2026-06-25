@@ -279,6 +279,32 @@ object MockKDsl {
     }
 
     /**
+     * Suppress execution of specified method calls.
+     * When suppressed, the original method implementation is not executed
+     * and a default value is returned instead.
+     */
+    fun internalSuppress(
+        suppressBlock: MockKMatcherScope.() -> Unit,
+    ) {
+        MockKGateway.implementation().suppresser.suppress(
+            suppressBlock,
+            null,
+        )
+    }
+
+    /**
+     * Suppress execution of specified method calls for a suspend block.
+     */
+    fun internalCoSuppress(
+        suppressBlock: suspend MockKMatcherScope.() -> Unit,
+    ) {
+        MockKGateway.implementation().suppresser.suppress(
+            null,
+            suppressBlock,
+        )
+    }
+
+    /**
      * Checks if all recorded calls were verified.
      *
      * @param clear if `true` verification state is cleared for the given mocks
