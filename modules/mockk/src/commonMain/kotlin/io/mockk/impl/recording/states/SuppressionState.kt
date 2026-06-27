@@ -6,8 +6,7 @@ import io.mockk.impl.recording.CommonCallRecorder
 class SuppressionState(
     recorder: CommonCallRecorder,
 ) : RecordingState(recorder) {
-    override fun wasNotCalled(list: List<Any>): Unit =
-        throw MockKException("`wasNot called` is not allowed in suppress { ... } block.")
+    override fun wasNotCalled(list: List<Any>): Unit = throw MockKException("`wasNot called` is not allowed in suppress { ... } block.")
 
     override fun recordingDone(): CallRecordingState {
         checkMissingCalls()
