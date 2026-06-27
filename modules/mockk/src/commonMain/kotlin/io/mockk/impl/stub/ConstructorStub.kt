@@ -76,6 +76,12 @@ class ConstructorStub(
         )
     }
 
+    override fun suppressRecordedCalls(matcher: InvocationMatcher) {
+        stub.suppressRecordedCalls(
+            matcher.substitute(represent),
+        )
+    }
+
     override fun markCallVerified(invocation: Invocation) {
         stub.markCallVerified(
             invocation.substitute(represent),

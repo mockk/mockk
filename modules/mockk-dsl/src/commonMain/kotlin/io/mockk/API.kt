@@ -3328,6 +3328,7 @@ class MockKUnmockKCompositeScope(
         childMocks: Boolean,
         verificationMarks: Boolean,
         exclusionRules: Boolean,
+        suppressionRules: Boolean,
     ) {
         first.clear(
             answers,
@@ -3335,6 +3336,7 @@ class MockKUnmockKCompositeScope(
             childMocks,
             verificationMarks,
             exclusionRules,
+            suppressionRules,
         )
         second.clear(
             answers,
@@ -3342,6 +3344,7 @@ class MockKUnmockKCompositeScope(
             childMocks,
             verificationMarks,
             exclusionRules,
+            suppressionRules,
         )
     }
 }
