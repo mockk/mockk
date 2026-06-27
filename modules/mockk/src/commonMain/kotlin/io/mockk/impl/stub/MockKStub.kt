@@ -361,6 +361,7 @@ open class MockKStub(
                 childMocks = true,
                 verificationMarks = true,
                 exclusionRules = true,
+                suppressionRules = true,
             ),
         )
         disposeRoutine.invoke()
