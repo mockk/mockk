@@ -246,16 +246,18 @@ actual object InternalPlatformDsl {
             if (cls.isInstance(arg)) return arg as T
 
             val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
-            val value = constructor.parameters.singleOrNull()
-                ?.type
-                ?.classifier
-                .let { boxedClass ->
-                    if (boxedClass is KClass<*> && boxedClass.isValue && !boxedClass.isInstance(arg)) {
-                        boxCast<Any>(boxedClass, arg)
-                    } else {
-                        arg
+            val value =
+                constructor.parameters
+                    .singleOrNull()
+                    ?.type
+                    ?.classifier
+                    .let { boxedClass ->
+                        if (boxedClass is KClass<*> && boxedClass.isValue && !boxedClass.isInstance(arg)) {
+                            boxCast<Any>(boxedClass, arg)
+                        } else {
+                            arg
+                        }
                     }
-                }
 
             constructor.call(value) as T
         } else {

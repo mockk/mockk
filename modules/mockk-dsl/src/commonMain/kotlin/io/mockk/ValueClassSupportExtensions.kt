@@ -3,9 +3,7 @@ package io.mockk
 import io.mockk.core.ValueClassSupport.boxedClass
 import kotlin.reflect.KClass
 
-internal fun KClass<*>.innermostBoxedClass(): KClass<*> {
-    return boxedClassChain().last()
-}
+internal fun KClass<*>.innermostBoxedClass(): KClass<*> = boxedClassChain().last()
 
 internal fun KClass<*>.boxedClassChain(): List<KClass<*>> {
     val result = mutableListOf<KClass<*>>()

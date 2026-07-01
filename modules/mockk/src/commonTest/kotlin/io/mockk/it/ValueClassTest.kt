@@ -1,8 +1,8 @@
 package io.mockk.it
 
+import io.mockk.MockKException
 import io.mockk.coEvery
 import io.mockk.every
-import io.mockk.MockKException
 import io.mockk.mockk
 import io.mockk.registerInstanceFactory
 import io.mockk.slot

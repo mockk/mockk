@@ -5199,14 +5199,13 @@ interface TypedMatcher {
     fun checkType(
         arg: Any?,
         parameterType: KClass<*>?,
-    ): Boolean {
-        return when {
+    ): Boolean =
+        when {
             argumentType.simpleName === null -> true
             else -> {
                 argumentType.valueClassAwareIsInstance(arg, parameterType)
             }
         }
-    }
 }
 
 /**
