@@ -8,7 +8,6 @@ import io.mockk.MockKGateway.CallRecorder
 import io.mockk.MockKGateway.ClearOptions
 import io.mockk.MockKGateway.ExclusionParameters
 import io.mockk.MockKGateway.VerificationParameters
-import io.mockk.core.ValueClassSupport.boxedClass
 import kotlinx.coroutines.awaitCancellation
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
@@ -5195,12 +5194,16 @@ interface Matcher<in T> {
 interface TypedMatcher {
     val argumentType: KClass<*>
 
-    fun checkType(arg: Any?): Boolean {
+    fun checkType(arg: Any?): Boolean = checkType(arg, null)
+
+    fun checkType(
+        arg: Any?,
+        parameterType: KClass<*>?,
+    ): Boolean {
         return when {
             argumentType.simpleName === null -> true
             else -> {
-                val unboxedClass = argumentType.boxedClass
-                return unboxedClass.isInstance(arg)
+                argumentType.valueClassAwareIsInstance(arg, parameterType)
             }
         }
     }
@@ -5407,7 +5410,7 @@ data class InvocationMatcher(
             val matcher = args[i]
             val arg = invocation.args[i]
 
-            if (arg != null && matcher is TypedMatcher && !matcher.checkType(arg)) return false
+            if (arg != null && matcher is TypedMatcher && !matcher.checkType(arg, method.paramTypes.getOrNull(i))) return false
 
             if (!matcher.match(arg)) {
                 return false

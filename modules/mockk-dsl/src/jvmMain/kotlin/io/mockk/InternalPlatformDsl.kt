@@ -241,13 +241,27 @@ actual object InternalPlatformDsl {
     internal actual fun <T : Any> boxCast(
         cls: KClass<*>,
         arg: Any,
-    ): T =
-        if (cls.isValue) {
+    ): T {
+        return if (cls.isValue) {
+            if (cls.isInstance(arg)) return arg as T
+
             val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
-            constructor.call(arg) as T
+            val value = constructor.parameters.singleOrNull()
+                ?.type
+                ?.classifier
+                .let { boxedClass ->
+                    if (boxedClass is KClass<*> && boxedClass.isValue && !boxedClass.isInstance(arg)) {
+                        boxCast<Any>(boxedClass, arg)
+                    } else {
+                        arg
+                    }
+                }
+
+            constructor.call(value) as T
         } else {
             arg as T
         }
+    }
 }
 
 class JvmCoroutineCall<T>(

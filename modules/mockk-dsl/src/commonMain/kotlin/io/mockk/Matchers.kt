@@ -121,12 +121,15 @@ data class FunctionWithNullableArgMatcher<in T : Any>(
             false
         }
 
-    override fun checkType(arg: Any?): Boolean {
+    override fun checkType(
+        arg: Any?,
+        parameterType: KClass<*>?,
+    ): Boolean {
         if (arg == null) {
             return true
         }
 
-        return super.checkType(arg)
+        return super.checkType(arg, parameterType)
     }
 
     override fun toString(): String = "matcher<${argumentType.simpleName}>()"
@@ -169,17 +172,24 @@ data class CaptureNullableMatcher<T : Any>(
 
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
-        captureList.add(arg as T?)
+        if (arg == null) {
+            captureList.add(null)
+        } else {
+            captureList.add(InternalPlatformDsl.boxCast(argumentType, arg))
+        }
     }
 
     override fun match(arg: T?): Boolean = true
 
-    override fun checkType(arg: Any?): Boolean {
+    override fun checkType(
+        arg: Any?,
+        parameterType: KClass<*>?,
+    ): Boolean {
         if (arg == null) {
             return true
         }
 
-        return super.checkType(arg)
+        return super.checkType(arg, parameterType)
     }
 
     override fun toString(): String = "capture<${argumentType.simpleName}?>()"
@@ -231,12 +241,15 @@ data class CapturingNullableSlotMatcher<T : Any>(
 
     override fun match(arg: T?): Boolean = true
 
-    override fun checkType(arg: Any?): Boolean {
+    override fun checkType(
+        arg: Any?,
+        parameterType: KClass<*>?,
+    ): Boolean {
         if (arg == null) {
             return true
         }
 
-        return super.checkType(arg)
+        return super.checkType(arg, parameterType)
     }
 
     override fun toString(): String = "slotCapture<${argumentType.simpleName}>()"
@@ -579,41 +592,18 @@ data class AnyTypedMatcher(
 ) : Matcher<Any>,
     TypedMatcher,
     EquivalentMatcher {
-    private val underlyingBoxed: KClass<*>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        if (!argumentType.isValue) return@lazy null
-        argumentType.constructors
-            .firstOrNull()
-            ?.parameters
-            ?.singleOrNull()
-            ?.type
-            ?.classifier as? KClass<*>
-    }
-
     override fun match(arg: Any?): Boolean = true
 
     override fun equivalent(): Matcher<Any> = this
 
-    override fun checkType(arg: Any?): Boolean {
+    override fun checkType(
+        arg: Any?,
+        parameterType: KClass<*>?,
+    ): Boolean {
         if (arg == null) return true
         if (argumentType.simpleName == null) return true
 
-        if (argumentType.isInstance(arg)) return true
-
-        val expectedBoxed = argumentType.boxedClass
-        if (expectedBoxed.isInstance(arg)) return true
-
-        val normalizedArg = arg.boxedValue
-        if (argumentType.isInstance(normalizedArg)) return true
-        if (expectedBoxed.isInstance(normalizedArg)) return true
-
-        val ub = underlyingBoxed
-        if (ub != null) {
-            val ubBoxed = ub.boxedClass
-            if (ubBoxed.isInstance(arg)) return true
-            if (ubBoxed.isInstance(normalizedArg)) return true
-        }
-
-        return false
+        return argumentType.valueClassAwareIsInstance(arg, parameterType)
     }
 
     override fun toString(): String = "any<${argumentType.simpleName}>()"

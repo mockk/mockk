@@ -2,6 +2,7 @@ package io.mockk.it
 
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.MockKException
 import io.mockk.mockk
 import io.mockk.registerInstanceFactory
 import io.mockk.slot
@@ -16,6 +17,7 @@ import java.util.UUID
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class ValueClassTest {
@@ -267,14 +269,13 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is any(ValueClass), returns Wrapper`() {
         val mock =
             mockk<DummyService> {
                 every { argValueClassReturnWrapper(any()) } returns dummyValueWrapperReturn
             }
 
-        assertEquals(dummyValueWrapperArg, mock.argValueClassReturnWrapper(dummyValueClassArg))
+        assertEquals(dummyValueWrapperReturn, mock.argValueClassReturnWrapper(dummyValueClassArg))
 
         verify { mock.argValueClassReturnWrapper(dummyValueClassArg) }
     }
@@ -366,7 +367,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(Wrapper), returns ValueClass`() {
         val slot = slot<DummyValueWrapper>()
         val mock =
@@ -408,7 +408,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(Wrapper), answers ValueClass`() {
         val slot = slot<DummyValueWrapper>()
 
@@ -453,7 +452,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(Wrapper), returns Wrapper`() {
         val slot = slot<DummyValueWrapper>()
         val mock =
@@ -495,7 +493,6 @@ class ValueClassTest {
     }
 
     @Test
-    @Ignore // TODO support nested value classes https://github.com/mockk/mockk/issues/859
     fun `arg is slot(Wrapper), answers Wrapper`() {
         val slot = slot<DummyValueWrapper>()
 
@@ -511,6 +508,36 @@ class ValueClassTest {
         assertEquals(dummyValueWrapperArg, slot.captured)
 
         verify { mock.argWrapperReturnWrapper(dummyValueWrapperArg) }
+    }
+
+    @Test
+    fun `any Wrapper does not match unrelated value class with same underlying type`() {
+        val mock =
+            mockk<DummyService> {
+                every { argAnyReturnString(any<DummyValueWrapper>()) } returns "wrapper"
+            }
+
+        assertEquals("wrapper", mock.argAnyReturnString(dummyValueWrapperArg))
+
+        assertFailsWith<MockKException> {
+            mock.argAnyReturnString(dummyValueClassArg)
+        }
+        assertFailsWith<MockKException> {
+            mock.argAnyReturnString(dummyValueClassArg.value)
+        }
+    }
+
+    @Test
+    fun `arg is captureNullable list Wrapper, returns String`() {
+        val captured = mutableListOf<DummyValueWrapper?>()
+        val mock =
+            mockk<DummyService> {
+                every { argNullableWrapperReturnString(captureNullable(captured)) } returns "wrapper"
+            }
+
+        assertEquals("wrapper", mock.argNullableWrapperReturnString(dummyValueWrapperArg))
+        assertEquals("wrapper", mock.argNullableWrapperReturnString(null))
+        assertEquals(listOf(dummyValueWrapperArg, null), captured)
     }
     // </editor-fold>
 
@@ -1005,6 +1032,10 @@ class ValueClassTest {
             fun argGenericValueClassReturnResultWrapped(valueClass: ComplexValue): Result<ComplexValue> = Result.success(valueClass)
 
             fun argValueClassReturnValueClass(valueClass: DummyValue): DummyValue = DummyValue(0)
+
+            fun argAnyReturnString(value: Any): String = value.toString()
+
+            fun argNullableWrapperReturnString(wrapper: DummyValueWrapper?): String = wrapper.toString()
 
             fun argComplexValueClassReturnComplexValueClass(complexValue: ComplexValue): ComplexValue =
                 ComplexValue(UUID.fromString("7dea337b-ce0b-4e25-9788-79e708aadc33"))
