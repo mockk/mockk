@@ -5203,16 +5203,21 @@ interface TypedMatcher {
         }
 }
 
-private fun TypedMatcher.checkType(
+private fun TypedMatcher.checkTypeWithParameterType(
     arg: Any?,
     parameterType: KClass<*>?,
-): Boolean =
-    when {
+): Boolean {
+    if (checkType(arg)) {
+        return true
+    }
+
+    return when {
         argumentType.simpleName === null -> true
         else -> {
             argumentType.valueClassAwareIsInstance(arg, parameterType)
         }
     }
+}
 
 /**
  * Allows to substitute matcher to find correct chained call
@@ -5415,7 +5420,11 @@ data class InvocationMatcher(
             val matcher = args[i]
             val arg = invocation.args[i]
 
-            if (arg != null && matcher is TypedMatcher && !matcher.checkType(arg, method.paramTypes.getOrNull(i))) return false
+            if (arg != null && matcher is TypedMatcher &&
+                !matcher.checkTypeWithParameterType(arg, method.paramTypes.getOrNull(i))
+            ) {
+                return false
+            }
 
             if (!matcher.match(arg)) {
                 return false
