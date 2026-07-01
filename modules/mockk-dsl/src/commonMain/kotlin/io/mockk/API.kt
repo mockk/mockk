@@ -5194,19 +5194,25 @@ interface Matcher<in T> {
 interface TypedMatcher {
     val argumentType: KClass<*>
 
-    fun checkType(arg: Any?): Boolean = checkType(arg, null)
-
-    fun checkType(
-        arg: Any?,
-        parameterType: KClass<*>?,
-    ): Boolean =
+    fun checkType(arg: Any?): Boolean =
         when {
             argumentType.simpleName === null -> true
             else -> {
-                argumentType.valueClassAwareIsInstance(arg, parameterType)
+                argumentType.valueClassAwareIsInstance(arg, null)
             }
         }
 }
+
+private fun TypedMatcher.checkType(
+    arg: Any?,
+    parameterType: KClass<*>?,
+): Boolean =
+    when {
+        argumentType.simpleName === null -> true
+        else -> {
+            argumentType.valueClassAwareIsInstance(arg, parameterType)
+        }
+    }
 
 /**
  * Allows to substitute matcher to find correct chained call

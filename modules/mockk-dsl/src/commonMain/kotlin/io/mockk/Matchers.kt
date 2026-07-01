@@ -120,15 +120,12 @@ data class FunctionWithNullableArgMatcher<in T : Any>(
             false
         }
 
-    override fun checkType(
-        arg: Any?,
-        parameterType: KClass<*>?,
-    ): Boolean {
+    override fun checkType(arg: Any?): Boolean {
         if (arg == null) {
             return true
         }
 
-        return super.checkType(arg, parameterType)
+        return super.checkType(arg)
     }
 
     override fun toString(): String = "matcher<${argumentType.simpleName}>()"
@@ -180,15 +177,12 @@ data class CaptureNullableMatcher<T : Any>(
 
     override fun match(arg: T?): Boolean = true
 
-    override fun checkType(
-        arg: Any?,
-        parameterType: KClass<*>?,
-    ): Boolean {
+    override fun checkType(arg: Any?): Boolean {
         if (arg == null) {
             return true
         }
 
-        return super.checkType(arg, parameterType)
+        return super.checkType(arg)
     }
 
     override fun toString(): String = "capture<${argumentType.simpleName}?>()"
@@ -240,15 +234,12 @@ data class CapturingNullableSlotMatcher<T : Any>(
 
     override fun match(arg: T?): Boolean = true
 
-    override fun checkType(
-        arg: Any?,
-        parameterType: KClass<*>?,
-    ): Boolean {
+    override fun checkType(arg: Any?): Boolean {
         if (arg == null) {
             return true
         }
 
-        return super.checkType(arg, parameterType)
+        return super.checkType(arg)
     }
 
     override fun toString(): String = "slotCapture<${argumentType.simpleName}>()"
@@ -595,14 +586,11 @@ data class AnyTypedMatcher(
 
     override fun equivalent(): Matcher<Any> = this
 
-    override fun checkType(
-        arg: Any?,
-        parameterType: KClass<*>?,
-    ): Boolean {
+    override fun checkType(arg: Any?): Boolean {
         if (arg == null) return true
         if (argumentType.simpleName == null) return true
 
-        return argumentType.valueClassAwareIsInstance(arg, parameterType)
+        return argumentType.valueClassAwareIsInstance(arg, null)
     }
 
     override fun toString(): String = "any<${argumentType.simpleName}>()"
