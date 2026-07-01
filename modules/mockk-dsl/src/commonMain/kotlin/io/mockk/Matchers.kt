@@ -2,7 +2,6 @@ package io.mockk
 
 import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.InternalPlatformDsl.toStr
-import io.mockk.core.ValueClassSupport.boxedClass
 import io.mockk.core.ValueClassSupport.boxedValue
 import kotlin.math.min
 import kotlin.reflect.KClass
@@ -169,7 +168,11 @@ data class CaptureNullableMatcher<T : Any>(
 
     @Suppress("UNCHECKED_CAST")
     override fun capture(arg: Any?) {
-        captureList.add(arg as T?)
+        if (arg == null) {
+            captureList.add(null)
+        } else {
+            captureList.add(InternalPlatformDsl.boxCast(argumentType, arg))
+        }
     }
 
     override fun match(arg: T?): Boolean = true
@@ -579,16 +582,6 @@ data class AnyTypedMatcher(
 ) : Matcher<Any>,
     TypedMatcher,
     EquivalentMatcher {
-    private val underlyingBoxed: KClass<*>? by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        if (!argumentType.isValue) return@lazy null
-        argumentType.constructors
-            .firstOrNull()
-            ?.parameters
-            ?.singleOrNull()
-            ?.type
-            ?.classifier as? KClass<*>
-    }
-
     override fun match(arg: Any?): Boolean = true
 
     override fun equivalent(): Matcher<Any> = this
@@ -597,23 +590,7 @@ data class AnyTypedMatcher(
         if (arg == null) return true
         if (argumentType.simpleName == null) return true
 
-        if (argumentType.isInstance(arg)) return true
-
-        val expectedBoxed = argumentType.boxedClass
-        if (expectedBoxed.isInstance(arg)) return true
-
-        val normalizedArg = arg.boxedValue
-        if (argumentType.isInstance(normalizedArg)) return true
-        if (expectedBoxed.isInstance(normalizedArg)) return true
-
-        val ub = underlyingBoxed
-        if (ub != null) {
-            val ubBoxed = ub.boxedClass
-            if (ubBoxed.isInstance(arg)) return true
-            if (ubBoxed.isInstance(normalizedArg)) return true
-        }
-
-        return false
+        return argumentType.valueClassAwareIsInstance(arg, null)
     }
 
     override fun toString(): String = "any<${argumentType.simpleName}>()"
