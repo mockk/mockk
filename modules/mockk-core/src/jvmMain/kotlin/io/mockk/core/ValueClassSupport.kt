@@ -5,6 +5,7 @@ import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
@@ -122,7 +123,13 @@ actual object ValueClassSupport {
             if (!this.isValue_safe) {
                 this
             } else {
-                this.boxedProperty.returnType.classifier as KClass<*>
+                this.boxedProperty.returnType.classifier.let { classifier ->
+                    when (classifier) {
+                        is KClass<*> -> classifier
+                        is KTypeParameter -> classifier.upperBounds.firstNotNullOfOrNull { it.classifier as? KClass<*> } ?: Any::class
+                        else -> Any::class
+                    }
+                }
             }
 
     /**
