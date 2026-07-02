@@ -421,6 +421,56 @@ class ValueClassSupportTest {
         assertEquals(testValue, mock.getResult())
     }
 
+    /** https://github.com/mockk/mockk/issues/1528 */
+    @Test
+    fun `verify generic underlying value class`() {
+        val testValue = GenericUnderlyingValueClass("generic underlying")
+
+        val mock =
+            mockk<ValueClassService> {
+                every { getGenericUnderlyingValueClass() } returns testValue
+            }
+
+        assertEquals(testValue, mock.getGenericUnderlyingValueClass())
+    }
+
+    /** https://github.com/mockk/mockk/issues/1528 */
+    @Test
+    fun `verify generic underlying value class property`() {
+        val testValue = GenericUnderlyingValueClass("generic underlying property")
+
+        val mock =
+            mockk<ValueClassService> {
+                every { genericUnderlyingValueClassProperty } returns testValue
+            }
+
+        assertEquals(testValue, mock.genericUnderlyingValueClassProperty)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1528 */
+    @Test
+    fun `verify any matcher with generic underlying value class`() {
+        val mock =
+            mockk<ValueClassService> {
+                every { argGenericUnderlyingValueClass(any()) } returns "matched"
+            }
+
+        assertEquals("matched", mock.argGenericUnderlyingValueClass(GenericUnderlyingValueClass("generic underlying arg")))
+    }
+
+    /** https://github.com/mockk/mockk/issues/1528 */
+    @Test
+    fun `verify generic underlying value class returned as interface type`() {
+        val testValue = GenericUnderlyingValueClass("generic underlying interface")
+
+        val mock =
+            mockk<ValueClassService> {
+                every { getGenericUnderlyingValueClassAsInterfaceType() } returns testValue
+            }
+
+        assertEquals(testValue, mock.getGenericUnderlyingValueClassAsInterfaceType())
+    }
+
     @Test
     fun `verify suspend function returning a value class`() {
         val testValue = ValueClass("suspend")
@@ -500,6 +550,14 @@ class ValueClassSupportTest {
         assertEquals(PrimitiveValueClass::class, ValueClassSupport.run { klass.innermostBoxedClass(2) })
         assertEquals(Int::class, ValueClassSupport.run { klass.innermostBoxedClass(3) })
     }
+
+    /** https://github.com/mockk/mockk/issues/1528 */
+    @Test
+    fun `verify innermostBoxedClass resolves generic underlying value class to upper bound`() {
+        val klass = GenericUnderlyingValueClass::class
+
+        assertEquals(Any::class, ValueClassSupport.run { klass.innermostBoxedClass() })
+    }
 }
 
 private class MockTarget {
@@ -569,6 +627,14 @@ internal interface ValueClassService {
 
     fun getResult(): Result<String>
 
+    fun getGenericUnderlyingValueClass(): GenericUnderlyingValueClass<String>
+
+    val genericUnderlyingValueClassProperty: GenericUnderlyingValueClass<String>
+
+    fun argGenericUnderlyingValueClass(value: GenericUnderlyingValueClass<String>): String
+
+    fun getGenericUnderlyingValueClassAsInterfaceType(): GenericUnderlyingValueClassSuperType
+
     fun getValueClassAsAny(): Any
 
     fun getValueClassAsInterfaceType(): ValueClassSuperType
@@ -596,6 +662,13 @@ internal interface ValueWrapper {
 internal value class InlineValueWrapper(
     override val value: Long,
 ) : ValueWrapper
+
+@JvmInline
+internal value class GenericUnderlyingValueClass<T>(
+    val value: T,
+) : GenericUnderlyingValueClassSuperType
+
+internal interface GenericUnderlyingValueClassSuperType
 
 internal interface ParameterizedValueClassService<T : ValueWrapper> {
     fun value(): T
