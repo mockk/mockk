@@ -16,6 +16,7 @@ import net.bytebuddy.ByteBuddy
 import net.bytebuddy.NamingStrategy
 import net.bytebuddy.agent.ByteBuddyAgent
 import net.bytebuddy.description.type.TypeDescription
+import net.bytebuddy.dynamic.scaffold.MethodGraph
 import net.bytebuddy.dynamic.scaffold.TypeValidation
 import java.lang.instrument.Instrumentation
 import java.util.concurrent.atomic.AtomicLong
@@ -63,6 +64,12 @@ class JvmMockKAgentFactory : MockKAgentFactory {
                     ByteBuddy()
                         .with(TypeValidation.DISABLED)
                         .with(MockKSubclassNamingStrategy())
+                        // Distinguish methods by their return type as well as name and parameters.
+                        // Overloads whose generic parameters erase to the same JVM signature (e.g.
+                        // hello(List<String>): String and hello(List<Int>): List<String>) are separate
+                        // methods; the default (Java hierarchy) view merges them, so only one gets
+                        // instrumented and calls to the other hit the real implementation. See #1300.
+                        .with(MethodGraph.Compiler.Default.forJVMHierarchy())
 
                 jvmInstantiator =
                     ObjenesisInstantiator(
