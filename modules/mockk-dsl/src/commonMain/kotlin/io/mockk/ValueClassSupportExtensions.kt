@@ -27,8 +27,10 @@ internal fun KClass<*>.valueClassAwareIsInstance(
     if (arg == null) return false
     if (isInstance(arg)) return true
 
-    return parameterType != null &&
-        boxedClassChain()
-            .drop(1)
-            .any { boxedType -> boxedType == parameterType && boxedType.isInstance(arg) }
+    if (parameterType == null) return false
+
+    val chain = boxedClassChain()
+    if (parameterType !in chain) return false
+
+    return chain.any { boxedType -> boxedType.isInstance(arg) }
 }
