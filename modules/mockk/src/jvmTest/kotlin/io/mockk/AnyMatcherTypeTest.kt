@@ -72,7 +72,9 @@ class AnyMatcherTypeTest {
 
     companion object {
         @JvmInline
-        value class Token(val raw: String)
+        value class Token(
+            val raw: String,
+        )
 
         interface ThrowTestService {
             fun process(input: String)
@@ -91,7 +93,11 @@ class AnyMatcherTypeTest {
         }
 
         interface PublisherWithDefault<T : Any> {
-            fun publish(message: T, otherParam: String)
+            fun publish(
+                message: T,
+                otherParam: String,
+            )
+
             fun publish(message: T) {
                 publish(message, "default")
             }
