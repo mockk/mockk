@@ -651,18 +651,14 @@ object MockKDsl {
             )
         val implementation = MockKGateway.implementation()
 
-        if (regularMocks) {
-            implementation.clearer.clearAll(options, currentThreadOnly)
-        }
-        if (objectMocks) {
-            implementation.objectMockFactory.clearAll(options, currentThreadOnly)
-        }
-        if (staticMocks) {
-            implementation.staticMockFactory.clearAll(options, currentThreadOnly)
-        }
-        if (constructorMocks) {
-            implementation.constructorMockFactory.clearAll(options, currentThreadOnly)
-        }
+        implementation.clearer.clearAll(
+            options,
+            currentThreadOnly,
+            regularMocks,
+            objectMocks,
+            staticMocks,
+            constructorMocks,
+        )
     }
 
     inline fun internalClearMemory(

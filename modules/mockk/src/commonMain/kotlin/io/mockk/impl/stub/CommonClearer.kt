@@ -24,19 +24,40 @@ class CommonClearer(
     override fun clearAll(
         options: MockKGateway.ClearOptions,
         currentThreadOnly: Boolean,
+    ) = clearAll(
+        options = options,
+        currentThreadOnly = currentThreadOnly,
+        regularMocks = true,
+        objectMocks = false,
+        staticMocks = false,
+        constructorMocks = false,
+    )
+
+    override fun clearAll(
+        options: MockKGateway.ClearOptions,
+        currentThreadOnly: Boolean,
+        regularMocks: Boolean,
+        objectMocks: Boolean,
+        staticMocks: Boolean,
+        constructorMocks: Boolean,
     ) {
+        if (!regularMocks && !objectMocks && !staticMocks && !constructorMocks) {
+            return
+        }
         val currentThreadId = Thread.currentThread().id
         stubRepository.allStubs.forEach { stub ->
             if (currentThreadOnly && currentThreadId != stub.threadId) {
                 return@forEach
             }
-            val isRegularOrSpy =
-                when {
-                    stub is SpyKStub<*> -> stub.mockType == MockType.SPY
-                    stub is MockKStub -> stub.mockType == MockType.REGULAR
-                    else -> false
+            val isRequested =
+                when (stub.clearKind) {
+                    ClearKind.REGULAR -> regularMocks
+                    ClearKind.OBJECT -> objectMocks
+                    ClearKind.STATIC -> staticMocks
+                    ClearKind.CONSTRUCTOR -> constructorMocks
+                    null -> false
                 }
-            if (isRegularOrSpy) {
+            if (isRequested) {
                 stub.clear(options)
             }
         }

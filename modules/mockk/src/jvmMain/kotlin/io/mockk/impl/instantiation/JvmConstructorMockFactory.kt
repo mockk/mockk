@@ -10,11 +10,13 @@ import io.mockk.MockKGateway.ConstructorMockFactory
 import io.mockk.NullCheckMatcher
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
+import io.mockk.impl.stub.ClearKind
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.ConstructorStub
 import io.mockk.impl.stub.MockType
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
+import io.mockk.impl.stub.clearKind
 import io.mockk.proxy.Cancelable
 import io.mockk.proxy.MockKConstructorProxyMaker
 import io.mockk.proxy.MockKInvocationHandler
@@ -305,10 +307,7 @@ class JvmConstructorMockFactory(
             if (currentThreadOnly && currentThreadId != stub.threadId) {
                 return@forEach
             }
-            val isConstructorMock =
-                stub is ConstructorStub ||
-                    (stub is SpyKStub<*> && stub.mockType == MockType.CONSTRUCTOR)
-            if (isConstructorMock) {
+            if (stub.clearKind == ClearKind.CONSTRUCTOR) {
                 stub.clear(options)
             }
         }
