@@ -730,6 +730,7 @@ public final class io/mockk/MockKGateway$ClearOptions {
 public abstract interface class io/mockk/MockKGateway$Clearer {
 	public abstract fun clear ([Ljava/lang/Object;Lio/mockk/MockKGateway$ClearOptions;)V
 	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
+	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;ZZZZZ)V
 	public abstract fun clearAllStubsFromMemory (ZLjava/util/List;)V
 }
 

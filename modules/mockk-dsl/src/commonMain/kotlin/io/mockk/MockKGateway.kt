@@ -136,6 +136,22 @@ interface MockKGateway {
             currentThreadOnly: Boolean,
         )
 
+        /**
+         * Clears every requested kind of mock in a single pass over the stub repository.
+         *
+         * [clearAll] and the `clearAll` of [ObjectMockFactory], [StaticMockFactory] and
+         * [ConstructorMockFactory] each walk every live stub, so clearing all four kinds through
+         * them costs four passes to clear each mock once.
+         */
+        fun clearAll(
+            options: ClearOptions,
+            currentThreadOnly: Boolean,
+            regularMocks: Boolean,
+            objectMocks: Boolean,
+            staticMocks: Boolean,
+            constructorMocks: Boolean,
+        )
+
         fun clearAllStubsFromMemory(
             currentThreadOnly: Boolean = false,
             excludeMocks: List<Any> = emptyList(),

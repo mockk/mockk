@@ -6,10 +6,12 @@ import io.mockk.MockKGateway
 import io.mockk.MockKGateway.ObjectMockFactory
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
+import io.mockk.impl.stub.ClearKind
 import io.mockk.impl.stub.MockType
 import io.mockk.impl.stub.SpyKStub
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
+import io.mockk.impl.stub.clearKind
 import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.MockKProxyMaker
 
@@ -94,7 +96,7 @@ class JvmObjectMockFactory(
             if (currentThreadOnly && currentThreadId != stub.threadId) {
                 return@forEach
             }
-            if (stub is SpyKStub<*> && stub.mockType == MockType.OBJECT) {
+            if (stub.clearKind == ClearKind.OBJECT) {
                 stub.clear(options)
             }
         }
