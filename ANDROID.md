@@ -127,7 +127,7 @@ All you need to get started is by adding a dependency to `MockK` library.
 #### Unit tests
 
 ```
-testImplementation "io.mockk:mockk:{version}"
+testImplementation "io.mockk:mockk-android:{version}"
 ```
 
 #### Android instrumented tests

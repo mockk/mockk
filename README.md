@@ -22,14 +22,14 @@ All you need to get started is just to add a dependency to `MockK` library.
 <td><img src="doc/gradle.png" alt="Gradle"/></td>
 <td>
 <pre>
-testImplementation "io.mockk:mockk:${mockkVersion}"
+testImplementation "io.mockk:mockk-jvm:${mockkVersion}"
 </pre>
 </td>
 </tr>
 <tr>
 <td><img src="doc/gradle.png" alt="Gradle"/> (Kotlin DSL)</td>
  <td>
-  <pre>testImplementation("io.mockk:mockk:${mockkVersion}")</pre>
+  <pre>testImplementation("io.mockk:mockk-jvm:${mockkVersion}")</pre>
  </td>
 </tr>
 <tr>
