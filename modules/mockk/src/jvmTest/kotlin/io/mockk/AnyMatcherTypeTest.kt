@@ -2,6 +2,7 @@ package io.mockk
 
 import kotlin.test.Test
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 class AnyMatcherTypeTest {
     private interface Sender {
@@ -67,5 +68,110 @@ class AnyMatcherTypeTest {
         codeUnderTest(sender)
 
         verify { sender.send(any(Any::class)) }
+    }
+
+    companion object {
+        @JvmInline
+        value class Token(
+            val raw: String,
+        )
+
+        interface ThrowTestService {
+            fun process(input: String)
+        }
+
+        interface ValueThrowTestService {
+            fun useToken(token: Token)
+        }
+
+        interface GenericPublisher<T : Any> {
+            fun publish(message: T)
+        }
+
+        interface Encrypter {
+            fun encrypt(message: String): String
+        }
+
+        interface PublisherWithDefault<T : Any> {
+            fun publish(
+                message: T,
+                otherParam: String,
+            )
+
+            fun publish(message: T) {
+                publish(message, "default")
+            }
+        }
+    }
+
+    @Test
+    fun `every throws with any() should register exception for non-value-class`() {
+        val service = mockk<ThrowTestService>()
+        val ex = RuntimeException("test error")
+        every { service.process(any()) } throws ex
+
+        assertFailsWith<RuntimeException> {
+            service.process("hello")
+        }
+    }
+
+    @Test
+    fun `every throws with any() should register exception for value class`() {
+        val service = mockk<ValueThrowTestService>()
+        val ex = RuntimeException("test error")
+        every { service.useToken(any()) } throws ex
+
+        assertFailsWith<RuntimeException> {
+            service.useToken(Token("abc"))
+        }
+    }
+
+    @Test
+    fun `every returns with any() should work for value class`() {
+        val service = mockk<ValueThrowTestService>()
+        every { service.useToken(any()) } returns Unit
+
+        service.useToken(Token("abc"))
+
+        verify { service.useToken(any<Token>()) }
+    }
+
+    @Test
+    fun `relaxed mock every throws with any() on generic interface`() {
+        val publisher = mockk<GenericPublisher<String>>(relaxed = true)
+        val ex = RuntimeException("test error")
+        every { publisher.publish(any()) } throws ex
+
+        assertFailsWith<RuntimeException> {
+            publisher.publish("hello")
+        }
+    }
+
+    @Test
+    fun `relaxed mock every throws with any() when arg comes from other relaxed mock`() {
+        val encrypter = mockk<Encrypter>(relaxed = true)
+        val publisher = mockk<GenericPublisher<String>>(relaxed = true)
+        val ex = RuntimeException("test error")
+        every { publisher.publish(any()) } throws ex
+
+        val encrypted = encrypter.encrypt("some message")
+
+        assertFailsWith<RuntimeException> {
+            publisher.publish(encrypted)
+        }
+    }
+
+    @Test
+    fun `relaxed mock every throws with any() on interface with default method`() {
+        val encrypter = mockk<Encrypter>(relaxed = true)
+        val publisher = mockk<PublisherWithDefault<String>>(relaxed = true)
+        val ex = RuntimeException("test error")
+        every { publisher.publish(any()) } throws ex
+
+        val encrypted = encrypter.encrypt("some message")
+
+        assertFailsWith<RuntimeException> {
+            publisher.publish(encrypted)
+        }
     }
 }
