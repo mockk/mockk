@@ -3,6 +3,8 @@ package io.mockk.it
 import io.mockk.MockKException
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import java.lang.reflect.InvocationTargetException
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -17,6 +19,18 @@ private class HasWrapper {
     private val impl = HasInline()
 
     fun addOne(x: Int) = impl.addOne(x) // non-inline wrapper
+}
+
+// replica of issue #1439: kotlin-reflect fails with ClassNotFoundException: kotlin.Array
+// when analyzing a companion containing a @JvmStatic external function returning Array
+private class HasExternalJniMethod private constructor() {
+    companion object {
+        val instance: HasExternalJniMethod = HasExternalJniMethod()
+
+        @Suppress("unused")
+        @JvmStatic
+        external fun jniMethod(): Array<String>
+    }
 }
 
 class InlineMemberFunctionFailFastTest {
@@ -53,5 +67,33 @@ class InlineMemberFunctionFailFastTest {
 
         val msg = cause.message ?: ""
         assertContains(msg, "Mocking Kotlin inline functions is not supported")
+    }
+
+    /**
+     * Inline detection must stay best-effort: when kotlin-reflect cannot analyze the declaring
+     * class it throws (here: ClassNotFoundException for kotlin.Array, see #1439), and mocking
+     * has to proceed as if the method were not inline instead of failing.
+     */
+    @Test
+    fun stubOfCompanionWithExternalArrayReturningFunctionStillWorks() {
+        mockkObject(HasExternalJniMethod.Companion)
+        try {
+            val replacement = mockk<HasExternalJniMethod>()
+            every { HasExternalJniMethod.instance } returns replacement
+            assertEquals(replacement, HasExternalJniMethod.instance)
+        } finally {
+            unmockkObject(HasExternalJniMethod.Companion)
+        }
+    }
+
+    /**
+     * Same best-effort requirement for a Java hierarchy kotlin-reflect rejects with
+     * "Cannot infer visibility for inherited open fun clone" (see #1432).
+     */
+    @Test
+    fun stubOfJavaClassWithCloneDeclaredOnSubInterfaceStillWorks() {
+        val trigger = mockk<CloneDeclaredOnSubInterface.SimpleTriggerImpl>()
+        every { trigger.timesTriggered } returns 1
+        assertEquals(1, trigger.timesTriggered)
     }
 }
