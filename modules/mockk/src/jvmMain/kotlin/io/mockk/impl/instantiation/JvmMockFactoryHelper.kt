@@ -20,7 +20,6 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.full.memberProperties
-import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
@@ -125,21 +124,17 @@ object JvmMockFactoryHelper {
         }
     }
 
-    private fun Method.isKotlinInline(): Boolean {
+    private fun Method.isKotlinInline(): Boolean =
         try {
-            val kotlinFunction = this.kotlinFunction
-            if (kotlinFunction != null && kotlinFunction.isInline) return true
-        } catch (_: KotlinReflectionInternalError) {
-            null // fall back to annotation check
-        } catch (_: UnsupportedOperationException) {
-            null // fall back to annotation check
+            kotlinFunction?.isInline == true
+        } catch (_: Throwable) {
+            // Reading kotlinFunction makes kotlin-reflect resolve the whole declaring class
+            // hierarchy, which fails in unforeseeable ways on classes it cannot analyze (#1432,
+            // #1439, #1512), so the same broad catch as toDescription() below is needed.
+            // Detection is best-effort: an unanalyzable method counts as not inline and mocking
+            // proceeds.
+            false
         }
-
-        return this.declaredAnnotations.any { ann ->
-            val n = ann.annotationClass.qualifiedName ?: ann.annotationClass.java.name
-            n == "kotlin.internal.InlineOnly"
-        }
-    }
 
     internal fun Method.toDescription(): MethodDescription {
         val cached = cache[this]
