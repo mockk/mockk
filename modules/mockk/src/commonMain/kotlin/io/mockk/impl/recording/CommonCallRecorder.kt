@@ -46,6 +46,11 @@ class CommonCallRecorder(
         log.trace { "Starting exclusion" }
     }
 
+    override fun startSuppression() {
+        state = factories.suppressionState(this)
+        log.trace { "Starting suppression" }
+    }
+
     override fun done() {
         state = state.recordingDone()
     }

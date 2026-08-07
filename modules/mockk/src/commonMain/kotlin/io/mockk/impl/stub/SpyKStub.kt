@@ -10,5 +10,20 @@ class SpyKStub<T : Any>(
     recordPrivateCalls: Boolean,
     mockType: MockType,
 ) : MockKStub(cls, name, false, false, gatewayAccess, recordPrivateCalls, mockType) {
-    override fun defaultAnswer(invocation: Invocation): Any? = invocation.originalCall()
+    override fun defaultAnswer(invocation: Invocation): Any? =
+        if (isSuppressed(invocation)) {
+            relaxedValue(invocation)
+        } else {
+            invocation.originalCall()
+        }
+
+    private fun relaxedValue(invocation: Invocation): Any? {
+        if (invocation.method.returnsUnit) return Unit
+        return gatewayAccess.anyValueGenerator().anyValue(
+            invocation.method.returnType,
+            invocation.method.returnTypeNullable,
+        ) {
+            childMockK(invocation.allEqMatcher(), invocation.method.returnType)
+        }
+    }
 }

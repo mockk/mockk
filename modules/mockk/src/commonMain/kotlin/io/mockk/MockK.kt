@@ -455,6 +455,42 @@ fun coExcludeRecords(
     }
 
 /**
+ * Suppresses execution of specified method calls on mocks/spies.
+ *
+ * When a method is suppressed, the original method implementation is not executed
+ * and a default value is returned instead (e.g. `Unit` for void methods,
+ * `null` for objects, `0` for primitives).
+ *
+ * This is useful for suppressing parent class method calls (e.g. `onCreate()`, `onResume()`)
+ * when testing Android Activity classes or any scenario where you want to prevent
+ * the real method from executing.
+ *
+ * Example:
+ * ```
+ * val spy = spyk(MyActivity())
+ * suppress { spy.onCreate(any()) }
+ * spy.onCreate(null) // onCreate won't execute its original code
+ * ```
+ *
+ * @see [coSuppress] Coroutine version.
+ * @see [excludeRecords]
+ */
+fun suppress(suppressBlock: MockKMatcherScope.() -> Unit): Unit =
+    MockK.useImpl {
+        MockKDsl.internalSuppress(suppressBlock)
+    }
+
+/**
+ * Suppresses execution of specified method calls on mocks/spies for a `suspend` block.
+ *
+ * @see [suppress]
+ */
+fun coSuppress(suppressBlock: suspend MockKMatcherScope.() -> Unit): Unit =
+    MockK.useImpl {
+        MockKDsl.internalCoSuppress(suppressBlock)
+    }
+
+/**
  * Checks if all recorded calls were verified.
  *
  * @param clear if `true` verification state is cleared for the given mocks
