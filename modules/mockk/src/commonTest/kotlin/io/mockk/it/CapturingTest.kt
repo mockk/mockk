@@ -17,6 +17,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class CapturingTest {
     private val mock = mockk<MockedSubject>()
@@ -64,6 +65,25 @@ class CapturingTest {
         assertNull(slot.captured?.value)
 
         verify { mock.nullableOp(1, 2, null) }
+    }
+
+    /**
+     * Regression for #1429: a single `slot` factory must resolve for both non-null and
+     * nullable type arguments without overload ambiguity.
+     */
+    @Test
+    fun `slot factory resolves for non-null and nullable type arguments`() {
+        val nonNullSlot = slot<String>()
+        nonNullSlot.captured = "value"
+        assertEquals("value", nonNullSlot.captured)
+
+        val nullableSlot = slot<String?>()
+        nullableSlot.captured = null
+        assertNull(nullableSlot.captured)
+        assertTrue(nullableSlot.isNull)
+
+        nullableSlot.captured = "also"
+        assertEquals("also", nullableSlot.captured)
     }
 
     @Test
