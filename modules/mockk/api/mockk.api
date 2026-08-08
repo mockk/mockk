@@ -73,6 +73,7 @@ public final class io/mockk/MockKKt {
 	public static final fun mockkStatic ([Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
 	public static final fun mockkStatic ([Lkotlin/reflect/KClass;)V
 	public static final fun mockkStatic ([Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function0;)V
+	public static final fun slot ()Lio/mockk/CapturingSlot;
 	public static final fun unmockkAll ()V
 	public static final fun unmockkConstructor ([Lkotlin/reflect/KClass;)V
 	public static final fun unmockkObject ([Ljava/lang/Object;)V

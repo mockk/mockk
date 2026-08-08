@@ -116,6 +116,12 @@ inline fun <reified T : Any> spyk(
  * Slots allow you to capture what arguments a mocked method is called with.
  * When mocking a method using [every], pass the slot wrapped with the `io.mockk.MockKMatcherScope.capture` function in place of a method argument or `io.mockk.MockKMatcherScope.any`.
  *
+ * [T] may be nullable (`slot<String?>()`) or non-null (`slot<String>()`).
+ *
+ * This factory is intentionally a single non-inline, non-reified function with upper bound
+ * `Any?` so multiplatform / IDE resolution sees exactly one candidate (see #1429).
+ * Creating a slot does not require the MockK gateway, so [MockK.useImpl] is not used.
+ *
  * Example:
  * ```
  * interface FileNetwork {
@@ -131,10 +137,7 @@ inline fun <reified T : Any> spyk(
  * // slot.captured is now "testfile"
  * ```
  */
-inline fun <reified T : Any?> slot(): CapturingSlot<T> =
-    MockK.useImpl {
-        MockKDsl.internalSlot<T>()
-    }
+fun <T : Any?> slot(): CapturingSlot<T> = CapturingSlot()
 
 /**
  * Starts a block of stubbing. Part of DSL.
