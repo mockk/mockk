@@ -6,12 +6,14 @@ import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.Excluder
 import io.mockk.MockKGateway.InstanceFactoryRegistry
 import io.mockk.MockKGateway.Stubber
+import io.mockk.MockKGateway.Suppresser
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.Verifier
 import io.mockk.Ordering
 import io.mockk.impl.annotations.JvmMockInitializer
 import io.mockk.impl.eval.EveryBlockEvaluator
 import io.mockk.impl.eval.ExcludeBlockEvaluator
+import io.mockk.impl.eval.SuppressBlockEvaluator
 import io.mockk.impl.eval.VerifyBlockEvaluator
 import io.mockk.impl.instantiation.AbstractMockFactory
 import io.mockk.impl.instantiation.AnyValueGenerator
@@ -43,6 +45,7 @@ import io.mockk.impl.recording.states.ExclusionState
 import io.mockk.impl.recording.states.SafeLoggingState
 import io.mockk.impl.recording.states.StubbingAwaitingAnswerState
 import io.mockk.impl.recording.states.StubbingState
+import io.mockk.impl.recording.states.SuppressionState
 import io.mockk.impl.recording.states.VerifyingState
 import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubGatewayAccess
@@ -174,6 +177,7 @@ class JvmMockKGateway : MockKGateway {
             ::StubbingState,
             ::VerifyingState,
             ::ExclusionState,
+            { recorder -> SuppressionState(recorder) },
             ::StubbingAwaitingAnswerState,
             ::SafeLoggingState,
         )
@@ -200,6 +204,7 @@ class JvmMockKGateway : MockKGateway {
     override val stubber: Stubber = EveryBlockEvaluator(callRecorderTL::get, ::JvmAutoHinter)
     override val verifier: Verifier = VerifyBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
     override val excluder: Excluder = ExcludeBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
+    override val suppresser: Suppresser = SuppressBlockEvaluator(callRecorderTL::get, stubRepo, ::JvmAutoHinter)
     override val mockInitializer = JvmMockInitializer(this)
     override val verificationAcknowledger = CommonVerificationAcknowledger(stubRepo, safeToString)
 

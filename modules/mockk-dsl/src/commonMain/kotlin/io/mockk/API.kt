@@ -278,6 +278,32 @@ object MockKDsl {
     }
 
     /**
+     * Suppress execution of specified method calls.
+     * When suppressed, the original method implementation is not executed
+     * and a default value is returned instead.
+     */
+    fun internalSuppress(
+        suppressBlock: MockKMatcherScope.() -> Unit,
+    ) {
+        MockKGateway.implementation().suppresser.suppress(
+            suppressBlock,
+            null,
+        )
+    }
+
+    /**
+     * Suppress execution of specified method calls for a suspend block.
+     */
+    fun internalCoSuppress(
+        suppressBlock: suspend MockKMatcherScope.() -> Unit,
+    ) {
+        MockKGateway.implementation().suppresser.suppress(
+            null,
+            suppressBlock,
+        )
+    }
+
+    /**
      * Checks if all recorded calls were verified.
      *
      * @param clear if `true` verification state is cleared for the given mocks
@@ -341,6 +367,7 @@ object MockKDsl {
         childMocks: Boolean = true,
         verificationMarks: Boolean = true,
         exclusionRules: Boolean = true,
+        suppressionRules: Boolean = true,
     ) {
         MockKGateway.implementation().clearer.clear(
             arrayOf(firstMock, *mocks),
@@ -350,6 +377,7 @@ object MockKDsl {
                 childMocks,
                 verificationMarks,
                 exclusionRules,
+                suppressionRules,
             ),
         )
     }
@@ -487,6 +515,7 @@ object MockKDsl {
         childMocks: Boolean = true,
         verificationMarks: Boolean = true,
         exclusionRules: Boolean = true,
+        suppressionRules: Boolean = true,
     ) {
         for (obj in objects) {
             MockKGateway.implementation().objectMockFactory.clear(
@@ -497,6 +526,7 @@ object MockKDsl {
                     childMocks,
                     verificationMarks,
                     exclusionRules,
+                    suppressionRules,
                 ),
             )
         }
@@ -540,6 +570,7 @@ object MockKDsl {
         childMocks: Boolean = true,
         verificationMarks: Boolean = true,
         exclusionRules: Boolean = true,
+        suppressionRules: Boolean = true,
     ) {
         for (type in classes) {
             MockKGateway.implementation().staticMockFactory.clear(
@@ -550,6 +581,7 @@ object MockKDsl {
                     childMocks,
                     verificationMarks,
                     exclusionRules,
+                    suppressionRules,
                 ),
             )
         }
@@ -589,6 +621,7 @@ object MockKDsl {
                     childMocks = true,
                     verificationMarks = true,
                     exclusionRules = true,
+                    suppressionRules = true,
                 ),
             )
             MockKCancellationRegistry
@@ -607,6 +640,7 @@ object MockKDsl {
         childMocks: Boolean = true,
         verificationMarks: Boolean = true,
         exclusionRules: Boolean = true,
+        suppressionRules: Boolean = true,
     ) {
         for (type in classes) {
             MockKGateway.implementation().constructorMockFactory.clear(
@@ -617,6 +651,7 @@ object MockKDsl {
                     childMocks,
                     verificationMarks,
                     exclusionRules,
+                    suppressionRules,
                 ),
             )
         }
@@ -639,6 +674,7 @@ object MockKDsl {
         constructorMocks: Boolean = true,
         verificationMarks: Boolean = true,
         exclusionRules: Boolean = true,
+        suppressionRules: Boolean = true,
         currentThreadOnly: Boolean = false,
     ) {
         val options =
@@ -648,6 +684,7 @@ object MockKDsl {
                 childMocks,
                 verificationMarks,
                 exclusionRules,
+                suppressionRules,
             )
         val implementation = MockKGateway.implementation()
 
@@ -3202,6 +3239,7 @@ abstract class MockKUnmockKScope {
         childMocks: Boolean = true,
         verificationMarks: Boolean = true,
         exclusionRules: Boolean = true,
+        suppressionRules: Boolean = true,
     )
 
     operator fun plus(scope: MockKUnmockKScope): MockKUnmockKScope = MockKUnmockKCompositeScope(this, scope)
@@ -3285,6 +3323,7 @@ class MockKUnmockKCompositeScope(
         childMocks: Boolean,
         verificationMarks: Boolean,
         exclusionRules: Boolean,
+        suppressionRules: Boolean,
     ) {
         first.clear(
             answers,
@@ -3292,6 +3331,7 @@ class MockKUnmockKCompositeScope(
             childMocks,
             verificationMarks,
             exclusionRules,
+            suppressionRules,
         )
         second.clear(
             answers,
@@ -3299,6 +3339,7 @@ class MockKUnmockKCompositeScope(
             childMocks,
             verificationMarks,
             exclusionRules,
+            suppressionRules,
         )
     }
 }
@@ -3326,6 +3367,7 @@ class MockKStaticScope(
         childMocks: Boolean,
         verificationMarks: Boolean,
         exclusionRules: Boolean,
+        suppressionRules: Boolean,
     ) {
         for (type in staticTypes) {
             MockKGateway.implementation().staticMockFactory.clear(
@@ -3336,6 +3378,7 @@ class MockKStaticScope(
                     childMocks,
                     verificationMarks,
                     exclusionRules,
+                    suppressionRules,
                 ),
             )
         }
@@ -3368,6 +3411,7 @@ class MockKObjectScope(
         childMocks: Boolean,
         verificationMarks: Boolean,
         exclusionRules: Boolean,
+        suppressionRules: Boolean,
     ) {
         for (obj in objects) {
             MockKGateway.implementation().objectMockFactory.clear(
@@ -3378,6 +3422,7 @@ class MockKObjectScope(
                     childMocks,
                     verificationMarks,
                     exclusionRules,
+                    suppressionRules,
                 ),
             )
         }
@@ -3408,6 +3453,7 @@ class MockKConstructorScope<T : Any>(
         childMocks: Boolean,
         verificationMarks: Boolean,
         exclusionRules: Boolean,
+        suppressionRules: Boolean,
     ) {
         MockKGateway.implementation().constructorMockFactory.clear(
             type,
@@ -3417,6 +3463,7 @@ class MockKConstructorScope<T : Any>(
                 childMocks,
                 verificationMarks,
                 exclusionRules,
+                suppressionRules,
             ),
         )
     }

@@ -40,6 +40,8 @@ interface Stub : Disposable {
         matcher: InvocationMatcher,
     )
 
+    fun suppressRecordedCalls(matcher: InvocationMatcher)
+
     fun markCallVerified(invocation: Invocation)
 
     fun verifiedCalls(): List<Invocation>
