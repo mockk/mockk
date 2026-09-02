@@ -120,9 +120,9 @@ open class UnorderedCallVerifier(
                             } else {
                                 VerificationResult.Failure(
                                     "$callIdxMsg. One matching call found, but needs ${callsBoundsMsg(min, max)}" +
-                                        "\nCall: " + allCallsForMock.first() +
+                                        "\nCall: " + onlyCall +
                                         if (MockKSettings.stackTracesOnVerify) {
-                                            "\nStack trace:\n" + stackTrace(0, allCallsForMock.first().callStack())
+                                            "\nStack trace:\n" + stackTrace(0, onlyCall.callStack())
                                         } else {
                                             ""
                                         },
@@ -138,7 +138,7 @@ open class UnorderedCallVerifier(
                                             "but arguments are not matching:\n" +
                                             describeArgumentDifference(matcher, onlyCall) +
                                             if (MockKSettings.stackTracesOnVerify) {
-                                                "\nStack trace:\n" + stackTrace(0, allCallsForMock.first().callStack())
+                                                "\nStack trace:\n" + stackTrace(0, onlyCall.callStack())
                                             } else {
                                                 ""
                                             }
