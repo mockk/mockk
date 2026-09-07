@@ -146,6 +146,63 @@ class VerificationErrorsTest {
     }
 
     @Test
+    fun argumentsNotMatchingTraceIsTakenFromTheCallThatIsDescribed() {
+        clearMocks(mock)
+
+        every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+        every { mock.manyArgsOp() } returns 0.0
+
+        mock.manyArgsOp()
+        mock.otherOp(1, 2)
+
+        try {
+            verify { mock.otherOp(1, 3) }
+            fail("Block should throw verification failure")
+        } catch (ex: AssertionError) {
+            val message = ex.message!!
+            val trace = message.substringAfter("Stack trace:", "")
+
+            if (!message.contains("but arguments are not matching")) {
+                fail("Bad message: " + message)
+            }
+            if (trace.isNotEmpty() && trace.contains("manyArgsOp")) {
+                fail("Stack trace should belong to the call being described: " + message)
+            }
+        }
+    }
+
+    @Test
+    fun oneMatchingCallFoundReportsThatCallAndNotAnotherCallOnTheSameMock() {
+        clearMocks(mock)
+
+        every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
+        every { mock.manyArgsOp() } returns 0.0
+
+        mock.manyArgsOp()
+        mock.otherOp(1, 2)
+
+        try {
+            verify(exactly = 2) { mock.otherOp(1, 2) }
+            fail("Block should throw verification failure")
+        } catch (ex: AssertionError) {
+            val message = ex.message!!
+            val reportedCall =
+                message.lineSequence().firstOrNull { it.startsWith("Call: ") }
+                    ?: fail("Message has no reported call: " + message)
+
+            if (!message.contains("One matching call found, but needs exactly 2 calls")) {
+                fail("Bad message: " + message)
+            }
+            if (!reportedCall.contains("otherOp")) {
+                fail("Reported call should be the verified one: " + message)
+            }
+            if (reportedCall.contains("manyArgsOp")) {
+                fail("Reported call should not be an unrelated call to the same mock: " + message)
+            }
+        }
+    }
+
+    @Test
     fun callsAreNotInVerificationOrder() {
         expectVerificationError("calls are not in verification order", "MockCls.otherOp") {
             every { mock.otherOp(1, any()) } answers { 2 + firstArg<Int>() }
