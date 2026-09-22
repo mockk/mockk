@@ -175,16 +175,17 @@ object JvmMockFactoryHelper {
         val returnTypeIsNothing =
             kotlinFunc?.returnType?.toString() == "kotlin.Nothing"
 
-        val isSuspend =
-            when {
-                kotlinFunc != null ->
-                    kotlinFunc.isSuspend
+        val lastParamIsContinuation =
+            parameterTypes.lastOrNull()?.let {
+                Continuation::class.java.isAssignableFrom(it)
+            } ?: false
 
-                else ->
-                    parameterTypes.lastOrNull()?.let {
-                        Continuation::class.java.isAssignableFrom(it)
-                    } ?: false
-            }
+        // `kotlinFunc?.isSuspend` is normally authoritative, but it is not trusted on its own:
+        // some kotlin-reflect versions misreport `isSuspend = false` for a suspend member of a
+        // functional (SAM) interface, even though the compiled method still carries the trailing
+        // `Continuation` parameter (see #1555). Falling back to the Java-level signature check
+        // whenever it disagrees keeps suspend detection correct regardless of that skew.
+        val isSuspend = kotlinFunc?.isSuspend == true || lastParamIsContinuation
 
         val isFnCall = Function::class.java.isAssignableFrom(declaringClass)
 
