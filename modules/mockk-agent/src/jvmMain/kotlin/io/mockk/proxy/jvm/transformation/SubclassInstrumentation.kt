@@ -8,11 +8,16 @@ import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.TypeCache
+import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.loading.MultipleParentClassLoader
 import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.implementation.attribute.MethodAttributeAppender
 import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
 import net.bytebuddy.matcher.ElementMatchers.any
+import net.bytebuddy.matcher.ElementMatchers.isAbstract
+import net.bytebuddy.matcher.ElementMatchers.isDefaultFinalizer
+import net.bytebuddy.matcher.ElementMatchers.isSynthetic
+import net.bytebuddy.matcher.ElementMatchers.not
 import java.io.File
 import java.lang.Thread.currentThread
 import java.util.concurrent.atomic.AtomicLong
@@ -25,6 +30,25 @@ internal class SubclassInstrumentation(
     private val bootstrapMonitor = Any()
     private val proxyClassCache = TypeCache<CacheKey>(TypeCache.Sort.WEAK)
     private lateinit var interceptor: JvmMockKProxyInterceptor
+
+    /**
+     * Byte Buddy ignores synthetic methods by default, so a subclass proxy would leave any abstract
+     * method flagged `ACC_SYNTHETIC` unimplemented and fail with an [AbstractMethodError] when it is
+     * called. Kotlin flags members annotated with `@JvmSynthetic` (including the `@get:`/`@set:`
+     * targeted forms on a property) that way, so such members have to be intercepted like any other.
+     *
+     * Synthetic *concrete* methods keep being ignored. Bridge methods are the important ones here:
+     * they are always generated with a body - as `default` methods on interfaces - even when the
+     * method they delegate to is abstract, so ignoring them leaves them to forward to the real
+     * signature, which is intercepted. Intercepting the bridges instead would record calls against
+     * the erased signature.
+     */
+    private val subclassingByteBuddy =
+        byteBuddy.ignore(
+            isSynthetic<MethodDescription>()
+                .and(not(isAbstract()))
+                .or(isDefaultFinalizer()),
+        )
 
     init {
         class AdviceBuilder {
@@ -78,7 +102,7 @@ internal class SubclassInstrumentation(
                 ).to(JvmMockKProxyInterceptor::class.java)
 
         val type =
-            byteBuddy
+            subclassingByteBuddy
                 .subclass(clazz)
                 .implement(*interfaces)
                 .annotateType(*clazz.annotations)
