@@ -1,10 +1,12 @@
 package io.mockk.it
 
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.runs
+import io.mockk.spyk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -217,7 +219,26 @@ class CoroutineTest {
             assertTrue(done.get(), "Failed to finish execution/execute coAndThen")
         }
     }
+
     /**
      * End - GitHub issue #171
      */
+
+    fun interface SuspendingUseCase {
+        suspend operator fun invoke(event: String)
+    }
+
+    /**
+     * GitHub issue #1555: kotlin-reflect can misreport a functional (SAM) interface's suspend
+     * member as non-suspend; `coVerify` must still treat the trailing `Continuation` as `any()`.
+     */
+    @Test
+    fun coVerifyOnSpykOfSuspendFunctionalInterface() {
+        val mock = spyk(SuspendingUseCase {})
+
+        runBlocking {
+            mock("hello")
+            coVerify { mock("hello") }
+        }
+    }
 }
