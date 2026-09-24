@@ -909,6 +909,12 @@ mockk<MockCls> {
 
 This will wait until one of two following states: either verification is passed or the timeout is reached.
 
+A verification that a later call could still break (`exactly`, `atMost`, `inverse = true` or `wasNot Called`) is only checked once the whole timeout has elapsed:
+
+```kotlin
+verify(exactly = 0, timeout = 3000) { sum(1, 2) } // fails if sum(1, 2) is called within 3 seconds
+```
+
 ### Returning Unit
 
 If a function returns `Unit`, you can use the `justRun` construct:

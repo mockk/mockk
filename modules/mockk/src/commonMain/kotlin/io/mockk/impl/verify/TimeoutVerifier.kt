@@ -15,6 +15,13 @@ class TimeoutVerifier(
         verificationSequence: List<RecordedCall>,
         params: VerificationParameters,
     ): VerificationResult {
+        if (params.inverse || params.max != Int.MAX_VALUE) {
+            // A later call can still break an inverse or upper-bounded verification,
+            // so it is only checked once the whole timeout has elapsed.
+            Thread.sleep(params.timeout)
+            return verifierChain.verify(verificationSequence, params).addTimeoutToMessage(params.timeout)
+        }
+
         val stubs = verificationSequence.allStubs(stubRepo)
 
         val session = stubRepo.openRecordCallAwaitSession(stubs, params.timeout)

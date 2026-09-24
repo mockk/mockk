@@ -218,7 +218,8 @@ fun coJustAwait(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubB
  * @param atMost verifies that the behaviour happened at most [atMost] times
  * @param exactly verifies that the behaviour happened exactly [exactly] times. Use -1 to disable
  * @param timeout timeout value in milliseconds. Will wait until one of two following states: either verification is
- * passed or timeout is reached.
+ * passed or timeout is reached. A verification that a later call could still break (`exactly`, `atMost`, `inverse`
+ * or `wasNot Called`) is only checked once the whole timeout has elapsed.
  * @param verifyBlock code block containing at least 1 call to verify
  *
  * Example:
@@ -252,7 +253,8 @@ fun verify(
  * @param atMost verifies that the behaviour happened at most [atMost] times
  * @param exactly verifies that the behaviour happened exactly [exactly] times. Use -1 to disable
  * @param timeout timeout value in milliseconds. Will wait until one of two following states: either verification is
- * passed or timeout is reached.
+ * passed or timeout is reached. A verification that a later call could still break (`exactly`, `atMost`, `inverse`
+ * or `wasNot Called`) is only checked once the whole timeout has elapsed.
  * @param verifyBlock code block containing at least 1 call to verify
  *
  * @see [verify]

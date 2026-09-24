@@ -1,5 +1,7 @@
 package io.mockk.it
 
+import io.mockk.Called
+import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
@@ -118,6 +120,88 @@ class TimeoutTest {
         val duration = end - start
 
         assertTrue(duration < 1500, "waiting too long")
+    }
+
+    @Test
+    fun wasNotCalledFailsIfCalledBeforeTimeout() {
+        launch {
+            delay(200)
+            mock1.run()
+        }
+
+        assertFails {
+            verify(timeout = 500) {
+                mock1 wasNot Called
+            }
+        }
+    }
+
+    @Test
+    fun wasNotCalledOkIfCalledAfterTimeout() {
+        launch {
+            delay(1000)
+            mock1.run()
+        }
+
+        verify(timeout = 500) {
+            mock1 wasNot Called
+        }
+    }
+
+    @Test
+    fun exactlyZeroFailsIfCalledBeforeTimeout() {
+        launch {
+            delay(200)
+            mock1.run()
+        }
+
+        assertFails {
+            verify(exactly = 0, timeout = 500) {
+                mock1.run()
+            }
+        }
+    }
+
+    @Test
+    fun exactlyZeroOkIfCalledAfterTimeout() {
+        launch {
+            delay(1000)
+            mock1.run()
+        }
+
+        verify(exactly = 0, timeout = 500) {
+            mock1.run()
+        }
+    }
+
+    @Test
+    fun inverseFailsIfCalledBeforeTimeout() {
+        launch {
+            delay(200)
+            mock1.run()
+        }
+
+        assertFails {
+            verify(inverse = true, timeout = 500) {
+                mock1.run()
+            }
+        }
+    }
+
+    @Test
+    fun coVerifyExactlyOnceFailsIfCalledAgainBeforeTimeout() {
+        launch {
+            delay(100)
+            mock1.run()
+            delay(200)
+            mock1.run()
+        }
+
+        assertFails {
+            coVerify(exactly = 1, timeout = 500) {
+                mock1.run()
+            }
+        }
     }
 
     private fun launch(block: () -> Unit) {
