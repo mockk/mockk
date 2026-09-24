@@ -17,6 +17,8 @@ class VerifyingState(
     override fun recordingDone(): CallRecordingState {
         checkMissingCalls()
 
+        val timeoutEnd = System.currentTimeMillis() + params.timeout
+
         val verifier = recorder.factories.verifier(params)
 
         val sorter = recorder.factories.verificationCallSorter()
@@ -39,7 +41,12 @@ class VerifyingState(
         failIfNotPassed(outcome, params.inverse)
         markVerified(outcome)
 
-        checkWasNotCalled(sorter.wasNotCalledCalls.map { it.matcher.self })
+        val wasNotCalledMocks = sorter.wasNotCalledCalls.map { it.matcher.self }
+        if (params.timeout > 0 && wasNotCalledMocks.isNotEmpty()) {
+            // A later call still breaks `wasNot Called`, so it is only checked once the timeout has elapsed.
+            Thread.sleep((timeoutEnd - System.currentTimeMillis()).coerceAtLeast(0))
+        }
+        checkWasNotCalled(wasNotCalledMocks)
 
         return recorder.factories.answeringState(recorder)
     }
