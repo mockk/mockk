@@ -13,6 +13,11 @@ import kotlin.test.assertFalse
 class JavaClassParamTest {
     class MockCls {
         fun op(klass: Class<*>): Boolean = true
+
+        fun op(
+            first: Class<*>,
+            second: Class<*>,
+        ): Boolean = true
     }
 
     @Test
@@ -21,5 +26,13 @@ class JavaClassParamTest {
         every { mock.op(any()) } returns false
         assertFalse(mock.op(Long::class.java))
         verify { mock.op(any()) }
+    }
+
+    @Test
+    fun matchingAnyClassInSeveralParameters() {
+        val mock = mockk<MockCls>()
+        every { mock.op(any(), any()) } returns false
+        assertFalse(mock.op(String::class.java, Long::class.java))
+        verify { mock.op(any(), any()) }
     }
 }
