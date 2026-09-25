@@ -4,6 +4,7 @@ import io.mockk.core.ValueClassSupport.boxedClass
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
 import java.util.Random
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.primaryConstructor
@@ -12,6 +13,8 @@ import kotlin.reflect.jvm.isAccessible
 class JvmSignatureValueGenerator(
     val rnd: Random,
 ) : SignatureValueGenerator {
+    private val classSignatureCounter = AtomicInteger()
+
     override fun <T : Any> signatureValue(
         cls: KClass<T>,
         anyValueGeneratorProvider: () -> AnyValueGenerator,
@@ -51,6 +54,7 @@ class JvmSignatureValueGenerator(
             Float::class -> rnd.nextFloat()
             Double::class -> rnd.nextDouble()
             String::class -> rnd.nextLong().toString(16)
+            Class::class -> nextClassSignature()
 
             else ->
                 if (cls.isSealed) {
@@ -64,6 +68,19 @@ class JvmSignatureValueGenerator(
                     } as T
                 }
         }
+
+    /**
+     * `Class` is final and can't be instantiated, so every `any<Class<*>>()` used to get `Object::class.java`
+     * as its signature, and two such matchers in the same call could not be told apart.
+     * Array classes of increasing dimension give each matcher a distinct `Class` instance.
+     * See: https://github.com/mockk/mockk/issues/1263
+     */
+    private fun nextClassSignature(): Class<*> {
+        val dimensions = Math.floorMod(classSignatureCounter.getAndIncrement(), MAX_ARRAY_DIMENSIONS) + 1
+        return java.lang.reflect.Array
+            .newInstance(Any::class.java, *IntArray(dimensions))
+            .javaClass
+    }
 
     /**
      * Generates a Long value in Duration's safe millisecond range to avoid AssertionError.
@@ -105,5 +122,8 @@ class JvmSignatureValueGenerator(
         private const val MAX_NANOS = Long.MAX_VALUE / 2 / NANOS_IN_MILLIS * NANOS_IN_MILLIS - 1
         private const val MAX_MILLIS = Long.MAX_VALUE / 2
         internal const val MAX_NANOS_IN_MILLIS = MAX_NANOS / NANOS_IN_MILLIS
+
+        // JVM limit on the number of array dimensions
+        private const val MAX_ARRAY_DIMENSIONS = 255
     }
 }

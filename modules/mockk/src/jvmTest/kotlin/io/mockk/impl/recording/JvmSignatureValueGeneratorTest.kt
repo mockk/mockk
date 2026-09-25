@@ -8,7 +8,9 @@ import io.mockk.impl.recording.JvmSignatureValueGenerator.Companion.MAX_NANOS_IN
 import java.util.Random
 import kotlin.reflect.KClass
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
 import kotlin.test.fail
 import kotlin.time.Duration
@@ -83,6 +85,24 @@ class JvmSignatureValueGeneratorTest {
                 )
 
             assertNotNull(duration, "Duration should be created successfully")
+        }
+    }
+
+    // https://github.com/mockk/mockk/issues/1263
+    @Test
+    fun `Class signature values are distinct`() {
+        val values =
+            List(TEST_ITERATIONS) {
+                generator.signatureValue(
+                    Class::class,
+                    { mockAnyValueGenerator },
+                    mockInstantiator,
+                )
+            }
+
+        assertEquals(255, values.toSet().size)
+        values.windowed(2).forEach { (previous, next) ->
+            assertNotSame(previous, next, "Consecutive Class signature values must differ")
         }
     }
 
