@@ -163,7 +163,9 @@ abstract class RecordingState(
             builder()
                 .signedCalls
                 .flatMap { it.args }
-                .filterNotNull()
+                // A boxed value class (e.g. a nullable one) is matched by its underlying value,
+                // so estimate the rounds from that value too.
+                .mapNotNull { InternalPlatform.packRef(it) }
                 .map(this::typeEstimation)
                 .maxOfOrNull { it } ?: 1
 

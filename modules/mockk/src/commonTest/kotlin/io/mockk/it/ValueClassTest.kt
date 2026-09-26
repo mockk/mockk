@@ -852,6 +852,19 @@ class ValueClassTest {
     }
 
     @Test
+    fun `matcher for nullable Boolean value class stays on its own argument`() {
+        // Each iteration used to fail about half the time, so repeat to make a regression visible.
+        repeat(20) {
+            val mock = mockk<NullableBooleanValueConsumer>(relaxed = true)
+
+            mock.consume(BooleanValue(false), BooleanValue(true))
+
+            verify { mock.consume(any(), BooleanValue(true)) }
+            verify(exactly = 0) { mock.consume(BooleanValue(true), any()) }
+        }
+    }
+
+    @Test
     fun `spy class returning value class not boxed due to cast to another type`() {
         val f = spyk<DummyService>()
         val result = f.returnValueClassNotInlined() as DummyValue
@@ -988,6 +1001,18 @@ class ValueClassTest {
 
         interface ValueClassWithOptionalReturn {
             fun something(data: ValueClassId): ValueClassId?
+        }
+
+        @JvmInline
+        value class BooleanValue(
+            val value: Boolean,
+        )
+
+        interface NullableBooleanValueConsumer {
+            fun consume(
+                first: BooleanValue?,
+                second: BooleanValue?,
+            )
         }
 
         @JvmInline
