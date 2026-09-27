@@ -41,6 +41,8 @@ kotlin {
                 implementation(projects.modules.mockk)
 
                 implementation(kotlin("test-junit5"))
+
+                implementation("io.arrow-kt:arrow-core:2.1.2")
             }
         }
 
