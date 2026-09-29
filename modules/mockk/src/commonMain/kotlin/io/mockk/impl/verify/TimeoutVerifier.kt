@@ -3,6 +3,7 @@ package io.mockk.impl.verify
 import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.VerificationResult
+import io.mockk.Ordering
 import io.mockk.RecordedCall
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.StubRepository
@@ -15,8 +16,8 @@ class TimeoutVerifier(
         verificationSequence: List<RecordedCall>,
         params: VerificationParameters,
     ): VerificationResult {
-        if (params.inverse || params.max != Int.MAX_VALUE) {
-            // A later call can still break an inverse or upper-bounded verification,
+        if (params.inverse || params.max != Int.MAX_VALUE || params.ordering.rejectsExtraCalls()) {
+            // A later call can still break an inverse, upper-bounded, ALL or SEQUENCE verification,
             // so it is only checked once the whole timeout has elapsed.
             Thread.sleep(params.timeout)
             return verifierChain.verify(verificationSequence, params).addTimeoutToMessage(params.timeout)
@@ -54,6 +55,8 @@ class TimeoutVerifier(
             .map { stubRepo.stubFor(it) }
             .distinct()
 }
+
+private fun Ordering.rejectsExtraCalls() = this == Ordering.ALL || this == Ordering.SEQUENCE
 
 private fun VerificationResult.addTimeoutToMessage(timeout: Long) =
     when (this) {
