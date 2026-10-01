@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.Called
+import io.mockk.Ordering
 import io.mockk.coVerify
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
@@ -14,6 +15,9 @@ import kotlin.test.assertTrue
 class TimeoutTest {
     class MockCls {
         fun run() {
+        }
+
+        fun stop() {
         }
     }
 
@@ -199,6 +203,52 @@ class TimeoutTest {
 
         assertFails {
             coVerify(exactly = 1, timeout = 500) {
+                mock1.run()
+            }
+        }
+    }
+
+    @Test
+    fun sequenceFailsIfAnotherCallBeforeTimeout() {
+        launch {
+            delay(100)
+            mock1.run()
+            delay(200)
+            mock1.stop()
+        }
+
+        assertFails {
+            verify(ordering = Ordering.SEQUENCE, timeout = 500) {
+                mock1.run()
+            }
+        }
+    }
+
+    @Test
+    fun sequenceOkIfAnotherCallAfterTimeout() {
+        launch {
+            delay(100)
+            mock1.run()
+            delay(900)
+            mock1.stop()
+        }
+
+        verify(ordering = Ordering.SEQUENCE, timeout = 500) {
+            mock1.run()
+        }
+    }
+
+    @Test
+    fun allFailsIfUnmatchedCallBeforeTimeout() {
+        launch {
+            delay(100)
+            mock1.run()
+            delay(200)
+            mock1.stop()
+        }
+
+        assertFails {
+            verify(ordering = Ordering.ALL, timeout = 500) {
                 mock1.run()
             }
         }
