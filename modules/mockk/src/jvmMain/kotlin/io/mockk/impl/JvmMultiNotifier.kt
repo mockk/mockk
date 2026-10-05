@@ -10,7 +10,7 @@ class JvmMultiNotifier : MultiNotifier {
     val lock = ReentrantLock()
     val condition: Condition = lock.newCondition()
 
-    val conditionMet = mutableSetOf<Ref>()
+    val notifications = mutableMapOf<Ref, Long>()
     val counters = mutableMapOf<Ref, Int>()
 
     override fun openSession(
@@ -18,17 +18,20 @@ class JvmMultiNotifier : MultiNotifier {
         timeout: Long,
     ): Session {
         val start = time()
-        lock.withLock {
-            changeCounters(keys, 1)
-        }
+        val seen =
+            lock.withLock {
+                changeCounters(keys, 1)
+                notificationCount(keys)
+            }
 
-        return SessionImpl(start, timeout, keys)
+        return SessionImpl(start, timeout, keys, seen)
     }
 
     inner class SessionImpl(
         private val start: Long,
         private val timeout: Long,
         private val keys: List<Any>,
+        private var seen: Long,
     ) : Session {
         override fun wait(): Boolean {
             var ret = false
@@ -38,7 +41,9 @@ class JvmMultiNotifier : MultiNotifier {
                     if (passed >= timeout) {
                         break
                     }
-                    if (checkAnyConditionsMet(keys)) {
+                    val count = notificationCount(keys)
+                    if (count != seen) {
+                        seen = count
                         ret = true
                         break
                     }
@@ -57,7 +62,7 @@ class JvmMultiNotifier : MultiNotifier {
         }
     }
 
-    private fun checkAnyConditionsMet(keys: List<Any>) = keys.any { InternalPlatform.ref(it) in conditionMet }
+    private fun notificationCount(keys: List<Any>) = keys.sumOf { notifications[InternalPlatform.ref(it)] ?: 0L }
 
     private fun time() = System.currentTimeMillis()
 
@@ -69,7 +74,7 @@ class JvmMultiNotifier : MultiNotifier {
             val ref = InternalPlatform.ref(it)
             val value = counters.getOrElse(ref) { 0 } + delta
             if (value == 0) {
-                conditionMet.remove(ref)
+                notifications.remove(ref)
                 counters.remove(ref)
             } else {
                 counters[ref] = value
@@ -81,7 +86,7 @@ class JvmMultiNotifier : MultiNotifier {
         lock.withLock {
             val ref = InternalPlatform.ref(key)
             if (ref in counters) {
-                conditionMet.add(ref)
+                notifications[ref] = (notifications[ref] ?: 0L) + 1
             }
             condition.signalAll()
         }

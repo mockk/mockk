@@ -19,6 +19,9 @@ class TimeoutTest {
 
         fun stop() {
         }
+
+        fun take(value: Int) {
+        }
     }
 
     @RelaxedMockK
@@ -252,6 +255,27 @@ class TimeoutTest {
                 mock1.run()
             }
         }
+    }
+
+    @Test
+    fun waitsForTheNextCallAfterAnUnmatchedOne() {
+        var checks = 0
+        launch {
+            delay(100)
+            mock1.take(1)
+        }
+
+        assertFails {
+            verify(timeout = 500) {
+                mock1.take(
+                    match {
+                        checks++
+                        it == 2
+                    },
+                )
+            }
+        }
+        assertTrue(checks < 10, "matcher was checked $checks times")
     }
 
     private fun launch(block: () -> Unit) {

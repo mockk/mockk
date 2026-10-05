@@ -157,15 +157,15 @@ public final class io/mockk/impl/JvmMockKGateway$Companion {
 public final class io/mockk/impl/JvmMultiNotifier : io/mockk/impl/MultiNotifier {
 	public fun <init> ()V
 	public final fun getCondition ()Ljava/util/concurrent/locks/Condition;
-	public final fun getConditionMet ()Ljava/util/Set;
 	public final fun getCounters ()Ljava/util/Map;
 	public final fun getLock ()Ljava/util/concurrent/locks/ReentrantLock;
+	public final fun getNotifications ()Ljava/util/Map;
 	public fun notify (Ljava/lang/Object;)V
 	public fun openSession (Ljava/util/List;J)Lio/mockk/impl/MultiNotifier$Session;
 }
 
 public final class io/mockk/impl/JvmMultiNotifier$SessionImpl : io/mockk/impl/MultiNotifier$Session {
-	public fun <init> (Lio/mockk/impl/JvmMultiNotifier;JJLjava/util/List;)V
+	public fun <init> (Lio/mockk/impl/JvmMultiNotifier;JJLjava/util/List;J)V
 	public fun close ()V
 	public fun wait ()Z
 }
