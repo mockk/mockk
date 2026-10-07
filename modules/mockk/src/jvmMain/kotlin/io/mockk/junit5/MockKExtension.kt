@@ -16,6 +16,7 @@ import io.mockk.unmockkAll
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.AfterEachCallback
+import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
@@ -47,6 +48,7 @@ import kotlin.reflect.jvm.javaConstructor
 class MockKExtension :
     TestInstancePostProcessor,
     ParameterResolver,
+    BeforeAllCallback,
     AfterEachCallback,
     AfterAllCallback {
     private val cache = mutableMapOf<KClass<out Any>, Any>()
@@ -142,6 +144,14 @@ class MockKExtension :
         context: ExtensionContext,
     ) {
         MockKAnnotations.init(testInstance, useDependencyOrder = context.useDependencyOrder)
+    }
+
+    override fun beforeAll(context: ExtensionContext) {
+        // confirmVerified() checks every mock, so calls recorded before this class started
+        // (e.g. by a test class not using this extension) must not count. Solves Issue #1493.
+        if (context.confirmVerification && !context.requireParallelTesting) {
+            clearAllMocks(answers = false, childMocks = false)
+        }
     }
 
     override fun afterEach(context: ExtensionContext) {
