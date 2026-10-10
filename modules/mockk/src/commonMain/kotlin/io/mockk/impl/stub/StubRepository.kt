@@ -52,9 +52,14 @@ class StubRepository(
             }
         }
 
+        val removedStubs = mutableListOf<Stub>()
         stubs.removeIf { key, stub ->
-            key !in excludeMockKeys && (!currentThreadOnly || (stub.value as? Stub)?.threadId == currentThreadId)
+            val remove = key !in excludeMockKeys && (!currentThreadOnly || (stub.value as? Stub)?.threadId == currentThreadId)
+            if (remove) (stub.value as? Stub)?.let { removedStubs.add(it) }
+            remove
         }
+        // the agent keeps its own mock -> handler map, dispose so the mocks can actually be collected
+        removedStubs.forEach { it.dispose() }
     }
 
     fun notifyCallRecorded(stub: MockKStub) {
