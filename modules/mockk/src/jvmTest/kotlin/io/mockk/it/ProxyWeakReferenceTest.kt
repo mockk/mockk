@@ -23,6 +23,16 @@ class ProxyWeakReferenceTest {
     }
 
     @Test
+    fun clearAllStubsFromMemoryFreesSpiesHoldingLargeObjects() {
+        for (i in 0..100) {
+            val spyk = spyk(LazySpringBeanWhichHoldsReferenceForBeanFactory(ByteArray(100 * 1024 * 1024)))
+            every { spyk.doSmth() } returns "Wow"
+            spyk.doSmth()
+            clearAllStubsFromMemory()
+        }
+    }
+
+    @Test
     fun clearAllStubsFromMemoryLetsMocksBeGarbageCollected() {
         val refs = createMocks(100)
         clearAllStubsFromMemory()
