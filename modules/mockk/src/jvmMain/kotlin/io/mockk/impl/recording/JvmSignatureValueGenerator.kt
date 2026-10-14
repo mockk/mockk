@@ -83,18 +83,27 @@ class JvmSignatureValueGenerator(
     }
 
     /**
-     * Generates a Long value in Duration's safe millisecond range to avoid AssertionError.
-     * Uses wider millisecond range while avoiding the denormalized range.
-     * See: https://github.com/mockk/mockk/issues/1401
+     * Generates a Long value that is safe both as a Duration millisecond amount and as a Duration's
+     * packed `rawValue`, which is what the value class primary constructor receives.
+     *
+     * The value is outside the denormalized millisecond range, and it is always even: bit 0 of the
+     * packed `rawValue` selects the unit, so an odd value would be read as `value shr 1` milliseconds,
+     * which is denormalized for the lower part of the range. An even value selects nanoseconds,
+     * and `value shr 1` always fits in the nanosecond range.
+     * See: https://github.com/mockk/mockk/issues/1401, https://github.com/mockk/mockk/issues/1568
      */
-    private fun generateSafeLong(): Long =
-        if (rnd.nextBoolean()) {
-            // Generate positive value in safe millisecond range
-            nextLongInRange(MAX_NANOS_IN_MILLIS + 1, MAX_MILLIS)
-        } else {
-            // Generate negative value in safe millisecond range
-            nextLongInRange(-MAX_MILLIS, -MAX_NANOS_IN_MILLIS)
-        }
+    private fun generateSafeLong(): Long {
+        val value =
+            if (rnd.nextBoolean()) {
+                // Generate positive value in safe millisecond range
+                nextLongInRange(MAX_NANOS_IN_MILLIS + 2, MAX_MILLIS)
+            } else {
+                // Generate negative value in safe millisecond range
+                nextLongInRange(-MAX_MILLIS + 1, -MAX_NANOS_IN_MILLIS)
+            }
+        // Clearing bit 0 rounds towards negative infinity, the bounds above keep the result in range
+        return value and 1L.inv()
+    }
 
     /**
      * Generates a random Long value in the range [origin, bound).
