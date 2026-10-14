@@ -88,6 +88,35 @@ class JvmSignatureValueGeneratorTest {
         }
     }
 
+    // https://github.com/mockk/mockk/issues/1568
+    @Test
+    fun `generated Long values are even`() {
+        repeat(TEST_ITERATIONS) {
+            val longValue =
+                generator.signatureValue(
+                    Long::class,
+                    { mockAnyValueGenerator },
+                    mockInstantiator,
+                )
+
+            assertEquals(0L, longValue and 1L, "Generated Long value $longValue is odd")
+        }
+    }
+
+    // https://github.com/mockk/mockk/issues/1568
+    @Test
+    fun `Duration value class creation succeeds for a seed that used to draw a denormalized raw value`() {
+        // Before the fix, Random(800456) drew 4634342380277: odd, so read as 2317171190138 ms (denormalized)
+        val duration =
+            JvmSignatureValueGenerator(Random(800456)).signatureValue(
+                Duration::class,
+                { mockAnyValueGenerator },
+                mockInstantiator,
+            )
+
+        assertNotNull(duration, "Duration should be created successfully")
+    }
+
     // https://github.com/mockk/mockk/issues/1263
     @Test
     fun `Class signature values are distinct`() {
