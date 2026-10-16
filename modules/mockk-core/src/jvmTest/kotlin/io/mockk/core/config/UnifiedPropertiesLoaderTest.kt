@@ -1,59 +1,88 @@
 package io.mockk.core.config
 
-import java.nio.file.Files
-import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
 
 class UnifiedPropertiesLoaderTest {
     @Test
-    fun `loadProperties returns empty properties when no file exists`() {
-        val properties = UnifiedPropertiesLoader.loadProperties()
-        assertTrue(properties.isEmpty, "Properties should be empty when no file exists")
-    }
+    fun `missing resources produce independent empty results`() =
+        IsolatedPropertiesLoader().use { fixture ->
+            val first = fixture.propertiesLoader.loadProperties()
+            val second = fixture.propertiesLoader.loadProperties()
+            assertTrue(first.isEmpty)
+            assertTrue(second.isEmpty)
+            assertNotSame(first, second)
+        }
 
     @Test
-    fun `read default config`() {
-        writeToClasspath(UnifiedPropertiesLoader.UNIFIED_PROPERTIES_FILE, "name=default")
-        val config = UnifiedPropertiesLoader.loadProperties()
-        assertEquals(config["name"], "default")
-        deleteFromClasspath(UnifiedPropertiesLoader.UNIFIED_PROPERTIES_FILE)
-    }
+    fun `unified properties take precedence over legacy`() =
+        IsolatedPropertiesLoader().use { fixture ->
+            fixture.unifiedContents = "name=unified"
+            fixture.legacyContents = "name=legacy"
+            assertEquals("unified", fixture.propertiesLoader.loadProperties().getProperty("name"))
+        }
 
     @Test
-    fun `read legacy config`() {
-        writeToClasspath(UnifiedPropertiesLoader.LEGACY_PROPERTIES_FILE, "name=legacy")
-        val config = UnifiedPropertiesLoader.loadProperties()
-        assertEquals(config["name"], "legacy")
-        deleteFromClasspath(UnifiedPropertiesLoader.LEGACY_PROPERTIES_FILE)
-    }
+    fun `legacy properties are used when unified resource is absent`() =
+        IsolatedPropertiesLoader().use { fixture ->
+            fixture.legacyContents = "name=legacy"
+            assertEquals("legacy", fixture.propertiesLoader.loadProperties().getProperty("name"))
+        }
 
     @Test
-    fun `default config takes precedence over legacy`() {
-        writeToClasspath(UnifiedPropertiesLoader.UNIFIED_PROPERTIES_FILE, "name=default")
-        writeToClasspath(UnifiedPropertiesLoader.LEGACY_PROPERTIES_FILE, "name=legacy")
-        val config = UnifiedPropertiesLoader.loadProperties()
-        assertEquals(config["name"], "default")
-        deleteFromClasspath(UnifiedPropertiesLoader.UNIFIED_PROPERTIES_FILE)
-        deleteFromClasspath(UnifiedPropertiesLoader.LEGACY_PROPERTIES_FILE)
-    }
+    fun `a caller cannot change another callers settings or restrictions`() =
+        IsolatedPropertiesLoader().use { fixture ->
+            fixture.unifiedContents = "relaxed=false\nmockk.restrictedClasses=original.Type"
+            val first = fixture.propertiesLoader.loadProperties()
+            first.setProperty("relaxed", "true")
+            first.setProperty("mockk.restrictedClasses", "modified.Type")
+            val second = fixture.propertiesLoader.loadProperties()
+            assertEquals("false", second.getProperty("relaxed"))
+            assertEquals("original.Type", second.getProperty("mockk.restrictedClasses"))
+        }
 
-    private fun writeToClasspath(
-        path: String,
-        content: String,
-    ) {
-        resolveFromClasspath(path).run {
-            parent?.let { Files.createDirectories(it) }
-            Files.writeString(this, content)
+    @Test
+    fun `separate defining loaders keep independent configuration`() {
+        IsolatedPropertiesLoader().use { first ->
+            IsolatedPropertiesLoader().use { second ->
+                first.unifiedContents = "name=first"
+                second.unifiedContents = "name=second"
+                assertEquals("first", first.propertiesLoader.loadProperties().getProperty("name"))
+                assertEquals("second", second.propertiesLoader.loadProperties().getProperty("name"))
+            }
         }
     }
 
-    private fun deleteFromClasspath(path: String) {
-        Files.delete(resolveFromClasspath(path))
-    }
+    @Test
+    fun `failed initial parsing can be retried with valid contents`() =
+        IsolatedPropertiesLoader().use { fixture ->
+            fixture.unifiedContents = "name=\\uBAD"
+            fixture.legacyContents = "name=legacy"
+            assertFailsWith<IllegalArgumentException> { fixture.propertiesLoader.loadProperties() }
+            assertEquals(1, fixture.resourceReads)
+            fixture.unifiedContents = "name=valid"
+            assertEquals("valid", fixture.propertiesLoader.loadProperties().getProperty("name"))
+        }
 
-    private fun resolveFromClasspath(path: String): Path = getRoot().resolve(path.removePrefix("/"))
+    @Test
+    fun `a successful first read remains a snapshot after resource changes`() =
+        IsolatedPropertiesLoader().use { fixture ->
+            fixture.unifiedContents = "name=alpha"
+            assertEquals("alpha", fixture.propertiesLoader.loadProperties().getProperty("name"))
+            fixture.unifiedContents = "name=bravo"
+            assertEquals("alpha", fixture.propertiesLoader.loadProperties().getProperty("name"))
+            assertEquals(1, fixture.resourceReads)
+        }
 
-    private fun getRoot(): Path = Path.of(javaClass.getResource("/")!!.toURI())
+    @Test
+    fun `a missing first resource remains an empty snapshot`() =
+        IsolatedPropertiesLoader().use { fixture ->
+            assertTrue(fixture.propertiesLoader.loadProperties().isEmpty)
+            fixture.unifiedContents = "name=added"
+            assertTrue(fixture.propertiesLoader.loadProperties().isEmpty)
+            assertEquals(2, fixture.resourceReads)
+        }
 }
