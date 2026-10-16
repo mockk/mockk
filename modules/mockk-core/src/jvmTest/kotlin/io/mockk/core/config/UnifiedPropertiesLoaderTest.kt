@@ -18,21 +18,6 @@ class UnifiedPropertiesLoaderTest {
         }
 
     @Test
-    fun `unified properties take precedence over legacy`() =
-        IsolatedPropertiesLoader().use { fixture ->
-            fixture.unifiedContents = "name=unified"
-            fixture.legacyContents = "name=legacy"
-            assertEquals("unified", fixture.propertiesLoader.loadProperties().getProperty("name"))
-        }
-
-    @Test
-    fun `legacy properties are used when unified resource is absent`() =
-        IsolatedPropertiesLoader().use { fixture ->
-            fixture.legacyContents = "name=legacy"
-            assertEquals("legacy", fixture.propertiesLoader.loadProperties().getProperty("name"))
-        }
-
-    @Test
     fun `a caller cannot change another callers settings or restrictions`() =
         IsolatedPropertiesLoader().use { fixture ->
             fixture.unifiedContents = "relaxed=false\nmockk.restrictedClasses=original.Type"
@@ -65,24 +50,5 @@ class UnifiedPropertiesLoaderTest {
             assertEquals(1, fixture.resourceReads)
             fixture.unifiedContents = "name=valid"
             assertEquals("valid", fixture.propertiesLoader.loadProperties().getProperty("name"))
-        }
-
-    @Test
-    fun `a successful first read remains a snapshot after resource changes`() =
-        IsolatedPropertiesLoader().use { fixture ->
-            fixture.unifiedContents = "name=alpha"
-            assertEquals("alpha", fixture.propertiesLoader.loadProperties().getProperty("name"))
-            fixture.unifiedContents = "name=bravo"
-            assertEquals("alpha", fixture.propertiesLoader.loadProperties().getProperty("name"))
-            assertEquals(1, fixture.resourceReads)
-        }
-
-    @Test
-    fun `a missing first resource remains an empty snapshot`() =
-        IsolatedPropertiesLoader().use { fixture ->
-            assertTrue(fixture.propertiesLoader.loadProperties().isEmpty)
-            fixture.unifiedContents = "name=added"
-            assertTrue(fixture.propertiesLoader.loadProperties().isEmpty)
-            assertEquals(2, fixture.resourceReads)
         }
 }

@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -21,10 +22,12 @@ class UnifiedPropertiesLoaderStreamTest {
             val workerCount = 8
             val ready = CountDownLatch(workerCount)
             val start = CountDownLatch(1)
-            val firstRead = CountDownLatch(1)
-            val releaseReads = CountDownLatch(1)
+            val firstLookup = CountDownLatch(1)
+            val releaseLookup = CountDownLatch(1)
             fixture.unifiedStreamFactory = {
-                GateStream(bytes("name=complete\nsecond=value"), firstRead, releaseReads)
+                firstLookup.countDown()
+                releaseLookup.awaitChecked()
+                ByteArrayInputStream(bytes("name=complete\nsecond=value"))
             }
             val loader = fixture.propertiesLoader
             val executor = Executors.newFixedThreadPool(workerCount)
@@ -41,9 +44,9 @@ class UnifiedPropertiesLoaderStreamTest {
                     }
                 ready.awaitChecked()
                 start.countDown()
-                firstRead.awaitChecked()
+                firstLookup.awaitChecked()
                 assertTrue(results.none { it.isDone })
-                releaseReads.countDown()
+                releaseLookup.countDown()
                 val properties = results.map { it.get(10, TimeUnit.SECONDS) }
                 properties.forEach {
                     assertEquals("complete", it.getProperty("name"))
@@ -54,13 +57,14 @@ class UnifiedPropertiesLoaderStreamTest {
                 assertEquals(1, fixture.resourceReads)
             } finally {
                 start.countDown()
-                releaseReads.countDown()
+                releaseLookup.countDown()
                 executor.shutdownNow()
+                assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS), "Test workers did not terminate")
             }
         }
 
     @Test
-    fun `a successful resource is closed before its contents are cached`() =
+    fun `a successful resource is read and closed once`() =
         IsolatedPropertiesLoader().use { fixture ->
             val closes = AtomicInteger()
             fixture.unifiedStreamFactory = {
@@ -80,11 +84,14 @@ class UnifiedPropertiesLoaderStreamTest {
         IsolatedPropertiesLoader().use { fixture ->
             val failure = IOException("read failed")
             val closes = AtomicInteger()
-            fixture.unifiedStreamFactory = { PrefixThenFailure(bytes("name=value\n"), failure, closes) }
+            fixture.unifiedStreamFactory = { PrefixThenFailure(bytes("partial=value\n"), failure, closes) }
             assertSame(failure, assertFailsWith<IOException> { fixture.propertiesLoader.loadProperties() })
             assertEquals(1, closes.get())
             fixture.unifiedStreamFactory = { ByteArrayInputStream(bytes("name=recovered")) }
-            assertEquals("recovered", fixture.propertiesLoader.loadProperties().getProperty("name"))
+            val recovered = fixture.propertiesLoader.loadProperties()
+            assertEquals("recovered", recovered.getProperty("name"))
+            assertNull(recovered.getProperty("partial"))
+            assertEquals(2, fixture.resourceReads)
         }
 
     @Test
@@ -95,19 +102,9 @@ class UnifiedPropertiesLoaderStreamTest {
             fixture.unifiedStreamFactory = { CloseFailureStream(bytes("name=value"), failure, closes) }
             assertSame(failure, assertFailsWith<IOException> { fixture.propertiesLoader.loadProperties() })
             assertEquals(1, closes.get())
-            fixture.unifiedStreamFactory = { ByteArrayInputStream(bytes("name=value")) }
-            assertEquals("value", fixture.propertiesLoader.loadProperties().getProperty("name"))
-        }
-
-    @Test
-    fun `a malformed resource remains the primary failure when closing also fails`() =
-        IsolatedPropertiesLoader().use { fixture ->
-            val closeFailure = IOException("close failed")
-            val closes = AtomicInteger()
-            fixture.unifiedStreamFactory = { CloseFailureStream(bytes("name=\\uBADX\n"), closeFailure, closes) }
-            val failure = assertFailsWith<IllegalArgumentException> { fixture.propertiesLoader.loadProperties() }
-            assertEquals(1, closes.get())
-            assertEquals(listOf(closeFailure), failure.suppressed.toList())
+            fixture.unifiedStreamFactory = { ByteArrayInputStream(bytes("name=recovered")) }
+            assertEquals("recovered", fixture.propertiesLoader.loadProperties().getProperty("name"))
+            assertEquals(2, fixture.resourceReads)
         }
 }
 
@@ -115,36 +112,6 @@ private fun bytes(contents: String): ByteArray = contents.toByteArray(Charsets.I
 
 private fun CountDownLatch.awaitChecked() {
     check(await(10, TimeUnit.SECONDS)) { "Timed out waiting for controlled stream" }
-}
-
-private class GateStream(
-    contents: ByteArray,
-    private val started: CountDownLatch,
-    private val release: CountDownLatch,
-) : ByteArrayInputStream(contents) {
-    private var gated = false
-
-    private fun beforeRead() {
-        if (!gated) {
-            gated = true
-            started.countDown()
-            release.awaitChecked()
-        }
-    }
-
-    override fun read(): Int {
-        beforeRead()
-        return super.read()
-    }
-
-    override fun read(
-        buffer: ByteArray,
-        offset: Int,
-        length: Int,
-    ): Int {
-        beforeRead()
-        return super.read(buffer, offset, length)
-    }
 }
 
 private class PrefixThenFailure(

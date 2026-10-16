@@ -20,17 +20,12 @@ internal class IsolatedPropertiesLoader(
         ).toTypedArray(),
         PropertiesLoader::class.java.classLoader,
     ) {
-    @Volatile
     var unifiedContents: String? = null
 
-    @Volatile
     var legacyContents: String? = null
 
-    @Volatile
     var unifiedStreamFactory: (() -> InputStream?)? = null
 
-    @Volatile
-    var legacyStreamFactory: (() -> InputStream?)? = null
     private val reads = AtomicInteger()
     val resourceReads: Int get() = reads.get()
 
@@ -58,7 +53,7 @@ internal class IsolatedPropertiesLoader(
                 contents = unifiedContents
             }
             "io/mockk/settings.properties" -> {
-                factory = legacyStreamFactory
+                factory = null
                 contents = legacyContents
             }
             else -> return super.getResourceAsStream(name)
