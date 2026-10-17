@@ -1468,6 +1468,19 @@ src/test/resources/io/mockk/settings.properties
 
 If both files exist, `mockk.properties` takes precedence. The legacy location is deprecated and will be removed in a future version.
 
+### Configuration lifetime
+
+The default loader reads these files once, when configuration is first needed, and
+keeps the result for the lifetime of the classloader that loaded MockK's
+`UnifiedPropertiesLoader`. Later file edits are not picked up. If neither file
+exists on the first lookup, adding one later does not change the cached result.
+A failed read is not cached and can be retried.
+
+Each caller receives its own settings copy. Changing settings through
+`MockKSettings` does not change the cached file contents. System-property overrides
+for restricted mocking are still read when each configuration is created, and an
+explicit custom `PropertiesLoader` is still called for each configuration.
+
 ## DSL tables
 
 Here are a few tables to help you master the DSL.
