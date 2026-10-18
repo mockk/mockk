@@ -20,11 +20,19 @@ internal open class BaseAdvice(
             handlers[self]
                 ?: return null
 
-        return if (SelfCallEliminator.isSelf(self, method)) {
-            null
-        } else {
-            Interceptor(handler, self, method, arguments)
+        if (SelfCallEliminator.isSelf(self, method)) {
+            return null
         }
+
+        if (!method.isBridge) {
+            return Interceptor(handler, self, method, arguments)
+        }
+
+        val bridgedMethod =
+            BridgeMethodResolver.findBridgedMethod(method, arguments)
+                ?: return null
+
+        return Interceptor(handler, self, bridgedMethod, arguments, originalMethod = method)
     }
 
     override fun constructorDone(

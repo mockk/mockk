@@ -16,6 +16,7 @@ import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
 import net.bytebuddy.dynamic.VisibilityBridgeStrategy
+import net.bytebuddy.dynamic.scaffold.MethodGraph
 import net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith
 import net.bytebuddy.matcher.ElementMatchers.isConstructor
 import net.bytebuddy.matcher.ElementMatchers.isDeclaredBy
@@ -64,18 +65,22 @@ internal class InliningClassTransformer(
      * bodies and value class `-impl` methods. Recording those instead of the function they belong to
      * would break matching, e.g. `every { foo() }` would stub `foo$default` and miss `foo(5)`.
      * The compilers put `$` or `-` in those names, which hand-written function names rarely contain.
+     *
+     * Bridge methods are instrumented as well, see [BridgeIncludingMethodGraphCompiler].
      */
     private val redefiningByteBuddy =
-        byteBuddy.ignore(
-            isSynthetic<MethodDescription>()
-                .and(
-                    not(
-                        isStatic<MethodDescription>()
-                            .and(not(nameContains("$")))
-                            .and(not(nameContains("-"))),
-                    ),
-                ).or(isDefaultFinalizer()),
-        )
+        byteBuddy
+            .with(BridgeIncludingMethodGraphCompiler(MethodGraph.Compiler.DEFAULT))
+            .ignore(
+                isSynthetic<MethodDescription>()
+                    .and(
+                        not(
+                            isStatic<MethodDescription>()
+                                .and(not(nameContains("$")))
+                                .and(not(nameContains("-"))),
+                        ),
+                    ).or(isDefaultFinalizer()),
+            )
 
     init {
         class AdviceBuilder {
