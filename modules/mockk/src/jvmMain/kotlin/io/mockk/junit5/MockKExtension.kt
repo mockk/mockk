@@ -4,6 +4,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.MockKException
 import io.mockk.checkUnnecessaryStub
 import io.mockk.clearAllMocks
+import io.mockk.clearAllStubsFromMemory
 import io.mockk.confirmVerified
 import io.mockk.impl.annotations.AdditionalInterface
 import io.mockk.impl.annotations.InjectMockKs
@@ -40,6 +41,10 @@ import kotlin.reflect.jvm.javaConstructor
  * executed if the test lifecycle is set to [TestInstance.Lifecycle.PER_CLASS].
  * [unmockkAll] will not be called if the [KeepMocks] annotation is present or if the `mockk.junit.extension.keepmocks`
  * Gradle property is set to `true`.
+ *
+ * With the [ReleaseMocks] annotation or the `mockk.junit.extension.releaseMocks` property set to `true`,
+ * [clearAllStubsFromMemory] is called at the same point for the mocks created on the test thread, so they can be
+ * garbage collected. Released mocks can no longer be used, so mocks shared across tests need [KeepMocks] instead.
  *
  * Usage: declare `@ExtendWith(MockKExtension::class)` on a test class.
  *
@@ -183,6 +188,9 @@ class MockKExtension :
             // Clear all mocks after missed verifications or unnecessary stubs. Solves Issue #963.
             if (!context.keepMocks && !context.requireParallelTesting) {
                 clearAllMocks()
+                if (context.releaseMocks) {
+                    clearAllStubsFromMemory(currentThreadOnly = true)
+                }
             }
         }
     }
@@ -198,6 +206,16 @@ class MockKExtension :
     private val Optional<out AnnotatedElement>.keepMocks
         get() =
             map { it.hasAnnotationRecursive(KeepMocks::class.java) }
+                .orElse(false)
+
+    private val ExtensionContext.releaseMocks: Boolean
+        get() =
+            testClass.releaseMocks ||
+                getConfigurationParameter(RELEASE_MOCKS_PROPERTY).map { it.toBoolean() }.orElse(false)
+
+    private val Optional<out AnnotatedElement>.releaseMocks
+        get() =
+            map { it.hasAnnotationRecursive(ReleaseMocks::class.java) }
                 .orElse(false)
 
     private val ExtensionContext.confirmVerification: Boolean
@@ -248,6 +266,15 @@ class MockKExtension :
     @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
     annotation class KeepMocks
 
+    /***
+     * Release the mocks created on the test thread from memory where [clearAllMocks] is called; they cannot be used
+     * afterwards. [KeepMocks] and [RequireParallelTesting] disable it.
+     */
+    @Inherited
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.CLASS)
+    annotation class ReleaseMocks
+
     @Inherited
     @Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.CLASS)
@@ -273,6 +300,7 @@ class MockKExtension :
 
     companion object {
         const val KEEP_MOCKS_PROPERTY = "mockk.junit.extension.keepmocks"
+        const val RELEASE_MOCKS_PROPERTY = "mockk.junit.extension.releaseMocks"
         const val CONFIRM_VERIFICATION_PROPERTY = "mockk.junit.extension.confirmverification"
         const val CHECK_UNNECESSARY_STUB_PROPERTY = "mockk.junit.extension.checkUnnecessaryStub"
         const val REQUIRE_PARALLEL_TESTING = "mockk.junit.extension.requireParallelTesting"

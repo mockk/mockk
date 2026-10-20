@@ -754,6 +754,8 @@ inline fun clearConstructorMockk(
 
 /**
  * Cancels object, static and constructor mocks.
+ *
+ * Regular mocks are not released from memory; see [clearAllStubsFromMemory].
  */
 inline fun unmockkAll() =
     MockK.useImpl {

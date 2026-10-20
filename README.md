@@ -303,6 +303,12 @@ each test class execution.
 You can disable this behavior by adding the `@MockKExtension.KeepMocks` annotation to your class or globally by setting
 the `mockk.junit.extension.keepmocks=true` property.
 (Since v1.13.11)
+To also release the mocks created on the test thread from memory after each test (or after the class with the
+`PER_CLASS` lifecycle), add the `@MockKExtension.ReleaseMocks` annotation to your class or set the
+`mockk.junit.extension.releaseMocks=true` property. Released mocks can no longer be used, so mocks shared across tests
+need `@MockKExtension.KeepMocks` instead, which also disables the release. Releasing the last mock of a class undoes its
+inline instrumentation, so suites that mock the same classes in every test pay for a retransformation each time. Without
+this option, mocks stay registered in MockK until `clearAllStubsFromMemory` is called.
 Alternatively, since `clearAllMocks` by default (`currentThreadOnly=false`) is not thread-safe, if you need to run test in parallel you can add the
 `MockKExtension.RequireParallelTesting` annotation to your class or set the `mockk.junit.extension.requireParallelTesting=true`
 property to disable calling it in the `@AfterAll` callback.
