@@ -1762,22 +1762,40 @@ Then:
 ./gradlew -Dmockk.throwExceptionOnBadMock=true :modules:name:test
 ```
 
+With the same forwarding configuration, you can also set
+`systemProp.mockk.throwExceptionOnBadMock=true` in the root project's `gradle.properties`.
+
 ### Configure Restricted Mocking with Gradle Properties
 
-You can add the property to your `gradle.properties` file:
-```properties
-systemProp.mockk.throwExceptionOnBadMock=true
-```
-Then in your terminal:
+Alternatively, use a Gradle project property in the root project's `gradle.properties`:
 
+```properties
+mockk.throwExceptionOnBadMock=true
 ```
+
+Gradle runs tests in a [separate JVM](https://docs.gradle.org/current/userguide/java_testing.html#sec:test_execution).
+Forward the property to that JVM in the `build.gradle.kts` of the project containing the tests:
+
+```kotlin
+tasks.withType<Test>().configureEach {
+    providers.gradleProperty("mockk.throwExceptionOnBadMock").orNull?.let { value ->
+        systemProperty("mockk.throwExceptionOnBadMock", value)
+    }
+}
+```
+
+In a multi-project build, apply this configuration in each module whose tests
+should use the setting, or through a shared convention plugin applied to those modules.
+
+You can also supply or override this project property with `-P`:
+
+```shell
 ./gradlew -Pmockk.throwExceptionOnBadMock=true :modules:name:test
 ```
 
-⚠️ **Note:**
-
-The `mockk.throwExceptionOnBadMock` that is set in `gradle.properties` or
-in your `build.gradle` will override the value that is set in `mockk.properties` file.
+The value forwarded to the test JVM overrides `mockk.properties`, including an
+explicit `false`. If the project property is absent, this configuration does not
+set a system property, preserving the `mockk.properties` fallback.
 
 ### Behavior When Mocking Restricted Classes
 
