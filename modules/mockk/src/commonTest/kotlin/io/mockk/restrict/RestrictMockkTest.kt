@@ -10,6 +10,8 @@ import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.nio.file.Path
 import java.util.LinkedList
+import java.util.TreeMap
+import java.util.concurrent.ConcurrentHashMap
 
 class RestrictMockkTest {
     @Test
@@ -72,6 +74,19 @@ class RestrictMockkTest {
         assertThrows<MockKException> { mockk<HashMap<String, String>>(mockValidator = testValidator) }
         assertThrows<MockKException> { mockk<ArrayList<Int>>(mockValidator = testValidator) }
         assertThrows<MockKException> { mockk<LinkedList<Double>>(mockValidator = testValidator) }
+    }
+
+    @Test
+    fun `default restrictions should cover the Map interface and every implementation`() {
+        val testValidator =
+            MockkValidator(
+                RestrictMockkConfiguration(TestPropertiesLoader(mapOf("mockk.throwExceptionOnBadMock" to "true"))),
+            )
+
+        assertThrows<MockKException> { mockk<Map<String, String>>(mockValidator = testValidator) }
+        assertThrows<MockKException> { mockk<HashMap<String, String>>(mockValidator = testValidator) }
+        assertThrows<MockKException> { mockk<TreeMap<String, String>>(mockValidator = testValidator) }
+        assertThrows<MockKException> { mockk<ConcurrentHashMap<String, String>>(mockValidator = testValidator) }
     }
 
     @Test

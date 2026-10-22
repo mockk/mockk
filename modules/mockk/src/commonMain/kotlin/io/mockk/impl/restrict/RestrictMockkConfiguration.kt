@@ -28,7 +28,7 @@ class RestrictMockkConfiguration(
             setOf(
                 "java.lang.System",
                 "java.util.Collection",
-                "java.util.HashMap",
+                "java.util.Map",
                 "java.io.File",
                 "java.nio.file.Path",
             )
