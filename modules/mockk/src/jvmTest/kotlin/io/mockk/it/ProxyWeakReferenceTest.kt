@@ -5,10 +5,10 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
+import io.mockk.util.assertGarbageCollected
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.lang.ref.WeakReference
-import kotlin.test.assertEquals
 
 class ProxyWeakReferenceTest {
     @Test
@@ -36,12 +36,7 @@ class ProxyWeakReferenceTest {
     fun clearAllStubsFromMemoryLetsMocksBeGarbageCollected() {
         val refs = createMocks(100)
         clearAllStubsFromMemory()
-        repeat(50) {
-            if (refs.all { it.get() == null }) return
-            System.gc()
-            Thread.sleep(20)
-        }
-        assertEquals(0, refs.count { it.get() != null }, "mocks that were never garbage collected")
+        assertGarbageCollected(refs, "mocks that were never garbage collected")
     }
 
     private fun createMocks(count: Int): List<WeakReference<Dependency>> =
