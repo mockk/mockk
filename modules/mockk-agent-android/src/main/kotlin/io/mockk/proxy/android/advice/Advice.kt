@@ -28,13 +28,14 @@ internal class Advice(
         instance: Any?,
         methodWithTypeAndSignature: String,
     ): Method? {
+        // Fast path: skip the lookup for non-mocks, handle() returns null for them anyway.
+        if (instance != null && (!instance.checkSelfCall() || !isMock(instance))) {
+            return null
+        }
+
         val methodDesc = MethodDescriptor(methodWithTypeAndSignature)
 
-        val obj =
-            instance
-                ?: MethodDescriptor.classForTypeName(methodDesc.className)
-
-        if (!obj.checkSelfCall()) {
+        if (instance == null && !MethodDescriptor.classForTypeName(methodDesc.className).checkSelfCall()) {
             return null
         }
 
