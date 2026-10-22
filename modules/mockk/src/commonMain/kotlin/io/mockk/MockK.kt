@@ -46,6 +46,7 @@ inline fun <reified T : Any> mockk(
 ): T =
     MockK.useImpl {
         mockValidator.validateMockableClass(T::class)
+        moreInterfaces.forEach(mockValidator::validateMockableClass)
 
         MockKDsl.internalMockk(
             name,
@@ -536,6 +537,10 @@ inline fun <T : Any> mockkClass(
     block: T.() -> Unit = {},
 ): T =
     MockK.useImpl {
+        val mockValidator = MockkValidator(RestrictMockkConfiguration())
+        mockValidator.validateMockableClass(type)
+        moreInterfaces.forEach(mockValidator::validateMockableClass)
+
         MockKDsl.internalMockkClass(
             type,
             name,

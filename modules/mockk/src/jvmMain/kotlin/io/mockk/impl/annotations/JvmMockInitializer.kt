@@ -10,6 +10,8 @@ import io.mockk.impl.annotations.InjectionHelpers.getKClass
 import io.mockk.impl.annotations.InjectionHelpers.getListElementType
 import io.mockk.impl.annotations.InjectionHelpers.getReturnTypeKClass
 import io.mockk.impl.annotations.InjectionHelpers.isListType
+import io.mockk.impl.restrict.MockkValidator
+import io.mockk.impl.restrict.RestrictMockkConfiguration
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
@@ -274,15 +276,26 @@ class JvmMockInitializer(
     ) {
         property.annotated<RelaxedMockK>(target) { annotation ->
             val type = property.getReturnTypeKClass() ?: return@annotated null
+            val moreInterfaces = moreInterfaces(property)
+            validateMockable(type, moreInterfaces)
 
             gateway.mockFactory.mockk(
                 type,
                 overrideName(annotation.name, property.name),
                 true,
-                moreInterfaces(property),
+                moreInterfaces,
                 relaxUnitFun = false,
             )
         }
+    }
+
+    private fun validateMockable(
+        type: KClass<*>,
+        moreInterfaces: Array<KClass<*>>,
+    ) {
+        val mockValidator = MockkValidator(RestrictMockkConfiguration())
+        mockValidator.validateMockableClass(type)
+        moreInterfaces.forEach(mockValidator::validateMockableClass)
     }
 
     private fun assignMockK(
@@ -293,13 +306,15 @@ class JvmMockInitializer(
     ) {
         property.annotated<MockK>(target) { annotation ->
             val type = property.getReturnTypeKClass() ?: return@annotated null
+            val moreInterfaces = moreInterfaces(property)
+            validateMockable(type, moreInterfaces)
 
             gateway.mockFactory.mockk(
                 type,
                 overrideName(annotation.name, property.name),
                 annotation.relaxed ||
                     relaxed,
-                moreInterfaces(property),
+                moreInterfaces,
                 relaxUnitFun =
                     annotation.relaxUnitFun ||
                         relaxUnitFun,
