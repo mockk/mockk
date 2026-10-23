@@ -1,5 +1,6 @@
 package io.mockk.proxy.android.advice
 
+import io.mockk.proxy.MockKInvocationHandler
 import io.mockk.proxy.android.AndroidMockKMap
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.lang.reflect.Method
 import java.net.URLClassLoader
+import java.util.concurrent.Callable
 
 class AdviceOverrideDetectionTest {
     @Test
@@ -28,15 +30,29 @@ class AdviceOverrideDetectionTest {
 
     @Test
     fun getOrigin_returnsOriginMethodWhenInstanceDoesNotOverride() {
+        val handlers = AndroidMockKMap()
+        val advice =
+            Advice(
+                handlers,
+                AndroidMockKMap(),
+                AndroidMockKMap(),
+            )
+        val mock = Child()
+        handlers[mock] = noOpHandler
+        val origin = advice.getOrigin(mock, "java.lang.Object#toString()")
+        assertNotNull(origin)
+        assertEquals("toString", origin!!.name)
+    }
+
+    @Test
+    fun getOrigin_returnsNullWhenInstanceIsNotAMock() {
         val advice =
             Advice(
                 AndroidMockKMap(),
                 AndroidMockKMap(),
                 AndroidMockKMap(),
             )
-        val origin = advice.getOrigin(Child(), "java.lang.Object#toString()")
-        assertNotNull(origin)
-        assertEquals("toString", origin!!.name)
+        assertNull(advice.getOrigin(Child(), "java.lang.Object#toString()"))
     }
 
     @Test
@@ -116,6 +132,16 @@ class AdviceOverrideDetectionTest {
                 .apply { isAccessible = true }
                 .get(null)
         private val companionClass = companionInstance.javaClass
+
+        private val noOpHandler =
+            object : MockKInvocationHandler {
+                override fun invocation(
+                    self: Any,
+                    method: Method?,
+                    originalCall: Callable<*>?,
+                    args: Array<Any?>,
+                ): Any? = null
+            }
 
         open class Parent {
             open fun greet(name: String) {
