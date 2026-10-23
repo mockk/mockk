@@ -1,9 +1,13 @@
 package io.mockk.restrict
 
+import io.mockk.MockKAnnotations
 import io.mockk.MockKException
+import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.impl.restrict.MockkValidator
 import io.mockk.impl.restrict.RestrictMockkConfiguration
 import io.mockk.mockk
+import io.mockk.mockkClass
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
@@ -319,6 +323,30 @@ class RestrictMockkTest {
 
         System.clearProperty("mockk.throwExceptionOnBadMock")
     }
+
+    @Test
+    fun `when throwExceptionOnBadMock is true, every regular mock creation path should throw`() {
+        System.setProperty("mockk.throwExceptionOnBadMock", "true")
+        try {
+            assertThrows<MockKException> { mockkClass(File::class) }
+            assertThrows<MockKException> { mockkClass(Runnable::class, moreInterfaces = arrayOf(List::class)) }
+            assertThrows<MockKException> { mockk<Runnable>(moreInterfaces = arrayOf(List::class)) }
+            assertThrows<MockKException> { MockKAnnotations.init(MockKFileHolder()) }
+            assertThrows<MockKException> { MockKAnnotations.init(RelaxedMockKFileHolder()) }
+        } finally {
+            System.clearProperty("mockk.throwExceptionOnBadMock")
+        }
+    }
+
+    @Test
+    fun `when throwExceptionOnBadMock is true, relaxed child mocks of restricted classes should not throw`() {
+        System.setProperty("mockk.throwExceptionOnBadMock", "true")
+        try {
+            assertDoesNotThrow { mockk<FileProvider>(relaxed = true).file() }
+        } finally {
+            System.clearProperty("mockk.throwExceptionOnBadMock")
+        }
+    }
 }
 
 open class Foo
@@ -326,3 +354,17 @@ open class Foo
 class Bar
 
 class FooChild : Foo()
+
+class MockKFileHolder {
+    @MockK
+    lateinit var file: File
+}
+
+class RelaxedMockKFileHolder {
+    @RelaxedMockK
+    lateinit var file: File
+}
+
+interface FileProvider {
+    fun file(): File
+}
