@@ -2,16 +2,21 @@ package io.mockk.it
 
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifySequence
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.mockkObject
 import io.mockk.runs
 import io.mockk.spyk
+import io.mockk.unmockkObject
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.test.Test
@@ -239,6 +244,77 @@ class CoroutineTest {
         runBlocking {
             mock("hello")
             coVerify { mock("hello") }
+        }
+    }
+
+    class SuspendingCls {
+        suspend fun suspendOnce(): Int {
+            delay(1)
+            return 1
+        }
+
+        suspend fun countDownOnDefaultDispatcher(n: Int): Int =
+            if (n == 0) 0 else withContext(Dispatchers.Default) { countDownOnDefaultDispatcher(n - 1) } + 1
+    }
+
+    object SuspendingObj {
+        suspend fun suspendOnce(): Int {
+            delay(1)
+            return 1
+        }
+    }
+
+    /**
+     * GitHub issue #554: a suspend function resumes by calling itself again with its own
+     * continuation, which must not be recorded as a second call.
+     */
+    @Test
+    fun spykRecordsOneCallForSuspendFunctionThatSuspends() {
+        val spy = spyk(SuspendingCls())
+
+        runBlocking {
+            assertEquals(1, spy.suspendOnce())
+        }
+
+        coVerify(exactly = 1) { spy.suspendOnce() }
+    }
+
+    @Test
+    fun spykRecordsOneCallForSuspendFunctionThatSuspendsInLaunchedCoroutine() {
+        val spy = spyk(SuspendingCls())
+
+        runBlocking {
+            launch { spy.suspendOnce() }.join()
+        }
+
+        coVerify(exactly = 1) { spy.suspendOnce() }
+    }
+
+    @Test
+    fun spykRecordsCallsMadeFromSuspendLambdaInsideTheSameFunction() {
+        val spy = spyk(SuspendingCls())
+
+        runBlocking {
+            assertEquals(1, spy.countDownOnDefaultDispatcher(1))
+        }
+
+        coVerifySequence {
+            spy.countDownOnDefaultDispatcher(1)
+            spy.countDownOnDefaultDispatcher(0)
+        }
+    }
+
+    @Test
+    fun mockkObjectRecordsOneCallForSuspendFunctionThatSuspends() {
+        mockkObject(SuspendingObj)
+        try {
+            runBlocking {
+                assertEquals(1, SuspendingObj.suspendOnce())
+            }
+
+            coVerify(exactly = 1) { SuspendingObj.suspendOnce() }
+        } finally {
+            unmockkObject(SuspendingObj)
         }
     }
 }

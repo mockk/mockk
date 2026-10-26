@@ -37,6 +37,10 @@ object JvmMockFactoryHelper {
                     throw MockKException("Mocking Kotlin inline functions is not supported")
                 }
 
+                if (method.isResumedBy(args)) {
+                    return@stdFunctions handleOriginalCall(originalCall, method)
+                }
+
                 stub.handleInvocation(
                     self,
                     method.toDescription(),
@@ -122,6 +126,26 @@ object JvmMockFactoryHelper {
         } catch (ex: InvocationTargetException) {
             throw ex.cause ?: throw ex
         }
+    }
+
+    /**
+     * A suspend function that has suspended is resumed by its own continuation calling the function
+     * again (the compiler-generated continuation class declared in it, with the sign bit of `label`
+     * set). That call continues the original invocation rather than making a new one, so it goes
+     * straight to the original code without being recorded or answered (#554).
+     */
+    private fun Method.isResumedBy(args: Array<Any?>): Boolean {
+        val continuation = args.lastOrNull() as? Continuation<*> ?: return false
+        val continuationClass = continuation.javaClass
+        if (continuationClass.enclosingMethod != this) return false
+
+        val label =
+            runCatching {
+                val field = continuationClass.getDeclaredField("label")
+                InternalPlatformDsl.makeAccessible(field)
+                field.getInt(continuation)
+            }.getOrNull() ?: return false
+        return label and Int.MIN_VALUE != 0
     }
 
     private fun Method.isKotlinInline(): Boolean =

@@ -125,7 +125,6 @@ From version 1.13.0 MockK supports Kotlin 1.4 and higher
 * Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
 * On JDK 21+, tests print `WARNING: A Java agent has been loaded dynamically` (JEP 451): [read more here](doc/md/jep451-dynamic-agent-loading.md)
 * Spies, `mockkStatic` may not work on JDK 16+; `InaccessibleObjectException`/`IllegalAccessException`: [read more here](doc/md/jdk16-access-exceptions.md)
-* Using a spy with a suspending function [will give unexpected test results](https://github.com/mockk/mockk/issues/554)
 
 Table of contents:
 
@@ -348,8 +347,7 @@ verify { car.drive(Direction.NORTH) }
 confirmVerified(car)
 ```
 
-Note 1: the spy object is a copy of the passed object.
-Note 2: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
+Note: the spy object is a copy of the passed object.
 
 ### Relaxed mock
 
@@ -1011,8 +1009,6 @@ runTest {
     job.cancelAndJoin() // Don't forget to cancel the job
 }
 ```
-
-Note: there is a known issue if using a spy with a suspending function: https://github.com/mockk/mockk/issues/554
 
 ### Top Level functions
 
