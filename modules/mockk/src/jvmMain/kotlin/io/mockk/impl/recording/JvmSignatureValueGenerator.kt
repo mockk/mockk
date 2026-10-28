@@ -59,7 +59,11 @@ class JvmSignatureValueGenerator(
             else ->
                 if (cls.isSealed) {
                     cls.sealedSubclasses.firstNotNullOfOrNull {
-                        instantiate(it, anyValueGeneratorProvider, instantiator)
+                        if (it.isValue) {
+                            sealedValueClassSignature(it, anyValueGeneratorProvider, instantiator)
+                        } else {
+                            instantiate(it, anyValueGeneratorProvider, instantiator)
+                        }
                     } ?: error("Unable to create proxy for sealed class $cls, available subclasses: ${cls.sealedSubclasses}")
                 } else {
                     @Suppress("UNCHECKED_CAST")
@@ -68,6 +72,21 @@ class JvmSignatureValueGenerator(
                     } as T
                 }
         }
+
+    /**
+     * A value class instantiated without its constructor has a zeroed underlying value, and since value class
+     * signatures are compared by that value, two `any()` matchers of the same sealed type would get equal signatures.
+     * The value class is built from a random underlying value instead, falling back to plain instantiation
+     * when its constructor rejects that value.
+     * See: https://github.com/mockk/mockk/issues/1264
+     */
+    private fun <T : Any> sealedValueClassSignature(
+        cls: KClass<T>,
+        anyValueGeneratorProvider: () -> AnyValueGenerator,
+        instantiator: AbstractInstantiator,
+    ): Any =
+        runCatching { signatureValue(cls, anyValueGeneratorProvider, instantiator) }
+            .getOrElse { instantiate(cls, anyValueGeneratorProvider, instantiator) }
 
     /**
      * `Class` is final and can't be instantiated, so every `any<Class<*>>()` used to get `Object::class.java`

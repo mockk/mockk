@@ -22,6 +22,13 @@ value class NullableInnerValueClass(
     val value: String?,
 )
 
+sealed interface SealedValueClassId
+
+@JvmInline
+value class SealedLongId(
+    val value: Long,
+) : SealedValueClassId
+
 class JvmSignatureValueGeneratorTest {
     private val generator = JvmSignatureValueGenerator(Random(42))
 
@@ -133,6 +140,22 @@ class JvmSignatureValueGeneratorTest {
         values.windowed(2).forEach { (previous, next) ->
             assertNotSame(previous, next, "Consecutive Class signature values must differ")
         }
+    }
+
+    // https://github.com/mockk/mockk/issues/1264
+    @Test
+    fun `sealed interface signature values with value class subtype are distinct`() {
+        val values =
+            List(TEST_ITERATIONS) {
+                generator.signatureValue(
+                    SealedValueClassId::class,
+                    { mockAnyValueGenerator },
+                    mockInstantiator,
+                )
+            }
+
+        assertTrue(values.all { it is SealedLongId }, "Sealed value class subtype should be constructed")
+        assertEquals(TEST_ITERATIONS, values.map { InternalPlatform.packRef(it) }.toSet().size)
     }
 
     // https://github.com/mockk/mockk/issues/1326
