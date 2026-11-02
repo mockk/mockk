@@ -67,10 +67,16 @@ internal class InliningClassTransformer(
      * The compilers put `$` or `-` in those names, which hand-written function names rarely contain.
      *
      * Bridge methods are instrumented as well, see [BridgeIncludingMethodGraphCompiler].
+     *
+     * The method graph is built the way the JVM sees methods, by name, parameter types and return
+     * type. The Java view ignores the return type, so two methods that differ only in it share one
+     * node and only one of them is instrumented. Kotlin emits such pairs for overloads whose generic
+     * parameters erase to the same type, and for a member next to an `inline reified` function of
+     * the same name.
      */
     private val redefiningByteBuddy =
         byteBuddy
-            .with(BridgeIncludingMethodGraphCompiler(MethodGraph.Compiler.DEFAULT))
+            .with(BridgeIncludingMethodGraphCompiler(MethodGraph.Compiler.Default.forJVMHierarchy()))
             .ignore(
                 isSynthetic<MethodDescription>()
                     .and(
