@@ -1425,6 +1425,14 @@ To adjust parameters globally, you can specify settings in a configuration file.
 ### How to use:
 
 1. Create the configuration file at `src/test/resources/mockk.properties`.
+
+   In a Kotlin Multiplatform project, put the file in the resources of the test source set that runs your tests,
+   such as `src/jvmTest/resources/mockk.properties`. The Android KMP library plugin
+   (`com.android.kotlin.multiplatform.library`) does not read `src/test`, so use
+   `src/androidHostTest/resources/mockk.properties` there.
+
+   Before MockK 1.14.9, settings such as `relaxed` and `relaxUnitFun` were read only from the
+   [legacy file](#legacy-configuration), not from `mockk.properties`.
 2. Add any of the following configuration options:
 
 ```properties
