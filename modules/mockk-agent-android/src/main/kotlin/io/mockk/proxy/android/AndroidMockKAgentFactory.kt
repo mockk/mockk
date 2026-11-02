@@ -201,7 +201,7 @@ class AndroidMockKAgentFactory : MockKAgentFactory {
 
     companion object {
         private const val DISPATCHER_CLASS_NAME = "io.mockk.proxy.android.AndroidMockKDispatcher"
-        private const val DISPATCHER_JAR = "dispatcher.jar"
+        private const val DISPATCHER_JAR = "io/mockk/proxy/android/dispatcher.jar"
         private const val VM_RUNTIME_CLASS_NAME = "dalvik.system.VMRuntime"
         private const val VM_DEBUG_CLASS_NAME = "dalvik.system.VMDebug"
         private const val GET_DECLARED_METHOD_METHOD_NAME = "getDeclaredMethod"
