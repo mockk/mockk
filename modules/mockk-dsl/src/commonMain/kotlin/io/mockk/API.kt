@@ -178,7 +178,7 @@ object MockKDsl {
             throw MockKException("atLeast should less or equal atMost")
         }
 
-        if (ordering != Ordering.UNORDERED) {
+        if (ordering != Ordering.UNORDERED && ordering != Ordering.ANY) {
             if (atLeast != 1 || atMost != Int.MAX_VALUE || exactly != -1) {
                 throw MockKException("atLeast, atMost, exactly is only allowed in unordered verify block")
             }
@@ -216,6 +216,20 @@ object MockKDsl {
     }
 
     /**
+     * Shortcut for verifying the total number of unique calls matching any of the declared patterns
+     */
+    fun internalVerifyAny(
+        inverse: Boolean = false,
+        atLeast: Int = 1,
+        atMost: Int = Int.MAX_VALUE,
+        exactly: Int = -1,
+        timeout: Long = 0,
+        verifyBlock: MockKVerificationScope.() -> Unit,
+    ) {
+        internalVerify(Ordering.ANY, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
+    }
+
+    /**
      * Shortcut for ordered calls verification
      */
     fun internalCoVerifyOrder(
@@ -243,6 +257,20 @@ object MockKDsl {
         verifyBlock: suspend MockKVerificationScope.() -> Unit,
     ) {
         internalCoVerify(Ordering.SEQUENCE, inverse, verifyBlock = verifyBlock)
+    }
+
+    /**
+     * Shortcut for verifying the total number of unique calls matching any of the declared patterns
+     */
+    fun internalCoVerifyAny(
+        inverse: Boolean = false,
+        atLeast: Int = 1,
+        atMost: Int = Int.MAX_VALUE,
+        exactly: Int = -1,
+        timeout: Long = 0,
+        verifyBlock: suspend MockKVerificationScope.() -> Unit,
+    ) {
+        internalCoVerify(Ordering.ANY, inverse, atLeast, atMost, exactly, timeout, verifyBlock)
     }
 
     /**
@@ -716,6 +744,12 @@ enum class Ordering {
      * Order is important and all calls should be specified
      */
     SEQUENCE,
+
+    /**
+     * Order is not important. The number of unique calls matching any of the declared patterns is checked.
+     * Used by [io.mockk.verifyAny] and [io.mockk.coVerifyAny].
+     */
+    ANY,
 }
 
 /**
