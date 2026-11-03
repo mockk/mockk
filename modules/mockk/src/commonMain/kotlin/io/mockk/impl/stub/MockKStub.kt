@@ -5,6 +5,7 @@ import io.mockk.BackingFieldValueProvider
 import io.mockk.Call
 import io.mockk.EqMatcher
 import io.mockk.InternalPlatformDsl
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
 import io.mockk.MethodDescription
@@ -102,9 +103,24 @@ open class MockKStub(
                     childMockK(invocation.allEqMatcher(), invocation.method.returnType)
                 }
             } else {
-                val configuredAnswers = answers.map { it.matcher.toString() }.joinToString(separator = "\n") { it }
+                val signature = invocation.method.typedSignature()
+                val configuredAnswers =
+                    answers.joinToString(separator = "\n") { answer ->
+                        val matcher = answer.matcher
+                        gatewayAccess.safeToString.exec {
+                            "${matcher.self}.${matcher.method.name}(${matcher.args.joinToString(
+                                ", ",
+                            )}) [${matcher.method.typedSignature()}]"
+                        }
+                    }
                 throw MockKException(
-                    "no answer found for ${gatewayAccess.safeToString.exec { invocation.toString() }}" +
+                    "no answer found for ${
+                        gatewayAccess.safeToString.exec {
+                            "${invocation.self}.${invocation.method.name}(${invocation.args.joinToString(
+                                ", ",
+                            ) { it.toStr() }}) [$signature]"
+                        }
+                    }" +
                         " among the configured answers: ($configuredAnswers)",
                 )
             }
@@ -339,6 +355,11 @@ open class MockKStub(
             },
             false,
         )
+
+    private fun MethodDescription.typedSignature(): String =
+        "$name(${paramTypes.joinToString(
+            ", ",
+        ) { it.simpleName ?: it.toString() }}): ${returnType.simpleName ?: returnType.toString()}${if (returnTypeNullable) "?" else ""}"
 
     override fun dispose() {
         clear(
