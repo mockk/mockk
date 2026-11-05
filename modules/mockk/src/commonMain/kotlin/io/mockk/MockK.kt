@@ -427,9 +427,11 @@ fun coVerifySequence(
  * @see coVerifySequence
  *
  */
-fun coVerifyCount(verifyBlock: MockKCallCountCoVerificationScope.() -> Unit): Unit =
+fun coVerifyCount(verifyBlock: suspend MockKCallCountCoVerificationScope.() -> Unit): Unit =
     MockK.useImpl {
-        MockKCallCountCoVerificationScope().verifyBlock()
+        InternalPlatformDsl.runCoroutine {
+            MockKCallCountCoVerificationScope().verifyBlock()
+        }
     }
 
 /**

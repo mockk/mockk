@@ -8,6 +8,7 @@ import io.mockk.coVerifyOrder
 import io.mockk.coVerifySequence
 import io.mockk.mockk
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -168,6 +169,21 @@ class CoVerifyTest {
         doCalls()
 
         coVerifyCount {
+            0 * { mock.op(4) } // not called
+            1 * { mock.op(5) } // called
+            (0..Int.MAX_VALUE) * { mock.op(6) } // called
+            (1..1) * { mock.op(7) } // called
+            (0..0) * { mock.op(8) } // not called
+            (0..1) * { mock.op(9) } // not called
+        }
+    }
+
+    @Test
+    fun verifyCountSuspendingLambda() {
+        doCalls()
+
+        coVerifyCount {
+            delay(1)
             0 * { mock.op(4) } // not called
             1 * { mock.op(5) } // called
             (0..Int.MAX_VALUE) * { mock.op(6) } // called
