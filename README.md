@@ -1580,6 +1580,45 @@ A few special matchers available in verification mode only:
 | `coWithArg { code }`         | matches any value and allows to execute some coroutine code          |
 | `coWithNullableArg { code }` | matches any nullable value and allows to execute some coroutine code |
 
+#### Generic arguments and type inference
+
+When a generic method accepts a Java functional interface, Kotlin can report
+`Cannot use 'Nothing' as reified type parameter` for an argument matcher if it
+cannot infer a suitable type. For example:
+
+```kotlin
+import java.util.function.Function
+
+class Box<T>(val value: T)
+
+interface Processor {
+    fun <T> run(source: Box<T>, fallback: Function<Throwable, Box<T>>): Box<T>
+}
+
+val processor = mockk<Processor>()
+
+// Does not compile: Box::class leaves the element type unspecified.
+every { processor.run(ofType(Box::class), ofType()) } answers { firstArg() }
+```
+
+Specify the element type in the first matcher so Kotlin can infer the function type:
+
+```kotlin
+every { processor.run(ofType<Box<String>>(), ofType()) } answers { firstArg() }
+```
+
+You can also specify both argument types explicitly, including with `any()`:
+
+```kotlin
+every {
+    processor.run(any<Box<String>>(), any<Function<Throwable, Box<String>>>())
+} answers { firstArg() }
+```
+
+Replacing `ofType()` with an untyped `any()` can produce the same compiler error.
+These type arguments guide compilation; the matchers do not check erased generic
+arguments at runtime. See [#555](https://github.com/mockk/mockk/issues/555).
+
 ### Validators
 
 | Validator                                       | Description                                                                                     |
