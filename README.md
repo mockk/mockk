@@ -1580,6 +1580,40 @@ A few special matchers available in verification mode only:
 | `coWithArg { code }`         | matches any value and allows to execute some coroutine code          |
 | `coWithNullableArg { code }` | matches any nullable value and allows to execute some coroutine code |
 
+#### Generic arguments and type inference
+
+When a method's arguments share a generic type, Kotlin can report
+`Cannot use 'Nothing' as reified type parameter` if a matcher uses a
+star-projected type. For example:
+
+```kotlin
+import java.util.function.Function
+
+class Box<T>(val value: T)
+
+interface Processor {
+    fun <T> run(source: Box<T>, fallback: Function<Throwable, Box<T>>): Box<T>
+}
+
+val processor = mockk<Processor>()
+
+// Does not compile: the second matcher is inferred as Nothing.
+every { processor.run(ofType(Box::class), ofType()) } answers { firstArg() }
+```
+
+`Box::class` gives the first matcher a star-projected `Box<*>` type. In this
+signature, Kotlin then cannot infer a usable type for the second matcher.
+Specify the first matcher's element type explicitly:
+
+```kotlin
+every { processor.run(ofType<Box<String>>(), ofType()) } answers { firstArg() }
+```
+
+Using `any<Box<String>>()` with `any()` for the second argument also works.
+Changing only the second matcher to `any()` does not resolve this example.
+These type arguments guide compilation; the matchers do not check erased generic
+arguments at runtime. See [#555](https://github.com/mockk/mockk/issues/555).
+
 ### Validators
 
 | Validator                                       | Description                                                                                     |
