@@ -1582,9 +1582,9 @@ A few special matchers available in verification mode only:
 
 #### Generic arguments and type inference
 
-When a generic method accepts a Java functional interface, Kotlin can report
-`Cannot use 'Nothing' as reified type parameter` for an argument matcher if it
-cannot infer a suitable type. For example:
+When a method's arguments share a generic type, Kotlin can report
+`Cannot use 'Nothing' as reified type parameter` if a matcher uses a
+star-projected type. For example:
 
 ```kotlin
 import java.util.function.Function
@@ -1597,25 +1597,20 @@ interface Processor {
 
 val processor = mockk<Processor>()
 
-// Does not compile: Box::class leaves the element type unspecified.
+// Does not compile: the second matcher is inferred as Nothing.
 every { processor.run(ofType(Box::class), ofType()) } answers { firstArg() }
 ```
 
-Specify the element type in the first matcher so Kotlin can infer the function type:
+`Box::class` gives the first matcher a star-projected `Box<*>` type. In this
+signature, Kotlin then cannot infer a usable type for the second matcher.
+Specify the first matcher's element type explicitly:
 
 ```kotlin
 every { processor.run(ofType<Box<String>>(), ofType()) } answers { firstArg() }
 ```
 
-You can also specify both argument types explicitly, including with `any()`:
-
-```kotlin
-every {
-    processor.run(any<Box<String>>(), any<Function<Throwable, Box<String>>>())
-} answers { firstArg() }
-```
-
-Replacing `ofType()` with an untyped `any()` can produce the same compiler error.
+Using `any<Box<String>>()` with `any()` for the second argument also works.
+Changing only the second matcher to `any()` does not resolve this example.
 These type arguments guide compilation; the matchers do not check erased generic
 arguments at runtime. See [#555](https://github.com/mockk/mockk/issues/555).
 

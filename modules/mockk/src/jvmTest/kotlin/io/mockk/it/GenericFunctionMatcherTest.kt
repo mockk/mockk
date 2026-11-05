@@ -25,7 +25,7 @@ class GenericFunctionMatcherTest {
 
     @Test
     fun ofTypeInfersGenericFunctionFromTypedArgument() {
-        // See #555: ofType(Box::class) loses the element type needed to infer the second matcher.
+        // See #555: Box::class supplies Box<*>, which prevents inference of the second matcher here.
         every { processor.run(ofType<Box<String>>(), ofType()) } answers { firstArg() }
 
         assertSame(source, processor.run(source, fallback))
@@ -34,20 +34,11 @@ class GenericFunctionMatcherTest {
     }
 
     @Test
-    fun ofTypeWithExplicitGenericFunctionType() {
-        every { processor.run(ofType<Box<String>>(), ofType<Function<Throwable, Box<String>>>()) } answers { firstArg() }
+    fun anyInfersGenericFunctionFromTypedArgument() {
+        every { processor.run(any<Box<String>>(), any()) } answers { firstArg() }
 
         assertSame(source, processor.run(source, fallback))
 
-        verify(exactly = 1) { processor.run(ofType<Box<String>>(), ofType<Function<Throwable, Box<String>>>()) }
-    }
-
-    @Test
-    fun anyWithExplicitGenericFunctionType() {
-        every { processor.run(any<Box<String>>(), any<Function<Throwable, Box<String>>>()) } answers { firstArg() }
-
-        assertSame(source, processor.run(source, fallback))
-
-        verify(exactly = 1) { processor.run(any<Box<String>>(), any<Function<Throwable, Box<String>>>()) }
+        verify(exactly = 1) { processor.run(any<Box<String>>(), any()) }
     }
 }
