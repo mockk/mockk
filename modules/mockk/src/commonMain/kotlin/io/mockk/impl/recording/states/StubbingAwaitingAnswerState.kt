@@ -10,6 +10,7 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.AnswerAnsweringOpportunity
 import io.mockk.impl.stub.MockKStub
+import io.mockk.impl.stub.Stub
 
 class StubbingAwaitingAnswerState(
     recorder: CommonCallRecorder,
@@ -43,7 +44,7 @@ class StubbingAwaitingAnswerState(
             stub.addAnswer(recordedCall.matcher, ans)
 
             if (stub::class == MockKStub::class) {
-                assignFieldIfMockingProperty(mock, recordedCall.matcher, ans)
+                assignFieldIfMockingProperty(stub, mock, recordedCall.matcher, ans)
             }
         }
 
@@ -56,13 +57,14 @@ class StubbingAwaitingAnswerState(
     }
 
     private fun assignFieldIfMockingProperty(
+        stub: Stub,
         mock: Any,
         matcher: InvocationMatcher,
         ans: Answer<Any?>,
     ) {
         if (ans is AnswerAnsweringOpportunity<*>) {
             ans.onFirstAnswer { answer ->
-                assignFieldIfMockingProperty(mock, matcher, answer)
+                assignFieldIfMockingProperty(stub, mock, matcher, answer)
             }
             return
         }
@@ -81,6 +83,9 @@ class StubbingAwaitingAnswerState(
                     .toCamelCase()
 
             InternalPlatformDsl.dynamicSetField(mock, fieldName, ans.constantValue)
+            // The stub affected behavior through the backing field without the getter being
+            // intercepted, so count it as used to keep checkUnnecessaryStub accurate (#1345).
+            stub.markAnswerUsed(matcher)
         } catch (ex: Exception) {
             if (MockKSettings.failOnSetBackingFieldException) {
                 log.error(ex) { "Failed to set backing field" }

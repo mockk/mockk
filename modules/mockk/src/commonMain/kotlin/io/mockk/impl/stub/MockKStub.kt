@@ -216,6 +216,12 @@ open class MockKStub(
         verifiedCalls.add(invocation)
     }
 
+    override fun markAnswerUsed(matcher: InvocationMatcher) {
+        InternalPlatform.synchronized(answers) {
+            answers.lastOrNull { it.matcher == matcher }?.let { it.usageCount++ }
+        }
+    }
+
     override fun verifiedCalls(): List<Invocation> {
         InternalPlatform.synchronized(verifiedCalls) {
             return verifiedCalls.toList()
