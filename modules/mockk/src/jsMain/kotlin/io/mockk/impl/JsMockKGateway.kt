@@ -58,6 +58,7 @@ class JsMockKGateway : MockKGateway {
             Ordering.ALL -> AllCallsCallVerifier(stubRepo, safeToString)
             Ordering.ORDERED -> OrderedCallVerifier(stubRepo, safeToString)
             Ordering.SEQUENCE -> SequenceCallVerifier(stubRepo, safeToString)
+            Ordering.ANY -> AnyCallVerifier(stubRepo, safeToString)
         }
 
         return if (params.timeout > 0) {
