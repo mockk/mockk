@@ -82,6 +82,10 @@ class ConstructorStub(
         )
     }
 
+    override fun markAnswerUsed(matcher: InvocationMatcher) {
+        stub.markAnswerUsed(matcher.substitute(represent))
+    }
+
     override fun allRecordedCalls() =
         stub
             .allRecordedCalls()
