@@ -717,6 +717,7 @@ public final class io/mockk/impl/recording/CommonCallRecorder : io/mockk/MockKGa
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/instantiation/AbstractInstantiator;Lio/mockk/impl/recording/SignatureValueGenerator;Lio/mockk/MockKGateway$MockFactory;Lkotlin/jvm/functions/Function0;Lio/mockk/impl/log/SafeToString;Lio/mockk/impl/recording/CallRecorderFactories;Lkotlin/jvm/functions/Function1;Lio/mockk/MockKGateway$VerificationAcknowledger;)V
 	public fun answerOpportunity ()Lio/mockk/MockKGateway$AnswerOpportunity;
 	public fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
+	public fun cancelRecordingSession ()V
 	public fun discardLastCallRound ()V
 	public fun done ()V
 	public fun estimateCallRounds ()I
