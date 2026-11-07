@@ -816,6 +816,73 @@ verify {
 confirmVerified(obj)
 ```
 
+### Verification with alternative patterns (verifyAny / coVerifyAny)
+
+`verifyAny` treats the calls declared in its block as alternative patterns: the total number of unique calls matching **any** of them is checked against the usual `atLeast`, `atMost` and `exactly` bounds. The order of the calls is not checked, and a recorded call that matches more than one pattern is counted only once. The `inverse` and `timeout` parameters work the same way as in `verify` / `coVerify`.
+
+Example: check that exactly one of the two methods was called:
+
+```kotlin
+class MockedClass {
+    fun resume() = Unit
+    fun toggleResume() = Unit
+    fun sum(a: Int, b: Int) = a + b
+    suspend fun asyncSum(a: Int, b: Int) = a + b
+}
+
+val obj = mockk<MockedClass>()
+
+obj.resume()
+
+// all pass
+verifyAny {
+    obj.resume()
+    obj.toggleResume()
+}
+
+verifyAny(exactly = 1) {
+    obj.resume()
+    obj.toggleResume()
+}
+
+verifyAny(inverse = true) {
+    obj.toggleResume() // passes because toggleResume was not called
+}
+```
+
+Overlapping patterns are deduplicated, and the bounds are applied to the total number of unique matching calls:
+
+```kotlin
+obj.sum(1, 2)
+
+// passes: sum(1, 2) matches both patterns, but is counted only once
+verifyAny(exactly = 1) {
+    obj.sum(1, 2)
+    obj.sum(any(), any())
+}
+
+obj.sum(1, 3)
+
+// all pass
+verifyAny(atLeast = 2) {
+    obj.sum(1, 2)
+    obj.sum(1, 3)
+}
+
+verifyAny(atMost = 2) {
+    obj.sum(any(), any())
+}
+```
+
+For coroutines use `coVerifyAny`, which works the same way:
+
+```kotlin
+coVerifyAny(exactly = 1) {
+    obj.asyncSum(1, 2)
+    obj.asyncSum(1, 3)
+}
+```
+
 ### Verification confirmation
 
 To double-check that all calls were verified by `verify...` constructs, you can use `confirmVerified`:
@@ -1505,6 +1572,8 @@ Here are a few tables to help you master the DSL.
 | `coVerifyOrder`           | starts a verification block that checks the order for coroutines                                           |
 | `verifySequence`          | starts a verification block that checks whether all calls were made in a specified sequence                |
 | `coVerifySequence`        | starts a verification block that checks whether all calls were made in a specified sequence for coroutines |
+| `verifyAny`               | starts a verification block that checks the total number of calls matching any of the declared patterns    |
+| `coVerifyAny`             | starts a verification block that checks the number of calls matching any declared pattern for coroutines   |
 | `excludeRecords`          | exclude some calls from being recorded                                                                     |
 | `confirmVerified`         | confirms that all recorded calls were verified                                                             |
 | `checkUnnecessaryStub`    | confirms that all recorded calls are used at least once                                                    |

@@ -614,6 +614,8 @@ public final class io/mockk/MockKDsl {
 	public static synthetic fun internalCoVerify$default (Lio/mockk/MockKDsl;Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public final fun internalCoVerifyAll (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun internalCoVerifyAll$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
+	public final fun internalCoVerifyAny (ZIIIJLkotlin/jvm/functions/Function2;)V
+	public static synthetic fun internalCoVerifyAny$default (Lio/mockk/MockKDsl;ZIIIJLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public final fun internalCoVerifyOrder (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun internalCoVerifyOrder$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public final fun internalCoVerifySequence (ZLkotlin/jvm/functions/Function2;)V
@@ -647,6 +649,8 @@ public final class io/mockk/MockKDsl {
 	public static synthetic fun internalVerify$default (Lio/mockk/MockKDsl;Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun internalVerifyAll (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun internalVerifyAll$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public final fun internalVerifyAny (ZIIIJLkotlin/jvm/functions/Function1;)V
+	public static synthetic fun internalVerifyAny$default (Lio/mockk/MockKDsl;ZIIIJLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun internalVerifyOrder (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun internalVerifyOrder$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun internalVerifySequence (ZLkotlin/jvm/functions/Function1;)V
@@ -1064,6 +1068,7 @@ public final class io/mockk/OfTypeMatcher : io/mockk/Matcher {
 
 public final class io/mockk/Ordering : java/lang/Enum {
 	public static final field ALL Lio/mockk/Ordering;
+	public static final field ANY Lio/mockk/Ordering;
 	public static final field ORDERED Lio/mockk/Ordering;
 	public static final field SEQUENCE Lio/mockk/Ordering;
 	public static final field UNORDERED Lio/mockk/Ordering;

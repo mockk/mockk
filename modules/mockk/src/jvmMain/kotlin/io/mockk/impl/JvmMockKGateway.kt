@@ -48,6 +48,7 @@ import io.mockk.impl.stub.CommonClearer
 import io.mockk.impl.stub.StubGatewayAccess
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.AllCallsCallVerifier
+import io.mockk.impl.verify.AnyCallVerifier
 import io.mockk.impl.verify.OrderedCallVerifier
 import io.mockk.impl.verify.SequenceCallVerifier
 import io.mockk.impl.verify.TimeoutVerifier
@@ -153,6 +154,7 @@ class JvmMockKGateway : MockKGateway {
                 Ordering.ALL -> AllCallsCallVerifier(stubRepo, safeToString)
                 Ordering.ORDERED -> OrderedCallVerifier(stubRepo, safeToString)
                 Ordering.SEQUENCE -> SequenceCallVerifier(stubRepo, safeToString)
+                Ordering.ANY -> AnyCallVerifier(stubRepo, safeToString)
             }
 
         return if (params.timeout > 0) {
