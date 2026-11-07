@@ -58,9 +58,10 @@ class NestedStubbingSessionTest {
 
     @Test
     fun `verification inside an every block does not break the outer stubbing`() {
-        val mock = mockk<Dependency> {
-            every { toTest() } returns 5
-        }
+        val mock =
+            mockk<Dependency> {
+                every { toTest() } returns 5
+            }
         mock.toTest()
 
         val service = mockk<Service>()
@@ -75,9 +76,10 @@ class NestedStubbingSessionTest {
 
     @Test
     fun `stubbing inside a verification block does not break the verification`() {
-        val verified = mockk<Dependency> {
-            every { toTest() } returns 5
-        }
+        val verified =
+            mockk<Dependency> {
+                every { toTest() } returns 5
+            }
         verified.toTest()
 
         val inner = mockk<Dependency>()
@@ -109,9 +111,10 @@ class NestedStubbingSessionTest {
 
     @Test
     fun `coverification nested inside stubbing does not break the outer stubbing`() {
-        val verified = mockk<Dependency> {
-            every { toTest() } returns 5
-        }
+        val verified =
+            mockk<Dependency> {
+                every { toTest() } returns 5
+            }
         verified.toTest()
 
         val service = mockk<Service>()
