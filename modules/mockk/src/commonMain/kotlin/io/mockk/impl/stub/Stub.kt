@@ -42,6 +42,15 @@ interface Stub : Disposable {
 
     fun markCallVerified(invocation: Invocation)
 
+    /**
+     * Marks the answer registered for [matcher] as used, without it being matched to an
+     * invocation. Needed for getter stubs whose constant answer is written into the
+     * mock's backing field: such a stub changes the mock's behavior without the getter
+     * ever being intercepted, so its usage count would stay at zero and
+     * `checkUnnecessaryStub` would wrongly report it (issue #1345).
+     */
+    fun markAnswerUsed(matcher: InvocationMatcher)
+
     fun verifiedCalls(): List<Invocation>
 
     fun matcherUsages(): Map<InvocationMatcher, Int>

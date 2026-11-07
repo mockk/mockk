@@ -991,6 +991,7 @@ public final class io/mockk/impl/stub/ConstructorStub : io/mockk/impl/stub/Stub 
 	public fun getThreadId ()J
 	public fun getType ()Lkotlin/reflect/KClass;
 	public fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun markAnswerUsed (Lio/mockk/InvocationMatcher;)V
 	public fun markCallVerified (Lio/mockk/Invocation;)V
 	public fun matcherUsages ()Ljava/util/Map;
 	public fun recordCall (Lio/mockk/Invocation;)V
@@ -1026,6 +1027,7 @@ public class io/mockk/impl/stub/MockKStub : io/mockk/impl/stub/Stub {
 	public fun getThreadId ()J
 	public fun getType ()Lkotlin/reflect/KClass;
 	public fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun markAnswerUsed (Lio/mockk/InvocationMatcher;)V
 	public fun markCallVerified (Lio/mockk/Invocation;)V
 	public fun matcherUsages ()Ljava/util/Map;
 	public fun recordCall (Lio/mockk/Invocation;)V
@@ -1068,6 +1070,7 @@ public abstract interface class io/mockk/impl/stub/Stub : io/mockk/impl/platform
 	public abstract fun getThreadId ()J
 	public abstract fun getType ()Lkotlin/reflect/KClass;
 	public abstract fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public abstract fun markAnswerUsed (Lio/mockk/InvocationMatcher;)V
 	public abstract fun markCallVerified (Lio/mockk/Invocation;)V
 	public abstract fun matcherUsages ()Ljava/util/Map;
 	public abstract fun recordCall (Lio/mockk/Invocation;)V
