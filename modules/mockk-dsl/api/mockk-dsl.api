@@ -687,6 +687,7 @@ public abstract interface class io/mockk/MockKGateway$AnswerOpportunity {
 public abstract interface class io/mockk/MockKGateway$CallRecorder {
 	public abstract fun answerOpportunity ()Lio/mockk/MockKGateway$AnswerOpportunity;
 	public abstract fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
+	public abstract fun cancelRecordingSession ()V
 	public abstract fun discardLastCallRound ()V
 	public abstract fun done ()V
 	public abstract fun estimateCallRounds ()I

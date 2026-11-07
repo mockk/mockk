@@ -43,7 +43,7 @@ abstract class CallRecordingState(
 
     private fun cancelAndThrowBadRecordingState(): Nothing {
         val state = recorder.state
-        recorder.reset()
+        recorder.cancelRecordingSession()
         if (state is StubbingAwaitingAnswerState) {
             throw MockKException("Bad recording sequence. Please finalize every { ... } block with returns/answers/just Runs")
         } else {
