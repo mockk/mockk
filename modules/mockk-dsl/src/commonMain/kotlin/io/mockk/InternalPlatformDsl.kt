@@ -55,7 +55,9 @@ expect object InternalPlatformDsl {
      * Normally this simply casts [arg] to `T`
      *
      * However, if `T` is a `value class` (of type [cls]) this will construct a new instance of the
-     * value class, and set [arg] as the value.
+     * value class, and set [arg] as the value — but only when [arg] is not already an instance of
+     * the value class, i.e. only when [arg] actually holds an unboxed value. An already boxed
+     * argument is captured as-is instead of being boxed a second time.
      */
     internal fun <T : Any> boxCast(
         cls: KClass<*>,
