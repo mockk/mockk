@@ -2,12 +2,15 @@ package io.mockk.impl.stub
 
 import io.mockk.Answer
 import io.mockk.Call
+import io.mockk.InvocationMatcher
 import io.mockk.ManyAnswersAnswer
 import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.impl.InternalPlatform
 
 class AnswerAnsweringOpportunity<T>(
+    private val stub: Stub? = null,
+    private val matcher: InvocationMatcher? = null,
     private val matcherStr: () -> String,
 ) : MockKGateway.AnswerOpportunity<T>,
     Answer<T> {
@@ -41,5 +44,15 @@ class AnswerAnsweringOpportunity<T>(
         InternalPlatform.synchronized(this) {
             firstAnswerHandlers.add(handler)
         }
+    }
+
+    /**
+     * Exempts the answer this opportunity is registered with from the unnecessary stubbing
+     * check (issue #1272). Called by the stubbing evaluator when the stub was created inside
+     * a `lenient { ... }` block.
+     */
+    fun markLenient() {
+        val matcher = matcher ?: return
+        stub?.markAnswerLenient(matcher)
     }
 }

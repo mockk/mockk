@@ -25,21 +25,24 @@ class StubbingAwaitingAnswerState(
         for ((idx, recordedCall) in calls.withIndex()) {
             val lastCall = idx == calls.size - 1
 
-            val ans =
-                if (lastCall) {
-                    answerOpportunity =
-                        AnswerAnsweringOpportunity<Any> {
-                            recorder.safeExec { recordedCall.matcher.toString() }
-                        }
-                    answerOpportunity
-                } else if (recordedCall.isRetValueMock) {
-                    ConstantAnswer(recordedCall.retValue)
-                } else {
-                    continue
-                }
+            if (!lastCall && !recordedCall.isRetValueMock) continue
 
             val mock = recordedCall.matcher.self
             val stub = recorder.stubRepo.stubFor(mock)
+
+            val ans =
+                if (lastCall) {
+                    answerOpportunity =
+                        AnswerAnsweringOpportunity<Any>(
+                            stub,
+                            recordedCall.matcher,
+                        ) {
+                            recorder.safeExec { recordedCall.matcher.toString() }
+                        }
+                    answerOpportunity
+                } else {
+                    ConstantAnswer(recordedCall.retValue)
+                }
 
             stub.addAnswer(recordedCall.matcher, ans)
 

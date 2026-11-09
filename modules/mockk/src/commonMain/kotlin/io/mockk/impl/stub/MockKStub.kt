@@ -222,6 +222,12 @@ open class MockKStub(
         }
     }
 
+    override fun markAnswerLenient(matcher: InvocationMatcher) {
+        InternalPlatform.synchronized(answers) {
+            answers.lastOrNull { it.matcher == matcher }?.lenient = true
+        }
+    }
+
     override fun verifiedCalls(): List<Invocation> {
         InternalPlatform.synchronized(verifiedCalls) {
             return verifiedCalls.toList()
@@ -231,6 +237,14 @@ open class MockKStub(
     override fun matcherUsages(): Map<InvocationMatcher, Int> =
         InternalPlatform.synchronized(answers) {
             answers.associate { it.matcher to it.usageCount }
+        }
+
+    override fun lenientMatchers(): Set<InvocationMatcher> =
+        InternalPlatform.synchronized(answers) {
+            answers
+                .filter { it.lenient }
+                .map { it.matcher }
+                .toSet()
         }
 
     override fun toStr() = "${type.simpleName}($name)"
@@ -346,6 +360,7 @@ open class MockKStub(
         val matcher: InvocationMatcher,
         val answer: Answer<*>,
         var usageCount: Int,
+        var lenient: Boolean = false,
     )
 
     protected fun Invocation.allEqMatcher() =

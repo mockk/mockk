@@ -165,6 +165,16 @@ interface MockKGateway {
         fun <T> every(
             mockBlock: (MockKMatcherScope.() -> T)?,
             coMockBlock: (suspend MockKMatcherScope.() -> T)?,
+        ): MockKStubScope<T, T> = every(mockBlock, coMockBlock, lenient = false)
+
+        /**
+         * Same as [every], with [lenient] marking the freshly created stubs as exempt from
+         * the unnecessary stubbing check ([VerificationAcknowledger.checkUnnecessaryStub]).
+         */
+        fun <T> every(
+            mockBlock: (MockKMatcherScope.() -> T)?,
+            coMockBlock: (suspend MockKMatcherScope.() -> T)?,
+            lenient: Boolean,
         ): MockKStubScope<T, T>
     }
 

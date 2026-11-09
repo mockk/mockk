@@ -211,6 +211,76 @@ fun coJustRun(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubBlo
 fun coJustAwait(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubBlock) just Awaits
 
 /**
+ * Stubbing block in which every stub is declared lenient.
+ *
+ * Stubs created inside the block with [every], [coEvery], [justRun] or [coJustRun] are exempt
+ * from [checkUnnecessaryStub]: when such a stub is never matched by the tested code it is not
+ * reported as an unnecessary stubbing. Stubs declared outside of the block keep the default
+ * behavior and are still reported.
+ *
+ * Useful for stubs that are kept for readability or robustness of the test (for example an
+ * argument permutation that the tested code may or may not reach), so that an uncalled stub
+ * does not fail the test.
+ *
+ * Only stubs declared lexically inside the block are affected: within the block the stubbing
+ * functions resolve against the block scope, shadowing the regular top-level ones.
+ *
+ * Example:
+ * ```
+ * val navigator = mockk<Navigator>()
+ *
+ * every { navigator.currentLocation } returns "Home"
+ *
+ * lenient {
+ *     every { navigator.moveHistory } returns emptyList()
+ * }
+ * ```
+ *
+ * @see [every]
+ * @see [coEvery]
+ * @see [checkUnnecessaryStub]
+ */
+inline fun <T> lenient(block: LenientStubbingScope.() -> T): T = LenientStubbingScope().block()
+
+/**
+ * Scope of a [lenient] block. Part of DSL.
+ *
+ * Declares the same stubbing entry points as the regular top-level functions, but the stubs
+ * created through them are exempt from [checkUnnecessaryStub] (issue #1272).
+ */
+class LenientStubbingScope {
+    /**
+     * Same as the top-level [every], but the created stubs are exempt from
+     * [checkUnnecessaryStub].
+     */
+    fun <T> every(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
+        MockK.useImpl {
+            MockKDsl.internalEvery(stubBlock, lenient = true)
+        }
+
+    /**
+     * Same as the top-level [coEvery], but the created stubs are exempt from
+     * [checkUnnecessaryStub].
+     */
+    fun <T> coEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> =
+        MockK.useImpl {
+            MockKDsl.internalCoEvery(stubBlock, lenient = true)
+        }
+
+    /**
+     * Same as the top-level [justRun], but the created stubs are exempt from
+     * [checkUnnecessaryStub].
+     */
+    fun justRun(stubBlock: MockKMatcherScope.() -> Unit) = every(stubBlock) just Runs
+
+    /**
+     * Same as the top-level [coJustRun], but the created stubs are exempt from
+     * [checkUnnecessaryStub].
+     */
+    fun coJustRun(stubBlock: suspend MockKMatcherScope.() -> Unit) = coEvery(stubBlock) just Runs
+}
+
+/**
  * Verifies that calls were made in the past. Part of DSL.
  *
  * @param ordering how the verification should be ordered
