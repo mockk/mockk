@@ -4,12 +4,14 @@ import io.mockk.CapturingSlotMatcher
 import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
+import io.mockk.Matcher
 import io.mockk.MockKException
 import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.VerificationResult
 import io.mockk.MockKSettings
 import io.mockk.RecordedCall
+import io.mockk.TypedMatcher
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.Ref
 import io.mockk.impl.log.SafeToString
@@ -212,10 +214,55 @@ open class UnorderedCallVerifier(
         val str = StringBuilder()
         for ((i, arg) in invocation.args.withIndex()) {
             val argMatcher = matcher.args[i]
-            val matches = argMatcher.match(arg)
+            val (matches, typeMismatch) = matchArgForReport(argMatcher, arg)
             val argStr = safeToString.exec { arg.toStr() }
-            str.append("[$i]: argument: $argStr, matcher: $argMatcher, result: ${if (matches) "+" else "-"}\n")
+            val result =
+                if (typeMismatch) {
+                    "- (argument type mismatch: ${typeMismatchMsg(argMatcher, arg)})"
+                } else {
+                    if (matches) "+" else "-"
+                }
+            str.append("[$i]: argument: $argStr, matcher: $argMatcher, result: $result\n")
         }
         return str.toString()
+    }
+
+    /**
+     * Evaluates a single argument matcher for the failure report.
+     *
+     * A matcher expecting a specific argument type is not run against an incompatible
+     * recorded argument: custom matcher code may cast its argument and would throw a
+     * [ClassCastException] instead of contributing a "no match" to the report.
+     *
+     * Returns whether the argument matches and whether a type mismatch was detected.
+     */
+    private fun matchArgForReport(
+        argMatcher: Matcher<Any>,
+        arg: Any?,
+    ): Pair<Boolean, Boolean> {
+        if (arg != null && argMatcher is TypedMatcher && !argMatcher.checkType(arg)) {
+            return false to true
+        }
+        return try {
+            argMatcher.match(arg) to false
+        } catch (ignored: ClassCastException) {
+            false to true
+        }
+    }
+
+    private fun typeMismatchMsg(
+        argMatcher: Matcher<Any>,
+        arg: Any?,
+    ): String {
+        val expected = (argMatcher as? TypedMatcher)?.argumentType?.simpleName
+        val actual =
+            arg
+                ?.let { it::class.simpleName ?: it::class.toString() }
+                ?: "null"
+        return if (expected == null) {
+            "actual $actual"
+        } else {
+            "expected $expected, actual $actual"
+        }
     }
 }
