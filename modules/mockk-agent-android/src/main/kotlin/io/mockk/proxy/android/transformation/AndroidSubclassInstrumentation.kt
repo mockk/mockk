@@ -61,14 +61,18 @@ internal class AndroidSubclassInstrumentation(
 
         fillInAbstractAndNonAbstract(clazz)
 
-        fun Class<*>.allSuperInterfaces(): Set<Class<*>> {
-            val setOfInterfaces = this.interfaces.toSet()
-            return setOfInterfaces + setOfInterfaces.flatMap { it.allSuperInterfaces() }
+        fun Class<*>.allInterfacesIncludingSelf(): Set<Class<*>> {
+            val result = mutableSetOf<Class<*>>()
+            result.add(this)
+            for (intf in this.interfaces) {
+                result.addAll(intf.allInterfacesIncludingSelf())
+            }
+            return result
         }
 
         (clazz.interfaces + interfaces)
             .asSequence()
-            .flatMap { it.allSuperInterfaces().asSequence() }
+            .flatMap { it.allInterfacesIncludingSelf().asSequence() }
             .flatMap { it.methods.asSequence() }
             .map { MethodSetEntry(it) }
             .filterNot { it in nonAbstractMethods }
