@@ -1,6 +1,5 @@
 package io.mockk.proxy.android;
 
-import android.os.AsyncTask;
 import android.util.ArraySet;
 import io.mockk.proxy.MockKInvocationHandler;
 import org.jetbrains.annotations.NotNull;
@@ -9,6 +8,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A map mock -> adapter that holds weak references to the mocks and cleans them up when a
@@ -22,7 +22,7 @@ public class AndroidMockKMap extends ReferenceQueue<Object>
     private final Object lock = new Object();
     private StrongKey cachedKey;
 
-    private HashMap<WeakKey, MockKInvocationHandler> adapters = new HashMap<>();
+    private ConcurrentHashMap<WeakKey, MockKInvocationHandler> adapters = new ConcurrentHashMap<>();
 
     /**
      * The time we issues the last cleanup
@@ -137,25 +137,20 @@ public class AndroidMockKMap extends ReferenceQueue<Object>
             }
 
             isCleaning = true;
-
-            AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (lock) {
-                        while (true) {
-                            Reference<?> ref = AndroidMockKMap.this.poll();
-                            if (ref == null) {
-                                break;
-                            }
-
-                            adapters.remove(ref);
-                        }
-
-                        mLastCleanup = System.currentTimeMillis();
-                        isCleaning = false;
+            try {
+                while (true) {
+                    Reference<?> ref = poll();
+                    if (ref == null) {
+                        break;
                     }
+
+                    adapters.remove(ref);
                 }
-            });
+
+                mLastCleanup = System.currentTimeMillis();
+            } finally {
+                isCleaning = false;
+            }
         }
     }
 
