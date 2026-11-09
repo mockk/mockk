@@ -1389,6 +1389,126 @@ assertFalse(child.superCalled)
 
 This approach allows you to isolate the logic within your method for unit testing without executing unwanted parent class behavior.
 
+## Usage patterns and anti-patterns
+
+This section collects recurring usage patterns that help keeping test suites small and readable, together with anti-patterns that are better avoided.
+
+### Extracting shared stubbing blocks
+
+When the same set of stubbings is needed in several tests, or several mocks of the same type need almost the same configuration, define the stubbing block once as a lambda with the mocked type as receiver and pass it to the `block` parameter of `mockk`:
+
+```kotlin
+enum class Direction { NORTH, SOUTH, EAST, WEST }
+enum class DoorType { FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT }
+enum class Outcome { OK, ERROR }
+enum class WindowState { UP, DOWN }
+
+class Window {
+    fun windowState(): WindowState = WindowState.UP
+}
+
+class Car {
+    fun drive(direction: Direction): Outcome = Outcome.OK
+    fun door(doorType: DoorType): Window = Window()
+}
+
+val baseStubbings: Car.() -> Unit = {
+    every { drive(Direction.NORTH) } returns Outcome.OK
+    every { door(DoorType.FRONT_LEFT).windowState() } returns WindowState.UP
+}
+
+val first = mockk<Car>(block = baseStubbings)
+
+val second = mockk<Car> {
+    baseStubbings()
+    // redefine a subset of stubbings, everything else is inherited
+    every { drive(Direction.SOUTH) } returns Outcome.ERROR
+}
+```
+
+Invoking the lambda inside a `mockk { ... }` block applies it to the newly created mock, so shared stubbings can be combined with mock-specific ones. The stubbings of `first` and `second` are completely independent.
+
+### Extracting shared verification blocks
+
+Repeated verification blocks can be extracted the same way, as extension functions on `MockKVerificationScope`:
+
+```kotlin
+val car = mockk<Car> {
+    every { drive(any()) } returns Outcome.OK
+    every { door(any()).windowState() } returns WindowState.UP
+}
+
+car.drive(Direction.NORTH)
+car.door(DoorType.FRONT_LEFT).windowState()
+
+fun MockKVerificationScope.carWasDrivenNorth(car: Car) {
+    car.drive(Direction.NORTH)
+    car.door(DoorType.FRONT_LEFT).windowState()
+}
+
+verify {
+    carWasDrivenNorth(car)
+}
+```
+
+The extension function can be reused from every test that needs to check the same calls, and can take parameters such as the mock to verify or the expected arguments.
+
+### Extracting shared argument matchers
+
+Common argument matchers can be extracted as extension functions on `MockKMatcherScope`; see [Matcher extensibility](#matcher-extensibility) for how to build custom matchers with the `match` function:
+
+```kotlin
+fun MockKMatcherScope.cardinalDirection() = match<Direction> { direction ->
+    direction == Direction.NORTH || direction == Direction.SOUTH
+}
+
+every { car.drive(cardinalDirection()) } returns Outcome.OK
+
+verify {
+    car.drive(cardinalDirection())
+}
+```
+
+### Anti-patterns
+
+Some ways of using a mocking framework make tests harder to understand and maintain. The following anti-patterns come up regularly and are better avoided.
+
+#### Don't mock data classes
+
+Data classes are plain value holders: their generated `equals`, `hashCode`, `copy` and destructuring functions are what makes them useful, and none of that survives being mocked. A real instance is simpler to set up than a mock and keeps the value semantics intact:
+
+```kotlin
+data class Money(val amount: Int, val currency: String)
+
+// anti-pattern: mocking a simple value holder
+val mockedMoney = mockk<Money> {
+    every { amount } returns 42
+    every { currency } returns "EUR"
+}
+
+// preferred: a real instance needs no stubbing at all
+val money = Money(amount = 42, currency = "EUR")
+```
+
+If a test only depends on the values carried by a data class, construct the instance: mocking it hides what the test actually needs and breaks `equals` and `copy`-based expectations.
+
+#### Don't copy-paste stubbing and verification blocks
+
+Duplicating the same `every { ... }` or `verify { ... }` lines across tests makes the suite brittle: when a production signature changes, every copy has to be updated in lockstep. Extract shared stubbing, verification and matcher blocks once, as shown in the patterns above, and apply them wherever needed:
+
+```kotlin
+// the same stubbings copy-pasted in every test
+val car = mockk<Car> {
+    every { drive(Direction.NORTH) } returns Outcome.OK
+    every { door(DoorType.FRONT_LEFT).windowState() } returns WindowState.UP
+}
+```
+
+```kotlin
+// extracted once and applied to any Car mock
+val car = mockk<Car>(block = baseStubbings)
+```
+
 ## Matcher extensibility
 
 A very simple way to create new matchers is by attaching a function
