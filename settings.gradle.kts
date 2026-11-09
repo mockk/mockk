@@ -25,6 +25,7 @@ include(
     ":modules:mockk-dsl",
     ":modules:mockk-bdd",
     ":modules:mockk-context-parameters",
+    ":modules:mockk-bom",
     ":modules:dokka",
 
     ":test-modules:client-tests",

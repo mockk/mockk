@@ -43,7 +43,10 @@ publishing {
             description.set(provider { mavenDescription })
         }
 
-        artifact(tasks.provider<Jar>("javadocJar"))
+        // java-platform projects (e.g. the mockk-bom) have no javadoc jar
+        if ("javadocJar" in tasks.names) {
+            artifact(tasks.provider<Jar>("javadocJar"))
+        }
 
         repositories {
             maven {
