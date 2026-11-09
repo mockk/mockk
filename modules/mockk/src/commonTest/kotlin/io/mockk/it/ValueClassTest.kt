@@ -541,6 +541,108 @@ class ValueClassTest {
     }
     // </editor-fold>
 
+    // <editor-fold desc="capture of arguments passed as Any (issue #1292)">
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `capturing Result argument passed as Any is not boxed twice`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val slot = slot<Result<Int>>()
+
+        mock.consume(Result.success(5))
+
+        verify(exactly = 1) { mock.consume(capture(slot)) }
+        assertEquals(Result.success(5), slot.captured)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `capturing value class argument passed as Any is not boxed twice`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val slot = slot<DummyValue>()
+
+        mock.consume(dummyValueClassArg)
+
+        verify(exactly = 1) { mock.consume(capture(slot)) }
+        assertEquals(dummyValueClassArg, slot.captured)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `capturing nested value class argument passed as Any is not boxed twice`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val slot = slot<DummyValueWrapper>()
+
+        mock.consume(dummyValueWrapperArg)
+
+        verify(exactly = 1) { mock.consume(capture(slot)) }
+        assertEquals(dummyValueWrapperArg, slot.captured)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `capturing plain argument passed as Any captures value as-is`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val slot = slot<String>()
+
+        mock.consume("plain")
+
+        verify(exactly = 1) { mock.consume(capture(slot)) }
+        assertEquals("plain", slot.captured)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `stubbed capture of Result argument passed as Any is not boxed twice`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val slot = slot<Result<Int>>()
+
+        every { mock.consume(capture(slot)) } returns Unit
+
+        mock.consume(Result.success(7))
+
+        assertEquals(Result.success(7), slot.captured)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `capturing Result argument passed as Any to a list is not boxed twice`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val captured = mutableListOf<Result<Int>>()
+
+        mock.consume(Result.success(3))
+        mock.consume(Result.success(4))
+
+        verify(exactly = 2) { mock.consume(capture(captured)) }
+        assertEquals(listOf(Result.success(3), Result.success(4)), captured)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `capturing into nullable slot with value class argument passed as Any is not boxed twice`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val slot = slot<DummyValue?>()
+
+        mock.consumeNullable(dummyValueClassArg)
+
+        verify(exactly = 1) { mock.consumeNullable(captureNullable(slot)) }
+        assertEquals(dummyValueClassArg, slot.captured)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1292 */
+    @Test
+    fun `capturing nullable value class argument and null into a list passed as Any`() {
+        val mock = mockk<AnyConsumer>(relaxed = true)
+        val captured = mutableListOf<DummyValue?>()
+
+        mock.consumeNullable(dummyValueClassArg)
+        mock.consumeNullable(null)
+
+        verify(exactly = 2) { mock.consumeNullable(captureNullable(captured)) }
+        assertEquals(listOf<DummyValue?>(dummyValueClassArg, null), captured)
+    }
+    // </editor-fold>
+
     // <editor-fold desc="arg=None, return=UInt">
 
     /** https://github.com/mockk/mockk/issues/729 */
@@ -971,6 +1073,12 @@ class ValueClassTest {
 
         interface UserOfMyToken {
             fun useMyToken(myToken: MyToken)
+        }
+
+        interface AnyConsumer {
+            fun consume(value: Any)
+
+            fun consumeNullable(value: Any?)
         }
 
         // Test case for nullable value class
