@@ -10,6 +10,7 @@ import net.bytebuddy.ByteBuddy
 import net.bytebuddy.TypeCache
 import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.dynamic.loading.MultipleParentClassLoader
+import net.bytebuddy.dynamic.scaffold.MethodGraph
 import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.implementation.attribute.MethodAttributeAppender
 import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
@@ -32,6 +33,34 @@ internal class SubclassInstrumentation(
     private lateinit var interceptor: JvmMockKProxyInterceptor
 
     /**
+     * The graph compiler that keeps `finalize()` out of the way of interface-declared methods of the
+     * same name (#1212). The default compiler merges methods by name and parameter types, ignoring
+     * the return type, so an interface-declared `finalize()` (whatever its return type) shares a
+     * graph node with the `finalize()` declared by `java.lang.Object`. The node is represented by the
+     * concrete `Object` one, which the ignore matcher below drops, and the whole node goes with it -
+     * the generated `$Subclass` is left without an implementation of the interface method, failing
+     * with an [AbstractMethodError] (non-`Unit` return) or an [IllegalAccessError] (`Unit` return,
+     * the call falls through to the `protected` `Object.finalize`).
+     *
+     * Filtering methods *declared by* `java.lang.Object` out of the graph before resolution breaks
+     * that merge. The interface-declared `finalize()` then gets a node of its own, represented by
+     * itself, and is implemented like any other virtual method. `Object.finalize` itself is gone
+     * from the graph, so it stays overridden by no proxy and garbage collection keeps calling the
+     * original finalizer - the JVM-level finalize semantics are untouched. Only the `Object`-declared
+     * method is filtered: a class-level `finalize()` is declared by the class itself, keeps its node
+     * and behaves exactly as before.
+     *
+     * The harmonizer, merger and visitor are the ones [MethodGraph.Compiler.DEFAULT] is built from,
+     * so this is that compiler plus the method filter.
+     */
+    private val defaultFinalizerExcludingMethodGraphCompiler =
+        MethodGraph.Compiler.Default.of(
+            MethodGraph.Compiler.Default.Harmonizer.ForJavaMethod.INSTANCE,
+            MethodGraph.Compiler.Default.Merger.Directional.LEFT,
+            not<MethodDescription>(isDefaultFinalizer<MethodDescription>()),
+        )
+
+    /**
      * Byte Buddy ignores synthetic methods by default, so a subclass proxy would leave any abstract
      * method flagged `ACC_SYNTHETIC` unimplemented and fail with an [AbstractMethodError] when it is
      * called. Kotlin flags members annotated with `@JvmSynthetic` (including the `@get:`/`@set:`
@@ -44,11 +73,13 @@ internal class SubclassInstrumentation(
      * the erased signature.
      */
     private val subclassingByteBuddy =
-        byteBuddy.ignore(
-            isSynthetic<MethodDescription>()
-                .and(not(isAbstract()))
-                .or(isDefaultFinalizer()),
-        )
+        byteBuddy
+            .with(defaultFinalizerExcludingMethodGraphCompiler)
+            .ignore(
+                isSynthetic<MethodDescription>()
+                    .and(not(isAbstract()))
+                    .or(isDefaultFinalizer()),
+            )
 
     init {
         class AdviceBuilder {
