@@ -140,6 +140,11 @@ class JvmConstructorMockFactory(
 
         private fun allHandlers() = (handlers.values + listOfNotNull(allHandler))
 
+        fun representativeMocks(): List<Any> =
+            synchronized(handlers) {
+                allHandlers().map { it.representativeMock }
+            }
+
         fun clear(options: MockKGateway.ClearOptions) {
             val mocks =
                 synchronized(handlers) {
@@ -290,6 +295,8 @@ class JvmConstructorMockFactory(
                         "build mockkConstructor<T>() and 'use' it",
                 ),
         )
+
+    override fun representativeMocks(cls: KClass<*>): List<Any> = getMockVariant(cls)?.representativeMocks() ?: emptyList()
 
     override fun clear(
         type: KClass<*>,

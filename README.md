@@ -523,6 +523,19 @@ Mocking behavior of such a mock is connected to the special `prototype mock` den
 There is one instance per class of such a `prototype mock`. Call recording also happens to the `prototype mock`.
 If no behavior for the function is specified, then the original function is executed.
 
+A bare `anyConstructed<MockCls>()` placeholder can also be verified on its own to check that no constructed
+instance of the class was used at all:
+
+```kotlin
+mockkConstructor(MockCls::class)
+
+verify(exactly = 0) { anyConstructed<MockCls>() } // passes while no constructed instance was used
+
+MockCls().add(1, 2)
+
+verify(exactly = 0) { anyConstructed<MockCls>() } // fails, reporting the recorded calls
+```
+
 In case a class has more than one constructor, each can be mocked separately:
 
 ```kotlin

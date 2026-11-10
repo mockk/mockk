@@ -2849,7 +2849,11 @@ open class MockKMatcherScope(
             InternalPlatformDsl.dynamicCall(self, methodName, args.toTypedArray(), anyContinuationGen)
     }
 
-    inline fun <reified T : Any> anyConstructed(): T = MockKGateway.implementation().constructorMockFactory.mockPlaceholder(T::class)
+    inline fun <reified T : Any> anyConstructed(): T {
+        val placeholder = MockKGateway.implementation().constructorMockFactory.mockPlaceholder(T::class)
+        callRecorder.constructorPlaceholder(placeholder)
+        return placeholder
+    }
 
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any> constructedWith(vararg matchers: Matcher<*>): T =

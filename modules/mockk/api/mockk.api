@@ -368,6 +368,7 @@ public final class io/mockk/impl/instantiation/JvmConstructorMockFactory : io/mo
 	public final fun getObjectProxyMaker ()Lio/mockk/proxy/MockKProxyMaker;
 	public final fun isMock (Lkotlin/reflect/KClass;)Z
 	public fun mockPlaceholder (Lkotlin/reflect/KClass;[Lio/mockk/Matcher;)Ljava/lang/Object;
+	public fun representativeMocks (Lkotlin/reflect/KClass;)Ljava/util/List;
 }
 
 public final class io/mockk/impl/instantiation/JvmConstructorMockFactory$ConstructorInvocationHandler : io/mockk/proxy/MockKInvocationHandler {
@@ -397,6 +398,7 @@ public final class io/mockk/impl/instantiation/JvmConstructorMockFactory$Constru
 	public final fun getCls ()Lkotlin/reflect/KClass;
 	public final fun getMock ([Ljava/lang/Object;)Lio/mockk/impl/instantiation/JvmConstructorMockFactory$ConstructorMock;
 	public final fun getRepresentative ([Lio/mockk/Matcher;)Ljava/lang/Object;
+	public final fun representativeMocks ()Ljava/util/List;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -732,6 +734,7 @@ public final class io/mockk/impl/recording/CommonCallRecorder : io/mockk/MockKGa
 	public fun answerOpportunity ()Lio/mockk/MockKGateway$AnswerOpportunity;
 	public fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
 	public fun cancelRecordingSession ()V
+	public fun constructorPlaceholder (Ljava/lang/Object;)V
 	public fun discardLastCallRound ()V
 	public fun done ()V
 	public fun estimateCallRounds ()I
@@ -739,6 +742,7 @@ public final class io/mockk/impl/recording/CommonCallRecorder : io/mockk/MockKGa
 	public final fun getAnyValueGenerator ()Lkotlin/jvm/functions/Function0;
 	public fun getCalls ()Ljava/util/List;
 	public final fun getChildHinter ()Lio/mockk/impl/recording/ChildHinter;
+	public final fun getConstructorPlaceholders ()Ljava/util/List;
 	public final fun getFactories ()Lio/mockk/impl/recording/CallRecorderFactories;
 	public final fun getInitialState ()Lkotlin/jvm/functions/Function1;
 	public final fun getInstantiator ()Lio/mockk/impl/instantiation/AbstractInstantiator;
@@ -1138,6 +1142,16 @@ public final class io/mockk/impl/verify/AllCallsCallVerifier : io/mockk/impl/ver
 public class io/mockk/impl/verify/AnyCallVerifier : io/mockk/MockKGateway$CallVerifier {
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/log/SafeToString;)V
 	public fun captureArguments ()V
+	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
+	public final fun getStubRepo ()Lio/mockk/impl/stub/StubRepository;
+	public fun verify (Ljava/util/List;Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/MockKGateway$VerificationResult;
+}
+
+public class io/mockk/impl/verify/ConstructorAggregateVerifier : io/mockk/MockKGateway$CallVerifier {
+	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/MockKGateway$ConstructorMockFactory;Lio/mockk/impl/log/SafeToString;Ljava/util/List;)V
+	public fun captureArguments ()V
+	public final fun getConstructorMockFactory ()Lio/mockk/MockKGateway$ConstructorMockFactory;
+	public final fun getPlaceholders ()Ljava/util/List;
 	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
 	public final fun getStubRepo ()Lio/mockk/impl/stub/StubRepository;
 	public fun verify (Ljava/util/List;Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/MockKGateway$VerificationResult;
