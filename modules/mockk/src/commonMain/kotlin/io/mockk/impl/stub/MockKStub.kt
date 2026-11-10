@@ -38,6 +38,7 @@ open class MockKStub(
         InternalPlatform.synchronizedMutableMap<MethodDescription, MutableList<Invocation>>()
     private val exclusions = InternalPlatform.synchronizedMutableList<InvocationMatcher>()
     private val verifiedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
+    private val unansweredCalls = InternalPlatform.synchronizedMutableList<Invocation>()
 
     lateinit var hashCodeStr: String
 
@@ -57,20 +58,29 @@ open class MockKStub(
                 answers
                     .findLast { it.matcher.match(invocation) }
                     ?.also { it.usageCount++ }
-            } ?: return defaultAnswer(invocation)
+            }
+
+        if (invocationAndMatcher == null) {
+            return defaultAnswer(invocation)
+        }
 
         return with(invocationAndMatcher) {
-            matcher.captureAnswer(invocation)
+            try {
+                matcher.captureAnswer(invocation)
 
-            val call =
-                Call(
-                    invocation.method.returnType,
-                    invocation,
-                    matcher,
-                    invocation.fieldValueProvider,
-                )
+                val call =
+                    Call(
+                        invocation.method.returnType,
+                        invocation,
+                        matcher,
+                        invocation.fieldValueProvider,
+                    )
 
-            answer.answer(call)
+                answer.answer(call)
+            } catch (ex: Exception) {
+                markCallUnanswered(invocation)
+                throw ex
+            }
         }
     }
 
@@ -113,6 +123,7 @@ open class MockKStub(
                             )}) [${matcher.method.typedSignature()}]"
                         }
                     }
+                markCallUnanswered(invocation)
                 throw MockKException(
                     "no answer found for ${
                         gatewayAccess.safeToString.exec {
@@ -175,6 +186,23 @@ open class MockKStub(
         }
     }
 
+    /**
+     * Marks [invocation] as reached-but-unanswered: it either found no stubbed answer
+     * (and the mock is not relaxed, see [defaultAnswer]) or its matched answer threw
+     * during execution (see [answer]). Purely informational: the ordered/sequence
+     * verifiers use it to append a divergence hint to failure messages (issue #959),
+     * it never affects matching or pass/fail decisions.
+     */
+    private fun markCallUnanswered(invocation: Invocation) {
+        unansweredCalls.add(invocation)
+    }
+
+    internal fun allUnansweredCalls(): List<Invocation> {
+        InternalPlatform.synchronized(unansweredCalls) {
+            return unansweredCalls.toList()
+        }
+    }
+
     override fun excludeRecordedCalls(
         params: MockKGateway.ExclusionParameters,
         matcher: InvocationMatcher,
@@ -207,6 +235,12 @@ open class MockKStub(
                     verifiedCalls
                         .filter(matcher::match)
                         .forEach { verifiedCalls.remove(it) }
+                }
+
+                InternalPlatform.synchronized(unansweredCalls) {
+                    unansweredCalls
+                        .filter(matcher::match)
+                        .forEach { unansweredCalls.remove(it) }
                 }
             }
         }
@@ -326,6 +360,7 @@ open class MockKStub(
         if (options.recordedCalls) {
             this.recordedCalls.clear()
             this.recordedCallsByMethod.clear()
+            this.unansweredCalls.clear()
         }
         if (options.childMocks) {
             this.childs.clear()
