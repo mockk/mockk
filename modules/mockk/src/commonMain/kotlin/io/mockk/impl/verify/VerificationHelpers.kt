@@ -6,6 +6,7 @@ import io.mockk.RecordedCall
 import io.mockk.StackElement
 import io.mockk.StackTracesAlignment
 import io.mockk.impl.InternalPlatform
+import io.mockk.impl.stub.MockKStub
 import io.mockk.impl.stub.StubRepository
 
 object VerificationHelpers {
@@ -103,5 +104,35 @@ object VerificationHelpers {
         verifiedMatchers: List<RecordedCall>,
     ) = matchers.joinToString("\n") {
         (if (verifiedMatchers.contains(it)) "+" else "") + it.matcher.toString()
+    }
+
+    /**
+     * Builds an additive note for ordered/sequence verification failures pointing at the call
+     * where the recorded flow most likely diverged from the expected sequence: an expected call
+     * that matches a recorded invocation which reached the mock but had no stubbed answer or
+     * threw during execution would have aborted the code under test, which is why the later
+     * calls never happened (issue #959).
+     *
+     * Messaging only: the hint never affects matching or pass/fail decisions. Only the first
+     * expected call matching an unanswered invocation is reported.
+     */
+    internal fun divergenceHint(
+        matchers: List<RecordedCall>,
+        stubRepo: StubRepository,
+    ): String {
+        val divergingMatcher =
+            matchers.firstNotNullOfOrNull { expected ->
+                val stub = stubRepo[expected.matcher.self] as? MockKStub
+                val matchesUnansweredCall =
+                    stub
+                        ?.allUnansweredCalls()
+                        ?.any { invocation ->
+                            runCatching { expected.matcher.match(invocation) }.getOrDefault(false)
+                        } == true
+
+                if (matchesUnansweredCall) expected.matcher else null
+            } ?: return ""
+        return "\n\nnote: $divergingMatcher had no stubbed answer / threw during execution" +
+            " — this is likely where the sequence diverged"
     }
 }

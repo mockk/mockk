@@ -28,7 +28,8 @@ class SequenceCallVerifier(
                         reportCalls(
                             verificationSequence,
                             allCalls,
-                        )
+                        ) +
+                        VerificationHelpers.divergenceHint(verificationSequence, stubRepo)
                 },
             )
         }
@@ -42,7 +43,8 @@ class SequenceCallVerifier(
                             reportCalls(
                                 verificationSequence,
                                 allCalls,
-                            )
+                            ) +
+                            VerificationHelpers.divergenceHint(verificationSequence, stubRepo)
                     },
                 )
             }
