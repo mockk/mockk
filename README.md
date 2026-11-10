@@ -932,6 +932,15 @@ checkUnnecessaryStub(mock1, mock2)
 It will throw an exception if there are some declared calls on the mocks that are not used by the tested code.
 This can happen if you have declared some really unnecessary stubs or if the tested code doesn't call an expected one.
 
+#### Lenient stubbing
+
+Stubs declared inside a `lenient { ... }` block are exempt from the unnecessary stubbing check: when such a stub is never used by the tested code, it is not reported by `checkUnnecessaryStub`.
+
+```kotlin
+lenient { every { foo.baz } returns true }
+```
+
+Only stubs declared inside the block are affected: reports for regular stubs declared outside of it remain unchanged.
 
 ### Recording exclusions
 

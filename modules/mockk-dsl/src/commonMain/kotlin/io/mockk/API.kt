@@ -98,14 +98,35 @@ object MockKDsl {
     /**
      * Starts a block of stubbing. Part of DSL.
      */
-    fun <T> internalEvery(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> =
-        MockKGateway.implementation().stubber.every(stubBlock, null)
+    fun <T> internalEvery(stubBlock: MockKMatcherScope.() -> T): MockKStubScope<T, T> = internalEvery(stubBlock, lenient = false)
+
+    /**
+     * Starts a block of stubbing. Part of DSL.
+     *
+     * @param lenient when `true` the stubs created by this block are exempt from
+     * [MockKDsl.internalCheckUnnecessaryStub]
+     */
+    fun <T> internalEvery(
+        stubBlock: MockKMatcherScope.() -> T,
+        lenient: Boolean,
+    ): MockKStubScope<T, T> = MockKGateway.implementation().stubber.every(stubBlock, null, lenient)
 
     /**
      * Starts a block of stubbing for coroutines. Part of DSL.
      */
     fun <T> internalCoEvery(stubBlock: suspend MockKMatcherScope.() -> T): MockKStubScope<T, T> =
-        MockKGateway.implementation().stubber.every(null, stubBlock)
+        internalCoEvery(stubBlock, lenient = false)
+
+    /**
+     * Starts a block of stubbing for coroutines. Part of DSL.
+     *
+     * @param lenient when `true` the stubs created by this block are exempt from
+     * [MockKDsl.internalCheckUnnecessaryStub]
+     */
+    fun <T> internalCoEvery(
+        stubBlock: suspend MockKMatcherScope.() -> T,
+        lenient: Boolean,
+    ): MockKStubScope<T, T> = MockKGateway.implementation().stubber.every(null, stubBlock, lenient)
 
     /**
      * Verifies calls happened in the past. Part of DSL

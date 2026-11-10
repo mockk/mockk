@@ -608,6 +608,7 @@ public final class io/mockk/MockKDsl {
 	public final fun internalClearStaticMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
 	public static synthetic fun internalClearStaticMockk$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZZZZILjava/lang/Object;)V
 	public final fun internalCoEvery (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+	public final fun internalCoEvery (Lkotlin/jvm/functions/Function2;Z)Lio/mockk/MockKStubScope;
 	public final fun internalCoExcludeRecords (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun internalCoExcludeRecords$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public final fun internalCoVerify (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;)V
@@ -623,6 +624,7 @@ public final class io/mockk/MockKDsl {
 	public final fun internalConfirmVerified ([Ljava/lang/Object;Z)V
 	public static synthetic fun internalConfirmVerified$default (Lio/mockk/MockKDsl;[Ljava/lang/Object;ZILjava/lang/Object;)V
 	public final fun internalEvery (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKStubScope;
+	public final fun internalEvery (Lkotlin/jvm/functions/Function1;Z)Lio/mockk/MockKStubScope;
 	public final fun internalExcludeRecords (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun internalExcludeRecords$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun internalInitAnnotatedMocks (Ljava/util/List;ZZZZ)V
@@ -822,6 +824,11 @@ public abstract interface class io/mockk/MockKGateway$StaticMockFactory {
 
 public abstract interface class io/mockk/MockKGateway$Stubber {
 	public abstract fun every (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+	public abstract fun every (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Z)Lio/mockk/MockKStubScope;
+}
+
+public final class io/mockk/MockKGateway$Stubber$DefaultImpls {
+	public static fun every (Lio/mockk/MockKGateway$Stubber;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
 }
 
 public abstract interface class io/mockk/MockKGateway$VerificationAcknowledger {

@@ -86,6 +86,10 @@ class ConstructorStub(
         stub.markAnswerUsed(matcher.substitute(represent))
     }
 
+    override fun markAnswerLenient(matcher: InvocationMatcher) {
+        stub.markAnswerLenient(matcher.substitute(represent))
+    }
+
     override fun allRecordedCalls() =
         stub
             .allRecordedCalls()
@@ -108,6 +112,8 @@ class ConstructorStub(
             }
 
     override fun matcherUsages() = stub.matcherUsages()
+
+    override fun lenientMatchers() = stub.lenientMatchers()
 
     override fun clear(options: MockKGateway.ClearOptions) = stub.clear(options)
 
