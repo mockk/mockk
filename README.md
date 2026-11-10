@@ -333,6 +333,31 @@ You can enable topological dependency resolution of `@InjectMockKs` by also anno
 
 This will internally process each test instance of the annotated class with `MockKAnnotations.init(useDependencyOrder==true)`.
 
+#### Nested test classes
+
+The class annotations above (`KeepMocks`, `ReleaseMocks`, `RequireParallelTesting`, `ConfirmVerification`,
+`CheckUnnecessaryStub` and `UseDependencyOrder`) also apply to the `@Nested` classes inside the annotated class:
+
+```kotlin
+@ExtendWith(MockKExtension::class)
+@MockKExtension.ConfirmVerification
+class CarTest {
+  @MockK
+  lateinit var car: Car
+
+  @Nested
+  inner class Drive {
+    @Test
+    fun drivesNorth() {
+      // confirmVerified is also called after this test
+    }
+  }
+}
+```
+
+A static nested class (one without `inner` in Kotlin) is a separate test class, so it does not pick up the
+annotations of the class it is declared in.
+
 ### Spy
 
 Spies allow you to mix mocks and real objects.
