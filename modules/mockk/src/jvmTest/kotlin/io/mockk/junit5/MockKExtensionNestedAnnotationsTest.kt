@@ -11,6 +11,7 @@ import io.mockk.unmockkObject
 import io.mockk.util.assertGarbageCollected
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -60,6 +61,29 @@ class MockKExtensionNestedAnnotationsTest {
             val result = runNestedTest<ConfirmVerificationFixture, ConfirmVerificationFixture.Inner>("verifiesCall")
 
             assertSucceeded(result)
+        }
+
+        @Test
+        fun `passes the README example, where only the top-level test verifies the outer BeforeAll call`() {
+            val results = runTests(selectClass(BeforeAllCallFixture::class.java))
+
+            assertEquals(2, results.size, "Expected startsEngine() and Drive.drives() to run")
+            results.forEach { assertSucceeded(it) }
+        }
+
+        @Test
+        fun `passes a nested test that does not verify a call made in the outer BeforeAll`() {
+            // Run alone, so no top-level test runs first and clears the call.
+            val result = runNestedTest<BeforeAllCallFixture, BeforeAllCallFixture.Drive>("drives")
+
+            assertSucceeded(result)
+        }
+
+        @Test
+        fun `fails a top-level test that does not verify a call made in the BeforeAll`() {
+            val result = runTest(selectMethod(BeforeAllCallUnverifiedFixture::class.java, "drives"))
+
+            assertFailedWith(VERIFICATION_FAILED, result)
         }
     }
 
@@ -190,6 +214,55 @@ class MockKExtensionNestedAnnotationsTest {
         }
     }
 
+    /** The `CarTest` example from the README's "Nested test classes" section. */
+    @Disabled(FIXTURE)
+    @MockKExtension.ConfirmVerification
+    @ExtendWith(MockKExtension::class)
+    class BeforeAllCallFixture {
+        companion object {
+            val engine = mockk<Engine>(relaxed = true)
+
+            @JvmStatic
+            @BeforeAll
+            fun warmUp() {
+                engine.start()
+            }
+        }
+
+        @Test
+        fun startsEngine() {
+            verify { engine.start() }
+        }
+
+        @Nested
+        inner class Drive {
+            @Test
+            fun drives() {
+                // Does not verify engine.start()
+            }
+        }
+    }
+
+    @Disabled(FIXTURE)
+    @MockKExtension.ConfirmVerification
+    @ExtendWith(MockKExtension::class)
+    class BeforeAllCallUnverifiedFixture {
+        companion object {
+            val engine = mockk<Engine>(relaxed = true)
+
+            @JvmStatic
+            @BeforeAll
+            fun warmUp() {
+                engine.start()
+            }
+        }
+
+        @Test
+        fun drives() {
+            // Does not verify engine.start()
+        }
+    }
+
     @Disabled(FIXTURE)
     @MockKExtension.CheckUnnecessaryStub
     @ExtendWith(MockKExtension::class)
@@ -310,6 +383,10 @@ class MockKExtensionNestedAnnotationsTest {
         fun call(): String = REAL
     }
 
+    interface Engine {
+        fun start()
+    }
+
     interface Repository
 
     class Service(
@@ -340,7 +417,10 @@ class MockKExtensionNestedAnnotationsTest {
             runTest(selectNestedMethod(listOf(Outer::class.java), Inner::class.java, methodName))
 
         /** Runs the single selected fixture test, with `@Disabled` turned off, and returns its result. */
-        fun runTest(selector: DiscoverySelector): TestExecutionResult =
+        fun runTest(selector: DiscoverySelector): TestExecutionResult = runTests(selector).single()
+
+        /** Runs the selected fixture tests, with `@Disabled` turned off, and returns their results in run order. */
+        fun runTests(selector: DiscoverySelector): List<TestExecutionResult> =
             EngineTestKit
                 .engine("junit-jupiter")
                 .configurationParameter("junit.jupiter.conditions.deactivate", "org.junit.*DisabledCondition")
@@ -349,8 +429,7 @@ class MockKExtensionNestedAnnotationsTest {
                 .testEvents()
                 .finished()
                 .list()
-                .single()
-                .getRequiredPayload(TestExecutionResult::class.java)
+                .map { it.getRequiredPayload(TestExecutionResult::class.java) }
 
         fun assertSucceeded(result: TestExecutionResult) {
             assertEquals(
