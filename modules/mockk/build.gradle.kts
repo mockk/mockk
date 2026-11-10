@@ -47,6 +47,7 @@ kotlin {
                 implementation(libs.junit4)
                 implementation(dependencies.platform(libs.junit.bom))
                 implementation("org.junit.jupiter:junit-jupiter")
+                implementation("org.junit.platform:junit-platform-testkit")
                 runtimeOnly("org.junit.platform:junit-platform-launcher")
             }
         }
