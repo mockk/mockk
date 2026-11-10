@@ -1209,8 +1209,18 @@ public final class io/mockk/impl/verify/VerificationHelpers {
 	public final fun stackTraces (Ljava/util/List;)Ljava/lang/String;
 }
 
+public final class io/mockk/junit4/CheckUnnecessaryStubRule : org/junit/rules/TestRule {
+	public fun <init> ()V
+	public fun apply (Lorg/junit/runners/model/Statement;Lorg/junit/runner/Description;)Lorg/junit/runners/model/Statement;
+}
+
 public final class io/mockk/junit4/MockKRule : org/junit/rules/TestWatcher, org/junit/rules/TestRule {
 	public fun <init> (Ljava/lang/Object;)V
+}
+
+public final class io/mockk/junit5/CheckUnnecessaryStubExtension : org/junit/jupiter/api/extension/AfterTestExecutionCallback {
+	public fun <init> ()V
+	public fun afterTestExecution (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
 }
 
 public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extension/AfterAllCallback, org/junit/jupiter/api/extension/AfterEachCallback, org/junit/jupiter/api/extension/BeforeAllCallback, org/junit/jupiter/api/extension/ParameterResolver, org/junit/jupiter/api/extension/TestInstancePostProcessor {

@@ -327,6 +327,39 @@ You can make sure that all stubbed methods are useful - used at least once - by 
 
 This will internally call `checkUnnecessaryStub` on all mocks after each test, to make sure there are no unnecessary stubbings.
 
+#### Per-test unnecessary stubbing attribution
+
+When the check runs once for the whole test class, the failure cannot always be tied to the test that declared the offending stub, and the test names are no longer visible in the report.
+If you need that mapping, register the opt-in `CheckUnnecessaryStubExtension` alongside `MockKExtension`: it calls `checkUnnecessaryStub` right after every test method, so JUnit reports the failure against that test and the message contains the test's display name.
+
+```kotlin
+@ExtendWith(MockKExtension::class, CheckUnnecessaryStubExtension::class)
+class CarTest {
+  @MockK
+  lateinit var car1: Car
+
+  @Test
+  fun calculateAddsValues1() {
+      // a stub declared here and not used is reported against calculateAddsValues1
+  }
+}
+```
+
+The class-level behavior of `MockKExtension` is unchanged, and the new extension only performs the check: it does not initialize or clean up mocks.
+For JUnit 4, add the analogous `CheckUnnecessaryStubRule` next to `MockKRule`:
+
+```kotlin
+class CarTest {
+  @get:Rule
+  val mockkRule = MockKRule(this)
+
+  @get:Rule
+  val checkUnnecessaryStubRule = CheckUnnecessaryStubRule()
+
+  ...
+}
+```
+
 #### Declarative enabling of dependency order
 
 You can enable topological dependency resolution of `@InjectMockKs` by also annotating your test class with `@MockKExtension.UseDependencyOrder`.
