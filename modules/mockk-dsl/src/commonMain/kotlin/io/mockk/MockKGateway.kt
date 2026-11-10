@@ -111,6 +111,14 @@ interface MockKGateway {
             args: Array<Matcher<*>>? = null,
         ): T
 
+        /**
+         * Returns all representative mocks that currently stand for constructed instances
+         * of [cls]: the aggregate representative used by `anyConstructed<T>()` plus one
+         * representative per distinct constructor invocation pattern. Returns an empty
+         * list when there is no active `mockkConstructor<T>()` session for [cls].
+         */
+        fun representativeMocks(cls: KClass<*>): List<Any> = emptyList()
+
         fun clear(
             type: KClass<*>,
             options: ClearOptions,
@@ -165,6 +173,16 @@ interface MockKGateway {
         fun <T> every(
             mockBlock: (MockKMatcherScope.() -> T)?,
             coMockBlock: (suspend MockKMatcherScope.() -> T)?,
+        ): MockKStubScope<T, T> = every(mockBlock, coMockBlock, lenient = false)
+
+        /**
+         * Same as [every], with [lenient] marking the freshly created stubs as exempt from
+         * the unnecessary stubbing check ([VerificationAcknowledger.checkUnnecessaryStub]).
+         */
+        fun <T> every(
+            mockBlock: (MockKMatcherScope.() -> T)?,
+            coMockBlock: (suspend MockKMatcherScope.() -> T)?,
+            lenient: Boolean,
         ): MockKStubScope<T, T>
     }
 
@@ -264,6 +282,16 @@ interface MockKGateway {
         fun discardLastCallRound()
 
         fun isLastCallReturnsNothing(): Boolean
+
+        /**
+         * Registers a constructor placeholder mock (the representative mock returned by
+         * `anyConstructed<T>()`) requested during the current recording session.
+         *
+         * During verification the placeholder itself then acts as an aggregate verification
+         * target: `verify(exactly = 0) { anyConstructed<T>() }` checks that no calls were
+         * recorded on any constructed instance of `T`.
+         */
+        fun constructorPlaceholder(mock: Any) {}
     }
 
     /**

@@ -14,6 +14,14 @@ public final class io/mockk/JVMMockKKt {
 	public static final fun unmockkStatic ([Lkotlin/reflect/KProperty;)V
 }
 
+public final class io/mockk/LenientStubbingScope {
+	public fun <init> ()V
+	public final fun coEvery (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+	public final fun coJustRun (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKAdditionalAnswerScope;
+	public final fun every (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKStubScope;
+	public final fun justRun (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKAdditionalAnswerScope;
+}
+
 public final class io/mockk/MockK {
 	public static final field INSTANCE Lio/mockk/MockK;
 	public final fun useImpl (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
@@ -61,6 +69,7 @@ public final class io/mockk/MockKKt {
 	public static final fun isMockKMock (Ljava/lang/Object;ZZZZZ)Z
 	public static synthetic fun isMockKMock$default (Ljava/lang/Object;ZZZZZILjava/lang/Object;)Z
 	public static final fun justRun (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKAdditionalAnswerScope;
+	public static final fun lenient (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun mockkClass (Lkotlin/reflect/KClass;Ljava/lang/String;Z[Lkotlin/reflect/KClass;ZLkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static synthetic fun mockkClass$default (Lkotlin/reflect/KClass;Ljava/lang/String;Z[Lkotlin/reflect/KClass;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun mockkConstructor ([Lkotlin/reflect/KClass;ZZ)V
@@ -261,6 +270,7 @@ public abstract interface annotation class io/mockk/impl/annotations/SpyK : java
 public final class io/mockk/impl/eval/EveryBlockEvaluator : io/mockk/impl/eval/RecordedBlockEvaluator, io/mockk/MockKGateway$Stubber {
 	public fun <init> (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
 	public fun every (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+	public fun every (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Z)Lio/mockk/MockKStubScope;
 }
 
 public final class io/mockk/impl/eval/ExcludeBlockEvaluator : io/mockk/impl/eval/RecordedBlockEvaluator, io/mockk/MockKGateway$Excluder {
@@ -358,6 +368,7 @@ public final class io/mockk/impl/instantiation/JvmConstructorMockFactory : io/mo
 	public final fun getObjectProxyMaker ()Lio/mockk/proxy/MockKProxyMaker;
 	public final fun isMock (Lkotlin/reflect/KClass;)Z
 	public fun mockPlaceholder (Lkotlin/reflect/KClass;[Lio/mockk/Matcher;)Ljava/lang/Object;
+	public fun representativeMocks (Lkotlin/reflect/KClass;)Ljava/util/List;
 }
 
 public final class io/mockk/impl/instantiation/JvmConstructorMockFactory$ConstructorInvocationHandler : io/mockk/proxy/MockKInvocationHandler {
@@ -387,6 +398,7 @@ public final class io/mockk/impl/instantiation/JvmConstructorMockFactory$Constru
 	public final fun getCls ()Lkotlin/reflect/KClass;
 	public final fun getMock ([Ljava/lang/Object;)Lio/mockk/impl/instantiation/JvmConstructorMockFactory$ConstructorMock;
 	public final fun getRepresentative ([Lio/mockk/Matcher;)Ljava/lang/Object;
+	public final fun representativeMocks ()Ljava/util/List;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -722,6 +734,7 @@ public final class io/mockk/impl/recording/CommonCallRecorder : io/mockk/MockKGa
 	public fun answerOpportunity ()Lio/mockk/MockKGateway$AnswerOpportunity;
 	public fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
 	public fun cancelRecordingSession ()V
+	public fun constructorPlaceholder (Ljava/lang/Object;)V
 	public fun discardLastCallRound ()V
 	public fun done ()V
 	public fun estimateCallRounds ()I
@@ -729,6 +742,7 @@ public final class io/mockk/impl/recording/CommonCallRecorder : io/mockk/MockKGa
 	public final fun getAnyValueGenerator ()Lkotlin/jvm/functions/Function0;
 	public fun getCalls ()Ljava/util/List;
 	public final fun getChildHinter ()Lio/mockk/impl/recording/ChildHinter;
+	public final fun getConstructorPlaceholders ()Ljava/util/List;
 	public final fun getFactories ()Lio/mockk/impl/recording/CallRecorderFactories;
 	public final fun getInitialState ()Lkotlin/jvm/functions/Function1;
 	public final fun getInstantiator ()Lio/mockk/impl/instantiation/AbstractInstantiator;
@@ -956,9 +970,11 @@ public final class io/mockk/impl/restrict/RestrictMockkConfiguration$Companion {
 }
 
 public final class io/mockk/impl/stub/AnswerAnsweringOpportunity : io/mockk/Answer, io/mockk/MockKGateway$AnswerOpportunity {
-	public fun <init> (Lkotlin/jvm/functions/Function0;)V
+	public fun <init> (Lio/mockk/impl/stub/Stub;Lio/mockk/InvocationMatcher;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lio/mockk/impl/stub/Stub;Lio/mockk/InvocationMatcher;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun answer (Lio/mockk/Call;)Ljava/lang/Object;
 	public fun coAnswer (Lio/mockk/Call;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun markLenient ()V
 	public final fun onFirstAnswer (Lkotlin/jvm/functions/Function1;)V
 	public fun provideAnswer (Lio/mockk/Answer;)V
 }
@@ -992,6 +1008,8 @@ public final class io/mockk/impl/stub/ConstructorStub : io/mockk/impl/stub/Stub 
 	public fun getThreadId ()J
 	public fun getType ()Lkotlin/reflect/KClass;
 	public fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun lenientMatchers ()Ljava/util/Set;
+	public fun markAnswerLenient (Lio/mockk/InvocationMatcher;)V
 	public fun markAnswerUsed (Lio/mockk/InvocationMatcher;)V
 	public fun markCallVerified (Lio/mockk/Invocation;)V
 	public fun matcherUsages ()Ljava/util/Map;
@@ -1028,6 +1046,8 @@ public class io/mockk/impl/stub/MockKStub : io/mockk/impl/stub/Stub {
 	public fun getThreadId ()J
 	public fun getType ()Lkotlin/reflect/KClass;
 	public fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public fun lenientMatchers ()Ljava/util/Set;
+	public fun markAnswerLenient (Lio/mockk/InvocationMatcher;)V
 	public fun markAnswerUsed (Lio/mockk/InvocationMatcher;)V
 	public fun markCallVerified (Lio/mockk/Invocation;)V
 	public fun matcherUsages ()Ljava/util/Map;
@@ -1071,6 +1091,8 @@ public abstract interface class io/mockk/impl/stub/Stub : io/mockk/impl/platform
 	public abstract fun getThreadId ()J
 	public abstract fun getType ()Lkotlin/reflect/KClass;
 	public abstract fun handleInvocation (Ljava/lang/Object;Lio/mockk/MethodDescription;Lkotlin/jvm/functions/Function0;[Ljava/lang/Object;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
+	public abstract fun lenientMatchers ()Ljava/util/Set;
+	public abstract fun markAnswerLenient (Lio/mockk/InvocationMatcher;)V
 	public abstract fun markAnswerUsed (Lio/mockk/InvocationMatcher;)V
 	public abstract fun markCallVerified (Lio/mockk/Invocation;)V
 	public abstract fun matcherUsages ()Ljava/util/Map;
@@ -1120,6 +1142,16 @@ public final class io/mockk/impl/verify/AllCallsCallVerifier : io/mockk/impl/ver
 public class io/mockk/impl/verify/AnyCallVerifier : io/mockk/MockKGateway$CallVerifier {
 	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/impl/log/SafeToString;)V
 	public fun captureArguments ()V
+	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
+	public final fun getStubRepo ()Lio/mockk/impl/stub/StubRepository;
+	public fun verify (Ljava/util/List;Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/MockKGateway$VerificationResult;
+}
+
+public class io/mockk/impl/verify/ConstructorAggregateVerifier : io/mockk/MockKGateway$CallVerifier {
+	public fun <init> (Lio/mockk/impl/stub/StubRepository;Lio/mockk/MockKGateway$ConstructorMockFactory;Lio/mockk/impl/log/SafeToString;Ljava/util/List;)V
+	public fun captureArguments ()V
+	public final fun getConstructorMockFactory ()Lio/mockk/MockKGateway$ConstructorMockFactory;
+	public final fun getPlaceholders ()Ljava/util/List;
 	public final fun getSafeToString ()Lio/mockk/impl/log/SafeToString;
 	public final fun getStubRepo ()Lio/mockk/impl/stub/StubRepository;
 	public fun verify (Ljava/util/List;Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/MockKGateway$VerificationResult;
@@ -1177,8 +1209,18 @@ public final class io/mockk/impl/verify/VerificationHelpers {
 	public final fun stackTraces (Ljava/util/List;)Ljava/lang/String;
 }
 
+public final class io/mockk/junit4/CheckUnnecessaryStubRule : org/junit/rules/TestRule {
+	public fun <init> ()V
+	public fun apply (Lorg/junit/runners/model/Statement;Lorg/junit/runner/Description;)Lorg/junit/runners/model/Statement;
+}
+
 public final class io/mockk/junit4/MockKRule : org/junit/rules/TestWatcher, org/junit/rules/TestRule {
 	public fun <init> (Ljava/lang/Object;)V
+}
+
+public final class io/mockk/junit5/CheckUnnecessaryStubExtension : org/junit/jupiter/api/extension/AfterTestExecutionCallback {
+	public fun <init> ()V
+	public fun afterTestExecution (Lorg/junit/jupiter/api/extension/ExtensionContext;)V
 }
 
 public final class io/mockk/junit5/MockKExtension : org/junit/jupiter/api/extension/AfterAllCallback, org/junit/jupiter/api/extension/AfterEachCallback, org/junit/jupiter/api/extension/BeforeAllCallback, org/junit/jupiter/api/extension/ParameterResolver, org/junit/jupiter/api/extension/TestInstancePostProcessor {

@@ -7,6 +7,7 @@ import io.mockk.MockKGateway.Stubber
 import io.mockk.MockKMatcherScope
 import io.mockk.MockKStubScope
 import io.mockk.impl.recording.AutoHinter
+import io.mockk.impl.stub.AnswerAnsweringOpportunity
 
 class EveryBlockEvaluator(
     callRecorder: () -> CallRecorder,
@@ -17,6 +18,7 @@ class EveryBlockEvaluator(
     override fun <T> every(
         mockBlock: (MockKMatcherScope.() -> T)?,
         coMockBlock: (suspend MockKMatcherScope.() -> T)?,
+        lenient: Boolean,
     ): MockKStubScope<T, T> {
         if (coMockBlock != null) {
             initializeCoroutines()
@@ -29,8 +31,12 @@ class EveryBlockEvaluator(
 
         record(scope, mockBlock, coMockBlock)
 
-        val opportunity = callRecorder().answerOpportunity() as MockKGateway.AnswerOpportunity<T>
+        val opportunity = callRecorder().answerOpportunity()
 
-        return MockKStubScope(opportunity, callRecorder(), lambda)
+        if (lenient) {
+            (opportunity as? AnswerAnsweringOpportunity<*>)?.markLenient()
+        }
+
+        return MockKStubScope(opportunity as MockKGateway.AnswerOpportunity<T>, callRecorder(), lambda)
     }
 }

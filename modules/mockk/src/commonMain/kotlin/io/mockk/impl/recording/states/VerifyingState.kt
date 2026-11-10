@@ -1,11 +1,15 @@
 package io.mockk.impl.recording.states
 
 import io.mockk.MockKException
+import io.mockk.MockKGateway
+import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.VerificationResult
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.Stub
+import io.mockk.impl.verify.ConstructorAggregateVerifier
+import io.mockk.impl.verify.TimeoutVerifier
 import io.mockk.impl.verify.VerificationHelpers
 
 class VerifyingState(
@@ -15,11 +19,34 @@ class VerifyingState(
     override fun wasNotCalled(list: List<Any>) = addWasNotCalled(list)
 
     override fun recordingDone(): CallRecordingState {
-        checkMissingCalls()
+        val constructorPlaceholders = recorder.constructorPlaceholders.toList()
+
+        // A bare `anyConstructed<T>()` placeholder records no call of its own. When nothing
+        // else was recorded, it is verified as an aggregate target. Any recorded call
+        // (including `wasNot Called` markers) keeps the regular verification path.
+        val aggregateConstructorVerification =
+            recorder.calls.isEmpty() &&
+                constructorPlaceholders.isNotEmpty() &&
+                params.min == 0 &&
+                params.max == 0
+
+        checkMissingCalls(constructorPlaceholders, aggregateConstructorVerification)
 
         val timeoutEnd = System.currentTimeMillis() + params.timeout
 
-        val verifier = recorder.factories.verifier(params)
+        val verifier =
+            if (aggregateConstructorVerification) {
+                timeoutAware(
+                    ConstructorAggregateVerifier(
+                        recorder.stubRepo,
+                        MockKGateway.implementation().constructorMockFactory,
+                        recorder.safeToString,
+                        constructorPlaceholders,
+                    ),
+                )
+            } else {
+                recorder.factories.verifier(params)
+            }
 
         val sorter = recorder.factories.verificationCallSorter()
 
@@ -51,11 +78,36 @@ class VerifyingState(
         return recorder.factories.answeringState(recorder)
     }
 
-    private fun checkMissingCalls() {
-        if (recorder.calls.isEmpty()) {
-            throw MockKException("Missing calls inside verify { ... } block.")
+    /**
+     * A bare `anyConstructed<T>()` placeholder records no call, so an empty block is
+     * expected when the placeholder is verified as an aggregate (`exactly = 0`).
+     * In every other case an empty block is an error.
+     */
+    private fun checkMissingCalls(
+        constructorPlaceholders: List<Any>,
+        aggregateConstructorVerification: Boolean,
+    ) {
+        if (recorder.calls.isEmpty() && !aggregateConstructorVerification) {
+            val placeholderHint =
+                if (constructorPlaceholders.isNotEmpty()) {
+                    "\n\nA bare anyConstructed<T>() placeholder can only be verified with exactly = 0."
+                } else {
+                    ""
+                }
+            throw MockKException("Missing calls inside verify { ... } block.$placeholderHint")
         }
     }
+
+    /**
+     * A verification with timeout waits for late constructions to happen, the same way
+     * regular zero-call verifications do.
+     */
+    private fun timeoutAware(verifier: ConstructorAggregateVerifier): CallVerifier =
+        if (params.timeout > 0) {
+            TimeoutVerifier(recorder.stubRepo, verifier)
+        } else {
+            verifier
+        }
 
     private fun failIfNotPassed(
         outcome: VerificationResult,

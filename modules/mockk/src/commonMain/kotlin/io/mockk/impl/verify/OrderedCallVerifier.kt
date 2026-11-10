@@ -25,7 +25,8 @@ class OrderedCallVerifier(
             return VerificationResult.Failure(
                 safeToString.exec {
                     "fewer calls happened than demanded by order verification sequence. " +
-                        reportCalls(verificationSequence, allCalls)
+                        reportCalls(verificationSequence, allCalls) +
+                        VerificationHelpers.divergenceHint(verificationSequence, stubRepo)
                 },
             )
         }
@@ -37,7 +38,9 @@ class OrderedCallVerifier(
         } else {
             VerificationResult.Failure(
                 safeToString.exec {
-                    "calls are not in verification order" + reportCalls(verificationSequence, allCalls, lcs)
+                    "calls are not in verification order" +
+                        reportCalls(verificationSequence, allCalls, lcs) +
+                        VerificationHelpers.divergenceHint(verificationSequence, stubRepo)
                 },
             )
         }

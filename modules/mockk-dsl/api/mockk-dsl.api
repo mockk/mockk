@@ -608,6 +608,7 @@ public final class io/mockk/MockKDsl {
 	public final fun internalClearStaticMockk ([Lkotlin/reflect/KClass;ZZZZZ)V
 	public static synthetic fun internalClearStaticMockk$default (Lio/mockk/MockKDsl;[Lkotlin/reflect/KClass;ZZZZZILjava/lang/Object;)V
 	public final fun internalCoEvery (Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+	public final fun internalCoEvery (Lkotlin/jvm/functions/Function2;Z)Lio/mockk/MockKStubScope;
 	public final fun internalCoExcludeRecords (ZLkotlin/jvm/functions/Function2;)V
 	public static synthetic fun internalCoExcludeRecords$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function2;ILjava/lang/Object;)V
 	public final fun internalCoVerify (Lio/mockk/Ordering;ZIIIJLkotlin/jvm/functions/Function2;)V
@@ -623,6 +624,7 @@ public final class io/mockk/MockKDsl {
 	public final fun internalConfirmVerified ([Ljava/lang/Object;Z)V
 	public static synthetic fun internalConfirmVerified$default (Lio/mockk/MockKDsl;[Ljava/lang/Object;ZILjava/lang/Object;)V
 	public final fun internalEvery (Lkotlin/jvm/functions/Function1;)Lio/mockk/MockKStubScope;
+	public final fun internalEvery (Lkotlin/jvm/functions/Function1;Z)Lio/mockk/MockKStubScope;
 	public final fun internalExcludeRecords (ZLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun internalExcludeRecords$default (Lio/mockk/MockKDsl;ZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun internalInitAnnotatedMocks (Ljava/util/List;ZZZZ)V
@@ -688,6 +690,7 @@ public abstract interface class io/mockk/MockKGateway$CallRecorder {
 	public abstract fun answerOpportunity ()Lio/mockk/MockKGateway$AnswerOpportunity;
 	public abstract fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
 	public abstract fun cancelRecordingSession ()V
+	public abstract fun constructorPlaceholder (Ljava/lang/Object;)V
 	public abstract fun discardLastCallRound ()V
 	public abstract fun done ()V
 	public abstract fun estimateCallRounds ()I
@@ -705,6 +708,7 @@ public abstract interface class io/mockk/MockKGateway$CallRecorder {
 }
 
 public final class io/mockk/MockKGateway$CallRecorder$DefaultImpls {
+	public static fun constructorPlaceholder (Lio/mockk/MockKGateway$CallRecorder;Ljava/lang/Object;)V
 	public static synthetic fun round$default (Lio/mockk/MockKGateway$CallRecorder;IIILjava/lang/Object;)V
 }
 
@@ -754,10 +758,12 @@ public abstract interface class io/mockk/MockKGateway$ConstructorMockFactory {
 	public abstract fun clearAll (Lio/mockk/MockKGateway$ClearOptions;Z)V
 	public abstract fun constructorMockk (Lkotlin/reflect/KClass;ZZ)Lkotlin/jvm/functions/Function0;
 	public abstract fun mockPlaceholder (Lkotlin/reflect/KClass;[Lio/mockk/Matcher;)Ljava/lang/Object;
+	public abstract fun representativeMocks (Lkotlin/reflect/KClass;)Ljava/util/List;
 }
 
 public final class io/mockk/MockKGateway$ConstructorMockFactory$DefaultImpls {
 	public static synthetic fun mockPlaceholder$default (Lio/mockk/MockKGateway$ConstructorMockFactory;Lkotlin/reflect/KClass;[Lio/mockk/Matcher;ILjava/lang/Object;)Ljava/lang/Object;
+	public static fun representativeMocks (Lio/mockk/MockKGateway$ConstructorMockFactory;Lkotlin/reflect/KClass;)Ljava/util/List;
 }
 
 public abstract interface class io/mockk/MockKGateway$Excluder {
@@ -822,6 +828,11 @@ public abstract interface class io/mockk/MockKGateway$StaticMockFactory {
 
 public abstract interface class io/mockk/MockKGateway$Stubber {
 	public abstract fun every (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
+	public abstract fun every (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Z)Lio/mockk/MockKStubScope;
+}
+
+public final class io/mockk/MockKGateway$Stubber$DefaultImpls {
+	public static fun every (Lio/mockk/MockKGateway$Stubber;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lio/mockk/MockKStubScope;
 }
 
 public abstract interface class io/mockk/MockKGateway$VerificationAcknowledger {

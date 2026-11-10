@@ -52,7 +52,13 @@ class CommonVerificationAcknowledger(
     }
 
     private fun checkUnnecessaryStubHelper(stub: Stub) {
-        val unnecessaryMatcher = stub.matcherUsages().filterValues { it == 0 }.keys
+        val lenientMatchers = stub.lenientMatchers()
+        val unnecessaryMatcher =
+            stub
+                .matcherUsages()
+                .filterValues { it == 0 }
+                .keys
+                .filterNot { it in lenientMatchers }
 
         if (unnecessaryMatcher.isEmpty()) return
 

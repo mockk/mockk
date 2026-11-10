@@ -30,6 +30,15 @@ class CommonCallRecorder(
     val ack: VerificationAcknowledger,
 ) : CallRecorder {
     override val calls = mutableListOf<RecordedCall>()
+
+    /**
+     * Constructor placeholder mocks (see `anyConstructed<T>()`) requested during the
+     * current session. Only a verification session consumes them: VerifyingState treats
+     * a bare placeholder as an aggregate verification target. The list is reset when a
+     * new session starts, when sessions are suspended/resumed and on reset.
+     */
+    val constructorPlaceholders = mutableListOf<Any>()
+
     var state: CallRecordingState = initialState(this)
     var childHinter = factories.childHinter()
 
@@ -49,20 +58,26 @@ class CommonCallRecorder(
     private class SuspendedSession(
         val state: CallRecordingState,
         val calls: List<RecordedCall>,
+        val constructorPlaceholders: List<Any>,
         val childHinter: ChildHinter,
     )
 
     private fun suspendOngoingSessionIfAny() {
         // AnsweringState is the idle state: no session is in progress, nothing to suspend.
         if (state is AnsweringState) return
-        suspendedSessions.addLast(SuspendedSession(state, calls.toList(), childHinter))
+        suspendedSessions.addLast(
+            SuspendedSession(state, calls.toList(), constructorPlaceholders.toList(), childHinter),
+        )
         calls.clear()
+        constructorPlaceholders.clear()
         childHinter = factories.childHinter()
     }
 
     private fun resumeSuspendedSession(session: SuspendedSession) {
         calls.clear()
         calls.addAll(session.calls)
+        constructorPlaceholders.clear()
+        constructorPlaceholders.addAll(session.constructorPlaceholders)
         childHinter = session.childHinter
         state = session.state
     }
@@ -80,6 +95,7 @@ class CommonCallRecorder(
 
     override fun startVerification(params: VerificationParameters) {
         suspendOngoingSessionIfAny()
+        constructorPlaceholders.clear()
         state = factories.verifyingState(this, params)
         log.trace { "Starting verification" }
     }
@@ -118,6 +134,10 @@ class CommonCallRecorder(
 
     override fun wasNotCalled(list: List<Any>) = state.wasNotCalled(list)
 
+    override fun constructorPlaceholder(mock: Any) {
+        constructorPlaceholders.add(mock)
+    }
+
     override fun hintNextReturnType(
         cls: KClass<*>,
         n: Int,
@@ -152,6 +172,7 @@ class CommonCallRecorder(
 
     private fun resetToIdle() {
         calls.clear()
+        constructorPlaceholders.clear()
         childHinter = factories.childHinter()
         state = initialState(this)
     }

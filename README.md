@@ -327,6 +327,39 @@ You can make sure that all stubbed methods are useful - used at least once - by 
 
 This will internally call `checkUnnecessaryStub` on all mocks after each test, to make sure there are no unnecessary stubbings.
 
+#### Per-test unnecessary stubbing attribution
+
+When the check runs once for the whole test class, the failure cannot always be tied to the test that declared the offending stub, and the test names are no longer visible in the report.
+If you need that mapping, register the opt-in `CheckUnnecessaryStubExtension` alongside `MockKExtension`: it calls `checkUnnecessaryStub` right after every test method, so JUnit reports the failure against that test and the message contains the test's display name.
+
+```kotlin
+@ExtendWith(MockKExtension::class, CheckUnnecessaryStubExtension::class)
+class CarTest {
+  @MockK
+  lateinit var car1: Car
+
+  @Test
+  fun calculateAddsValues1() {
+      // a stub declared here and not used is reported against calculateAddsValues1
+  }
+}
+```
+
+The class-level behavior of `MockKExtension` is unchanged, and the new extension only performs the check: it does not initialize or clean up mocks.
+For JUnit 4, add the analogous `CheckUnnecessaryStubRule` next to `MockKRule`:
+
+```kotlin
+class CarTest {
+  @get:Rule
+  val mockkRule = MockKRule(this)
+
+  @get:Rule
+  val checkUnnecessaryStubRule = CheckUnnecessaryStubRule()
+
+  ...
+}
+```
+
 #### Declarative enabling of dependency order
 
 You can enable topological dependency resolution of `@InjectMockKs` by also annotating your test class with `@MockKExtension.UseDependencyOrder`.
@@ -587,6 +620,19 @@ The basic idea is that just after the constructor of the mocked class is execute
 Mocking behavior of such a mock is connected to the special `prototype mock` denoted by `anyConstructed<MockCls>()`.
 There is one instance per class of such a `prototype mock`. Call recording also happens to the `prototype mock`.
 If no behavior for the function is specified, then the original function is executed.
+
+A bare `anyConstructed<MockCls>()` placeholder can also be verified on its own to check that no constructed
+instance of the class was used at all:
+
+```kotlin
+mockkConstructor(MockCls::class)
+
+verify(exactly = 0) { anyConstructed<MockCls>() } // passes while no constructed instance was used
+
+MockCls().add(1, 2)
+
+verify(exactly = 0) { anyConstructed<MockCls>() } // fails, reporting the recorded calls
+```
 
 In case a class has more than one constructor, each can be mocked separately:
 
@@ -997,6 +1043,15 @@ checkUnnecessaryStub(mock1, mock2)
 It will throw an exception if there are some declared calls on the mocks that are not used by the tested code.
 This can happen if you have declared some really unnecessary stubs or if the tested code doesn't call an expected one.
 
+#### Lenient stubbing
+
+Stubs declared inside a `lenient { ... }` block are exempt from the unnecessary stubbing check: when such a stub is never used by the tested code, it is not reported by `checkUnnecessaryStub`.
+
+```kotlin
+lenient { every { foo.baz } returns true }
+```
+
+Only stubs declared inside the block are affected: reports for regular stubs declared outside of it remain unchanged.
 
 ### Recording exclusions
 

@@ -8,7 +8,9 @@ import io.mockk.registerInstanceFactory
 import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertNull
 import org.junit.jupiter.api.assertTimeoutPreemptively
@@ -19,6 +21,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration as KotlinDuration
 
 class ValueClassTest {
     private val dummyValueWrapperArg get() = DummyValueWrapper(DummyValue(42))
@@ -1060,6 +1064,146 @@ class ValueClassTest {
             "Instance factory should have been called when `any()` is used with a value class and a factory is registered.",
         )
     }
+    // </editor-fold>
+
+    // <editor-fold desc="nullable, unsigned and Duration return types">
+
+    /** https://github.com/mockk/mockk/issues/1338 */
+    @Test
+    fun `suspend function returning nullable non-primitive value class, returns value class`() {
+        val mock =
+            mockk<SuspendNonPrimitiveClassProvider> {
+                coEvery { provideTestClass() } returns NonPrimitiveValueTestClass("hello")
+            }
+
+        val result = runBlocking { mock.provideTestClass() }
+
+        assertEquals(NonPrimitiveValueTestClass("hello"), result)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1338 */
+    @Test
+    fun `suspend function returning nullable non-primitive value class, returns null`() {
+        val mock =
+            mockk<SuspendNonPrimitiveClassProvider> {
+                coEvery { provideTestClass() } returns null
+            }
+
+        val result = runBlocking { mock.provideTestClass() }
+
+        assertNull(result)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1248 */
+    @Test
+    fun `Duration property, returns duration`() {
+        val mock =
+            mockk<DurationPropertyProvider> {
+                every { myDuration } returns 5.minutes
+            }
+
+        assertEquals(5.minutes, mock.myDuration)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1248 */
+    @Test
+    fun `Duration property, consumed by suspend delay`() {
+        val mock =
+            mockk<DurationPropertyProvider> {
+                every { myDuration } returns 5.minutes
+            }
+
+        runTest {
+            delay(mock.myDuration)
+        }
+
+        assertEquals(5.minutes, mock.myDuration)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1248 */
+    @Test
+    fun `nullable Duration property, returns duration`() {
+        val mock =
+            mockk<DurationPropertyProvider> {
+                every { nullableDuration } returns 5.minutes
+            }
+
+        assertEquals(5.minutes, mock.nullableDuration)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1248 */
+    @Test
+    fun `nullable Duration property, returns null`() {
+        val mock =
+            mockk<DurationPropertyProvider> {
+                every { nullableDuration } returns null
+            }
+
+        assertNull(mock.nullableDuration)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1226 */
+    @Test
+    fun `UInt property, returns value`() {
+        val mock =
+            mockk<UIntPropertyHolder> {
+                every { bar } returns 5u
+            }
+
+        assertEquals(5u, mock.bar)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1226 */
+    @Test
+    fun `ULong property, returns value`() {
+        val mock =
+            mockk<ULongPropertyHolder> {
+                every { bar } returns 5uL
+            }
+
+        assertEquals(5uL, mock.bar)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1031 */
+    @Test
+    fun `nullable unsigned properties on interface, return value and null`() {
+        val valueMock =
+            mockk<NullableUnsignedPropertyProvider> {
+                every { nullableBar } returns 1u
+                every { nullableLongBar } returns 1uL
+            }
+
+        assertEquals(1u, valueMock.nullableBar)
+        assertEquals(1uL, valueMock.nullableLongBar)
+
+        val nullMock =
+            mockk<NullableUnsignedPropertyProvider> {
+                every { nullableBar } returns null
+                every { nullableLongBar } returns null
+            }
+
+        assertNull(nullMock.nullableBar)
+        assertNull(nullMock.nullableLongBar)
+    }
+
+    /** https://github.com/mockk/mockk/issues/1031 */
+    @Test
+    fun `relaxed mock of data class with nullable unsigned properties does not hang`() {
+        assertTimeoutPreemptively(Duration.ofSeconds(10)) {
+            val mock = mockk<NullableUnsignedData>(relaxed = true)
+
+            every { mock.foo } returns 1u
+            every { mock.longFoo } returns 1uL
+            every { mock.byteFoo } returns 1u.toUByte()
+            every { mock.shortFoo } returns 1u.toUShort()
+
+            assertEquals(1u, mock.foo)
+            assertEquals(1uL, mock.longFoo)
+            assertEquals(1u.toUByte(), mock.byteFoo)
+            assertEquals(1u.toUShort(), mock.shortFoo)
+        }
+    }
+    // </editor-fold>
 
     companion object {
         @JvmInline
@@ -1202,5 +1346,40 @@ class ValueClassTest {
 
             fun nullableNestedComplexValueClass(): DummyComplexValueWrapper? = null
         }
+
+        // Test case for issue #1338 - suspend function returning a nullable non-primitive value class
+        interface SuspendNonPrimitiveClassProvider {
+            suspend fun provideTestClass(): NonPrimitiveValueTestClass?
+        }
+
+        // Test case for issue #1248 - kotlin.time.Duration property returns
+        interface DurationPropertyProvider {
+            val myDuration: KotlinDuration
+
+            val nullableDuration: KotlinDuration?
+        }
+
+        // Test case for issue #1226 - unsigned property returns
+        class UIntPropertyHolder(
+            val bar: UInt,
+        )
+
+        class ULongPropertyHolder(
+            val bar: ULong,
+        )
+
+        interface NullableUnsignedPropertyProvider {
+            val nullableBar: UInt?
+
+            val nullableLongBar: ULong?
+        }
+
+        // Test case for issue #1031 - nullable unsigned properties on a data class
+        data class NullableUnsignedData(
+            val foo: UInt? = null,
+            val longFoo: ULong? = null,
+            val byteFoo: UByte? = null,
+            val shortFoo: UShort? = null,
+        )
     }
 }

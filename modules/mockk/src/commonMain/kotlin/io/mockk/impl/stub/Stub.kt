@@ -51,9 +51,22 @@ interface Stub : Disposable {
      */
     fun markAnswerUsed(matcher: InvocationMatcher)
 
+    /**
+     * Marks the answer registered for [matcher] as lenient, meaning that
+     * `checkUnnecessaryStub` will not report it even if it is never matched to an
+     * invocation (issue #1272).
+     */
+    fun markAnswerLenient(matcher: InvocationMatcher)
+
     fun verifiedCalls(): List<Invocation>
 
     fun matcherUsages(): Map<InvocationMatcher, Int>
+
+    /**
+     * Matchers of the answers explicitly marked as lenient, which `checkUnnecessaryStub`
+     * should skip when looking for stubs with zero usages (issue #1272).
+     */
+    fun lenientMatchers(): Set<InvocationMatcher>
 
     fun clear(options: MockKGateway.ClearOptions)
 
