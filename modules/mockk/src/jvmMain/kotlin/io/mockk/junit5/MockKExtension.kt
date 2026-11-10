@@ -153,7 +153,8 @@ class MockKExtension :
     override fun beforeAll(context: ExtensionContext) {
         // confirmVerified() checks every mock, so calls recorded before this class started
         // (e.g. by a test class not using this extension) must not count. Solves Issue #1493.
-        if (context.confirmVerification && !context.requireParallelTesting) {
+        // A PER_CLASS enclosing class checks its calls in its own afterAll, so they must not be cleared here.
+        if (context.confirmVerification && !context.requireParallelTesting && !context.hasPerClassEnclosingClass) {
             clearAllMocks(answers = false, childMocks = false)
         }
     }
@@ -187,7 +188,8 @@ class MockKExtension :
             // Clear all mocks after missed verifications or unnecessary stubs. Solves Issue #963.
             if (!context.keepMocks && !context.requireParallelTesting) {
                 clearAllMocks()
-                if (context.releaseMocks) {
+                // A PER_CLASS enclosing instance and its mocks outlive this test; its own afterAll releases them.
+                if (context.releaseMocks && !context.hasPerClassEnclosingClass) {
                     clearAllStubsFromMemory(currentThreadOnly = true)
                 }
             }
@@ -196,6 +198,19 @@ class MockKExtension :
 
     private val ExtensionContext.isTestInstanceLifecyclePerMethod: Boolean
         get() = testInstanceLifecycle.map { it == TestInstance.Lifecycle.PER_METHOD }.orElse(true)
+
+    /**
+     * True if this context is inside a `@Nested` class whose enclosing class (at any level) is PER_CLASS. That
+     * enclosing instance outlives this context, so cleanup of its mocks waits for the enclosing class's afterAll,
+     * the same as for the tests of a PER_CLASS class.
+     */
+    private val ExtensionContext.hasPerClassEnclosingClass: Boolean
+        get() =
+            generateSequence(this) { it.parent.orElse(null) }
+                // Class contexts only: skips test method contexts, and the template context of e.g. a @RepeatedTest.
+                .filter { it.testClass.isPresent && it.testMethod.isEmpty }
+                .drop(1) // This context's own class
+                .any { it.testInstanceLifecycle.orElse(null) == TestInstance.Lifecycle.PER_CLASS }
 
     private val ExtensionContext.keepMocks: Boolean
         get() =

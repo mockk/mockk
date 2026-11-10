@@ -1,6 +1,7 @@
 package io.mockk.junit5
 
 import io.mockk.Runs
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -15,12 +16,15 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectNestedMethod
+import org.junit.platform.testkit.engine.EngineExecutionResults
 import org.junit.platform.testkit.engine.EngineTestKit
 import java.lang.ref.WeakReference
 import kotlin.test.assertEquals
@@ -36,8 +40,10 @@ import kotlin.test.assertTrue
  */
 class MockKExtensionNestedAnnotationsTest {
     @AfterEach
-    fun unmockTarget() {
+    fun resetMocks() {
         unmockkObject(Target)
+        // Fixtures with KeepMocks leave their mocks' stubs and calls behind.
+        clearAllMocks()
     }
 
     @Nested
@@ -82,6 +88,14 @@ class MockKExtensionNestedAnnotationsTest {
         @Test
         fun `fails a top-level test that does not verify a call made in the BeforeAll`() {
             val result = runTest(selectMethod(BeforeAllCallUnverifiedFixture::class.java, "drives"))
+
+            assertFailedWith(VERIFICATION_FAILED, result)
+        }
+
+        @Test
+        fun `fails a PER_CLASS outer class with KeepMocks whose test leaves a call unverified, when it has a nested class`() {
+            // The outer class checks its calls only in afterAll, after its nested class has run.
+            val result = runClass(KeepMocksPerClassFixture::class.java)
 
             assertFailedWith(VERIFICATION_FAILED, result)
         }
@@ -167,6 +181,23 @@ class MockKExtensionNestedAnnotationsTest {
             val refs = createdMocks.toList()
             createdMocks.clear()
             assertGarbageCollected(refs, "Expected mocks created in the nested test to be released")
+        }
+
+        @Test
+        fun `keeps the mocks of a PER_CLASS outer class usable in every nested test`() {
+            val results = runTests(selectClass(ReleaseMocksPerClassFixture::class.java))
+
+            assertEquals(2, results.size, "Expected both nested tests to run")
+            results.forEach { assertSucceeded(it) }
+        }
+
+        @Test
+        fun `releases the mocks of a PER_CLASS outer class when the outer class finishes`() {
+            runTests(selectClass(ReleaseMocksPerClassFixture::class.java))
+
+            val refs = createdMocks.toList()
+            createdMocks.clear()
+            assertGarbageCollected(refs, "Expected the outer class's mock to be released")
         }
     }
 
@@ -264,6 +295,31 @@ class MockKExtensionNestedAnnotationsTest {
     }
 
     @Disabled(FIXTURE)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @MockKExtension.KeepMocks
+    @MockKExtension.ConfirmVerification
+    @ExtendWith(MockKExtension::class)
+    class KeepMocksPerClassFixture {
+        @MockK
+        lateinit var mock: Runnable
+
+        @Test
+        fun leavesCallUnverified() {
+            every { mock.run() } just Runs
+
+            mock.run()
+        }
+
+        @Nested
+        inner class Inner {
+            @Test
+            fun doesNothing() {
+                // Only here so that a nested class starts before the outer class checks its calls
+            }
+        }
+    }
+
+    @Disabled(FIXTURE)
     @MockKExtension.CheckUnnecessaryStub
     @ExtendWith(MockKExtension::class)
     class CheckUnnecessaryStubFixture {
@@ -357,6 +413,36 @@ class MockKExtensionNestedAnnotationsTest {
     }
 
     @Disabled(FIXTURE)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @MockKExtension.ReleaseMocks
+    @ExtendWith(MockKExtension::class)
+    class ReleaseMocksPerClassFixture {
+        // Lives as long as the outer instance, so it must survive each nested test.
+        @MockK
+        lateinit var mock: Runnable
+
+        @BeforeAll
+        fun trackMock() {
+            createdMocks += WeakReference(mock)
+        }
+
+        @Nested
+        inner class Inner {
+            @Test
+            fun usesMock() = runMock()
+
+            @Test
+            fun usesMockAgain() = runMock()
+
+            private fun runMock() {
+                every { mock.run() } just Runs
+
+                mock.run()
+            }
+        }
+    }
+
+    @Disabled(FIXTURE)
     @MockKExtension.UseDependencyOrder
     @ExtendWith(MockKExtension::class)
     class UseDependencyOrderFixture {
@@ -405,7 +491,7 @@ class MockKExtensionNestedAnnotationsTest {
         const val STUBBED = "stubbed"
         const val MOCK_COUNT = 100
 
-        /** Mocks created by [ReleaseMocksFixture], held weakly so only MockK can keep them alive. */
+        /** Mocks created by the ReleaseMocks fixtures, held weakly so only MockK can keep them alive. */
         val createdMocks = mutableListOf<WeakReference<Runnable>>()
 
         fun stubTarget() {
@@ -421,15 +507,30 @@ class MockKExtensionNestedAnnotationsTest {
 
         /** Runs the selected fixture tests, with `@Disabled` turned off, and returns their results in run order. */
         fun runTests(selector: DiscoverySelector): List<TestExecutionResult> =
+            execute(selector)
+                .testEvents()
+                .finished()
+                .list()
+                .map { it.getRequiredPayload(TestExecutionResult::class.java) }
+
+        /**
+         * Runs every test in [fixture], with `@Disabled` turned off, and returns the result of the class itself.
+         * It fails when the class's own callbacks fail, like a check in `afterAll`.
+         */
+        fun runClass(fixture: Class<*>): TestExecutionResult =
+            execute(selectClass(fixture))
+                .containerEvents()
+                .finished()
+                .list()
+                .single { (it.testDescriptor.source.orElse(null) as? ClassSource)?.className == fixture.name }
+                .getRequiredPayload(TestExecutionResult::class.java)
+
+        private fun execute(selector: DiscoverySelector): EngineExecutionResults =
             EngineTestKit
                 .engine("junit-jupiter")
                 .configurationParameter("junit.jupiter.conditions.deactivate", "org.junit.*DisabledCondition")
                 .selectors(selector)
                 .execute()
-                .testEvents()
-                .finished()
-                .list()
-                .map { it.getRequiredPayload(TestExecutionResult::class.java) }
 
         fun assertSucceeded(result: TestExecutionResult) {
             assertEquals(
