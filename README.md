@@ -1391,11 +1391,11 @@ This approach allows you to isolate the logic within your method for unit testin
 
 ## Usage patterns and anti-patterns
 
-This section collects recurring usage patterns that help keeping test suites small and readable, together with anti-patterns that are better avoided.
+This section collects recurring usage patterns that can help keeping test suites small and readable, together with anti-patterns that tend to hurt more than they help. Treat both as tools and heuristics rather than hard rules: weigh each one against the size and shape of your own tests.
 
 ### Extracting shared stubbing blocks
 
-When the same set of stubbings is needed in several tests, or several mocks of the same type need almost the same configuration, define the stubbing block once as a lambda with the mocked type as receiver and pass it to the `block` parameter of `mockk`:
+When a large set of stubbings is needed in several tests, or several mocks of the same type need almost the same configuration, extracting the stubbing block into a lambda with the mocked type as receiver and passing it to the `block` parameter of `mockk` is a possible way to reduce that repetition. This is a trade-off rather than a general usage pattern: for a small block of two or three stubbings, repeating them inline in each test is usually more readable than scrolling up to a shared `baseStubbings` definition to remember what it actually stubs:
 
 ```kotlin
 enum class Direction { NORTH, SOUTH, EAST, WEST }
@@ -1426,7 +1426,7 @@ val second = mockk<Car> {
 }
 ```
 
-Invoking the lambda inside a `mockk { ... }` block applies it to the newly created mock, so shared stubbings can be combined with mock-specific ones. The stubbings of `first` and `second` are completely independent.
+Invoking the lambda inside a `mockk { ... }` block applies it to the newly created mock, so shared stubbings can be combined with mock-specific ones. The stubbings of `first` and `second` are completely independent. Whether the extraction pays off depends on the size of the shared block and how many tests reuse it: the bigger and more widely used the block, the more repetition it saves.
 
 ### Extracting shared verification blocks
 
@@ -1471,7 +1471,7 @@ verify {
 
 ### Anti-patterns
 
-Some ways of using a mocking framework make tests harder to understand and maintain. The following anti-patterns come up regularly and are better avoided.
+Some ways of using a mocking framework tend to make tests harder to understand and maintain. The following anti-patterns come up regularly; they are rules of thumb rather than hard rules, so weigh each one against the test at hand.
 
 #### Don't mock data classes
 
@@ -1492,9 +1492,38 @@ val money = Money(amount = 42, currency = "EUR")
 
 If a test only depends on the values carried by a data class, construct the instance: mocking it hides what the test actually needs and breaks `equals` and `copy`-based expectations.
 
+#### Don't mock value classes
+
+Value classes deserve the same treatment: they exist to wrap a single value with value-based `equals` and `hashCode` semantics for free, and "copying" one is just constructing a new instance with a different underlying value. Mocking a value class throws those semantics away, so build a real instance instead and let it flow through stubbings and verifications unchanged:
+
+```kotlin
+@JvmInline
+value class Money(val amount: Int)
+
+class Wallet {
+    fun spend(money: Money): Boolean = money.amount > 0
+}
+
+// anti-pattern: mocking a simple value wrapper
+val mockedMoney = mockk<Money> {
+    every { amount } returns 42
+}
+
+// preferred: a real instance needs no stubbing at all
+val money = Money(amount = 42)
+val wallet = mockk<Wallet>()
+
+wallet.spend(money)
+
+// value equality holds inside verification blocks
+verify { wallet.spend(Money(amount = 42)) }
+```
+
+If a test only depends on the value carried by a value class, construct the instance: mocking it hides what the test actually needs and breaks value-based `equals` expectations.
+
 #### Don't copy-paste stubbing and verification blocks
 
-Duplicating the same `every { ... }` or `verify { ... }` lines across tests makes the suite brittle: when a production signature changes, every copy has to be updated in lockstep. Extract shared stubbing, verification and matcher blocks once, as shown in the patterns above, and apply them wherever needed:
+Duplicating the same `every { ... }` or `verify { ... }` lines across many tests makes the suite brittle: when a production signature changes, every copy has to be updated in lockstep. As with the extraction patterns above, this is a judgment call rather than a rule: repeating a small block inline is often perfectly readable, and extraction starts to pay off once the same large block shows up in test after test. When it does, extract shared stubbing, verification and matcher blocks once and apply them wherever needed:
 
 ```kotlin
 // the same stubbings copy-pasted in every test
