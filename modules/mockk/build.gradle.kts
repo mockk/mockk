@@ -9,6 +9,17 @@ description = "Mocking library for Kotlin"
 val mavenName: String by extra("MockK")
 val mavenDescription: String by extra("${project.description}")
 
+tasks.withType<Test>().configureEach {
+    filter {
+        // Intentionally-failing test classes executed from
+        // CheckUnnecessaryStubExtensionTest / CheckUnnecessaryStubRuleTest through the JUnit
+        // Platform launcher (JUnit 4 variant through JUnitCore); they must not run directly,
+        // otherwise their designed failure would break the suite.
+        excludeTestsMatching("io.mockk.junit5.CheckUnnecessaryStubAttribution")
+        excludeTestsMatching("io.mockk.junit4.CheckUnnecessaryStubAttribution")
+    }
+}
+
 kotlin {
     jvm {
     }
@@ -47,7 +58,8 @@ kotlin {
                 implementation(libs.junit4)
                 implementation(dependencies.platform(libs.junit.bom))
                 implementation("org.junit.jupiter:junit-jupiter")
-                runtimeOnly("org.junit.platform:junit-platform-launcher")
+                // launcher needed on the compile classpath to assert extension failure attribution
+                implementation("org.junit.platform:junit-platform-launcher")
             }
         }
     }
