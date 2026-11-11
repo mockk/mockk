@@ -28,10 +28,9 @@ class ExcludeBlockEvaluator(
         val lambda = CapturingSlot<Function<*>>()
         val scope = MockKMatcherScope(callRecorder(), lambda)
 
-        try {
-            record(scope, mockBlock, coMockBlock)
-        } finally {
-            callRecorder().reset()
-        }
+        // On failure record() cancels the session itself and restores a suspended parent
+        // session; resetting here as well would drop that parent a second time (issue #1398).
+        record(scope, mockBlock, coMockBlock)
+        callRecorder().reset()
     }
 }

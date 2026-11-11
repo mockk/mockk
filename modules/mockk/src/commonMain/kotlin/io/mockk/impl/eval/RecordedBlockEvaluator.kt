@@ -62,7 +62,8 @@ abstract class RecordedBlockEvaluator(
             callRecorderInstance.round(n, n)
             callRecorderInstance.done()
         } catch (ex: Throwable) {
-            // A failed session can leave nested suspended sessions without an owner: drop them all.
+            // The failed session is abandoned; a suspended parent session is restored so its
+            // owner, still running its own recorded block, is not left with a broken recorder.
             callRecorderInstance.cancelRecordingSession()
             throw InternalPlatform.prettifyRecordingException(ex)
         }

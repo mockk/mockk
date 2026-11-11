@@ -266,10 +266,11 @@ interface MockKGateway {
         fun reset()
 
         /**
-         * Drops the current recording session together with any suspended nested ones
-         * and returns the recorder to its idle state. Unlike [reset], which resumes a
-         * suspended parent session when it finalizes a nested one, this is for error
-         * paths where the whole recording sequence is unusable.
+         * Cancels the current recording session. A suspended parent session is handed back
+         * to its owner, which is still executing its own recorded block and continues once
+         * the failed session is gone; only when nothing is suspended does the recorder
+         * return to its idle state. Used on error paths, when the current session cannot
+         * be finalized.
          */
         fun cancelRecordingSession()
 

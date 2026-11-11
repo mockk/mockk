@@ -162,12 +162,21 @@ class CommonCallRecorder(
     }
 
     /**
-     * Drops the current session together with any suspended ones and returns the recorder
-     * to the idle state. Used when a bad recording sequence makes the sessions unusable.
+     * Cancels the current session and hands the recorder back to the session this one had
+     * interrupted, if any. The suspended parent session is intact: it was snapshotted
+     * before the nested session started, and its owner is still executing its own recorded
+     * block on this thread and continues recording once the failed session is gone (a
+     * failing `coVerify` in a concurrent test coroutine interleaved into a `coEvery`/`coVerify`
+     * block window, issue #1398). Only when nothing is suspended does this return the
+     * recorder to the idle state.
      */
     override fun cancelRecordingSession() {
-        suspendedSessions.clear()
-        resetToIdle()
+        val parent = suspendedSessions.removeLastOrNull()
+        if (parent != null) {
+            resumeSuspendedSession(parent)
+        } else {
+            resetToIdle()
+        }
     }
 
     private fun resetToIdle() {
