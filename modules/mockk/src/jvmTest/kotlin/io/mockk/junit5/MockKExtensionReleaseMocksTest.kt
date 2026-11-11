@@ -67,6 +67,9 @@ abstract class MockKExtensionReleaseMocksTest {
     @ExtendWith(AssertMocksStillUsable::class, MockKExtension::class)
     class DefaultKeepsMocksUsable : MockKExtensionReleaseMocksTest()
 
+    @ExtendWith(AssertMocksCollected::class, MockKExtension::class)
+    class DefaultLetsClearedMocksBeCollected : MockKExtensionReleaseMocksTest()
+
     @MockKExtension.ReleaseMocks
     @MockKExtension.KeepMocks
     @ExtendWith(AssertMocksStillUsable::class, MockKExtension::class)
