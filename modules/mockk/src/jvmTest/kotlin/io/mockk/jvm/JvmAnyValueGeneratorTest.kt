@@ -3,6 +3,10 @@ package io.mockk.jvm
 import io.mockk.impl.instantiation.JvmAnyValueGenerator
 import io.mockk.util.assertArrayEquals
 import org.junit.jupiter.api.Test
+import java.util.Optional
+import java.util.OptionalDouble
+import java.util.OptionalInt
+import java.util.OptionalLong
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
@@ -119,5 +123,25 @@ class JvmAnyValueGeneratorTest {
     @Test
     fun givenHashSetClassWhenRequestedForAnyValueThenEmptyHashSetIsReturned() {
         assertEquals(hashSetOf<Any>(), generator.anyValue(HashSet::class, false, failOnPassThrough) as HashSet<*>)
+    }
+
+    @Test
+    fun givenOptionalClassWhenRequestedForAnyValueThenEmptyOptionalIsReturned() {
+        assertEquals(Optional.empty<Any>(), generator.anyValue(Optional::class, false, failOnPassThrough))
+    }
+
+    @Test
+    fun givenOptionalIntClassWhenRequestedForAnyValueThenEmptyOptionalIntIsReturned() {
+        assertEquals(OptionalInt.empty(), generator.anyValue(OptionalInt::class, false, failOnPassThrough))
+    }
+
+    @Test
+    fun givenOptionalLongClassWhenRequestedForAnyValueThenEmptyOptionalLongIsReturned() {
+        assertEquals(OptionalLong.empty(), generator.anyValue(OptionalLong::class, false, failOnPassThrough))
+    }
+
+    @Test
+    fun givenOptionalDoubleClassWhenRequestedForAnyValueThenEmptyOptionalDoubleIsReturned() {
+        assertEquals(OptionalDouble.empty(), generator.anyValue(OptionalDouble::class, false, failOnPassThrough))
     }
 }
