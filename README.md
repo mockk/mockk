@@ -1546,7 +1546,8 @@ To adjust parameters globally, you can specify settings in a configuration file.
 
 ### How to use:
 
-1. Create the configuration file at `src/test/resources/mockk.properties`.
+1. Create the configuration file at `src/test/resources/mockk.properties`
+   (on Android KMP with the new library DSL, see [Android KMP](#android-kmp-androidhosttest-source-set) below).
 2. Add any of the following configuration options:
 
 ```properties
@@ -1591,6 +1592,35 @@ src/test/resources/io/mockk/settings.properties
 ```
 
 If both files exist, `mockk.properties` takes precedence. The legacy location is deprecated and will be removed in a future version.
+
+### Android KMP (androidHostTest source set)
+
+If you use the new Android KMP library DSL (`withHostTest {}`, AGP 9+), the shared
+`src/test` source set is **not** on the host-test classpath. A configuration file placed
+at `src/test/resources/mockk.properties` is then not found, and global settings such as
+`relaxUnitFun=true` do not apply (MockK throws for unstubbed Unit-returning calls).
+
+Put the configuration file inside the host-test source set instead:
+
+```
+src/androidHostTest/resources/mockk.properties
+```
+
+and use MockK 1.14.9 or later — that is the first version which reads
+`mockk.properties` ([#1474](https://github.com/mockk/mockk/pull/1474)); earlier versions
+only read the legacy `io/mockk/settings.properties` location.
+
+Combinations verified in [#1504](https://github.com/mockk/mockk/issues/1504)
+(Kotlin 2.3.0, AGP 9.0.0, `withHostTest {}`, calling an unstubbed Unit function on
+`mockk<Foo>()` with `relaxUnitFun=true`):
+
+| MockK   | Configuration file location | Result |
+|---------|--------------------------------------------------------------|---------------------------------------|
+| 1.14.7  | `src/test/resources/mockk.properties`                        | not on the classpath, throws          |
+| 1.14.7  | `src/androidHostTest/resources/mockk.properties`             | on the classpath but ignored, throws  |
+| 1.14.7  | `src/androidHostTest/resources/io/mockk/settings.properties` | passes                                |
+| 1.14.11 | `src/test/resources/mockk.properties`                        | not on the classpath, throws          |
+| 1.14.11 | `src/androidHostTest/resources/mockk.properties`             | passes                                |
 
 ### Configuration lifetime
 
