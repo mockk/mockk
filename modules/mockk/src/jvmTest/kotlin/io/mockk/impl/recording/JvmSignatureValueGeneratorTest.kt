@@ -1,14 +1,19 @@
 package io.mockk.impl.recording
 
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
 import io.mockk.impl.instantiation.CommonInstanceFactoryRegistry
+import io.mockk.impl.instantiation.JvmInstantiator
 import io.mockk.impl.recording.JvmSignatureValueGenerator.Companion.MAX_NANOS_IN_MILLIS
+import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.jvm.ObjenesisInstantiator
 import java.util.Random
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
@@ -16,6 +21,7 @@ import kotlin.test.fail
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+import net.bytebuddy.ByteBuddy
 
 @JvmInline
 value class NullableInnerValueClass(
@@ -45,6 +51,32 @@ class JvmSignatureValueGeneratorTest {
                 orInstantiateVia: () -> Any?,
             ): Any? = fail("Should not generate any value")
         }
+
+    /** The production instantiator chain, to exercise the generic instantiation path end to end. */
+    private val realInstantiator =
+        JvmInstantiator(
+            ObjenesisInstantiator(
+                object : MockKAgentLogger {
+                    override fun debug(msg: String) {}
+
+                    override fun trace(msg: String) {}
+
+                    override fun trace(
+                        ex: Throwable,
+                        msg: String,
+                    ) {}
+
+                    override fun warn(msg: String) {}
+
+                    override fun warn(
+                        ex: Throwable,
+                        msg: String,
+                    ) {}
+                },
+                ByteBuddy(),
+            ),
+            CommonInstanceFactoryRegistry(),
+        )
 
     @Test
     fun `generated Long values avoid denormalized range`() {
@@ -139,6 +171,45 @@ class JvmSignatureValueGeneratorTest {
         assertEquals(255, values.toSet().size)
         values.windowed(2).forEach { (previous, next) ->
             assertNotSame(previous, next, "Consecutive Class signature values must differ")
+        }
+    }
+
+    // https://github.com/mockk/mockk/issues/1605
+    @Test
+    fun `KClass signature values are distinct`() {
+        val values =
+            List(TEST_ITERATIONS) {
+                generator.signatureValue(
+                    KClass::class,
+                    { mockAnyValueGenerator },
+                    mockInstantiator,
+                )
+            }
+
+        assertTrue(values.all { it is KClass<*> }, "KClass signature value should be a KClass")
+        assertEquals(TEST_ITERATIONS, values.map { InternalPlatform.packRef(it) }.toSet().size)
+    }
+
+    // https://github.com/mockk/mockk/issues/1605
+    @Test
+    fun `KClass signature values survive eager invocation formatting`() {
+        repeat(TEST_ITERATIONS) {
+            val value =
+                generator.signatureValue(
+                    KClass::class,
+                    { AnyValueGenerator() },
+                    realInstantiator,
+                )
+
+            // This is the CallRoundBuilder -> Invocation.toString() -> toStr() path that
+            // eagerly formats every recorded call, regardless of trace logging.
+            val formatted = value.toStr()
+
+            assertFalse(
+                formatted.startsWith("<error"),
+                "Eager formatting of a KClass signature value fell back to the error string: $formatted",
+            )
+            assertEquals("Any", formatted)
         }
     }
 
