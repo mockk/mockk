@@ -11,6 +11,7 @@ import io.mockk.proxy.common.transformation.InlineInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
 import io.mockk.proxy.common.transformation.TransformationType.SIMPLE
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
+import java.lang.ref.WeakReference
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
@@ -50,11 +51,16 @@ internal class ProxyMaker(
             val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance)
 
             handlers[proxy] = handler
-            return result
-                .withValue(proxy)
-                .alsoOnCancel {
-                    handlers.remove(proxy)
-                }
+            // The handler map keys the proxy weakly, and the stub behind the handler keeps this cancelable.
+            // Holding the proxy strongly here would keep the key reachable from its own value, so it never clears.
+            val proxyRef = WeakReference(proxy)
+            val cancelable =
+                result
+                    .withValue(proxy)
+                    .alsoOnCancel {
+                        proxyRef.get()?.let { handlers.remove(it) }
+                    }
+            return ProxyCancelable(proxy, cancelable)
         } catch (e: Exception) {
             result.cancel()
             throw MockKAgentException("Instantiation exception", e)
@@ -179,6 +185,22 @@ internal class ProxyMaker(
                 )
             }
         }
+    }
+
+    /**
+     * Keeps the proxy strongly reachable until the caller takes it with the first [get], so a GC in between
+     * cannot clear it (#997). After that the caller owns the proxy and this cancelable only refers to it weakly.
+     */
+    private class ProxyCancelable<T : Any>(
+        proxy: T,
+        private val delegate: Cancelable<T>,
+    ) : Cancelable<T> {
+        @Volatile
+        private var untaken: T? = proxy
+
+        override fun get(): T = untaken?.also { untaken = null } ?: delegate.get()
+
+        override fun cancel() = delegate.cancel()
     }
 
     companion object {
