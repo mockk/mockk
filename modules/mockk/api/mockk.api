@@ -967,6 +967,7 @@ public final class io/mockk/impl/restrict/RestrictMockkConfiguration {
 	public fun <init> ()V
 	public fun <init> (Lio/mockk/core/config/PropertiesLoader;)V
 	public synthetic fun <init> (Lio/mockk/core/config/PropertiesLoader;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getRestrictedAnnotations ()Ljava/util/Set;
 	public final fun getRestrictedTypes ()Ljava/util/Set;
 	public final fun getThrowExceptionOnBadMock ()Z
 	public final fun getUserDefinedRestrictedTypes ()Ljava/util/Set;
