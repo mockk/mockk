@@ -41,21 +41,29 @@ open class JvmAnyValueGenerator(
             // Optional types are final JDK classes: without a dedicated case they fall
             // through to a mocked/instantiated proxy that fails on any interaction
             // (e.g. Optional.get() throws ClassCastException), so a relaxed mock hands
-            // back a broken Optional instead of an empty one.
-            java.util.Optional::class -> java.util.Optional.empty<Any>()
-            java.util.OptionalInt::class -> java.util.OptionalInt.empty()
-            java.util.OptionalLong::class -> java.util.OptionalLong.empty()
-            java.util.OptionalDouble::class -> java.util.OptionalDouble.empty()
-
+            // back an empty one. They are matched by runtime name and created
+            // reflectively because java.util.Optional exists only from API 24 up: a
+            // class-literal reference anywhere in this method fails resolution on
+            // API 21 devices with NoClassDefFoundError.
             else ->
-                super.anyValue(cls, isNullable) {
-                    if (cls.java.isArray) {
-                        java.lang.reflect.Array
-                            .newInstance(cls.java.componentType, 0)
-                    } else {
-                        orInstantiateVia()
-                    }
+                when (cls.java.name) {
+                    "java.util.Optional" -> jdkStaticEmpty(cls.java.name)
+                    "java.util.OptionalInt" -> jdkStaticEmpty(cls.java.name)
+                    "java.util.OptionalLong" -> jdkStaticEmpty(cls.java.name)
+                    "java.util.OptionalDouble" -> jdkStaticEmpty(cls.java.name)
+                    else ->
+                        super.anyValue(cls, isNullable) {
+                            if (cls.java.isArray) {
+                                java.lang.reflect.Array
+                                    .newInstance(cls.java.componentType, 0)
+                            } else {
+                                orInstantiateVia()
+                            }
+                        }
                 }
         }
     }
+
+    private fun jdkStaticEmpty(name: String): Any? =
+        Class.forName(name).getMethod("empty").invoke(null)
 }
