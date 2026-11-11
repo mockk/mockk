@@ -18,6 +18,11 @@ tasks.withType<Test>().configureEach {
         excludeTestsMatching("io.mockk.junit5.CheckUnnecessaryStubAttribution")
         excludeTestsMatching("io.mockk.junit4.CheckUnnecessaryStubAttribution")
     }
+
+    doFirst {
+        // Test runtime classpath for tests that fork a JVM themselves (StaticMockFilesTest, #1402).
+        systemProperty("io.mockk.test.classpath", classpath.asPath)
+    }
 }
 
 kotlin {

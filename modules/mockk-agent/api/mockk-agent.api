@@ -22,6 +22,11 @@ public final class io/mockk/proxy/jvm/ObjenesisInstantiator : io/mockk/proxy/Moc
 public final class io/mockk/proxy/jvm/ObjenesisInstantiator$Companion {
 }
 
+public final class io/mockk/proxy/jvm/advice/JdkInternalCallGuard {
+	public static final field INSTANCE Lio/mockk/proxy/jvm/advice/JdkInternalCallGuard;
+	public final fun isJdkInternalCall (Ljava/lang/Class;Ljava/lang/reflect/Method;)Z
+}
+
 public class io/mockk/proxy/jvm/advice/jvm/JvmMockKConstructorProxyAdvice {
 	public static final field Companion Lio/mockk/proxy/jvm/advice/BaseAdvice$Companion;
 	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
@@ -47,6 +52,7 @@ public class io/mockk/proxy/jvm/advice/jvm/JvmMockKProxyInterceptor {
 public class io/mockk/proxy/jvm/advice/jvm/JvmMockKStaticProxyAdvice {
 	public static final field Companion Lio/mockk/proxy/jvm/advice/BaseAdvice$Companion;
 	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
+	public fun handler (Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/util/concurrent/Callable;
 }
 
 public abstract interface class io/mockk/proxy/jvm/advice/jvm/MockHandlerMap : java/util/Map, kotlin/jvm/internal/markers/KMutableMap {
