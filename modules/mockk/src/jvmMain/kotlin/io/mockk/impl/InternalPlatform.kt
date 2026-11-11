@@ -152,9 +152,7 @@ actual object InternalPlatform {
     // capturing the spy, aligning the two paths. Whatever cannot be rebound safely keeps the
     // verbatim copy: a computed delegate has dropped its initializer along with its value, and
     // Lazy implementations outside the standard library are left to their owners.
-    private fun <T : Any> rebindLazyDelegates(
-        to: T,
-    ) {
+    private fun <T : Any> rebindLazyDelegates(to: T) {
         var cls: Class<*>? = to::class.java
         while (cls != null) {
             for (field in cls.declaredFields) {
