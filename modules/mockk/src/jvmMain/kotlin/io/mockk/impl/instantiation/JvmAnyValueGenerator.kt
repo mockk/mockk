@@ -64,6 +64,5 @@ open class JvmAnyValueGenerator(
         }
     }
 
-    private fun jdkStaticEmpty(name: String): Any? =
-        Class.forName(name).getMethod("empty").invoke(null)
+    private fun jdkStaticEmpty(name: String): Any? = Class.forName(name).getMethod("empty").invoke(null)
 }
