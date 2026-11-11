@@ -1,6 +1,7 @@
 package io.mockk.proxy.jvm.transformation
 
 import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.common.transformation.ClassTransformationSpec
 import io.mockk.proxy.common.transformation.ClassTransformationSpecMap
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKConstructorProxyAdvice
@@ -14,7 +15,9 @@ import net.bytebuddy.asm.Advice
 import net.bytebuddy.asm.AsmVisitorWrapper
 import net.bytebuddy.description.ModifierReviewable.OfByteCodeElement
 import net.bytebuddy.description.method.MethodDescription
+import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.dynamic.ClassFileLocator.Simple.of
+import net.bytebuddy.dynamic.DynamicType
 import net.bytebuddy.dynamic.VisibilityBridgeStrategy
 import net.bytebuddy.dynamic.scaffold.MethodGraph
 import net.bytebuddy.matcher.ElementMatchers.isAnnotatedWith
@@ -121,19 +124,23 @@ internal class InliningClassTransformer(
                 ?: return classfileBuffer
 
         try {
-            val builder =
-                redefiningByteBuddy
-                    // Work around for https://bugs.openjdk.org/browse/JDK-8136614
-                    .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
-                    .redefine(classBeingRedefined, of(classBeingRedefined.name, classfileBuffer))
-                    .visit(FixParameterNamesVisitor(classBeingRedefined))
-
             val type =
-                builder
-                    .run { if (spec.shouldDoSimpleIntercept) visit(simpleAdvice()) else this }
-                    .run { if (spec.shouldDoStaticIntercept) visit(staticAdvice(className)) else this }
-                    .run { if (spec.shouldDoConstructorIntercept) visit(constructorAdvice()) else this }
-                    .make()
+                try {
+                    makeType(TypeDescription.ForLoadedType(classBeingRedefined), classBeingRedefined, classfileBuffer, spec, className)
+                } catch (original: Throwable) {
+                    try {
+                        makeType(
+                            SignatureSanitizedTypeDescription(classBeingRedefined),
+                            classBeingRedefined,
+                            classfileBuffer,
+                            spec,
+                            className,
+                        )
+                    } catch (sanitized: Throwable) {
+                        log.trace(sanitized, "Signature-sanitized redefinition of $className failed as well")
+                        throw original
+                    }
+                }
 
             try {
                 val property = System.getProperty("io.mockk.classdump.path")
@@ -151,6 +158,27 @@ internal class InliningClassTransformer(
             log.warn(e, "Failed to transform class $className")
             return null
         }
+    }
+
+    private fun makeType(
+        type: TypeDescription,
+        originalClass: Class<*>,
+        classfileBuffer: ByteArray,
+        spec: ClassTransformationSpec,
+        className: String,
+    ): DynamicType.Unloaded<*> {
+        val builder: DynamicType.Builder<*> =
+            redefiningByteBuddy
+                // Work around for https://bugs.openjdk.org/browse/JDK-8136614
+                .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
+                .redefine<Any>(type, of(type.name, classfileBuffer))
+                .visit(FixParameterNamesVisitor(originalClass))
+
+        return builder
+            .run { if (spec.shouldDoSimpleIntercept) visit(simpleAdvice()) else this }
+            .run { if (spec.shouldDoStaticIntercept) visit(staticAdvice(className)) else this }
+            .run { if (spec.shouldDoConstructorIntercept) visit(constructorAdvice()) else this }
+            .make()
     }
 
     @Suppress("RemoveExplicitTypeArguments")

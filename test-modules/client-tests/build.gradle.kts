@@ -51,6 +51,8 @@ kotlin {
 
         val jvmTest by getting {
             dependencies {
+                implementation("io.arrow-kt:arrow-core:2.1.2")
+
                 implementation(libs.slf4j)
                 implementation(libs.logback)
 
