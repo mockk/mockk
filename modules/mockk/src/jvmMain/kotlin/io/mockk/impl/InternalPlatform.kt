@@ -139,6 +139,73 @@ actual object InternalPlatform {
             }
         }
         copy(to, from, from::class.java)
+        rebindLazyDelegates(to)
+    }
+
+    // A Kotlin `by lazy` delegate field is named "<property>$delegate" and holds a Lazy whose
+    // initializer lambda captures the object the property belongs to. Copying such a delegate
+    // verbatim leaves the spy with a delegate still bound to the original object: evaluating the
+    // property later runs the initializer against the original's getters, which are not
+    // intercepted by the spy. A spy instantiated through the default constructor instead gets a
+    // delegate whose initializer captures the spy itself, so mocked properties are resolved
+    // through the spy (see #1262). Rebinding recreates the delegate with the initializer
+    // capturing the spy, aligning the two paths. Whatever cannot be rebound safely keeps the
+    // verbatim copy: a computed delegate has dropped its initializer along with its value, and
+    // Lazy implementations outside the standard library are left to their owners.
+    private fun <T : Any> rebindLazyDelegates(to: T) {
+        var cls: Class<*>? = to::class.java
+        while (cls != null) {
+            for (field in cls.declaredFields) {
+                if (Modifier.isStatic(field.modifiers)) {
+                    continue
+                }
+                if (!field.name.endsWith("\$delegate")) {
+                    continue
+                }
+                try {
+                    InternalPlatformDsl.makeAccessible(field)
+                    val copiedDelegate = field.get(to)
+                    if (copiedDelegate is Lazy<*>) {
+                        rebindLazyDelegate(to, copiedDelegate)?.let { field.set(to, it) }
+                    }
+                } catch (_: Throwable) {
+                    // keep the verbatim copied delegate
+                }
+            }
+            cls = cls.superclass
+        }
+    }
+
+    private fun <T : Any> rebindLazyDelegate(
+        to: T,
+        copiedDelegate: Lazy<*>,
+    ): Lazy<*>? {
+        val implClass = copiedDelegate::class.java
+        val mode =
+            when (implClass.name) {
+                "kotlin.SynchronizedLazyImpl" -> LazyThreadSafetyMode.SYNCHRONIZED
+                "kotlin.SafePublicationLazyImpl" -> LazyThreadSafetyMode.PUBLICATION
+                "kotlin.UnsafeLazyImpl" -> LazyThreadSafetyMode.NONE
+                else -> return null
+            }
+
+        val initializerField = implClass.getDeclaredField("initializer")
+        InternalPlatformDsl.makeAccessible(initializerField)
+        // A computed delegate keeps its value but has dropped the initializer: nothing to rebind.
+        val initializer = initializerField.get(copiedDelegate) ?: return null
+
+        val initializerClass = initializer::class.java
+        val receiverConstructor =
+            initializerClass.declaredConstructors.firstOrNull { constructor ->
+                constructor.parameterCount == 1 &&
+                    constructor.parameterTypes[0].isAssignableFrom(to::class.java)
+            } ?: return null
+
+        InternalPlatformDsl.makeAccessible(receiverConstructor)
+
+        @Suppress("UNCHECKED_CAST")
+        val reboundInitializer = receiverConstructor.newInstance(to) as () -> Any?
+        return lazy(mode) { reboundInitializer() }
     }
 
     actual fun captureStackTrace(): () -> List<StackElement> {
