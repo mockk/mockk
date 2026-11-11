@@ -9,6 +9,7 @@ import io.mockk.impl.instantiation.JvmInstantiator
 import io.mockk.impl.recording.JvmSignatureValueGenerator.Companion.MAX_NANOS_IN_MILLIS
 import io.mockk.proxy.MockKAgentLogger
 import io.mockk.proxy.jvm.ObjenesisInstantiator
+import net.bytebuddy.ByteBuddy
 import java.util.Random
 import kotlin.reflect.KClass
 import kotlin.test.Test
@@ -21,7 +22,6 @@ import kotlin.test.fail
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
-import net.bytebuddy.ByteBuddy
 
 @JvmInline
 value class NullableInnerValueClass(
