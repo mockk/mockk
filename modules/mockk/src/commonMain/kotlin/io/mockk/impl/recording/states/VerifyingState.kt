@@ -1,10 +1,13 @@
 package io.mockk.impl.recording.states
 
+import io.mockk.MockKDsl
 import io.mockk.MockKException
 import io.mockk.MockKGateway
 import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.MockKGateway.VerificationResult
+import io.mockk.Ordering
+import io.mockk.RecordedCall
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.stub.Stub
@@ -68,12 +71,12 @@ class VerifyingState(
         failIfNotPassed(outcome, params.inverse)
         markVerified(outcome)
 
-        val wasNotCalledMocks = sorter.wasNotCalledCalls.map { it.matcher.self }
-        if (params.timeout > 0 && wasNotCalledMocks.isNotEmpty()) {
+        val hasWasNotCalls = sorter.wasNotCalledCalls.isNotEmpty() || sorter.wasNotCalledCallResults.isNotEmpty()
+        if (params.timeout > 0 && hasWasNotCalls) {
             // A later call still breaks `wasNot Called`, so it is only checked once the timeout has elapsed.
             Thread.sleep((timeoutEnd - System.currentTimeMillis()).coerceAtLeast(0))
         }
-        checkWasNotCalled(wasNotCalledMocks)
+        checkWasNotCalled(sorter.wasNotCalledCalls, sorter.wasNotCalledCallResults)
 
         return recorder.factories.answeringState(recorder)
     }
@@ -134,9 +137,28 @@ class VerifyingState(
         }
     }
 
-    private fun checkWasNotCalled(mocks: List<Any>) {
+    private fun checkWasNotCalled(
+        mocks: List<RecordedCall>,
+        callResults: List<RecordedCall>,
+    ) {
+        for (callResult in callResults) {
+            checkCallWasNotCalled(callResult)
+        }
+
+        val mockTargets = mocks.map { it.matcher.self }
         val calledStubs = mutableListOf<Stub>()
-        for (mock in mocks) {
+        for (mock in mockTargets) {
+            if (!MockKDsl.internalIsMockKMock(
+                    mock = mock,
+                    regular = true,
+                    spy = true,
+                    objectMock = true,
+                    staticMock = true,
+                    constructorMock = true,
+                )
+            ) {
+                throw MockKException("was not can only be called on a mocked object")
+            }
             val stub = recorder.stubRepo.stubFor(mock)
             val calls = stub.allRecordedCalls()
             if (calls.isNotEmpty()) {
@@ -161,6 +183,30 @@ class VerifyingState(
                     },
                 )
             }
+        }
+    }
+
+    /**
+     * `mock.method(args) wasNot Called`: the receiver of `wasNot` is the result of a call
+     * recorded inside the verify block, so the check applies to that call pattern and not
+     * to the receiver object. Verifying it with zero allowed calls fails when the mock
+     * recorded a matching invocation (issue #1290).
+     */
+    private fun checkCallWasNotCalled(call: RecordedCall) {
+        val wasNotParams = params.copy(ordering = Ordering.UNORDERED, min = 0, max = 0)
+        val verifier = recorder.factories.verifier(wasNotParams)
+
+        val outcome =
+            recorder.safeExec {
+                verifier.verify(listOf(call), wasNotParams)
+            }
+
+        if (outcome is VerificationResult.Failure) {
+            throw AssertionError(
+                recorder.safeExec {
+                    "Verification failed: ${outcome.message}"
+                },
+            )
         }
     }
 

@@ -755,7 +755,9 @@ public final class io/mockk/impl/recording/CommonCallRecorder : io/mockk/MockKGa
 	public fun isLastCallReturnsNothing ()Z
 	public fun matcher (Lio/mockk/Matcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public fun nCalls ()I
+	public fun pauseSession ()V
 	public fun reset ()V
+	public fun resumeSession ()V
 	public fun round (II)V
 	public final fun safeExec (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public final fun setChildHinter (Lio/mockk/impl/recording/ChildHinter;)V
@@ -863,11 +865,14 @@ public final class io/mockk/impl/recording/SignedMatcher {
 
 public final class io/mockk/impl/recording/VerificationCallSorter {
 	public field regularCalls Ljava/util/List;
+	public field wasNotCalledCallResults Ljava/util/List;
 	public field wasNotCalledCalls Ljava/util/List;
 	public fun <init> ()V
 	public final fun getRegularCalls ()Ljava/util/List;
+	public final fun getWasNotCalledCallResults ()Ljava/util/List;
 	public final fun getWasNotCalledCalls ()Ljava/util/List;
 	public final fun setRegularCalls (Ljava/util/List;)V
+	public final fun setWasNotCalledCallResults (Ljava/util/List;)V
 	public final fun setWasNotCalledCalls (Ljava/util/List;)V
 	public final fun sort (Ljava/util/List;)V
 }
@@ -881,6 +886,7 @@ public class io/mockk/impl/recording/states/AnsweringState : io/mockk/impl/recor
 	public fun <init> (Lio/mockk/impl/recording/CommonCallRecorder;)V
 	public fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
 	public fun getLog ()Lio/mockk/impl/log/Logger;
+	public fun isLastCallReturnsNothing ()Z
 	public fun startStubbing ()Lio/mockk/impl/recording/states/CallRecordingState;
 	public fun startVerification (Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/impl/recording/states/CallRecordingState;
 }
@@ -961,6 +967,7 @@ public final class io/mockk/impl/restrict/RestrictMockkConfiguration {
 	public fun <init> ()V
 	public fun <init> (Lio/mockk/core/config/PropertiesLoader;)V
 	public synthetic fun <init> (Lio/mockk/core/config/PropertiesLoader;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getRestrictedAnnotations ()Ljava/util/Set;
 	public final fun getRestrictedTypes ()Ljava/util/Set;
 	public final fun getThrowExceptionOnBadMock ()Z
 	public final fun getUserDefinedRestrictedTypes ()Ljava/util/Set;

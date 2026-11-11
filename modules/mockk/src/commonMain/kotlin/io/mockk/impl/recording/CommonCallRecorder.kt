@@ -162,15 +162,40 @@ class CommonCallRecorder(
     }
 
     /**
+     * Takes the ongoing session out of the recorder so that the coroutine scaffolding
+     * running the recorded block does not record its own context lookups into it
+     * (issue #1247). The session is restored by [resumeSession].
+     */
+    override fun pauseSession() {
+        suspendOngoingSessionIfAny()
+        state = factories.answeringState(this)
+    }
+
+    /**
+     * Restores a session paused by [pauseSession]. If the paused session was already
+     * resumed (or there is none), this does nothing.
+     */
+    override fun resumeSession() {
+        resumeSuspendedSessionIfNestedFinished()
+    }
+
+    /**
      * Cancels the current session and hands the recorder back to the session this one had
      * interrupted, if any. The suspended parent session is intact: it was snapshotted
      * before the nested session started, and its owner is still executing its own recorded
      * block on this thread and continues recording once the failed session is gone (a
      * failing `coVerify` in a concurrent test coroutine interleaved into a `coEvery`/`coVerify`
-     * block window, issue #1398). Only when nothing is suspended does this return the
-     * recorder to the idle state.
+     * block window, issue #1398). A session paused by [pauseSession] belongs to the failing
+     * sequence itself, so on an error path while paused the whole recording sequence is
+     * dropped instead (issue #1247), and with nothing suspended this returns the recorder
+     * to the idle state.
      */
     override fun cancelRecordingSession() {
+        if (state is AnsweringState) {
+            suspendedSessions.clear()
+            resetToIdle()
+            return
+        }
         val parent = suspendedSessions.removeLastOrNull()
         if (parent != null) {
             resumeSuspendedSession(parent)

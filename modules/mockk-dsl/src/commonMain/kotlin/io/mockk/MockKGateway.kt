@@ -266,11 +266,37 @@ interface MockKGateway {
         fun reset()
 
         /**
+         * Takes the ongoing recording/verification session out of the recorder while the
+         * coroutine scaffolding that will run the recorded block initializes itself.
+         *
+         * Entering the coroutine for a `coEvery`/`coVerify` block consults the global
+         * coroutine context (for example the dispatcher lookups done by `runBlocking`).
+         * With a static mock installed on a global object such as `Dispatchers`, those
+         * lookups are intercepted calls that would otherwise be recorded as part of the
+         * block itself (issue #1247). While the session is paused they are answered
+         * outside of it, exactly like calls made before the block started.
+         *
+         * The session is restored by [resumeSession], called once the scaffolding is done
+         * and the recorded block is about to run. If the block fails, [cancelRecordingSession]
+         * discards the paused session together with the rest of the recording sequence.
+         */
+        fun pauseSession()
+
+        /**
+         * Restores the session paused by [pauseSession] once the coroutine scaffolding has
+         * finished and the recorded block itself is about to start.
+         */
+        fun resumeSession()
+
+        /**
          * Cancels the current recording session. A suspended parent session is handed back
          * to its owner, which is still executing its own recorded block and continues once
-         * the failed session is gone; only when nothing is suspended does the recorder
-         * return to its idle state. Used on error paths, when the current session cannot
-         * be finalized.
+         * the failed session is gone (a failing nested `coVerify` interleaved into a
+         * `coEvery`/`coVerify` block window, issue #1398). A session paused by
+         * [pauseSession] belongs to the failing sequence itself and is discarded together
+         * with any suspended nested ones, returning the recorder to its idle state. Unlike
+         * [reset], which resumes a suspended parent session when it finalizes a nested one,
+         * this is for error paths where the current session cannot be finalized.
          */
         fun cancelRecordingSession()
 

@@ -1546,7 +1546,8 @@ To adjust parameters globally, you can specify settings in a configuration file.
 
 ### How to use:
 
-1. Create the configuration file at `src/test/resources/mockk.properties`.
+1. Create the configuration file at `src/test/resources/mockk.properties`
+   (on Android KMP with the new library DSL, see [Android KMP](#android-kmp-androidhosttest-source-set) below).
 2. Add any of the following configuration options:
 
 ```properties
@@ -1560,21 +1561,23 @@ failOnSetBackingFieldException=true|false
 
 # Restricted Mocking Configuration (see Restricted Mocking section below)
 mockk.restrictedClasses=com.example.MyClass,com.example.AnotherClass
+mockk.restrictedClassAnnotations=com.example.DoNotMock
 mockk.throwExceptionOnBadMock=true|false
 ```
 
 ### Configuration Options
 
-| **Property**                    | **Description**                                                                                 | **Default Value** |
-|---------------------------------|-------------------------------------------------------------------------------------------------|-------------------|
-| `relaxed`                       | Enable relaxed mocking globally                                                                 | `false`           |
-| `relaxUnitFun`                  | Enable relaxed mocking for Unit-returning functions                                             | `false`           |
-| `recordPrivateCalls`            | Record private calls for verification                                                           | `false`           |
-| `stackTracesOnVerify`           | Show stack traces on verification failures                                                      | `true`            |
-| `stackTracesAlignment`          | Align stack traces to `left` or `center`                                                        | `center`          |
-| `failOnSetBackingFieldException`| Fail tests if backing field cannot be set                                                       | `false`           |
-| `mockk.restrictedClasses`       | Add fully qualified names of classes to restrict from mocking (comma-separated)                 | N/A               |
-| `mockk.throwExceptionOnBadMock` | Throw exception when mocking restricted classes (`true`), or log warning only (`false`)         | `false`           |
+| **Property**                       | **Description**                                                                             | **Default Value** |
+|------------------------------------|---------------------------------------------------------------------------------------------|-------------------|
+| `relaxed`                          | Enable relaxed mocking globally                                                             | `false`           |
+| `relaxUnitFun`                     | Enable relaxed mocking for Unit-returning functions                                         | `false`           |
+| `recordPrivateCalls`               | Record private calls for verification                                                       | `false`           |
+| `stackTracesOnVerify`              | Show stack traces on verification failures                                                  | `true`            |
+| `stackTracesAlignment`             | Align stack traces to `left` or `center`                                                    | `center`          |
+| `failOnSetBackingFieldException`   | Fail tests if backing field cannot be set                                                   | `false`           |
+| `mockk.restrictedClasses`          | Add fully qualified names of classes to restrict from mocking (comma-separated)             | N/A               |
+| `mockk.restrictedClassAnnotations` | Add fully qualified names of annotations that restrict a class from mocking (comma-separated) | N/A            |
+| `mockk.throwExceptionOnBadMock`    | Throw exception when mocking restricted classes (`true`), or log warning only (`false`)     | `false`           |
 
 **Notes:**
 * `stackTracesAlignment` determines whether to align the stack traces to the center (default),
@@ -1591,6 +1594,35 @@ src/test/resources/io/mockk/settings.properties
 ```
 
 If both files exist, `mockk.properties` takes precedence. The legacy location is deprecated and will be removed in a future version.
+
+### Android KMP (androidHostTest source set)
+
+If you use the new Android KMP library DSL (`withHostTest {}`, AGP 9+), the shared
+`src/test` source set is **not** on the host-test classpath. A configuration file placed
+at `src/test/resources/mockk.properties` is then not found, and global settings such as
+`relaxUnitFun=true` do not apply (MockK throws for unstubbed Unit-returning calls).
+
+Put the configuration file inside the host-test source set instead:
+
+```
+src/androidHostTest/resources/mockk.properties
+```
+
+and use MockK 1.14.9 or later — that is the first version which reads
+`mockk.properties` ([#1474](https://github.com/mockk/mockk/pull/1474)); earlier versions
+only read the legacy `io/mockk/settings.properties` location.
+
+Combinations verified in [#1504](https://github.com/mockk/mockk/issues/1504)
+(Kotlin 2.3.0, AGP 9.0.0, `withHostTest {}`, calling an unstubbed Unit function on
+`mockk<Foo>()` with `relaxUnitFun=true`):
+
+| MockK   | Configuration file location | Result |
+|---------|--------------------------------------------------------------|---------------------------------------|
+| 1.14.7  | `src/test/resources/mockk.properties`                        | not on the classpath, throws          |
+| 1.14.7  | `src/androidHostTest/resources/mockk.properties`             | on the classpath but ignored, throws  |
+| 1.14.7  | `src/androidHostTest/resources/io/mockk/settings.properties` | passes                                |
+| 1.14.11 | `src/test/resources/mockk.properties`                        | not on the classpath, throws          |
+| 1.14.11 | `src/androidHostTest/resources/mockk.properties`             | passes                                |
 
 ### Configuration lifetime
 
@@ -1893,6 +1925,42 @@ To strictly prevent mocking restricted classes, explicitly set:
 ```properties
 mockk.throwExceptionOnBadMock=true
 ```
+
+### Annotation-based Restricted Mocking
+
+Instead of listing every restricted class, you can restrict classes by the annotations they carry.
+This scales better in large projects: the restriction becomes self-documenting at the class itself and
+no central list of class names needs to be maintained.
+
+Add the fully qualified names of the annotations to your [configuration file](#configuration-file):
+
+```properties
+# Annotations that restrict a class from being mocked (fully qualified names, separated by commas)
+mockk.restrictedClassAnnotations=com.example.DoNotMock
+
+# Whether to throw an exception when mocking restricted classes
+mockk.throwExceptionOnBadMock=true
+```
+
+Any class carrying at least one of the configured annotations is then restricted, alongside the
+classes listed via `mockk.restrictedClasses`:
+
+```kotlin
+@DoNotMock(reason = "com.example.FakeNetworkImplementation should be used for a more accurate representation of runtime behavior")
+interface MyNetworkAbstraction {
+  suspend fun doRequest(): Response
+}
+```
+
+You can define your own annotation for this, or re-use an existing one from a library
+(such as [ErrorProne's `@DoNotMock`](https://errorprone.info/api/releases/2.3.4/constant-values.html)) that your
+project already has on the production classpath.
+
+⚠️ **Notes:**
+
+* The annotation must have runtime retention (`@Retention(AnnotationRetention.RUNTIME)`), otherwise MockK cannot see it.
+* Annotations are matched on the class being mocked. If the annotation type is marked as `@Inherited`,
+  subclasses of an annotated class are restricted as well.
 
 ### Configure Restricted Mocking with System Properties
 
