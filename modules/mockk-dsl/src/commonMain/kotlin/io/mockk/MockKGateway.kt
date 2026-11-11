@@ -289,10 +289,14 @@ interface MockKGateway {
         fun resumeSession()
 
         /**
-         * Drops the current recording session together with any suspended nested ones
-         * and returns the recorder to its idle state. Unlike [reset], which resumes a
-         * suspended parent session when it finalizes a nested one, this is for error
-         * paths where the whole recording sequence is unusable.
+         * Cancels the current recording session. A suspended parent session is handed back
+         * to its owner, which is still executing its own recorded block and continues once
+         * the failed session is gone (a failing nested `coVerify` interleaved into a
+         * `coEvery`/`coVerify` block window, issue #1398). A session paused by
+         * [pauseSession] belongs to the failing sequence itself and is discarded together
+         * with any suspended nested ones, returning the recorder to its idle state. Unlike
+         * [reset], which resumes a suspended parent session when it finalizes a nested one,
+         * this is for error paths where the current session cannot be finalized.
          */
         fun cancelRecordingSession()
 
