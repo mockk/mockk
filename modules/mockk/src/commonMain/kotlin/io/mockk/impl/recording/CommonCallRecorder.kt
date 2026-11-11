@@ -162,6 +162,24 @@ class CommonCallRecorder(
     }
 
     /**
+     * Takes the ongoing session out of the recorder so that the coroutine scaffolding
+     * running the recorded block does not record its own context lookups into it
+     * (issue #1247). The session is restored by [resumeSession].
+     */
+    override fun pauseSession() {
+        suspendOngoingSessionIfAny()
+        state = factories.answeringState(this)
+    }
+
+    /**
+     * Restores a session paused by [pauseSession]. If the paused session was already
+     * resumed (or there is none), this does nothing.
+     */
+    override fun resumeSession() {
+        resumeSuspendedSessionIfNestedFinished()
+    }
+
+    /**
      * Drops the current session together with any suspended ones and returns the recorder
      * to the idle state. Used when a bad recording sequence makes the sessions unusable.
      */

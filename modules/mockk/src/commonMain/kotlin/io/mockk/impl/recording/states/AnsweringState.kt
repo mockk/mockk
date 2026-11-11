@@ -27,4 +27,12 @@ open class AnsweringState(
     override fun startStubbing() = recorder.factories.stubbingState(recorder)
 
     override fun startVerification(params: VerificationParameters) = recorder.factories.verifyingState(recorder, params)
+
+    /**
+     * No recording round is in progress while the recorder idles (or while a session is
+     * paused for the coroutine scaffolding that runs a co-block, issue #1247), so there is
+     * no last recorded call to inspect. A block failing in this state must propagate its
+     * own exception instead of the "bad recording sequence" error the base state raises.
+     */
+    override fun isLastCallReturnsNothing(): Boolean = false
 }

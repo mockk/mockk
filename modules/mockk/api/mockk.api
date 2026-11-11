@@ -755,7 +755,9 @@ public final class io/mockk/impl/recording/CommonCallRecorder : io/mockk/MockKGa
 	public fun isLastCallReturnsNothing ()Z
 	public fun matcher (Lio/mockk/Matcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public fun nCalls ()I
+	public fun pauseSession ()V
 	public fun reset ()V
+	public fun resumeSession ()V
 	public fun round (II)V
 	public final fun safeExec (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public final fun setChildHinter (Lio/mockk/impl/recording/ChildHinter;)V
@@ -881,6 +883,7 @@ public class io/mockk/impl/recording/states/AnsweringState : io/mockk/impl/recor
 	public fun <init> (Lio/mockk/impl/recording/CommonCallRecorder;)V
 	public fun call (Lio/mockk/Invocation;)Ljava/lang/Object;
 	public fun getLog ()Lio/mockk/impl/log/Logger;
+	public fun isLastCallReturnsNothing ()Z
 	public fun startStubbing ()Lio/mockk/impl/recording/states/CallRecordingState;
 	public fun startVerification (Lio/mockk/MockKGateway$VerificationParameters;)Lio/mockk/impl/recording/states/CallRecordingState;
 }
