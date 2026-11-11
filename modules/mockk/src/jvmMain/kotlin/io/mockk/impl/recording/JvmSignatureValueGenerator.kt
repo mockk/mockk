@@ -5,6 +5,7 @@ import io.mockk.impl.instantiation.AbstractInstantiator
 import io.mockk.impl.instantiation.AnyValueGenerator
 import java.util.Random
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
 import kotlin.reflect.full.cast
 import kotlin.reflect.full.primaryConstructor
@@ -55,6 +56,7 @@ class JvmSignatureValueGenerator(
             Double::class -> rnd.nextDouble()
             String::class -> rnd.nextLong().toString(16)
             Class::class -> nextClassSignature()
+            KClass::class -> nextKClassSignature()
 
             else ->
                 if (cls.isSealed) {
@@ -100,6 +102,16 @@ class JvmSignatureValueGenerator(
             .newInstance(Any::class.java, *IntArray(dimensions))
             .javaClass
     }
+
+    /**
+     * `KClass` is an interface, so the generic instantiation path yields an Objenesis synthetic subclass
+     * that does not implement its abstract reflection getters, and the eager invocation formatting of such
+     * a signature threw and caught an AbstractMethodError on every recording.
+     * A fresh placeholder reflection object per matcher keeps the reference-identity signature bookkeeping
+     * intact and is safe to format, with or without kotlin-reflect.
+     * See: https://github.com/mockk/mockk/issues/1605
+     */
+    private fun nextKClassSignature(): KClass<Any> = Reflection.createKotlinClass(Any::class.java)
 
     /**
      * Generates a Long value that is safe both as a Duration millisecond amount and as a Duration's
