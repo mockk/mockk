@@ -38,6 +38,15 @@ open class JvmAnyValueGenerator(
             java.util.HashMap::class -> HashMap<Any, Any>()
             java.util.HashSet::class -> HashSet<Any>()
 
+            // Optional types are final JDK classes: without a dedicated case they fall
+            // through to a mocked/instantiated proxy that fails on any interaction
+            // (e.g. Optional.get() throws ClassCastException), so a relaxed mock hands
+            // back a broken Optional instead of an empty one.
+            java.util.Optional::class -> java.util.Optional.empty<Any>()
+            java.util.OptionalInt::class -> java.util.OptionalInt.empty()
+            java.util.OptionalLong::class -> java.util.OptionalLong.empty()
+            java.util.OptionalDouble::class -> java.util.OptionalDouble.empty()
+
             else ->
                 super.anyValue(cls, isNullable) {
                     if (cls.java.isArray) {
