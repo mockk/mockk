@@ -865,11 +865,14 @@ public final class io/mockk/impl/recording/SignedMatcher {
 
 public final class io/mockk/impl/recording/VerificationCallSorter {
 	public field regularCalls Ljava/util/List;
+	public field wasNotCalledCallResults Ljava/util/List;
 	public field wasNotCalledCalls Ljava/util/List;
 	public fun <init> ()V
 	public final fun getRegularCalls ()Ljava/util/List;
+	public final fun getWasNotCalledCallResults ()Ljava/util/List;
 	public final fun getWasNotCalledCalls ()Ljava/util/List;
 	public final fun setRegularCalls (Ljava/util/List;)V
+	public final fun setWasNotCalledCallResults (Ljava/util/List;)V
 	public final fun setWasNotCalledCalls (Ljava/util/List;)V
 	public final fun sort (Ljava/util/List;)V
 }

@@ -2944,21 +2944,16 @@ class MockKVerificationScope(
         listOf(this) wasNot called
     }
 
+    /**
+     * Verifies that the receiver was not called. The receiver can be either a mock
+     * (`verify { mock wasNot Called }`) or the result of a call recorded inside the same
+     * verify block (`verify { mock.method(args) wasNot Called }`), in which case the
+     * recorded call pattern is checked against the mock's invocations.
+     *
+     * Receivers that are neither a mock nor a recorded call result are rejected.
+     */
     @Suppress("UNUSED_PARAMETER")
     infix fun List<Any>.wasNot(called: Called) {
-        if (!all {
-                MockKDsl.internalIsMockKMock(
-                    mock = it,
-                    regular = true,
-                    spy = true,
-                    objectMock = true,
-                    staticMock = true,
-                    constructorMock = true,
-                )
-            }
-        ) {
-            throw MockKException("was not can only be called on a mocked object")
-        }
         callRecorder.wasNotCalled(this)
     }
 }
