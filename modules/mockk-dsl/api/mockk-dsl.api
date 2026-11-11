@@ -699,7 +699,9 @@ public abstract interface class io/mockk/MockKGateway$CallRecorder {
 	public abstract fun isLastCallReturnsNothing ()Z
 	public abstract fun matcher (Lio/mockk/Matcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public abstract fun nCalls ()I
+	public abstract fun pauseSession ()V
 	public abstract fun reset ()V
+	public abstract fun resumeSession ()V
 	public abstract fun round (II)V
 	public abstract fun startExclusion (Lio/mockk/MockKGateway$ExclusionParameters;)V
 	public abstract fun startStubbing ()V

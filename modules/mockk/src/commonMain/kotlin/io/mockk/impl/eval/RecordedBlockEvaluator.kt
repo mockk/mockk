@@ -24,7 +24,18 @@ abstract class RecordedBlockEvaluator(
                         { scope.mockBlock() }
                     }
                     coMockBlock != null -> {
-                        { InternalPlatformDsl.runCoroutine { scope.coMockBlock() } }
+                        {
+                            // The coroutine that runs the block resolves its own context on
+                            // entry, which with a static mock on a global object (for example
+                            // Dispatchers) is an intercepted call. Keep those scaffolding
+                            // calls out of the recorded block: pause the session until the
+                            // coroutine is running the block itself (issue #1247).
+                            callRecorderInstance.pauseSession()
+                            InternalPlatformDsl.runCoroutine {
+                                callRecorderInstance.resumeSession()
+                                scope.coMockBlock()
+                            }
+                        }
                     }
                     else -> {
                         { throw MockKException("You should specify either 'mockBlock' or 'coMockBlock'") }
