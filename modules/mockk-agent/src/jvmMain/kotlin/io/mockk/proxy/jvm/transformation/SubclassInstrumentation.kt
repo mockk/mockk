@@ -9,8 +9,10 @@ import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.TypeCache
 import net.bytebuddy.description.method.MethodDescription
+import net.bytebuddy.dynamic.DynamicType
 import net.bytebuddy.dynamic.loading.MultipleParentClassLoader
 import net.bytebuddy.dynamic.scaffold.MethodGraph
+import net.bytebuddy.implementation.Implementation
 import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.implementation.attribute.MethodAttributeAppender
 import net.bytebuddy.implementation.bind.annotation.TargetMethodAnnotationDrivenBinder
@@ -72,14 +74,34 @@ internal class SubclassInstrumentation(
      * signature, which is intercepted. Intercepting the bridges instead would record calls against
      * the erased signature.
      */
+    private val ignoreMatcher =
+        isSynthetic<MethodDescription>()
+            .and(not(isAbstract()))
+            .or(isDefaultFinalizer())
+
     private val subclassingByteBuddy =
         byteBuddy
             .with(defaultFinalizerExcludingMethodGraphCompiler)
-            .ignore(
-                isSynthetic<MethodDescription>()
-                    .and(not(isAbstract()))
-                    .or(isDefaultFinalizer()),
-            )
+            .ignore(ignoreMatcher)
+
+    /**
+     * The same builder as [subclassingByteBuddy], but with a method graph compiler that stands in
+     * erasure-only method descriptions for methods whose generic signatures Byte Buddy cannot
+     * resolve. Kotlin compiles a function taking a `@JvmInline` value class whose underlying type
+     * is generic (e.g. Arrow's `NonEmptySet<out E>` over a `Set<E>`) into a name-mangled method
+     * whose `Signature` attribute can carry a wildcard on a type variable that is not declared
+     * anywhere Byte Buddy can see. Reflecting over such a method then blows up while Byte Buddy
+     * writes the generated proxy method's attributes, and the proxy cannot be created (#1360,
+     * #1410). The proxy methods are interceptor bridges that do not need generic signatures, so
+     * dropping them for the affected methods produces a working proxy.
+     *
+     * Only used as a fallback when the regular builder fails; the regular builder keeps producing
+     * proxies that carry the original generic signatures for everything that resolves.
+     */
+    private val signatureSanitizingSubclassingByteBuddy =
+        byteBuddy
+            .with(SignatureSanitizingMethodGraphCompiler(defaultFinalizerExcludingMethodGraphCompiler))
+            .ignore(ignoreMatcher)
 
     init {
         class AdviceBuilder {
@@ -133,14 +155,16 @@ internal class SubclassInstrumentation(
                 ).to(JvmMockKProxyInterceptor::class.java)
 
         val type =
-            subclassingByteBuddy
-                .subclass(clazz)
-                .implement(*interfaces)
-                .annotateType(*clazz.annotations)
-                .method(any<Any>())
-                .intercept(interceptor)
-                .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
-                .make()
+            try {
+                buildProxyType(subclassingByteBuddy, clazz, interfaces, interceptor)
+            } catch (original: Throwable) {
+                try {
+                    buildProxyType(signatureSanitizingSubclassingByteBuddy, clazz, interfaces, interceptor)
+                } catch (sanitized: Throwable) {
+                    log.trace(sanitized, "Signature-sanitized subclassing of $clazz failed as well")
+                    throw original
+                }
+            }
 
         try {
             val property = System.getProperty("io.mockk.classdump.path")
@@ -157,6 +181,21 @@ internal class SubclassInstrumentation(
             .load(resultClassLoader, chooseClassLoadingStrategy(clazz))
             .loaded
     }
+
+    private fun <T> buildProxyType(
+        byteBuddy: ByteBuddy,
+        clazz: Class<T>,
+        interfaces: Array<Class<*>>,
+        interceptor: Implementation,
+    ): DynamicType.Unloaded<out T> =
+        byteBuddy
+            .subclass(clazz)
+            .implement(*interfaces)
+            .annotateType(*clazz.annotations)
+            .method(any<Any>())
+            .intercept(interceptor)
+            .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
+            .make()
 
     private fun <T> chooseClassLoadingStrategy(clazz: Class<T>) = ClassLoadingStrategyChooser.chooseClassLoadingStrategy(clazz)
 
