@@ -23,7 +23,7 @@ internal object BridgeMethodResolver {
         findBridgedMethod(bridge)
             ?.takeIf { it.accepts(arguments) }
 
-    private fun findBridgedMethod(bridge: Method): Method? {
+    fun findBridgedMethod(bridge: Method): Method? {
         var clazz: Class<*>? = bridge.declaringClass
         while (clazz != null) {
             val candidates = clazz.declaredMethods.filter { it.isBridgedBy(bridge) }
