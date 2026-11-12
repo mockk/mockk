@@ -20,10 +20,10 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectNestedMethod
+import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.testkit.engine.EngineExecutionResults
 import org.junit.platform.testkit.engine.EngineTestKit
 import java.lang.ref.WeakReference
