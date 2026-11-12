@@ -26,7 +26,6 @@ import java.lang.annotation.Inherited
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Parameter
-import java.util.Optional
 import kotlin.reflect.KClass
 import kotlin.reflect.jvm.javaConstructor
 
@@ -154,7 +153,8 @@ class MockKExtension :
     override fun beforeAll(context: ExtensionContext) {
         // confirmVerified() checks every mock, so calls recorded before this class started
         // (e.g. by a test class not using this extension) must not count. Solves Issue #1493.
-        if (context.confirmVerification && !context.requireParallelTesting) {
+        // A PER_CLASS enclosing class checks its calls in its own afterAll, so they must not be cleared here.
+        if (context.confirmVerification && !context.requireParallelTesting && !context.hasPerClassEnclosingClass) {
             clearAllMocks(answers = false, childMocks = false)
         }
     }
@@ -188,7 +188,8 @@ class MockKExtension :
             // Clear all mocks after missed verifications or unnecessary stubs. Solves Issue #963.
             if (!context.keepMocks && !context.requireParallelTesting) {
                 clearAllMocks()
-                if (context.releaseMocks) {
+                // A PER_CLASS enclosing instance and its mocks outlive this test; its own afterAll releases them.
+                if (context.releaseMocks && !context.hasPerClassEnclosingClass) {
                     clearAllStubsFromMemory(currentThreadOnly = true)
                 }
             }
@@ -198,65 +199,58 @@ class MockKExtension :
     private val ExtensionContext.isTestInstanceLifecyclePerMethod: Boolean
         get() = testInstanceLifecycle.map { it == TestInstance.Lifecycle.PER_METHOD }.orElse(true)
 
+    /**
+     * True if this context is inside a `@Nested` class whose enclosing class (at any level) is PER_CLASS. That
+     * enclosing instance outlives this context, so cleanup of its mocks waits for the enclosing class's afterAll,
+     * the same as for the tests of a PER_CLASS class.
+     */
+    private val ExtensionContext.hasPerClassEnclosingClass: Boolean
+        get() =
+            generateSequence(this) { it.parent.orElse(null) }
+                // Class contexts only: skips test method contexts, and the template context of e.g. a @RepeatedTest.
+                .filter { it.testClass.isPresent && it.testMethod.isEmpty }
+                .drop(1) // This context's own class
+                .any { it.testInstanceLifecycle.orElse(null) == TestInstance.Lifecycle.PER_CLASS }
+
     private val ExtensionContext.keepMocks: Boolean
         get() =
-            testClass.keepMocks || testMethod.keepMocks ||
-                getConfigurationParameter(KEEP_MOCKS_PROPERTY).map { it.toBoolean() }.orElse(false)
-
-    private val Optional<out AnnotatedElement>.keepMocks
-        get() =
-            map { it.hasAnnotationRecursive(KeepMocks::class.java) }
-                .orElse(false)
+            isEnabled(KeepMocks::class.java, KEEP_MOCKS_PROPERTY) ||
+                testMethod.map { it.hasAnnotationRecursive(KeepMocks::class.java) }.orElse(false)
 
     private val ExtensionContext.releaseMocks: Boolean
-        get() =
-            testClass.releaseMocks ||
-                getConfigurationParameter(RELEASE_MOCKS_PROPERTY).map { it.toBoolean() }.orElse(false)
-
-    private val Optional<out AnnotatedElement>.releaseMocks
-        get() =
-            map { it.hasAnnotationRecursive(ReleaseMocks::class.java) }
-                .orElse(false)
+        get() = isEnabled(ReleaseMocks::class.java, RELEASE_MOCKS_PROPERTY)
 
     private val ExtensionContext.confirmVerification: Boolean
-        get() =
-            testClass.confirmVerification ||
-                getConfigurationParameter(CONFIRM_VERIFICATION_PROPERTY).map { it.toBoolean() }.orElse(false)
-
-    private val Optional<out AnnotatedElement>.confirmVerification
-        get() =
-            map { it.hasAnnotationRecursive(ConfirmVerification::class.java) }
-                .orElse(false)
+        get() = isEnabled(ConfirmVerification::class.java, CONFIRM_VERIFICATION_PROPERTY)
 
     private val ExtensionContext.checkUnnecessaryStub: Boolean
-        get() =
-            testClass.checkUnnecessaryStub ||
-                getConfigurationParameter(CHECK_UNNECESSARY_STUB_PROPERTY).map { it.toBoolean() }.orElse(false)
-
-    private val Optional<out AnnotatedElement>.checkUnnecessaryStub
-        get() =
-            map { it.hasAnnotationRecursive(CheckUnnecessaryStub::class.java) }
-                .orElse(false)
+        get() = isEnabled(CheckUnnecessaryStub::class.java, CHECK_UNNECESSARY_STUB_PROPERTY)
 
     private val ExtensionContext.requireParallelTesting: Boolean
-        get() =
-            testClass.requireParallelTesting ||
-                getConfigurationParameter(REQUIRE_PARALLEL_TESTING).map { it.toBoolean() }.orElse(false)
-
-    private val Optional<out AnnotatedElement>.requireParallelTesting
-        get() =
-            map { it.hasAnnotationRecursive(RequireParallelTesting::class.java) }
-                .orElse(false)
+        get() = isEnabled(RequireParallelTesting::class.java, REQUIRE_PARALLEL_TESTING)
 
     private val ExtensionContext.useDependencyOrder: Boolean
-        get() =
-            testClass.useDependencyOrder ||
-                getConfigurationParameter(USE_DEPENDENCY_ORDER_PROPERTY).map { it.toBoolean() }.orElse(false)
+        get() = isEnabled(UseDependencyOrder::class.java, USE_DEPENDENCY_ORDER_PROPERTY)
 
-    private val Optional<out AnnotatedElement>.useDependencyOrder
-        get() =
-            map { it.hasAnnotationRecursive(UseDependencyOrder::class.java) }
-                .orElse(false)
+    /**
+     * True if the test class, or any class it is `@Nested` in, has [annotation], or if [property] is `true`.
+     */
+    private fun ExtensionContext.isEnabled(
+        annotation: Class<out Annotation>,
+        property: String,
+    ): Boolean =
+        testClassAndEnclosingTestClasses().any { it.hasAnnotationRecursive(annotation) } ||
+            getConfigurationParameter(property).map { it.toBoolean() }.orElse(false)
+
+    /**
+     * The test class of this context and of every parent context. For a test in a `@Nested` class this is the
+     * nested class followed by each enclosing class. [Class.getEnclosingClass] is not used, because a static nested
+     * class runs as a standalone test class and must not pick up its outer class's annotations.
+     */
+    private fun ExtensionContext.testClassAndEnclosingTestClasses(): Sequence<Class<*>> =
+        generateSequence(this) { it.parent.orElse(null) }
+            .mapNotNull { it.testClass.orElse(null) }
+            .distinct()
 
     /***
      * Prevent calling [unmockkAll] after each test execution

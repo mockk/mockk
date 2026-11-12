@@ -366,6 +366,71 @@ You can enable topological dependency resolution of `@InjectMockKs` by also anno
 
 This will internally process each test instance of the annotated class with `MockKAnnotations.init(useDependencyOrder==true)`.
 
+#### Nested test classes
+
+The class annotations above (`KeepMocks`, `ReleaseMocks`, `RequireParallelTesting`, `ConfirmVerification`,
+`CheckUnnecessaryStub` and `UseDependencyOrder`) also apply to the `@Nested` classes inside the annotated class:
+
+```kotlin
+@ExtendWith(MockKExtension::class)
+@MockKExtension.ConfirmVerification
+class CarTest {
+  @MockK
+  lateinit var car: Car
+
+  @Nested
+  inner class Drive {
+    @Test
+    fun drivesNorth() {
+      // confirmVerified is also called after this test
+    }
+  }
+}
+```
+
+A static nested class (one without `inner` in Kotlin) is a separate test class, so it does not pick up the
+annotations of the class it is declared in.
+
+With `ConfirmVerification`, each class clears recorded mock calls when it starts, and that includes nested classes.
+So calls made in the outer class's `@BeforeAll` don't need to be verified by nested tests:
+
+```kotlin
+@ExtendWith(MockKExtension::class)
+@MockKExtension.ConfirmVerification
+class CarTest {
+  companion object {
+    val engine = mockk<Engine>(relaxed = true)
+
+    @JvmStatic
+    @BeforeAll
+    fun warmUp() {
+      engine.start() // This call does not need to be verified in nested classes
+    }
+  }
+
+  @Test
+  fun startsEngine() {
+    verify { engine.start() } // Required: the first test in the outer class must verify calls made in warmUp()
+  }
+
+  @Nested
+  inner class Drive {
+    @Test
+    fun drives() {
+      // Does not need to verify engine.start() as the verification context was cleared for this nested class
+    }
+  }
+}
+```
+
+1. `CarTest` starts, and the extension clears recorded calls (there are none yet).
+2. `warmUp()` runs and records `engine.start()`.
+3. `startsEngine()` runs, since JUnit runs a class's own tests before its nested classes. It must verify
+   `engine.start()`, or it fails. Recorded calls are cleared after every test.
+4. `Drive` starts, and the extension clears recorded calls again. Here nothing is left, but if you run only `drives()`,
+   step 3 is skipped and this is what removes `engine.start()`.
+5. `drives()` runs, and the check finds no unverified calls, so it passes.
+
 ### Spy
 
 Spies allow you to mix mocks and real objects.

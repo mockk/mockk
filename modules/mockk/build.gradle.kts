@@ -63,7 +63,7 @@ kotlin {
                 implementation(libs.junit4)
                 implementation(dependencies.platform(libs.junit.bom))
                 implementation("org.junit.jupiter:junit-jupiter")
-                // launcher needed on the compile classpath to assert extension failure attribution
+                implementation("org.junit.platform:junit-platform-testkit")
                 implementation("org.junit.platform:junit-platform-launcher")
             }
         }
