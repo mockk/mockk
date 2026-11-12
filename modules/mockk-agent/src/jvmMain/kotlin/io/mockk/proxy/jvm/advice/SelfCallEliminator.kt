@@ -9,7 +9,11 @@ internal object SelfCallEliminator {
     fun isSelf(
         self: Any,
         method: Method,
-    ): Boolean = selfCall.get() === self && checkOverride(selfCallMethod.get(), method)
+    ): Boolean = selfCall.get() === self && selfCallMethod.get().let { checkOverride(it, method) || it.bridges(method) }
+
+    // A bridge running its own body forwards to the method it bridges, which may take a primitive
+    // where the bridge takes an object, so checkOverride does not see it as the same call.
+    private fun Method.bridges(method: Method): Boolean = isBridge && BridgeMethodResolver.findBridgedMethod(this) == method
 
     private fun checkOverride(
         method1: Method,

@@ -47,6 +47,10 @@ class BridgeMethodTest {
         override fun accept(item: String): Boolean = false
     }
 
+    class Square : (Int) -> Int {
+        override fun invoke(value: Int): Int = value * value
+    }
+
     @Test
     fun stubbedCovariantFinalPropertyIsReturnedThroughSupertype() {
         val mock = mockk<FinalIntSource>()
@@ -94,6 +98,25 @@ class BridgeMethodTest {
         assertEquals(5, (spy as NumberSource).number)
 
         verify(exactly = 1) { spy.number }
+    }
+
+    @Test
+    fun spyCallThroughBridgeWithPrimitiveParameterIsRecordedOnce() {
+        val spy = spyk(Square())
+
+        assertEquals(9, (spy as (Int) -> Int)(3))
+
+        verify(exactly = 1) { spy(3) }
+    }
+
+    @Test
+    fun spyOfFunctionReferenceIsRecordedOnce() {
+        fun square(value: Int) = value * value
+        val spy = spyk(::square)
+
+        assertEquals(9, spy(3))
+
+        verify(exactly = 1) { spy(3) }
     }
 
     @Test
