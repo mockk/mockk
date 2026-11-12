@@ -11,6 +11,9 @@ import io.mockk.MockKGateway.VerificationParameters
 import kotlinx.coroutines.awaitCancellation
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
+import kotlin.reflect.KProperty
+import kotlin.reflect.jvm.javaMethod
 
 /**
  * Exception thrown by library
@@ -337,21 +340,29 @@ object MockKDsl {
     ) {
         val verifier = MockKGateway.implementation().verificationAcknowledger
 
-        if (mocks.isEmpty()) {
+        // Statically mocked top-level functions and properties are keyed by their declaring
+        // Kotlin file class, the same way `mockkStatic(KFunction)` and `mockkStatic(KProperty)`
+        // resolve callable references, so resolve them before looking the stub up.
+        val targets = mocks.map(::resolveConfirmTarget)
+
+        if (targets.isEmpty()) {
             verifier.acknowledgeVerified()
         } else {
-            mocks.forEach {
-                when (it) {
-                    is KClass<*> -> verifier.acknowledgeVerified(it.java)
-                    else -> verifier.acknowledgeVerified(it)
-                }
-            }
+            targets.forEach { verifier.acknowledgeVerified(it) }
         }
 
         if (clear) {
-            resetVerificationState(mocks)
+            resetVerificationState(targets.toTypedArray())
         }
     }
+
+    private fun resolveConfirmTarget(mock: Any): Any =
+        when (mock) {
+            is KClass<*> -> mock.java
+            is KProperty<*> -> mock.getter.javaMethod?.declaringClass ?: mock
+            is KFunction<*> -> mock.javaMethod?.declaringClass ?: mock
+            else -> mock
+        }
 
     private fun resetVerificationState(mocks: Array<out Any>) {
         val options =
