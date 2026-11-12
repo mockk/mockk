@@ -1,13 +1,16 @@
 package io.mockk.it
 
+import io.mockk.MockKException
 import io.mockk.clearStaticMockk
 import io.mockk.confirmVerified
+import io.mockk.declaringKotlinFile
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
@@ -15,6 +18,8 @@ import kotlin.test.assertNotEquals
 val Int.selfOp get() = this * this
 
 infix fun Int.oper(b: Int) = this + b
+
+val topLevelProperty: Int get() = 77
 
 class StaticMockkTest {
     /**
@@ -221,5 +226,119 @@ class StaticMockkTest {
         assertFailsWith<AssertionError> {
             confirmVerified(Int::selfOp)
         }
+    }
+
+    /**
+     * GitHub issue #1510
+     */
+    @Test
+    fun confirmVerifiedWithStaticMockFunctionReference() {
+        mockkStatic(Int::op)
+        every { 5 op 6 } returns 2
+
+        assertEquals(2, 5 op 6)
+
+        verify(exactly = 1) { 5 op 6 }
+        confirmVerified(Int::op)
+    }
+
+    /**
+     * GitHub issue #1510
+     */
+    @Test
+    fun confirmVerifiedResolvesCallableReferenceInVarargArgs() {
+        mockkStatic(Int::op)
+        every { 5 op 6 } returns 2
+
+        assertEquals(2, 5 op 6)
+
+        verify(exactly = 1) { 5 op 6 }
+
+        val references = arrayOf<Any>(Int::op)
+        confirmVerified(*references)
+    }
+
+    /**
+     * GitHub issue #1510
+     */
+    @Test
+    fun confirmVerifiedResolvesCallableReferenceInVarargArgsWithClear() {
+        mockkStatic(Int::op)
+        every { 5 op 6 } returns 2
+
+        assertEquals(2, 5 op 6)
+
+        verify(exactly = 1) { 5 op 6 }
+
+        val references = arrayOf<Any>(Int::op)
+        confirmVerified(*references, clear = true)
+
+        verify(exactly = 0) { 5 op 6 }
+    }
+
+    /**
+     * GitHub issue #1510, note 2
+     */
+    @Test
+    fun confirmVerifiedResolvesTopLevelPropertyReferenceInVarargArgs() {
+        mockkStatic(Int::selfOp)
+        every { 5.selfOp } returns 2
+
+        assertEquals(2, 5.selfOp)
+
+        verify(exactly = 1) { 5.selfOp }
+
+        val references = arrayOf<Any>(Int::selfOp)
+        confirmVerified(*references)
+    }
+
+    /**
+     * GitHub issue #1510, note 2
+     */
+    @Test
+    fun confirmVerifiedResolvesPlainTopLevelPropertyReferenceInVarargArgs() {
+        mockkStatic(::topLevelProperty)
+        every { topLevelProperty } returns 2
+
+        assertEquals(2, topLevelProperty)
+
+        verify(exactly = 1) { topLevelProperty }
+
+        val references = arrayOf<Any>(::topLevelProperty)
+        confirmVerified(*references)
+    }
+
+    /**
+     * GitHub issue #1510
+     */
+    @Test
+    fun confirmVerifiedUnmockedCallableReferenceFailsWithClearError() {
+        val functionReference = arrayOf<Any>(Int::unmockedOp)
+        val functionException =
+            assertFailsWith<MockKException> {
+                confirmVerified(*functionReference)
+            }
+        assertContains(functionException.message!!, "can't find stub")
+
+        val propertyReference = arrayOf<Any>(::unmockedTopLevelProperty)
+        val propertyException =
+            assertFailsWith<MockKException> {
+                confirmVerified(*propertyReference)
+            }
+        assertContains(propertyException.message!!, "can't find stub")
+    }
+
+    /**
+     * GitHub issue #1510
+     */
+    @Test
+    fun confirmVerifiedWithDeclaringKotlinFileStillWorks() {
+        mockkStatic(Int::op)
+        every { 5 op 6 } returns 2
+
+        assertEquals(2, 5 op 6)
+
+        verify(exactly = 1) { 5 op 6 }
+        confirmVerified(Int::op.declaringKotlinFile)
     }
 }
