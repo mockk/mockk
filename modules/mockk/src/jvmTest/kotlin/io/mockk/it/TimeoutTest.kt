@@ -9,6 +9,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @ExtendWith(MockKExtension::class)
@@ -276,6 +277,61 @@ class TimeoutTest {
             }
         }
         assertTrue(checks < 10, "matcher was checked $checks times")
+    }
+
+    @Test
+    fun exactlyFailsCleanlyWithStandardReportIfNeverCalled() {
+        val ex =
+            assertFailsWith<AssertionError> {
+                verify(exactly = 3, timeout = 500) {
+                    mock1.run()
+                }
+            }
+
+        assertTrue(
+            ex.message!!.contains("was not called"),
+            "should fail with the standard verification report, got: " + ex.message,
+        )
+    }
+
+    @Test
+    fun exactlyOkIfCalledThreeTimesWithinTimeout() {
+        launch {
+            delay(100)
+            mock1.run()
+            mock1.run()
+            mock1.run()
+        }
+
+        verify(exactly = 3, timeout = 500) {
+            mock1.run()
+        }
+    }
+
+    @Test
+    fun concurrentRecordingDuringTimeoutVerificationFailsCleanly() {
+        // issue #1221: with calls being recorded by another thread while the timeout
+        // verification polls, the failure report paths crashed with NoSuchElementException
+        // on an empty recorded-calls list instead of failing the verification normally.
+        launch {
+            repeat(600) {
+                mock1.take(it)
+                delay(1)
+            }
+        }
+
+        val ex =
+            assertFailsWith<AssertionError> {
+                verify(timeout = 500) {
+                    mock1.take(match { it < 0 })
+                }
+            }
+
+        val message = ex.message!!
+        assertTrue(
+            message.contains("was not called") || message.contains("No matching calls found"),
+            "should fail with the standard verification report, got: " + message,
+        )
     }
 
     private fun launch(block: () -> Unit) {
