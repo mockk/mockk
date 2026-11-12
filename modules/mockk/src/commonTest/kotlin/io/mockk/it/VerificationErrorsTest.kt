@@ -146,6 +146,13 @@ class VerificationErrorsTest {
     }
 
     @Test
+    fun notCalledButNeedExactMatch() {
+        expectVerificationError("was not called") {
+            verify(exactly = 3) { mock.otherOp(1, 2) }
+        }
+    }
+
+    @Test
     fun argumentsNotMatchingTraceIsTakenFromTheCallThatIsDescribed() {
         clearMocks(mock)
 

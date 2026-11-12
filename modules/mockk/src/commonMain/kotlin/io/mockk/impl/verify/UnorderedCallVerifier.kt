@@ -60,6 +60,12 @@ open class UnorderedCallVerifier(
     ): VerificationResult {
         val matcher = recordedCall.matcher
         val stub = stubRepo.stubFor(matcher.self)
+        // The two lists are read independently, so while another thread records calls on the
+        // same mock a call can land between the reads (issue #1221): allCallsForMockMethod
+        // already holds it while allCallsForMock is still empty. The failure reports below are
+        // built from allCallsForMockMethod / matchedCalls / onlyCall, which are self-consistent;
+        // indexing into the possibly stale allCallsForMock is what crashed
+        // verify(timeout = ..., exactly = n) with NoSuchElementException on an empty list.
         val allCallsForMock = stub.allRecordedCalls()
         val allCallsForMockMethod = stub.allRecordedCalls(matcher.method)
 
