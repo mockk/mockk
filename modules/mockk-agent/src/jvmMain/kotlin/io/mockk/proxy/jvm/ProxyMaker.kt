@@ -89,7 +89,9 @@ internal class ProxyMaker(
         }
 
     private fun <T : Any> inline(clazz: Class<T>): () -> Unit {
-        val superclasses = getAllSuperclasses(clazz)
+        // A hidden class cannot be retransformed by the agent (JEP 371); requesting its
+        // transformation would only produce a "non instrumentable" warning on every mock.
+        val superclasses = getAllSuperclasses(clazz).filterNot { HiddenClasses.isHidden(it) }.toSet()
 
         return if (inliner != null) {
             val transformRequest = TransformationRequest(superclasses, SIMPLE)
@@ -122,18 +124,29 @@ internal class ProxyMaker(
         clazz: Class<T>,
         interfaces: Array<Class<*>>,
     ): Class<T> =
-        if (Modifier.isFinal(clazz.modifiers)) {
-            log.trace("Taking instance of $clazz itself because it is final.")
-            clazz
-        } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null) {
-            log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
-            clazz
-        } else {
-            log.trace(
-                "Building subclass proxy for $clazz with " +
-                    "additional interfaces ${interfaces.toList()}",
-            )
-            subclasser.subclass(clazz, interfaces)
+        when {
+            HiddenClasses.isHidden(clazz) -> {
+                log.trace(
+                    "Hidden class $clazz cannot be subclassed nor instrumented; " +
+                        "building proxy over its interfaces delegating to the original instance.",
+                )
+                subclasser.delegateSubclass(clazz, interfaces)
+            }
+            Modifier.isFinal(clazz.modifiers) -> {
+                log.trace("Taking instance of $clazz itself because it is final.")
+                clazz
+            }
+            interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null -> {
+                log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
+                clazz
+            }
+            else -> {
+                log.trace(
+                    "Building subclass proxy for $clazz with " +
+                        "additional interfaces ${interfaces.toList()}",
+                )
+                subclasser.subclass(clazz, interfaces)
+            }
         }
 
     private fun <T : Any> throwIfNotPossibleToProxy(
@@ -153,7 +166,9 @@ internal class ProxyMaker(
                 throw MockKAgentException(
                     "Failed to create proxy for $clazz.\n$clazz is one of excluded classes",
                 )
-            interfaces.isNotEmpty() && Modifier.isFinal(clazz.modifiers) ->
+            interfaces.isNotEmpty() &&
+                Modifier.isFinal(clazz.modifiers) &&
+                !HiddenClasses.isHidden(clazz) ->
                 throw MockKAgentException(
                     "Failed to create proxy for $clazz.\nMore interfaces requested and class is final.",
                 )

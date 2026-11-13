@@ -9,6 +9,7 @@ import io.mockk.declaringKotlinFile
 import io.mockk.impl.platform.CommonIdentityHashMapOf
 import io.mockk.impl.platform.CommonRef
 import io.mockk.impl.platform.JvmWeakConcurrentMap
+import io.mockk.proxy.MockKProxyDelegate
 import java.lang.ref.WeakReference
 import java.lang.reflect.Modifier
 import java.util.Collections.synchronizedList
@@ -118,6 +119,17 @@ actual object InternalPlatform {
         to: T,
         from: T,
     ) {
+        if (to is MockKProxyDelegate) {
+            // The proxy stands in for an instance of a hidden class - e.g. a Kotlin 2 lambda
+            // compiled with invokedynamic (#1313). Hidden classes can be neither subclassed nor
+            // instrumented, so the proxy was built over the hidden class's interfaces and keeps
+            // the original instance to forward un-stubbed "call original" requests to. Its
+            // captured fields live in the original and cannot be copied onto the differently
+            // shaped proxy, so delegating is all the spy state transfer there is.
+            to.mockkSetOriginal(from)
+            return
+        }
+
         fun copy(
             to: Any,
             from: Any,
