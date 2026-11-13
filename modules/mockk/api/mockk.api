@@ -1222,7 +1222,9 @@ public final class io/mockk/junit4/CheckUnnecessaryStubRule : org/junit/rules/Te
 }
 
 public final class io/mockk/junit4/MockKRule : org/junit/rules/TestWatcher, org/junit/rules/TestRule {
-	public fun <init> (Ljava/lang/Object;)V
+	public fun <init> (Ljava/lang/Object;Z)V
+	public synthetic fun <init> (Ljava/lang/Object;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun apply (Lorg/junit/runners/model/Statement;Lorg/junit/runner/Description;)Lorg/junit/runners/model/Statement;
 }
 
 public final class io/mockk/junit5/CheckUnnecessaryStubExtension : org/junit/jupiter/api/extension/AfterTestExecutionCallback {

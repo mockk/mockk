@@ -12,11 +12,16 @@ val mavenDescription: String by extra("${project.description}")
 tasks.withType<Test>().configureEach {
     filter {
         // Intentionally-failing test classes executed from
-        // CheckUnnecessaryStubExtensionTest / CheckUnnecessaryStubRuleTest through the JUnit
-        // Platform launcher (JUnit 4 variant through JUnitCore); they must not run directly,
-        // otherwise their designed failure would break the suite.
+        // CheckUnnecessaryStubExtensionTest / CheckUnnecessaryStubRuleTest /
+        // MockKRuleCheckUnnecessaryStubTest through the JUnit Platform launcher (JUnit 4
+        // variants through JUnitCore); they must not run directly, otherwise their designed
+        // failure would break the suite.
         excludeTestsMatching("io.mockk.junit5.CheckUnnecessaryStubAttribution")
         excludeTestsMatching("io.mockk.junit4.CheckUnnecessaryStubAttribution")
+        excludeTestsMatching("io.mockk.junit4.MockKRuleCheckUnnecessaryStubAttribution")
+        excludeTestsMatching("io.mockk.junit4.MockKRuleCheckUnnecessaryStubDisabledAttribution")
+        excludeTestsMatching("io.mockk.junit4.MockKRuleCheckUnnecessaryStubCleanAttribution")
+        excludeTestsMatching("io.mockk.junit4.MockKRuleCheckUnnecessaryStubFailedTestAttribution")
     }
 
     doFirst {
