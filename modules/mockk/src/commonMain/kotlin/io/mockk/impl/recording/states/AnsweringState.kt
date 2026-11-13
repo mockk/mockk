@@ -13,9 +13,15 @@ open class AnsweringState(
 
     override fun call(invocation: Invocation): Any? {
         val stub = recorder.stubRepo.stubFor(invocation.self)
-        stub.recordCall(invocation.copy(originalCall = { null }))
         try {
-            val answer = stub.answer(invocation)
+            // The recording is interposed by the stub after its capture slots are filled, so
+            // verify(timeout) never observes the call before its captured arguments exist
+            // (issue #1169). Everything else keeps the original order: record first, then
+            // answer, regardless of whether an answer matches or throws.
+            val answer =
+                stub.answerWithRecordStep(invocation) {
+                    stub.recordCall(invocation.copy(originalCall = { null }))
+                }
             log.debug { "Answering ${answer.toStr()} on $invocation" }
             return answer
         } catch (ex: Exception) {

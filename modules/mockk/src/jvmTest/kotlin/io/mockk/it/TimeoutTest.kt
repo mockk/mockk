@@ -2,14 +2,24 @@ package io.mockk.it
 
 import io.mockk.Called
 import io.mockk.Ordering
+import io.mockk.clearMocks
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
+import io.mockk.runs
+import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @ExtendWith(MockKExtension::class)
@@ -22,6 +32,12 @@ class TimeoutTest {
         }
 
         fun take(value: Int) {
+        }
+
+        fun record(
+            first: Int,
+            second: String,
+        ) {
         }
     }
 
@@ -339,4 +355,111 @@ class TimeoutTest {
     }
 
     private fun delay(ms: Long) = Thread.sleep(ms)
+
+    // ---- issue #1169: verify(timeout) passing while answer-side capture slots are unfilled ----
+    //
+    // A slot captured in `every { ... capture(slot) }` is filled by the answering thread inside
+    // stub.answer(...). Before the fix, the call was recorded (and timeout waiters were notified)
+    // before that capture ran, so verify(timeout) could pass while the slot was still empty.
+
+    @Test
+    fun captureSlotIsFilledBeforeTimeoutVerificationPasses() {
+        val slot = slot<Int>()
+        every {
+            mock1.record(
+                capture(slot),
+                match {
+                    // Widens the window between recording the call and filling its capture
+                    // slots: the answer matcher runs right after the call is visible to the
+                    // verification, so a verification woken by the recording passes while this
+                    // matcher is still running and the slot is not yet filled.
+                    Thread.sleep(200)
+                    true
+                },
+            )
+        } just runs
+
+        launch {
+            delay(100) // let the verification park in the record-call await session first
+            mock1.record(7, "seven")
+        }
+
+        verify(timeout = 10_000) { mock1.record(any(), any()) }
+        assertEquals(7, slot.captured)
+    }
+
+    @Test
+    fun captureSlotIsFilledEveryTimeTheCallLandsWithinTheWindow() {
+        repeat(30) { i ->
+            clearMocks(mock1)
+            val slot = slot<Int>()
+            every { mock1.take(capture(slot)) } just runs
+
+            launch {
+                delay(10)
+                mock1.take(i)
+            }
+
+            verify(timeout = 5_000) { mock1.take(any()) }
+            assertTrue(slot.isCaptured, "iteration $i: slot was not captured when verification passed")
+            assertEquals(i, slot.captured, "iteration $i: unexpected captured value")
+        }
+    }
+
+    @Test
+    fun captureListIsFilledWhenTheCallLandsWithinTheWindow() {
+        repeat(10) { i ->
+            clearMocks(mock1)
+            val list = mutableListOf<Int>()
+            every { mock1.take(capture(list)) } just runs
+
+            launch {
+                delay(10)
+                mock1.take(i)
+            }
+
+            verify(timeout = 5_000) { mock1.take(any()) }
+            assertEquals(listOf(i), list, "iteration $i: captured list does not hold the call argument")
+        }
+    }
+
+    @Test
+    fun captureSlotStaysEmptyIfCallNeverLandsWithinTimeout() {
+        val slot = slot<Int>()
+        every { mock1.take(capture(slot)) } just runs
+
+        assertFails {
+            verify(timeout = 300) { mock1.take(any()) }
+        }
+        assertFalse(slot.isCaptured, "slot must stay empty when the call never lands")
+    }
+
+    @Test
+    fun verifyBlockCaptureSlotIsFilledWhenCallLandsWithinTimeout() {
+        val slot = slot<Int>()
+
+        launch {
+            delay(100)
+            mock1.take(5)
+        }
+
+        verify(timeout = 5_000) { mock1.take(capture(slot)) }
+        assertEquals(5, slot.captured)
+    }
+
+    @Test
+    fun captureSlotIsFilledWhenCoroutineCallsWithinTimeout() {
+        runBlocking {
+            val slot = slot<Int>()
+            every { mock1.take(capture(slot)) } just runs
+
+            launch(Dispatchers.IO) {
+                delay(50) // blocking helper, a real worker thread parks here
+                mock1.take(42)
+            }
+
+            verify(timeout = 5_000) { mock1.take(any()) }
+            assertEquals(42, slot.captured)
+        }
+    }
 }

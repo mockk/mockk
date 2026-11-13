@@ -1003,6 +1003,7 @@ public final class io/mockk/impl/stub/ConstructorStub : io/mockk/impl/stub/Stub 
 	public fun allRecordedCalls ()Ljava/util/List;
 	public fun allRecordedCalls (Lio/mockk/MethodDescription;)Ljava/util/List;
 	public fun answer (Lio/mockk/Invocation;)Ljava/lang/Object;
+	public fun answerWithRecordStep (Lio/mockk/Invocation;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public fun childMockK (Lio/mockk/InvocationMatcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public fun clear (Lio/mockk/MockKGateway$ClearOptions;)V
 	public fun dispose ()V
@@ -1036,6 +1037,7 @@ public class io/mockk/impl/stub/MockKStub : io/mockk/impl/stub/Stub {
 	public fun allRecordedCalls ()Ljava/util/List;
 	public fun allRecordedCalls (Lio/mockk/MethodDescription;)Ljava/util/List;
 	public fun answer (Lio/mockk/Invocation;)Ljava/lang/Object;
+	public fun answerWithRecordStep (Lio/mockk/Invocation;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public fun childMockK (Lio/mockk/InvocationMatcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public fun clear (Lio/mockk/MockKGateway$ClearOptions;)V
 	protected fun defaultAnswer (Lio/mockk/Invocation;)Ljava/lang/Object;
@@ -1091,6 +1093,7 @@ public abstract interface class io/mockk/impl/stub/Stub : io/mockk/impl/platform
 	public abstract fun allRecordedCalls ()Ljava/util/List;
 	public abstract fun allRecordedCalls (Lio/mockk/MethodDescription;)Ljava/util/List;
 	public abstract fun answer (Lio/mockk/Invocation;)Ljava/lang/Object;
+	public abstract fun answerWithRecordStep (Lio/mockk/Invocation;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 	public abstract fun childMockK (Lio/mockk/InvocationMatcher;Lkotlin/reflect/KClass;)Ljava/lang/Object;
 	public abstract fun clear (Lio/mockk/MockKGateway$ClearOptions;)V
 	public abstract fun excludeRecordedCalls (Lio/mockk/MockKGateway$ExclusionParameters;Lio/mockk/InvocationMatcher;)V

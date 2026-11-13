@@ -52,7 +52,12 @@ open class MockKStub(
         answers.add(invocationAnswer)
     }
 
-    override fun answer(invocation: Invocation): Any? {
+    override fun answer(invocation: Invocation): Any? = answerWithRecordStep(invocation) {}
+
+    override fun answerWithRecordStep(
+        invocation: Invocation,
+        recordCallStep: () -> Unit,
+    ): Any? {
         val invocationAndMatcher =
             InternalPlatform.synchronized(answers) {
                 answers
@@ -61,12 +66,19 @@ open class MockKStub(
             }
 
         if (invocationAndMatcher == null) {
+            recordCallStep()
             return defaultAnswer(invocation)
         }
 
         return with(invocationAndMatcher) {
             try {
                 matcher.captureAnswer(invocation)
+
+                // The call becomes visible to verifiers only after its capture slots are
+                // filled: verify(timeout) polls the recorded-calls lists and is woken by the
+                // recording, so it can never pass while the captured arguments are still
+                // missing (issue #1169).
+                recordCallStep()
 
                 val call =
                     Call(
