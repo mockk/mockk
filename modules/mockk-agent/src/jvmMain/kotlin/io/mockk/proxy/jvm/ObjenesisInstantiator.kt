@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm
 
+import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.MockKAgentLogger
 import io.mockk.proxy.MockKInstantiatior
 import io.mockk.proxy.jvm.transformation.CacheKey
@@ -25,6 +26,16 @@ class ObjenesisInstantiator(
         if (cls == Any::class.java) {
             @Suppress("UNCHECKED_CAST")
             return Any() as T
+        } else if (HiddenClasses.isHidden(cls)) {
+            // A hidden class cannot be instantiated by name: the JVM resolves the target of
+            // the serialization-based instantiator by name and fails with NoClassDefFoundError.
+            throw MockKAgentException(
+                "Cannot instantiate hidden class $cls.\n" +
+                    "Hidden classes (e.g. lambdas compiled by Kotlin 2 with invokedynamic) cannot be " +
+                    "instantiated reflectively, subclassed or instrumented. " +
+                    "Compile with the `-Xlambdas=class` Kotlin compiler option to make the lambda class " +
+                    "proxiable again.",
+            )
         } else if (!Modifier.isFinal(cls.modifiers)) {
             try {
                 val instance = instantiateViaProxy(cls)
