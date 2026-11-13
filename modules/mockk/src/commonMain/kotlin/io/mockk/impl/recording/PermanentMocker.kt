@@ -53,6 +53,13 @@ class PermanentMocker(
             permanentMocks[retValue] = childMock
             callRef[retValue] = newNewCall
 
+            // The temporary mock is replaced by the permanent child mock and is not
+            // referenced anywhere anymore. Disposing its stub cancels the agent-level
+            // class transformation request that was issued for it; leaving it running
+            // intercepts the return type's whole class hierarchy (e.g. `java.util.HashMap`
+            // and its interfaces) for the rest of the JVM lifetime (issue #1289).
+            stubRepo.remove(retValue)?.dispose()
+
             return newNewCall
         }
 
