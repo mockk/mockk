@@ -159,6 +159,15 @@ abstract class RecordingState(
      */
     @Suppress("DEPRECATION_ERROR")
     override fun estimateCallRounds(): Int {
+        // Matchers are tied to call arguments by their generated signature values, which only
+        // disambiguate when they differ between the rounds of the recorded block (see
+        // SignatureMatcherDetector). Without matchers there is nothing to tie, so re-running
+        // the block would change nothing and only multiply the side effects the block
+        // performs - up to 40 rounds when a Boolean argument is recorded (issue #1362).
+        if (builder().signedMatchers.isEmpty()) {
+            return 1
+        }
+
         val regularArguments =
             builder()
                 .signedCalls
