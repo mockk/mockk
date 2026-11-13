@@ -45,6 +45,16 @@ class ConstructorStub(
                 invocation.substitute(represent),
             ).internalSubstitute(revertRepresentation)
 
+    override fun answerWithRecordStep(
+        invocation: Invocation,
+        recordCallStep: () -> Unit,
+    ): Any? =
+        stub
+            .answerWithRecordStep(
+                invocation.substitute(represent),
+                recordCallStep,
+            ).internalSubstitute(revertRepresentation)
+
     override fun childMockK(
         matcher: InvocationMatcher,
         childType: KClass<*>,

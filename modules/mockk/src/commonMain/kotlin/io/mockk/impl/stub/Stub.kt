@@ -24,6 +24,24 @@ interface Stub : Disposable {
 
     fun answer(invocation: Invocation): Any?
 
+    /**
+     * Answers [invocation] the same way [answer] does, but with the call recording interposed
+     * via [recordCallStep]: the step runs after the matched answer's capture slots are filled
+     * and before the answer itself executes.
+     *
+     * This ordering makes the call visible to verifiers (the recorded-calls lists are what a
+     * `verify(timeout = ...)` polls and what wakes its await session) only once its capture
+     * slots are filled, so a timeout verification can no longer succeed while the answering
+     * thread has not yet captured the arguments (issue #1169).
+     *
+     * The step must be invoked on every path: when the answer matched and when it did not
+     * (default answer / no answer), mirroring the unconditional recording [answer] callers do.
+     */
+    fun answerWithRecordStep(
+        invocation: Invocation,
+        recordCallStep: () -> Unit,
+    ): Any?
+
     fun childMockK(
         matcher: InvocationMatcher,
         childType: KClass<*>,

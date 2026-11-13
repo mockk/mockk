@@ -35,8 +35,12 @@ class AnsweringStateTest {
         } returns stub
 
         every {
-            stub.answer(invocation)
-        } returns 5
+            stub.answerWithRecordStep(invocation, any())
+        } answers {
+            // The handed-over step is the recording; it must be runnable by the stub.
+            secondArg<() -> Unit>().invoke()
+            5
+        }
 
         val ret = state.call(invocation)
 
