@@ -76,14 +76,20 @@ class StubbingAwaitingAnswerState(
                 return
             }
             val methodName = matcher.method.name
-            if (!methodName.startsWith("get")) {
-                return
-            }
-
             val fieldName =
-                methodName
-                    .substring("get".length)
-                    .toCamelCase()
+                when {
+                    methodName.startsWith("get") ->
+                        methodName
+                            .substring("get".length)
+                            .toCamelCase()
+                    // Kotlin compiles properties whose name starts with "is" to a
+                    // getter that keeps the property name as-is (`val isActive`
+                    // becomes `fun isActive()`), with the backing field also named
+                    // `isActive`. Only zero-argument methods can be such getters.
+                    methodName.startsWith("is") && matcher.method.paramTypes.isEmpty() ->
+                        methodName
+                    else -> return
+                }
 
             InternalPlatformDsl.dynamicSetField(mock, fieldName, ans.constantValue)
             // The stub affected behavior through the backing field without the getter being
