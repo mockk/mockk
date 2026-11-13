@@ -9,6 +9,7 @@ import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CallRound
 import io.mockk.impl.recording.CallRoundBuilder
 import io.mockk.impl.recording.CommonCallRecorder
+import io.mockk.impl.recording.SignedCall
 import kotlin.math.max
 import kotlin.reflect.KClass
 
@@ -36,6 +37,7 @@ abstract class RecordingState(
             signMatchers()
             workaroundBoxedNumbers()
             mockPermanently()
+            disposeLeftoverTemporaryMocks()
         }
     }
 
@@ -207,7 +209,36 @@ abstract class RecordingState(
         }
 
     override fun discardLastCallRound() {
+        disposeTemporaryMocksOf(
+            callRoundBuilder?.signedCalls ?: emptyList(),
+        )
         callRoundBuilder = null
+    }
+
+    /**
+     * Temporary mocks that appear as return values of recorded calls exist only to let
+     * the recorded block continue past the call. At the end of the session the first
+     * round's ones are replaced by permanent child mocks ([mockPermanently]), but the
+     * rounds run beyond the first one exist only to help signature detection: their
+     * temporary mocks are never replaced by anything, so nothing would cancel the
+     * agent-level class transformation they requested and the whole hierarchy of the
+     * return type (e.g. `java.util.HashMap`) stays intercepted (issue #1289). The stub
+     * of a temporary mock is registered for exactly this purpose; mocks already
+     * replaced and disposed are not in the repository anymore and are skipped.
+     */
+    private fun disposeLeftoverTemporaryMocks() {
+        for (callRound in callRounds) {
+            disposeTemporaryMocksOf(callRound.calls)
+        }
+    }
+
+    private fun disposeTemporaryMocksOf(signedCalls: List<SignedCall>) {
+        for (signedCall in signedCalls) {
+            val retValue = signedCall.retValue
+            if (signedCall.isRetValueMock && retValue != null) {
+                recorder.stubRepo.remove(retValue)?.dispose()
+            }
+        }
     }
 
     private fun builder(): CallRoundBuilder =

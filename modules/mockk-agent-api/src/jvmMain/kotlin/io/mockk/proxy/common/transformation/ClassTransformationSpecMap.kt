@@ -33,7 +33,16 @@ class ClassTransformationSpecMap {
                         CONSTRUCTOR -> spec.copy(constructorIntercept = spec.constructorIntercept + diff)
                     }
 
-                classSpecs[cls] = newSpec
+                if (newSpec.shouldDoSomething) {
+                    classSpecs[cls] = newSpec
+                } else {
+                    // All interception counts are back to zero: drop the record so the
+                    // registry does not accumulate entries for classes that are no
+                    // longer intercepted (issue #1289). A class that can be unloaded
+                    // would get rid of the entry anyway; JDK classes never unload,
+                    // so a lingering record would stay forever.
+                    classSpecs.remove(cls)
+                }
 
                 if (!(spec sameTransforms newSpec)) {
                     result.add(cls)
