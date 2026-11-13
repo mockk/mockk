@@ -38,14 +38,14 @@ object JvmMockFactoryHelper {
                 }
 
                 if (method.isResumedBy(args)) {
-                    return@stdFunctions handleOriginalCall(originalCall, method)
+                    return@stdFunctions handleOriginalCall(originalCall, method, stub)
                 }
 
                 stub.handleInvocation(
                     self,
                     method.toDescription(),
                     {
-                        handleOriginalCall(originalCall, method)
+                        handleOriginalCall(originalCall, method, stub)
                     },
                     args,
                     findBackingField(self, method),
@@ -116,6 +116,7 @@ object JvmMockFactoryHelper {
     private fun handleOriginalCall(
         originalMethod: Callable<*>?,
         method: Method,
+        stub: Stub,
     ): Any? {
         if (originalMethod == null) {
             throw MockKException("No way to call original method ${method.toDescription()}")
@@ -124,8 +125,64 @@ object JvmMockFactoryHelper {
         return try {
             originalMethod.call()
         } catch (ex: InvocationTargetException) {
-            throw ex.cause ?: throw ex
+            val cause = ex.cause ?: throw ex
+
+            throw if (cause.isAndroidNotMockedStubException()) {
+                MockKException(androidNotMockedStubMessage(cause, method.toDescription(), stub), cause)
+            } else {
+                cause
+            }
         }
+    }
+
+    /**
+     * Unit tests on the JVM get their android.jar classes from the mockable jar the Android
+     * Gradle Plugin generates: unless the build sets `returnDefaultValues = true`, every method
+     * body there is replaced with `throw new RuntimeException("Method <name> in <class> not
+     * mocked. See ...")`. Mocks that fall through to the original implementation (static mocks,
+     * object mocks, spies) hit exactly that body when no answer matched the call, and the raw
+     * exception reads as if the mocking setup was ignored altogether — although usually the
+     * answers are there and it is just a sibling overload that carries them (#1250).
+     *
+     * The pattern is specific enough that real code throwing it is implausible; if that ever
+     * happens, the original exception stays attached as the cause, so nothing is lost.
+     */
+    private fun Throwable.isAndroidNotMockedStubException(): Boolean {
+        if (this !is RuntimeException) return false
+        val text = message ?: return false
+        return text.startsWith("Method ") && " not mocked" in text
+    }
+
+    private fun androidNotMockedStubMessage(
+        cause: Throwable,
+        description: MethodDescription,
+        stub: Stub,
+    ): String {
+        val configured =
+            stub
+                .matcherUsages()
+                .keys
+                .map { "${it.method.declaringClass.simpleName}.${it.method}" }
+                .distinct()
+                .sorted()
+                .joinToString("\n  ")
+        val configuredSection =
+            if (configured.isEmpty()) {
+                "No answers are configured on the mock at all"
+            } else {
+                "Answers configured on the mock match only:\n  $configured"
+            }
+        val suggestedMatchers = description.paramTypes.joinToString(", ") { "any<${it.simpleName}>()" }
+        val called = "${description.declaringClass.simpleName}.$description"
+        val suggestedCall = "${description.declaringClass.simpleName}.${description.name}($suggestedMatchers)"
+
+        return "no answer matched $called, so the call ran the original implementation, " +
+            "which is an Android mockable-jar stub and threw:\n" +
+            "  $cause\n" +
+            "$configuredSection.\n" +
+            "An every { ... } block answers only the exact overload signature it records, so " +
+            "stub the overload that is actually called, e.g. " +
+            "every { $suggestedCall } returns ..."
     }
 
     /**
