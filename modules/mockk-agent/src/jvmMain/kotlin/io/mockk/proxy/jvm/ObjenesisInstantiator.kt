@@ -1,5 +1,6 @@
 package io.mockk.proxy.jvm
 
+import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.MockKAgentLogger
 import io.mockk.proxy.MockKInstantiatior
 import io.mockk.proxy.jvm.transformation.CacheKey
@@ -31,6 +32,8 @@ class ObjenesisInstantiator(
                 if (instance != null) {
                     return instance
                 }
+            } catch (ex: MockKAgentException) {
+                throw ex
             } catch (ex: Exception) {
                 log.trace(
                     ex,
@@ -73,18 +76,52 @@ class ObjenesisInstantiator(
     private fun <T> instanceViaObjenesis(clazz: Class<T>): T {
         log.trace("Creating new empty instance of $clazz")
 
-        return clazz.cast(
-            getOrCreateInstantiator(clazz)
-                .newInstance(),
-        )
+        try {
+            return clazz.cast(getOrCreateInstantiator(clazz).newInstance())
+        } catch (ex: Exception) {
+            throw failedInstantiation(clazz, ex)
+        } catch (ex: LinkageError) {
+            throw failedInstantiation(clazz, ex)
+        }
     }
 
-    private fun <T> getOrCreateInstantiator(clazz: Class<T>) =
+    private fun <T> getOrCreateInstantiator(clazz: Class<T>): ObjectInstantiator<*> =
         instantiators[clazz] ?: let {
             objenesis.getInstantiatorOf(clazz).also {
                 instantiators[clazz] = it
             }
         }
+
+    /**
+     * Allocating the instance initializes the class, so a mock cannot be created for a class
+     * whose static initializer fails: on JDK 24+ the standard objenesis strategy fails while the
+     * serialization constructor accessor is created (`ReflectionFactory.newConstructorForSerialization`
+     * initializes the class), on older JDKs the failure surfaces from `newInstance` itself. The
+     * initially reported error hides the real cause several levels deep — or, once the revert
+     * retransformation of the class left in an erroneous state also fails, not at all (#1538) —
+     * so report the initialization failure directly.
+     */
+    private fun <T> failedInstantiation(
+        clazz: Class<T>,
+        error: Throwable,
+    ): MockKAgentException {
+        val cause = linkageCause(error) ?: error
+        return MockKAgentException(
+            "Failed to create an instance of $clazz for mocking: the class could not be " +
+                "initialized. Creating a mock instance runs the class's static initializer " +
+                "(<clinit>), which failed, so mocks of this class cannot be created.",
+            cause,
+        )
+    }
+
+    private fun linkageCause(error: Throwable): Throwable? {
+        var current: Throwable? = error
+        while (current != null && current !== current.cause) {
+            if (current is LinkageError) return current
+            current = current.cause
+        }
+        return null
+    }
 
     companion object {
         private val bootstrapMonitor = Any()
