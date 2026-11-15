@@ -12,12 +12,12 @@ import java.lang.reflect.Method
  * during that window would be lost: the advice checks the handler map, finds nothing and
  * lets the original code run unintercepted (#1288).
  *
- * While the constructor runs, [during] holds the class and its handler on a thread local;
- * [handlerFor] and [matches] let the advice route calls made on the instance being built to
- * that handler. Matching is by class rather than by instance identity, because the instance
- * does not exist yet while its constructor runs. If the constructor synchronously builds
- * other instances of the same class and calls their methods, those calls reach the handler
- * too; they still execute their original implementations, so behavior is preserved.
+ * While the constructor runs, [during] holds the class and its handler; [handlerFor] and
+ * [matches] let the advice route calls made on the instance being built to that handler.
+ * Matching is by class rather than by instance identity, because the instance does not exist
+ * yet while its constructor runs. If the constructor synchronously builds other instances of
+ * the same class and calls their methods, those calls reach the handler too; they still
+ * execute their original implementations, so behavior is preserved.
  *
  * Calls the JDK makes to itself while the window is open are never routed: reflection
  * accessibility checks, collection hashing and similar machinery run inside the window
@@ -28,48 +28,23 @@ import java.lang.reflect.Method
  * No window is opened for [java.lang.Object] (`spyk<Any>()`): Object declares no methods a
  * constructor could usefully record, and a class-matched window on it would match every
  * object in the JVM.
+ *
+ * The window state itself lives in [BaseAdvice]'s companion: the advice consults it on every
+ * intercepted call, including the ones coverage-agent probes make through the mockk-advised
+ * `Object.equals`, and a class referenced there must already be initialized when that happens
+ * — see [BaseAdvice] for details.
  */
 internal object ConstructingInstance {
-    private val current = ThreadLocal<State?>()
-
-    private class State(
-        val cls: Class<*>,
-        val handler: MockKInvocationHandler,
-    )
-
     fun <T : Any> during(
         cls: Class<*>,
         handler: MockKInvocationHandler,
         block: () -> T,
-    ): T {
-        if (cls === Object::class.java) {
-            return block()
-        }
+    ): T = BaseAdvice.duringConstructing(cls, handler, block)
 
-        val previous = current.get()
-        current.set(State(cls, handler))
-        return try {
-            block()
-        } finally {
-            current.set(previous)
-        }
-    }
-
-    fun matches(self: Any?): Boolean {
-        val state = current.get() ?: return false
-        return self != null && state.cls.isInstance(self)
-    }
+    fun matches(self: Any?): Boolean = BaseAdvice.constructingMatches(self)
 
     fun handlerFor(
         self: Any?,
         method: Method?,
-    ): MockKInvocationHandler? {
-        if (!matches(self)) {
-            return null
-        }
-        if (method == null || method.declaringClass === Object::class.java) {
-            return null
-        }
-        return current.get()!!.handler
-    }
+    ): MockKInvocationHandler? = BaseAdvice.constructingHandlerFor(self, method)
 }
