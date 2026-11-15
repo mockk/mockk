@@ -8,6 +8,7 @@ import io.mockk.MockKException
 import io.mockk.core.ValueClassSupport.innermostBoxedClass
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.stub.Stub
+import io.mockk.impl.stub.StubRepository
 import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -25,33 +26,49 @@ import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
 
 object JvmMockFactoryHelper {
-    fun mockHandler(stub: Stub) =
-        object : MockKInvocationHandler {
-            override fun invocation(
-                self: Any,
-                method: Method?,
-                originalCall: Callable<*>?,
-                args: Array<Any?>,
-            ) = stdFunctions(self, method!!, args) {
-                if (method.isKotlinInline()) {
-                    throw MockKException("Mocking Kotlin inline functions is not supported")
-                }
+    fun mockHandler(stub: Stub): MockKInvocationHandler = mockHandler(stub, null)
 
-                if (method.isResumedBy(args)) {
-                    return@stdFunctions handleOriginalCall(originalCall, method, stub)
-                }
-
-                stub.handleInvocation(
-                    self,
-                    method.toDescription(),
-                    {
-                        handleOriginalCall(originalCall, method, stub)
-                    },
-                    args,
-                    findBackingField(self, method),
-                )
+    /**
+     * @param registerSelfRepository when set, the handled instance is registered with this
+     * repository before the first invocation reaches it. Spies built through the real default
+     * constructor (`spyk(Cls::class)`) dispatch calls made from field initializers and the
+     * Kotlin `init` block to this handler while the instance is still being constructed,
+     * i.e. before [io.mockk.impl.instantiation.AbstractMockFactory] can add it to the
+     * repository, and the recorder resolves the stub by looking the instance up (#1288).
+     */
+    internal fun mockHandler(
+        stub: Stub,
+        registerSelfRepository: StubRepository?,
+    ) = object : MockKInvocationHandler {
+        override fun invocation(
+            self: Any,
+            method: Method?,
+            originalCall: Callable<*>?,
+            args: Array<Any?>,
+        ) = stdFunctions(self, method!!, args) {
+            if (registerSelfRepository != null && registerSelfRepository[self] == null) {
+                registerSelfRepository.add(self, stub)
             }
+
+            if (method.isKotlinInline()) {
+                throw MockKException("Mocking Kotlin inline functions is not supported")
+            }
+
+            if (method.isResumedBy(args)) {
+                return@stdFunctions handleOriginalCall(originalCall, method, stub)
+            }
+
+            stub.handleInvocation(
+                self,
+                method.toDescription(),
+                {
+                    handleOriginalCall(originalCall, method, stub)
+                },
+                args,
+                findBackingField(self, method),
+            )
         }
+    }
 
     private fun findBackingField(
         clazz: KClass<*>,

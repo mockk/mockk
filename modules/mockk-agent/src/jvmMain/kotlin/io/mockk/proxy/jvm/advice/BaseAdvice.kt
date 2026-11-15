@@ -18,6 +18,13 @@ internal open class BaseAdvice(
     ): Callable<*>? {
         val handler =
             handlers[self]
+                ?: ConstructingInstance.handlerFor(self, method)?.takeIf {
+                    // Calls the JDK makes to itself while a construction window is open run
+                    // the original implementation, like for active static mocks (#1402): the
+                    // receivers of those calls are arbitrary instances, not the proxy under
+                    // construction (#1288).
+                    !JdkInternalCallGuard.isJdkInternalCall(self.javaClass, method)
+                }
                 ?: return null
 
         if (SelfCallEliminator.isSelf(self, method)) {
@@ -61,7 +68,7 @@ internal open class BaseAdvice(
 
     override fun isMock(instance: Any): Boolean {
         // in order to avoid endless checks when concurrent hashmap is mocked we need to exclude handlers map explicitly
-        return handlers.isMock(instance)
+        return handlers.isMock(instance) || ConstructingInstance.matches(instance)
     }
 
     companion object {
