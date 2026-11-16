@@ -3,6 +3,7 @@ package io.mockk.core
 import io.mockk.core.ValueClassSupport.boxedValue
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.KTypeParameter
@@ -35,7 +36,7 @@ actual object ValueClassSupport {
         // Unbox Kotlin synthetic *unbox-impl methods
         if (method.name.endsWith("unbox-impl")) return this.boxedValue
 
-        val kFunction = method.kotlinFunction
+        val kFunction = method.kotlinFunctionOrNull()
         // It is possible that the method is a getter for a property, in which
         // case we can check the property's return type in kotlin
         val kProperty = if (kFunction == null) findMatchingPropertyWithJavaGetter(method) else null
@@ -87,9 +88,38 @@ actual object ValueClassSupport {
         }
     }
 
+    /**
+     * Resolves the Kotlin function behind a Java [Method], or `null` when kotlin-reflect
+     * cannot map it.
+     *
+     * The synthetic `invoke` of function/SAM types has no mappable descriptor:
+     * [kotlinFunction] throws [KotlinReflectionInternalError] with "Unknown origin ..."
+     * for members declared in `kotlin.Function0` and friends (issues #1242). Unboxing
+     * only needs the descriptor to decide *how* to return a value class, so `null`
+     * safely means "pass the value through unchanged".
+     */
+    private fun Method.kotlinFunctionOrNull(): KFunction<*>? =
+        try {
+            kotlinFunction
+        } catch (_: KotlinReflectionInternalError) {
+            null
+        } catch (_: UnsupportedOperationException) {
+            null
+        } catch (_: AbstractMethodError) {
+            null
+        }
+
     private fun findMatchingPropertyWithJavaGetter(method: Method): KProperty<*>? =
-        method.declaringClass.kotlin.declaredMemberProperties.find {
-            it.javaGetter == method
+        try {
+            method.declaringClass.kotlin.declaredMemberProperties.find {
+                it.javaGetter == method
+            }
+        } catch (_: KotlinReflectionInternalError) {
+            null
+        } catch (_: UnsupportedOperationException) {
+            null
+        } catch (_: AbstractMethodError) {
+            null
         }
 
     /**
