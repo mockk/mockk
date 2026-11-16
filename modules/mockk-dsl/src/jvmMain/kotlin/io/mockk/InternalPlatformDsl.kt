@@ -195,14 +195,19 @@ actual object InternalPlatformDsl {
         name: String,
         value: Any?,
     ) {
-        val field =
-            self.javaClass
-                .declaredFields
-                .firstOrNull { it.name == name }
-                ?: return
-
-        makeAccessible(field)
-        field.set(self, value)
+        // The property backing a stubbed getter is often declared in a superclass of the
+        // mocked class (issue #1371): the compiler reads such a field directly, bypassing the
+        // getter, so the value has to be written where the field actually lives.
+        var clazz: Class<*>? = self.javaClass
+        while (clazz != null) {
+            val field = clazz.declaredFields.firstOrNull { it.name == name }
+            if (field != null) {
+                makeAccessible(field)
+                field.set(self, value)
+                return
+            }
+            clazz = clazz.superclass
+        }
     }
 
     fun makeAccessible(obj: AccessibleObject) {
