@@ -524,6 +524,7 @@ public final class io/mockk/MockKAdditionalAnswerScope {
 
 public final class io/mockk/MockKAnswerScope {
 	public fun <init> (Lio/mockk/CapturingSlot;Lio/mockk/Call;)V
+	public final fun boxedArgument (Lkotlin/reflect/KClass;Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun callOriginal ()Ljava/lang/Object;
 	public final fun captured (Ljava/util/List;)Ljava/lang/Object;
 	public final fun getArgs ()Ljava/util/List;
