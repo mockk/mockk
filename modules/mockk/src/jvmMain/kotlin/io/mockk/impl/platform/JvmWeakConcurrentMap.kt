@@ -123,10 +123,15 @@ class JvmWeakConcurrentMap<K, V> : WeakMap<K, V> {
         var rootException: Throwable? = null
         for (entity in map.entries) {
             @Suppress("UNCHECKED_CAST")
-            val weakKey = entity.key as? WeakKey<K>
-            val k = weakKey?.get() ?: continue
+            val weakKey = entity.key as? WeakKey<K> ?: continue
+            val k: K? = weakKey.get()
             val v = entity.value
-            if (predicate(k, v)) {
+            // A weak key whose referent was collected is stale: lookups (get,
+            // remove, containsKey) match through the referent, so the entry can
+            // never be found again and the predicate cannot be evaluated for it.
+            // Expunge it regardless of the predicate, otherwise clear() and
+            // removeIf() leave unreachable values behind in the map.
+            if (k == null || predicate(k, v)) {
                 val value = map.remove(weakKey)
                 if (value != null) {
                     if (value is Disposable) {
