@@ -218,25 +218,6 @@ actual object ValueClassSupport {
     }
 
     /**
-     * Resolves the Kotlin function behind a Java [Method], or `null` when kotlin-reflect
-     * cannot map it.
-     *
-     * The synthetic `invoke` of function/SAM types has no mappable descriptor:
-     * [kotlinFunction] throws [KotlinReflectionInternalError] with "Unknown origin ..."
-     * for members declared in `kotlin.Function0` and friends (issues #1242).
-     */
-    private fun Method.kotlinFunctionOrNull(): KFunction<*>? =
-        try {
-            kotlinFunction
-        } catch (_: KotlinReflectionInternalError) {
-            null
-        } catch (_: UnsupportedOperationException) {
-            null
-        } catch (_: AbstractMethodError) {
-            null
-        }
-
-    /**
      * Underlying property value of a **`value class`** or self.
      * Includes workaround for [Result] class
      *
