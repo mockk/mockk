@@ -2,6 +2,7 @@ package io.mockk.core
 
 import io.mockk.core.ValueClassSupport.boxedValue
 import java.lang.reflect.Method
+import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -114,6 +115,119 @@ actual object ValueClassSupport {
             method.declaringClass.kotlin.declaredMemberProperties.find {
                 it.javaGetter == method
             }
+        } catch (_: KotlinReflectionInternalError) {
+            null
+        } catch (_: UnsupportedOperationException) {
+            null
+        } catch (_: AbstractMethodError) {
+            null
+        }
+
+    /**
+     * Re-boxes the JVM-erased result of a method invocation into the value-class instance
+     * the method's Kotlin signature promises.
+     *
+     * The Kotlin compiler erases a non-nullable value-class return to its underlying type and
+     * mangles the method name (`charge-xQ1N4Yw(int): int`), so reflectively invoking the
+     * original implementation yields the raw underlying value (e.g. an `Integer`) where the
+     * declared Kotlin return type is the value class (`Amount`). Consumers that deliver the
+     * result as the declared type - answer-scope `callOriginal()` - need it boxed back first.
+     *
+     * Results that already are instances of the declared type pass through unchanged, as do
+     * suspend calls: their results arrive boxed through the continuation machinery, and a
+     * `COROUTINE_SUSPENDED` marker must not be treated as a value. Methods whose descriptor
+     * cannot be mapped to a Kotlin declaration (see [kotlinFunctionOrNull]) pass through
+     * unchanged as well.
+     *
+     * @return The boxed value-class instance, or [erasedResult] unchanged when no re-boxing applies.
+     * @see maybeUnboxValueForMethodReturn
+     */
+    fun maybeBoxValueForMethodReturn(
+        method: Method,
+        erasedResult: Any?,
+    ): Any? {
+        if (erasedResult == null) return erasedResult
+
+        // A suspending original delivers its result (or the COROUTINE_SUSPENDED marker) through
+        // the continuation machinery, which already handles the value-class shape.
+        if (method.parameterCount > 0 &&
+            Continuation::class.java.isAssignableFrom(method.parameterTypes.last())
+        ) {
+            return erasedResult
+        }
+
+        val declaredReturnType = method.declaredReturnTypeOrNull() ?: return erasedResult
+        if (!declaredReturnType.isValue_safe) return erasedResult
+        if (declaredReturnType.isInstance(erasedResult)) return erasedResult
+        return erasedResult.boxAs(declaredReturnType)
+    }
+
+    /**
+     * Declared Kotlin return type of a [Method], or `null` when it cannot be determined
+     * (plain Java methods, generic type parameters, unmappable descriptors).
+     */
+    private fun Method.declaredReturnTypeOrNull(): KClass<*>? =
+        try {
+            val kFunction = kotlinFunctionOrNull()
+            val kProperty = if (kFunction == null) findMatchingPropertyWithJavaGetter(this) else null
+            when {
+                kFunction != null -> kFunction.returnType.classifier as? KClass<*>
+                kProperty != null -> kProperty.returnType.classifier as? KClass<*>
+                else -> null
+            }
+        } catch (_: KotlinReflectionInternalError) {
+            null
+        } catch (_: UnsupportedOperationException) {
+            null
+        } catch (_: AbstractMethodError) {
+            null
+        }
+
+    /**
+     * Boxes [this] underlying value into the [klass] value-class instance.
+     *
+     * The synthetic `box-impl` method declares the storage representation the compiler
+     * flattened the chain to: for a value class backed by another value class
+     * (e.g. `Quantity(Amount)`) it takes the innermost raw value (`Quantity.box-impl(int)`),
+     * for a boxed-form property it takes the boxed inner instance. The declared parameter
+     * type decides what is passed, so the raw value is forwarded whenever it already matches
+     * and only boxed one level down when it does not.
+     *
+     * @return The boxed instance, or the receiver unchanged when no `box-impl` can be invoked.
+     */
+    private fun Any?.boxAs(
+        klass: KClass<*>,
+        depth: Int = 10,
+    ): Any? {
+        if (!klass.isValue_safe) return this
+        if (depth <= 0) return this
+        val boxMethod =
+            klass.java.declaredMethods.firstOrNull {
+                it.name == "box-impl" && it.parameterCount == 1
+            } ?: return this
+        val paramType = boxMethod.parameterTypes[0]
+        val argument =
+            when {
+                paramType.isPrimitive || paramType.isInstance(this) -> this
+                else -> boxAs(klass.boxedClass, depth - 1)
+            }
+        return runCatching {
+            boxMethod.isAccessible = true
+            boxMethod.invoke(null, argument)
+        }.getOrDefault(this)
+    }
+
+    /**
+     * Resolves the Kotlin function behind a Java [Method], or `null` when kotlin-reflect
+     * cannot map it.
+     *
+     * The synthetic `invoke` of function/SAM types has no mappable descriptor:
+     * [kotlinFunction] throws [KotlinReflectionInternalError] with "Unknown origin ..."
+     * for members declared in `kotlin.Function0` and friends (issues #1242).
+     */
+    private fun Method.kotlinFunctionOrNull(): KFunction<*>? =
+        try {
+            kotlinFunction
         } catch (_: KotlinReflectionInternalError) {
             null
         } catch (_: UnsupportedOperationException) {
