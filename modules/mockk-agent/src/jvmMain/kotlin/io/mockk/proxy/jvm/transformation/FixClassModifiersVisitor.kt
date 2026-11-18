@@ -3,7 +3,6 @@ package io.mockk.proxy.jvm.transformation
 import net.bytebuddy.asm.AsmVisitorWrapper
 import net.bytebuddy.description.field.FieldDescription
 import net.bytebuddy.description.field.FieldList
-import net.bytebuddy.description.method.MethodDescription
 import net.bytebuddy.description.method.MethodList
 import net.bytebuddy.description.type.TypeDescription
 import net.bytebuddy.implementation.Implementation
