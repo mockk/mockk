@@ -10,10 +10,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+
+import net.bytebuddy.jar.asm.ClassReader;
+import net.bytebuddy.jar.asm.ClassVisitor;
+import net.bytebuddy.jar.asm.ClassWriter;
+import net.bytebuddy.jar.asm.Opcodes;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -95,6 +102,62 @@ public class JvmMockKProxyMakerTest {
         public void a() {
             executed[0] = true;
         }
+    }
+
+    private static byte[] readClassFile(ClassLoader loader, String binaryName) throws IOException {
+        try (InputStream stream = loader.getResourceAsStream(binaryName.replace('.', '/') + ".class")) {
+            return stream.readAllBytes();
+        }
+    }
+
+    private static byte[] stripFinalFlag(byte[] classFile) {
+        ClassReader reader = new ClassReader(classFile);
+        ClassWriter writer = new ClassWriter(0);
+        reader.accept(new ClassVisitor(Opcodes.ASM9, writer) {
+            @Override
+            public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+                super.visit(version, access & ~Opcodes.ACC_FINAL, name, signature, superName, interfaces);
+            }
+        }, 0);
+        return writer.toByteArray();
+    }
+
+    private static ClassLoader defineFinalNestedFixtureWithStrippedFinalFlag(ClassLoader appLoader) throws IOException {
+        byte[] holderClassFile = readClassFile(appLoader, "io.mockk.proxy.FinalClassFixture");
+        byte[] strippedNestedClassFile = stripFinalFlag(readClassFile(appLoader, "io.mockk.proxy.FinalClassFixture$Nested"));
+        return new ClassLoader(appLoader) {
+            @Override
+            protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+                if (name.equals("io.mockk.proxy.FinalClassFixture") || name.equals("io.mockk.proxy.FinalClassFixture$Nested")) {
+                    synchronized (getClassLoadingLock(name)) {
+                        Class<?> cls = findLoadedClass(name);
+                        if (cls == null) {
+                            byte[] bytes = name.equals("io.mockk.proxy.FinalClassFixture$Nested") ? strippedNestedClassFile : holderClassFile;
+                            cls = defineClass(name, bytes, 0, bytes.length);
+                        }
+                        if (resolve) {
+                            resolveClass(cls);
+                        }
+                        return cls;
+                    }
+                }
+                return super.loadClass(name, resolve);
+            }
+        };
+    }
+
+    @Test
+    public void deFinalizedNestedClassProxy() throws Exception {
+        ClassLoader fixtureLoader = defineFinalNestedFixtureWithStrippedFinalFlag(JvmMockKProxyMakerTest.class.getClassLoader());
+        Class<?> definalizedClass = fixtureLoader.loadClass("io.mockk.proxy.FinalClassFixture$Nested");
+        Class<?> fixtureClass = fixtureLoader.loadClass("io.mockk.proxy.FinalClassFixture");
+
+        Runnable proxy = (Runnable) maker.proxy(definalizedClass, new Class[0], handler, false, null).get();
+
+        proxy.run();
+
+        assertEquals(0, fixtureClass.getDeclaredField("nestedRunCalls").getInt(null));
+        checkProxyHandlerCalled(1, proxy, "run");
     }
 
     @Test
