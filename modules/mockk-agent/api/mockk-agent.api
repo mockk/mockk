@@ -32,6 +32,13 @@ public class io/mockk/proxy/jvm/advice/jvm/JvmMockKConstructorProxyAdvice {
 	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
 }
 
+public class io/mockk/proxy/jvm/advice/jvm/JvmMockKDelegateProxyInterceptor {
+	public static final field Companion Lio/mockk/proxy/jvm/advice/BaseAdvice$Companion;
+	public static final field ORIGINAL_FIELD Ljava/lang/String;
+	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
+	public static fun intercept (JLjava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
 public class io/mockk/proxy/jvm/advice/jvm/JvmMockKHashMapStaticProxyAdvice {
 	public static final field Companion Lio/mockk/proxy/jvm/advice/BaseAdvice$Companion;
 	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
