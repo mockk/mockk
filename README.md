@@ -262,6 +262,31 @@ class CarTest {
 }
 ```
 
+#### Unnecessary stubbing check
+
+You can also make sure that all stubbed methods are useful - used at least once - by passing
+`checkUnnecessaryStub = true` to the rule.
+
+This will internally call `checkUnnecessaryStub` on all mocks after each test, to make sure there are no unnecessary stubbings.
+The failure message names the test that failed the check, and the check is skipped when the test itself failed, so a real failure is never masked.
+The option is disabled by default, so the rule behaves as before unless it is switched on.
+
+```kotlin
+class CarTest {
+  @get:Rule
+  val mockkRule = MockKRule(this, checkUnnecessaryStub = true)
+
+  @MockK
+  lateinit var car1: Car
+
+  @Test
+  fun something() {
+     every { car1.drive() } just runs
+     // a stub declared here and not used fails `something`
+  }
+}
+```
+
 ### JUnit5
 
 In JUnit5 you can use `MockKExtension` to initialize your mocks.
@@ -346,7 +371,7 @@ class CarTest {
 ```
 
 The class-level behavior of `MockKExtension` is unchanged, and the new extension only performs the check: it does not initialize or clean up mocks.
-For JUnit 4, add the analogous `CheckUnnecessaryStubRule` next to `MockKRule`:
+For JUnit 4, either enable the same check directly on the rule with `MockKRule(this, checkUnnecessaryStub = true)` (see the JUnit4 section above), or add the analogous `CheckUnnecessaryStubRule` next to `MockKRule`:
 
 ```kotlin
 class CarTest {
