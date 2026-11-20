@@ -135,6 +135,14 @@ abstract class AbstractMockFactory(
 
         stub.hashCodeStr = InternalPlatform.hkd(proxy)
 
+        // Temporary mocks live only for the duration of a recording session, but until
+        // they are replaced by permanent child mocks their agent-level class
+        // transformation request stays active. Register the stub so the session can
+        // dispose it, cancelling the transformation; otherwise JDK classes pulled in
+        // by the recording (e.g. the `HashMap` hierarchy for a method returning a map)
+        // stay intercepted forever (issue #1289).
+        stubRepository.add(proxy, stub)
+
         return proxy
     }
 
