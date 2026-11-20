@@ -11,6 +11,7 @@ import io.mockk.Matcher
 import io.mockk.MockKException
 import io.mockk.NullCheckMatcher
 import io.mockk.RecordedCall
+import io.mockk.VarargArrayMatcher
 import io.mockk.VarargMatcher
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
@@ -102,6 +103,12 @@ class ChainedCallDetector(
                 log.trace { "Signature for $nArgument/$nVarArg argument of ${zeroCall.method.toStr()}: $signature" }
 
                 val matcherBySignature = matcherMap.remove(signature)
+                if (matcherBySignature is VarargArrayMatcher) {
+                    if (zeroCallArg.size != 1) {
+                        throw MockKException("varargArray must be the only matcher or value in the vararg")
+                    }
+                    return matcherBySignature
+                }
                 varArgMatchers.add(
                     buildMatcher(
                         nArgument == 0 && nVarArg == 0,
