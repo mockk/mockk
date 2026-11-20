@@ -10,6 +10,7 @@ import io.mockk.proxy.common.CancelableResult
 import io.mockk.proxy.common.transformation.InlineInstrumentation
 import io.mockk.proxy.common.transformation.TransformationRequest
 import io.mockk.proxy.common.transformation.TransformationType.SIMPLE
+import io.mockk.proxy.jvm.advice.ConstructingInstance
 import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
@@ -58,7 +59,7 @@ internal class ProxyMaker(
             }
 
         try {
-            val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance)
+            val proxy = instantiate(actualClass, proxyClass, useDefaultConstructor, instance, handler)
 
             handlers[proxy] = handler
             // The handler map keys the proxy weakly, and the stub behind the handler keeps this cancelable.
@@ -82,6 +83,7 @@ internal class ProxyMaker(
         proxyClass: Class<T>,
         useDefaultConstructor: Boolean,
         instance: Any?,
+        handler: MockKInvocationHandler,
     ): T =
         when {
             instance != null -> {
@@ -90,7 +92,12 @@ internal class ProxyMaker(
             }
             useDefaultConstructor -> {
                 log.trace("Instantiating proxy for $clazz via default constructor")
-                clazz.cast(newInstanceViaDefaultConstructor(proxyClass))
+                // The constructor runs on the proxy before the handler can be registered in
+                // the per-instance map, so keep it reachable for the calls the constructor
+                // itself makes (field initializers, Kotlin init block) — #1288.
+                ConstructingInstance.during(clazz, handler) {
+                    clazz.cast(newInstanceViaDefaultConstructor(proxyClass))
+                }
             }
             else -> {
                 log.trace("Instantiating proxy for $clazz via instantiator")

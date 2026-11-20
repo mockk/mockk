@@ -33,7 +33,7 @@ class JvmMockFactory(
                 proxyMaker.proxy(
                     cls.java,
                     moreInterfaces.map { it.java }.toTypedArray(),
-                    JvmMockFactoryHelper.mockHandler(stub),
+                    JvmMockFactoryHelper.mockHandler(stub, stubRepository),
                     useDefaultConstructor,
                     null,
                 )
