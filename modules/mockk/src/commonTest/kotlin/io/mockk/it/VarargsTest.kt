@@ -1,6 +1,7 @@
 package io.mockk.it
 
 import io.mockk.CapturingSlot
+import io.mockk.MockKException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -8,10 +9,55 @@ import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 @Suppress("UNUSED_PARAMETER")
 class VarargsTest {
     val mock = mockk<VarargsCls>()
+
+    @Test
+    fun matchesWholeVararg() {
+        every { mock.tags(*varargArray<String> { it.toSet() == setOf("id", "status") }) } returns 42
+
+        assertEquals(42, mock.tags("id", "status"))
+        assertEquals(42, mock.tags("status", "id"))
+        assertFailsWith<MockKException> { mock.tags("id") }
+        verify(exactly = 2) { mock.tags(*varargArray<String> { it.contains("status") }) }
+        assertFailsWith<AssertionError> {
+            verify { mock.tags(*varargArray<String> { "missing" in it }) }
+        }
+    }
+
+    @Test
+    fun matchesEmptyAndNullableVarargs() {
+        every { mock.tags(*varargArray<String?> { it.isEmpty() }) } returns 0
+        every { mock.tags(*varargArray<String?> { it.contentEquals(arrayOf(null, "ok")) }) } returns 2
+
+        every { mock.tags(*varargArray<String> { values -> values.any { it.startsWith("ok") } }) } returns 1
+
+        assertEquals(1, mock.tags("ok"))
+        assertEquals(0, mock.tags())
+        assertEquals(2, mock.tags(null, "ok"))
+        verify(exactly = 1) { mock.tags(*varargArray<String?> { it.isEmpty() }) }
+    }
+
+    @Test
+    fun matchesWholePrimitiveVarargAlongsideRegularArguments() {
+        every { mock.intOp(1, *varargArray<Int> { it.sum() == 5 }.toIntArray(), c = 2) } returns 3
+
+        assertEquals(3, mock.intOp(1, 2, 3, c = 2))
+        assertFailsWith<MockKException> { mock.intOp(1, 2, 3, c = 4) }
+        verify { mock.intOp(1, *varargArray<Int> { it.size == 2 }.toIntArray(), c = 2) }
+    }
+
+    @Test
+    fun rejectsMixingWholeVarargMatcherWithElements() {
+        val failure =
+            assertFailsWith<MockKException> {
+                every { mock.tags("prefix", *varargArray<String> { true }) } returns 1
+            }
+        assertEquals("varargArray must be the only matcher or value in the vararg", failure.message)
+    }
 
     @Test
     fun simpleArgs() {
@@ -916,6 +962,8 @@ class VarargsTest {
     )
 
     class VarargsCls {
+        fun tags(vararg values: String?): Int = values.size
+
         fun intWrapperOp(
             a: Int,
             vararg b: IntWrapper,

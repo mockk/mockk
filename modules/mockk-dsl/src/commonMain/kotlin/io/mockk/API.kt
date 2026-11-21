@@ -993,6 +993,18 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> ofType(): T = match(OfTypeMatcher<T>(T::class))
 
+    /**
+     * Matches the entire vararg with one predicate. Spread the result as the only vararg argument.
+     */
+    inline fun <reified T> varargArray(crossinline predicate: (Array<out T>) -> Boolean): Array<T> {
+        val matcher =
+            VarargArrayMatcher { values ->
+                values.all { it is T } && predicate(Array(values.size) { values[it] as T })
+            }
+        val elementType: KClass<*> = T::class
+        return arrayOf(callRecorder.matcher(matcher, elementType) as T)
+    }
+
     inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
 
     inline fun anyBooleanVararg() = anyVararg<Boolean>().toBooleanArray()

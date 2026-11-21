@@ -1348,6 +1348,16 @@ println(obj.manyMany(5, 6, 3, 4, 7)) // 6
 println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
 ```
 
+Use `varargArray` when the predicate needs the entire argument array, including when it is empty.
+Spread it as the only value in the vararg position:
+
+```kotlin
+every { obj.manyMany(*varargArray<Any> { it.toSet() == setOf("id", "status") }) } returns 42
+
+obj.manyMany("status", "id")
+verify { obj.manyMany(*varargArray<Any> { "status" in it && "id" in it }) }
+```
+
 ### Private functions mocking / dynamic calls
 
 IF you need to mock private functions, you can do it via a dynamic call.
