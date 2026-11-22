@@ -82,6 +82,25 @@ abstract class RecordedBlockEvaluator(
 
     private class NothingThrownNullPointerException : RuntimeException()
 
+    /**
+     * Wraps the recorded block so that a block terminated by a `Nothing`-typed expression is
+     * treated as finished, not failed.
+     *
+     * Two shapes end a recorded block this way:
+     *
+     * - The last recorded call is declared to return [kotlin.Nothing]. The proxy answers the
+     *   recording with `null`, so whatever the block chains on that result throws; the
+     *   [checkLastCallReturnsNothing] callback detects the situation from the recorded call.
+     *
+     * - The block calls a function whose `Nothing` return type comes from a type argument, for
+     *   example `mockk<() -> Nothing>()` (#960). The compiler cannot see `Nothing` in the
+     *   function's own signature (`Function0.invoke` returns the type variable `R`), but it
+     *   knows the expression's type is `Nothing`, so it ends the lambda with an unreachable
+     *   `throw KotlinNothingValueException()`. That exception can only originate from such
+     *   compiler-inserted code, so it always means "the block ended here" and is safe to
+     *   convert to the sentinel without consulting the recorded calls
+     *   ([isNothingExpressionTermination]).
+     */
     private fun <T> enhanceWithRethrow(
         block: () -> T,
         checkLastCallReturnsNothing: () -> Boolean,
@@ -90,7 +109,7 @@ abstract class RecordedBlockEvaluator(
             try {
                 block()
             } catch (e: Exception) {
-                if (checkLastCallReturnsNothing()) {
+                if (isNothingExpressionTermination(e) || checkLastCallReturnsNothing()) {
                     throw NothingThrownNullPointerException()
                 } else {
                     throw e
