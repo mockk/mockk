@@ -50,17 +50,21 @@ class NothingReturningCallRecordingTest {
     }
 
     @Test
-    fun `suspending Nothing-typed lambda call is stubbed and verified`() = runTest {
-        val mockCallback = mockk<suspend () -> Nothing>()
-        val counter = AtomicInteger()
+    fun `suspending Nothing-typed lambda call is stubbed and verified`() =
+        runTest {
+            val mockCallback = mockk<suspend () -> Nothing>()
+            val counter = AtomicInteger()
 
-        coEvery { mockCallback() } answers { counter.incrementAndGet(); throw IllegalStateException("co mock exception") }
+            coEvery { mockCallback() } answers {
+                counter.incrementAndGet()
+                throw IllegalStateException("co mock exception")
+            }
 
-        assertThrows<IllegalStateException> { consumeSuspending(mockCallback) }
-        assertEquals(1, counter.get())
+            assertThrows<IllegalStateException> { consumeSuspending(mockCallback) }
+            assertEquals(1, counter.get())
 
-        coVerify { mockCallback() }
-    }
+            coVerify { mockCallback() }
+        }
 
     /**
      * Control: a `Nothing` return type declared on the function itself goes through the
