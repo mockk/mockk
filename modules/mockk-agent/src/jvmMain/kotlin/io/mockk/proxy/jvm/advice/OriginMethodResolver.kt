@@ -40,7 +40,10 @@ object OriginMethodResolver {
     /** Resolved methods, cached per (declaring class, origin text) pair. */
     private val resolved = ConcurrentHashMap<ResolutionKey, Method>()
 
-    fun resolve(method: Method, origin: String?): Method {
+    fun resolve(
+        method: Method,
+        origin: String?,
+    ): Method {
         if (origin == null) {
             return method
         }
@@ -93,7 +96,11 @@ object OriginMethodResolver {
      * when the rendered text deviates (e.g. over `throws` clauses), the method with the same
      * name, parameter types and normalized return type.
      */
-    private fun recover(declaring: Class<*>, method: Method, origin: String): Method? {
+    private fun recover(
+        declaring: Class<*>,
+        method: Method,
+        origin: String,
+    ): Method? {
         candidates(declaring).firstOrNull { it.toString() == origin }?.let { return it }
 
         val marker = declaring.name + "." + method.name + "("
