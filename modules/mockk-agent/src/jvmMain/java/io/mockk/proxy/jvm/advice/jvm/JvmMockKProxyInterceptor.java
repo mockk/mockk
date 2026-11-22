@@ -3,6 +3,7 @@ package io.mockk.proxy.jvm.advice.jvm;
 import io.mockk.proxy.jvm.advice.BaseAdvice;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher;
+import io.mockk.proxy.jvm.advice.OriginMethodResolver;
 import io.mockk.proxy.jvm.util.DefaultInterfaceMethodResolver;
 import net.bytebuddy.implementation.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class JvmMockKProxyInterceptor extends BaseAdvice {
     public static Object intercept(@ProxyAdviceId long id,
                                    @This Object self,
                                    @Origin Method method,
+                                   @Origin String origin,
                                    @AllArguments Object[] args,
                                    @SuperCall final Callable<Object> originalMethod) throws Throwable {
         JvmMockKDispatcher dispatcher = get(id, self);
@@ -27,13 +29,14 @@ public class JvmMockKProxyInterceptor extends BaseAdvice {
             return originalMethod.call();
         }
 
-        return dispatcher.handle(self, method, args, originalMethod);
+        return dispatcher.handle(self, OriginMethodResolver.INSTANCE.resolve(method, origin), args, originalMethod);
     }
 
     @RuntimeType
     public static Object interceptNoSuper(@ProxyAdviceId long id,
                                           @This Object self,
                                           @Origin Method method,
+                                          @Origin String origin,
                                           @AllArguments Object[] args) throws Throwable {
         JvmMockKDispatcher dispatcher = get(id, self);
 
@@ -41,7 +44,8 @@ public class JvmMockKProxyInterceptor extends BaseAdvice {
             return null;
         }
 
-        return dispatcher.handle(self, method, args, DefaultInterfaceMethodResolver.Companion.getDefaultImplementationOrNull$mockk_agent(self, method, args));
+        Method trueMethod = OriginMethodResolver.INSTANCE.resolve(method, origin);
+        return dispatcher.handle(self, trueMethod, args, DefaultInterfaceMethodResolver.Companion.getDefaultImplementationOrNull$mockk_agent(self, trueMethod, args));
 
     }
 

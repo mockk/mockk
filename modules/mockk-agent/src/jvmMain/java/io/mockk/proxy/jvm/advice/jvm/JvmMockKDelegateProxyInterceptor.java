@@ -1,6 +1,7 @@
 package io.mockk.proxy.jvm.advice.jvm;
 
 import io.mockk.proxy.jvm.advice.BaseAdvice;
+import io.mockk.proxy.jvm.advice.OriginMethodResolver;
 import io.mockk.proxy.jvm.advice.MethodCall;
 import io.mockk.proxy.jvm.advice.ProxyAdviceId;
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher;
@@ -27,6 +28,7 @@ public class JvmMockKDelegateProxyInterceptor extends BaseAdvice {
             @ProxyAdviceId long id,
             @This Object self,
             @Origin Method method,
+            @Origin String origin,
             @AllArguments Object[] args,
             @FieldValue(ORIGINAL_FIELD) Object original
     ) throws Throwable {
@@ -36,9 +38,10 @@ public class JvmMockKDelegateProxyInterceptor extends BaseAdvice {
             return null;
         }
 
+        Method trueMethod = OriginMethodResolver.INSTANCE.resolve(method, origin);
         Callable<Object> originalCall =
-                original == null ? null : new MethodCall(original, method, args);
+                original == null ? null : new MethodCall(original, trueMethod, args);
 
-        return dispatcher.handle(self, method, args, originalCall);
+        return dispatcher.handle(self, trueMethod, args, originalCall);
     }
 }

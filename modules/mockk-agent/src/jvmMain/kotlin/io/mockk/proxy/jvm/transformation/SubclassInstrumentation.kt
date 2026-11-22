@@ -43,14 +43,28 @@ internal class SubclassInstrumentation(
     private lateinit var delegateInterceptor: JvmMockKDelegateProxyInterceptor
 
     /**
-     * The graph compiler that keeps `finalize()` out of the way of interface-declared methods of the
-     * same name (#1212). The default compiler merges methods by name and parameter types, ignoring
-     * the return type, so an interface-declared `finalize()` (whatever its return type) shares a
-     * graph node with the `finalize()` declared by `java.lang.Object`. The node is represented by the
-     * concrete `Object` one, which the ignore matcher below drops, and the whole node goes with it -
-     * the generated `$Subclass` is left without an implementation of the interface method, failing
-     * with an [AbstractMethodError] (non-`Unit` return) or an [IllegalAccessError] (`Unit` return,
-     * the call falls through to the `protected` `Object.finalize`).
+     * The graph compiler for subclass proxies: methods are keyed by name, parameter types *and*
+     * return type ([Harmonizer.ForJVMMethod]), and `finalize()` declared by `java.lang.Object` is
+     * kept out of the way of interface-declared methods of the same name (#1212).
+     *
+     * The return-type-aware key matters because Kotlin legally emits overloads that differ only in
+     * their return descriptors: `invoke(FeatureFlag<Boolean>): Boolean` and
+     * `invoke(FeatureFlag<String>): String` both compile to `invoke(FeatureFlag)` with the return
+     * type as the only difference (#1093). A Java-hierarchy compiler ([Harmonizer.ForJavaMethod],
+     * which [MethodGraph.Compiler.DEFAULT] is built from) merges methods by name and parameter
+     * types alone, so the two abstract methods collapse into one graph node represented by one of
+     * them, the generated `$Subclass` implements only that representative, and calling the other
+     * overload fails with an [AbstractMethodError]. The inline instrumentation path already keys
+     * its graph by return type (`InliningClassTransformer` builds it from
+     * [MethodGraph.Compiler.forJVMHierarchy]), so the subclass path simply matches it.
+     *
+     * `Object.finalize` filtering: an interface-declared `finalize()` taking no arguments and
+     * returning `Unit` shares the `finalize()V` key with the concrete `Object.finalize` even under
+     * the return-type-aware harmonizer. The node is represented by the concrete `Object` one,
+     * which the ignore matcher below drops, and the whole node goes with it - the generated
+     * `$Subclass` is left without an implementation of the interface method, failing with an
+     * [AbstractMethodError] (non-`Unit` return) or an [IllegalAccessError] (`Unit` return, the
+     * call falls through to the `protected` `Object.finalize`).
      *
      * Filtering methods *declared by* `java.lang.Object` out of the graph before resolution breaks
      * that merge. The interface-declared `finalize()` then gets a node of its own, represented by
@@ -59,13 +73,10 @@ internal class SubclassInstrumentation(
      * original finalizer - the JVM-level finalize semantics are untouched. Only the `Object`-declared
      * method is filtered: a class-level `finalize()` is declared by the class itself, keeps its node
      * and behaves exactly as before.
-     *
-     * The harmonizer, merger and visitor are the ones [MethodGraph.Compiler.DEFAULT] is built from,
-     * so this is that compiler plus the method filter.
      */
     private val defaultFinalizerExcludingMethodGraphCompiler =
         MethodGraph.Compiler.Default.of(
-            MethodGraph.Compiler.Default.Harmonizer.ForJavaMethod.INSTANCE,
+            MethodGraph.Compiler.Default.Harmonizer.ForJVMMethod.INSTANCE,
             MethodGraph.Compiler.Default.Merger.Directional.LEFT,
             not<MethodDescription>(isDefaultFinalizer<MethodDescription>()),
         )
