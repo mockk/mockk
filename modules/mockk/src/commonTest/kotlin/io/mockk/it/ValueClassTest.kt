@@ -1043,6 +1043,31 @@ class ValueClassTest {
     }
 
     @Test
+    fun `matchers work for validated value class arguments without an instance factory`() {
+        val mock = mockk<AccountTransfer>()
+        val source = AccountId("acct:source")
+        val destination = AccountId("acct:destination")
+
+        every { mock.transfer(eq(source), any()) } returns true
+
+        assertTrue(mock.transfer(source, destination))
+        assertFailsWith<MockKException> { mock.transfer(destination, source) }
+        verify(exactly = 1) { mock.transfer(eq(source), any()) }
+    }
+
+    @Test
+    fun `matchers support nested value classes with a nullable inner value`() {
+        val mock = mockk<NestedAccountConsumer>()
+        val value = NestedAccountId(OptionalAccountNumber(DummyValue(44)))
+
+        every { mock.consume(any()) } returns true
+
+        assertTrue(mock.consume(value))
+        assertTrue(mock.consume(NestedAccountId(OptionalAccountNumber(null))))
+        verify(exactly = 2) { mock.consume(any()) }
+    }
+
+    @Test
     fun `instance factory is called for value class argument with any() matcher`() {
         var factoryCalled = false
         registerInstanceFactory {
@@ -1206,6 +1231,36 @@ class ValueClassTest {
     // </editor-fold>
 
     companion object {
+        @JvmInline
+        value class AccountId(
+            val value: String,
+        ) {
+            init {
+                require(value.startsWith("acct:"))
+            }
+        }
+
+        interface AccountTransfer {
+            fun transfer(
+                source: AccountId,
+                destination: AccountId,
+            ): Boolean
+        }
+
+        @JvmInline
+        value class OptionalAccountNumber(
+            val value: DummyValue?,
+        )
+
+        @JvmInline
+        value class NestedAccountId(
+            val value: OptionalAccountNumber,
+        )
+
+        interface NestedAccountConsumer {
+            fun consume(accountId: NestedAccountId): Boolean
+        }
+
         @JvmInline
         value class MyToken(
             val raw: String,
