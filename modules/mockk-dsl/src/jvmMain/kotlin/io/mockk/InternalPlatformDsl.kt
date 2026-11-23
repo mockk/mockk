@@ -4,6 +4,8 @@ import kotlinx.coroutines.runBlocking
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.WildcardType
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
@@ -18,6 +20,7 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.javaType
 
 actual object InternalPlatformDsl {
     actual fun identityHashCode(obj: Any): Int = System.identityHashCode(obj)
@@ -107,29 +110,13 @@ actual object InternalPlatformDsl {
         anyContinuationGen: () -> Continuation<*>,
     ): Any? {
         val params = arrayOf(self, *args)
+        val candidates =
+            self::class
+                .allAncestorFunctions()
+                .filter { it.name == methodName && it.parameters.size == params.size }
         val func =
-            self::class.allAncestorFunctions().firstOrNull {
-                if (it.name != methodName) {
-                    return@firstOrNull false
-                }
-                if (it.parameters.size != params.size) {
-                    return@firstOrNull false
-                }
-
-                for ((idx, param) in it.parameters.withIndex()) {
-                    val matches =
-                        when (val classifier = param.type.classifier) {
-                            is KClass<*> -> classifier.isInstance(params[idx])
-                            is KTypeParameter -> classifier.upperBounds.anyIsInstance(params[idx])
-                            else -> false
-                        }
-                    if (!matches) {
-                        return@firstOrNull false
-                    }
-                }
-
-                return@firstOrNull true
-            }
+            candidates.firstOrNull { it.matchesDynamicCall(params, allowSuspendFallback = false) }
+                ?: candidates.firstOrNull { it.matchesDynamicCall(params, allowSuspendFallback = true) }
                 ?: throw MockKException(
                     "can't find function $methodName(${args.joinToString(", ")}) of class ${self.javaClass.name} for dynamic call.\n" +
                         "If you were trying to verify a private function, make sure to provide type information to exactly match the functions signature.",
@@ -141,6 +128,33 @@ actual object InternalPlatformDsl {
         } else {
             func.call(*params)
         }
+    }
+
+    private fun KFunction<*>.matchesDynamicCall(
+        params: Array<out Any?>,
+        allowSuspendFallback: Boolean,
+    ): Boolean =
+        parameters.withIndex().all { (index, parameter) ->
+            val value = params[index]
+            when (val classifier = parameter.type.classifier) {
+                is KClass<*> -> classifier.isInstance(value)
+                is KTypeParameter -> classifier.upperBounds.anyIsInstance(value)
+                null -> allowSuspendFallback && parameter.type.matchesSuspendFunctionOnJvm(value)
+                else -> false
+            }
+        }
+
+    private fun KType.matchesSuspendFunctionOnJvm(value: Any?): Boolean {
+        // Before Kotlin 2.3 (KT-79206), suspend function types have no classifier.
+        // Their JVM function signature still includes the extra Continuation argument.
+        val signature = javaType as? ParameterizedType ?: return false
+        val functionClass = signature.rawType as? Class<*> ?: return false
+        if (!Function::class.java.isAssignableFrom(functionClass) || !functionClass.isInstance(value)) return false
+
+        val arguments = signature.actualTypeArguments
+        val continuationArgument = arguments.getOrNull(arguments.size - 2)
+        val continuationType = (continuationArgument as? WildcardType)?.lowerBounds?.singleOrNull() ?: continuationArgument
+        return (continuationType as? ParameterizedType)?.rawType == Continuation::class.java
     }
 
     private fun KClass<*>.allAncestorFunctions(): Sequence<KFunction<*>> =

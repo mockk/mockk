@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.runs
+import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.unmockkObject
 import kotlinx.coroutines.CompletableDeferred
@@ -25,6 +26,42 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CoroutineTest {
+    private class PrivateSuspendCallbacks {
+        suspend fun callSuspendCallback(): Int = dispatch(suspendCallback)
+
+        suspend fun callRegularCallback(): Int = dispatch(regularCallback)
+
+        private val suspendCallback: suspend (Int) -> Int = { it * 2 }
+        private val regularCallback: (Int) -> Int = { it * 2 }
+
+        private suspend fun dispatch(callback: suspend (Int) -> Int): Int = callback(21)
+
+        private suspend fun dispatch(callback: (Int) -> Int): Int = callback(21)
+    }
+
+    @Test
+    fun capturesAndVerifiesLambdaParameterOfPrivateSuspendMethod() {
+        val spy = spyk(PrivateSuspendCallbacks(), recordPrivateCalls = true)
+        val callback = slot<suspend (Int) -> Int>()
+
+        coEvery { spy invoke "dispatch" withArguments listOf(capture(callback)) } coAnswers {
+            callback.captured(5)
+        }
+
+        runBlocking { assertEquals(10, spy.callSuspendCallback()) }
+        coVerify(exactly = 1) { spy invoke "dispatch" withArguments listOf(any<suspend (Int) -> Int>()) }
+    }
+
+    @Test
+    fun resolvesRegularLambdaOverloadOfPrivateSuspendMethod() {
+        val spy = spyk(PrivateSuspendCallbacks(), recordPrivateCalls = true)
+
+        coEvery { spy invoke "dispatch" withArguments listOf(any<(Int) -> Int>()) } returns 17
+
+        runBlocking { assertEquals(17, spy.callRegularCallback()) }
+        coVerify(exactly = 1) { spy invoke "dispatch" withArguments listOf(any<(Int) -> Int>()) }
+    }
+
     data class ClearMocksClass(
         val a: String,
     ) {
