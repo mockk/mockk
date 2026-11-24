@@ -2910,7 +2910,19 @@ class MockKVerificationScope(
         match(
             FunctionMatcher(
                 {
-                    MockKAssertScope(it).captureBlock(it)
+                    try {
+                        MockKAssertScope(it).captureBlock(it)
+                    } catch (e: ClassCastException) {
+                        // The block was written for another type argument of the same erased class
+                        // (e.g. ParentImpl<Child1> vs ParentImpl<Child2>), so this call is a non-match
+                        // and takes the same AssertionError path as a failed assertion in the block.
+                        throw AssertionError(
+                            "assertion block failed with a class cast while matching an argument" +
+                                (it?.let { arg -> " of class ${arg::class.simpleName}" } ?: "") +
+                                ": ${e.message}. " +
+                                "The call is counted as not matching the argument assertion.",
+                        )
+                    }
                     true
                 },
                 T::class,
@@ -2935,7 +2947,19 @@ class MockKVerificationScope(
         match(
             FunctionWithNullableArgMatcher(
                 {
-                    MockKAssertScope(it).captureBlock(it)
+                    try {
+                        MockKAssertScope(it).captureBlock(it)
+                    } catch (e: ClassCastException) {
+                        // The block was written for another type argument of the same erased class
+                        // (e.g. ParentImpl<Child1> vs ParentImpl<Child2>), so this call is a non-match
+                        // and takes the same AssertionError path as a failed assertion in the block.
+                        throw AssertionError(
+                            "assertion block failed with a class cast while matching an argument" +
+                                (it?.let { arg -> " of class ${arg::class.simpleName}" } ?: "") +
+                                ": ${e.message}. " +
+                                "The call is counted as not matching the argument assertion.",
+                        )
+                    }
                     true
                 },
                 T::class,
