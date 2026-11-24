@@ -173,6 +173,7 @@ internal class InliningClassTransformer(
                 .with(VisibilityBridgeStrategy { not(isDefaultMethod()).matches(it) })
                 .redefine<Any>(type, of(type.name, classfileBuffer))
                 .visit(FixParameterNamesVisitor(originalClass))
+                .visit(FixClassModifiersVisitor(classfileBuffer))
 
         return builder
             .run { if (spec.shouldDoSimpleIntercept) visit(simpleAdvice()) else this }

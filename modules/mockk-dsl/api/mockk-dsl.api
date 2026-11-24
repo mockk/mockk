@@ -524,6 +524,7 @@ public final class io/mockk/MockKAdditionalAnswerScope {
 
 public final class io/mockk/MockKAnswerScope {
 	public fun <init> (Lio/mockk/CapturingSlot;Lio/mockk/Call;)V
+	public final fun boxedArgument (Lkotlin/reflect/KClass;Ljava/lang/Object;)Ljava/lang/Object;
 	public final fun callOriginal ()Ljava/lang/Object;
 	public final fun captured (Ljava/util/List;)Ljava/lang/Object;
 	public final fun getArgs ()Ljava/util/List;
@@ -1173,6 +1174,13 @@ public abstract interface class io/mockk/TypedMatcher {
 
 public final class io/mockk/TypedMatcher$DefaultImpls {
 	public static fun checkType (Lio/mockk/TypedMatcher;Ljava/lang/Object;)Z
+}
+
+public final class io/mockk/VarargArrayMatcher : io/mockk/Matcher {
+	public fun <init> (Lkotlin/jvm/functions/Function1;)V
+	public fun match (Ljava/lang/Object;)Z
+	public fun substitute (Ljava/util/Map;)Lio/mockk/Matcher;
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class io/mockk/VarargMatcher : io/mockk/CapturingMatcher, io/mockk/Matcher {

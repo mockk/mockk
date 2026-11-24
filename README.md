@@ -687,6 +687,45 @@ verify {
 ```
 
 
+#### Mocking protected and private methods
+
+Use a dynamic call by name on the prototype mock to stub a protected or private method.
+Set `recordPrivateCalls = true` to record these calls for verification. For suspend methods, use
+`coEvery` and `coVerify`.
+
+```kotlin
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockkConstructor
+import kotlinx.coroutines.runBlocking
+
+open class BaseExecutor {
+    protected open suspend fun authorize() = "authorized"
+}
+
+class Executor : BaseExecutor() {
+    override suspend fun authorize() = super.authorize()
+
+    private suspend fun label(id: String) = "job-$id"
+
+    suspend fun execute(id: String) = "${authorize()}: ${label(id)}"
+}
+
+fun main() = runBlocking {
+    mockkConstructor(Executor::class, recordPrivateCalls = true) {
+        coEvery { anyConstructed<Executor>()["authorize"]() } returns "allowed"
+        coEvery { anyConstructed<Executor>()["label"]("42") } returns "test-job"
+
+        check(Executor().execute("42") == "allowed: test-job")
+
+        coVerify(exactly = 1) { anyConstructed<Executor>()["authorize"]() }
+        coVerify(exactly = 1) { anyConstructed<Executor>()["label"]("42") }
+    }
+}
+```
+
+The block form automatically removes the constructor mock when the block ends.
+
 ### Partial argument matching
 
 You can mix both regular arguments and matchers:
@@ -1346,6 +1385,16 @@ every {
 
 println(obj.manyMany(5, 6, 3, 4, 7)) // 6
 println(obj.manyMany(5, 6, 3, 4, 4, 7)) // 6
+```
+
+Use `varargArray` when the predicate needs the entire argument array, including when it is empty.
+Spread it as the only value in the vararg position:
+
+```kotlin
+every { obj.manyMany(*varargArray<Any> { it.toSet() == setOf("id", "status") }) } returns 42
+
+obj.manyMany("status", "id")
+verify { obj.manyMany(*varargArray<Any> { "status" in it && "id" in it }) }
 ```
 
 ### Private functions mocking / dynamic calls

@@ -18,14 +18,20 @@ abstract class RetransformInlineInstrumentation(
 
                 retransform(it.classes)
             }
-        } catch (ex: java.lang.Exception) {
-            log.warn(ex, "Failed to transform classes ${request.classes}")
-            cancellation?.invoke()
-            return {}
+        } catch (ex: UnsupportedOperationException) {
+            // The JVM reports a rejected redefinition ("class redefinition failed: ...") as an
+            // UnsupportedOperationException. Such a class can never be instrumented, so returning a
+            // mock that silently does not intercept anything would hide the real problem
+            // (#1451, #1422, #1487).
+            throw failedInstrumentation(request, cancellation, ex)
         } catch (ex: LinkageError) {
             throw failedInstrumentation(request, cancellation, ex)
         } catch (ex: InternalError) {
             throw failedInstrumentation(request, cancellation, ex)
+        } catch (ex: java.lang.Exception) {
+            log.warn(ex, "Failed to transform classes ${request.classes}")
+            cancellation?.invoke()
+            return {}
         }
 
         return cancellation ?: {}
@@ -37,7 +43,14 @@ abstract class RetransformInlineInstrumentation(
         error: Throwable,
     ): MockKAgentException {
         log.warn(error, "Failed to transform classes ${request.classes}")
-        cancellation?.invoke()
+
+        // Reverting is best-effort. A class the JVM refused to redefine cannot be reverted either,
+        // and a failure here must not replace the rejection that actually happened.
+        try {
+            cancellation?.invoke()
+        } catch (revert: Throwable) {
+            log.warn(revert, "Failed to revert class transformation ${request.classes}")
+        }
 
         // The JVM redefines a class from its original bytes and refuses the redefinition with an
         // opaque `InternalError: class redefinition failed: invalid class` (or a bare
@@ -55,10 +68,19 @@ abstract class RetransformInlineInstrumentation(
                 }
             } ?: error
 
+        val likelyCause =
+            if (error is UnsupportedOperationException) {
+                "A redefinition may only change method bodies, so the class or its members were " +
+                    "modified after it was loaded. This is most often done by another tool that " +
+                    "instruments classes, for example a debugger or a code-coverage agent, which " +
+                    "then conflicts with the retransformation mockk needs to mock the class."
+            } else {
+                "Most likely a class referenced by them cannot be loaded or initialized on this JVM."
+            }
+
         return MockKAgentException(
             "Failed to instrument classes ${request.classes}: the JVM rejected the redefinition " +
-                "(${error.message}). Most likely a class referenced by them cannot be loaded or " +
-                "initialized on this JVM.",
+                "(${error.message}). $likelyCause",
             cause,
         )
     }

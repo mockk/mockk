@@ -6,6 +6,7 @@ import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import java.lang.reflect.Method
 import java.util.Random
 import java.util.concurrent.Callable
+import kotlin.coroutines.Continuation
 
 internal open class BaseAdvice(
     private val handlers: MockHandlerMap,
@@ -34,6 +35,11 @@ internal open class BaseAdvice(
 
         if (!method.isBridge) {
             return Interceptor(handler, self, method, arguments)
+        }
+
+        // Suspend bridges forward the continuation and adapt the result for their caller.
+        if (method.parameterTypes.lastOrNull() == Continuation::class.java) {
+            return null
         }
 
         val bridgedMethod =

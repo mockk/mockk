@@ -993,6 +993,18 @@ open class MockKMatcherScope(
      */
     inline fun <reified T : Any> ofType(): T = match(OfTypeMatcher<T>(T::class))
 
+    /**
+     * Matches the entire vararg with one predicate. Spread the result as the only vararg argument.
+     */
+    inline fun <reified T> varargArray(crossinline predicate: (Array<out T>) -> Boolean): Array<T> {
+        val matcher =
+            VarargArrayMatcher { values ->
+                values.all { it is T } && predicate(Array(values.size) { values[it] as T })
+            }
+        val elementType: KClass<*> = T::class
+        return arrayOf(callRecorder.matcher(matcher, elementType) as T)
+    }
+
     inline fun <reified T : Any> anyVararg() = varargAllNullable<T> { true }
 
     inline fun anyBooleanVararg() = anyVararg<Boolean>().toBooleanArray()
@@ -3189,15 +3201,35 @@ class MockKAnswerScope<T, B>(
     val nArgs
         get() = invocation.args.size
 
-    inline fun <reified T> firstArg() = invocation.args[0] as T
+    inline fun <reified T> firstArg(): T = boxedArgument(T::class, invocation.args[0])
 
-    inline fun <reified T> secondArg() = invocation.args[1] as T
+    inline fun <reified T> secondArg(): T = boxedArgument(T::class, invocation.args[1])
 
-    inline fun <reified T> thirdArg() = invocation.args[2] as T
+    inline fun <reified T> thirdArg(): T = boxedArgument(T::class, invocation.args[2])
 
-    inline fun <reified T> lastArg() = invocation.args.last() as T
+    inline fun <reified T> lastArg(): T = boxedArgument(T::class, invocation.args.last())
 
-    inline fun <reified T> arg(n: Int) = invocation.args[n] as T
+    inline fun <reified T> arg(n: Int): T = boxedArgument(T::class, invocation.args[n])
+
+    /**
+     * Casts an invocation argument to [T], re-boxing erased value-class values.
+     *
+     * The compiler erases a value-class parameter to its underlying type and mangles the
+     * method name, so the mock receives the unboxed value (e.g. an `Integer` for a value
+     * class backed by `Int`) while the caller passed a boxed instance.
+     * [InternalPlatformDsl.boxCast] re-boxes such values and passes already-boxed or
+     * plain arguments through unchanged, mirroring what the capture matchers do.
+     */
+    @PublishedApi
+    @Suppress("UNCHECKED_CAST")
+    internal fun <T> boxedArgument(
+        cls: KClass<*>,
+        arg: Any?,
+    ): T =
+        when {
+            arg == null -> arg as T
+            else -> InternalPlatformDsl.boxCast<Any>(cls, arg) as T
+        }
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun <T> MutableList<T>.captured() = last()

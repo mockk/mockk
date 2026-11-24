@@ -21,23 +21,43 @@ class JvmSignatureValueGenerator(
         anyValueGeneratorProvider: () -> AnyValueGenerator,
         instantiator: AbstractInstantiator,
     ): T {
-        // For value classes, try the instance factory first.
-        // If the factory provides an instance, use it.
-        // Otherwise, fallback to the original behavior of constructing from the underlying boxed type.
         if (cls.isValue) {
             return instantiator.instantiateViaInstanceFactoryRegistry(cls) {
-                // This lambda is the 'orInstantiate' part.
-                // It's the original logic for handling value classes if no factory is found.
-                val valueCls = cls.boxedClass
-                val valueSig = signatureValue(valueCls, anyValueGeneratorProvider, instantiator) // Recursive call
-
-                val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
-                constructor.call(valueSig)
+                val valueClass = cls.boxedClass
+                val valueSignature = signatureValue(valueClass, anyValueGeneratorProvider, instantiator)
+                boxSignature(cls, valueClass, valueSignature)
             }
         }
 
-        // Original logic for non-value classes
         return cls.cast(instantiate(cls, anyValueGeneratorProvider, instantiator))
+    }
+
+    private fun <T : Any> boxSignature(
+        cls: KClass<T>,
+        valueClass: KClass<*>,
+        valueSignature: Any,
+    ): T {
+        val boxMethod = cls.java.declaredMethods.firstOrNull { it.name == "box-impl" && it.parameterCount == 1 }
+        if (boxMethod == null) {
+            val constructor = cls.primaryConstructor!!.apply { isAccessible = true }
+            return constructor.call(valueSignature)
+        }
+
+        // A matcher signature only identifies an argument during recording. Boxing the
+        // generated value must not run the user's constructor validation.
+        // A nested value class may be stored boxed (for example, a nullable Int-backed
+        // value class). Otherwise its unbox method yields the exact JVM representation.
+        val argument =
+            if (valueClass.isValue && boxMethod.parameterTypes[0] != valueClass.java) {
+                valueClass.java
+                    .getDeclaredMethod("unbox-impl")
+                    .apply { isAccessible = true }
+                    .invoke(valueSignature)
+            } else {
+                valueSignature
+            }
+        boxMethod.isAccessible = true
+        return cls.cast(boxMethod.invoke(null, argument))
     }
 
     private fun <T : Any> instantiate(

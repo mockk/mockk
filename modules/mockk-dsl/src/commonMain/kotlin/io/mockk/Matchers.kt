@@ -472,6 +472,14 @@ data class ArrayMatcher<in T : Any>(
     override fun toString(): String = matchers.joinToString(prefix = "[", postfix = "]")
 }
 
+class VarargArrayMatcher(
+    private val predicate: (Array<*>) -> Boolean,
+) : Matcher<Any> {
+    override fun match(arg: Any?): Boolean = arg != null && predicate(arg.toArray())
+
+    override fun toString(): String = "varargArray()"
+}
+
 data class VarargMatcher<T : Any>(
     private val all: Boolean,
     private val matcher: MockKMatcherScope.MockKVarargScope.(T?) -> Boolean,
