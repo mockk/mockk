@@ -12,8 +12,11 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty1
+import kotlin.reflect.KVisibility
+import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.superclasses
 import kotlin.reflect.full.valueParameters
 
 class MockInjector(
@@ -41,7 +44,7 @@ class MockInjector(
     }
 
     fun propertiesInjection(instance: Any) {
-        instance::class.memberProperties.forEach { property ->
+        injectableProperties(instance::class).forEach { property ->
             val isMutable = property is KMutableProperty1
 
             if (!injectImmutable && !isMutable) return@forEach
@@ -59,6 +62,32 @@ class MockInjector(
             } else {
                 (property as KMutableProperty1<*, *>).setAny(instance, newValue)
             }
+        }
+    }
+
+    /**
+     * Properties of the class and of every superclass that are candidates for injection.
+     *
+     * [KClass.memberProperties] hides private properties declared in superclasses, so
+     * those are added separately (issue #1214). A private property can not be overridden,
+     * so no property is picked up twice.
+     */
+    private fun injectableProperties(type: KClass<out Any>): List<KProperty1<*, *>> {
+        val properties = mutableListOf<KProperty1<*, *>>()
+        properties.addAll(type.memberProperties)
+        addPrivateSuperclassProperties(type, properties)
+        return properties
+    }
+
+    private fun addPrivateSuperclassProperties(
+        type: KClass<*>,
+        properties: MutableList<KProperty1<*, *>>,
+    ) {
+        type.superclasses.forEach { superclass ->
+            superclass
+                .declaredMemberProperties
+                .filterTo(properties) { it.visibility == KVisibility.PRIVATE }
+            addPrivateSuperclassProperties(superclass, properties)
         }
     }
 
