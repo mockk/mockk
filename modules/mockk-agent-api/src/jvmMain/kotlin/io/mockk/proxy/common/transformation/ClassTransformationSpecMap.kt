@@ -17,6 +17,8 @@ class ClassTransformationSpecMap {
         retransformClasses: (TransformationRequest) -> Unit,
     ) = transformationLock.withLock {
         val result = mutableListOf<Class<*>>()
+        // Classes whose interception counts all returned to zero.
+        val exhausted = mutableListOf<Class<*>>()
 
         specLock.withLock {
             for (cls in request.classes) {
@@ -33,15 +35,9 @@ class ClassTransformationSpecMap {
                         CONSTRUCTOR -> spec.copy(constructorIntercept = spec.constructorIntercept + diff)
                     }
 
-                if (newSpec.shouldDoSomething) {
-                    classSpecs[cls] = newSpec
-                } else {
-                    // All interception counts are back to zero: drop the record so the
-                    // registry does not accumulate entries for classes that are no
-                    // longer intercepted (issue #1289). A class that can be unloaded
-                    // would get rid of the entry anyway; JDK classes never unload,
-                    // so a lingering record would stay forever.
-                    classSpecs.remove(cls)
+                classSpecs[cls] = newSpec
+                if (!newSpec.shouldDoSomething) {
+                    exhausted.add(cls)
                 }
 
                 if (!(spec sameTransforms newSpec)) {
@@ -50,7 +46,25 @@ class ClassTransformationSpecMap {
             }
         }
 
-        retransformClasses(request.copy(classes = result.toSet()))
+        try {
+            retransformClasses(request.copy(classes = result.toSet()))
+        } finally {
+            // All interception counts are back to zero: drop the record so the registry does not
+            // accumulate entries for classes that are no longer intercepted (issue #1289). A class
+            // that can be unloaded would get rid of the entry anyway; JDK classes never unload,
+            // so a lingering record would stay forever. The record is only dropped once the class
+            // has been retransformed back: the transformers find it and hand the runtime an
+            // uninstrumented version of the class, which is how the Android agent reverts a
+            // class (#1630).
+            specLock.withLock {
+                for (cls in exhausted) {
+                    // The transformers drop such a record themselves when they read it.
+                    if (classSpecs[cls]?.shouldDoSomething == false) {
+                        classSpecs.remove(cls)
+                    }
+                }
+            }
+        }
     }
 
     fun shouldTransform(clazz: Class<*>?) =
