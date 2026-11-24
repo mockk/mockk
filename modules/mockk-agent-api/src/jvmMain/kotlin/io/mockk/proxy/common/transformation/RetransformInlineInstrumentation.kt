@@ -2,7 +2,6 @@ package io.mockk.proxy.common.transformation
 
 import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.MockKAgentLogger
-import java.lang.instrument.UnmodifiableClassException
 
 abstract class RetransformInlineInstrumentation(
     protected val log: MockKAgentLogger,
@@ -101,11 +100,19 @@ abstract class RetransformInlineInstrumentation(
             // for example one left in an erroneous state by a failing <clinit> (#1538), cannot be
             // reverted either; failing the cleanup would only mask the error that actually
             // happened.
-            if (ex is UnmodifiableClassException || ex is LinkageError || ex is InternalError) {
+            if (isRefusedByRuntime(ex)) {
                 log.warn(ex, "Failed to revert class transformation ${request.classes}")
             } else {
                 throw ex
             }
         }
     }
+
+    private fun isRefusedByRuntime(ex: Throwable): Boolean =
+        ex is LinkageError ||
+            ex is InternalError ||
+            // Compared by name: the class only exists on a desktop JVM. Matching the type makes
+            // the Android runtime resolve it, which fails and hides the error that really
+            // happened (#1630).
+            ex.javaClass.name == "java.lang.instrument.UnmodifiableClassException"
 }

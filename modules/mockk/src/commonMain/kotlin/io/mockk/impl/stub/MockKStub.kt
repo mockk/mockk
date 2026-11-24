@@ -430,6 +430,16 @@ open class MockKStub(
         ) { it.simpleName ?: it.toString() }}): ${returnType.simpleName ?: returnType.toString()}${if (returnTypeNullable) "?" else ""}"
 
     override fun dispose() {
+        // Child mocks are released together with their parent: when the parent stub is
+        // disposed (e.g. by `unmockkAll` for an object or static mock) the children
+        // become unreachable, but their stubs still own the agent-level class
+        // transformation of the child type, which is never cancelled and leaks
+        // interception records for classes such as `java.util.HashMap` (issue #1289).
+        InternalPlatform.synchronized(childs) {
+            for (childMock in childs.values) {
+                gatewayAccess.stubRepository.remove(childMock)?.dispose()
+            }
+        }
         clear(
             MockKGateway.ClearOptions(
                 answers = true,
