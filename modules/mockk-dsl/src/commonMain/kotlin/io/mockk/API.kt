@@ -2913,7 +2913,15 @@ class MockKVerificationScope(
                     try {
                         MockKAssertScope(it).captureBlock(it)
                     } catch (e: ClassCastException) {
-                        throw argBlockCastException(it, e)
+                        // The block was written for another type argument of the same erased class
+                        // (e.g. ParentImpl<Child1> vs ParentImpl<Child2>), so this call is a non-match
+                        // and takes the same AssertionError path as a failed assertion in the block.
+                        throw AssertionError(
+                            "assertion block failed with a class cast while matching an argument" +
+                                (it?.let { arg -> " of class ${arg::class.simpleName}" } ?: "") +
+                                ": ${e.message}. " +
+                                "The call is counted as not matching the argument assertion.",
+                        )
                     }
                     true
                 },
@@ -2942,7 +2950,15 @@ class MockKVerificationScope(
                     try {
                         MockKAssertScope(it).captureBlock(it)
                     } catch (e: ClassCastException) {
-                        throw argBlockCastException(it, e)
+                        // The block was written for another type argument of the same erased class
+                        // (e.g. ParentImpl<Child1> vs ParentImpl<Child2>), so this call is a non-match
+                        // and takes the same AssertionError path as a failed assertion in the block.
+                        throw AssertionError(
+                            "assertion block failed with a class cast while matching an argument" +
+                                (it?.let { arg -> " of class ${arg::class.simpleName}" } ?: "") +
+                                ": ${e.message}. " +
+                                "The call is counted as not matching the argument assertion.",
+                        )
                     }
                     true
                 },
@@ -3068,28 +3084,6 @@ private fun formatAssertMessage(
 
     return "${msgFormatted}expected [$expected] but found [$actual]"
 }
-
-/**
- * Converts a class cast thrown by a `withArg`-style assertion block into the same
- * [AssertionError] shape the block's own failed assertions take.
- *
- * Arguments that share an erased class with the expected type (for example
- * `ParentImpl<Child1>` and `ParentImpl<Child2>`) pass the matcher's type check and only fail
- * inside the block, with a cast. Such a call is a non-match for the block, not a recording
- * error: without the conversion the cast escapes the matcher and surfaces as the generic
- * erased-types hint instead of a verification result.
- */
-@PublishedApi
-internal fun argBlockCastException(
-    argument: Any?,
-    cause: ClassCastException,
-): AssertionError =
-    AssertionError(
-        "assertion block failed with a class cast while matching an argument" +
-            (argument?.let { " of class ${it::class.simpleName}" } ?: "") +
-            ": ${cause.message}. " +
-            "The call is counted as not matching the argument assertion.",
-    )
 
 /**
  * Part of DSL. Object to represent phrase "just Runs"

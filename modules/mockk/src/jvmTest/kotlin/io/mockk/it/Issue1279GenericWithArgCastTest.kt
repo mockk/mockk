@@ -27,9 +27,13 @@ class Issue1279GenericWithArgCastTest {
         override val child: T,
     ) : Parent<T>
 
-    data class Child1(val field: String)
+    data class Child1(
+        val field: String,
+    )
 
-    data class Child2(val field: Int)
+    data class Child2(
+        val field: Int,
+    )
 
     interface SomeService {
         fun myFun(event: Parent<*>)
@@ -57,9 +61,10 @@ class Issue1279GenericWithArgCastTest {
 
     @Test
     fun funTest() {
-        val mock = mockk<SomeService> {
-            every { myFun(any()) } returns Unit
-        }
+        val mock =
+            mockk<SomeService> {
+                every { myFun(any()) } returns Unit
+            }
 
         OtherService(mock).myOtherFun()
 
@@ -69,9 +74,10 @@ class Issue1279GenericWithArgCastTest {
 
     @Test
     fun funTestNoMatchReportsVerificationFailure() {
-        val mock = mockk<SomeService> {
-            every { myFun(any()) } returns Unit
-        }
+        val mock =
+            mockk<SomeService> {
+                every { myFun(any()) } returns Unit
+            }
 
         mock.myFun(ParentImpl(Child2(123)))
 
