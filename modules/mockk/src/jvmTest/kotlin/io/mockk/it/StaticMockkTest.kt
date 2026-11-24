@@ -341,4 +341,87 @@ class StaticMockkTest {
         verify(exactly = 1) { 5 op 6 }
         confirmVerified(Int::op.declaringKotlinFile)
     }
+
+    /**
+     * GitHub issue #1250
+     */
+    @Test
+    fun staticMockkOverloadStubbing() {
+        mockkStatic(AndroidMockableJarCls::class)
+        every {
+            AndroidMockableJarCls.argb(
+                any<Float>(),
+                any<Float>(),
+                any<Float>(),
+                any<Float>(),
+            )
+        } returns 7
+
+        assertEquals(7, AndroidMockableJarCls.argb(0.5f, 0.25f, 0.25f, 0.75f))
+    }
+
+    /**
+     * GitHub issue #1250
+     */
+    @Test
+    fun staticMockkCallToUnstubbedOverloadExplainsFallThroughToAndroidJarStub() {
+        mockkStatic(AndroidMockableJarCls::class)
+        every {
+            AndroidMockableJarCls.argb(
+                any<Float>(),
+                any<Float>(),
+                any<Float>(),
+                any<Float>(),
+            )
+        } returns 7
+
+        val exception =
+            assertFailsWith<MockKException> {
+                AndroidMockableJarCls.argb(255, 0, 0, 0)
+            }
+
+        assertContains(exception.message!!, "no answer matched AndroidMockableJarCls.argb(Int, Int, Int, Int)")
+        assertContains(exception.message!!, "AndroidMockableJarCls.argb(Float, Float, Float, Float)")
+        assertContains(exception.message!!, "Method argb in android.graphics.Color not mocked")
+        assertContains(
+            exception.message!!,
+            "every { AndroidMockableJarCls.argb(any<Int>(), any<Int>(), any<Int>(), any<Int>()) }",
+        )
+
+        assertEquals(
+            "Method argb in android.graphics.Color not mocked. " +
+                "See https://developer.android.com/r/studio-ui/build/not-mocked for details.",
+            exception.cause?.message,
+        )
+    }
+
+    /**
+     * GitHub issue #1250
+     */
+    @Test
+    fun staticMockkUnstubbedCallWithoutAnyAnswersExplainsFallThrough() {
+        mockkStatic(AndroidMockableJarCls::class)
+
+        val exception =
+            assertFailsWith<MockKException> {
+                AndroidMockableJarCls.argb(255, 0, 0, 0)
+            }
+
+        assertContains(exception.message!!, "No answers are configured on the mock at all")
+    }
+
+    /**
+     * GitHub issue #1250
+     */
+    @Test
+    fun staticMockkOriginalExceptionsOtherThanAndroidJarStubsStayUntouched() {
+        mockkStatic(AndroidMockableJarCls::class)
+
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                AndroidMockableJarCls.parseInt("x")
+            }
+
+        assertEquals("not a number", exception.message)
+    }
 }

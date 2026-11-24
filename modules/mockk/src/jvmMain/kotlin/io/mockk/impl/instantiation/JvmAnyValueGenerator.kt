@@ -45,24 +45,51 @@ open class JvmAnyValueGenerator(
             // reflectively because java.util.Optional exists only from API 24 up: a
             // class-literal reference anywhere in this method fails resolution on
             // API 21 devices with NoClassDefFoundError.
-            else ->
+            else -> {
+                val orFallback: () -> Any? = {
+                    if (cls.java.isArray) {
+                        java.lang.reflect.Array
+                            .newInstance(cls.java.componentType, 0)
+                    } else {
+                        orInstantiateVia()
+                    }
+                }
                 when (cls.java.name) {
                     "java.util.Optional" -> jdkStaticEmpty(cls.java.name)
                     "java.util.OptionalInt" -> jdkStaticEmpty(cls.java.name)
                     "java.util.OptionalLong" -> jdkStaticEmpty(cls.java.name)
                     "java.util.OptionalDouble" -> jdkStaticEmpty(cls.java.name)
-                    else ->
-                        super.anyValue(cls, isNullable) {
-                            if (cls.java.isArray) {
-                                java.lang.reflect.Array
-                                    .newInstance(cls.java.componentType, 0)
-                            } else {
-                                orInstantiateVia()
-                            }
-                        }
+                    "kotlinx.datetime.Instant" ->
+                        kotlinxDatetimeInstantEpoch(cls.java)
+                            ?: super.anyValue(cls, isNullable, orFallback)
+                    else -> super.anyValue(cls, isNullable, orFallback)
                 }
+            }
         }
     }
 
     private fun jdkStaticEmpty(name: String): Any? = Class.forName(name).getMethod("empty").invoke(null)
+
+    /**
+     * kotlinx-datetime 0.5.x-0.6.x models `kotlinx.datetime.Instant` on JVM as a final class
+     * wrapping a `java.time.Instant` behind an internal constructor. Without a dedicated case the
+     * relaxed answer hands back a child mock of it, and that mock is built without running the
+     * constructor, so its internal `value` stays null. Passing such a mock to real java.time
+     * machinery breaks with ClassCastExceptions (issue #1220), so a relaxed mock hands back a
+     * real epoch instance instead, mirroring how the Optional cases above hand back empty ones.
+     *
+     * The instance is built reflectively because MockK does not depend on kotlinx-datetime. The
+     * constructor takes a plain `java.time.Instant`, so no other kotlinx-datetime classes have to
+     * resolve: the companion object references kotlinx-serialization and its members may be
+     * unusable when kotlinx-serialization-core is off the classpath. kotlinx-datetime 0.7+ turned
+     * `Instant` into a value class over a primitive, and those returns are answered through their
+     * underlying type, never reaching this branch. Any reflective failure falls back to the
+     * default behavior.
+     */
+    private fun kotlinxDatetimeInstantEpoch(cls: Class<*>): Any? =
+        runCatching {
+            val constructor = cls.getDeclaredConstructor(java.time.Instant::class.java)
+            constructor.isAccessible = true
+            constructor.newInstance(java.time.Instant.EPOCH)
+        }.getOrNull()
 }

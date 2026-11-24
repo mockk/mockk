@@ -21,9 +21,14 @@ internal class Interceptor(
 ) : Callable<Any?> {
     override fun call(): Any? {
         // Wrap call to eliminate self-recursion when invoking the original implementation.
+        // The original's erased value-class result is boxed back to the declared type, so
+        // answer-scope callOriginal() can deliver it as T (see #1643).
         val callOriginalMethod =
             SelfCallEliminatorCallable(
-                MethodCall(self, originalMethod, arguments),
+                ErasedResultBoxingCallable(
+                    MethodCall(self, originalMethod, arguments),
+                    method,
+                ),
                 self,
                 originalMethod,
             )

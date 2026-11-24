@@ -12,6 +12,8 @@ import io.mockk.proxy.MockKInvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.Collections
+import java.util.WeakHashMap
 import java.util.concurrent.Callable
 import kotlin.coroutines.Continuation
 import kotlin.reflect.KClass
@@ -38,14 +40,14 @@ object JvmMockFactoryHelper {
                 }
 
                 if (method.isResumedBy(args)) {
-                    return@stdFunctions handleOriginalCall(originalCall, method)
+                    return@stdFunctions handleOriginalCall(originalCall, method, stub)
                 }
 
                 stub.handleInvocation(
                     self,
                     method.toDescription(),
                     {
-                        handleOriginalCall(originalCall, method)
+                        handleOriginalCall(originalCall, method, stub)
                     },
                     args,
                     findBackingField(self, method),
@@ -116,6 +118,7 @@ object JvmMockFactoryHelper {
     private fun handleOriginalCall(
         originalMethod: Callable<*>?,
         method: Method,
+        stub: Stub,
     ): Any? {
         if (originalMethod == null) {
             throw MockKException("No way to call original method ${method.toDescription()}")
@@ -124,8 +127,64 @@ object JvmMockFactoryHelper {
         return try {
             originalMethod.call()
         } catch (ex: InvocationTargetException) {
-            throw ex.cause ?: throw ex
+            val cause = ex.cause ?: throw ex
+
+            throw if (cause.isAndroidNotMockedStubException()) {
+                MockKException(androidNotMockedStubMessage(cause, method.toDescription(), stub), cause)
+            } else {
+                cause
+            }
         }
+    }
+
+    /**
+     * Unit tests on the JVM get their android.jar classes from the mockable jar the Android
+     * Gradle Plugin generates: unless the build sets `returnDefaultValues = true`, every method
+     * body there is replaced with `throw new RuntimeException("Method <name> in <class> not
+     * mocked. See ...")`. Mocks that fall through to the original implementation (static mocks,
+     * object mocks, spies) hit exactly that body when no answer matched the call, and the raw
+     * exception reads as if the mocking setup was ignored altogether — although usually the
+     * answers are there and it is just a sibling overload that carries them (#1250).
+     *
+     * The pattern is specific enough that real code throwing it is implausible; if that ever
+     * happens, the original exception stays attached as the cause, so nothing is lost.
+     */
+    private fun Throwable.isAndroidNotMockedStubException(): Boolean {
+        if (this !is RuntimeException) return false
+        val text = message ?: return false
+        return text.startsWith("Method ") && " not mocked" in text
+    }
+
+    private fun androidNotMockedStubMessage(
+        cause: Throwable,
+        description: MethodDescription,
+        stub: Stub,
+    ): String {
+        val configured =
+            stub
+                .matcherUsages()
+                .keys
+                .map { "${it.method.declaringClass.simpleName}.${it.method}" }
+                .distinct()
+                .sorted()
+                .joinToString("\n  ")
+        val configuredSection =
+            if (configured.isEmpty()) {
+                "No answers are configured on the mock at all"
+            } else {
+                "Answers configured on the mock match only:\n  $configured"
+            }
+        val suggestedMatchers = description.paramTypes.joinToString(", ") { "any<${it.simpleName}>()" }
+        val called = "${description.declaringClass.simpleName}.$description"
+        val suggestedCall = "${description.declaringClass.simpleName}.${description.name}($suggestedMatchers)"
+
+        return "no answer matched $called, so the call ran the original implementation, " +
+            "which is an Android mockable-jar stub and threw:\n" +
+            "  $cause\n" +
+            "$configuredSection.\n" +
+            "An every { ... } block answers only the exact overload signature it records, so " +
+            "stub the overload that is actually called, e.g. " +
+            "every { $suggestedCall } returns ..."
     }
 
     /**
@@ -148,7 +207,19 @@ object JvmMockFactoryHelper {
         return label and Int.MIN_VALUE != 0
     }
 
-    private fun Method.isKotlinInline(): Boolean =
+    /**
+     * Whether this method is a Kotlin `inline` function. Every mocked call goes through this
+     * check, and an uncached call re-runs the kotlin-reflect lookup on the declaring class each
+     * time, so the result is memoized per [Method] in [inlineCache] (#1627).
+     *
+     * The outcome only depends on the method's Kotlin metadata, so it is the same for every
+     * reflected instance of the same logical method, and the failure branch is deterministic
+     * too: kotlin-reflect fails on a class it cannot analyze no matter how often it is asked.
+     * Memoizing `false` therefore cannot turn a later success into a different behavior.
+     */
+    internal fun Method.isKotlinInline(): Boolean = inlineCache[this] ?: computeIsKotlinInline().also { inlineCache[this] = it }
+
+    private fun Method.computeIsKotlinInline(): Boolean =
         try {
             kotlinFunction?.isInline == true
         } catch (_: Throwable) {
@@ -161,7 +232,7 @@ object JvmMockFactoryHelper {
         }
 
     internal fun Method.toDescription(): MethodDescription {
-        val cached = cache[this]
+        val cached = descriptionCache[this]
         if (cached != null) return cached
 
         val kotlinFunc =
@@ -250,7 +321,7 @@ object JvmMockFactoryHelper {
                     Modifier.isProtected(modifiers),
             )
 
-        cache[this] = result
+        descriptionCache[this] = result
 
         return result
     }
@@ -274,5 +345,49 @@ object JvmMockFactoryHelper {
 
     fun Method.isEquals() = name == "equals" && parameterTypes.size == 1 && parameterTypes[0] === Object::class.java
 
+    /**
+     * Description of each logical method, keyed by its reflected [Method].
+     *
+     * A cache keyed by method *instance* misses most of the time: the subclass proxy classes
+     * backing the mocks live in a weak cache themselves, and once they are collected the next
+     * mock of the same class regenerates them, capturing fresh `Method` objects for the very
+     * same logical methods - every reflection lookup hands out a fresh copy on modern JDKs, so
+     * regenerated proxies can never be recognized by identity. In a MockK-heavy test suite 975k
+     * of 1.22M `toDescription()` calls missed for that reason, each miss re-running the
+     * kotlin-reflect lookup on the declaring class (issue #1627).
+     *
+     * `Method.equals`/`hashCode` compare the declaring class, name and parameter types (modern
+     * JDKs also the return type) instead of identity, so a map keyed by the `Method` itself hits
+     * across regenerations. The maps below are weakly keyed: an entry lives exactly as long as
+     * its `Method` instance is reachable - a proxy class keeps its methods in generated static
+     * fields, and the JVM reflects them (softly) from the declaring class - so nothing is pinned
+     * beyond the lifetime of the methods' own classes and mocks stay collectable as before.
+     *
+     * `java.util.WeakHashMap` needs external synchronization, which `Collections.synchronizedMap`
+     * provides; the alternative lock-free structure per declaring class (`java.lang.ClassValue`)
+     * is only available from Android API 26 on, while MockK runs from API 21. The lock replaces
+     * a kotlin-reflect lookup, which is orders of magnitude more expensive, and mocking is not
+     * normally done from several threads at once.
+     *
+     * Bridges cannot merge with the methods they stand for under these keys: a bridge never
+     * reaches these caches in the first place, because the subclass proxy ignores synthetic
+     * methods and the inline instrumentation advice resolves a bridge to the method it bridges
+     * before dispatching. On JDKs where `Method.equals` also compares the return type, a stray
+     * bridge would get its own entry anyway.
+     */
+    internal val descriptionCache: MutableMap<Method, MethodDescription> =
+        Collections.synchronizedMap(WeakHashMap())
+
+    /**
+     * Memoized [isKotlinInline] results, weakly keyed like [descriptionCache]. The value is a
+     * plain [Boolean] and keeps nothing alive beyond the method itself.
+     */
+    internal val inlineCache: MutableMap<Method, Boolean> =
+        Collections.synchronizedMap(WeakHashMap())
+
+    /**
+     * Identity-keyed method cache, kept for compatibility: toDescription() keys on method
+     * equality since #1627 and no longer consults this map.
+     */
     val cache = InternalPlatform.weakMap<Method, MethodDescription>()
 }

@@ -1,17 +1,22 @@
 package io.mockk.proxy.jvm.transformation
 
+import io.mockk.proxy.MockKAgentException
 import io.mockk.proxy.MockKAgentLogger
+import io.mockk.proxy.MockKProxyDelegate
 import io.mockk.proxy.jvm.ClassLoadingStrategyChooser
 import io.mockk.proxy.jvm.advice.ProxyAdviceId
+import io.mockk.proxy.jvm.advice.jvm.JvmMockKDelegateProxyInterceptor
 import io.mockk.proxy.jvm.advice.jvm.JvmMockKProxyInterceptor
 import io.mockk.proxy.jvm.advice.jvm.MockHandlerMap
 import io.mockk.proxy.jvm.dispatcher.JvmMockKDispatcher
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.TypeCache
 import net.bytebuddy.description.method.MethodDescription
+import net.bytebuddy.description.modifier.Visibility
 import net.bytebuddy.dynamic.DynamicType
 import net.bytebuddy.dynamic.loading.MultipleParentClassLoader
 import net.bytebuddy.dynamic.scaffold.MethodGraph
+import net.bytebuddy.implementation.FieldAccessor
 import net.bytebuddy.implementation.Implementation
 import net.bytebuddy.implementation.MethodDelegation
 import net.bytebuddy.implementation.attribute.MethodAttributeAppender
@@ -20,8 +25,10 @@ import net.bytebuddy.matcher.ElementMatchers.any
 import net.bytebuddy.matcher.ElementMatchers.isAbstract
 import net.bytebuddy.matcher.ElementMatchers.isDefaultFinalizer
 import net.bytebuddy.matcher.ElementMatchers.isSynthetic
+import net.bytebuddy.matcher.ElementMatchers.named
 import net.bytebuddy.matcher.ElementMatchers.not
 import java.io.File
+import java.io.Serializable
 import java.lang.Thread.currentThread
 import java.util.concurrent.atomic.AtomicLong
 
@@ -33,16 +40,31 @@ internal class SubclassInstrumentation(
     private val bootstrapMonitor = Any()
     private val proxyClassCache = TypeCache<CacheKey>(TypeCache.Sort.WEAK)
     private lateinit var interceptor: JvmMockKProxyInterceptor
+    private lateinit var delegateInterceptor: JvmMockKDelegateProxyInterceptor
 
     /**
-     * The graph compiler that keeps `finalize()` out of the way of interface-declared methods of the
-     * same name (#1212). The default compiler merges methods by name and parameter types, ignoring
-     * the return type, so an interface-declared `finalize()` (whatever its return type) shares a
-     * graph node with the `finalize()` declared by `java.lang.Object`. The node is represented by the
-     * concrete `Object` one, which the ignore matcher below drops, and the whole node goes with it -
-     * the generated `$Subclass` is left without an implementation of the interface method, failing
-     * with an [AbstractMethodError] (non-`Unit` return) or an [IllegalAccessError] (`Unit` return,
-     * the call falls through to the `protected` `Object.finalize`).
+     * The graph compiler for subclass proxies: methods are keyed by name, parameter types *and*
+     * return type ([Harmonizer.ForJVMMethod]), and `finalize()` declared by `java.lang.Object` is
+     * kept out of the way of interface-declared methods of the same name (#1212).
+     *
+     * The return-type-aware key matters because Kotlin legally emits overloads that differ only in
+     * their return descriptors: `invoke(FeatureFlag<Boolean>): Boolean` and
+     * `invoke(FeatureFlag<String>): String` both compile to `invoke(FeatureFlag)` with the return
+     * type as the only difference (#1093). A Java-hierarchy compiler ([Harmonizer.ForJavaMethod],
+     * which [MethodGraph.Compiler.DEFAULT] is built from) merges methods by name and parameter
+     * types alone, so the two abstract methods collapse into one graph node represented by one of
+     * them, the generated `$Subclass` implements only that representative, and calling the other
+     * overload fails with an [AbstractMethodError]. The inline instrumentation path already keys
+     * its graph by return type (`InliningClassTransformer` builds it from
+     * [MethodGraph.Compiler.forJVMHierarchy]), so the subclass path simply matches it.
+     *
+     * `Object.finalize` filtering: an interface-declared `finalize()` taking no arguments and
+     * returning `Unit` shares the `finalize()V` key with the concrete `Object.finalize` even under
+     * the return-type-aware harmonizer. The node is represented by the concrete `Object` one,
+     * which the ignore matcher below drops, and the whole node goes with it - the generated
+     * `$Subclass` is left without an implementation of the interface method, failing with an
+     * [AbstractMethodError] (non-`Unit` return) or an [IllegalAccessError] (`Unit` return, the
+     * call falls through to the `protected` `Object.finalize`).
      *
      * Filtering methods *declared by* `java.lang.Object` out of the graph before resolution breaks
      * that merge. The interface-declared `finalize()` then gets a node of its own, represented by
@@ -51,13 +73,10 @@ internal class SubclassInstrumentation(
      * original finalizer - the JVM-level finalize semantics are untouched. Only the `Object`-declared
      * method is filtered: a class-level `finalize()` is declared by the class itself, keeps its node
      * and behaves exactly as before.
-     *
-     * The harmonizer, merger and visitor are the ones [MethodGraph.Compiler.DEFAULT] is built from,
-     * so this is that compiler plus the method filter.
      */
     private val defaultFinalizerExcludingMethodGraphCompiler =
         MethodGraph.Compiler.Default.of(
-            MethodGraph.Compiler.Default.Harmonizer.ForJavaMethod.INSTANCE,
+            MethodGraph.Compiler.Default.Harmonizer.ForJVMMethod.INSTANCE,
             MethodGraph.Compiler.Default.Merger.Directional.LEFT,
             not<MethodDescription>(isDefaultFinalizer<MethodDescription>()),
         )
@@ -107,8 +126,10 @@ internal class SubclassInstrumentation(
         class AdviceBuilder {
             fun build() {
                 interceptor = JvmMockKProxyInterceptor(handlers)
+                delegateInterceptor = JvmMockKDelegateProxyInterceptor(handlers)
 
                 JvmMockKDispatcher.set(interceptor.id, interceptor)
+                JvmMockKDispatcher.set(delegateInterceptor.id, delegateInterceptor)
             }
         }
         AdviceBuilder().build()
@@ -129,6 +150,113 @@ internal class SubclassInstrumentation(
             { doInterceptedSubclassing(clazz, interfaces) },
             monitor,
         ) as Class<T>
+    }
+
+    /**
+     * Builds a proxy standing in for an instance of a hidden class (e.g. a lambda compiled by
+     * Kotlin 2 with `invokedynamic`, [#1313](https://github.com/mockk/mockk/issues/1313)).
+     *
+     * A hidden class can be neither subclassed nor instrumented: a subclass would have to
+     * resolve the hidden class by name and fail with [NoClassDefFoundError], and
+     * `Instrumentation.isModifiableClass` is `false` for it (JEP 371). The proxy therefore
+     * subclasses the first interface the hidden class implements, implements the remaining
+     * ones, and keeps the original instance in the field read by
+     * [JvmMockKDelegateProxyInterceptor], so that "call original" requests can be forwarded
+     * to it.
+     *
+     * The generated proxy implements [MockKProxyDelegate], which is how the original instance
+     * reaches it after instantiation.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T> delegateSubclass(
+        clazz: Class<T>,
+        interfaces: Array<Class<*>>,
+    ): Class<T> {
+        val primaryInterface =
+            primaryHiddenClassInterface(clazz, interfaces)
+                ?: throw MockKAgentException(
+                    "Failed to create proxy for hidden class $clazz.\n" +
+                        "Hidden classes (e.g. lambdas compiled by Kotlin 2 with invokedynamic) implement no " +
+                        "interface MockK could proxy instead. " +
+                        "Compile with the `-Xlambdas=class` Kotlin compiler option to make the lambda class " +
+                        "proxiable again.",
+                )
+
+        val extraInterfaces =
+            (clazz.interfaces.toSet() - primaryInterface + interfaces.toSet()).toTypedArray()
+
+        val key = CacheKey(clazz, extraInterfaces.toSet() + primaryInterface, delegate = true)
+        val classLoader = clazz.classLoader
+        val monitor = classLoader ?: bootstrapMonitor
+
+        return proxyClassCache.findOrInsert(
+            classLoader,
+            key,
+            { doDelegateSubclassing(primaryInterface, extraInterfaces) as Class<T> },
+            monitor,
+        ) as Class<T>
+    }
+
+    /**
+     * The first non-marker interface the hidden class implements. The one-interface case is
+     * the common one (the functional interface of the lambda); marker interfaces such as
+     * `Serializable` are skipped when a better candidate exists.
+     */
+    private fun primaryHiddenClassInterface(
+        clazz: Class<*>,
+        moreInterfaces: Array<Class<*>>,
+    ): Class<*>? =
+        clazz.interfaces
+            .firstOrNull { it != Serializable::class.java }
+            ?: moreInterfaces.firstOrNull { it != Serializable::class.java }
+            ?: clazz.interfaces.firstOrNull()
+            ?: moreInterfaces.firstOrNull()
+
+    private fun doDelegateSubclassing(
+        primaryInterface: Class<*>,
+        extraInterfaces: Array<Class<*>>,
+    ): Class<*> {
+        val resultClassLoader =
+            MultipleParentClassLoader
+                .Builder()
+                .append(primaryInterface)
+                .append(*extraInterfaces)
+                .append(currentThread().contextClassLoader)
+                .append(JvmMockKDelegateProxyInterceptor::class.java)
+                .append(MockKProxyDelegate::class.java)
+                .build(JvmMockKDelegateProxyInterceptor::class.java.classLoader)
+
+        val interceptor =
+            MethodDelegation
+                .withDefaultConfiguration()
+                .withBinders(
+                    TargetMethodAnnotationDrivenBinder.ParameterBinder.ForFixedValue.OfConstant.of(
+                        ProxyAdviceId::class.java,
+                        delegateInterceptor.id,
+                    ),
+                ).to(JvmMockKDelegateProxyInterceptor::class.java)
+
+        val type =
+            subclassingByteBuddy
+                .subclass(primaryInterface)
+                .implement(*extraInterfaces)
+                .implement(MockKProxyDelegate::class.java)
+                .defineField(JvmMockKDelegateProxyInterceptor.ORIGINAL_FIELD, Any::class.java, Visibility.PRIVATE)
+                // The last matching definition wins, so the catch-all interceptor goes first and
+                // the delegate accessors stay out of the mocked calls.
+                .method(any<Any>())
+                .intercept(interceptor)
+                .method(named<MethodDescription>("mockkSetOriginal"))
+                .intercept(FieldAccessor.ofField(JvmMockKDelegateProxyInterceptor.ORIGINAL_FIELD))
+                .method(named<MethodDescription>("mockkGetOriginal"))
+                .intercept(FieldAccessor.ofField(JvmMockKDelegateProxyInterceptor.ORIGINAL_FIELD))
+                .make()
+
+        dumpIfRequested(type)
+
+        return type
+            .load(resultClassLoader, chooseClassLoadingStrategy(primaryInterface))
+            .loaded
     }
 
     private fun <T> doInterceptedSubclassing(
@@ -166,6 +294,14 @@ internal class SubclassInstrumentation(
                 }
             }
 
+        dumpIfRequested(type)
+
+        return type
+            .load(resultClassLoader, chooseClassLoadingStrategy(clazz))
+            .loaded
+    }
+
+    private fun dumpIfRequested(type: DynamicType.Unloaded<*>) {
         try {
             val property = System.getProperty("io.mockk.classdump.path")
             if (property != null) {
@@ -176,10 +312,6 @@ internal class SubclassInstrumentation(
         } catch (ex: Exception) {
             log.trace(ex, "Failed to save file to a dump")
         }
-
-        return type
-            .load(resultClassLoader, chooseClassLoadingStrategy(clazz))
-            .loaded
     }
 
     private fun <T> buildProxyType(

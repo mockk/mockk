@@ -14,6 +14,7 @@ import io.mockk.proxy.jvm.transformation.SubclassInstrumentation
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import kotlin.reflect.jvm.internal.KotlinReflectionInternalError
 
 internal class ProxyMaker(
     private val log: MockKAgentLogger,
@@ -22,6 +23,15 @@ internal class ProxyMaker(
     private val instantiator: MockKInstantiatior,
     private val handlers: MutableMap<Any, MockKInvocationHandler>,
 ) : MockKProxyMaker {
+    /**
+     * `Class.isSealed()` exists since JDK 17; resolved reflectively so this file stays loadable
+     * on JDK 8-14.
+     */
+    private val isSealedMethod: Method? =
+        runCatching {
+            Class::class.java.getMethod("isSealed")
+        }.getOrNull()
+
     override fun <T : Any> proxy(
         clazz: Class<T>,
         interfaces: Array<Class<*>>,
@@ -89,7 +99,9 @@ internal class ProxyMaker(
         }
 
     private fun <T : Any> inline(clazz: Class<T>): () -> Unit {
-        val superclasses = getAllSuperclasses(clazz)
+        // A hidden class cannot be retransformed by the agent (JEP 371); requesting its
+        // transformation would only produce a "non instrumentable" warning on every mock.
+        val superclasses = getAllSuperclasses(clazz).filterNot { HiddenClasses.isHidden(it) }.toSet()
 
         return if (inliner != null) {
             val transformRequest = TransformationRequest(superclasses, SIMPLE)
@@ -105,35 +117,69 @@ internal class ProxyMaker(
     }
 
     private fun <T : Any> findActualClassToBeProxied(clazz: Class<T>): Class<T> {
-        val kClass = clazz.kotlin
-        if (!kClass.isSealed) {
+        if (!isSealed(clazz)) {
             return clazz
         }
 
         val subclass =
-            kClass.sealedSubclasses.firstOrNull()?.java
+            clazz.kotlin.sealedSubclasses
+                .firstOrNull()
+                ?.java
                 ?: error("Unable to create proxy for sealed class $clazz, no subclasses available")
         log.trace("Class $clazz is sealed, will use its subclass $subclass to build proxy")
         @Suppress("UNCHECKED_CAST")
         return findActualClassToBeProxied(subclass) as Class<T>
     }
 
+    /**
+     * `KClass.isSealed` for classes kotlin-reflect cannot describe: compiler-synthesized lambda
+     * classes (Kotlin 1.x named lambda classes and `invokedynamic` lambdas,
+     * [#1313](https://github.com/mockk/mockk/issues/1313)) make it throw
+     * [UnsupportedOperationException] or [KotlinReflectionInternalError]. Such classes are never
+     * sealed, so `Class.isSealed()` (JDK 17+, resolved reflectively to stay loadable on JDK 8-14)
+     * answers in their place.
+     */
+    private fun isSealed(clazz: Class<*>): Boolean =
+        try {
+            clazz.kotlin.isSealed
+        } catch (suppressed: UnsupportedOperationException) {
+            isSealedByJvm(clazz)
+        } catch (suppressed: KotlinReflectionInternalError) {
+            isSealedByJvm(clazz)
+        }
+
+    private fun isSealedByJvm(clazz: Class<*>): Boolean =
+        runCatching {
+            isSealedMethod?.invoke(clazz) == true
+        }.getOrDefault(false)
+
     private fun <T : Any> subclass(
         clazz: Class<T>,
         interfaces: Array<Class<*>>,
     ): Class<T> =
-        if (Modifier.isFinal(clazz.modifiers)) {
-            log.trace("Taking instance of $clazz itself because it is final.")
-            clazz
-        } else if (interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null) {
-            log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
-            clazz
-        } else {
-            log.trace(
-                "Building subclass proxy for $clazz with " +
-                    "additional interfaces ${interfaces.toList()}",
-            )
-            subclasser.subclass(clazz, interfaces)
+        when {
+            HiddenClasses.isHidden(clazz) -> {
+                log.trace(
+                    "Hidden class $clazz cannot be subclassed nor instrumented; " +
+                        "building proxy over its interfaces delegating to the original instance.",
+                )
+                subclasser.delegateSubclass(clazz, interfaces)
+            }
+            Modifier.isFinal(clazz.modifiers) -> {
+                log.trace("Taking instance of $clazz itself because it is final.")
+                clazz
+            }
+            interfaces.isEmpty() && !Modifier.isAbstract(clazz.modifiers) && inliner != null -> {
+                log.trace("Taking instance of $clazz itself because it is not abstract and no additional interfaces specified.")
+                clazz
+            }
+            else -> {
+                log.trace(
+                    "Building subclass proxy for $clazz with " +
+                        "additional interfaces ${interfaces.toList()}",
+                )
+                subclasser.subclass(clazz, interfaces)
+            }
         }
 
     private fun <T : Any> throwIfNotPossibleToProxy(
@@ -153,7 +199,9 @@ internal class ProxyMaker(
                 throw MockKAgentException(
                     "Failed to create proxy for $clazz.\n$clazz is one of excluded classes",
                 )
-            interfaces.isNotEmpty() && Modifier.isFinal(clazz.modifiers) ->
+            interfaces.isNotEmpty() &&
+                Modifier.isFinal(clazz.modifiers) &&
+                !HiddenClasses.isHidden(clazz) ->
                 throw MockKAgentException(
                     "Failed to create proxy for $clazz.\nMore interfaces requested and class is final.",
                 )

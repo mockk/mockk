@@ -45,6 +45,11 @@ public abstract interface class io/mockk/proxy/MockKInvocationHandler {
 	public abstract fun invocation (Ljava/lang/Object;Ljava/lang/reflect/Method;Ljava/util/concurrent/Callable;[Ljava/lang/Object;)Ljava/lang/Object;
 }
 
+public abstract interface class io/mockk/proxy/MockKProxyDelegate {
+	public abstract fun mockkGetOriginal ()Ljava/lang/Object;
+	public abstract fun mockkSetOriginal (Ljava/lang/Object;)V
+}
+
 public abstract interface class io/mockk/proxy/MockKProxyMaker {
 	public abstract fun proxy (Ljava/lang/Class;[Ljava/lang/Class;Lio/mockk/proxy/MockKInvocationHandler;ZLjava/lang/Object;)Lio/mockk/proxy/Cancelable;
 }

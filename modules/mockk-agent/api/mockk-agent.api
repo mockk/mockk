@@ -27,9 +27,21 @@ public final class io/mockk/proxy/jvm/advice/JdkInternalCallGuard {
 	public final fun isJdkInternalCall (Ljava/lang/Class;Ljava/lang/reflect/Method;)Z
 }
 
+public final class io/mockk/proxy/jvm/advice/OriginMethodResolver {
+	public static final field INSTANCE Lio/mockk/proxy/jvm/advice/OriginMethodResolver;
+	public final fun resolve (Ljava/lang/reflect/Method;Ljava/lang/String;)Ljava/lang/reflect/Method;
+}
+
 public class io/mockk/proxy/jvm/advice/jvm/JvmMockKConstructorProxyAdvice {
 	public static final field Companion Lio/mockk/proxy/jvm/advice/BaseAdvice$Companion;
 	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
+}
+
+public class io/mockk/proxy/jvm/advice/jvm/JvmMockKDelegateProxyInterceptor {
+	public static final field Companion Lio/mockk/proxy/jvm/advice/BaseAdvice$Companion;
+	public static final field ORIGINAL_FIELD Ljava/lang/String;
+	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
+	public static fun intercept (JLjava/lang/Object;Ljava/lang/reflect/Method;Ljava/lang/String;[Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 }
 
 public class io/mockk/proxy/jvm/advice/jvm/JvmMockKHashMapStaticProxyAdvice {
@@ -45,8 +57,8 @@ public class io/mockk/proxy/jvm/advice/jvm/JvmMockKProxyAdvice {
 public class io/mockk/proxy/jvm/advice/jvm/JvmMockKProxyInterceptor {
 	public static final field Companion Lio/mockk/proxy/jvm/advice/BaseAdvice$Companion;
 	public fun <init> (Lio/mockk/proxy/jvm/advice/jvm/MockHandlerMap;)V
-	public static fun intercept (JLjava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;Ljava/util/concurrent/Callable;)Ljava/lang/Object;
-	public static fun interceptNoSuper (JLjava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;
+	public static fun intercept (JLjava/lang/Object;Ljava/lang/reflect/Method;Ljava/lang/String;[Ljava/lang/Object;Ljava/util/concurrent/Callable;)Ljava/lang/Object;
+	public static fun interceptNoSuper (JLjava/lang/Object;Ljava/lang/reflect/Method;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;
 }
 
 public class io/mockk/proxy/jvm/advice/jvm/JvmMockKStaticProxyAdvice {

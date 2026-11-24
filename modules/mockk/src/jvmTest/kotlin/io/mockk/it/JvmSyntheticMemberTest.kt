@@ -1,10 +1,13 @@
 package io.mockk.it
 
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -30,6 +33,11 @@ class JvmSyntheticMemberTest {
     interface SyntheticFunctionInterface {
         @JvmSynthetic
         fun compute(arg: String): String
+    }
+
+    interface SyntheticSuspendFunctionInterface {
+        @JvmSynthetic
+        suspend fun run(): Int
     }
 
     object SyntheticStaticHolder {
@@ -75,6 +83,20 @@ class JvmSyntheticMemberTest {
         assertEquals("out", mock.compute("in"))
         verify { mock.compute("in") }
     }
+
+    /**
+     * https://github.com/mockk/mockk/issues/1282
+     */
+    @Test
+    fun syntheticSuspendInterfaceFunctionIsStubbed() =
+        runTest {
+            val mock = mockk<SyntheticSuspendFunctionInterface>()
+
+            coEvery { mock.run() } returns 1
+
+            assertEquals(1, mock.run())
+            coVerify { mock.run() }
+        }
 
     @Test
     fun syntheticAbstractClassPropertyGetterIsStubbed() {

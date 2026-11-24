@@ -65,6 +65,8 @@ kotlin {
                 implementation("org.junit.jupiter:junit-jupiter")
                 implementation("org.junit.platform:junit-platform-testkit")
                 implementation("org.junit.platform:junit-platform-launcher")
+                // Reproduces issue #1220: relaxed mock of a kotlinx.datetime.Instant property
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
             }
         }
     }
