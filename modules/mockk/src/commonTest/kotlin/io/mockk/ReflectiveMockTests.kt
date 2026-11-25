@@ -3,6 +3,7 @@
 package io.mockk
 
 import kotlin.reflect.KClass
+import kotlin.reflect.KVisibility
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.memberFunctions
 import kotlin.test.Test
@@ -56,8 +57,11 @@ class ReflectiveMockTests {
 
     private inline fun <reified T : Any> mockkWithDefault(noinline defaultAnswer: MockKAnswerScope<Any?, Any?>.(Call) -> Any?): T {
         val mock: T = mockk()
+        // Public members only: `memberFunctions` on the proxy now follows the real Java
+        // hierarchy (#1189), which brings in the protected `Object.clone`/`Object.finalize`
+        // that `KFunction.call` cannot invoke.
         mock.javaClass.kotlin.memberFunctions
-            .filter { !it.isSuspend }
+            .filter { !it.isSuspend && it.visibility == KVisibility.PUBLIC }
             .forEach { func ->
                 every {
                     val params: List<Any?> =
@@ -69,7 +73,7 @@ class ReflectiveMockTests {
             }
 
         mock.javaClass.kotlin.memberFunctions
-            .filter { it.isSuspend }
+            .filter { it.isSuspend && it.visibility == KVisibility.PUBLIC }
             .forEach { func ->
                 coEvery {
                     val params: List<Any?> =
