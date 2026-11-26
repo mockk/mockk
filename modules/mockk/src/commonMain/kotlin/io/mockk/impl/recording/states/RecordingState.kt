@@ -10,9 +10,6 @@ import io.mockk.impl.recording.CallRound
 import io.mockk.impl.recording.CallRoundBuilder
 import io.mockk.impl.recording.CommonCallRecorder
 import io.mockk.impl.recording.SignedCall
-import io.mockk.impl.stub.ConstructorStub
-import io.mockk.impl.stub.Stub
-import io.mockk.impl.stub.StubRepository
 import kotlin.math.max
 import kotlin.reflect.KClass
 
@@ -104,49 +101,7 @@ abstract class RecordingState(
             invocation,
         )
 
-        addConstructedMockArgMatchers(invocation)
-
         return retValue
-    }
-
-    /**
-     * `anyConstructed<T>()` returns the representative mock of the constructor mock, and
-     * calls made on constructed instances are matched through it by substitution
-     * ([io.mockk.impl.stub.ConstructorStub]). When the placeholder is an argument of a call
-     * recorded on another mock - a Kotlin extension function mocked via `mockkStatic` is
-     * compiled to a static call whose receiver is argument #0 - an exact `eq` matcher on the
-     * representative would never match an actually constructed instance (#874). Register a
-     * matcher matching any instance served by the same constructor mock instead.
-     */
-    private fun addConstructedMockArgMatchers(invocation: Invocation) {
-        for (arg in invocation.args) {
-            val isPlaceholder =
-                recorder.constructorPlaceholders.any { it === arg }
-            if (!isPlaceholder || arg == null) {
-                continue
-            }
-
-            val representativeStub = recorder.stubRepo[arg] ?: continue
-            val signature = InternalPlatform.packRef(arg) ?: continue
-            builder().addMatcher(
-                ConstructedMockMatcher(representativeStub, recorder.stubRepo, representativeStub.type),
-                signature,
-            )
-        }
-    }
-
-    private class ConstructedMockMatcher(
-        val representativeStub: Stub,
-        val stubRepository: StubRepository,
-        val cls: KClass<*>,
-    ) : Matcher<Any> {
-        override fun match(arg: Any?): Boolean {
-            val stub = arg?.let(stubRepository::get) ?: return false
-            return stub === representativeStub ||
-                (stub as? ConstructorStub)?.stub === representativeStub
-        }
-
-        override fun toString(): String = "constructedInstanceOf(${cls.simpleName})"
     }
 
     private fun callIsNumberUnboxing(call: RecordedCall): Boolean {

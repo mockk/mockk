@@ -1,5 +1,6 @@
 package io.mockk.it
 
+import io.mockk.EqMatcher
 import io.mockk.MockKException
 import io.mockk.every
 import io.mockk.mockk
@@ -7,6 +8,7 @@ import io.mockk.mockkConstructor
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import io.mockk.verifySequence
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,6 +52,49 @@ class Issue874ExtensionOnConstructorMockTest {
         val myData = MyData("abc")
 
         assertEquals("Mock Ext", myData.ext())
+    }
+
+    @Test
+    fun `extension stub matches only the selected constructor arguments`() {
+        mockkStatic(MyData::ext)
+        mockkConstructor(MyData::class)
+        val selected = EqMatcher("selected")
+        every { constructedWith<MyData>(selected).ext() } returns "mocked"
+
+        assertEquals("mocked", MyData("selected").ext())
+        assertEquals("other - ext", MyData("other").ext())
+        assertEquals("mocked", MyData("selected").ext())
+        verify(exactly = 2) { constructedWith<MyData>(selected).ext() }
+    }
+
+    @Test
+    fun `extension calls can be verified in sequence by constructor arguments`() {
+        mockkStatic(MyData::ext)
+        mockkConstructor(MyData::class)
+        val first = MyData("first")
+        val second = MyData("second")
+        first.ext()
+        second.ext()
+        first.ext()
+
+        verifySequence {
+            constructedWith<MyData>(EqMatcher("first")).ext()
+            constructedWith<MyData>(EqMatcher("second")).ext()
+            constructedWith<MyData>(EqMatcher("first")).ext()
+        }
+    }
+
+    @Test
+    fun `extension stub on a concrete instance stays specific to that instance`() {
+        mockkStatic(MyData::ext)
+        mockkConstructor(MyData::class)
+        val first = MyData("same")
+        val second = MyData("same")
+        every { first.ext() } returns "mocked"
+
+        assertEquals("mocked", first.ext())
+        assertEquals("same - ext", second.ext())
+        verify(exactly = 1) { first.ext() }
     }
 
     @Test
