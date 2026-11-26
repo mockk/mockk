@@ -11,6 +11,7 @@ import org.objenesis.instantiator.ObjectInstantiator
 import java.lang.reflect.Modifier
 import java.util.Collections.synchronizedMap
 import java.util.WeakHashMap
+import kotlin.Metadata
 
 class ObjenesisInstantiator(
     private val log: MockKAgentLogger,
@@ -56,6 +57,13 @@ class ObjenesisInstantiator(
         return instanceViaObjenesis(cls)
     }
 
+    /**
+     * Instantiation proxy for abstract classes. The mocked type's annotations are carried over
+     * to the proxy, but Kotlin's `@Metadata` stays out: it describes the mocked type, not the
+     * generated one, and kotlin-reflect trusts it over the actual Java hierarchy - a proxy that
+     * keeps it reports the mocked type's supertypes (an interface: none besides `Any`) instead
+     * of its own (#1189).
+     */
     private fun <T> instantiateViaProxy(cls: Class<T>): T? {
         val proxyCls =
             if (!Modifier.isAbstract(cls.modifiers)) {
@@ -71,7 +79,7 @@ class ObjenesisInstantiator(
                     {
                         byteBuddy
                             .subclass(cls)
-                            .annotateType(*cls.annotations)
+                            .annotateType(*cls.annotations.filterNot { it is Metadata }.toTypedArray())
                             .make()
                             .load(classLoader)
                             .loaded

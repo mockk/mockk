@@ -31,6 +31,7 @@ import java.io.File
 import java.io.Serializable
 import java.lang.Thread.currentThread
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.Metadata
 
 internal class SubclassInstrumentation(
     private val log: MockKAgentLogger,
@@ -314,6 +315,13 @@ internal class SubclassInstrumentation(
         }
     }
 
+    /**
+     * Builds the proxy type. The mocked type's annotations are carried over to the proxy, but
+     * Kotlin's `@Metadata` stays out: it describes the mocked type, not the generated one, and
+     * kotlin-reflect trusts it over the actual Java hierarchy - an interface proxy that keeps it
+     * reports no implemented interfaces and fails `mock::class.isSubclassOf(Interface::class)`
+     * (#1189). Without it kotlin-reflect falls back to the Java hierarchy, which is correct.
+     */
     private fun <T> buildProxyType(
         byteBuddy: ByteBuddy,
         clazz: Class<T>,
@@ -323,7 +331,7 @@ internal class SubclassInstrumentation(
         byteBuddy
             .subclass(clazz)
             .implement(*interfaces)
-            .annotateType(*clazz.annotations)
+            .annotateType(*clazz.annotations.filterNot { it is Metadata }.toTypedArray())
             .method(any<Any>())
             .intercept(interceptor)
             .attribute(MethodAttributeAppender.ForInstrumentedMethod.INCLUDING_RECEIVER)
