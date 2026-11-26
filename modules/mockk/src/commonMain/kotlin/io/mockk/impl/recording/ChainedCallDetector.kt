@@ -16,11 +16,18 @@ import io.mockk.VarargMatcher
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.log.Logger
 import io.mockk.impl.log.SafeToString
+import io.mockk.impl.stub.ConstructorStub
+import io.mockk.impl.stub.MockKStub
+import io.mockk.impl.stub.MockType
+import io.mockk.impl.stub.StubRepository
 import kotlin.coroutines.Continuation
 
-class ChainedCallDetector(
+class ChainedCallDetector internal constructor(
     safeToString: SafeToString,
+    private val stubRepo: StubRepository?,
 ) {
+    constructor(safeToString: SafeToString) : this(safeToString, null)
+
     val log = safeToString(Logger<ChainedCallDetector>())
 
     val argMatchers = mutableListOf<Matcher<*>>()
@@ -42,21 +49,16 @@ class ChainedCallDetector(
             isStart: Boolean,
             zeroCallValue: Any?,
             matcherBySignature: Matcher<*>?,
-        ): Matcher<*> =
-            if (matcherBySignature == null) {
-                if (allAny) {
-                    ConstantMatcher(true)
-                } else {
-                    eqOrNullMatcher(zeroCallValue)
-                }
-            } else {
-                if (isStart && matcherBySignature is AllAnyMatcher) {
-                    allAny = true
-                    ConstantMatcher<Any>(true)
-                } else {
-                    matcherBySignature
-                }
+        ): Matcher<*> {
+            if (isStart && matcherBySignature is AllAnyMatcher) {
+                allAny = true
+                return ConstantMatcher<Any>(true)
             }
+
+            return matcherBySignature
+                ?: constructedMockMatcher(zeroCallValue)
+                ?: if (allAny) ConstantMatcher<Any>(true) else eqOrNullMatcher(zeroCallValue)
+        }
 
         fun regularArgument(nArgument: Int): Matcher<*> {
             val signature =
@@ -182,6 +184,26 @@ class ChainedCallDetector(
 
         detectArgMatchers()
         call = buildRecordedCall()
+    }
+
+    // A top-level extension receiver is a static method argument on the JVM. Resolve a
+    // constructor prototype at each argument position, including repeated uses of the same prototype.
+    private fun constructedMockMatcher(value: Any?): Matcher<Any>? {
+        if (value == null || stubRepo == null) return null
+        val stub = stubRepo[value] as? MockKStub ?: return null
+        return if (stub.mockType == MockType.CONSTRUCTOR) ConstructedMockMatcher(stub, stubRepo) else null
+    }
+
+    private data class ConstructedMockMatcher(
+        val representative: MockKStub,
+        val stubRepo: StubRepository,
+    ) : Matcher<Any> {
+        override fun match(arg: Any?): Boolean {
+            val stub = arg?.let(stubRepo::get) ?: return false
+            return stub === representative || (stub as? ConstructorStub)?.stub === representative
+        }
+
+        override fun toString(): String = "constructedInstanceOf(${representative.name})"
     }
 
     companion object {
