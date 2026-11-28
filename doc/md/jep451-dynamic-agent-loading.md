@@ -143,6 +143,7 @@ silences it, at the price of disabling CDS entirely.
 ## Linked issues
 
 * [#1171](https://github.com/mockk/mockk/issues/1171) — dynamically loaded agent warning (JEP-451)
+* [#1120](https://github.com/mockk/mockk/issues/1120) — `Sharing is only supported for boot loader classes` warning (covered in "Related warning you may also see" above)
 * [JEP 451: Prepare to Disallow the Dynamic Loading of Agents](https://openjdk.org/jeps/451)
 * [Byte Buddy discussion #1535](https://github.com/raphw/byte-buddy/discussions/1535) — how to define the agent for a test run in Gradle and Maven
 * [mockito/mockito#3037](https://github.com/mockito/mockito/issues/3037) — Mockito's handling of the same change
