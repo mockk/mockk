@@ -124,6 +124,7 @@ From version 1.13.0 MockK supports Kotlin 1.4 and higher
 * PowerMock needs a workaround to run together with MockK [#79](https://github.com/mockk/mockk/issues/79#issuecomment-437646333). (not sure after workaround if it is generally usable or not, please somebody report it)
 * Inline functions cannot be mocked: see the discussion on [this issue](https://github.com/mockk/mockk/issues/27)
 * On JDK 21+, tests print `WARNING: A Java agent has been loaded dynamically` (JEP 451): [read more here](doc/md/jep451-dynamic-agent-loading.md)
+* Some environments print `OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended` (any JDK, benign — Class Data Sharing is skipped because MockK's agent appends to the bootstrap classpath): [read more here](doc/md/jep451-dynamic-agent-loading.md#related-warning-you-may-also-see)
 * Spies, `mockkStatic` may not work on JDK 16+; `InaccessibleObjectException`/`IllegalAccessException`: [read more here](doc/md/jdk16-access-exceptions.md)
 
 Table of contents:
