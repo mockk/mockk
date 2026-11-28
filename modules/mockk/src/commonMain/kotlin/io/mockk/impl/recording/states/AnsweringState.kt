@@ -5,6 +5,7 @@ import io.mockk.Invocation
 import io.mockk.MockKGateway.VerificationParameters
 import io.mockk.impl.log.Logger
 import io.mockk.impl.recording.CommonCallRecorder
+import io.mockk.impl.stub.MockKStub
 
 open class AnsweringState(
     recorder: CommonCallRecorder,
@@ -19,8 +20,12 @@ open class AnsweringState(
             // (issue #1169). Everything else keeps the original order: record first, then
             // answer, regardless of whether an answer matches or throws.
             val answer =
-                stub.answerWithRecordStep(invocation) {
-                    stub.recordCall(invocation.copy(originalCall = { null }))
+                if (stub::class == MockKStub::class && stub is MockKStub) {
+                    stub.answerAndRecord(invocation)
+                } else {
+                    stub.answerWithRecordStep(invocation) {
+                        stub.recordCall(invocation.copy(originalCall = { null }))
+                    }
                 }
             log.debug { "Answering ${answer.toStr()} on $invocation" }
             return answer

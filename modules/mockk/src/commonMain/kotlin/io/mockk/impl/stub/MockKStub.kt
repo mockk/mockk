@@ -3,6 +3,7 @@ package io.mockk.impl.stub
 import io.mockk.Answer
 import io.mockk.BackingFieldValueProvider
 import io.mockk.Call
+import io.mockk.ConstantAnswer
 import io.mockk.EqMatcher
 import io.mockk.InternalPlatformDsl
 import io.mockk.InternalPlatformDsl.toStr
@@ -15,6 +16,7 @@ import io.mockk.NullCheckMatcher
 import io.mockk.StackElement
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.InternalPlatform.customComputeIfAbsent
+import io.mockk.impl.WeakRef
 import io.mockk.impl.log.Logger
 import kotlin.reflect.KClass
 
@@ -36,6 +38,7 @@ open class MockKStub(
     private val recordedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
     private val recordedCallsByMethod =
         InternalPlatform.synchronizedMutableMap<MethodDescription, MutableList<Invocation>>()
+    private val recordedFunctionReturns = lazy { InternalPlatform.weakMap<Invocation, WeakRef>() }
     private val exclusions = InternalPlatform.synchronizedMutableList<InvocationMatcher>()
     private val verifiedCalls = InternalPlatform.synchronizedMutableList<Invocation>()
     private val unansweredCalls = InternalPlatform.synchronizedMutableList<Invocation>()
@@ -57,6 +60,18 @@ open class MockKStub(
     override fun answerWithRecordStep(
         invocation: Invocation,
         recordCallStep: () -> Unit,
+    ): Any? = answerWithSelectedAnswer(invocation) { recordCallStep() }
+
+    internal fun answerAndRecord(invocation: Invocation): Any? =
+        answerWithSelectedAnswer(invocation) { answer ->
+            val recorded = invocation.copy(originalCall = { null })
+            val function = (answer as? ConstantAnswer<*>)?.constantValue as? Function<*>
+            recordCall(recorded, function)
+        }
+
+    private fun answerWithSelectedAnswer(
+        invocation: Invocation,
+        recordCallStep: (Answer<*>?) -> Unit,
     ): Any? {
         val invocationAndMatcher =
             InternalPlatform.synchronized(answers) {
@@ -66,7 +81,7 @@ open class MockKStub(
             }
 
         if (invocationAndMatcher == null) {
-            recordCallStep()
+            recordCallStep(null)
             return defaultAnswer(invocation)
         }
 
@@ -78,7 +93,7 @@ open class MockKStub(
                 // filled: verify(timeout) polls the recorded-calls lists and is woken by the
                 // recording, so it can never pass while the captured arguments are still
                 // missing (issue #1169).
-                recordCallStep()
+                recordCallStep(answer)
 
                 val call =
                     Call(
@@ -157,7 +172,12 @@ open class MockKStub(
             else -> false
         }
 
-    override fun recordCall(invocation: Invocation) {
+    override fun recordCall(invocation: Invocation) = recordCall(invocation, null)
+
+    private fun recordCall(
+        invocation: Invocation,
+        function: Function<*>?,
+    ) {
         val record =
             when {
                 checkExcluded(invocation) -> {
@@ -172,6 +192,10 @@ open class MockKStub(
             recordedCalls.add(invocation)
 
             InternalPlatform.synchronized(recordedCallsByMethod) {
+                // Publish the selected constant with the method record that verification reads.
+                if (function != null) {
+                    recordedFunctionReturns.value[invocation] = InternalPlatform.weakRef(function)
+                }
                 recordedCallsByMethod
                     .getOrPut(invocation.method) { mutableListOf() }
                     .add(invocation)
@@ -197,6 +221,19 @@ open class MockKStub(
             return recordedCallsByMethod[method]?.toList() ?: listOf()
         }
     }
+
+    internal fun callsExceptThoseReturningFunction(
+        method: MethodDescription,
+        function: Any,
+    ): List<Invocation> =
+        InternalPlatform.synchronized(recordedCallsByMethod) {
+            val calls = recordedCallsByMethod[method].orEmpty()
+            if (recordedFunctionReturns.isInitialized()) {
+                calls.filterNot { recordedFunctionReturns.value[it]?.value === function }
+            } else {
+                calls.toList()
+            }
+        }
 
     /**
      * Marks [invocation] as reached-but-unanswered: it either found no stubbed answer
@@ -385,7 +422,10 @@ open class MockKStub(
         }
         if (options.recordedCalls) {
             this.recordedCalls.clear()
-            this.recordedCallsByMethod.clear()
+            InternalPlatform.synchronized(recordedCallsByMethod) {
+                recordedCallsByMethod.clear()
+                if (recordedFunctionReturns.isInitialized()) recordedFunctionReturns.value.clear()
+            }
             this.unansweredCalls.clear()
         }
         if (options.childMocks) {
