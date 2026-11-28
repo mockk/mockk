@@ -5,6 +5,7 @@ import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.Invocation
 import io.mockk.InvocationMatcher
 import io.mockk.Matcher
+import io.mockk.MethodDescription
 import io.mockk.MockKException
 import io.mockk.MockKGateway.CallVerifier
 import io.mockk.MockKGateway.VerificationParameters
@@ -15,10 +16,13 @@ import io.mockk.TypedMatcher
 import io.mockk.impl.InternalPlatform
 import io.mockk.impl.Ref
 import io.mockk.impl.log.SafeToString
+import io.mockk.impl.stub.MockKStub
 import io.mockk.impl.stub.StubRepository
 import io.mockk.impl.verify.VerificationHelpers.formatCalls
 import io.mockk.impl.verify.VerificationHelpers.stackTrace
 import io.mockk.impl.verify.VerificationHelpers.stackTraces
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.javaGetter
 
 open class UnorderedCallVerifier(
     val stubRepo: StubRepository,
@@ -33,13 +37,28 @@ open class UnorderedCallVerifier(
         val min = params.min
         val max = params.max
 
+        val functionReceivers =
+            if (min == 0 && max == 0) {
+                verificationSequence
+                    .mapNotNull { call ->
+                        val receiver = call.selfChain ?: return@mapNotNull null
+                        val getter = receiver.matcher.method
+                        val method = call.matcher.method
+                        if (method.isFnCall && method.name == "invoke" && getter.isPropertyGetter()) {
+                            InternalPlatform.ref(receiver) to call.matcher.self
+                        } else {
+                            null
+                        }
+                    }.toMap()
+            } else {
+                emptyMap()
+            }
         val verifiedCalls = mutableSetOf<Ref>()
         for ((i, call) in verificationSequence.withIndex()) {
             val callIdxMsg = safeToString.exec { "call ${i + 1} of ${verificationSequence.size}: ${call.matcher}" }
 
-            when (
-                val result = matchCall(call, min, max, callIdxMsg)
-            ) {
+            val function = if (functionReceivers.isEmpty()) null else functionReceivers[InternalPlatform.ref(call)]
+            when (val result = matchCall(call, min, max, callIdxMsg, function)) {
                 is VerificationResult.OK ->
                     verifiedCalls.addAll(
                         result
@@ -57,6 +76,7 @@ open class UnorderedCallVerifier(
         min: Int,
         max: Int,
         callIdxMsg: String,
+        functionReceiver: Any?,
     ): VerificationResult {
         val matcher = recordedCall.matcher
         val stub = stubRepo.stubFor(matcher.self)
@@ -67,8 +87,14 @@ open class UnorderedCallVerifier(
         // indexing into the possibly stale allCallsForMock is what crashed
         // verify(timeout = ..., exactly = n) with NoSuchElementException on an empty list.
         val allCallsForMock = stub.allRecordedCalls()
-        val allCallsForMockMethod = stub.allRecordedCalls(matcher.method)
-
+        // A function invocation also reads its property. A read of the same function
+        // mock that invoke verifies does not count toward the zero-invocation check.
+        val allCallsForMockMethod =
+            if (functionReceiver != null && stub is MockKStub) {
+                stub.callsExceptThoseReturningFunction(matcher.method, functionReceiver)
+            } else {
+                stub.allRecordedCalls(matcher.method)
+            }
         val matchedCalls = allCallsForMockMethod.filter(matcher::match)
 
         if (matchedCalls.size > 1 && matcher.args.any { it is CapturingSlotMatcher<*> }) {
@@ -200,6 +226,12 @@ open class UnorderedCallVerifier(
 
         return result
     }
+
+    private fun MethodDescription.isPropertyGetter(): Boolean =
+        paramTypes.isEmpty() &&
+            runCatching {
+                declaringClass.declaredMemberProperties.any { it.javaGetter?.name == name }
+            }.getOrDefault(false)
 
     override fun captureArguments() = captureBlocks.forEach { it() }
 
